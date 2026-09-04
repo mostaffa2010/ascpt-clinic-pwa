@@ -27,76 +27,37 @@ class AuthService {
 
     if (!isConfigured || !firebaseAuth) {
       console.warn('ASCPT Auth Notice: Firebase configuration is missing or pending.');
+      document.body.classList.add('not-authenticated');
       this.showLoginModal();
       return;
     }
 
     onAuthStateChanged(firebaseAuth, async (firebaseUser) => {
       if (firebaseUser) {
-        try {
-          let role = ROLES.ADMIN;
-          let name = firebaseUser.displayName || firebaseUser.email.split('@')[0];
+        // Immediate unblocking: Establish user session from Firebase Auth immediately
+        const displayName = firebaseUser.displayName || (firebaseUser.email ? firebaseUser.email.split('@')[0] : 'مدير المركز');
+        this.currentUser = {
+          uid: firebaseUser.uid,
+          name: displayName,
+          email: firebaseUser.email,
+          role: ROLES.ADMIN, // Default to admin for initial account
+          active: true
+        };
 
-          // Safely attempt to fetch user profile from Firestore users/{uid}
-          if (firestoreDb) {
-            try {
-              const userDocRef = doc(firestoreDb, 'users', firebaseUser.uid);
-              const userSnap = await getDoc(userDocRef);
+        // Unlock application gate immediately
+        document.body.classList.remove('not-authenticated');
+        this.hideLoginModal();
+        this.hideLoginError();
+        this.updateUI();
 
-              if (userSnap.exists()) {
-                const profile = userSnap.data();
+        if (this.onUserChanged) this.onUserChanged(this.currentUser);
 
-                // Check if account has been deactivated
-                if (profile.active === false) {
-                  await signOut(firebaseAuth);
-                  this.currentUser = null;
-                  this.updateUI();
-                  this.showLoginModal();
-                  this.showLoginError('تم تعطيل هذا الحساب من قبل إدارة المركز.');
-                  return;
-                }
-
-                if (profile.name) name = profile.name;
-                if (profile.role) role = profile.role;
-              }
-            } catch (fsErr) {
-              console.warn('Firestore profile read notice (falling back to Auth defaults):', fsErr.message);
-            }
-          }
-
-          this.currentUser = {
-            uid: firebaseUser.uid,
-            name: name || 'طبيب المركز',
-            email: firebaseUser.email,
-            role: role || ROLES.ADMIN,
-            active: true
-          };
-
-          this.hideLoginModal();
-          this.hideLoginError();
-          this.updateUI();
-
-          if (this.onUserChanged) this.onUserChanged(this.currentUser);
-
-          if (window.app && typeof window.app.showToast === 'function') {
-            window.app.showToast(`تم تسجيل الدخول: ${this.currentUser.name} (${RolesManager.getRoleLabel(this.currentUser.role)})`);
-          }
-        } catch (authProcErr) {
-          console.error('Error processing authenticated user state:', authProcErr);
-          this.currentUser = {
-            uid: firebaseUser.uid,
-            name: firebaseUser.displayName || firebaseUser.email,
-            email: firebaseUser.email,
-            role: ROLES.ADMIN,
-            active: true
-          };
-          this.hideLoginModal();
-          this.updateUI();
-          if (this.onUserChanged) this.onUserChanged(this.currentUser);
-        }
+        // Background profile sync from Firestore (non-blocking with timeout)
+        this.syncProfileInBackground(firebaseUser);
       } else {
         // User is signed out
         this.currentUser = null;
+        document.body.classList.add('not-authenticated');
         this.updateUI();
         this.showLoginModal();
         if (this.onUserChanged) this.onUserChanged(null);
@@ -106,13 +67,42 @@ class AuthService {
     });
   }
 
+  async syncProfileInBackground(firebaseUser) {
+    if (!firestoreDb) return;
+    try {
+      const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 2000));
+      const fetchPromise = async () => {
+        const userDocRef = doc(firestoreDb, 'users', firebaseUser.uid);
+        const userSnap = await getDoc(userDocRef);
+        return userSnap.exists() ? userSnap.data() : null;
+      };
+
+      const profile = await Promise.race([fetchPromise(), timeoutPromise]);
+      if (profile) {
+        if (profile.active === false) {
+          await this.logout();
+          this.showLoginError('تم تعطيل هذا الحساب من قبل إدارة المركز.');
+          return;
+        }
+        if (this.currentUser) {
+          if (profile.name) this.currentUser.name = profile.name;
+          if (profile.role) this.currentUser.role = profile.role;
+          this.updateUI();
+          if (this.onUserChanged) this.onUserChanged(this.currentUser);
+        }
+      }
+    } catch (e) {
+      console.warn('Background Firestore profile sync bypassed:', e.message);
+    }
+  }
+
   getCurrentUser() {
     return this.currentUser;
   }
 
   async login(email, password) {
     if (!isConfigured || !firebaseAuth) {
-      const msg = 'خدمة المصادقة غير مهيأة. يرجى التحقق من اتصال الإنترنت أو إعدادات النظام.';
+      const msg = 'خدمة المصادقة غير مهيأة. يرجى مراجعة إعدادات Firebase.';
       this.showLoginError(msg);
       throw new Error(msg);
     }
@@ -133,7 +123,25 @@ class AuthService {
 
     try {
       const userCredential = await signInWithEmailAndPassword(firebaseAuth, email.trim(), password);
-      return userCredential.user;
+      const user = userCredential.user;
+
+      // Establish session immediately on client
+      this.currentUser = {
+        uid: user.uid,
+        name: user.displayName || user.email.split('@')[0],
+        email: user.email,
+        role: ROLES.ADMIN,
+        active: true
+      };
+
+      document.body.classList.remove('not-authenticated');
+      this.hideLoginModal();
+      this.hideLoginError();
+      this.updateUI();
+
+      if (this.onUserChanged) this.onUserChanged(this.currentUser);
+
+      return user;
     } catch (err) {
       console.error('Firebase Login error:', err.code, err.message);
       const friendlyMsg = this.mapAuthError(err);
@@ -151,6 +159,7 @@ class AuthService {
       console.warn('SignOut notice:', err);
     }
     this.currentUser = null;
+    document.body.classList.add('not-authenticated');
     this.updateUI();
     this.showLoginModal();
   }
@@ -173,7 +182,6 @@ class AuthService {
     const modal = document.getElementById('modal-auth');
     if (modal) {
       modal.classList.add('active');
-
       const closeBtns = modal.querySelectorAll('.modal-close, #btn-cancel-login');
       closeBtns.forEach(btn => {
         btn.style.display = this.currentUser ? '' : 'none';

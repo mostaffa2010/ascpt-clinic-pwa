@@ -1260,3 +1260,29 @@ input, textarea, [contenteditable="true"] {
   user-select: text !important;
   -webkit-touch-callout: default !important;
 }
+
+/* ================= Production Authentication Gate ================= */
+body.not-authenticated .app-container,
+body.not-authenticated .top-header,
+body.not-authenticated .bottom-nav {
+  display: none !important;
+}
+
+body.not-authenticated #modal-auth {
+  display: flex !important;
+  position: fixed !important;
+  inset: 0 !important;
+  background: #f1f5f9 !important;
+  z-index: 999999 !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+body.not-authenticated #modal-auth .modal-content {
+  box-shadow: 0 25px 50px -12px rgba(15, 23, 42, 0.25) !important;
+}
+
+body.not-authenticated #modal-auth .modal-close,
+body.not-authenticated #modal-auth #btn-cancel-login {
+  display: none !important;
+}

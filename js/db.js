@@ -1,87 +1,46 @@
 // ========================================================
-// ASCPT - Data Access Layer (DAL) & Storage Provider Architecture
-// Architecture Boundary: UI -> Feature Layer -> DatabaseService (DAL) -> StorageProvider
+// ASCPT - Data Access Layer (DAL) & Production Storage Provider
+// Clean clinic database engine - Zero demo data
 // ========================================================
 
-import { DEMO_PATIENTS, DEMO_SESSIONS, DEMO_EXPENSES, DEMO_USERS } from './demo-data.js';
-
 /**
- * LocalStorageProvider
- * Encapsulates all browser local storage and demo mock dataset operations.
- * Isolates demo storage logic from the production Data Access Layer.
+ * CleanStorageProvider
+ * Manages clean clinic data with zero preloaded demo records.
+ * Purges legacy demo keys on initialization to start fresh.
  */
-class LocalStorageProvider {
+class CleanStorageProvider {
   constructor() {
-    this.initStorage();
+    this.purgeLegacyDemoStorage();
   }
 
   get isCloud() {
     return false;
   }
 
-  initStorage(force = false) {
-    if (!localStorage.getItem('pc_demo_v3_september_full') || force) {
-      localStorage.setItem('pc_demo_v3_september_full', 'true');
-      localStorage.setItem('pc_demo_patients', JSON.stringify(DEMO_PATIENTS));
-      localStorage.setItem('pc_demo_sessions', JSON.stringify(DEMO_SESSIONS));
-      localStorage.setItem('pc_demo_expenses', JSON.stringify(DEMO_EXPENSES));
-      localStorage.setItem('pc_demo_users', JSON.stringify(DEMO_USERS));
-      localStorage.setItem('pc_demo_audit', JSON.stringify([
-        {
-          id: 'log-init',
-          userName: 'نظام المركز',
-          userRole: 'النظام',
-          actionType: 'تجهيز قاعدة البيانات',
-          description: 'تم تحميل قاعدة البيانات الأولية بنجاح',
-          timestamp: new Date().toLocaleString('ar-EG-u-nu-latn'),
-          timestampRaw: Date.now()
-        }
-      ]));
-    }
+  purgeLegacyDemoStorage() {
+    // Thoroughly flush all legacy demo keys from user's device
+    const legacyKeys = [
+      'pc_demo_v3_september_full',
+      'pc_demo_patients',
+      'pc_demo_sessions',
+      'pc_demo_expenses',
+      'pc_demo_users',
+      'pc_demo_audit',
+      'pc_demo_active_user',
+      'pc_demo_onboarding_seen',
+      'pc_sb_patients',
+      'pc_sb_sessions',
+      'pc_claim_treatments'
+    ];
+    legacyKeys.forEach(k => {
+      try { localStorage.removeItem(k); } catch (_) {}
+    });
   }
 
-  resetDemo() {
-    localStorage.setItem('pc_demo_v3_september_full', 'true');
-    localStorage.setItem('pc_demo_patients', JSON.stringify(DEMO_PATIENTS));
-    localStorage.setItem('pc_demo_sessions', JSON.stringify(DEMO_SESSIONS));
-    localStorage.setItem('pc_demo_expenses', JSON.stringify(DEMO_EXPENSES));
-    localStorage.setItem('pc_demo_users', JSON.stringify(DEMO_USERS));
-
-    localStorage.setItem('pc_demo_audit', JSON.stringify([
-      {
-        id: 'log-reset-' + Date.now(),
-        userName: 'نظام المركز',
-        userRole: 'النظام',
-        actionType: 'إعادة ضبط البيانات',
-        description: 'تمت استعادة البيانات التجريبية الأولية بنجاح.',
-        timestamp: new Date().toLocaleString('ar-EG-u-nu-latn'),
-        timestampRaw: Date.now()
-      }
-    ]));
-
-    localStorage.removeItem('pc_opt_modality');
-    localStorage.removeItem('pc_opt_procedure');
-    localStorage.removeItem('pc_opt_exercise');
-    localStorage.removeItem('pc_sb_opt_modality');
-    localStorage.removeItem('pc_sb_opt_procedure');
-    localStorage.removeItem('pc_sb_opt_exercise');
-    localStorage.removeItem('pc_claim_treatments');
-
-    if (DEMO_USERS && DEMO_USERS.length > 0) {
-      localStorage.setItem('pc_demo_active_user', JSON.stringify(DEMO_USERS[0]));
-    }
-
-    for (let i = localStorage.length - 1; i >= 0; i--) {
-      const k = localStorage.key(i);
-      if (k && k.startsWith('pc_') && !['pc_demo_v3_september_full', 'pc_demo_patients', 'pc_demo_sessions', 'pc_demo_expenses', 'pc_demo_users', 'pc_demo_audit', 'pc_demo_active_user', 'pc_demo_onboarding_seen'].includes(k)) {
-        localStorage.removeItem(k);
-      }
-    }
-  }
-
+  // Patients (Clean clinic database)
   async getPatients() {
-    const raw = localStorage.getItem('pc_demo_patients');
-    return raw ? JSON.parse(raw) : DEMO_PATIENTS;
+    const raw = localStorage.getItem('ascpt_patients');
+    return raw ? JSON.parse(raw) : [];
   }
 
   async savePatient(patientData, currentUser) {
@@ -110,20 +69,21 @@ class LocalStorageProvider {
       patients.unshift(newPatient);
     }
 
-    localStorage.setItem('pc_demo_patients', JSON.stringify(patients));
+    localStorage.setItem('ascpt_patients', JSON.stringify(patients));
     return isEdit ? 'updated' : 'created';
   }
 
   async deletePatient(patientId) {
     let patients = await this.getPatients();
     patients = patients.filter(p => p.id !== patientId);
-    localStorage.setItem('pc_demo_patients', JSON.stringify(patients));
+    localStorage.setItem('ascpt_patients', JSON.stringify(patients));
     return true;
   }
 
+  // Sessions (Clean clinic database)
   async getSessions(filterDate = null) {
-    const raw = localStorage.getItem('pc_demo_sessions');
-    let sessions = raw ? JSON.parse(raw) : DEMO_SESSIONS;
+    const raw = localStorage.getItem('ascpt_sessions');
+    let sessions = raw ? JSON.parse(raw) : [];
     if (filterDate) {
       if (filterDate.length === 7) {
         sessions = sessions.filter(s => s.date && s.date.startsWith(filterDate));
@@ -158,20 +118,21 @@ class LocalStorageProvider {
       sessions.unshift(newSession);
       res = newSession;
     }
-    localStorage.setItem('pc_demo_sessions', JSON.stringify(sessions));
+    localStorage.setItem('ascpt_sessions', JSON.stringify(sessions));
     return res;
   }
 
   async deleteSession(sessionId) {
     let sessions = await this.getSessions();
     sessions = sessions.filter(s => s.id !== sessionId);
-    localStorage.setItem('pc_demo_sessions', JSON.stringify(sessions));
+    localStorage.setItem('ascpt_sessions', JSON.stringify(sessions));
     return true;
   }
 
+  // Expenses (Clean clinic database)
   async getExpenses(filterDate = null) {
-    const raw = localStorage.getItem('pc_demo_expenses');
-    let expenses = raw ? JSON.parse(raw) : DEMO_EXPENSES;
+    const raw = localStorage.getItem('ascpt_expenses');
+    let expenses = raw ? JSON.parse(raw) : [];
     if (filterDate) {
       if (filterDate.length === 7) {
         expenses = expenses.filter(e => e.date && e.date.startsWith(filterDate));
@@ -191,45 +152,47 @@ class LocalStorageProvider {
       recordedBy: currentUser?.name || 'مدير المركز'
     };
     expenses.unshift(newExp);
-    localStorage.setItem('pc_demo_expenses', JSON.stringify(expenses));
+    localStorage.setItem('ascpt_expenses', JSON.stringify(expenses));
     return newExp;
   }
 
   async deleteExpense(expenseId) {
     let expenses = await this.getExpenses();
     expenses = expenses.filter(e => e.id !== expenseId);
-    localStorage.setItem('pc_demo_expenses', JSON.stringify(expenses));
+    localStorage.setItem('ascpt_expenses', JSON.stringify(expenses));
     return true;
   }
 
+  // Users (Clean staff list)
   async getUsers() {
-    const raw = localStorage.getItem('pc_demo_users');
-    return raw ? JSON.parse(raw) : DEMO_USERS;
+    const raw = localStorage.getItem('ascpt_users');
+    return raw ? JSON.parse(raw) : [];
   }
 
   async saveUser(userData) {
     const users = await this.getUsers();
     const newUser = { ...userData, id: 'u-' + Date.now() };
     users.push(newUser);
-    localStorage.setItem('pc_demo_users', JSON.stringify(users));
+    localStorage.setItem('ascpt_users', JSON.stringify(users));
     return newUser;
   }
 
   async deleteUser(userId) {
     let users = await this.getUsers();
     users = users.filter(u => u.id !== userId);
-    localStorage.setItem('pc_demo_users', JSON.stringify(users));
+    localStorage.setItem('ascpt_users', JSON.stringify(users));
     return true;
   }
 
   async getDoctors() {
     const users = await this.getUsers();
     const docs = users.filter(u => u.role === 'doctor' || u.role === 'admin').map(u => u.name);
-    return docs.length > 0 ? Array.from(new Set(docs)) : ['د. مصطفى محمود', 'د. أحمد خليل', 'د. سارة عادل', 'د. كريم إبراهيم'];
+    return Array.from(new Set(docs)); // Strictly empty if no doctors registered yet!
   }
 
+  // Audit Logs
   async getAuditLogs() {
-    const raw = localStorage.getItem('pc_demo_audit');
+    const raw = localStorage.getItem('ascpt_audit');
     return raw ? JSON.parse(raw) : [];
   }
 
@@ -245,14 +208,15 @@ class LocalStorageProvider {
       timestampRaw: Date.now()
     };
     logs.unshift(newLog);
-    if (logs.length > 150) logs.pop();
-    localStorage.setItem('pc_demo_audit', JSON.stringify(logs));
+    if (logs.length > 200) logs.pop();
+    localStorage.setItem('ascpt_audit', JSON.stringify(logs));
   }
 
+  // Backup & Restore
   async createFullBackup() {
     return {
       timestamp: new Date().toISOString(),
-      center: 'ASCPT Clinic Management',
+      center: 'مركز اسكندرية التخصصي للعلاج الطبيعي (ASCPT)',
       patients: await this.getPatients(),
       sessions: await this.getSessions(),
       expenses: await this.getExpenses(),
@@ -265,14 +229,15 @@ class LocalStorageProvider {
     if (!backupData || !Array.isArray(backupData.patients)) {
       throw new Error('الملف غير صالح');
     }
-    localStorage.setItem('pc_demo_patients', JSON.stringify(backupData.patients || []));
-    localStorage.setItem('pc_demo_sessions', JSON.stringify(backupData.sessions || []));
-    localStorage.setItem('pc_demo_expenses', JSON.stringify(backupData.expenses || []));
+    localStorage.setItem('ascpt_patients', JSON.stringify(backupData.patients || []));
+    localStorage.setItem('ascpt_sessions', JSON.stringify(backupData.sessions || []));
+    localStorage.setItem('ascpt_expenses', JSON.stringify(backupData.expenses || []));
     return true;
   }
 
+  // Clinical Options (Standard physical therapy modalities, procedures, exercises)
   getClinicalOptions(category) {
-    const key = 'pc_opt_' + category;
+    const key = 'ascpt_opt_' + category;
     const raw = localStorage.getItem(key);
     if (raw) return JSON.parse(raw);
 
@@ -314,7 +279,7 @@ class LocalStorageProvider {
     const list = this.getClinicalOptions(category);
     if (!list.includes(name)) {
       list.push(name);
-      localStorage.setItem('pc_opt_' + category, JSON.stringify(list));
+      localStorage.setItem('ascpt_opt_' + category, JSON.stringify(list));
     }
     return list;
   }
@@ -322,12 +287,13 @@ class LocalStorageProvider {
   async deleteClinicalOption(category, name) {
     let list = this.getClinicalOptions(category);
     list = list.filter(item => item !== name);
-    localStorage.setItem('pc_opt_' + category, JSON.stringify(list));
+    localStorage.setItem('ascpt_opt_' + category, JSON.stringify(list));
     return list;
   }
 
+  // Insurance Companies Registry
   getInsuranceCompanies(contractType = 'direct') {
-    const key = 'pc_ins_' + contractType;
+    const key = 'ascpt_ins_' + contractType;
     const raw = localStorage.getItem(key);
     if (raw) return JSON.parse(raw);
 
@@ -353,7 +319,7 @@ class LocalStorageProvider {
     const list = this.getInsuranceCompanies(contractType);
     if (!list.includes(name.trim())) {
       list.push(name.trim());
-      localStorage.setItem('pc_ins_' + contractType, JSON.stringify(list));
+      localStorage.setItem('ascpt_ins_' + contractType, JSON.stringify(list));
     }
     return list;
   }
@@ -361,34 +327,18 @@ class LocalStorageProvider {
   async deleteInsuranceCompany(contractType, name) {
     let list = this.getInsuranceCompanies(contractType);
     list = list.filter(item => item !== name.trim());
-    localStorage.setItem('pc_ins_' + contractType, JSON.stringify(list));
+    localStorage.setItem('ascpt_ins_' + contractType, JSON.stringify(list));
     return list;
   }
 }
 
 /**
- * FirestoreStorageProvider (Architectural scaffold for Phase 3)
- * Will be populated with Firestore collections and real cloud operations in Phase 3.
- */
-class FirestoreStorageProvider {
-  constructor(firestoreInstance) {
-    this.firestore = firestoreInstance;
-  }
-  get isCloud() {
-    return true;
-  }
-}
-
-/**
  * DatabaseService
- * Unified Data Access Layer (DAL) Coordinator
- * The application modules only interact with DatabaseService,
- * which delegates to the active StorageProvider.
+ * Unified DAL Coordinator
  */
 class DatabaseService {
   constructor() {
-    // Active provider defaults to LocalStorageProvider during Phase 1 baseline
-    this.provider = new LocalStorageProvider();
+    this.provider = new CleanStorageProvider();
   }
 
   setProvider(newProvider) {
@@ -397,12 +347,6 @@ class DatabaseService {
 
   get isCloud() {
     return this.provider.isCloud;
-  }
-
-  resetDemo() {
-    if (typeof this.provider.resetDemo === 'function') {
-      this.provider.resetDemo();
-    }
   }
 
   getPatients() { return this.provider.getPatients(); }

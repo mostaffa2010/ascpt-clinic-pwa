@@ -550,7 +550,7 @@ export class ClaimsManager {
         <div class="attendance-card-print-page">
           <div style="text-align: right; line-height: 1.4; border-bottom: 2px solid #000; padding-bottom: 6px; margin-bottom: 16px;">
             <h2 style="font-size: 13pt; margin: 0; font-weight: 800; color: #0284c7;">مركز فيزيو فلو للعلاج الطبيعي والتأهيل (PhysioFlow)</h2>
-            <div style="font-size: 10pt; font-weight: 700; color: #0f172a;">د/ مصطفى محمود</div>
+            <div style="font-size: 10pt; font-weight: 700; color: #0f172a;">طبيب المركز</div>
             <div style="font-size: 8.5pt; color: #475569;">أخصائي العلاج الطبيعي والتأهيل الحركي</div>
           </div>
 
@@ -587,7 +587,7 @@ export class ClaimsManager {
           <div style="display: flex; justify-content: flex-end; margin-top: 50px; padding-left: 20px;">
             <div style="text-align: center;">
               <div style="font-size: 10.5pt; font-weight: bold;">أخصائي العلاج الطبيعي</div>
-              <div style="font-size: 10pt; margin-top: 4px;">د/ مصطفى محمود</div>
+              <div style="font-size: 10pt; margin-top: 4px;">طبيب المركز</div>
               <div style="margin-top: 35px; border-bottom: 1.5px solid #000; width: 150px;"></div>
             </div>
           </div>
