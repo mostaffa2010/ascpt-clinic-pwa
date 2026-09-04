@@ -4,7 +4,7 @@
 // Version: 1.0.0 (Cache: ascpt-clinic-v1.0.0)
 // ========================================================
 
-const CACHE_NAME = 'ascpt-clinic-v1.0.0';
+const CACHE_NAME = 'ascpt-clinic-v1.1.0';
 
 // App Shell assets required for offline rendering
 // (Note: demo-data.js is retained in app shell strictly during Phase 1 working baseline)

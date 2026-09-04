@@ -154,20 +154,9 @@ class App {
     window.alert = (msg) => this.showAlert(msg, 'تنبيه المركز', 'info');
     window.confirm = (msg) => this.showConfirm(msg, 'تأكيد الإجراء');
 
-        // ربط أزرار دليل الـ Demo والنافذة التعريفية
-    document.getElementById('btn-open-demo-guide')?.addEventListener('click', () => this.openDemoOnboarding());
-    document.getElementById('sidebar-btn-demo-guide')?.addEventListener('click', () => this.openDemoOnboarding());
-    document.getElementById('btn-dismiss-onboarding')?.addEventListener('click', () => this.dismissDemoOnboarding());
-    document.getElementById('btn-close-demo-onboarding')?.addEventListener('click', () => this.dismissDemoOnboarding());
 
-    // إظهار النافذة التعريفية تلقائياً عند أول دخول فقط
-    if (localStorage.getItem('pc_demo_onboarding_seen') !== 'true') {
-      setTimeout(() => {
-        this.openDemoOnboarding();
-      }, 600);
-    }
 
-    console.log('PhysioFlow Demo Application fully initialized.');
+    console.log('ASCPT Clinic Management System fully initialized.');
   }
 
   bindNavigation() {
@@ -187,9 +176,16 @@ class App {
       });
     });
 
-    // Logout Buttons
-    document.getElementById('btn-logout-mobile')?.addEventListener('click', () => auth.logout());
-    document.getElementById('btn-logout-desktop')?.addEventListener('click', () => auth.logout());
+    // Logout Buttons with Confirmation
+    const handleLogout = async () => {
+      const confirmed = await this.showConfirm('هل ترغب في تسجيل الخروج من نظام المركز؟', 'تأكيد تسجيل الخروج');
+      if (confirmed) {
+        await auth.logout();
+        this.showToast('تم تسجيل الخروج بنجاح.');
+      }
+    };
+    document.getElementById('btn-logout-mobile')?.addEventListener('click', handleLogout);
+    document.getElementById('btn-logout-desktop')?.addEventListener('click', handleLogout);
   }
 
   switchView(viewName, isBackNavigation = false) {
@@ -257,21 +253,57 @@ class App {
         const email = document.getElementById('login-email')?.value.trim();
         const password = document.getElementById('login-password')?.value;
         const errMsg = document.getElementById('login-error-msg');
+        const btnLogin = document.getElementById('btn-do-login');
+        const btnText = document.getElementById('btn-login-text');
 
         if (!email || !password) {
-          await this.showAlert('يرجى إدخال البريد الإلكتروني وكلمة المرور للمتابعة.', 'بيانات الدخول مطلوبة', 'warning');
+          if (errMsg) {
+            errMsg.textContent = 'يرجى إدخال البريد الإلكتروني وكلمة السر للمتابعة.';
+            errMsg.style.display = 'block';
+          }
           return;
         }
 
-        const result = await auth.login(email, password);
-        if (!result.success) {
-          errMsg.textContent = result.message;
-          errMsg.style.display = 'block';
-        } else {
-          errMsg.style.display = 'none';
+        try {
+          if (btnLogin) {
+            btnLogin.disabled = true;
+            if (btnText) btnText.textContent = 'جاري تسجيل الدخول...';
+          }
+          await auth.login(email, password);
+          // Modal is dismissed automatically via auth onAuthStateChanged
+        } catch (err) {
+          if (errMsg) {
+            errMsg.textContent = err.message || 'فشل تسجيل الدخول، يرجى مراجعة البيانات.';
+            errMsg.style.display = 'block';
+          }
+        } finally {
+          if (btnLogin) {
+            btnLogin.disabled = false;
+            if (btnText) btnText.textContent = 'تسجيل الدخول';
+          }
         }
       });
     }
+
+    // Toggle Password Visibility
+    const btnTogglePassword = document.getElementById('btn-toggle-password');
+    if (btnTogglePassword) {
+      btnTogglePassword.addEventListener('click', () => {
+        const pwdInput = document.getElementById('login-password');
+        const icon = document.getElementById('icon-toggle-password');
+        if (pwdInput) {
+          const isPassword = pwdInput.type === 'password';
+          pwdInput.type = isPassword ? 'text' : 'password';
+          if (icon) {
+            icon.className = isPassword ? 'fa-solid fa-eye-slash' : 'fa-solid fa-eye';
+          }
+        }
+      });
+    }
+
+    // Close Auth Modal buttons
+    document.getElementById('btn-close-auth-modal')?.addEventListener('click', () => auth.hideLoginModal());
+    document.getElementById('btn-cancel-login')?.addEventListener('click', () => auth.hideLoginModal());
 
     document.querySelectorAll('.modal-backdrop').forEach(modal => {
       modal.addEventListener('click', (e) => {
@@ -353,18 +385,7 @@ class App {
       btn.addEventListener('click', () => this.calendarSelectQuick(btn.getAttribute('data-cal-quick')));
     });
 
-    // Sales Banner, Demo & Training Buttons
-    document.getElementById('btn-reset-demo-data')?.addEventListener('click', () => this.resetDemoData());
-    ['demo-role-select-desktop'].forEach(selId => {
-      document.getElementById(selId)?.addEventListener('change', (e) => auth.switchRole(e.target.value));
-    });
-    document.getElementById('btn-reset-training-data')?.addEventListener('click', () => this.resetTrainingData());
-    document.getElementById('btn-exit-training-data')?.addEventListener('click', () => this.toggleTrainingMode(false));
-    document.getElementById('btn-toggle-training-desktop')?.addEventListener('click', () => this.toggleTrainingMode());
-    document.getElementById('btn-auth-demo-mode')?.addEventListener('click', () => {
-      this.toggleTrainingMode(true);
-      this.closeModal('modal-auth');
-    });
+
 
     // Patient Picker Modal: Add New Patient Action
     document.getElementById('btn-picker-add-new-patient')?.addEventListener('click', () => {
@@ -462,18 +483,7 @@ class App {
     });
   }
 
-  // ================= Demo Showcase & Onboarding Methods =================
-  openDemoOnboarding() {
-    this.openModal('modal-demo-onboarding');
-  }
 
-  dismissDemoOnboarding() {
-    const chk = document.getElementById('chk-dont-show-onboarding');
-    if (chk && chk.checked) {
-      localStorage.setItem('pc_demo_onboarding_seen', 'true');
-    }
-    this.closeModal('modal-demo-onboarding');
-  }
 
   async resetDemoData() {
     const confirmed = await this.showConfirm(

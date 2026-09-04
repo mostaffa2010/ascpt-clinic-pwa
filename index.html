@@ -48,24 +48,7 @@
     <p id="print-report-meta">التاريخ: 2026-09-04 | وقت الطباعة: 10:00 م</p>
   </div>
 
-    <!-- Demo & Sales Showcase Banner -->
-  <div class="demo-showcase-bar no-print" style="display: none !important;">
-    <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
-      <span class="badge" style="background-color: #f59e0b; color: #ffffff; font-weight: 800; font-size: 0.76rem; padding: 3px 8px; border-radius: 9999px;">نسخة عرض تفاعلية Demo</span>
-      <span style="font-size: 0.85rem; font-weight: 700; color: #0c4a6e;">نظام PhysioFlow لإدارة مراكز العلاج الطبيعي • 190 مريض وسجلات 3 أشهر كاملة (يوليو، أغسطس، وسبتمبر بالكامل)</span>
-    </div>
-    <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
-      <button type="button" class="btn btn-outline btn-sm" id="btn-open-demo-guide" style="background-color: #ffffff; color: #0369a1; border-color: #bae6fd; font-weight: 700; padding: 4px 10px; font-size: 0.78rem;" title="دليل تجربة الديمو">
-        <i class="fa-solid fa-circle-question"></i> كيف تستخدم الـ Demo؟
-      </button>
-      <button type="button" class="btn btn-outline btn-sm" style="background-color: #ffffff; color: #0284c7; border-color: #bae6fd; font-weight: 700; padding: 4px 10px; font-size: 0.78rem;" id="btn-reset-demo-data" title="استعادة الـ 185 مريض وسجلات الشهرين">
-        <i class="fa-solid fa-rotate-left"></i> إعادة تعيين بيانات الديمو
-      </button>
-      <a href="https://wa.me/201098164067?text=مرحباً%20دكتور%20مصطفى،%20أنا%20جربت%20الديمو%20ومهتم%20بطلب%20البرنامج%20لمركزي" target="_blank" class="btn btn-sm btn-success" style="font-weight: 800; font-size: 0.78rem; padding: 4px 12px; text-decoration: none;">
-        <i class="fa-brands fa-whatsapp"></i> طلب البرنامج (واتساب: 01098164067)
-      </a>
-    </div>
-  </div>
+    
 
   <!-- Mobile Top Header -->
     <header class="top-header no-print">
@@ -139,10 +122,7 @@
           <i class="fa-solid fa-user-shield"></i>
           <span>لوحة المدير والصلاحيات</span>
         </button>
-        <button type="button" class="nav-link" id="sidebar-btn-demo-guide" style="color: var(--primary); font-weight: 700; border-top: 1px dashed var(--border-color); margin-top: 6px; padding-top: 10px;">
-          <i class="fa-solid fa-circle-question"></i>
-          <span>كيف تستخدم الـ Demo؟</span>
-        </button>
+        
       </nav>
 
       <div class="sidebar-user-box" style="margin-top: auto; padding: 14px; border-top: 1px solid var(--border-color);">
@@ -1434,78 +1414,54 @@
 
   <!-- Modal 3: Authentication / Login -->
   <div class="modal-backdrop" id="modal-auth" style="z-index: 230;">
-    <div class="modal-content" style="max-width: 440px; border-radius: 12px; overflow: hidden; padding: 0;">
+    <div class="modal-content" style="max-width: 420px; border-radius: 14px; overflow: hidden; padding: 0; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);">
       <!-- Header -->
-      <div class="modal-header" style="background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%); border-bottom: 1.5px solid #bae6fd; padding: 14px 18px; display: flex; justify-content: space-between; align-items: center;">
-        <h3 style="margin: 0; font-size: 1.1rem; color: var(--primary); font-weight: 800; display: flex; align-items: center; gap: 8px;">
-          <i class="fa-solid fa-users-gear"></i> تسجيل الدخول واختيار الحساب
-        </h3>
-        <button type="button" class="modal-close" onclick="auth.hideLoginModal()" style="font-size: 1.3rem; background: none; border: none; cursor: pointer; color: var(--text-muted);">&times;</button>
+      <div class="modal-header" style="background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%); color: #ffffff; padding: 18px 20px; display: flex; justify-content: space-between; align-items: center;">
+        <div>
+          <h3 style="margin: 0; font-size: 1.15rem; color: #ffffff; font-weight: 800; display: flex; align-items: center; gap: 8px;">
+            <i class="fa-solid fa-hospital-user"></i> تسجيل الدخول
+          </h3>
+          <p style="margin: 3px 0 0 0; font-size: 0.78rem; opacity: 0.9; color: #e0f2fe;">مركز اسكندرية التخصصي للعلاج الطبيعي</p>
+        </div>
+        <button type="button" class="modal-close" id="btn-close-auth-modal" style="font-size: 1.3rem; background: none; border: none; cursor: pointer; color: #ffffff;">&times;</button>
       </div>
 
-      <!-- Body: 3 Demo Accounts -->
-      <div class="modal-body" style="padding: 16px 18px;">
-        <p style="font-size: 0.84rem; color: var(--text-muted); margin-bottom: 14px; line-height: 1.4;">
-          اختر الحساب الذي ترغب في تجربة نظام <strong>PhysioFlow</strong> من خلاله لمعاينة الصلاحيات والشاشات المخصصة لكل دور:
-        </p>
-
-        <div style="display: flex; flex-direction: column; gap: 10px;">
-          <!-- Account 1: Admin / Clinic Director -->
-          <div class="demo-account-card" onclick="auth.switchRole('admin')" style="background: #ffffff; border: 1.5px solid #bae6fd; border-radius: 10px; padding: 12px; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; gap: 12px;">
-            <div style="width: 44px; height: 44px; border-radius: 10px; background: #e0f2fe; color: #0284c7; display: flex; align-items: center; justify-content: center; font-size: 1.25rem; flex-shrink: 0;">
-              <i class="fa-solid fa-crown"></i>
-            </div>
-            <div style="flex: 1; overflow: hidden;">
-              <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 2px;">
-                <strong style="color: #0f172a; font-size: 0.95rem;">د. مصطفى محمود</strong>
-                <span class="badge" style="background: #e0f2fe; color: #0369a1; font-size: 0.72rem; font-weight: 800; padding: 2px 8px; border-radius: 6px;">مدير المركز</span>
-              </div>
-              <div style="font-size: 0.76rem; color: var(--text-muted); line-height: 1.3;">
-                صلاحيات كاملة • التقارير المالية، إحصائيات الأطباء، وتخصيص النظام
-              </div>
-            </div>
-            <i class="fa-solid fa-chevron-left" style="color: var(--primary); font-size: 0.85rem;"></i>
+      <!-- Body: Login Form -->
+      <div class="modal-body" style="padding: 20px 22px;">
+        <form id="form-login" novalidate>
+          <div class="form-group" style="margin-bottom: 14px;">
+            <label for="login-email" style="display: block; font-size: 0.85rem; font-weight: 700; color: #334155; margin-bottom: 6px;">
+              <i class="fa-solid fa-envelope" style="color: var(--primary);"></i> البريد الإلكتروني
+            </label>
+            <input type="email" id="login-email" class="form-control" placeholder="doctor@ascpt.clinic" required autocomplete="username" style="width: 100%; border-radius: 8px; padding: 10px 12px; font-size: 0.9rem; border: 1.5px solid var(--border-color);" dir="ltr">
           </div>
 
-          <!-- Account 2: Treating Doctor -->
-          <div class="demo-account-card" onclick="auth.switchRole('doctor')" style="background: #ffffff; border: 1.5px solid var(--border-color); border-radius: 10px; padding: 12px; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; gap: 12px;">
-            <div style="width: 44px; height: 44px; border-radius: 10px; background: #f1f5f9; color: #475569; display: flex; align-items: center; justify-content: center; font-size: 1.25rem; flex-shrink: 0;">
-              <i class="fa-solid fa-user-doctor"></i>
+          <div class="form-group" style="margin-bottom: 14px;">
+            <label for="login-password" style="display: block; font-size: 0.85rem; font-weight: 700; color: #334155; margin-bottom: 6px;">
+              <i class="fa-solid fa-lock" style="color: var(--primary);"></i> كلمة السر
+            </label>
+            <div style="position: relative;">
+              <input type="password" id="login-password" class="form-control" placeholder="••••••••" required autocomplete="current-password" style="width: 100%; border-radius: 8px; padding: 10px 40px 10px 12px; font-size: 0.9rem; border: 1.5px solid var(--border-color);" dir="ltr">
+              <button type="button" id="btn-toggle-password" style="position: absolute; left: 10px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; color: #64748b; font-size: 0.95rem;" title="إظهار / إخفاء كلمة السر">
+                <i class="fa-solid fa-eye" id="icon-toggle-password"></i>
+              </button>
             </div>
-            <div style="flex: 1; overflow: hidden;">
-              <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 2px;">
-                <strong style="color: #0f172a; font-size: 0.95rem;">د. أحمد خليل</strong>
-                <span class="badge" style="background: #f1f5f9; color: #334155; font-size: 0.72rem; font-weight: 800; padding: 2px 8px; border-radius: 6px;">طبيب معالج</span>
-              </div>
-              <div style="font-size: 0.76rem; color: var(--text-muted); line-height: 1.3;">
-                متابعة المرضى، شيتات العلاج الطبيعي، وتسجيل الجلسات السريرية
-              </div>
-            </div>
-            <i class="fa-solid fa-chevron-left" style="color: var(--text-muted); font-size: 0.85rem;"></i>
           </div>
 
-          <!-- Account 3: Receptionist / Secretary -->
-          <div class="demo-account-card" onclick="auth.switchRole('receptionist')" style="background: #ffffff; border: 1.5px solid var(--border-color); border-radius: 10px; padding: 12px; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; gap: 12px;">
-            <div style="width: 44px; height: 44px; border-radius: 10px; background: #fef3c7; color: #d97706; display: flex; align-items: center; justify-content: center; font-size: 1.25rem; flex-shrink: 0;">
-              <i class="fa-solid fa-clipboard-user"></i>
-            </div>
-            <div style="flex: 1; overflow: hidden;">
-              <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 2px;">
-                <strong style="color: #0f172a; font-size: 0.95rem;">أ. منار خالد</strong>
-                <span class="badge" style="background: #fef3c7; color: #92400e; font-size: 0.72rem; font-weight: 800; padding: 2px 8px; border-radius: 6px;">استقبال العيادة</span>
-              </div>
-              <div style="font-size: 0.76rem; color: var(--text-muted); line-height: 1.3;">
-                تسجيل المرضى الجدد، حضور الجلسات، وتحصيل المقبوضات اليومية
-              </div>
-            </div>
-            <i class="fa-solid fa-chevron-left" style="color: var(--text-muted); font-size: 0.85rem;"></i>
-          </div>
-        </div>
+          <!-- Error message container -->
+          <div id="login-error-msg" style="display: none; background-color: #fef2f2; border: 1px solid #fecaca; color: #dc2626; border-radius: 8px; padding: 9px 12px; font-size: 0.82rem; margin-bottom: 14px; line-height: 1.4;"></div>
+
+          <button type="submit" id="btn-do-login" class="btn btn-primary" style="width: 100%; padding: 11px; border-radius: 8px; font-weight: 800; font-size: 0.92rem; display: flex; align-items: center; justify-content: center; gap: 8px;">
+            <i class="fa-solid fa-right-to-bracket"></i>
+            <span id="btn-login-text">تسجيل الدخول</span>
+          </button>
+        </form>
       </div>
 
       <!-- Footer -->
-      <div class="modal-footer" style="padding: 10px 18px; background: var(--bg-subtle); display: flex; justify-content: flex-end;">
-        <button type="button" class="btn btn-outline btn-sm" onclick="auth.hideLoginModal()" style="border-radius: 8px; font-weight: 700;">إلغاء</button>
+      <div class="modal-footer" style="padding: 10px 20px; background: var(--bg-subtle); display: flex; justify-content: space-between; align-items: center;">
+        <span style="font-size: 0.74rem; color: var(--text-muted);">نظام آمن • ASCPT Clinic PWA</span>
+        <button type="button" class="btn btn-outline btn-sm" id="btn-cancel-login" style="border-radius: 8px; font-weight: 700; display: none;">إلغاء</button>
       </div>
     </div>
   </div>

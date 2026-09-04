@@ -21,12 +21,12 @@ if (isConfigured) {
     firebaseApp = existingApps.length > 0 ? existingApps[0] : initializeApp(cfg);
     firebaseAuth = getAuth(firebaseApp);
     firestoreDb = getFirestore(firebaseApp);
-    console.log('ASCPT Firebase v12.18.0 initialized successfully for project:', cfg.projectId);
+    console.log('ASCPT Firebase v12.18.0 connected to project:', cfg.projectId);
   } catch (err) {
     console.error('ASCPT Firebase initialization error:', err);
   }
 } else {
-  console.warn('ASCPT Firebase Notice: Configuration is pending. Provide firebaseConfig to initialize cloud services.');
+  console.warn('ASCPT Firebase Notice: Configuration is pending.');
 }
 
 export { firebaseApp, firebaseAuth, firestoreDb, isConfigured };
