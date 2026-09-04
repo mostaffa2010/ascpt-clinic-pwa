@@ -2,9 +2,9 @@
   "name": "مركز اسكندرية التخصصي للعلاج الطبيعي - ASCPT",
   "short_name": "ASCPT",
   "description": "نظام إدارة مركز اسكندرية التخصصي للعلاج الطبيعي والتأهيل الطبي",
-  "start_url": "./index.html",
-  "scope": "./",
-  "id": "./",
+  "start_url": "/",
+  "scope": "/",
+  "id": "/",
   "display": "standalone",
   "background_color": "#f8fafc",
   "theme_color": "#0284c7",
@@ -37,5 +37,5 @@
       "purpose": "maskable"
     }
   ],
-  "version": "1.0.0"
+  "version": "1.1.1"
 }

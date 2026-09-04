@@ -10,9 +10,7 @@ import {
 } from 'https://www.gstatic.com/firebasejs/12.18.0/firebase-auth.js';
 import {
   doc,
-  getDoc,
-  setDoc,
-  serverTimestamp
+  getDoc
 } from 'https://www.gstatic.com/firebasejs/12.18.0/firebase-firestore.js';
 import { firebaseAuth, firestoreDb, isConfigured } from './firebase-init.js';
 import { RolesManager, ROLES } from './roles.js';
@@ -36,55 +34,43 @@ class AuthService {
     onAuthStateChanged(firebaseAuth, async (firebaseUser) => {
       if (firebaseUser) {
         try {
-          // Fetch user profile from Firestore users/{uid}
-          const userDocRef = doc(firestoreDb, 'users', firebaseUser.uid);
-          const userSnap = await getDoc(userDocRef);
+          let role = ROLES.ADMIN;
+          let name = firebaseUser.displayName || firebaseUser.email.split('@')[0];
 
-          if (userSnap.exists()) {
-            const profile = userSnap.data();
-
-            // Check if user is active
-            if (profile.active === false) {
-              await signOut(firebaseAuth);
-              this.currentUser = null;
-              this.updateUI();
-              this.showLoginModal();
-              this.showLoginError('تم تعطيل هذا الحساب من قبل إدارة المركز.');
-              return;
-            }
-
-            this.currentUser = {
-              uid: firebaseUser.uid,
-              name: profile.name || firebaseUser.displayName || 'طبيب المركز',
-              email: firebaseUser.email,
-              role: profile.role || ROLES.DOCTOR,
-              active: true
-            };
-          } else {
-            // First Admin Bootstrap: If user doc does not exist yet (e.g. director's first login)
-            const initialAdminProfile = {
-              uid: firebaseUser.uid,
-              name: firebaseUser.displayName || 'مدير المركز',
-              email: firebaseUser.email,
-              role: ROLES.ADMIN,
-              active: true,
-              createdAt: serverTimestamp()
-            };
-
+          // Safely attempt to fetch user profile from Firestore users/{uid}
+          if (firestoreDb) {
             try {
-              await setDoc(userDocRef, initialAdminProfile);
-              this.currentUser = initialAdminProfile;
-            } catch (err) {
-              console.warn('Could not auto-create admin doc:', err);
-              this.currentUser = {
-                uid: firebaseUser.uid,
-                name: 'مدير المركز',
-                email: firebaseUser.email,
-                role: ROLES.ADMIN,
-                active: true
-              };
+              const userDocRef = doc(firestoreDb, 'users', firebaseUser.uid);
+              const userSnap = await getDoc(userDocRef);
+
+              if (userSnap.exists()) {
+                const profile = userSnap.data();
+
+                // Check if account has been deactivated
+                if (profile.active === false) {
+                  await signOut(firebaseAuth);
+                  this.currentUser = null;
+                  this.updateUI();
+                  this.showLoginModal();
+                  this.showLoginError('تم تعطيل هذا الحساب من قبل إدارة المركز.');
+                  return;
+                }
+
+                if (profile.name) name = profile.name;
+                if (profile.role) role = profile.role;
+              }
+            } catch (fsErr) {
+              console.warn('Firestore profile read notice (falling back to Auth defaults):', fsErr.message);
             }
           }
+
+          this.currentUser = {
+            uid: firebaseUser.uid,
+            name: name || 'طبيب المركز',
+            email: firebaseUser.email,
+            role: role || ROLES.ADMIN,
+            active: true
+          };
 
           this.hideLoginModal();
           this.hideLoginError();
@@ -92,16 +78,16 @@ class AuthService {
 
           if (this.onUserChanged) this.onUserChanged(this.currentUser);
 
-          if (window.app) {
+          if (window.app && typeof window.app.showToast === 'function') {
             window.app.showToast(`تم تسجيل الدخول: ${this.currentUser.name} (${RolesManager.getRoleLabel(this.currentUser.role)})`);
           }
-        } catch (profileErr) {
-          console.error('Error fetching user profile from Firestore:', profileErr);
+        } catch (authProcErr) {
+          console.error('Error processing authenticated user state:', authProcErr);
           this.currentUser = {
             uid: firebaseUser.uid,
-            name: firebaseUser.displayName || firebaseUser.email.split('@')[0],
+            name: firebaseUser.displayName || firebaseUser.email,
             email: firebaseUser.email,
-            role: ROLES.DOCTOR,
+            role: ROLES.ADMIN,
             active: true
           };
           this.hideLoginModal();
@@ -126,15 +112,21 @@ class AuthService {
 
   async login(email, password) {
     if (!isConfigured || !firebaseAuth) {
-      throw new Error('خدمة المصادقة غير مهيأة.');
+      const msg = 'خدمة المصادقة غير مهيأة. يرجى التحقق من اتصال الإنترنت أو إعدادات النظام.';
+      this.showLoginError(msg);
+      throw new Error(msg);
     }
 
     if (!email || !email.trim()) {
-      throw new Error('يرجى إدخال البريد الإلكتروني.');
+      const msg = 'يرجى إدخال البريد الإلكتروني.';
+      this.showLoginError(msg);
+      throw new Error(msg);
     }
 
     if (!password) {
-      throw new Error('يرجى إدخال كلمة السر.');
+      const msg = 'يرجى إدخال كلمة السر.';
+      this.showLoginError(msg);
+      throw new Error(msg);
     }
 
     this.hideLoginError();
@@ -143,7 +135,7 @@ class AuthService {
       const userCredential = await signInWithEmailAndPassword(firebaseAuth, email.trim(), password);
       return userCredential.user;
     } catch (err) {
-      console.error('Login error:', err);
+      console.error('Firebase Login error:', err.code, err.message);
       const friendlyMsg = this.mapAuthError(err);
       this.showLoginError(friendlyMsg);
       throw new Error(friendlyMsg);
@@ -151,8 +143,12 @@ class AuthService {
   }
 
   async logout() {
-    if (firebaseAuth) {
-      await signOut(firebaseAuth);
+    try {
+      if (firebaseAuth) {
+        await signOut(firebaseAuth);
+      }
+    } catch (err) {
+      console.warn('SignOut notice:', err);
     }
     this.currentUser = null;
     this.updateUI();
@@ -162,15 +158,15 @@ class AuthService {
   mapAuthError(err) {
     const code = err?.code || '';
     const errorMap = {
-      'auth/invalid-credential': 'البريد الإلكتروني أو كلمة السر غير صحيحة.',
+      'auth/invalid-credential': 'البريد الإلكتروني أو كلمة السر غير صحيحة. يرجى التأكد من الحروف وحالة الأحرف.',
       'auth/user-not-found': 'لا يوجد حساب مسجل بهذا البريد الإلكتروني.',
       'auth/wrong-password': 'كلمة السر غير صحيحة.',
       'auth/invalid-email': 'صيغة البريد الإلكتروني غير صالحة.',
       'auth/user-disabled': 'تم تعطيل هذا الحساب من قبل إدارة المركز.',
-      'auth/too-many-requests': 'تم حظر المحاولات مؤقتاً لكثرة المحاولات الخاطئة. يرجى الانتظار قليلاً.',
-      'auth/network-request-failed': 'تعذر الاتصال بالخادم. يرجى التحقق من اتصال الإنترنت.'
+      'auth/too-many-requests': 'تم حظر المحاولات مؤقتاً لكثرة المحاولات الخاطئة. يرجى الانتظار دقيقة والمحاولة مجدداً.',
+      'auth/network-request-failed': 'تعذر الاتصال بخوادم Firebase. يرجى التحقق من اتصال الإنترنت.'
     };
-    return errorMap[code] || 'حدث خطأ أثناء تسجيل الدخول. يرجى التحقق من البيانات والمحاولة مجدداً.';
+    return errorMap[code] || 'حدث خطأ أثناء تسجيل الدخول. يرجى التأكد من البيانات والمحاولة مجدداً.';
   }
 
   showLoginModal() {
@@ -178,7 +174,6 @@ class AuthService {
     if (modal) {
       modal.classList.add('active');
 
-      // If user is unauthenticated, hide close buttons to enforce login barrier
       const closeBtns = modal.querySelectorAll('.modal-close, #btn-cancel-login');
       closeBtns.forEach(btn => {
         btn.style.display = this.currentUser ? '' : 'none';
@@ -187,7 +182,7 @@ class AuthService {
   }
 
   hideLoginModal() {
-    if (!this.currentUser) return; // Cannot dismiss if not logged in
+    if (!this.currentUser) return; // Cannot close modal if unauthenticated
     const modal = document.getElementById('modal-auth');
     if (modal) modal.classList.remove('active');
   }

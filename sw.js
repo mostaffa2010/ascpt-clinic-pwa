@@ -1,14 +1,14 @@
 // ========================================================
 // ASCPT - Service Worker & Offline PWA Cache Engine
 // Alexandria Specialized Center for Physical Therapy
-// Version: 1.0.0 (Cache: ascpt-clinic-v1.0.0)
+// Version: 1.1.1 (Cache: ascpt-clinic-v1.1.1)
 // ========================================================
 
-const CACHE_NAME = 'ascpt-clinic-v1.1.0';
+const CACHE_NAME = 'ascpt-clinic-v1.1.1';
 
 // App Shell assets required for offline rendering
-// (Note: demo-data.js is retained in app shell strictly during Phase 1 working baseline)
 const APP_SHELL_ASSETS = [
+  '/',
   './',
   './index.html',
   './manifest.json',
@@ -62,20 +62,37 @@ self.addEventListener('activate', (event) => {
 });
 
 // Cache-First with Network Revalidation for PWA App Shell
-// (Excludes external Firebase SDK CDN calls to allow standard browser/CDN caching)
 self.addEventListener('fetch', (event) => {
   if (event.request.method !== 'GET') return;
   if (!event.request.url.startsWith('http')) return;
 
-  // Do not intercept or cache external Firebase SDK calls in this Service Worker
+  // Exclude external Firebase SDK calls to allow direct browser/CDN handling
   if (event.request.url.includes('gstatic.com') || event.request.url.includes('googleapis.com')) {
+    return;
+  }
+
+  // Normalize navigation requests to root / index.html
+  if (event.request.mode === 'navigate' || event.request.url.endsWith('/index.html')) {
+    event.respondWith(
+      caches.match(event.request)
+        .then((cachedResponse) => {
+          if (cachedResponse) return cachedResponse;
+          return caches.match('./index.html') || caches.match('/') || caches.match('./');
+        })
+        .then((cached) => {
+          if (cached) return cached;
+          return fetch(event.request);
+        })
+        .catch(() => {
+          return caches.match('./index.html') || caches.match('/') || caches.match('./');
+        })
+    );
     return;
   }
 
   event.respondWith(
     caches.match(event.request).then((cachedResponse) => {
       if (cachedResponse) {
-        // Return cached asset immediately & refresh in background when online
         fetch(event.request).then((networkResponse) => {
           if (networkResponse && networkResponse.status === 200) {
             const clone = networkResponse.clone();
@@ -87,7 +104,6 @@ self.addEventListener('fetch', (event) => {
         return cachedResponse;
       }
 
-      // If not in cache, fetch from network and store in cache
       return fetch(event.request)
         .then((networkResponse) => {
           if (networkResponse && networkResponse.status === 200) {
@@ -99,10 +115,7 @@ self.addEventListener('fetch', (event) => {
           return networkResponse;
         })
         .catch(() => {
-          if (event.request.mode === 'navigate') {
-            return caches.match('./index.html') || caches.match('./');
-          }
-          return caches.match('./index.html');
+          return caches.match('./index.html') || caches.match('/');
         });
     })
   );

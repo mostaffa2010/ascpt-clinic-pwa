@@ -33,15 +33,16 @@ service cloud.firestore {
 
     // ================= 1. Staff Users Collection =================
     match /users/{userId} {
-      // Authenticated active staff can read user directory (to populate doctors in dropdowns)
-      allow read: if isAuthenticated() && isUserActive();
+      // Authenticated users can read their own profile to verify their role/active status,
+      // and active staff can read the full staff directory (to populate doctors dropdowns)
+      allow read: if isAuthenticated() && (request.auth.uid == userId || isUserActive());
 
       // Client-side user creation is strictly forbidden.
       // Users must be created exclusively via the Backend Admin Serverless Function.
       allow create: if false;
 
       // Client-side updates to users/{userId}:
-      // Critical security and authorization fields are STRICTLY Backend-controlled:
+      // Critical security fields are STRICTLY Backend-controlled:
       // (role, active, createdBy, createdAt) CANNOT be altered from any client, even by an Admin.
       allow update: if isAuthenticated() && isUserActive() &&
         // 1. Enforce strict immutability of security-critical fields from all clients:
@@ -63,11 +64,8 @@ service cloud.firestore {
     // ================= 2. Patients & Clinical Sheets =================
     match /patients/{patientId} {
       allow read: if isAuthenticated() && isUserActive();
-      // Only Admin and Receptionist can create new patient files
       allow create: if (isAdmin() || isReceptionist());
-      // Doctors can update clinical sheets; Receptionists can update demographics
       allow update: if isAuthenticated() && isUserActive();
-      // Deletions: Admin and Receptionist only
       allow delete: if (isAdmin() || isReceptionist());
     }
 
@@ -80,21 +78,13 @@ service cloud.firestore {
 
     // ================= 4. Expenses & Clinic Financials =================
     match /expenses/{expenseId} {
-      // Financial records are strictly restricted to Administrator
       allow read, write: if isAdmin();
     }
 
     // ================= 5. Audit Trail & Logs =================
     match /audit_logs/{logId} {
-      // Audit logs are readable only by Administrator
       allow read: if isAdmin();
-
-      // Audit logs are completely immutable once created (No update or delete allowed)
       allow update, delete: if false;
-
-      // Client creation is strictly guarded to prevent arbitrary/fake logs:
-      // Administrative/security operations (user creation, activation, deactivation)
-      // are strictly logged via the Backend Admin SDK and will be rejected here.
       allow create: if isAuthenticated() && isUserActive() &&
         request.resource.data.userId == request.auth.uid &&
         request.resource.data.userRole == getUserRole() &&

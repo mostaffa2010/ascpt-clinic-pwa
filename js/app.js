@@ -247,53 +247,74 @@ class App {
 
   bindModalsAndAuth() {
     const formLogin = document.getElementById('form-login');
+    const btnLogin = document.getElementById('btn-do-login');
+    const emailInput = document.getElementById('login-email');
+    const passwordInput = document.getElementById('login-password');
+    const errMsg = document.getElementById('login-error-msg');
+    const btnText = document.getElementById('btn-login-text');
+
+    const handleLoginAction = async (e) => {
+      if (e) {
+        try { e.preventDefault(); } catch (_) {}
+        try { e.stopPropagation(); } catch (_) {}
+      }
+
+      const email = emailInput?.value?.trim();
+      const password = passwordInput?.value;
+
+      if (!email || !password) {
+        if (errMsg) {
+          errMsg.textContent = 'يرجى إدخال البريد الإلكتروني وكلمة السر للمتابعة.';
+          errMsg.style.display = 'block';
+        }
+        return;
+      }
+
+      try {
+        if (btnLogin) {
+          btnLogin.disabled = true;
+          if (btnText) btnText.textContent = 'جاري تسجيل الدخول...';
+        }
+        if (errMsg) errMsg.style.display = 'none';
+
+        await auth.login(email, password);
+      } catch (err) {
+        if (errMsg) {
+          errMsg.textContent = err.message || 'فشل تسجيل الدخول، يرجى مراجعة البيانات.';
+          errMsg.style.display = 'block';
+        }
+      } finally {
+        if (btnLogin) {
+          btnLogin.disabled = false;
+          if (btnText) btnText.textContent = 'تسجيل الدخول';
+        }
+      }
+    };
+
     if (formLogin) {
-      formLogin.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const email = document.getElementById('login-email')?.value.trim();
-        const password = document.getElementById('login-password')?.value;
-        const errMsg = document.getElementById('login-error-msg');
-        const btnLogin = document.getElementById('btn-do-login');
-        const btnText = document.getElementById('btn-login-text');
-
-        if (!email || !password) {
-          if (errMsg) {
-            errMsg.textContent = 'يرجى إدخال البريد الإلكتروني وكلمة السر للمتابعة.';
-            errMsg.style.display = 'block';
-          }
-          return;
-        }
-
-        try {
-          if (btnLogin) {
-            btnLogin.disabled = true;
-            if (btnText) btnText.textContent = 'جاري تسجيل الدخول...';
-          }
-          await auth.login(email, password);
-          // Modal is dismissed automatically via auth onAuthStateChanged
-        } catch (err) {
-          if (errMsg) {
-            errMsg.textContent = err.message || 'فشل تسجيل الدخول، يرجى مراجعة البيانات.';
-            errMsg.style.display = 'block';
-          }
-        } finally {
-          if (btnLogin) {
-            btnLogin.disabled = false;
-            if (btnText) btnText.textContent = 'تسجيل الدخول';
-          }
-        }
-      });
+      formLogin.addEventListener('submit', handleLoginAction);
     }
+    if (btnLogin) {
+      btnLogin.addEventListener('click', handleLoginAction);
+    }
+    passwordInput?.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') handleLoginAction(e);
+    });
+    emailInput?.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        passwordInput?.focus();
+      }
+    });
 
     // Toggle Password Visibility
     const btnTogglePassword = document.getElementById('btn-toggle-password');
     if (btnTogglePassword) {
       btnTogglePassword.addEventListener('click', () => {
-        const pwdInput = document.getElementById('login-password');
-        const icon = document.getElementById('icon-toggle-password');
-        if (pwdInput) {
-          const isPassword = pwdInput.type === 'password';
-          pwdInput.type = isPassword ? 'text' : 'password';
+        if (passwordInput) {
+          const isPassword = passwordInput.type === 'password';
+          passwordInput.type = isPassword ? 'text' : 'password';
+          const icon = document.getElementById('icon-toggle-password');
           if (icon) {
             icon.className = isPassword ? 'fa-solid fa-eye-slash' : 'fa-solid fa-eye';
           }
