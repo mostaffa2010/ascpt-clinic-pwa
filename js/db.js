@@ -18,7 +18,7 @@ import {
 import { firestoreDb, isConfigured } from './firebase-init.js';
 import { CLINIC_CONFIG } from './clinic-config.js';
 
-const withTimeout = (promise, ms = 3000) => {
+const withTimeout = (promise, ms = 3500) => {
   return Promise.race([
     promise,
     new Promise((_, reject) => setTimeout(() => reject(new Error('Firestore timeout')), ms))
@@ -28,6 +28,7 @@ const withTimeout = (promise, ms = 3000) => {
 class FirestoreDatabaseService {
   constructor() {
     this.purgeLegacyDemoStorage();
+    this.syncOptionsFromFirestore();
   }
 
   get isCloud() {
@@ -109,12 +110,10 @@ class FirestoreDatabaseService {
   }
 
   async deletePatient(patientId) {
-    // 1. Instant local cache update
     let cachedPatients = await this.getPatients();
     cachedPatients = cachedPatients.filter(p => p.id !== patientId);
     localStorage.setItem('ascpt_patients', JSON.stringify(cachedPatients));
 
-    // 2. Cloud Firestore delete
     if (this.isCloud) {
       try {
         await withTimeout(deleteDoc(doc(firestoreDb, 'patients', patientId)), 3500);
@@ -168,7 +167,6 @@ class FirestoreDatabaseService {
       dataToSave.createdAt = new Date().toISOString();
     }
 
-    // Local cache update
     const sessions = await this.getSessions();
     if (isEdit) {
       const idx = sessions.findIndex(s => s.id === sessionId);
@@ -178,7 +176,6 @@ class FirestoreDatabaseService {
     }
     localStorage.setItem('ascpt_sessions', JSON.stringify(sessions));
 
-    // Cloud Firestore write
     if (this.isCloud) {
       try {
         await withTimeout(setDoc(doc(firestoreDb, 'sessions', sessionId), dataToSave, { merge: true }), 3500);
@@ -381,8 +378,10 @@ class FirestoreDatabaseService {
     }
   }
 
-  // ================= 6. Clinical Options =================
-  async getClinicalOptions(category) {
+  // ================= 6. Synchronous Clinical Options (With Background Cloud Sync) =================
+  // MUST remain synchronous so that UI renders (renderCategoryChips, renderAllClinicalChips)
+  // receive an immediate Array and NEVER throw '.map() on Promise'
+  getClinicalOptions(category) {
     const key = 'ascpt_opt_' + category;
     const defaults = {
       modality: [
@@ -414,32 +413,17 @@ class FirestoreDatabaseService {
       ]
     };
 
-    if (this.isCloud) {
-      try {
-        const snap = await withTimeout(getDoc(doc(firestoreDb, 'clinical_options', category)), 2500);
-        if (snap.exists()) {
-          const list = snap.data().items || [];
-          localStorage.setItem(key, JSON.stringify(list));
-          return list;
-        } else {
-          // Initialize defaults in Firestore
-          const list = defaults[category] || [];
-          await setDoc(doc(firestoreDb, 'clinical_options', category), { items: list });
-          localStorage.setItem(key, JSON.stringify(list));
-          return list;
-        }
-      } catch (_) {}
-    }
-
     const raw = localStorage.getItem(key);
-    if (raw) return JSON.parse(raw);
+    if (raw) {
+      try { return JSON.parse(raw); } catch (_) {}
+    }
     const list = defaults[category] || [];
     localStorage.setItem(key, JSON.stringify(list));
     return list;
   }
 
   async addClinicalOption(category, name) {
-    const list = await this.getClinicalOptions(category);
+    const list = this.getClinicalOptions(category);
     if (!list.includes(name.trim())) {
       list.push(name.trim());
       const key = 'ascpt_opt_' + category;
@@ -447,7 +431,7 @@ class FirestoreDatabaseService {
 
       if (this.isCloud) {
         try {
-          await withTimeout(setDoc(doc(firestoreDb, 'clinical_options', category), { items: list }), 3000);
+          await withTimeout(setDoc(doc(firestoreDb, 'clinical_options', category), { items: list }, { merge: true }), 3000);
         } catch (_) {}
       }
     }
@@ -455,53 +439,41 @@ class FirestoreDatabaseService {
   }
 
   async deleteClinicalOption(category, name) {
-    let list = await this.getClinicalOptions(category);
+    let list = this.getClinicalOptions(category);
     list = list.filter(item => item !== name.trim());
     const key = 'ascpt_opt_' + category;
     localStorage.setItem(key, JSON.stringify(list));
 
     if (this.isCloud) {
       try {
-        await withTimeout(setDoc(doc(firestoreDb, 'clinical_options', category), { items: list }), 3000);
+        await withTimeout(setDoc(doc(firestoreDb, 'clinical_options', category), { items: list }, { merge: true }), 3000);
       } catch (_) {}
     }
     return list;
   }
 
-  // ================= 7. Insurance Companies =================
-  async getInsuranceCompanies(contractType = 'direct') {
+  // ================= 7. Synchronous Insurance Companies (With Background Cloud Sync) =================
+  // MUST remain synchronous so that UI renders (renderInsuranceChips in sessions & patients)
+  // receive an immediate Array and NEVER throw '.map() on Promise'
+  getInsuranceCompanies(contractType = 'direct') {
     const key = 'ascpt_ins_' + contractType;
     const defaults = {
       direct: ['أكسا (AXA)', 'أليانز (Allianz)', 'ميتلايف (MetLife)', 'بوبا (Bupa)', 'عناية الرعاية الصحية (Enaya)'],
       indirect: ['نكست كير (NextCare)', 'مصر للتأمين', 'ايجي كير', 'المهندس للتأمين']
     };
 
-    if (this.isCloud) {
-      try {
-        const snap = await withTimeout(getDoc(doc(firestoreDb, 'insurance_companies', contractType)), 2500);
-        if (snap.exists()) {
-          const list = snap.data().companies || [];
-          localStorage.setItem(key, JSON.stringify(list));
-          return list;
-        } else {
-          const list = defaults[contractType] || [];
-          await setDoc(doc(firestoreDb, 'insurance_companies', contractType), { companies: list });
-          localStorage.setItem(key, JSON.stringify(list));
-          return list;
-        }
-      } catch (_) {}
-    }
-
     const raw = localStorage.getItem(key);
-    if (raw) return JSON.parse(raw);
+    if (raw) {
+      try { return JSON.parse(raw); } catch (_) {}
+    }
     const list = defaults[contractType] || [];
     localStorage.setItem(key, JSON.stringify(list));
     return list;
   }
 
-  async getAllInsuranceCompaniesWithTypes() {
-    const direct = await this.getInsuranceCompanies('direct');
-    const indirect = await this.getInsuranceCompanies('indirect');
+  getAllInsuranceCompaniesWithTypes() {
+    const direct = this.getInsuranceCompanies('direct');
+    const indirect = this.getInsuranceCompanies('indirect');
     const res = [];
     direct.forEach(name => res.push({ name, contractType: 'direct', label: `${name} (تعاقد مباشر)` }));
     indirect.forEach(name => res.push({ name, contractType: 'indirect', label: `${name} (تعاقد غير مباشر)` }));
@@ -509,7 +481,7 @@ class FirestoreDatabaseService {
   }
 
   async addInsuranceCompany(contractType, name) {
-    const list = await this.getInsuranceCompanies(contractType);
+    const list = this.getInsuranceCompanies(contractType);
     if (!list.includes(name.trim())) {
       list.push(name.trim());
       const key = 'ascpt_ins_' + contractType;
@@ -517,7 +489,7 @@ class FirestoreDatabaseService {
 
       if (this.isCloud) {
         try {
-          await withTimeout(setDoc(doc(firestoreDb, 'insurance_companies', contractType), { companies: list }), 3000);
+          await withTimeout(setDoc(doc(firestoreDb, 'insurance_companies', contractType), { companies: list }, { merge: true }), 3000);
         } catch (_) {}
       }
     }
@@ -525,17 +497,38 @@ class FirestoreDatabaseService {
   }
 
   async deleteInsuranceCompany(contractType, name) {
-    let list = await this.getInsuranceCompanies(contractType);
+    let list = this.getInsuranceCompanies(contractType);
     list = list.filter(item => item !== name.trim());
     const key = 'ascpt_ins_' + contractType;
     localStorage.setItem(key, JSON.stringify(list));
 
     if (this.isCloud) {
       try {
-        await withTimeout(setDoc(doc(firestoreDb, 'insurance_companies', contractType), { companies: list }), 3000);
+        await withTimeout(setDoc(doc(firestoreDb, 'insurance_companies', contractType), { companies: list }, { merge: true }), 3000);
       } catch (_) {}
     }
     return list;
+  }
+
+  // Background Cloud Options Sync
+  async syncOptionsFromFirestore() {
+    if (!this.isCloud) return;
+    try {
+      // Sync clinical options
+      for (const cat of ['modality', 'procedure', 'exercise']) {
+        const snap = await withTimeout(getDoc(doc(firestoreDb, 'clinical_options', cat)), 2000);
+        if (snap.exists() && Array.isArray(snap.data().items)) {
+          localStorage.setItem('ascpt_opt_' + cat, JSON.stringify(snap.data().items));
+        }
+      }
+      // Sync insurance companies
+      for (const cType of ['direct', 'indirect']) {
+        const snap = await withTimeout(getDoc(doc(firestoreDb, 'insurance_companies', cType)), 2000);
+        if (snap.exists() && Array.isArray(snap.data().companies)) {
+          localStorage.setItem('ascpt_ins_' + cType, JSON.stringify(snap.data().companies));
+        }
+      }
+    } catch (_) {}
   }
 
   // ================= 8. Backup & Restore =================
