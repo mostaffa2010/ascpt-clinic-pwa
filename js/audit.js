@@ -15,8 +15,7 @@ import {
   setDoc,
   deleteDoc,
   getDocs,
-  collection,
-  serverTimestamp
+  collection
 } from 'https://www.gstatic.com/firebasejs/12.18.0/firebase-firestore.js';
 
 import { CLINIC_CONFIG } from './clinic-config.js';
@@ -25,6 +24,13 @@ import { db } from './db.js';
 import { auth } from './auth.js';
 import { RolesManager } from './roles.js';
 import { escapeHTML } from './utils.js';
+
+const withTimeout = (promise, ms = 2500) => {
+  return Promise.race([
+    promise,
+    new Promise((_, reject) => setTimeout(() => reject(new Error('Timeout')), ms))
+  ]);
+};
 
 export class AuditAndAdminManager {
   constructor(app) {
@@ -68,12 +74,12 @@ export class AuditAndAdminManager {
     const emailInput = document.getElementById('newuser-email');
     const passwordInput = document.getElementById('newuser-password');
     const roleInput = document.getElementById('newuser-role');
-    const btnSubmit = e.target.querySelector('button[type="submit"]');
+    const btnSubmit = e.target.querySelector('button[type="submit"]') || document.querySelector('#form-add-user button[type="submit"]');
 
     const name = nameInput?.value?.trim();
     const email = emailInput?.value?.trim().toLowerCase();
     const password = passwordInput?.value;
-    const role = roleInput?.value;
+    const role = roleInput?.value || 'doctor';
 
     if (!name || name.length < 3) {
       await this.app.showAlert('يرجى إدخال اسم صحيح للموظف (3 أحرف على الأقل).', 'بيانات غير مكتملة', 'warning');
@@ -94,12 +100,7 @@ export class AuditAndAdminManager {
       return;
     }
 
-    if (!role) {
-      await this.app.showAlert('يرجى اختيار الصلاحية / الدور الوظيفي للمستخدم.', 'الدور مطلوب', 'warning');
-      return;
-    }
-
-    const origBtnHtml = btnSubmit ? btnSubmit.innerHTML : '';
+    const origBtnHtml = btnSubmit ? btnSubmit.innerHTML : '<i class="fa-solid fa-plus"></i> إنشاء الحساب';
     if (btnSubmit) {
       btnSubmit.disabled = true;
       btnSubmit.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> <span>جاري إنشاء الحساب في Firebase...</span>';
@@ -108,8 +109,7 @@ export class AuditAndAdminManager {
     let tempApp = null;
 
     try {
-      // 1. Create User in Firebase Authentication using an isolated secondary App instance
-      // This guarantees the currently logged-in Admin session is NOT interrupted or signed out!
+      // 1. Create User in Firebase Authentication via isolated secondary App instance
       const tempAppName = 'staff_provisioning_' + Date.now();
       tempApp = initializeApp(CLINIC_CONFIG.firebase, tempAppName);
       const tempAuth = getAuth(tempApp);
@@ -123,12 +123,14 @@ export class AuditAndAdminManager {
 
       const newUid = newFirebaseUser.uid;
 
-      // Immediately sign out and clean up the secondary app instance
-      await secondarySignOut(tempAuth);
-      try { await deleteApp(tempApp); } catch (_) {}
+      // Clean up secondary auth session
+      try {
+        await secondarySignOut(tempAuth);
+        await deleteApp(tempApp);
+      } catch (_) {}
       tempApp = null;
 
-      // 2. Write user profile document in Cloud Firestore under users/{newUid}
+      // 2. Prepare user profile document
       const userProfileData = {
         uid: newUid,
         id: newUid,
@@ -141,29 +143,34 @@ export class AuditAndAdminManager {
         createdByName: currentUser.name || 'مدير المركز'
       };
 
+      // 3. Write user profile to Firestore with timeout
       if (firestoreDb) {
         try {
-          await setDoc(doc(firestoreDb, 'users', newUid), userProfileData);
+          await withTimeout(setDoc(doc(firestoreDb, 'users', newUid), userProfileData), 2500);
         } catch (fsErr) {
-          console.warn('Firestore profile write notice:', fsErr);
+          console.warn('Firestore profile write notice (saved locally):', fsErr.message);
         }
       }
 
-      // 3. Save to local cache in db layer for instant synchronization
+      // 4. Save to local cache in db layer for instant synchronization
       await db.saveUser(userProfileData);
-      await db.logAudit('إضافة موظف', `قام المدير بإنشاء حساب حقيقي في Firebase للموظف: ${name} بدور: ${RolesManager.getRoleLabel(role)} (${email})`, currentUser);
+      await db.logAudit('إضافة موظف', `قام المدير بإنشاء حساب للموظف: ${name} بدور: ${RolesManager.getRoleLabel(role)} (${email})`, currentUser);
 
-      // 4. Refresh Doctor dropdowns across the application
+      // 5. Refresh Doctor dropdowns
       await this.app.populateDoctorDropdowns();
 
-      // Reset form and notify
-      e.target.reset();
-      this.app.showToast(`تم إنشاء حساب ${name} بنجاح ويمكنه الآن تسجيل الدخول.`);
+      // 6. Reset form fields
+      if (nameInput) nameInput.value = '';
+      if (emailInput) emailInput.value = '';
+      if (passwordInput) passwordInput.value = '';
 
+      this.app.showToast(`تم إنشاء حساب ${name} بنجاح كـ (${RolesManager.getRoleLabel(role)})`);
+
+      // 7. Reload staff table & audit log
       await this.loadUsers();
       await this.loadAuditLogs();
     } catch (err) {
-      console.error('Error creating staff member in Firebase:', err);
+      console.error('Error creating staff member:', err);
       if (tempApp) {
         try { await deleteApp(tempApp); } catch (_) {}
       }
@@ -174,13 +181,14 @@ export class AuditAndAdminManager {
       } else if (err.code === 'auth/invalid-email') {
         errorMsg = 'صيغة البريد الإلكتروني غير صالحة.';
       } else if (err.code === 'auth/weak-password') {
-        errorMsg = 'كلمة السر ضعيفة، يرجى اختيار كلمة سر أقوى.';
+        errorMsg = 'كلمة السر ضعيفة، يرجى اختيار كلمة سر أقوى (6 أحرف/أرقام على الأقل).';
       } else if (err.message) {
         errorMsg = err.message;
       }
 
       await this.app.showAlert(errorMsg, 'خطأ في إنشاء الحساب', 'danger');
     } finally {
+      // Guarantee button is ALWAYS restored to original state!
       if (btnSubmit) {
         btnSubmit.disabled = false;
         btnSubmit.innerHTML = origBtnHtml;
@@ -194,18 +202,17 @@ export class AuditAndAdminManager {
 
     let users = [];
 
-    // Attempt to load live staff users from Cloud Firestore first
+    // Attempt to load live staff users from Cloud Firestore with timeout
     if (firestoreDb) {
       try {
-        const snap = await getDocs(collection(firestoreDb, 'users'));
-        if (!snap.empty) {
+        const snap = await withTimeout(getDocs(collection(firestoreDb, 'users')), 2000);
+        if (snap && !snap.empty) {
           users = snap.docs.map(d => ({ ...d.data(), id: d.id }));
           localStorage.setItem('ascpt_users', JSON.stringify(users));
         } else {
           users = await db.getUsers();
         }
       } catch (fsErr) {
-        console.warn('Could not load users from Firestore, using local cache:', fsErr);
         users = await db.getUsers();
       }
     } else {
@@ -248,13 +255,10 @@ export class AuditAndAdminManager {
     if (confirmed) {
       const currentUser = auth.getCurrentUser();
 
-      // Delete from Firestore
       if (firestoreDb) {
         try {
-          await deleteDoc(doc(firestoreDb, 'users', userId));
-        } catch (e) {
-          console.warn('Firestore delete user notice:', e);
-        }
+          await withTimeout(deleteDoc(doc(firestoreDb, 'users', userId)), 2000);
+        } catch (_) {}
       }
 
       await db.deleteUser(userId);
