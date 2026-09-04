@@ -1,24 +1,40 @@
 // ========================================================
-// ASCPT - Data Access Layer (DAL) & Production Storage Provider
-// Clean clinic database engine - Zero demo data
+// ASCPT - Production Cloud Firestore Database Service
+// Real-time Cloud Synchronization & Offline Persistence Layer
+// Single-Tenant Direct Collection Architecture
 // ========================================================
 
-/**
- * CleanStorageProvider
- * Manages clean clinic data with zero preloaded demo records.
- * Purges legacy demo keys on initialization to start fresh.
- */
-class CleanStorageProvider {
+import {
+  collection,
+  doc,
+  getDocs,
+  getDoc,
+  setDoc,
+  deleteDoc,
+  query,
+  orderBy
+} from 'https://www.gstatic.com/firebasejs/12.18.0/firebase-firestore.js';
+
+import { firestoreDb, isConfigured } from './firebase-init.js';
+import { CLINIC_CONFIG } from './clinic-config.js';
+
+const withTimeout = (promise, ms = 3000) => {
+  return Promise.race([
+    promise,
+    new Promise((_, reject) => setTimeout(() => reject(new Error('Firestore timeout')), ms))
+  ]);
+};
+
+class FirestoreDatabaseService {
   constructor() {
     this.purgeLegacyDemoStorage();
   }
 
   get isCloud() {
-    return false;
+    return isConfigured && Boolean(firestoreDb);
   }
 
   purgeLegacyDemoStorage() {
-    // Thoroughly flush all legacy demo keys from user's device
     const legacyKeys = [
       'pc_demo_v3_september_full',
       'pc_demo_patients',
@@ -37,210 +53,337 @@ class CleanStorageProvider {
     });
   }
 
-  // Patients (Clean clinic database)
+  // ================= 1. Patients Management =================
   async getPatients() {
+    if (this.isCloud) {
+      try {
+        const q = query(collection(firestoreDb, 'patients'), orderBy('createdAt', 'desc'));
+        const snap = await withTimeout(getDocs(q), 3500);
+        const list = snap.docs.map(d => ({ ...d.data(), id: d.id }));
+        localStorage.setItem('ascpt_patients', JSON.stringify(list));
+        return list;
+      } catch (err) {
+        console.warn('Firestore getPatients fallback to local cache:', err.message);
+      }
+    }
     const raw = localStorage.getItem('ascpt_patients');
     return raw ? JSON.parse(raw) : [];
   }
 
   async savePatient(patientData, currentUser) {
-    const patients = await this.getPatients();
-    let isEdit = false;
+    const patientId = patientData.id || ('p-' + Date.now());
+    const isEdit = Boolean(patientData.id);
 
-    if (patientData.id) {
-      isEdit = true;
-      const index = patients.findIndex(p => p.id === patientData.id);
-      if (index !== -1) {
-        patients[index] = {
-          ...patients[index],
-          ...patientData,
-          lastUpdatedAt: new Date().toISOString(),
-          lastUpdatedBy: currentUser?.name || 'طبيب المركز'
-        };
-      }
-    } else {
-      const newPatient = {
-        ...patientData,
-        id: 'p-' + Date.now(),
-        createdAt: new Date().toISOString(),
-        createdBy: currentUser?.name || 'استقبال المركز',
-        lastUpdatedBy: currentUser?.name || 'استقبال المركز'
-      };
-      patients.unshift(newPatient);
+    const dataToSave = {
+      ...patientData,
+      id: patientId,
+      lastUpdatedAt: new Date().toISOString(),
+      lastUpdatedBy: currentUser?.name || 'طبيب المركز'
+    };
+
+    if (!isEdit) {
+      dataToSave.createdAt = new Date().toISOString();
+      dataToSave.createdBy = currentUser?.name || 'استقبال المركز';
     }
 
-    localStorage.setItem('ascpt_patients', JSON.stringify(patients));
+    // 1. Instant local cache update so UI responds immediately
+    const cachedPatients = await this.getPatients();
+    if (isEdit) {
+      const idx = cachedPatients.findIndex(p => p.id === patientId);
+      if (idx !== -1) cachedPatients[idx] = dataToSave;
+    } else {
+      cachedPatients.unshift(dataToSave);
+    }
+    localStorage.setItem('ascpt_patients', JSON.stringify(cachedPatients));
+
+    // 2. Cloud Firestore sync
+    if (this.isCloud) {
+      try {
+        await withTimeout(setDoc(doc(firestoreDb, 'patients', patientId), dataToSave, { merge: true }), 3500);
+      } catch (err) {
+        console.warn('Firestore savePatient queued/offline:', err.message);
+      }
+    }
+
     return isEdit ? 'updated' : 'created';
   }
 
   async deletePatient(patientId) {
-    let patients = await this.getPatients();
-    patients = patients.filter(p => p.id !== patientId);
-    localStorage.setItem('ascpt_patients', JSON.stringify(patients));
+    // 1. Instant local cache update
+    let cachedPatients = await this.getPatients();
+    cachedPatients = cachedPatients.filter(p => p.id !== patientId);
+    localStorage.setItem('ascpt_patients', JSON.stringify(cachedPatients));
+
+    // 2. Cloud Firestore delete
+    if (this.isCloud) {
+      try {
+        await withTimeout(deleteDoc(doc(firestoreDb, 'patients', patientId)), 3500);
+      } catch (err) {
+        console.warn('Firestore deletePatient notice:', err.message);
+      }
+    }
     return true;
   }
 
-  // Sessions (Clean clinic database)
+  // ================= 2. Sessions Management =================
   async getSessions(filterDate = null) {
-    const raw = localStorage.getItem('ascpt_sessions');
-    let sessions = raw ? JSON.parse(raw) : [];
+    let sessions = [];
+    if (this.isCloud) {
+      try {
+        const snap = await withTimeout(getDocs(collection(firestoreDb, 'sessions')), 3500);
+        sessions = snap.docs.map(d => ({ ...d.data(), id: d.id }));
+        localStorage.setItem('ascpt_sessions', JSON.stringify(sessions));
+      } catch (err) {
+        const raw = localStorage.getItem('ascpt_sessions');
+        sessions = raw ? JSON.parse(raw) : [];
+      }
+    } else {
+      const raw = localStorage.getItem('ascpt_sessions');
+      sessions = raw ? JSON.parse(raw) : [];
+    }
+
     if (filterDate) {
       if (filterDate.length === 7) {
-        sessions = sessions.filter(s => s.date && s.date.startsWith(filterDate));
-      } else {
-        sessions = sessions.filter(s => s.date === filterDate);
+        return sessions.filter(s => s.date && s.date.startsWith(filterDate));
       }
+      return sessions.filter(s => s.date === filterDate);
     }
     return sessions;
   }
 
   async saveSession(sessionData, currentUser) {
+    const sessionId = sessionData.id || ('sess-' + Date.now());
+    const isEdit = Boolean(sessionData.id);
+
+    const dataToSave = {
+      ...sessionData,
+      id: sessionId,
+      lastEditedBy: currentUser?.name || 'مستخدم المركز',
+      lastEditedAt: new Date().toLocaleTimeString('ar-EG-u-nu-latn', { hour: '2-digit', minute: '2-digit' })
+    };
+
+    if (!isEdit) {
+      dataToSave.recordedAt = new Date().toLocaleTimeString('ar-EG-u-nu-latn', { hour: '2-digit', minute: '2-digit' });
+      dataToSave.recordedBy = currentUser?.name || 'استقبال المركز';
+      dataToSave.createdAt = new Date().toISOString();
+    }
+
+    // Local cache update
     const sessions = await this.getSessions();
-    let res = null;
-    if (sessionData.id) {
-      const idx = sessions.findIndex(s => s.id === sessionData.id);
-      if (idx !== -1) {
-        sessions[idx] = {
-          ...sessions[idx],
-          ...sessionData,
-          lastEditedBy: currentUser?.name || 'مستخدم المركز',
-          lastEditedAt: new Date().toLocaleTimeString('ar-EG-u-nu-latn', { hour: '2-digit', minute: '2-digit' })
-        };
-        res = sessions[idx];
-      }
+    if (isEdit) {
+      const idx = sessions.findIndex(s => s.id === sessionId);
+      if (idx !== -1) sessions[idx] = dataToSave;
     } else {
-      const newSession = {
-        ...sessionData,
-        id: 'sess-' + Date.now(),
-        recordedAt: new Date().toLocaleTimeString('ar-EG-u-nu-latn', { hour: '2-digit', minute: '2-digit' }),
-        recordedBy: currentUser?.name || 'استقبال المركز'
-      };
-      sessions.unshift(newSession);
-      res = newSession;
+      sessions.unshift(dataToSave);
     }
     localStorage.setItem('ascpt_sessions', JSON.stringify(sessions));
-    return res;
+
+    // Cloud Firestore write
+    if (this.isCloud) {
+      try {
+        await withTimeout(setDoc(doc(firestoreDb, 'sessions', sessionId), dataToSave, { merge: true }), 3500);
+      } catch (err) {
+        console.warn('Firestore saveSession queued/offline:', err.message);
+      }
+    }
+
+    return dataToSave;
   }
 
   async deleteSession(sessionId) {
     let sessions = await this.getSessions();
     sessions = sessions.filter(s => s.id !== sessionId);
     localStorage.setItem('ascpt_sessions', JSON.stringify(sessions));
+
+    if (this.isCloud) {
+      try {
+        await withTimeout(deleteDoc(doc(firestoreDb, 'sessions', sessionId)), 3500);
+      } catch (err) {
+        console.warn('Firestore deleteSession notice:', err.message);
+      }
+    }
     return true;
   }
 
-  // Expenses (Clean clinic database)
+  // ================= 3. Expenses Management =================
   async getExpenses(filterDate = null) {
-    const raw = localStorage.getItem('ascpt_expenses');
-    let expenses = raw ? JSON.parse(raw) : [];
+    let expenses = [];
+    if (this.isCloud) {
+      try {
+        const snap = await withTimeout(getDocs(collection(firestoreDb, 'expenses')), 3500);
+        expenses = snap.docs.map(d => ({ ...d.data(), id: d.id }));
+        localStorage.setItem('ascpt_expenses', JSON.stringify(expenses));
+      } catch (err) {
+        const raw = localStorage.getItem('ascpt_expenses');
+        expenses = raw ? JSON.parse(raw) : [];
+      }
+    } else {
+      const raw = localStorage.getItem('ascpt_expenses');
+      expenses = raw ? JSON.parse(raw) : [];
+    }
+
     if (filterDate) {
       if (filterDate.length === 7) {
-        expenses = expenses.filter(e => e.date && e.date.startsWith(filterDate));
-      } else {
-        expenses = expenses.filter(e => e.date === filterDate);
+        return expenses.filter(e => e.date && e.date.startsWith(filterDate));
       }
+      return expenses.filter(e => e.date === filterDate);
     }
     return expenses;
   }
 
   async saveExpense(expenseData, currentUser) {
-    const expenses = await this.getExpenses();
-    const newExp = {
+    const expenseId = expenseData.id || ('exp-' + Date.now());
+    const dataToSave = {
       ...expenseData,
-      id: 'exp-' + Date.now(),
+      id: expenseId,
       time: new Date().toLocaleTimeString('ar-EG-u-nu-latn', { hour: '2-digit', minute: '2-digit' }),
-      recordedBy: currentUser?.name || 'مدير المركز'
+      recordedBy: currentUser?.name || 'مدير المركز',
+      createdAt: new Date().toISOString()
     };
-    expenses.unshift(newExp);
+
+    const expenses = await this.getExpenses();
+    expenses.unshift(dataToSave);
     localStorage.setItem('ascpt_expenses', JSON.stringify(expenses));
-    return newExp;
+
+    if (this.isCloud) {
+      try {
+        await withTimeout(setDoc(doc(firestoreDb, 'expenses', expenseId), dataToSave, { merge: true }), 3500);
+      } catch (err) {
+        console.warn('Firestore saveExpense notice:', err.message);
+      }
+    }
+    return dataToSave;
   }
 
   async deleteExpense(expenseId) {
     let expenses = await this.getExpenses();
     expenses = expenses.filter(e => e.id !== expenseId);
     localStorage.setItem('ascpt_expenses', JSON.stringify(expenses));
+
+    if (this.isCloud) {
+      try {
+        await withTimeout(deleteDoc(doc(firestoreDb, 'expenses', expenseId)), 3500);
+      } catch (err) {
+        console.warn('Firestore deleteExpense notice:', err.message);
+      }
+    }
     return true;
   }
 
-  // Users (Clean staff list)
+  // ================= 4. Users & Doctors Directory =================
   async getUsers() {
+    if (this.isCloud) {
+      try {
+        const snap = await withTimeout(getDocs(collection(firestoreDb, 'users')), 3000);
+        const users = snap.docs.map(d => ({ ...d.data(), id: d.id }));
+        localStorage.setItem('ascpt_users', JSON.stringify(users));
+        return users;
+      } catch (err) {
+        const raw = localStorage.getItem('ascpt_users');
+        return raw ? JSON.parse(raw) : [];
+      }
+    }
     const raw = localStorage.getItem('ascpt_users');
     return raw ? JSON.parse(raw) : [];
   }
 
   async saveUser(userData) {
+    const userId = userData.uid || userData.id || ('u-' + Date.now());
+    const dataToSave = { ...userData, id: userId, uid: userId };
+
     const users = await this.getUsers();
-    const newUser = { ...userData, id: 'u-' + Date.now() };
-    users.push(newUser);
+    const idx = users.findIndex(u => u.id === userId);
+    if (idx !== -1) {
+      users[idx] = dataToSave;
+    } else {
+      users.push(dataToSave);
+    }
     localStorage.setItem('ascpt_users', JSON.stringify(users));
-    return newUser;
+
+    if (this.isCloud) {
+      try {
+        await withTimeout(setDoc(doc(firestoreDb, 'users', userId), dataToSave, { merge: true }), 3000);
+      } catch (err) {
+        console.warn('Firestore saveUser notice:', err.message);
+      }
+    }
+    return dataToSave;
   }
 
   async deleteUser(userId) {
     let users = await this.getUsers();
     users = users.filter(u => u.id !== userId);
     localStorage.setItem('ascpt_users', JSON.stringify(users));
+
+    if (this.isCloud) {
+      try {
+        await withTimeout(deleteDoc(doc(firestoreDb, 'users', userId)), 3000);
+      } catch (err) {
+        console.warn('Firestore deleteUser notice:', err.message);
+      }
+    }
     return true;
   }
 
   async getDoctors() {
     const users = await this.getUsers();
-    const docs = users.filter(u => u.role === 'doctor' || u.role === 'admin').map(u => u.name);
-    return Array.from(new Set(docs)); // Strictly empty if no doctors registered yet!
+    const docs = users.filter(u => (u.role === 'doctor' || u.role === 'admin') && u.active !== false).map(u => u.name);
+
+    // Dr. Hosny Ahmed El-Gweily is always available as the center's director consultant
+    if (CLINIC_CONFIG.director?.name && !docs.includes(CLINIC_CONFIG.director.name)) {
+      docs.unshift(CLINIC_CONFIG.director.name);
+    }
+    return Array.from(new Set(docs));
   }
 
-  // Audit Logs
+  // ================= 5. Audit Trail =================
   async getAuditLogs() {
+    if (this.isCloud) {
+      try {
+        const snap = await withTimeout(getDocs(collection(firestoreDb, 'audit_logs')), 3000);
+        const logs = snap.docs.map(d => ({ ...d.data(), id: d.id }));
+        logs.sort((a, b) => (b.timestampRaw || 0) - (a.timestampRaw || 0));
+        localStorage.setItem('ascpt_audit', JSON.stringify(logs));
+        return logs;
+      } catch (err) {
+        const raw = localStorage.getItem('ascpt_audit');
+        return raw ? JSON.parse(raw) : [];
+      }
+    }
     const raw = localStorage.getItem('ascpt_audit');
     return raw ? JSON.parse(raw) : [];
   }
 
   async logAudit(actionType, description, user) {
-    const logs = await this.getAuditLogs();
-    const newLog = {
-      id: 'log-' + Date.now(),
-      userName: user?.name || 'مستخدم المركز',
-      userRole: user?.role || 'طبيب',
+    const logId = 'log-' + Date.now();
+    const logData = {
+      id: logId,
       actionType,
       description,
+      userId: user?.uid || user?.id || 'system',
+      userName: user?.name || 'مستخدم المركز',
+      userRole: user?.role || 'staff',
       timestamp: new Date().toLocaleString('ar-EG-u-nu-latn'),
       timestampRaw: Date.now()
     };
-    logs.unshift(newLog);
+
+    const logs = await this.getAuditLogs();
+    logs.unshift(logData);
     if (logs.length > 200) logs.pop();
     localStorage.setItem('ascpt_audit', JSON.stringify(logs));
-  }
 
-  // Backup & Restore
-  async createFullBackup() {
-    return {
-      timestamp: new Date().toISOString(),
-      center: 'مركز اسكندرية التخصصي للعلاج الطبيعي (ASCPT)',
-      patients: await this.getPatients(),
-      sessions: await this.getSessions(),
-      expenses: await this.getExpenses(),
-      users: await this.getUsers(),
-      auditLogs: await this.getAuditLogs()
-    };
-  }
-
-  async restoreFromBackup(backupData) {
-    if (!backupData || !Array.isArray(backupData.patients)) {
-      throw new Error('الملف غير صالح');
+    if (this.isCloud) {
+      try {
+        await withTimeout(setDoc(doc(firestoreDb, 'audit_logs', logId), logData), 3000);
+      } catch (err) {
+        console.warn('Firestore logAudit notice:', err.message);
+      }
     }
-    localStorage.setItem('ascpt_patients', JSON.stringify(backupData.patients || []));
-    localStorage.setItem('ascpt_sessions', JSON.stringify(backupData.sessions || []));
-    localStorage.setItem('ascpt_expenses', JSON.stringify(backupData.expenses || []));
-    return true;
   }
 
-  // Clinical Options (Standard physical therapy modalities, procedures, exercises)
-  getClinicalOptions(category) {
+  // ================= 6. Clinical Options =================
+  async getClinicalOptions(category) {
     const key = 'ascpt_opt_' + category;
-    const raw = localStorage.getItem(key);
-    if (raw) return JSON.parse(raw);
-
     const defaults = {
       modality: [
         'TENS (كهرباء تسكينية)',
@@ -270,45 +413,95 @@ class CleanStorageProvider {
         'برنامج التمارين المنزلية (Home Exercise Program)'
       ]
     };
+
+    if (this.isCloud) {
+      try {
+        const snap = await withTimeout(getDoc(doc(firestoreDb, 'clinical_options', category)), 2500);
+        if (snap.exists()) {
+          const list = snap.data().items || [];
+          localStorage.setItem(key, JSON.stringify(list));
+          return list;
+        } else {
+          // Initialize defaults in Firestore
+          const list = defaults[category] || [];
+          await setDoc(doc(firestoreDb, 'clinical_options', category), { items: list });
+          localStorage.setItem(key, JSON.stringify(list));
+          return list;
+        }
+      } catch (_) {}
+    }
+
+    const raw = localStorage.getItem(key);
+    if (raw) return JSON.parse(raw);
     const list = defaults[category] || [];
     localStorage.setItem(key, JSON.stringify(list));
     return list;
   }
 
   async addClinicalOption(category, name) {
-    const list = this.getClinicalOptions(category);
-    if (!list.includes(name)) {
-      list.push(name);
-      localStorage.setItem('ascpt_opt_' + category, JSON.stringify(list));
+    const list = await this.getClinicalOptions(category);
+    if (!list.includes(name.trim())) {
+      list.push(name.trim());
+      const key = 'ascpt_opt_' + category;
+      localStorage.setItem(key, JSON.stringify(list));
+
+      if (this.isCloud) {
+        try {
+          await withTimeout(setDoc(doc(firestoreDb, 'clinical_options', category), { items: list }), 3000);
+        } catch (_) {}
+      }
     }
     return list;
   }
 
   async deleteClinicalOption(category, name) {
-    let list = this.getClinicalOptions(category);
-    list = list.filter(item => item !== name);
-    localStorage.setItem('ascpt_opt_' + category, JSON.stringify(list));
+    let list = await this.getClinicalOptions(category);
+    list = list.filter(item => item !== name.trim());
+    const key = 'ascpt_opt_' + category;
+    localStorage.setItem(key, JSON.stringify(list));
+
+    if (this.isCloud) {
+      try {
+        await withTimeout(setDoc(doc(firestoreDb, 'clinical_options', category), { items: list }), 3000);
+      } catch (_) {}
+    }
     return list;
   }
 
-  // Insurance Companies Registry
-  getInsuranceCompanies(contractType = 'direct') {
+  // ================= 7. Insurance Companies =================
+  async getInsuranceCompanies(contractType = 'direct') {
     const key = 'ascpt_ins_' + contractType;
-    const raw = localStorage.getItem(key);
-    if (raw) return JSON.parse(raw);
-
     const defaults = {
       direct: ['أكسا (AXA)', 'أليانز (Allianz)', 'ميتلايف (MetLife)', 'بوبا (Bupa)', 'عناية الرعاية الصحية (Enaya)'],
       indirect: ['نكست كير (NextCare)', 'مصر للتأمين', 'ايجي كير', 'المهندس للتأمين']
     };
+
+    if (this.isCloud) {
+      try {
+        const snap = await withTimeout(getDoc(doc(firestoreDb, 'insurance_companies', contractType)), 2500);
+        if (snap.exists()) {
+          const list = snap.data().companies || [];
+          localStorage.setItem(key, JSON.stringify(list));
+          return list;
+        } else {
+          const list = defaults[contractType] || [];
+          await setDoc(doc(firestoreDb, 'insurance_companies', contractType), { companies: list });
+          localStorage.setItem(key, JSON.stringify(list));
+          return list;
+        }
+      } catch (_) {}
+    }
+
+    const raw = localStorage.getItem(key);
+    if (raw) return JSON.parse(raw);
     const list = defaults[contractType] || [];
     localStorage.setItem(key, JSON.stringify(list));
     return list;
   }
 
-  getAllInsuranceCompaniesWithTypes() {
-    const direct = this.getInsuranceCompanies('direct');
-    const indirect = this.getInsuranceCompanies('indirect');
+  async getAllInsuranceCompaniesWithTypes() {
+    const direct = await this.getInsuranceCompanies('direct');
+    const indirect = await this.getInsuranceCompanies('indirect');
     const res = [];
     direct.forEach(name => res.push({ name, contractType: 'direct', label: `${name} (تعاقد مباشر)` }));
     indirect.forEach(name => res.push({ name, contractType: 'indirect', label: `${name} (تعاقد غير مباشر)` }));
@@ -316,70 +509,65 @@ class CleanStorageProvider {
   }
 
   async addInsuranceCompany(contractType, name) {
-    const list = this.getInsuranceCompanies(contractType);
+    const list = await this.getInsuranceCompanies(contractType);
     if (!list.includes(name.trim())) {
       list.push(name.trim());
-      localStorage.setItem('ascpt_ins_' + contractType, JSON.stringify(list));
+      const key = 'ascpt_ins_' + contractType;
+      localStorage.setItem(key, JSON.stringify(list));
+
+      if (this.isCloud) {
+        try {
+          await withTimeout(setDoc(doc(firestoreDb, 'insurance_companies', contractType), { companies: list }), 3000);
+        } catch (_) {}
+      }
     }
     return list;
   }
 
   async deleteInsuranceCompany(contractType, name) {
-    let list = this.getInsuranceCompanies(contractType);
+    let list = await this.getInsuranceCompanies(contractType);
     list = list.filter(item => item !== name.trim());
-    localStorage.setItem('ascpt_ins_' + contractType, JSON.stringify(list));
+    const key = 'ascpt_ins_' + contractType;
+    localStorage.setItem(key, JSON.stringify(list));
+
+    if (this.isCloud) {
+      try {
+        await withTimeout(setDoc(doc(firestoreDb, 'insurance_companies', contractType), { companies: list }), 3000);
+      } catch (_) {}
+    }
     return list;
   }
+
+  // ================= 8. Backup & Restore =================
+  async createFullBackup() {
+    return {
+      timestamp: new Date().toISOString(),
+      center: 'مركز اسكندرية التخصصي للعلاج الطبيعي (ASCPT)',
+      director: CLINIC_CONFIG.director.name,
+      contact: CLINIC_CONFIG.contact,
+      patients: await this.getPatients(),
+      sessions: await this.getSessions(),
+      expenses: await this.getExpenses(),
+      users: await this.getUsers(),
+      auditLogs: await this.getAuditLogs()
+    };
+  }
+
+  async restoreFromBackup(backupData) {
+    if (!backupData || !Array.isArray(backupData.patients)) {
+      throw new Error('الملف غير صالح');
+    }
+    for (const p of backupData.patients || []) {
+      await this.savePatient(p, { name: 'استعادة نسخة احتياطية' });
+    }
+    for (const s of backupData.sessions || []) {
+      await this.saveSession(s, { name: 'استعادة نسخة احتياطية' });
+    }
+    for (const e of backupData.expenses || []) {
+      await this.saveExpense(e, { name: 'استعادة نسخة احتياطية' });
+    }
+    return true;
+  }
 }
 
-/**
- * DatabaseService
- * Unified DAL Coordinator
- */
-class DatabaseService {
-  constructor() {
-    this.provider = new CleanStorageProvider();
-  }
-
-  setProvider(newProvider) {
-    this.provider = newProvider;
-  }
-
-  get isCloud() {
-    return this.provider.isCloud;
-  }
-
-  getPatients() { return this.provider.getPatients(); }
-  savePatient(data, user) { return this.provider.savePatient(data, user); }
-  deletePatient(id) { return this.provider.deletePatient(id); }
-
-  getSessions(date) { return this.provider.getSessions(date); }
-  saveSession(data, user) { return this.provider.saveSession(data, user); }
-  deleteSession(id) { return this.provider.deleteSession(id); }
-
-  getExpenses(date) { return this.provider.getExpenses(date); }
-  saveExpense(data, user) { return this.provider.saveExpense(data, user); }
-  deleteExpense(id) { return this.provider.deleteExpense(id); }
-
-  getUsers() { return this.provider.getUsers(); }
-  saveUser(data) { return this.provider.saveUser(data); }
-  deleteUser(id) { return this.provider.deleteUser(id); }
-  getDoctors() { return this.provider.getDoctors(); }
-
-  getAuditLogs() { return this.provider.getAuditLogs(); }
-  logAudit(type, desc, user) { return this.provider.logAudit(type, desc, user); }
-
-  createFullBackup() { return this.provider.createFullBackup(); }
-  restoreFromBackup(data) { return this.provider.restoreFromBackup(data); }
-
-  getClinicalOptions(cat) { return this.provider.getClinicalOptions(cat); }
-  addClinicalOption(cat, name) { return this.provider.addClinicalOption(cat, name); }
-  deleteClinicalOption(cat, name) { return this.provider.deleteClinicalOption(cat, name); }
-
-  getInsuranceCompanies(type) { return this.provider.getInsuranceCompanies(type); }
-  getAllInsuranceCompaniesWithTypes() { return this.provider.getAllInsuranceCompaniesWithTypes(); }
-  addInsuranceCompany(type, name) { return this.provider.addInsuranceCompany(type, name); }
-  deleteInsuranceCompany(type, name) { return this.provider.deleteInsuranceCompany(type, name); }
-}
-
-export const db = new DatabaseService();
+export const db = new FirestoreDatabaseService();

@@ -10,11 +10,15 @@ export const CLINIC_CONFIG = {
   englishName: 'Alexandria Specialized Center for Physical Therapy',
   abbreviation: 'ASCPT',
   tagline: 'نظام إدارة مراكز وعيادات العلاج الطبيعي والتأهيل الطبي',
-  version: '1.1.0',
+  version: '2.0.0',
+  director: {
+    name: 'د. حسني أحمد الجويلي',
+    title: 'إستشاري العلاج الطبيعي والتقويم الحركي للعمود الفقري'
+  },
   contact: {
-    address: 'الإسكندرية، جمهورية مصر العربية',
-    phone: '',
-    email: ''
+    address: '١٧ شارع حسين شيرين - لوران - الإسكندرية',
+    phone: '03-5702356',
+    email: 'info@ascpt.clinic'
   },
   settings: {
     defaultCurrency: 'ج.م',
@@ -22,7 +26,7 @@ export const CLINIC_CONFIG = {
     enableInsuranceClaims: true,
     enableAttendanceCards: true
   },
-  // Production Firebase Web Client Configuration (Safe for frontend)
+  // Production Firebase Web Client Configuration
   firebase: {
     apiKey: "AIzaSyBBVMHo-Rya1iFnE-7QEVPKeoBibDgqXKw",
     authDomain: "ascpt-clinic-pwa.firebaseapp.com",
