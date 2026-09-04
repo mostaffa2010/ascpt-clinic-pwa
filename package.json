@@ -1,0 +1,12 @@
+{
+  "name": "ascpt-clinic-pwa",
+  "version": "1.0.0",
+  "description": "Alexandria Specialized Center for Physical Therapy (ASCPT) Management System",
+  "type": "module",
+  "scripts": {
+    "test": "node --check js/*.js api/admin/*.js"
+  },
+  "dependencies": {
+    "firebase-admin": "12.0.0"
+  }
+}

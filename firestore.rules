@@ -1,0 +1,126 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ================= Helper Functions =================
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function getUserData() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data;
+    }
+
+    function getUserRole() {
+      return getUserData().role;
+    }
+
+    function isUserActive() {
+      return getUserData().active == true;
+    }
+
+    function isAdmin() {
+      return isAuthenticated() && isUserActive() && getUserRole() == 'admin';
+    }
+
+    function isDoctor() {
+      return isAuthenticated() && isUserActive() && getUserRole() == 'doctor';
+    }
+
+    function isReceptionist() {
+      return isAuthenticated() && isUserActive() && getUserRole() == 'receptionist';
+    }
+
+    // ================= 1. Staff Users Collection =================
+    match /users/{userId} {
+      // Authenticated active staff can read user directory (to populate doctors in dropdowns)
+      allow read: if isAuthenticated() && isUserActive();
+
+      // Client-side user creation is strictly forbidden.
+      // Users must be created exclusively via the Backend Admin Serverless Function.
+      allow create: if false;
+
+      // Client-side updates to users/{userId}:
+      // Critical security and authorization fields are STRICTLY Backend-controlled:
+      // (role, active, createdBy, createdAt) CANNOT be altered from any client, even by an Admin.
+      allow update: if isAuthenticated() && isUserActive() &&
+        // 1. Enforce strict immutability of security-critical fields from all clients:
+        request.resource.data.role == resource.data.role &&
+        request.resource.data.active == resource.data.active &&
+        request.resource.data.createdBy == resource.data.createdBy &&
+        request.resource.data.createdAt == resource.data.createdAt &&
+        // 2. Allow updating only safe, non-privileged profile fields:
+        request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+          'name', 'phone', 'photoUrl', 'updatedAt'
+        ]) &&
+        // 3. User can only update their own profile, OR Admin updating operational contact info
+        (request.auth.uid == userId || isAdmin());
+
+      // Client-side deletion is strictly forbidden; accounts are deactivated via the Backend
+      allow delete: if false;
+    }
+
+    // ================= 2. Patients & Clinical Sheets =================
+    match /patients/{patientId} {
+      allow read: if isAuthenticated() && isUserActive();
+      // Only Admin and Receptionist can create new patient files
+      allow create: if (isAdmin() || isReceptionist());
+      // Doctors can update clinical sheets; Receptionists can update demographics
+      allow update: if isAuthenticated() && isUserActive();
+      // Deletions: Admin and Receptionist only
+      allow delete: if (isAdmin() || isReceptionist());
+    }
+
+    // ================= 3. Sessions =================
+    match /sessions/{sessionId} {
+      allow read: if isAuthenticated() && isUserActive();
+      allow create, update: if (isAdmin() || isReceptionist());
+      allow delete: if (isAdmin() || isReceptionist());
+    }
+
+    // ================= 4. Expenses & Clinic Financials =================
+    match /expenses/{expenseId} {
+      // Financial records are strictly restricted to Administrator
+      allow read, write: if isAdmin();
+    }
+
+    // ================= 5. Audit Trail & Logs =================
+    match /audit_logs/{logId} {
+      // Audit logs are readable only by Administrator
+      allow read: if isAdmin();
+
+      // Audit logs are completely immutable once created (No update or delete allowed)
+      allow update, delete: if false;
+
+      // Client creation is strictly guarded to prevent arbitrary/fake logs:
+      // Administrative/security operations (user creation, activation, deactivation)
+      // are strictly logged via the Backend Admin SDK and will be rejected here.
+      allow create: if isAuthenticated() && isUserActive() &&
+        request.resource.data.userId == request.auth.uid &&
+        request.resource.data.userRole == getUserRole() &&
+        request.resource.data.actionType in [
+          'تسجيل دخول',
+          'تسجيل خروج',
+          'إضافة مريض',
+          'تعديل مريض',
+          'تعديل شيت طبي',
+          'حذف مريض',
+          'تسجيل جلسة',
+          'تعديل جلسة',
+          'حذف جلسة',
+          'طباعة تقرير'
+        ];
+    }
+
+    // ================= 6. Dynamic Clinical & Insurance Options =================
+    match /clinical_options/{category} {
+      allow read: if isAuthenticated() && isUserActive();
+      allow write: if isAdmin();
+    }
+
+    match /insurance_companies/{type} {
+      allow read: if isAuthenticated() && isUserActive();
+      allow write: if isAdmin();
+    }
+  }
+}
