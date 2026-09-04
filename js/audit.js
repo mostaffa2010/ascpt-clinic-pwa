@@ -1,37 +1,20 @@
 // ========================================================
 // ASCPT - Staff User Management & Audit Trail Module
-// Real Firebase Authentication & Cloud Firestore Provisioning
+// Production Architecture: Exclusively Server-Controlled via Backend Admin SDK
+// Endpoint: /api/admin/users
 // ========================================================
 
-import { initializeApp, deleteApp } from 'https://www.gstatic.com/firebasejs/12.18.0/firebase-app.js';
 import {
-  getAuth,
-  createUserWithEmailAndPassword,
-  signInWithEmailAndPassword,
-  signOut as secondarySignOut,
-  updateProfile
-} from 'https://www.gstatic.com/firebasejs/12.18.0/firebase-auth.js';
-import {
-  doc,
-  setDoc,
-  deleteDoc,
   getDocs,
-  collection
+  collection,
+  query,
+  orderBy
 } from 'https://www.gstatic.com/firebasejs/12.18.0/firebase-firestore.js';
 
-import { CLINIC_CONFIG } from './clinic-config.js';
 import { firestoreDb, firebaseAuth } from './firebase-init.js';
-import { db } from './db.js';
 import { auth } from './auth.js';
 import { RolesManager } from './roles.js';
 import { escapeHTML } from './utils.js';
-
-const withTimeout = (promise, ms = 3000) => {
-  return Promise.race([
-    promise,
-    new Promise((_, reject) => setTimeout(() => reject(new Error('Timeout')), ms))
-  ]);
-};
 
 export class AuditAndAdminManager {
   constructor(app) {
@@ -82,15 +65,15 @@ export class AuditAndAdminManager {
     const password = passwordInput?.value;
     const role = roleInput?.value || 'doctor';
 
-    if (!name || name.length < 3) {
-      await this.app.showAlert('يرجى إدخال اسم صحيح للموظف (3 أحرف على الأقل).', 'بيانات غير مكتملة', 'warning');
+    if (!name || name.length < 2) {
+      await this.app.showAlert('يرجى إدخال اسم صحيح للموظف (حرفين على الأقل).', 'بيانات غير مكتملة', 'warning');
       nameInput?.focus();
       return;
     }
 
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!email || !emailRegex.test(email)) {
-      await this.app.showAlert('يرجى إدخال بريد إلكتروني صحيح (مثال: receptionist@ascpt.com).', 'بريد إلكتروني غير صالح', 'warning');
+      await this.app.showAlert('يرجى إدخال بريد إلكتروني صحيح (مثال: staff@ascpt.clinic).', 'بريد إلكتروني غير صالح', 'warning');
       emailInput?.focus();
       return;
     }
@@ -104,106 +87,46 @@ export class AuditAndAdminManager {
     const origBtnHtml = btnSubmit ? btnSubmit.innerHTML : '<i class="fa-solid fa-plus"></i> إنشاء الحساب';
     if (btnSubmit) {
       btnSubmit.disabled = true;
-      btnSubmit.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> <span>جاري إنشاء الحساب في Firebase...</span>';
+      btnSubmit.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> <span>جاري إنشاء الحساب عبر الخادم...</span>';
     }
 
-    let tempApp = null;
-
     try {
-      const tempAppName = 'staff_provisioning_' + Date.now();
-      tempApp = initializeApp(CLINIC_CONFIG.firebase, tempAppName);
-      const tempAuth = getAuth(tempApp);
+      // 1. Obtain verified Firebase ID Token from currently authenticated Admin
+      if (!firebaseAuth.currentUser) {
+        throw new Error('جلسة تسجيل الدخول منتهية، يرجى إعادة تسجيل الدخول.');
+      }
+      const idToken = await firebaseAuth.currentUser.getIdToken(true);
 
-      let newUid = null;
+      // 2. Invoke trusted backend serverless endpoint
+      const response = await fetch('/api/admin/users', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${idToken}`
+        },
+        body: JSON.stringify({ name, email, password, role })
+      });
 
-      try {
-        // 1. Try creating user in Firebase Authentication
-        const userCredential = await createUserWithEmailAndPassword(tempAuth, email, password);
-        newUid = userCredential.user.uid;
-        try {
-          await updateProfile(userCredential.user, { displayName: name });
-        } catch (_) {}
-      } catch (authCreateErr) {
-        // 2. If already exists in Auth, link it using the credentials to set the profile and role
-        if (authCreateErr.code === 'auth/email-already-in-use' || authCreateErr.code === 'auth/email-already-exists') {
-          try {
-            const existingCred = await signInWithEmailAndPassword(tempAuth, email, password);
-            newUid = existingCred.user.uid;
-            try {
-              await updateProfile(existingCred.user, { displayName: name });
-            } catch (_) {}
-          } catch (loginErr) {
-            throw new Error('هذا البريد الإلكتروني مسجل مسبقاً في Firebase بكلمة سر مختلفة. يرجى إدخال كلمة السر الصحيحة المسجلة له أو استخدام بريد إلكتروني آخر.');
-          }
-        } else {
-          throw authCreateErr;
-        }
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.error || 'فشل إنشاء الحساب عبر الخادم.');
       }
 
-      // Destroy secondary auth instance
-      try {
-        await secondarySignOut(tempAuth);
-        await deleteApp(tempApp);
-      } catch (_) {}
-      tempApp = null;
-
-      // 3. Prepare user profile document
-      const userProfileData = {
-        uid: newUid,
-        id: newUid,
-        name,
-        email,
-        role, // Strictly the selected role: 'doctor' or 'receptionist'
-        active: true,
-        createdAt: new Date().toISOString(),
-        createdBy: currentUser.uid || currentUser.id || 'admin',
-        createdByName: currentUser.name || 'مدير المركز'
-      };
-
-      // 4. Save to Cloud Firestore users/{newUid}
-      if (firestoreDb) {
-        try {
-          await withTimeout(setDoc(doc(firestoreDb, 'users', newUid), userProfileData, { merge: true }), 3500);
-        } catch (fsErr) {
-          console.warn('Firestore profile write notice (cached locally):', fsErr.message);
-        }
-      }
-
-      // 5. Update local cache in db layer
-      await db.saveUser(userProfileData);
-      await db.logAudit('إضافة موظف', `قام المدير بإنشاء حساب للموظف: ${name} بدور: ${RolesManager.getRoleLabel(role)} (${email})`, currentUser);
-
-      // 6. Refresh Doctor dropdowns
-      await this.app.populateDoctorDropdowns();
-
-      // 7. Reset form fields
+      // 3. Clear form inputs on verified success
       if (nameInput) nameInput.value = '';
       if (emailInput) emailInput.value = '';
       if (passwordInput) passwordInput.value = '';
 
-      this.app.showToast(`تم إنشاء وتأكيد حساب ${name} بنجاح بدور: (${RolesManager.getRoleLabel(role)})`);
+      this.app.showToast(`تم إنشاء وتوثيق حساب ${name} بنجاح كـ (${RolesManager.getRoleLabel(role)})`);
 
-      // 8. Reload staff table & audit log
+      // 4. Reload verified users directory and doctor dropdowns
+      await this.app.populateDoctorDropdowns();
       await this.loadUsers();
       await this.loadAuditLogs();
     } catch (err) {
-      console.error('Error in handleAddUser:', err);
-      if (tempApp) {
-        try { await deleteApp(tempApp); } catch (_) {}
-      }
-
-      let errorMsg = 'حدث خطأ أثناء تسجيل الموظف.';
-      if (err.code === 'auth/email-already-in-use' || err.code === 'auth/email-already-exists') {
-        errorMsg = 'هذا البريد الإلكتروني مسجل بالفعل في Firebase.';
-      } else if (err.code === 'auth/invalid-email') {
-        errorMsg = 'صيغة البريد الإلكتروني غير صالحة.';
-      } else if (err.code === 'auth/weak-password') {
-        errorMsg = 'كلمة السر ضعيفة، يرجى اختيار كلمة سر أقوى (6 خانات على الأقل).';
-      } else if (err.message) {
-        errorMsg = err.message;
-      }
-
-      await this.app.showAlert(errorMsg, 'تنبيه إنشاء الحساب', 'danger');
+      console.error('User provisioning failed:', err);
+      await this.app.showAlert(err.message || 'حدث خطأ أثناء إنشاء الحساب.', 'خطأ في إنشاء الحساب', 'danger');
     } finally {
       if (btnSubmit) {
         btnSubmit.disabled = false;
@@ -212,26 +135,57 @@ export class AuditAndAdminManager {
     }
   }
 
+  async deleteUser(userId, userName) {
+    const confirmed = await this.app.showConfirm(
+      `هل أنت متأكد من حذف حساب الموظف: (${userName}) نهائياً من النظام؟`,
+      'تأكيد الحذف النهائي'
+    );
+
+    if (!confirmed) return;
+
+    try {
+      if (!firebaseAuth.currentUser) {
+        throw new Error('جلسة تسجيل الدخول منتهية.');
+      }
+      const idToken = await firebaseAuth.currentUser.getIdToken(true);
+
+      const response = await fetch('/api/admin/users', {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${idToken}`
+        },
+        body: JSON.stringify({ targetUid: userId })
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.error || 'فشل حذف الموظف من الخادم.');
+      }
+
+      this.app.showToast(`تم حذف حساب ${userName} نهائياً.`);
+      await this.app.populateDoctorDropdowns();
+      await this.loadUsers();
+      await this.loadAuditLogs();
+    } catch (err) {
+      console.error('User deletion error:', err);
+      await this.app.showAlert(err.message || 'فشل حذف الموظف.', 'خطأ', 'danger');
+    }
+  }
+
   async loadUsers() {
     const tbody = document.getElementById('admin-users-tbody');
     if (!tbody) return;
 
     let users = [];
-
     if (firestoreDb) {
       try {
-        const snap = await withTimeout(getDocs(collection(firestoreDb, 'users')), 3000);
-        if (snap && !snap.empty) {
-          users = snap.docs.map(d => ({ ...d.data(), id: d.id }));
-          localStorage.setItem('ascpt_users', JSON.stringify(users));
-        } else {
-          users = await db.getUsers();
-        }
-      } catch (fsErr) {
-        users = await db.getUsers();
+        const snap = await getDocs(collection(firestoreDb, 'users'));
+        users = snap.docs.map(d => ({ ...d.data(), id: d.id }));
+      } catch (err) {
+        console.error('Error loading users from Firestore:', err);
       }
-    } else {
-      users = await db.getUsers();
     }
 
     const currentUser = auth.getCurrentUser();
@@ -265,59 +219,23 @@ export class AuditAndAdminManager {
     }).join('');
   }
 
-  async deleteUser(userId, userName) {
-    const confirmed = await this.app.showConfirm(
-      `هل أنت متأكد من حذف حساب الموظف: (${userName}) نهائياً من النظام وقاعدة البيانات؟`,
-      'تأكيد الحذف النهائي'
-    );
-
-    if (!confirmed) return;
-
-    const currentUser = auth.getCurrentUser();
-
-    // 1. Attempt deletion from Backend Privileged Endpoint (to delete from Firebase Auth too)
-    try {
-      const idToken = await firebaseAuth?.currentUser?.getIdToken();
-      if (idToken) {
-        await fetch('/api/admin/users', {
-          method: 'DELETE',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${idToken}`
-          },
-          body: JSON.stringify({ targetUid: userId })
-        });
-      }
-    } catch (apiErr) {
-      console.warn('Backend delete endpoint notice:', apiErr.message);
-    }
-
-    // 2. Delete from Cloud Firestore
-    if (firestoreDb) {
-      try {
-        await withTimeout(deleteDoc(doc(firestoreDb, 'users', userId)), 2500);
-      } catch (e) {
-        console.warn('Firestore delete user notice:', e.message);
-      }
-    }
-
-    // 3. Delete from local cache
-    await db.deleteUser(userId);
-    await db.logAudit('حذف موظف', `قام المدير بحذف حساب: ${userName} نهائياً`, currentUser);
-    await this.app.populateDoctorDropdowns();
-
-    this.app.showToast(`تم حذف حساب ${userName} نهائياً.`);
-    await this.loadUsers();
-    await this.loadAuditLogs();
-  }
-
   async loadAuditLogs() {
     const tbody = document.getElementById('audit-log-tbody');
     if (!tbody) return;
 
-    const logs = await db.getAuditLogs();
+    let logs = [];
+    if (firestoreDb) {
+      try {
+        const q = query(collection(firestoreDb, 'audit_logs'), orderBy('timestampRaw', 'desc'));
+        const snap = await getDocs(q);
+        logs = snap.docs.map(d => ({ ...d.data(), id: d.id }));
+      } catch (err) {
+        console.warn('Error loading audit logs from Firestore:', err.message);
+      }
+    }
+
     if (logs.length === 0) {
-      tbody.innerHTML = `<tr><td colspan="5" style="text-align: center; color: var(--text-muted); padding: 20px;">لا توجد سجلات تعديل مسجلة حتى الآن.</td></tr>`;
+      tbody.innerHTML = `<tr><td colspan="5" style="text-align: center; color: var(--text-muted); padding: 20px;">لا توجد سجلات تدقيق مسجلة حتى الآن.</td></tr>`;
       return;
     }
 

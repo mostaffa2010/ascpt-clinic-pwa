@@ -506,38 +506,7 @@ class App {
 
 
 
-  async resetDemoData() {
-    const confirmed = await this.showConfirm(
-      'هل ترغب في إعادة ضبط جميع بيانات الـ Demo للحالة الأصلية؟\n\nسيتم استعادة الـ 185 مريض، و 635 جلسة، ومصروفات شهرين كاملين، وتصفير أي تعديلات أو إضافات أجريتها.',
-      'تأكيد إعادة ضبط الـ Demo'
-    );
-    if (confirmed) {
-      db.resetDemo();
 
-      // إعادة ضبط الحساب النشط لمدير المركز
-      if (typeof auth !== 'undefined' && auth.switchRole) {
-        await auth.switchRole('admin');
-      }
-
-      // إذا كان المستخدم داخل شيت مريض فرعي يعود لشاشة المرضى بأمان
-      if (this.currentView === 'patient-sheet') {
-        this.switchView('patients');
-      }
-
-      // إعادة ضبط محددات التاريخ لليوم الحالي
-      if (this.sessionsManager && typeof this.sessionsManager.setDateQuick === 'function') {
-        this.sessionsManager.setDateQuick('today');
-      }
-      if (this.financeManager && typeof this.financeManager.setDateQuick === 'function') {
-        this.financeManager.setDateQuick('today');
-      }
-
-      // تحديث كامل الشاشات والبيانات في الذاكرة دون reload
-      await this.refreshAll();
-
-      this.showToast('تمت استعادة جميع بيانات الـ Demo للحالة الأصلية بنجاح 🔄');
-    }
-  }
 
   // ================= Custom Medical Calendar Picker =================
   openCalendarPicker(targetInputId) {

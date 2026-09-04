@@ -2,50 +2,136 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
+    // ================= Core Helper Functions =================
+
+    // 1. Basic Authentication Check
     function isAuthenticated() {
       return request.auth != null;
     }
 
+    // 2. Profile Existence Check
+    function hasProfile() {
+      return isAuthenticated() &&
+        exists(/databases/$(database)/documents/users/$(request.auth.uid));
+    }
+
+    // 3. Get User Profile Data
+    function getUserData() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data;
+    }
+
+    // 4. Active Staff Verification (Fail Closed if inactive or profile missing)
+    function isUserActive() {
+      return hasProfile() && getUserData().active == true;
+    }
+
+    // 5. Role Helper
+    function getUserRole() {
+      return getUserData().role;
+    }
+
+    // 6. Role Checks
+    function isAdmin() {
+      return isUserActive() && getUserRole() == 'admin';
+    }
+
+    function isDoctor() {
+      return isUserActive() && getUserRole() == 'doctor';
+    }
+
+    function isReceptionist() {
+      return isUserActive() && getUserRole() == 'receptionist';
+    }
+
     // ================= 1. Staff Users Collection =================
     match /users/{userId} {
-      // Any authenticated clinic staff member can read staff directory
-      allow read: if isAuthenticated();
+      // Authenticated users can read their own profile to verify credentials/status,
+      // and active staff can read the staff directory (to populate doctor dropdowns)
+      allow read: if isAuthenticated() && (request.auth.uid == userId || isUserActive());
 
-      // Clinic Admin can provision staff accounts, or user can record initial profile
-      allow create, update: if isAuthenticated();
+      // Direct client-side user creation is strictly DENIED.
+      // All user provisioning MUST be performed via the Backend Admin Serverless Function.
+      allow create: if false;
 
-      // Staff deletion
-      allow delete: if isAuthenticated();
+      // Direct client-side user deletion is strictly DENIED.
+      allow delete: if false;
+
+      // Updates from client:
+      // - Users cannot modify 'role', 'active', 'createdAt', 'createdBy'.
+      // - Self-update is strictly restricted to safe personal fields only.
+      allow update: if isUserActive() &&
+        request.auth.uid == userId &&
+        request.resource.data.role == resource.data.role &&
+        request.resource.data.active == resource.data.active &&
+        request.resource.data.createdAt == resource.data.createdAt &&
+        request.resource.data.createdBy == resource.data.createdBy &&
+        request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+          'name', 'phone', 'photoUrl', 'updatedAt'
+        ]);
     }
 
     // ================= 2. Patients & Clinical Sheets =================
     match /patients/{patientId} {
-      allow read, write: if isAuthenticated();
+      // All active staff can read patients
+      allow read: if isUserActive();
+
+      // Only Admin and Receptionist can create new patient files
+      allow create: if isAdmin() || isReceptionist();
+
+      // Deletion allowed only for Admin and Receptionist
+      allow delete: if isAdmin() || isReceptionist();
+
+      // Updates:
+      // - Admin & Receptionist: full update (demographics, billing, clinical)
+      // - Doctor: can ONLY update clinical sheet fields, CANNOT alter patient demographics or billing
+      allow update: if isUserActive() && (
+        isAdmin() ||
+        isReceptionist() ||
+        (
+          isDoctor() &&
+          request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+            'clinicalSheet', 'lastUpdatedAt', 'lastUpdatedBy'
+          ])
+        )
+      );
     }
 
     // ================= 3. Sessions =================
     match /sessions/{sessionId} {
-      allow read, write: if isAuthenticated();
+      // Active staff can view sessions (Doctor sees for clinical reference, Receptionist/Admin for management)
+      allow read: if isUserActive();
+
+      // Sessions are operational/financial records: created, updated, and deleted by Admin or Receptionist
+      // Doctors CANNOT create, modify or delete session financial records
+      allow create, update, delete: if isAdmin() || isReceptionist();
     }
 
     // ================= 4. Expenses & Clinic Financials =================
     match /expenses/{expenseId} {
-      allow read, write: if isAuthenticated();
+      // Financial expenses are strictly restricted to Administrator
+      // Doctors and Receptionists are completely denied read and write access
+      allow read, write: if isAdmin();
     }
 
-    // ================= 5. Audit Trail & Logs =================
-    match /audit_logs/{logId} {
-      allow read, create: if isAuthenticated();
-      allow update, delete: if false;
-    }
-
-    // ================= 6. Dynamic Clinical & Insurance Options =================
+    // ================= 5. Clinical Options & Insurance Companies =================
     match /clinical_options/{category} {
-      allow read, write: if isAuthenticated();
+      allow read: if isUserActive();
+      allow write: if isAdmin();
     }
 
     match /insurance_companies/{type} {
-      allow read, write: if isAuthenticated();
+      allow read: if isUserActive();
+      allow write: if isAdmin();
+    }
+
+    // ================= 6. Audit Logs =================
+    match /audit_logs/{logId} {
+      // Only Administrator can read audit logs
+      allow read: if isAdmin();
+
+      // Client creation, update, and deletion are strictly DENIED!
+      // All trusted audit logs MUST be recorded exclusively by the Backend Admin SDK.
+      allow create, update, delete: if false;
     }
   }
 }

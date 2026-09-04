@@ -1,7 +1,7 @@
 // ========================================================
 // ASCPT - Production Firebase Authentication Service
 // Pinned CDN Modules: Firebase v12.18.0
-// Strict Role-Based Access Control
+// Strict Fail-Closed Security & Authoritative Profile Verification
 // ========================================================
 
 import {
@@ -23,62 +23,52 @@ class AuthService {
     this.isInitialized = false;
   }
 
+  /**
+   * Authoritatively fetches and validates the user profile from Firestore users/{uid}.
+   * Strict Fail-Closed Policy:
+   * - No localStorage role fallbacks.
+   * - No email prefix heuristics (e.g. email heuristics).
+   * - No default doctor role assumptions.
+   * If profile is missing, inactive, or invalid, access is completely denied.
+   */
   async resolveUserProfile(firebaseUser) {
-    let role = null;
-    let name = firebaseUser.displayName || null;
-
-    // 1. Check local staff cache (ascpt_users) for immediate synchronous resolution
-    try {
-      const cachedUsers = JSON.parse(localStorage.getItem('ascpt_users') || '[]');
-      const cached = cachedUsers.find(u =>
-        u.uid === firebaseUser.uid ||
-        u.id === firebaseUser.uid ||
-        (u.email && u.email.toLowerCase() === firebaseUser.email.toLowerCase())
-      );
-      if (cached) {
-        if (cached.role) role = cached.role;
-        if (cached.name) name = cached.name;
-      }
-    } catch (_) {}
-
-    // 2. Attempt Firestore profile check with a tight timeout
-    if (firestoreDb) {
-      try {
-        const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 2000));
-        const fetchPromise = async () => {
-          const userDocRef = doc(firestoreDb, 'users', firebaseUser.uid);
-          const userSnap = await getDoc(userDocRef);
-          return userSnap.exists() ? userSnap.data() : null;
-        };
-
-        const profile = await Promise.race([fetchPromise(), timeoutPromise]);
-        if (profile) {
-          if (profile.active === false) {
-            throw new Error('ACCOUNT_DISABLED');
-          }
-          if (profile.role) role = profile.role;
-          if (profile.name) name = profile.name;
-        }
-      } catch (err) {
-        if (err.message === 'ACCOUNT_DISABLED') throw err;
-      }
+    if (!firestoreDb) {
+      throw new Error('FIRESTORE_UNAVAILABLE');
     }
 
-    // 3. Fallback only if no role was resolved from cache or Firestore:
-    if (!role) {
-      if (firebaseUser.email && firebaseUser.email.toLowerCase().startsWith('admin@')) {
-        role = ROLES.ADMIN;
-      } else {
-        role = ROLES.DOCTOR; // Non-admin accounts NEVER default to admin!
-      }
+    let userSnap;
+    try {
+      const userDocRef = doc(firestoreDb, 'users', firebaseUser.uid);
+      userSnap = await getDoc(userDocRef);
+    } catch (fsErr) {
+      console.error('Firestore profile verification error:', fsErr);
+      throw new Error('FIRESTORE_UNAVAILABLE');
+    }
+
+    if (!userSnap || !userSnap.exists()) {
+      throw new Error('PROFILE_MISSING');
+    }
+
+    const profile = userSnap.data();
+    if (!profile) {
+      throw new Error('PROFILE_MISSING');
+    }
+
+    if (profile.active !== true) {
+      throw new Error('ACCOUNT_DISABLED');
+    }
+
+    const validRoles = Object.values(ROLES);
+    if (!profile.role || !validRoles.includes(profile.role)) {
+      throw new Error('MALFORMED_PROFILE');
     }
 
     return {
       uid: firebaseUser.uid,
       id: firebaseUser.uid,
-      name: name || (firebaseUser.email ? firebaseUser.email.split('@')[0] : 'طبيب المركز'),
+      name: profile.name || firebaseUser.displayName || firebaseUser.email,
       email: firebaseUser.email,
-      role: role,
+      role: profile.role,
       active: true
     };
   }
@@ -87,7 +77,7 @@ class AuthService {
     this.onUserChanged = onUserChanged;
 
     if (!isConfigured || !firebaseAuth) {
-      console.warn('ASCPT Auth Notice: Firebase configuration is missing or pending.');
+      console.warn('ASCPT Auth Notice: Firebase configuration is missing.');
       document.body.classList.add('not-authenticated');
       this.showLoginModal();
       return;
@@ -96,9 +86,10 @@ class AuthService {
     onAuthStateChanged(firebaseAuth, async (firebaseUser) => {
       if (firebaseUser) {
         try {
+          // Authoritatively verify profile (Fail-Closed)
           this.currentUser = await this.resolveUserProfile(firebaseUser);
 
-          // Unlock application gate
+          // Unlock application only upon successful authoritative verification
           document.body.classList.remove('not-authenticated');
           this.hideLoginModal();
           this.hideLoginError();
@@ -110,18 +101,34 @@ class AuthService {
             window.app.showToast(`مرحباً بك: ${this.currentUser.name} (${RolesManager.getRoleLabel(this.currentUser.role)})`);
           }
         } catch (err) {
-          if (err.message === 'ACCOUNT_DISABLED') {
+          console.error('Auth verification failed, enforcing Fail-Closed:', err.message);
+
+          // Force immediate sign out to prevent any privileged or ambiguous state
+          try {
             await signOut(firebaseAuth);
-            this.currentUser = null;
-            document.body.classList.add('not-authenticated');
-            this.updateUI();
-            this.showLoginModal();
-            this.showLoginError('تم تعطيل هذا الحساب من قبل إدارة المركز.');
-            return;
+          } catch (_) {}
+
+          this.currentUser = null;
+          document.body.classList.add('not-authenticated');
+          this.updateUI();
+          this.showLoginModal();
+
+          let userMsg = 'تعذر تسجيل الدخول، يرجى مراجعة إدارة المركز.';
+          if (err.message === 'PROFILE_MISSING') {
+            userMsg = 'حسابك غير مسجل في قاعدة بيانات المركز. يرجى التواصل مع إدارة المركز لإضافة ملفك.';
+          } else if (err.message === 'ACCOUNT_DISABLED') {
+            userMsg = 'تم تعطيل هذا الحساب من قبل إدارة المركز.';
+          } else if (err.message === 'MALFORMED_PROFILE') {
+            userMsg = 'صلاحيات هذا الحساب غير محددة أو غير صالحة. يرجى مراجعة إدارة المركز.';
+          } else if (err.message === 'FIRESTORE_UNAVAILABLE') {
+            userMsg = 'تعذر التحقق من صلاحيات الحساب بسبب انقطاع الاتصال بقاعدة البيانات. يرجى التحقق من اتصال الإنترنت.';
           }
+
+          this.showLoginError(userMsg);
+          if (this.onUserChanged) this.onUserChanged(null);
         }
       } else {
-        // User is signed out
+        // User is completely signed out
         this.currentUser = null;
         document.body.classList.add('not-authenticated');
         this.updateUI();
@@ -162,7 +169,7 @@ class AuthService {
       const userCredential = await signInWithEmailAndPassword(firebaseAuth, email.trim(), password);
       const user = userCredential.user;
 
-      // Resolve proper role immediately
+      // Authoritatively resolve and enforce role upon login (Fail-Closed)
       this.currentUser = await this.resolveUserProfile(user);
 
       document.body.classList.remove('not-authenticated');
@@ -171,11 +178,28 @@ class AuthService {
       this.updateUI();
 
       if (this.onUserChanged) this.onUserChanged(this.currentUser);
-
       return user;
     } catch (err) {
       console.error('Firebase Login error:', err.code, err.message);
-      const friendlyMsg = this.mapAuthError(err);
+
+      // If user was partially signed in on Firebase Auth, sign out to enforce Fail-Closed
+      if (firebaseAuth.currentUser) {
+        try { await signOut(firebaseAuth); } catch (_) {}
+      }
+      this.currentUser = null;
+      document.body.classList.add('not-authenticated');
+
+      let friendlyMsg = this.mapAuthError(err);
+      if (err.message === 'PROFILE_MISSING') {
+        friendlyMsg = 'حسابك غير مسجل في قاعدة بيانات المركز. يرجى التواصل مع إدارة المركز لإضافة ملفك.';
+      } else if (err.message === 'ACCOUNT_DISABLED') {
+        friendlyMsg = 'تم تعطيل هذا الحساب من قبل إدارة المركز.';
+      } else if (err.message === 'MALFORMED_PROFILE') {
+        friendlyMsg = 'صلاحيات هذا الحساب غير صالحة. يرجى مراجعة إدارة المركز.';
+      } else if (err.message === 'FIRESTORE_UNAVAILABLE') {
+        friendlyMsg = 'تعذر الاتصال بقاعدة البيانات للتحقق من صلاحياتك. يرجى التحقق من اتصال الإنترنت.';
+      }
+
       this.showLoginError(friendlyMsg);
       throw new Error(friendlyMsg);
     }
@@ -206,7 +230,7 @@ class AuthService {
       'auth/too-many-requests': 'تم حظر المحاولات مؤقتاً لكثرة المحاولات الخاطئة. يرجى الانتظار والمحاولة لاحقاً.',
       'auth/network-request-failed': 'تعذر الاتصال بخوادم Firebase. يرجى التحقق من اتصال الإنترنت.'
     };
-    return errorMap[code] || 'حدث خطأ أثناء تسجيل الدخول. يرجى التحقق من البيانات والمحاولة مجدداً.';
+    return errorMap[code] || 'حدث خطأ أثناء تسجيل الدخول. يرجى التأكد من البيانات والمحاولة مجدداً.';
   }
 
   showLoginModal() {
@@ -221,7 +245,7 @@ class AuthService {
   }
 
   hideLoginModal() {
-    if (!this.currentUser) return;
+    if (!this.currentUser) return; // Never dismiss if unauthenticated
     const modal = document.getElementById('modal-auth');
     if (modal) modal.classList.remove('active');
   }

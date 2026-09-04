@@ -45,7 +45,6 @@ physioflow/
 │   ├── audit.js        # Audit trail & logs
 │   ├── pwa.js          # PWA installation & network status
 │   ├── utils.js        # Pure helper functions
-│   └── demo-data.js    # Preloaded showcase data
 │
 ├── assets/
 │   ├── icons/
@@ -130,9 +129,10 @@ physioflow/
 
 ---
 
-## 13. دعم تعدد العيادات (Multi-Tenant Architecture)
-- تصميم السجلات لترتبط دائماً بـ `clinicId`.
-- عزل بيانات كل مركز بالكامل عبر Security Rules لمنع أي تداخل بين العيادات.
+## 13. معمارية المركز المستقل (Single-Tenant Architecture)
+- التطبيق يعمل بنمط عيادة واحدة = مشروع Firebase واحد مستقل (One Clinic = One Firebase Project).
+- المجموعات مسطحة ومباشرة في جذر Firestore (`patients`, `sessions`, `expenses`, `users`, `audit_logs`) بدون أي استخدام لـ `clinicId`.
+- حدود مشروع Firebase هي بذاتها حدود العيادة (Tenant Boundary).
 
 ---
 

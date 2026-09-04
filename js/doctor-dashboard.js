@@ -1,5 +1,5 @@
 // ========================================================
-// PhysioFlow Demo - Doctor Personal Clinical Dashboard
+// ASCPT - Doctor Personal Clinical Dashboard
 // ========================================================
 
 import { db } from './db.js';
@@ -65,11 +65,7 @@ export class DoctorDashboardManager {
     }
 
     // 2. This month's sessions
-    let monthSessions = this.docSessions.filter(s => s.date && s.date.startsWith(currentMonth));
-    if (monthSessions.length === 0) {
-      // Fallback to latest active month in demo data (August 2026)
-      monthSessions = this.docSessions.filter(s => s.date && s.date.startsWith('2026-08'));
-    }
+    const monthSessions = this.docSessions.filter(s => s.date && s.date.startsWith(currentMonth));
     const monthCountEl = document.getElementById('stat-doc-month-count');
     if (monthCountEl) {
       monthCountEl.textContent = `${monthSessions.length} حالة`;

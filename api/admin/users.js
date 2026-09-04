@@ -2,6 +2,7 @@
 // ASCPT - Admin Staff Management Serverless Function
 // Secure backend privileged endpoint using Firebase Admin SDK
 // Designed for Vercel Serverless Functions
+// Phase 2.7 Security Hardened: Strict Validation, Compensation & Trusted Auditing
 // ========================================================
 
 import { initializeApp, getApps, cert } from 'firebase-admin/app';
@@ -58,33 +59,45 @@ function mapAuthError(err) {
 }
 
 export default async function handler(req, res) {
-  res.setHeader('Cache-Control', 'no-store');
+  res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+  res.setHeader('Pragma', 'no-cache');
+  res.setHeader('Expires', '0');
 
-  if (req.method !== 'POST' && req.method !== 'PATCH' && req.method !== 'DELETE') {
+  // 1. Strict HTTP Method validation
+  const allowedMethods = ['POST', 'PATCH', 'DELETE'];
+  if (!allowedMethods.includes(req.method)) {
+    res.setHeader('Allow', allowedMethods.join(', '));
     return res.status(405).json({ error: 'الطريقة المطلوبة غير مسموح بها (Method Not Allowed).' });
   }
 
+  // 2. Strict Content-Type validation
   const contentType = req.headers['content-type'] || '';
   if (!contentType.toLowerCase().includes('application/json')) {
     return res.status(415).json({ error: 'نوع المحتوى غير مدعوم، يجب إرسال application/json.' });
   }
 
+  // 3. Strict Request Body validation
   if (!req.body || typeof req.body !== 'object' || Array.isArray(req.body)) {
     return res.status(400).json({ error: 'بيانات الطلب غير صالحة (Invalid Request Body).' });
   }
 
+  // 4. Authorization Header & ID Token Verification
   const authHeader = req.headers.authorization || '';
   if (!authHeader.startsWith('Bearer ')) {
     return res.status(401).json({ error: 'غير مصرح: رمز التحقق مفقود أو غير صالح.' });
   }
 
   const idToken = authHeader.split('Bearer ')[1].trim();
+  if (!idToken) {
+    return res.status(401).json({ error: 'غير مصرح: رمز التحقق فارغ.' });
+  }
+
   let adminServices;
   try {
     adminServices = initAdmin();
   } catch (initErr) {
     console.error('Firebase Admin init failure:', initErr.message);
-    return res.status(500).json({ error: 'خطأ داخلي في الخادم: لم يتم تهيئة خدمات الربط بنجاح.' });
+    return res.status(500).json({ error: 'خطأ داخلي في الخادم: لم يتم تهيئة خدمات الربط السحابية.' });
   }
 
   const { auth: adminAuth, db: firestore } = adminServices;
@@ -93,27 +106,28 @@ export default async function handler(req, res) {
   let callerName = null;
 
   try {
-    const decodedToken = await adminAuth.verifyIdToken(idToken);
+    const decodedToken = await adminAuth.verifyIdToken(idToken, true);
     callerUid = decodedToken.uid;
 
     const callerDoc = await firestore.collection('users').doc(callerUid).get();
     if (!callerDoc.exists) {
-      return res.status(403).json({ error: 'محظور: ملف المستخدم صاحب الطلب غير مسجل.' });
+      return res.status(403).json({ error: 'محظور: ملف المستخدم صاحب الطلب غير مسجل في قاعدة البيانات.' });
     }
 
     const callerData = callerDoc.data();
-    callerRole = callerData.role;
-    callerName = callerData.name || 'مدير المركز';
+    callerRole = callerData?.role;
+    callerName = callerData?.name || 'مدير المركز';
 
-    if (callerRole !== 'admin' || callerData.active === false) {
-      return res.status(403).json({ error: 'محظور: يتطلب هذا الإجراء صلاحيات مدير المركز.' });
+    // Strict Fail-Closed: caller MUST be an active admin
+    if (callerRole !== 'admin' || callerData?.active !== true) {
+      return res.status(403).json({ error: 'محظور: يتطلب هذا الإجراء صلاحيات مدير المركز النشط.' });
     }
   } catch (authErr) {
     console.error('Caller authentication failure:', authErr.message);
     return res.status(401).json({ error: 'غير مصرح: رمز التحقق منتهي أو غير صالح.' });
   }
 
-  // ================= POST: Create Staff User =================
+  // ================= POST: Create Staff User (Doctor or Receptionist ONLY) =================
   if (req.method === 'POST') {
     const { name, email, password, role } = req.body;
 
@@ -130,24 +144,28 @@ export default async function handler(req, res) {
       return res.status(400).json({ error: 'كلمة السر يجب أن تكون بين 6 و 128 خانة.' });
     }
 
-    const validRoles = ['doctor', 'receptionist'];
-    if (!role || !validRoles.includes(role)) {
+    // Role enforcement: strictly doctor or receptionist. Admin creation from client endpoint is FORBIDDEN.
+    const allowedStaffRoles = ['doctor', 'receptionist'];
+    if (!role || !allowedStaffRoles.includes(role)) {
       if (role === 'admin') {
         return res.status(400).json({ error: 'إنشاء حسابات المديرين غير متاح عبر هذه الواجهة.' });
       }
       return res.status(400).json({ error: 'الدور المحدد غير صالح، متاح فقط: طبيب معالج أو سكرتارية.' });
     }
 
+    let createdUserRecord = null;
+
     try {
-      const userRecord = await adminAuth.createUser({
+      // 1. Create user in Firebase Authentication
+      createdUserRecord = await adminAuth.createUser({
         email: email.trim().toLowerCase(),
         password,
         displayName: name.trim()
       });
 
       const userDocData = {
-        uid: userRecord.uid,
-        id: userRecord.uid,
+        uid: createdUserRecord.uid,
+        id: createdUserRecord.uid,
         name: name.trim(),
         email: email.trim().toLowerCase(),
         role,
@@ -163,20 +181,25 @@ export default async function handler(req, res) {
         userId: callerUid,
         userName: callerName,
         userRole: 'admin',
-        targetUid: userRecord.uid,
+        targetUid: createdUserRecord.uid,
         targetEmail: email.trim().toLowerCase(),
         timestamp: new Date().toISOString(),
         timestampRaw: Date.now()
       };
 
+      // 2. Write to Firestore profile & Audit Log with atomicity/compensation
       try {
-        await firestore.collection('users').doc(userRecord.uid).set(userDocData);
+        await firestore.collection('users').doc(createdUserRecord.uid).set(userDocData);
         await firestore.collection('audit_logs').add(auditLogData);
       } catch (dbErr) {
-        console.error('CRITICAL: Firestore profile write failed for UID:', userRecord.uid, dbErr);
+        console.error('CRITICAL: Firestore profile write failed for UID:', createdUserRecord.uid, dbErr);
+        // Rollback: delete the newly created Auth user so no orphaned auth user exists
         try {
-          await adminAuth.deleteUser(userRecord.uid);
-        } catch (_) {}
+          await adminAuth.deleteUser(createdUserRecord.uid);
+          console.log('Rollback successful: Deleted orphaned Auth user UID:', createdUserRecord.uid);
+        } catch (rbErr) {
+          console.error('CRITICAL ROLLBACK FAILURE: Failed to delete orphaned Auth user UID:', createdUserRecord.uid, rbErr);
+        }
         return res.status(500).json({
           error: 'فشل حفظ ملف الموظف في قاعدة البيانات وتم التراجع عن العملية.'
         });
@@ -185,7 +208,8 @@ export default async function handler(req, res) {
       return res.status(201).json({
         success: true,
         user: {
-          uid: userRecord.uid,
+          uid: createdUserRecord.uid,
+          id: createdUserRecord.uid,
           name: name.trim(),
           email: email.trim().toLowerCase(),
           role,
@@ -193,9 +217,82 @@ export default async function handler(req, res) {
         }
       });
     } catch (createErr) {
+      console.error('Staff creation error:', createErr);
       return res.status(400).json({
         error: mapAuthError(createErr)
       });
+    }
+  }
+
+  // ================= PATCH: Update Status (Active / Disabled ONLY) =================
+  if (req.method === 'PATCH') {
+    const { targetUid, active } = req.body;
+
+    // Strict rejection if any role modification is attempted
+    if ('role' in req.body) {
+      return res.status(400).json({ error: 'تعديل الأدوار والصلاحيات غير مسموح به عبر هذه الواجهة.' });
+    }
+
+    if (!targetUid || typeof targetUid !== 'string' || targetUid.trim().length === 0) {
+      return res.status(400).json({ error: 'معرف المستخدم المستهدف مطلوب.' });
+    }
+
+    if (typeof active !== 'boolean') {
+      return res.status(400).json({ error: 'حالة الحساب يجب أن تكون قيمة منطقية (true أو false).' });
+    }
+
+    if (targetUid === callerUid && active === false) {
+      return res.status(400).json({ error: 'لا يمكن لمدير المركز تعطيل حسابه الشخصي.' });
+    }
+
+    try {
+      const targetDoc = await firestore.collection('users').doc(targetUid).get();
+      if (!targetDoc.exists) {
+        return res.status(404).json({ error: 'الموظف المستهدف غير موجود في قاعدة البيانات.' });
+      }
+
+      const targetData = targetDoc.data();
+      if (targetData?.role === 'admin' && active === false) {
+        return res.status(400).json({ error: 'لا يمكن تعطيل حسابات المديرين من هذه الواجهة.' });
+      }
+
+      const prevActive = targetData?.active !== false;
+
+      // 1. Update Auth disabled state
+      await adminAuth.updateUser(targetUid, { disabled: !active });
+
+      // 2. Update Firestore with compensation
+      try {
+        await firestore.collection('users').doc(targetUid).update({
+          active,
+          updatedAt: FieldValue.serverTimestamp(),
+          updatedBy: callerUid
+        });
+
+        await firestore.collection('audit_logs').add({
+          actionType: active ? 'تفعيل حساب موظف' : 'تعطيل حساب موظف',
+          description: `تم ${active ? 'تفعيل' : 'تعطيل'} حساب الموظف: ${targetData.name || targetUid} (UID: ${targetUid})`,
+          userId: callerUid,
+          userName: callerName,
+          userRole: 'admin',
+          targetUid,
+          timestamp: new Date().toISOString(),
+          timestampRaw: Date.now()
+        });
+      } catch (fsUpdateErr) {
+        console.error('Firestore active update failed, compensating Auth state:', fsUpdateErr);
+        try {
+          await adminAuth.updateUser(targetUid, { disabled: !prevActive });
+        } catch (rbErr) {
+          console.error('CRITICAL: Compensation failed for Auth state:', rbErr);
+        }
+        return res.status(500).json({ error: 'فشل تحديث حالة الحساب في قاعدة البيانات وتم التراجع.' });
+      }
+
+      return res.status(200).json({ success: true, targetUid, active });
+    } catch (patchErr) {
+      console.error('Staff status update error:', patchErr);
+      return res.status(400).json({ error: 'فشل تحديث حالة الحساب، يرجى المحاولة لاحقاً.' });
     }
   }
 
@@ -203,7 +300,7 @@ export default async function handler(req, res) {
   if (req.method === 'DELETE') {
     const { targetUid } = req.body || {};
 
-    if (!targetUid || typeof targetUid !== 'string') {
+    if (!targetUid || typeof targetUid !== 'string' || targetUid.trim().length === 0) {
       return res.status(400).json({ error: 'معرف المستخدم المستهدف مطلوب.' });
     }
 
@@ -212,21 +309,30 @@ export default async function handler(req, res) {
     }
 
     try {
+      const targetDoc = await firestore.collection('users').doc(targetUid).get();
+      if (!targetDoc.exists) {
+        return res.status(404).json({ error: 'الموظف المستهدف غير موجود في قاعدة البيانات.' });
+      }
+
+      const targetData = targetDoc.data();
+      if (targetData?.role === 'admin') {
+        return res.status(400).json({ error: 'لا يمكن حذف حسابات مديري المركز من هذه الواجهة.' });
+      }
+
+      // 1. Delete from Firebase Authentication
       try {
         await adminAuth.deleteUser(targetUid);
       } catch (authDelErr) {
-        console.warn('Auth deletion notice:', authDelErr.message);
+        console.warn('Auth deletion notice (user might already be removed from Auth):', authDelErr.message);
       }
 
-      try {
-        await firestore.collection('users').doc(targetUid).delete();
-      } catch (fsDelErr) {
-        console.warn('Firestore deletion notice:', fsDelErr.message);
-      }
+      // 2. Delete from Cloud Firestore
+      await firestore.collection('users').doc(targetUid).delete();
 
+      // 3. Write trusted server-side Audit Log
       await firestore.collection('audit_logs').add({
         actionType: 'حذف موظف',
-        description: `قام المدير بحذف حساب الموظف نهائياً (UID: ${targetUid})`,
+        description: `قام المدير بحذف حساب الموظف: ${targetData.name || targetUid} نهائياً من النظام (UID: ${targetUid})`,
         userId: callerUid,
         userName: callerName,
         userRole: 'admin',
@@ -239,40 +345,6 @@ export default async function handler(req, res) {
     } catch (delErr) {
       console.error('Delete staff error:', delErr);
       return res.status(500).json({ error: 'فشل حذف الموظف من النظام.' });
-    }
-  }
-
-  // ================= PATCH: Update Status =================
-  if (req.method === 'PATCH') {
-    const { targetUid, active } = req.body;
-
-    if ('role' in req.body) {
-      return res.status(400).json({ error: 'تعديل الأدوار والصلاحيات غير مسموح به عبر هذه الواجهة.' });
-    }
-
-    if (!targetUid || typeof targetUid !== 'string') {
-      return res.status(400).json({ error: 'معرف المستخدم المستهدف مطلوب.' });
-    }
-
-    if (typeof active !== 'boolean') {
-      return res.status(400).json({ error: 'حالة الحساب يجب أن تكون قيمة منطقية.' });
-    }
-
-    if (targetUid === callerUid && active === false) {
-      return res.status(400).json({ error: 'لا يمكن لمدير المركز تعطيل حسابه الشخصي.' });
-    }
-
-    try {
-      await adminAuth.updateUser(targetUid, { disabled: !active });
-      await firestore.collection('users').doc(targetUid).update({
-        active,
-        updatedAt: FieldValue.serverTimestamp(),
-        updatedBy: callerUid
-      });
-
-      return res.status(200).json({ success: true, targetUid, active });
-    } catch (patchErr) {
-      return res.status(400).json({ error: 'فشل تحديث حالة الحساب.' });
     }
   }
 }
