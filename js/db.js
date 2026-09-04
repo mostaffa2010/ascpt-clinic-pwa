@@ -236,17 +236,28 @@ class FirestoreDatabaseService {
     this.ensureConnected();
     try {
       const users = await this.getUsers();
-      const docs = users
-        .filter(u => (u.role === 'doctor' || u.role === 'admin') && u.active !== false)
-        .map(u => u.name);
+      const doctorMap = new Map();
 
-      if (CLINIC_CONFIG.director?.name && !docs.includes(CLINIC_CONFIG.director.name)) {
-        docs.unshift(CLINIC_CONFIG.director.name);
+      // Collect all active doctors and admins from registered users in Firestore
+      users
+        .filter(u => (u.role === 'doctor' || u.role === 'admin') && u.active !== false && u.name)
+        .forEach(u => {
+          const norm = u.name.trim().replace(/\s+/g, ' ');
+          if (norm && !doctorMap.has(norm)) {
+            doctorMap.set(norm, norm);
+          }
+        });
+
+      // Fallback only if no staff users exist yet in Firestore
+      if (doctorMap.size === 0 && CLINIC_CONFIG.director?.name) {
+        const dirNorm = CLINIC_CONFIG.director.name.trim().replace(/\s+/g, ' ');
+        doctorMap.set(dirNorm, dirNorm);
       }
-      return Array.from(new Set(docs));
+
+      return Array.from(doctorMap.values());
     } catch (err) {
       console.error('Firestore getDoctors error:', err);
-      return CLINIC_CONFIG.director?.name ? [CLINIC_CONFIG.director.name] : [];
+      return CLINIC_CONFIG.director?.name ? [CLINIC_CONFIG.director.name.trim().replace(/\s+/g, ' ')] : [];
     }
   }
 

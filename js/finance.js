@@ -300,7 +300,8 @@ export class FinanceManager {
   async loadDailyReport() {
     const allSessions = await db.getSessions(this.currentDate);
     const allExpenses = await db.getExpenses(this.currentDate);
-    const doctors = await db.getDoctors();
+    const rawDoctors = await db.getDoctors();
+    const doctors = Array.from(new Set(rawDoctors.map(d => (d || '').trim().replace(/\s+/g, ' ')))).filter(Boolean);
 
     let filteredSessions = allSessions;
     if (this.selectedDoctor !== 'all') {
@@ -491,7 +492,8 @@ export class FinanceManager {
   async loadMonthlyReport() {
     const allSessions = await db.getSessions(this.currentMonth);
     const allExpenses = await db.getExpenses(this.currentMonth);
-    const doctors = await db.getDoctors();
+    const rawDoctors = await db.getDoctors();
+    const doctors = Array.from(new Set(rawDoctors.map(d => (d || '').trim().replace(/\s+/g, ' ')))).filter(Boolean);
 
     const totalPatients = allSessions.length;
     const totalCash = allSessions.reduce((acc, curr) => acc + (parseFloat(curr.amountPaid) || 0), 0);
