@@ -339,18 +339,70 @@ export class SessionsManager {
     const docSelect = document.getElementById('session-doctor-select');
     if (docSelect) docSelect.value = patient.doctor;
 
-    // Auto-fill Billing & Insurance
-    const payRadios = document.querySelectorAll('input[name="session-pay-type"]');
-    payRadios.forEach(r => { r.checked = (r.value === patient.billing); });
+    // Auto-fill Billing & Insurance (Clean Smart Automation)
+    const isInsurance = (patient.billing === 'insurance');
+    const payTypeInput = document.getElementById('session-pay-type-hidden');
+    if (payTypeInput) payTypeInput.value = isInsurance ? 'insurance' : 'cash';
 
-    const insFields = document.getElementById('session-insurance-fields');
-    if (patient.billing === 'insurance') {
-      insFields.style.display = 'block';
-      document.getElementById('session-insurance-name').value = patient.insuranceCompany || '';
-      const cRadios = document.querySelectorAll('input[name="session-contract-type"]');
-      cRadios.forEach(r => { r.checked = (r.value === (patient.contractType || 'direct')); });
-    } else {
-      insFields.style.display = 'none';
+    const insNameInput = document.getElementById('session-insurance-name');
+    if (insNameInput) insNameInput.value = isInsurance ? (patient.insuranceCompany || '') : '';
+
+    const contractTypeInput = document.getElementById('session-contract-type-hidden');
+    if (contractTypeInput) contractTypeInput.value = patient.contractType || 'direct';
+
+    const paymentContainer = document.getElementById('session-payment-method-container');
+    const amountLabel = document.getElementById('session-amount-label');
+    const amountInput = document.getElementById('session-amount-paid');
+
+    if (paymentContainer) {
+      if (isInsurance) {
+        const cTypeLabel = patient.contractType === 'direct' ? 'تعاقد مباشر' : 'تعاقد غير مباشر';
+        const safeCompName = escapeHTML(patient.insuranceCompany || 'شركة تأمين');
+        paymentContainer.innerHTML = `
+          <div style="background: #f0fdf4; border: 1.5px solid #bbf7d0; border-radius: 10px; padding: 12px 14px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px;">
+            <div style="display: flex; align-items: center; gap: 10px;">
+              <div style="width: 38px; height: 38px; border-radius: 8px; background: #dcfce7; color: #15803d; display: flex; align-items: center; justify-content: center; font-size: 1.15rem; flex-shrink: 0;">
+                <i class="fa-solid fa-file-contract"></i>
+              </div>
+              <div>
+                <div style="font-weight: 800; font-size: 0.95rem; color: #166534;">
+                  ${safeCompName}
+                </div>
+                <div style="font-size: 0.78rem; color: #15803d; font-weight: 600;">
+                  تأمين المريض التلقائي • <span class="badge badge-direct" style="font-size: 0.7rem; padding: 1px 6px;">${cTypeLabel}</span>
+                </div>
+              </div>
+            </div>
+            <span class="badge" style="background: #16a34a; color: #ffffff; font-weight: 700; font-size: 0.76rem; padding: 4px 10px; border-radius: 9999px;">
+              حالة تأمين
+            </span>
+          </div>
+        `;
+        if (amountLabel) amountLabel.textContent = 'نسبة التحمل المدفوعة بالدرج (ج.م) *';
+        if (amountInput && !this.editingSessionId) amountInput.value = '0';
+      } else {
+        paymentContainer.innerHTML = `
+          <div style="background: #f0f9ff; border: 1.5px solid #bae6fd; border-radius: 10px; padding: 12px 14px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px;">
+            <div style="display: flex; align-items: center; gap: 10px;">
+              <div style="width: 38px; height: 38px; border-radius: 8px; background: #e0f2fe; color: #0284c7; display: flex; align-items: center; justify-content: center; font-size: 1.15rem; flex-shrink: 0;">
+                <i class="fa-solid fa-money-bill-wave"></i>
+              </div>
+              <div>
+                <div style="font-weight: 800; font-size: 0.95rem; color: #0369a1;">
+                  سداد نقدي مباشر (Cash)
+                </div>
+                <div style="font-size: 0.78rem; color: #0284c7; font-weight: 600;">
+                  المريض غير خاضع لأي تعاقد تأميني
+                </div>
+              </div>
+            </div>
+            <span class="badge badge-cash" style="font-size: 0.76rem; padding: 4px 10px; border-radius: 9999px;">
+              نقدي
+            </span>
+          </div>
+        `;
+        if (amountLabel) amountLabel.textContent = 'المبلغ المدفوع بالدرج (ج.م) *';
+      }
     }
 
     this.app.closeModal('modal-patient-picker');
@@ -363,6 +415,21 @@ export class SessionsManager {
     const selectedBox = document.getElementById('selected-patient-box');
     if (trigger) trigger.style.display = 'flex';
     if (selectedBox) selectedBox.style.display = 'none';
+
+    const paymentContainer = document.getElementById('session-payment-method-container');
+    if (paymentContainer) {
+      paymentContainer.innerHTML = `
+        <div style="background: var(--bg-subtle); border: 1.5px dashed var(--border-color); border-radius: 10px; padding: 14px; text-align: center; color: var(--text-muted); font-size: 0.85rem;">
+          <i class="fa-solid fa-hand-pointer" style="margin-left: 6px; color: var(--primary);"></i> اختر المريض بالأعلى لتحديد نظام السداد تلقائياً (نقدي / تأمين)
+        </div>
+      `;
+    }
+    const amountLabel = document.getElementById('session-amount-label');
+    if (amountLabel) amountLabel.textContent = 'المبلغ المدفوع بالدرج (ج.م) *';
+    const payTypeInput = document.getElementById('session-pay-type-hidden');
+    if (payTypeInput) payTypeInput.value = 'cash';
+    const insNameInput = document.getElementById('session-insurance-name');
+    if (insNameInput) insNameInput.value = '';
   }
 
   async handleSaveSession(e) {
@@ -397,12 +464,12 @@ export class SessionsManager {
       return;
     }
 
-    const payType = document.querySelector('input[name="session-pay-type"]:checked')?.value || 'cash';
+    const payType = document.getElementById('session-pay-type-hidden')?.value || 'cash';
     let insuranceName = '';
     let contractType = '';
     if (payType === 'insurance') {
-      insuranceName = document.getElementById('session-insurance-name').value.trim();
-      contractType = document.querySelector('input[name="session-contract-type"]:checked')?.value || 'direct';
+      insuranceName = document.getElementById('session-insurance-name')?.value?.trim() || (patient?.insuranceCompany || '');
+      contractType = document.getElementById('session-contract-type-hidden')?.value || (patient?.contractType || 'direct');
     }
 
     const amountPaid = parseFloat(document.getElementById('session-amount-paid').value) || 0;
