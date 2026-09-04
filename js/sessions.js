@@ -340,7 +340,10 @@ export class SessionsManager {
     if (docSelect) docSelect.value = patient.doctor;
 
     // Auto-fill Billing & Insurance (Clean Smart Automation)
-    const isInsurance = (patient.billing === 'insurance');
+    const isInsurance = Boolean(
+      patient.billing === 'insurance' ||
+      (patient.insuranceCompany && String(patient.insuranceCompany).trim().length > 0)
+    );
     const payTypeInput = document.getElementById('session-pay-type-hidden');
     if (payTypeInput) payTypeInput.value = isInsurance ? 'insurance' : 'cash';
 
@@ -464,12 +467,16 @@ export class SessionsManager {
       return;
     }
 
-    const payType = document.getElementById('session-pay-type-hidden')?.value || 'cash';
+    const isPatientInsured = Boolean(
+      patient?.billing === 'insurance' ||
+      (patient?.insuranceCompany && String(patient?.insuranceCompany).trim().length > 0)
+    );
+    const payType = isPatientInsured ? 'insurance' : 'cash';
     let insuranceName = '';
     let contractType = '';
     if (payType === 'insurance') {
-      insuranceName = document.getElementById('session-insurance-name')?.value?.trim() || (patient?.insuranceCompany || '');
-      contractType = document.getElementById('session-contract-type-hidden')?.value || (patient?.contractType || 'direct');
+      insuranceName = (patient?.insuranceCompany || document.getElementById('session-insurance-name')?.value || '').trim();
+      contractType = patient?.contractType || document.getElementById('session-contract-type-hidden')?.value || 'direct';
     }
 
     const amountPaid = parseFloat(document.getElementById('session-amount-paid').value) || 0;
@@ -789,7 +796,7 @@ export class SessionsManager {
     if (dateInput) dateInput.value = this.currentSessionDate;
     document.querySelectorAll('#body-parts-container .chip-choice').forEach(c => c.classList.remove('selected'));
     document.getElementById('selected-parts-count').textContent = '0';
-    document.getElementById('session-insurance-fields').style.display = 'none';
+    const insF = document.getElementById('session-insurance-fields'); if (insF) insF.style.display = 'none';
     this.resetPatientSelection();
   }
 
