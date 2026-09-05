@@ -439,7 +439,7 @@ export class ClaimsManager {
     const editBtn = document.getElementById('btn-card-add-treatment');
     if (editBtn) {
       editBtn.className = 'btn-edit-chips';
-      editBtn.innerHTML = '<i class="fa-solid fa-pen-to-square"></i> <span class="edit-text">تعديل الشركات</span>';
+      editBtn.innerHTML = '<i class="fa-solid fa-pen-to-square"></i> <span class="edit-text">تعديل الوسائل</span>';
     }
     this.renderCardTreatmentChips(cardData.treatments || []);
     this.app.openModal('modal-attendance-card');
@@ -500,7 +500,7 @@ export class ClaimsManager {
         btn.innerHTML = '<i class="fa-solid fa-check"></i> <span class="edit-text">تم الانتهاء</span>';
       } else {
         btn.className = 'btn-edit-chips';
-        btn.innerHTML = '<i class="fa-solid fa-pen-to-square"></i> <span class="edit-text">تعديل الشركات</span>';
+        btn.innerHTML = '<i class="fa-solid fa-pen-to-square"></i> <span class="edit-text">تعديل الوسائل</span>';
       }
     }
 

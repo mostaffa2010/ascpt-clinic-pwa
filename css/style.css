@@ -1479,3 +1479,42 @@ body.not-authenticated #modal-auth #btn-cancel-login {
   width: 20px !important;
   height: 20px !important;
 }
+
+/* Custom prompt and dialog priority */
+#modal-custom-dialog {
+  z-index: 99999 !important;
+}
+
+/* Card treatment chips edit mode styling */
+.card-treatment-chip.in-edit-mode {
+  position: relative !important;
+  padding-left: 30px !important;
+  border-style: dashed !important;
+  border-color: #ef4444 !important;
+  animation: pulseEdit 1.5s infinite ease-in-out;
+}
+
+.card-treatment-chip.in-edit-mode .chip-delete-tag {
+  position: absolute !important;
+  left: 6px !important;
+  top: 50% !important;
+  transform: translateY(-50%) !important;
+  color: #ffffff !important;
+  background-color: #ef4444 !important;
+  font-size: 0.85rem !important;
+  z-index: 30 !important;
+  cursor: pointer !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  border-radius: 50% !important;
+  width: 18px !important;
+  height: 18px !important;
+  box-shadow: 0 1px 3px rgba(239, 68, 68, 0.5) !important;
+}
+
+.card-treatment-chip.in-edit-mode .chip-delete-tag:hover,
+.card-treatment-chip.in-edit-mode .chip-delete-tag:active {
+  background-color: #dc2626 !important;
+  transform: translateY(-50%) scale(1.18) !important;
+}
