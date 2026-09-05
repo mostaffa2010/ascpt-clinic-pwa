@@ -1112,7 +1112,7 @@
                 </div>
                 <div class="form-group">
                   <label>كلمة المرور *</label>
-                  <input type="password" id="newuser-password" class="form-control" placeholder="6 أحرف على الأقل" required>
+                  <input type="text" id="newuser-password" class="form-control" placeholder="6 أحرف على الأقل" required autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" style="-webkit-text-security: disc;">
                 </div>
                 <div class="form-group">
                   <label>الصلاحية (الدور) *</label>
@@ -1374,12 +1374,12 @@
 
       <!-- Body: Login Form -->
       <div class="modal-body" style="padding: 20px 22px;">
-        <form id="form-login" novalidate>
+        <form id="form-login" autocomplete="off" novalidate>
           <div class="form-group" style="margin-bottom: 14px;">
             <label for="login-email" style="display: block; font-size: 0.85rem; font-weight: 700; color: #334155; margin-bottom: 6px;">
               <i class="fa-solid fa-envelope" style="color: var(--primary);"></i> البريد الإلكتروني
             </label>
-            <input type="email" id="login-email" class="form-control" placeholder="doctor@ascpt.clinic" required autocomplete="username" style="width: 100%; border-radius: 8px; padding: 10px 12px; font-size: 0.9rem; border: 1.5px solid var(--border-color);" dir="ltr">
+            <input type="email" id="login-email" class="form-control" placeholder="staff@ascpt.clinic" required autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" style="width: 100%; border-radius: 8px; padding: 10px 12px; font-size: 0.9rem; border: 1.5px solid var(--border-color);" dir="ltr">
           </div>
 
           <div class="form-group" style="margin-bottom: 14px;">
@@ -1387,7 +1387,7 @@
               <i class="fa-solid fa-lock" style="color: var(--primary);"></i> كلمة السر
             </label>
             <div style="position: relative;">
-              <input type="password" id="login-password" class="form-control" placeholder="••••••••" required autocomplete="current-password" style="width: 100%; border-radius: 8px; padding: 10px 40px 10px 12px; font-size: 0.9rem; border: 1.5px solid var(--border-color);" dir="ltr">
+              <input type="text" id="login-password" class="form-control" placeholder="••••••••" required autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" style="width: 100%; border-radius: 8px; padding: 10px 40px 10px 12px; font-size: 0.9rem; border: 1.5px solid var(--border-color); -webkit-text-security: disc;" dir="ltr">
               <button type="button" id="btn-toggle-password" style="position: absolute; left: 10px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; color: #64748b; font-size: 0.95rem;" title="إظهار / إخفاء كلمة السر">
                 <i class="fa-solid fa-eye" id="icon-toggle-password"></i>
               </button>

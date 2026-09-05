@@ -307,16 +307,21 @@ class App {
       }
     });
 
-    // Toggle Password Visibility
+    // Toggle Password Visibility (Native masked security support)
     const btnTogglePassword = document.getElementById('btn-toggle-password');
     if (btnTogglePassword) {
       btnTogglePassword.addEventListener('click', () => {
         if (passwordInput) {
-          const isPassword = passwordInput.type === 'password';
-          passwordInput.type = isPassword ? 'text' : 'password';
+          const isMasked = passwordInput.style.webkitTextSecurity !== 'none' && passwordInput.type !== 'text-plain';
+          if (isMasked) {
+            passwordInput.style.webkitTextSecurity = 'none';
+            passwordInput.type = 'text';
+          } else {
+            passwordInput.style.webkitTextSecurity = 'disc';
+          }
           const icon = document.getElementById('icon-toggle-password');
           if (icon) {
-            icon.className = isPassword ? 'fa-solid fa-eye-slash' : 'fa-solid fa-eye';
+            icon.className = isMasked ? 'fa-solid fa-eye-slash' : 'fa-solid fa-eye';
           }
         }
       });
