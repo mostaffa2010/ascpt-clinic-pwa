@@ -336,6 +336,16 @@ class FirestoreDatabaseService {
         'تمارين عضلات الجذع (Core Stability)',
         'تمارين تصحيح القوام (Postural Correction)',
         'برنامج التمارين المنزلية (Home Exercise Program)'
+      ],
+      body_parts: [
+        'الرقبة',
+        'أسفل الظهر',
+        'الكتف',
+        'الركبة',
+        'الكاحل والقدم',
+        'الكوع والرسغ',
+        'مفصل الفخذ / الحوض',
+        'عضو آخر'
       ]
     };
 
@@ -375,6 +385,16 @@ class FirestoreDatabaseService {
         'تمارين عضلات الجذع (Core Stability)',
         'تمارين تصحيح القوام (Postural Correction)',
         'برنامج التمارين المنزلية (Home Exercise Program)'
+      ],
+      body_parts: [
+        'الرقبة',
+        'أسفل الظهر',
+        'الكتف',
+        'الركبة',
+        'الكاحل والقدم',
+        'الكوع والرسغ',
+        'مفصل الفخذ / الحوض',
+        'عضو آخر'
       ]
     };
 
@@ -387,7 +407,7 @@ class FirestoreDatabaseService {
     this.insuranceCompaniesCache = this.insuranceCompaniesCache || {};
 
     // 1. Seed & Sync Clinical Options (modality, procedure, exercise)
-    for (const cat of ['modality', 'procedure', 'exercise']) {
+    for (const cat of ['modality', 'procedure', 'exercise', 'body_parts']) {
       try {
         const docRef = doc(firestoreDb, 'clinical_options', cat);
         const snap = await getDoc(docRef);

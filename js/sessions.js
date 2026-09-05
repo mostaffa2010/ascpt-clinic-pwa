@@ -15,6 +15,7 @@ export class SessionsManager {
     this.selectedPatientId = null;
     this.editingSessionId = null;
     this.insEditMode = false;
+    this.bodyPartsEditMode = false;
     this.currentContractType = 'direct';
     window.sessionsManager = this;
   }
@@ -25,6 +26,7 @@ export class SessionsManager {
     if (dateInput) dateInput.value = this.currentSessionDate;
     this.updateDateLabel();
     this.renderAllInsuranceChips();
+    this.renderBodyPartsChips();
     await this.loadTodaySessions();
   }
 
@@ -44,15 +46,32 @@ export class SessionsManager {
     document.getElementById('btn-quick-sess-today')?.addEventListener('click', () => this.setDateQuick('today'));
     document.getElementById('btn-quick-sess-yesterday')?.addEventListener('click', () => this.setDateQuick('yesterday'));
 
-    // 1. Body parts buttons toggle (100% bug-free click handling)
+    // 1. Dynamic Body Parts Management (Add, Delete & Select)
+    document.getElementById('btn-toggle-chips-body-parts')?.addEventListener('click', () => this.toggleBodyPartsEditMode());
+
     const chipsContainer = document.getElementById('body-parts-container');
     if (chipsContainer) {
-      chipsContainer.querySelectorAll('.chip-choice').forEach(btn => {
-        btn.addEventListener('click', (e) => {
+      chipsContainer.addEventListener('click', async (e) => {
+        const delTag = e.target.closest('[data-action="delete-body-part"]');
+        if (delTag) {
+          e.stopPropagation();
+          await this.deleteBodyPart(delTag.dataset.part);
+          return;
+        }
+
+        const addBtn = e.target.closest('[data-action="add-body-part"]');
+        if (addBtn) {
+          e.stopPropagation();
+          await this.promptAddBodyPart();
+          return;
+        }
+
+        const btn = e.target.closest('.chip-choice');
+        if (btn && !this.bodyPartsEditMode) {
           e.preventDefault();
           btn.classList.toggle('selected');
           this.updateBodyPartsCount();
-        });
+        }
       });
     }
 
@@ -514,13 +533,90 @@ export class SessionsManager {
     this.app.showToast(isEdit ? 'تم تعديل بيانات الجلسة بنجاح' : 'تم تسجيل وحفظ الجلسة بنجاح');
     this.resetSessionForm();
     this.renderAllInsuranceChips();
+    this.renderBodyPartsChips();
     await this.loadTodaySessions();
     
     // التحديث الفوري للحسابات والتقرير اليومي
     await this.app.financeManager.loadDailyReport();
   }
 
-  // ================= Insurance Interactive Buttons =================
+  // ================= Dynamic Body Parts (Add & Delete like Modalities) =================
+  renderBodyPartsChips(selectedParts = []) {
+    const container = document.getElementById('body-parts-container');
+    if (!container) return;
+
+    const parts = db.getClinicalOptions('body_parts');
+    const isEdit = Boolean(this.bodyPartsEditMode);
+
+    let html = parts.map(part => {
+      const isSelected = selectedParts.includes(part);
+      const editClass = isEdit ? 'in-edit-mode' : '';
+      const safePart = part.replace(/'/g, "\\'");
+      const deleteIconHtml = isEdit
+        ? `<span class="chip-delete-tag" data-action="delete-body-part" data-part="${safePart}" title="حذف هذا العضو"><i class="fa-solid fa-circle-xmark"></i></span>`
+        : '';
+
+      return `
+        <button type="button" class="chip-choice ${isSelected ? 'selected' : ''} ${editClass}" data-part="${part}">
+          <i class="fa-solid fa-bone"></i> <span>${part}</span>
+          ${deleteIconHtml}
+        </button>
+      `;
+    }).join('');
+
+    if (isEdit) {
+      html += `
+        <button type="button" class="chip-add-new-btn" data-action="add-body-part">
+          <i class="fa-solid fa-plus"></i> <span>إضافة عضو جديد</span>
+        </button>
+      `;
+    }
+
+    container.innerHTML = html;
+    this.updateBodyPartsCount();
+  }
+
+  toggleBodyPartsEditMode() {
+    this.bodyPartsEditMode = !this.bodyPartsEditMode;
+    const isEdit = this.bodyPartsEditMode;
+
+    const btn = document.getElementById('btn-toggle-chips-body-parts');
+    if (btn) {
+      if (isEdit) {
+        btn.className = 'btn-edit-chips active';
+        btn.innerHTML = '<i class="fa-solid fa-check"></i> <span class="edit-text">تم الانتهاء</span>';
+      } else {
+        btn.className = 'btn-edit-chips';
+        btn.innerHTML = '<i class="fa-solid fa-pen-to-square"></i> <span class="edit-text">تعديل الأزرار</span>';
+      }
+    }
+
+    const curSelected = this.getSelectedBodyParts();
+    this.renderBodyPartsChips(curSelected);
+  }
+
+  async deleteBodyPart(partName) {
+    const confirmed = await this.app.showConfirm(`هل أنت متأكد من حذف زر "${partName}" نهائياً؟`, 'حذف زر');
+    if (confirmed) {
+      await db.deleteClinicalOption('body_parts', partName);
+      const curSelected = this.getSelectedBodyParts().filter(p => p !== partName);
+      this.renderBodyPartsChips(curSelected);
+      this.app.showToast(`تم حذف زر "${partName}"`);
+    }
+  }
+
+  async promptAddBodyPart() {
+    const name = prompt('اكتب اسم العضو المعالج الجديد:');
+    if (name && name.trim()) {
+      await db.addClinicalOption('body_parts', name.trim());
+      const curSelected = this.getSelectedBodyParts();
+      curSelected.push(name.trim());
+      this.renderBodyPartsChips(curSelected);
+      this.app.showToast(`تمت إضافة زر "${name.trim()}" بنجاح`);
+    }
+  }
+
+    // ================= Insurance Interactive Buttons =================
   renderAllInsuranceChips() {
     this.renderInsuranceChips('direct', 'session-ins-direct-container');
     this.renderInsuranceChips('indirect', 'session-ins-indirect-container');
@@ -616,6 +712,7 @@ export class SessionsManager {
     }
 
     this.renderAllInsuranceChips();
+    this.renderBodyPartsChips();
   }
 
   async deleteInsuranceDirect(contractType, compName) {
@@ -626,6 +723,7 @@ export class SessionsManager {
     if (confirmed) {
       await db.deleteInsuranceCompany(contractType, compName);
       this.renderAllInsuranceChips();
+    this.renderBodyPartsChips();
       if (this.app.patientsManager) this.app.patientsManager.renderAllInsuranceChips();
       this.app.showToast(`تم حذف شركة "${compName}"`);
       await db.logAudit('حذف شركة تأمين', `حذف شركة ${compName} من قائمة ${contractType}`, user);
@@ -661,6 +759,7 @@ export class SessionsManager {
 
     await db.addInsuranceCompany(contractType, name);
     this.renderAllInsuranceChips();
+    this.renderBodyPartsChips();
     if (this.app.patientsManager) this.app.patientsManager.renderAllInsuranceChips();
 
     this.selectInsuranceCompany(contractType, name);
@@ -754,11 +853,7 @@ export class SessionsManager {
 
     // 5. Select body parts
     const savedParts = s.bodyParts || [];
-    document.querySelectorAll('#body-parts-container .chip-choice').forEach(btn => {
-      const val = btn.getAttribute('data-part');
-      btn.classList.toggle('selected', savedParts.includes(val));
-    });
-    this.updateBodyPartsCount();
+    this.renderBodyPartsChips(savedParts);
 
     // 6. Payment
     const payRadios = document.querySelectorAll('input[name="session-pay-type"]');
@@ -798,7 +893,7 @@ export class SessionsManager {
     document.getElementById('form-log-session').reset();
     const dateInput = document.getElementById('session-date');
     if (dateInput) dateInput.value = this.currentSessionDate;
-    document.querySelectorAll('#body-parts-container .chip-choice').forEach(c => c.classList.remove('selected'));
+    this.renderBodyPartsChips([]);
     document.getElementById('selected-parts-count').textContent = '0';
     const insF = document.getElementById('session-insurance-fields'); if (insF) insF.style.display = 'none';
     this.resetPatientSelection();
@@ -876,6 +971,7 @@ export class SessionsManager {
       await db.logAudit('حذف جلسة', `حذف حركة جلسة برقم ${sessionId}`, currentUser);
       this.app.showToast('تم حذف الجلسة');
       this.renderAllInsuranceChips();
+    this.renderBodyPartsChips();
     await this.loadTodaySessions();
       await this.app.financeManager.loadDailyReport();
     }

@@ -67,7 +67,7 @@ export class PatientsManager {
     ['p-ins-direct-container', 'p-ins-indirect-container'].forEach(id => {
       const container = document.getElementById(id);
       if (container) {
-        container.addEventListener('click', (e) => {
+        container.addEventListener('click', async (e) => {
           const delTag = e.target.closest('[data-action="delete-insurance"]');
           if (delTag) {
             e.stopPropagation();
@@ -77,7 +77,14 @@ export class PatientsManager {
           const addBtn = e.target.closest('[data-action="add-insurance"]');
           if (addBtn) {
             e.stopPropagation();
-            this.app.sessionsManager.openAddInsuranceModal(addBtn.dataset.contract, addBtn.dataset.source || 'patient');
+            const contract = addBtn.dataset.contract || this.currentContractType || 'direct';
+            const name = prompt(`اكتب اسم شركة التأمين الجديدة (${contract === 'direct' ? 'تعاقد مباشر' : 'تعاقد غير مباشر'}):`);
+            if (name && name.trim()) {
+              await db.addInsuranceCompany(contract, name.trim());
+              this.renderAllInsuranceChips();
+              this.selectInsuranceCompany(contract, name.trim());
+              this.app.showToast(`تمت إضافة شركة "${name.trim()}" بنجاح`);
+            }
             return;
           }
           const chip = e.target.closest('[data-action="select-insurance"]');
@@ -440,8 +447,8 @@ export class PatientsManager {
 
   toggleInsuranceEditMode() {
     const user = auth.getCurrentUser();
-    if (!RolesManager.canManageUsers(user)) {
-      this.app.showAlert('تعديل وحذف شركات التأمين متاح لمدير المركز فقط.', 'صلاحية المدير');
+    if (!user || user.role === 'doctor') {
+      this.app.showAlert('تعديل وحذف شركات التأمين متاح للإدارة والاستقبال فقط.', 'تنبيه');
       return;
     }
 
@@ -463,7 +470,15 @@ export class PatientsManager {
   }
 
   async deleteInsuranceDirect(contractType, compName) {
-    await this.app.sessionsManager.deleteInsuranceDirect(contractType, compName);
+    const user = auth.getCurrentUser();
+    if (!user || user.role === 'doctor') return;
+
+    const confirmed = await this.app.showConfirm(`هل أنت متأكد من حذف شركة "${compName}" نهائياً؟`, 'حذف شركة تأمين');
+    if (confirmed) {
+      await db.deleteInsuranceCompany(contractType, compName);
+      this.renderAllInsuranceChips();
+      this.app.showToast(`تم حذف شركة "${compName}" بنجاح`);
+    }
   }
 
 

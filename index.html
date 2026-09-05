@@ -614,16 +614,13 @@
                 </div>
 
                 <div class="form-group">
-                  <label>الأعضاء المعالجة في الجلسة *</label>
-                  <div class="body-parts-chips" id="body-parts-container">
-                    <button type="button" class="chip-choice" data-part="الرقبة"><i class="fa-solid fa-bone"></i> الرقبة</button>
-                    <button type="button" class="chip-choice" data-part="أسفل الظهر / الفقرات القطنية"><i class="fa-solid fa-person"></i> أسفل الظهر</button>
-                    <button type="button" class="chip-choice" data-part="الكتف"><i class="fa-solid fa-hand-dots"></i> الكتف</button>
-                    <button type="button" class="chip-choice" data-part="الركبة"><i class="fa-solid fa-person-walking"></i> الركبة</button>
-                    <button type="button" class="chip-choice" data-part="الكاحل والقدم"><i class="fa-solid fa-shoe-prints"></i> الكاحل</button>
-                    <button type="button" class="chip-choice" data-part="الكوع والرسغ"><i class="fa-solid fa-hand"></i> الكوع / اليد</button>
-                    <button type="button" class="chip-choice" data-part="عضو آخر"><i class="fa-solid fa-circle-plus"></i> آخر</button>
+                  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                    <label style="margin: 0; font-weight: 800; font-size: 0.88rem; color: #0f172a;">الأعضاء المعالجة في الجلسة *</label>
+                    <button type="button" class="btn-edit-chips" id="btn-toggle-chips-body-parts" style="padding: 3px 10px; font-size: 0.75rem;">
+                      <i class="fa-solid fa-pen-to-square"></i> <span class="edit-text">تعديل الأزرار</span>
+                    </button>
                   </div>
+                  <div class="body-parts-chips" id="body-parts-container"></div>
                   <div style="font-size: 0.8rem; color: var(--primary); font-weight: bold; margin-top: 5px;">
                     إجمالي الأعضاء المحددة: <span id="selected-parts-count">0</span>
                   </div>
