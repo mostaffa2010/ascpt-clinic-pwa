@@ -18,7 +18,7 @@ export const CLINIC_CONFIG = {
   contact: {
     address: '١٧ شارع حسين شيرين - لوران - الإسكندرية',
     phone: '03-5702356',
-    email: 'info@ascpt.clinic'
+    email: 'algewelyspinecare@yahoo.com'
   },
   settings: {
     defaultCurrency: 'ج.م',

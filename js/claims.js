@@ -551,9 +551,10 @@ export class ClaimsManager {
       return `
         <div class="attendance-card-print-page">
           <div style="text-align: right; line-height: 1.4; border-bottom: 2px solid #000; padding-bottom: 6px; margin-bottom: 16px;">
-            <h2 style="font-size: 13pt; margin: 0; font-weight: 800; color: #0284c7;">مركز فيزيو فلو للعلاج الطبيعي والتأهيل (PhysioFlow)</h2>
-            <div style="font-size: 10pt; font-weight: 700; color: #0f172a;">طبيب المركز</div>
-            <div style="font-size: 8.5pt; color: #475569;">أخصائي العلاج الطبيعي والتأهيل الحركي</div>
+            <h2 style="font-size: 13pt; margin: 0; font-weight: 800; color: #0284c7;">مركز اسكندرية التخصصي للعلاج الطبيعي والتأهيل (ASCPT)</h2>
+            <div style="font-size: 10pt; font-weight: 700; color: #0f172a;">د. حسني أحمد الجويلي</div>
+            <div style="font-size: 8.5pt; color: #475569;">إستشاري العلاج الطبيعي والتقويم الحركي للعمود الفقري</div>
+            <div style="font-size: 8pt; color: #64748b;">١٧ شارع حسين شيرين - لوران - الإسكندرية | تليفون: 03-5702356 | البريد: algewelyspinecare@yahoo.com</div>
           </div>
 
           <div style="text-align: center; margin: 20px 0;">
@@ -588,15 +589,15 @@ export class ClaimsManager {
 
           <div style="display: flex; justify-content: flex-end; margin-top: 50px; padding-left: 20px;">
             <div style="text-align: center;">
-              <div style="font-size: 10.5pt; font-weight: bold;">أخصائي العلاج الطبيعي</div>
-              <div style="font-size: 10pt; margin-top: 4px;">طبيب المركز</div>
+              <div style="font-size: 10.5pt; font-weight: bold;">إشراف: د. حسني أحمد الجويلي</div>
+              <div style="font-size: 9.5pt; margin-top: 4px; color: #334155;">إستشاري العلاج الطبيعي والتقويم الحركي للعمود الفقري</div>
               <div style="margin-top: 35px; border-bottom: 1.5px solid #000; width: 150px;"></div>
             </div>
           </div>
 
           <div style="margin-top: 60px; border-top: 1px solid #777; padding-top: 8px; text-align: center; font-size: 8.5pt; color: #444; line-height: 1.5;">
-            <div style="font-weight: 700;">نظام PhysioFlow لإدارة مراكز وعيادات العلاج الطبيعي والتأهيل</div>
-            <div>للتواصل والدعم الفني وطلب نسختك الخاصة: 01098164067 | support@physioflow.app</div>
+            <div style="font-weight: 700;">مركز اسكندرية التخصصي للعلاج الطبيعي والتأهيل (ASCPT)</div>
+            <div>١٧ شارع حسين شيرين - لوران - الإسكندرية | تليفون: 03-5702356 | البريد: algewelyspinecare@yahoo.com</div>
           </div>
         </div>
       `;
@@ -626,7 +627,7 @@ export class ClaimsManager {
     const claimDate = document.getElementById('claim-doc-date')?.value || '2026-08-31';
 
     const wsData = [
-      ['مركز الإسكندرية التخصصي للعلاج الطبيعي - PhysioFlow'],
+      ['مركز اسكندرية التخصصي للعلاج الطبيعي (ASCPT)'],
       [`السادة شركة: ${companyName}`, '', '', `تحريراً في: ${claimDate}`],
       ['بيان بأسماء السادة المحولين'],
       [`رقم البطاقة الضريبية: ${taxNumber}`, '', '', `الفترة: ${this.startDate} إلى ${this.endDate}`],

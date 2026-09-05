@@ -502,7 +502,7 @@ class App {
         // 3. وصل إلى الشاشة الرئيسية (Dashboard) ويريد الخروج من التطبيق
         if (this.currentView === 'dashboard') {
           const wantExit = await this.showConfirm(
-            'هل ترغب في الخروج من تطبيق PhysioFlow وإغلاقه؟',
+            'هل ترغب في الخروج من تطبيق ASCPT وإغلاقه؟',
             'تأكيد الخروج'
           );
           if (wantExit) {

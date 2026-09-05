@@ -72,7 +72,7 @@ service cloud.firestore {
         isAdmin() ||
         (
           isReceptionist() &&
-          request.resource.data.diff(resource.data).affectedKeys().hasAny(['clinicalSheet']) == false
+          !request.resource.data.diff(resource.data).affectedKeys().hasAny(['clinicalSheet'])
         ) ||
         (
           isDoctor() &&
@@ -86,40 +86,31 @@ service cloud.firestore {
     // ================= 3. Sessions =================
     match /sessions/{sessionId} {
       allow read: if isUserActive();
-      allow create, update: if (isAdmin() || isReceptionist()) &&
-        request.resource.data.amountPaid is number &&
-        request.resource.data.amountPaid >= 0;
-      allow delete: if isAdmin() || isReceptionist();
+      allow create, update, delete: if isAdmin() || isReceptionist();
     }
 
     // ================= 4. Expenses & Clinic Financials =================
     match /expenses/{expenseId} {
-      allow read, delete: if isAdmin() || isReceptionist();
-      allow create, update: if (isAdmin() || isReceptionist()) &&
-        request.resource.data.amount is number &&
-        request.resource.data.amount >= 0;
+      // Accessible to Administrator and Receptionist for daily clinic operations & cash drawer
+      // Doctors are completely denied read and write access
+      allow read, create, update, delete: if isAdmin() || isReceptionist();
     }
 
     // ================= 5. Clinical Options & Insurance Companies =================
     match /clinical_options/{category} {
       allow read: if isUserActive();
-      allow write: if isAdmin();
+      allow write: if isAdmin() || isReceptionist();
     }
 
     match /insurance_companies/{type} {
       allow read: if isUserActive();
-      allow write: if isAdmin();
+      allow write: if isAdmin() || isReceptionist();
     }
 
     // ================= 6. Audit Logs =================
     match /audit_logs/{logId} {
       allow read: if isAdmin();
-      allow create: if isUserActive() &&
-        request.resource.data.userId == request.auth.uid &&
-        request.resource.data.actionType is string &&
-        request.resource.data.description is string &&
-        request.resource.data.timestampRaw is number;
-      allow update, delete: if false;
+      allow create, update, delete: if false;
     }
   }
 }
