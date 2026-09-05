@@ -45,20 +45,9 @@ service cloud.firestore {
 
     // ================= 1. Staff Users Collection =================
     match /users/{userId} {
-      // Authenticated users can read their own profile to verify credentials/status,
-      // and active staff can read the staff directory (to populate doctor dropdowns)
       allow read: if isAuthenticated() && (request.auth.uid == userId || isUserActive());
-
-      // Direct client-side user creation is strictly DENIED.
-      // All user provisioning MUST be performed via the Backend Admin Serverless Function.
       allow create: if false;
-
-      // Direct client-side user deletion is strictly DENIED.
       allow delete: if false;
-
-      // Updates from client:
-      // - Users cannot modify 'role', 'active', 'createdAt', 'createdBy'.
-      // - Self-update is strictly restricted to safe personal fields only.
       allow update: if isUserActive() &&
         request.auth.uid == userId &&
         request.resource.data.role == resource.data.role &&
@@ -72,21 +61,19 @@ service cloud.firestore {
 
     // ================= 2. Patients & Clinical Sheets =================
     match /patients/{patientId} {
-      // All active staff can read patients
       allow read: if isUserActive();
-
-      // Only Admin and Receptionist can create new patient files
-      allow create: if isAdmin() || isReceptionist();
-
-      // Deletion allowed only for Admin and Receptionist
-      allow delete: if isAdmin() || isReceptionist();
+      allow create, delete: if isAdmin() || isReceptionist();
 
       // Updates:
-      // - Admin & Receptionist: full update (demographics, billing, clinical)
+      // - Admin: full update
+      // - Receptionist: can update demographics and billing, strictly FORBIDDEN from modifying clinicalSheet
       // - Doctor: can ONLY update clinical sheet fields, CANNOT alter patient demographics or billing
       allow update: if isUserActive() && (
         isAdmin() ||
-        isReceptionist() ||
+        (
+          isReceptionist() &&
+          !request.resource.data.diff(resource.data).affectedKeys().hasAny(['clinicalSheet'])
+        ) ||
         (
           isDoctor() &&
           request.resource.data.diff(resource.data).affectedKeys().hasOnly([
@@ -98,19 +85,15 @@ service cloud.firestore {
 
     // ================= 3. Sessions =================
     match /sessions/{sessionId} {
-      // Active staff can view sessions (Doctor sees for clinical reference, Receptionist/Admin for management)
       allow read: if isUserActive();
-
-      // Sessions are operational/financial records: created, updated, and deleted by Admin or Receptionist
-      // Doctors CANNOT create, modify or delete session financial records
       allow create, update, delete: if isAdmin() || isReceptionist();
     }
 
     // ================= 4. Expenses & Clinic Financials =================
     match /expenses/{expenseId} {
-      // Financial expenses are strictly restricted to Administrator
-      // Doctors and Receptionists are completely denied read and write access
-      allow read, write: if isAdmin();
+      // Accessible to Administrator and Receptionist for daily clinic operations & cash drawer
+      // Doctors are completely denied read and write access
+      allow read, create, update, delete: if isAdmin() || isReceptionist();
     }
 
     // ================= 5. Clinical Options & Insurance Companies =================
@@ -126,11 +109,7 @@ service cloud.firestore {
 
     // ================= 6. Audit Logs =================
     match /audit_logs/{logId} {
-      // Only Administrator can read audit logs
       allow read: if isAdmin();
-
-      // Client creation, update, and deletion are strictly DENIED!
-      // All trusted audit logs MUST be recorded exclusively by the Backend Admin SDK.
       allow create, update, delete: if false;
     }
   }

@@ -185,8 +185,8 @@ class FirestoreDatabaseService {
       }
       return expenses;
     } catch (err) {
-      console.error('Firestore getExpenses error:', err);
-      throw new Error('تعذر تحميل المصروفات من قاعدة البيانات.');
+      console.warn('Firestore getExpenses notice:', err.message);
+      return [];
     }
   }
 
