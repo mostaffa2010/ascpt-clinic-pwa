@@ -177,7 +177,6 @@ export class PatientsManager {
   async loadPatients() {
     this.patients = await db.getPatients();
     this.renderPatients();
-    this.populateSessionsDropdown();
   }
 
   // ================= Smart Arabic Search & Relevance Ranking =================
@@ -481,17 +480,6 @@ export class PatientsManager {
     }
   }
 
-
-  populateSessionsDropdown() {
-    const select = document.getElementById('session-patient-select');
-    if (!select) return;
-
-    select.innerHTML = '<option value="">-- اختر المريض من السجل --</option>' + 
-      this.patients.map(p => {
-        const info = p.billing === 'cash' ? 'نقدي' : `تأمين: ${escapeHTML(p.insuranceCompany || 'شركة')}`;
-        return `<option value="${escapeHTML(p.id)}">${escapeHTML(p.name)} (${escapeHTML(p.doctor)}) - [${info}]</option>`;
-      }).join('');
-  }
 
   validatePhoneLive() {
     const phoneInput = document.getElementById('p-phone');

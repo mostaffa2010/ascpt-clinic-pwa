@@ -1185,8 +1185,9 @@
                 <i class="fa-solid fa-database"></i> النسخ الاحتياطي واستعادة البيانات (Backup & Restore)
               </div>
               <div style="font-size: 0.8rem; color: #0284c7; margin-top: 3px;">
-                تنزيل نسخة مشفرة كاملة من سجلات المركز (مرضى، جلسات، حسابات) أو استعادتها بضغطة زر.
+                تنزيل نسخة كاملة (ملف JSON غير مشفر) من سجلات المركز (مرضى، جلسات، حسابات) أو استعادتها بضغطة زر. احتفظ بالملف في مكان آمن فقط، لأنه يحتوي بيانات مرضى حساسة بدون تشفير.
               </div>
+              <div id="backup-status-hint" style="font-size: 0.75rem; margin-top: 6px; font-weight: 700;"></div>
             </div>
             <div style="display: flex; gap: 8px; flex-wrap: wrap;">
               <button type="button" class="btn btn-outline btn-sm" style="border-color: #0284c7; color: #0369a1; font-weight: 700;" id="btn-download-backup">

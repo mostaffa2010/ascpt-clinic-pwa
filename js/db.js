@@ -12,7 +12,8 @@ import {
   setDoc,
   deleteDoc,
   query,
-  orderBy
+  orderBy,
+  writeBatch
 } from 'https://www.gstatic.com/firebasejs/12.18.0/firebase-firestore.js';
 
 import { firestoreDb, isConfigured } from './firebase-init.js';
@@ -520,6 +521,94 @@ class FirestoreDatabaseService {
     this.insuranceCompaniesCache[contractType] = updatedList;
     await setDoc(doc(firestoreDb, 'insurance_companies', contractType), { companies: updatedList }, { merge: true });
     return updatedList;
+  }
+
+  // ================= 8. Backup & Restore =================
+  // NOTE: `users` and `audit_logs` are intentionally excluded from backups.
+  // Staff accounts must only ever be created/changed through the vetted
+  // admin API (api/admin/users.js), never by restoring arbitrary JSON, and
+  // restoring old audit entries would corrupt the audit trail's true
+  // chronological order.
+  async createFullBackup() {
+    this.ensureConnected();
+
+    const [patients, sessions, expenses] = await Promise.all([
+      this.getPatients(),
+      this.getSessions(),
+      this.getExpenses()
+    ]);
+
+    const clinicalOptionsSnap = await getDocs(collection(firestoreDb, 'clinical_options'));
+    const clinicalOptions = {};
+    clinicalOptionsSnap.forEach((d) => { clinicalOptions[d.id] = d.data(); });
+
+    const insuranceSnap = await getDocs(collection(firestoreDb, 'insurance_companies'));
+    const insuranceCompanies = {};
+    insuranceSnap.forEach((d) => { insuranceCompanies[d.id] = d.data(); });
+
+    return {
+      backupVersion: 1,
+      clinicName: CLINIC_CONFIG?.name || 'ASCPT',
+      timestamp: new Date().toISOString(),
+      counts: {
+        patients: patients.length,
+        sessions: sessions.length,
+        expenses: expenses.length
+      },
+      patients,
+      sessions,
+      expenses,
+      clinicalOptions,
+      insuranceCompanies
+    };
+  }
+
+  async restoreFromBackup(data) {
+    this.ensureConnected();
+    if (!data || typeof data !== 'object') {
+      throw new Error('ملف النسخة الاحتياطية غير صالح أو تالف.');
+    }
+
+    const restoreCollection = async (collectionName, items) => {
+      if (!Array.isArray(items) || items.length === 0) return;
+      let batch = writeBatch(firestoreDb);
+      let opsInBatch = 0;
+      for (const item of items) {
+        if (!item || !item.id) continue; // skip malformed entries defensively
+        batch.set(doc(firestoreDb, collectionName, item.id), item, { merge: true });
+        opsInBatch++;
+        if (opsInBatch >= 450) { // stay safely under Firestore's 500-op batch limit
+          await batch.commit();
+          batch = writeBatch(firestoreDb);
+          opsInBatch = 0;
+        }
+      }
+      if (opsInBatch > 0) {
+        await batch.commit();
+      }
+    };
+
+    await restoreCollection('patients', data.patients);
+    await restoreCollection('sessions', data.sessions);
+    await restoreCollection('expenses', data.expenses);
+
+    if (data.clinicalOptions && typeof data.clinicalOptions === 'object') {
+      for (const [category, value] of Object.entries(data.clinicalOptions)) {
+        await setDoc(doc(firestoreDb, 'clinical_options', category), value, { merge: true });
+      }
+    }
+
+    if (data.insuranceCompanies && typeof data.insuranceCompanies === 'object') {
+      for (const [type, value] of Object.entries(data.insuranceCompanies)) {
+        await setDoc(doc(firestoreDb, 'insurance_companies', type), value, { merge: true });
+      }
+    }
+
+    // Force a fresh read next time options/companies are needed, since the
+    // in-memory caches may now be stale relative to what was just restored.
+    this.clinicalOptionsCache = null;
+    this.insuranceCompaniesCache = null;
+    await this.syncAndSeedCloudOptions();
   }
 }
 

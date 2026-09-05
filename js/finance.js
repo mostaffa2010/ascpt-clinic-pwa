@@ -155,8 +155,8 @@ export class FinanceManager {
 
   async handleAddExpense(e) {
     e.preventDefault();
-    const titleInput = document.getElementById('exp-title') || document.getElementById('expense-title');
-    const amountInput = document.getElementById('exp-amount') || document.getElementById('expense-amount');
+    const titleInput = document.getElementById('exp-title');
+    const amountInput = document.getElementById('exp-amount');
     const title = titleInput?.value.trim();
     const amountStr = amountInput?.value.trim();
     const amount = parseFloat(amountStr);

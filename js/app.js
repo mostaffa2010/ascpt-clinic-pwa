@@ -135,6 +135,8 @@ class App {
       await auth.init(async (user) => {
         if (user) {
           try { await db.syncAndSeedCloudOptions(); } catch (_) {}
+          this.updateBackupStatusHint();
+          this.checkBackupReminderToast(user);
         }
         await this.refreshAll();
       });
@@ -786,6 +788,51 @@ class App {
 
 
 
+  // ================= Backup Reminder (local, no server/cost involved) =================
+  // Purely informational: reads/writes a timestamp in this browser's
+  // localStorage only. It never uploads anything anywhere, so it stays
+  // free and requires no account linking of any kind.
+  updateBackupStatusHint() {
+    const hintEl = document.getElementById('backup-status-hint');
+    if (!hintEl) return;
+    const lastBackupRaw = localStorage.getItem('ascpt_last_backup_at');
+    if (!lastBackupRaw) {
+      hintEl.textContent = '⚠️ لم يتم عمل أي نسخة احتياطية بعد على هذا الجهاز.';
+      hintEl.style.color = 'var(--danger)';
+      return;
+    }
+    const lastBackup = new Date(lastBackupRaw);
+    const daysSince = Math.floor((Date.now() - lastBackup.getTime()) / 86400000);
+    const dateLabel = lastBackup.toLocaleDateString('ar-EG-u-nu-latn', { year: 'numeric', month: 'long', day: 'numeric' });
+    if (daysSince >= 7) {
+      hintEl.textContent = `⚠️ آخر نسخة احتياطية كانت منذ ${daysSince} يوم (${dateLabel}) — يُنصح بعمل نسخة جديدة الآن.`;
+      hintEl.style.color = 'var(--danger)';
+    } else {
+      hintEl.textContent = `آخر نسخة احتياطية: ${dateLabel} (منذ ${daysSince} يوم).`;
+      hintEl.style.color = 'var(--text-muted)';
+    }
+  }
+
+  checkBackupReminderToast(user) {
+    if (!user || user.role !== 'admin') return;
+    const lastBackupRaw = localStorage.getItem('ascpt_last_backup_at');
+    const daysSince = lastBackupRaw
+      ? Math.floor((Date.now() - new Date(lastBackupRaw).getTime()) / 86400000)
+      : Infinity;
+    if (daysSince < 7) return;
+
+    // Only nag once per calendar day, not on every page load/refresh.
+    const todayStr = getLocalDateStr();
+    if (localStorage.getItem('ascpt_backup_reminder_shown_on') === todayStr) return;
+    localStorage.setItem('ascpt_backup_reminder_shown_on', todayStr);
+
+    this.showToast(
+      lastBackupRaw
+        ? `تنبيه: آخر نسخة احتياطية كانت منذ ${daysSince} يوم. يُفضّل عمل نسخة جديدة من شاشة الإدارة.`
+        : 'تنبيه: لم يتم عمل أي نسخة احتياطية بعد. يُفضّل عمل نسخة من شاشة الإدارة للحفاظ على بيانات المركز.'
+    );
+  }
+
   // ================= Backup & Restore =================
   async downloadBackup() {
     try {
@@ -801,6 +848,8 @@ class App {
       a.click();
       document.body.removeChild(a);
       URL.revokeObjectURL(url);
+      localStorage.setItem('ascpt_last_backup_at', new Date().toISOString());
+      this.updateBackupStatusHint();
       this.showToast('تم تنزيل النسخة الاحتياطية بنجاح');
     } catch (err) {
       this.showAlert('تعذر إنشاء النسخة الاحتياطية: ' + err.message, 'خطأ', 'danger');
@@ -849,10 +898,6 @@ class App {
   openAddExpenseModal() {
     const form = document.getElementById('form-expense');
     if (form && typeof form.reset === "function") form.reset();
-    const titleEl = document.getElementById('expense-title');
-    const amountEl = document.getElementById('expense-amount');
-    if (titleEl) titleEl.value = '';
-    if (amountEl) amountEl.value = '';
     this.openModal('modal-expense');
   }
 

@@ -163,7 +163,7 @@ export class SessionsManager {
     }
 
     // Event Delegation: Sessions Table Body
-    const sessionsTbody = document.getElementById('sessions-today-tbody') || document.getElementById('sessions-today-table-body');
+    const sessionsTbody = document.getElementById('sessions-today-tbody');
     if (sessionsTbody) {
       sessionsTbody.addEventListener('click', (e) => {
         const editBtn = e.target.closest('.btn-edit-session');
