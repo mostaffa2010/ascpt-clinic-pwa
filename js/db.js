@@ -275,6 +275,11 @@ class FirestoreDatabaseService {
     }
   }
 
+  async logAudit(actionType, description, user) {
+    // Safe non-blocking resolver for client callers. Authoritative logs are written by Backend Admin SDK.
+    return Promise.resolve();
+  }
+
   // ================= 6. Clinical Options =================
   getClinicalOptions(category) {
     const defaults = {

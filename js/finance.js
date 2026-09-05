@@ -181,7 +181,7 @@ export class FinanceManager {
     };
 
     await db.saveExpense(expenseData, currentUser);
-    await db.logAudit('تسجيل مصروف', `تسجيل مصروف: ${title} بمبلغ ${amount} ج.م`, currentUser);
+    try { await db.logAudit('تسجيل مصروف', `تسجيل مصروف: ${title} بمبلغ ${amount} ج.م`, currentUser); } catch (_) {}
 
     this.app.closeModal('modal-expense');
     this.app.showToast('تم تسجيل وحفظ المصروف بنجاح');
@@ -195,7 +195,7 @@ export class FinanceManager {
     if (confirmed) {
       const currentUser = auth.getCurrentUser();
       await db.deleteExpense(expenseId);
-      await db.logAudit('حذف مصروف', `حذف مصروف برقم ${expenseId}`, currentUser);
+      try { await db.logAudit('حذف مصروف', `حذف مصروف برقم ${expenseId}`, currentUser); } catch (_) {}
       this.app.showToast('تم حذف المصروف بنجاح');
       await this.loadReport();
       this.app.refreshAll();

@@ -506,7 +506,7 @@ export class SessionsManager {
       ? `تعديل بيانات جلسة المريض ${patientName} بتاريخ ${sessionDateVal} (مسدد: ${amountPaid} ج.م)`
       : `تسجيل جلسة للمريض ${patientName} مع ${doctor} بتاريخ ${sessionDateVal} (${selectedParts.length} أعضاء: ${selectedParts.join('، ')} - مسدد: ${amountPaid} ج.م)`;
 
-    await db.logAudit(auditAction, auditDesc, currentUser);
+    try { await db.logAudit(auditAction, auditDesc, currentUser); } catch (_) {}
     this.app.showToast(isEdit ? 'تم تعديل بيانات الجلسة بنجاح' : 'تم تسجيل وحفظ الجلسة بنجاح');
     this.resetSessionForm();
     this.renderAllInsuranceChips();

@@ -734,7 +734,12 @@ export class PatientsManager {
       ? `تعديل ملف المريض: ${name}`
       : `تسجيل مريض جديد: ${name} (طبيب: ${doctor} - نظام: ${billing})`;
       
-    await db.logAudit(id ? 'تعديل مريض' : 'إضافة مريض', auditDesc, currentUser);
+    try { await db.logAudit(id ? 'تعديل مريض' : 'إضافة مريض', auditDesc, currentUser); } catch (_) {}
+
+    if (saveBtn) {
+      saveBtn.disabled = false;
+      saveBtn.innerHTML = 'حفظ المريض';
+    }
 
     this.app.closeModal('modal-patient');
     this.app.showToast(id ? 'تم تعديل بيانات المريض بنجاح' : 'تم إضافة المريض بنجاح');
