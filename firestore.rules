@@ -72,7 +72,7 @@ service cloud.firestore {
         isAdmin() ||
         (
           isReceptionist() &&
-          !request.resource.data.diff(resource.data).affectedKeys().hasAny(['clinicalSheet'])
+          request.resource.data.diff(resource.data).affectedKeys().hasAny(['clinicalSheet']) == false
         ) ||
         (
           isDoctor() &&
@@ -99,18 +99,18 @@ service cloud.firestore {
     // ================= 5. Clinical Options & Insurance Companies =================
     match /clinical_options/{category} {
       allow read: if isUserActive();
-      allow write: if isAdmin() || (isUserActive() && !exists(/databases/$(database)/documents/clinical_options/$(category)));
+      allow write: if isAdmin();
     }
 
     match /insurance_companies/{type} {
       allow read: if isUserActive();
-      allow write: if isAdmin() || (isUserActive() && !exists(/databases/$(database)/documents/insurance_companies/$(type)));
+      allow write: if isAdmin();
     }
 
     // ================= 6. Audit Logs =================
     match /audit_logs/{logId} {
       allow read: if isAdmin();
-      allow create, update, delete: if false;
+      allow write: if false;
     }
   }
 }
