@@ -145,7 +145,12 @@ export class AuditAndAdminManager {
   }
 
   async resetUserPassword(userId, userName) {
-    const newPass = prompt(`أدخل كلمة المرور الجديدة للموظف (${userName}):\n(يجب ألا تقل عن 6 خانات)`);
+    const newPass = await this.app.showPrompt(
+      `أدخل كلمة المرور الجديدة للموظف (${userName}):\n(يجب ألا تقل عن 6 خانات)`,
+      'تعيين كلمة مرور جديدة',
+      '6 أحرف على الأقل',
+      true
+    );
     if (!newPass) return;
     if (newPass.length < 6) {
       await this.app.showAlert('كلمة المرور يجب ألا تقل عن 6 خانات/أحرف.', 'خطأ', 'warning');

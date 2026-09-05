@@ -330,23 +330,6 @@ class App {
       });
     }
 
-    // Forgot Password Trigger
-    document.getElementById('btn-forgot-password')?.addEventListener('click', async () => {
-      const emailInput = document.getElementById('login-email');
-      const email = emailInput?.value?.trim();
-      if (!email) {
-        await this.showAlert('يرجى كتابة البريد الإلكتروني في خانة البريد أولاً، ثم الضغط على "نسيت كلمة السر".', 'استعادة كلمة السر', 'warning');
-        emailInput?.focus();
-        return;
-      }
-      try {
-        await auth.resetPassword(email);
-        await this.showAlert(`تم إرسال رابط استعادة كلمة السر إلى بريدك الإلكتروني (${email}). يرجى فحص صندوق الوارد ورسائل الـ Spam.`, 'تم الإرسال بنجاح', 'success');
-      } catch (err) {
-        await this.showAlert(err.message || 'فشل إرسال رابط استعادة كلمة السر.', 'خطأ', 'danger');
-      }
-    });
-
     // Close Auth Modal buttons
     document.getElementById('btn-close-auth-modal')?.addEventListener('click', () => auth.hideLoginModal());
     document.getElementById('btn-cancel-login')?.addEventListener('click', () => auth.hideLoginModal());
@@ -451,15 +434,22 @@ class App {
 
     if (btnConfirm) {
       btnConfirm.addEventListener('click', () => {
+        const inputEl = document.getElementById('dialog-input');
+        const isPrompt = inputEl && inputEl.style.display !== 'none';
+        const val = isPrompt ? inputEl.value.trim() : true;
+        if (inputEl) inputEl.style.display = 'none';
         this.closeModal('modal-custom-dialog');
-        if (this.dialogResolve) this.dialogResolve(true);
+        if (this.dialogResolve) this.dialogResolve(val);
       });
     }
 
     if (btnCancel) {
       btnCancel.addEventListener('click', () => {
+        const inputEl = document.getElementById('dialog-input');
+        const isPrompt = inputEl && inputEl.style.display !== 'none';
+        if (inputEl) inputEl.style.display = 'none';
         this.closeModal('modal-custom-dialog');
-        if (this.dialogResolve) this.dialogResolve(false);
+        if (this.dialogResolve) this.dialogResolve(isPrompt ? null : false);
       });
     }
   }
@@ -944,6 +934,7 @@ class App {
   showAlert(message, title = 'تنبيه المركز', type = 'info') {
     return new Promise((resolve) => {
       this.dialogResolve = resolve;
+      const inputEl = document.getElementById('dialog-input'); if (inputEl) inputEl.style.display = 'none';
       const modal = document.getElementById('modal-custom-dialog');
       const titleEl = document.getElementById('dialog-title');
       const msgEl = document.getElementById('dialog-message');
@@ -974,6 +965,7 @@ class App {
   showConfirm(message, title = 'تأكيد الإجراء') {
     return new Promise((resolve) => {
       this.dialogResolve = resolve;
+      const inputEl = document.getElementById('dialog-input'); if (inputEl) inputEl.style.display = 'none';
       const titleEl = document.getElementById('dialog-title');
       const msgEl = document.getElementById('dialog-message');
       const iconEl = document.getElementById('dialog-icon');
@@ -994,6 +986,46 @@ class App {
       }
 
       this.openModal('modal-custom-dialog');
+    });
+  }
+
+  showPrompt(message, title = 'إدخال بيانات', placeholder = '', isPassword = false) {
+    return new Promise((resolve) => {
+      this.dialogResolve = resolve;
+      const titleEl = document.getElementById('dialog-title');
+      const msgEl = document.getElementById('dialog-message');
+      const iconEl = document.getElementById('dialog-icon');
+      const inputEl = document.getElementById('dialog-input');
+      const btnCancel = document.getElementById('dialog-btn-cancel');
+      const btnConfirm = document.getElementById('dialog-btn-confirm');
+
+      if (titleEl) titleEl.textContent = title;
+      if (msgEl) msgEl.textContent = message;
+      if (btnCancel) {
+        btnCancel.style.display = 'inline-flex';
+        btnCancel.textContent = 'إلغاء';
+      }
+      if (btnConfirm) {
+        btnConfirm.textContent = 'تأكيد';
+        btnConfirm.className = 'btn btn-primary';
+      }
+
+      if (inputEl) {
+        inputEl.style.display = 'block';
+        inputEl.value = '';
+        inputEl.placeholder = placeholder;
+        inputEl.style.webkitTextSecurity = isPassword ? 'disc' : 'none';
+      }
+
+      if (iconEl) {
+        iconEl.className = 'custom-dialog-icon info';
+        iconEl.innerHTML = isPassword ? '<i class="fa-solid fa-key"></i>' : '<i class="fa-solid fa-pen-to-square"></i>';
+      }
+
+      this.openModal('modal-custom-dialog');
+      setTimeout(() => {
+        if (inputEl) inputEl.focus();
+      }, 150);
     });
   }
 

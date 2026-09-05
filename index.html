@@ -1397,11 +1397,7 @@
             </div>
           </div>
 
-          <div style="display: flex; justify-content: flex-end; margin-top: -6px; margin-bottom: 14px;">
-            <button type="button" id="btn-forgot-password" style="background: none; border: none; color: var(--primary); font-size: 0.8rem; font-weight: 700; cursor: pointer; text-decoration: underline; padding: 0;">
-              نسيت كلمة السر؟
-            </button>
-          </div>
+
 
           <!-- Error message container -->
           <div id="login-error-msg" style="display: none; background-color: #fef2f2; border: 1px solid #fecaca; color: #dc2626; border-radius: 8px; padding: 9px 12px; font-size: 0.82rem; margin-bottom: 14px; line-height: 1.4;"></div>
@@ -1453,6 +1449,7 @@
       </div>
       <h3 class="custom-dialog-title" id="dialog-title">تنبيه</h3>
       <p class="custom-dialog-text" id="dialog-message"></p>
+      <input type="text" id="dialog-input" class="form-control" style="display: none; margin: 12px 0 6px 0; width: 100%; border-radius: 8px; padding: 10px 12px; font-size: 0.95rem; text-align: center; border: 1.5px solid var(--border-color);" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
       <div class="custom-dialog-actions">
         <button type="button" class="btn btn-outline" id="dialog-btn-cancel" style="display: none;">إلغاء</button>
         <button type="button" class="btn btn-primary" id="dialog-btn-confirm">موافق</button>
