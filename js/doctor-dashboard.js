@@ -135,31 +135,32 @@ export class DoctorDashboardManager {
       if (s.payType === 'cash') {
         billingBadge = `<span class="badge badge-cash"><i class="fa-solid fa-money-bill"></i> نقدي</span>`;
       } else if (s.contractType === 'direct') {
-        billingBadge = `<span class="badge badge-direct"><i class="fa-solid fa-file-contract"></i> ${s.insuranceName || 'شركة'} (مباشر)</span>`;
+        billingBadge = `<span class="badge badge-direct"><i class="fa-solid fa-file-contract"></i> ${escapeHTML(s.insuranceName || 'شركة')} (مباشر)</span>`;
       } else {
-        billingBadge = `<span class="badge badge-indirect"><i class="fa-solid fa-handshake"></i> ${s.insuranceName || 'شركة'} (غير مباشر)</span>`;
+        billingBadge = `<span class="badge badge-indirect"><i class="fa-solid fa-handshake"></i> ${escapeHTML(s.insuranceName || 'شركة')} (غير مباشر)</span>`;
       }
 
       const parts = Array.isArray(s.bodyParts) ? s.bodyParts.join('، ') : (s.bodyParts || '-');
       const timeDisplay = s.recordedAt || '';
       const dateDisplay = s.date || '';
+      const safePatientId = escapeHTML(s.patientId || '');
 
       return `
         <tr>
-          <td style="font-weight: 800; color: #0f172a; cursor: pointer;" onclick="patientsManager.openPatientSheet('${s.patientId}')" title="اضغط لفتح الشيت الطبي">
+          <td style="font-weight: 800; color: #0f172a; cursor: pointer;" onclick="patientsManager.openPatientSheet('${safePatientId}')" title="اضغط لفتح الشيت الطبي">
             <i class="fa-solid fa-user-injured" style="color: var(--primary); margin-left: 6px;"></i>
-            ${s.patientName}
+            ${escapeHTML(s.patientName)}
           </td>
           <td>${billingBadge}</td>
-          <td style="font-size: 0.85rem; color: #334155;">${parts}</td>
+          <td style="font-size: 0.85rem; color: #334155;">${escapeHTML(parts)}</td>
           <td style="font-size: 0.85rem; color: var(--text-muted); white-space: nowrap;">
-            <bdi dir="ltr">${dateDisplay}</bdi> ${timeDisplay ? `• ${timeDisplay}` : ''}
+            <bdi dir="ltr">${escapeHTML(dateDisplay)}</bdi> ${timeDisplay ? `• ${escapeHTML(timeDisplay)}` : ''}
           </td>
           <td style="font-size: 0.82rem; color: var(--text-muted); max-width: 180px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
-            ${s.notes || '-'}
+            ${escapeHTML(s.notes || '-')}
           </td>
           <td style="text-align: center;">
-            <button type="button" class="btn btn-primary btn-sm" onclick="patientsManager.openPatientSheet('${s.patientId}')" style="padding: 4px 10px; font-weight: 700; white-space: nowrap;">
+            <button type="button" class="btn btn-primary btn-sm" onclick="patientsManager.openPatientSheet('${safePatientId}')" style="padding: 4px 10px; font-weight: 700; white-space: nowrap;">
               <i class="fa-solid fa-file-waveform"></i> الشيت الطبي
             </button>
           </td>

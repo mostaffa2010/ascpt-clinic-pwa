@@ -4,6 +4,20 @@
 
 import { db } from './db.js';
 
+/**
+ * Sanitizes a value for safe inclusion inside a quoted CSV field:
+ * escapes embedded double-quotes and neutralizes a leading
+ * =, +, -, or @ so spreadsheet apps (Excel/Sheets) never treat
+ * exported patient/staff-entered text as a formula.
+ */
+function csvSafe(value) {
+  let str = String(value ?? '');
+  if (/^[=+\-@]/.test(str)) {
+    str = `'${str}`;
+  }
+  return str.replace(/"/g, '""');
+}
+
 export class ExportManager {
   constructor(app, financeManager) {
     this.app = app;
@@ -103,7 +117,7 @@ export class ExportManager {
       allSessions.forEach((s, idx) => {
         const parts = Array.isArray(s.bodyParts) ? s.bodyParts.join(' - ') : '';
         const contract = s.contractType === 'direct' ? 'مباشر' : (s.contractType === 'indirect' ? 'غير مباشر' : '-');
-        csv += `${idx + 1},"${s.patientName}","${s.doctor}",${s.payType === 'cash' ? 'نقدي' : 'تأمين'},"${s.insuranceName || '-'}","${contract}","${parts}",${s.amountPaid},"${s.recordedBy}","${s.recordedAt}"\r\n`;
+        csv += `${idx + 1},"${csvSafe(s.patientName)}","${csvSafe(s.doctor)}",${s.payType === 'cash' ? 'نقدي' : 'تأمين'},"${csvSafe(s.insuranceName || '-')}","${csvSafe(contract)}","${csvSafe(parts)}",${s.amountPaid},"${csvSafe(s.recordedBy)}","${csvSafe(s.recordedAt)}"\r\n`;
       });
 
       this.downloadCSV(csv, `تقرير_PhysioFlow_اليومي_${dateStr}.csv`);
@@ -211,11 +225,11 @@ export class ExportManager {
       csv += `إجمالي مرضى الشهر,${totalPatients},نقدي,${cashCount},تأمين,${insCount},إيرادات,${totalCash} ج.م,مصروفات,${totalExp} ج.م,صافي الأرباح,${netCash} ج.م\r\n\r\n`;
       csv += 'إحصائية الأطباء الشهرية:\r\nم,الطبيب المعالج,مرضى نقدي,مرضى شركات تأمين,إجمالي الحالات,النسبة\r\n';
       doctorsData.forEach(d => {
-        csv += `${d['م']},"${d['الطبيب المعالج']}",${d['مرضى نقدي']},${d['مرضى شركات تأمين']},${d['إجمالي الحالات']},${d['النسبة من إجمالي المركز']}\r\n`;
+        csv += `${d['م']},"${csvSafe(d['الطبيب المعالج'])}",${d['مرضى نقدي']},${d['مرضى شركات تأمين']},${d['إجمالي الحالات']},${d['النسبة من إجمالي المركز']}\r\n`;
       });
       csv += '\r\nتوزيع جهات التأمين والنقدي:\r\nم,الجهة,نوع التعاقد,عدد الحالات,النسبة\r\n';
       insuranceData.forEach(i => {
-        csv += `${i['م']},"${i['جهة السداد / شركة التأمين']}","${i['نوع التعاقد']}",${i['عدد الحالات في الشهر']},${i['النسبة المئوية']}\r\n`;
+        csv += `${i['م']},"${csvSafe(i['جهة السداد / شركة التأمين'])}","${csvSafe(i['نوع التعاقد'])}",${i['عدد الحالات في الشهر']},${i['النسبة المئوية']}\r\n`;
       });
 
       this.downloadCSV(csv, `تقرير_PhysioFlow_الشهري_${monthStr}.csv`);

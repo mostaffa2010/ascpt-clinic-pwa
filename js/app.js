@@ -330,6 +330,23 @@ class App {
       });
     }
 
+    // Forgot Password Trigger
+    document.getElementById('btn-forgot-password')?.addEventListener('click', async () => {
+      const emailInput = document.getElementById('login-email');
+      const email = emailInput?.value?.trim();
+      if (!email) {
+        await this.showAlert('يرجى كتابة البريد الإلكتروني في خانة البريد أولاً، ثم الضغط على "نسيت كلمة السر".', 'استعادة كلمة السر', 'warning');
+        emailInput?.focus();
+        return;
+      }
+      try {
+        await auth.resetPassword(email);
+        await this.showAlert(`تم إرسال رابط استعادة كلمة السر إلى بريدك الإلكتروني (${email}). يرجى فحص صندوق الوارد ورسائل الـ Spam.`, 'تم الإرسال بنجاح', 'success');
+      } catch (err) {
+        await this.showAlert(err.message || 'فشل إرسال رابط استعادة كلمة السر.', 'خطأ', 'danger');
+      }
+    });
+
     // Close Auth Modal buttons
     document.getElementById('btn-close-auth-modal')?.addEventListener('click', () => auth.hideLoginModal());
     document.getElementById('btn-cancel-login')?.addEventListener('click', () => auth.hideLoginModal());

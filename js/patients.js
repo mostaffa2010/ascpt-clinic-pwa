@@ -872,9 +872,9 @@ export class PatientsManager {
       if (p.billing === 'cash') {
         badgeEl.innerHTML = '<span class="badge badge-cash" style="font-size: 0.82rem; padding: 4px 12px; font-weight: 700; white-space: nowrap; display: inline-flex; align-items: center; gap: 5px;"><i class="fa-solid fa-money-bill-wave"></i> نقدي</span>';
       } else if (p.contractType === 'direct') {
-        badgeEl.innerHTML = `<span class="badge badge-direct" style="font-size: 0.82rem; padding: 4px 12px; font-weight: 700; white-space: nowrap; display: inline-flex; align-items: center; gap: 5px;"><i class="fa-solid fa-file-contract"></i> ${p.insuranceCompany || 'تأمين'} (مباشر)</span>`;
+        badgeEl.innerHTML = `<span class="badge badge-direct" style="font-size: 0.82rem; padding: 4px 12px; font-weight: 700; white-space: nowrap; display: inline-flex; align-items: center; gap: 5px;"><i class="fa-solid fa-file-contract"></i> ${escapeHTML(p.insuranceCompany || 'تأمين')} (مباشر)</span>`;
       } else {
-        badgeEl.innerHTML = `<span class="badge badge-indirect" style="font-size: 0.82rem; padding: 4px 12px; font-weight: 700; white-space: nowrap; display: inline-flex; align-items: center; gap: 5px;"><i class="fa-solid fa-handshake"></i> ${p.insuranceCompany || 'تأمين'} (غير مباشر)</span>`;
+        badgeEl.innerHTML = `<span class="badge badge-indirect" style="font-size: 0.82rem; padding: 4px 12px; font-weight: 700; white-space: nowrap; display: inline-flex; align-items: center; gap: 5px;"><i class="fa-solid fa-handshake"></i> ${escapeHTML(p.insuranceCompany || 'تأمين')} (غير مباشر)</span>`;
       }
     }
 
@@ -1209,9 +1209,9 @@ export class PatientsManager {
         if (s.payType === 'cash') {
           payBadge = `<span class="badge badge-cash"><i class="fa-solid fa-money-bill"></i> نقدي (${s.amountPaid || 0} ج.م)</span>`;
         } else if (s.contractType === 'direct') {
-          payBadge = `<span class="badge badge-direct"><i class="fa-solid fa-file-contract"></i> ${s.insuranceName || 'تأمين'} (مباشر) - ${s.amountPaid || 0} ج.م</span>`;
+          payBadge = `<span class="badge badge-direct"><i class="fa-solid fa-file-contract"></i> ${escapeHTML(s.insuranceName || 'تأمين')} (مباشر) - ${s.amountPaid || 0} ج.م</span>`;
         } else {
-          payBadge = `<span class="badge badge-indirect"><i class="fa-solid fa-handshake"></i> ${s.insuranceName || 'تأمين'} (غير مباشر) - ${s.amountPaid || 0} ج.م</span>`;
+          payBadge = `<span class="badge badge-indirect"><i class="fa-solid fa-handshake"></i> ${escapeHTML(s.insuranceName || 'تأمين')} (غير مباشر) - ${s.amountPaid || 0} ج.م</span>`;
         }
 
         const parts = Array.isArray(s.bodyParts) ? s.bodyParts.join('، ') : (s.bodyParts || 'غير محدد');
@@ -1223,10 +1223,10 @@ export class PatientsManager {
               <div>${s.date}</div>
               <small style="color: var(--text-muted); font-size: 0.72rem;">${s.recordedAt || ''}</small>
             </td>
-            <td><span style="font-weight: 700; color: #1e293b;">${s.doctor}</span></td>
-            <td style="font-size: 0.85rem;">${parts}</td>
+            <td><span style="font-weight: 700; color: #1e293b;">${escapeHTML(s.doctor)}</span></td>
+            <td style="font-size: 0.85rem;">${escapeHTML(parts)}</td>
             <td>${payBadge}</td>
-            <td style="font-size: 0.82rem; color: var(--text-muted);">${s.notes || '-'}</td>
+            <td style="font-size: 0.82rem; color: var(--text-muted);">${escapeHTML(s.notes || '-')}</td>
             <td style="font-size: 0.75rem; color: var(--text-muted);">${s.recordedBy || '-'}</td>
           </tr>
         `;

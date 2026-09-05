@@ -105,7 +105,12 @@ service cloud.firestore {
     // ================= 6. Audit Logs =================
     match /audit_logs/{logId} {
       allow read: if isAdmin();
-      allow create, update, delete: if false;
+      allow create: if isUserActive() &&
+        request.resource.data.userId == request.auth.uid &&
+        request.resource.data.actionType is string &&
+        request.resource.data.description is string &&
+        request.resource.data.timestampRaw is number;
+      allow update, delete: if false;
     }
   }
 }
