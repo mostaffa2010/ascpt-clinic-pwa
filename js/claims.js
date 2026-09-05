@@ -438,6 +438,32 @@ export class ClaimsManager {
     this.updateCardLivePreview();
   }
 
+  async promptAddNewTreatment() {
+    const user = auth.getCurrentUser();
+    if (!RolesManager.canManageUsers(user)) {
+      await this.app.showAlert('إضافة وسائل العلاج متاح لمدير المركز فقط.', 'صلاحية المدير');
+      return;
+    }
+
+    const name = await this.app.showPrompt(
+      'اكتب اسم وسيلة العلاج الطبيعي الجديدة:',
+      'إضافة وسيلة علاجية جديدة',
+      'مثال: Shortwave Diathermy'
+    );
+
+    if (name && typeof name === 'string' && name.trim().length > 0) {
+      const cleanName = name.trim();
+      await db.addClinicalOption('modality', cleanName);
+
+      const selected = Array.from(document.querySelectorAll('#card-treatment-chips-container .sheet-chip.selected'))
+        .map(b => b.getAttribute('data-val'));
+      selected.push(cleanName);
+
+      this.renderCardTreatmentChips(selected);
+      this.app.showToast('تمت إضافة وسيلة ' + cleanName + ' بنجاح');
+    }
+  }
+
   updateCardLivePreview() {
     const selected = Array.from(document.querySelectorAll('#card-treatment-chips-container .sheet-chip.selected'))
       .map(b => b.getAttribute('data-val'));

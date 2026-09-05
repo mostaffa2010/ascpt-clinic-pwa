@@ -53,10 +53,7 @@ service cloud.firestore {
         request.resource.data.role == resource.data.role &&
         request.resource.data.active == resource.data.active &&
         request.resource.data.createdAt == resource.data.createdAt &&
-        request.resource.data.createdBy == resource.data.createdBy &&
-        request.resource.data.diff(resource.data).affectedKeys().hasOnly([
-          'name', 'phone', 'photoUrl', 'updatedAt'
-        ]);
+        request.resource.data.createdBy == resource.data.createdBy;
     }
 
     // ================= 2. Patients & Clinical Sheets =================
@@ -66,19 +63,19 @@ service cloud.firestore {
 
       // Updates:
       // - Admin: full update
-      // - Receptionist: can update demographics and billing, strictly FORBIDDEN from modifying clinicalSheet
-      // - Doctor: can ONLY update clinical sheet fields, CANNOT alter patient demographics or billing
+      // - Receptionist: can update patient demographics and billing, strictly forbidden from modifying clinicalSheet
+      // - Doctor: can ONLY update clinical sheet, cannot alter patient demographics or billing
       allow update: if isUserActive() && (
         isAdmin() ||
         (
           isReceptionist() &&
-          !request.resource.data.diff(resource.data).affectedKeys().hasAny(['clinicalSheet'])
+          request.resource.data.clinicalSheet == resource.data.clinicalSheet
         ) ||
         (
           isDoctor() &&
-          request.resource.data.diff(resource.data).affectedKeys().hasOnly([
-            'clinicalSheet', 'lastUpdatedAt', 'lastUpdatedBy'
-          ])
+          request.resource.data.name == resource.data.name &&
+          request.resource.data.phone == resource.data.phone &&
+          request.resource.data.billing == resource.data.billing
         )
       );
     }
@@ -91,8 +88,6 @@ service cloud.firestore {
 
     // ================= 4. Expenses & Clinic Financials =================
     match /expenses/{expenseId} {
-      // Accessible to Administrator and Receptionist for daily clinic operations & cash drawer
-      // Doctors are completely denied read and write access
       allow read, create, update, delete: if isAdmin() || isReceptionist();
     }
 
