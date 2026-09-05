@@ -478,10 +478,11 @@ class App {
     }
 
     window.addEventListener('popstate', async (event) => {
-      // 1. إذا كانت هناك أي نافذة منبثقة أو قائمة مفتوحة، نغلقها فقط
-      const activeModal = document.querySelector('.modal-backdrop.active:not(#modal-auth)');
-      if (activeModal) {
-        activeModal.classList.remove('active');
+      // 1. إذا كانت هناك أي نافذة منبثقة مفتوحة، نغلق النافذة العلوية الأخيرة فقط
+      const activeModals = Array.from(document.querySelectorAll('.modal-backdrop.active:not(#modal-auth)'));
+      if (activeModals.length > 0) {
+        const topModal = activeModals[activeModals.length - 1];
+        topModal.classList.remove('active');
         return;
       }
 
@@ -983,7 +984,14 @@ class App {
     const modal = document.getElementById(modalId);
     if (modal) {
       modal.classList.add('active');
-      if (modalId !== 'modal-auth' && modalId !== 'modal-custom-dialog') {
+      const transientModals = [
+        'modal-auth',
+        'modal-custom-dialog',
+        'modal-custom-picker',
+        'modal-custom-calendar',
+        'modal-custom-month-picker'
+      ];
+      if (!transientModals.includes(modalId)) {
         history.pushState({ modal: modalId, view: this.currentView }, '');
       }
     }
@@ -993,9 +1001,6 @@ class App {
     const modal = document.getElementById(modalId);
     if (modal) {
       modal.classList.remove('active');
-      if (history.state && history.state.modal === modalId) {
-        history.back();
-      }
     }
   }
 

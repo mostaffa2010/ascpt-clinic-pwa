@@ -1286,3 +1286,104 @@ body.not-authenticated #modal-auth .modal-close,
 body.not-authenticated #modal-auth #btn-cancel-login {
   display: none !important;
 }
+
+/* ================= Modern Insurance Companies UI ================= */
+.insurance-contract-segmented {
+  display: flex;
+  background: #f1f5f9;
+  border-radius: 10px;
+  padding: 3px;
+  gap: 4px;
+}
+
+.insurance-contract-segmented .segmented-option {
+  flex: 1;
+  margin: 0;
+  cursor: pointer;
+}
+
+.insurance-contract-segmented input[type="radio"] {
+  display: none;
+}
+
+.insurance-contract-segmented .segmented-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #64748b;
+  transition: all 0.2s ease;
+  user-select: none;
+}
+
+.insurance-contract-segmented input[type="radio"]:checked + .segmented-btn {
+  background: #ffffff;
+  color: #0284c7;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.insurance-companies-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.insurance-company-card {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #ffffff;
+  border: 1.5px solid #e2e8f0;
+  padding: 10px 12px;
+  border-radius: 10px;
+  font-size: 0.84rem;
+  font-weight: 700;
+  color: #1e293b;
+  cursor: pointer;
+  user-select: none;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
+  text-align: right;
+  position: relative;
+}
+
+.insurance-company-card:active {
+  transform: scale(0.98);
+}
+
+.insurance-company-card .ins-icon-wrap {
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  background: #f0f9ff;
+  color: #0284c7;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.85rem;
+  flex-shrink: 0;
+  transition: all 0.2s ease;
+}
+
+.insurance-company-card.selected {
+  border-color: #0284c7;
+  background: #f0f9ff;
+  color: #0369a1;
+  box-shadow: 0 0 0 2px rgba(2, 132, 199, 0.2);
+}
+
+.insurance-company-card.selected .ins-icon-wrap {
+  background: #0284c7;
+  color: #ffffff;
+}
+
+.insurance-company-card .ins-check-icon {
+  margin-right: auto;
+  color: #0284c7;
+  font-size: 0.85rem;
+}

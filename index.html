@@ -1299,28 +1299,31 @@
                   </button>
                 </div>
               </div>
-              <div style="display: flex; gap: 10px;">
-                <label class="radio-pill-label" style="flex: 1;">
+              <div class="insurance-contract-segmented">
+                <label class="segmented-option">
                   <input type="radio" name="p-contract-type" value="direct" checked>
-                  <span class="pill-btn"><i class="fa-solid fa-file-contract"></i> تعاقد مباشر</span>
+                  <span class="segmented-btn"><i class="fa-solid fa-file-contract"></i> تعاقد مباشر</span>
                 </label>
-                <label class="radio-pill-label" style="flex: 1;">
+                <label class="segmented-option">
                   <input type="radio" name="p-contract-type" value="indirect">
-                  <span class="pill-btn"><i class="fa-solid fa-handshake"></i> تعاقد غير مباشر</span>
+                  <span class="segmented-btn"><i class="fa-solid fa-handshake"></i> تعاقد غير مباشر</span>
                 </label>
               </div>
             </div>
 
             <!-- أزرار شركات التأمين -->
             <div class="form-group" style="margin-bottom: 4px;">
-              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
                 <label style="font-weight: 800; font-size: 0.88rem; color: #0f172a;">اختر شركة التأمين *</label>
-                <span id="p-selected-ins-preview" style="font-size: 0.8rem; font-weight: 700; color: var(--primary);"></span>
+                <span id="p-selected-ins-preview" style="font-size: 0.82rem; font-weight: 800; color: var(--primary);"></span>
               </div>
               <input type="hidden" id="p-insurance-company" value="">
               
-              <div id="p-ins-direct-container" class="body-parts-chips" style="gap: 6px;"></div>
-              <div id="p-ins-indirect-container" class="body-parts-chips" style="display: none; gap: 6px;"></div>
+              <!-- Direct Companies Grid -->
+              <div id="p-ins-direct-container" class="insurance-companies-grid"></div>
+
+              <!-- Indirect Companies Grid -->
+              <div id="p-ins-indirect-container" class="insurance-companies-grid" style="display: none;"></div>
             </div>
           </div>
         </div>

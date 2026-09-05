@@ -369,7 +369,7 @@ export class PatientsManager {
     const icon = contractType === 'direct' ? 'fa-solid fa-file-contract' : 'fa-solid fa-handshake';
 
     let html = companies.map(comp => {
-      const isSelected = comp === selectedCompany;
+      const isSelected = (comp === selectedCompany);
       const safeComp = comp.replace(/'/g, "\\'");
       const editClass = isEdit ? 'in-edit-mode' : '';
       const deleteIconHtml = isEdit
@@ -377,8 +377,10 @@ export class PatientsManager {
         : '';
 
       return `
-        <button type="button" class="chip-choice sheet-chip chip-${contractType} ${isSelected ? 'selected' : ''} ${editClass}" data-action="select-insurance" data-contract="${contractType}" data-company="${safeComp}">
-          <i class="${icon}"></i> <span>${comp}</span>
+        <button type="button" class="insurance-company-card ${isSelected ? 'selected' : ''} ${editClass}" data-action="select-insurance" data-contract="${contractType}" data-company="${safeComp}">
+          <span class="ins-icon-wrap"><i class="${icon}"></i></span>
+          <span style="flex: 1; text-align: right; line-height: 1.25;">${comp}</span>
+          ${isSelected ? '<i class="fa-solid fa-check ins-check-icon"></i>' : ''}
           ${deleteIconHtml}
         </button>
       `;
@@ -386,7 +388,7 @@ export class PatientsManager {
 
     if (isEdit) {
       html += `
-        <button type="button" class="chip-add-new-btn" data-action="add-insurance" data-contract="${contractType}" data-source="patient">
+        <button type="button" class="chip-add-new-btn" data-action="add-insurance" data-contract="${contractType}" data-source="patient" style="grid-column: 1 / -1;">
           <i class="fa-solid fa-plus"></i> <span>إضافة شركة جديدة</span>
         </button>
       `;
@@ -404,9 +406,19 @@ export class PatientsManager {
     const preview = document.getElementById('p-selected-ins-preview');
     if (preview) preview.textContent = `المختارة: ${compName}`;
 
-    document.querySelectorAll('#p-ins-direct-container .sheet-chip, #p-ins-indirect-container .sheet-chip').forEach(btn => {
-      const isMatch = btn.textContent.trim().includes(compName);
+    document.querySelectorAll('#p-ins-direct-container .insurance-company-card, #p-ins-indirect-container .insurance-company-card').forEach(btn => {
+      const isMatch = (btn.getAttribute('data-company') === compName);
       btn.classList.toggle('selected', isMatch);
+      let check = btn.querySelector('.ins-check-icon');
+      if (isMatch) {
+        if (!check) {
+          const checkIcon = document.createElement('i');
+          checkIcon.className = 'fa-solid fa-check ins-check-icon';
+          btn.appendChild(checkIcon);
+        }
+      } else {
+        if (check) check.remove();
+      }
     });
   }
 
