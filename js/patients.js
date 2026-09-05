@@ -551,6 +551,9 @@ export class PatientsManager {
     });
     document.getElementById('modal-patient-title').innerHTML = '<i class="fa-solid fa-user-plus"></i> تسجيل مريض جديد';
     document.getElementById('p-insurance-details').style.display = 'none';
+    this.onContractTypeChanged('direct');
+    const directRadio = document.querySelector('input[name="p-contract-type"][value="direct"]');
+    if (directRadio) directRadio.checked = true;
     this.app.openModal('modal-patient');
   }
 
@@ -595,8 +598,10 @@ export class PatientsManager {
     if (p.billing === 'insurance') {
       insBox.style.display = 'block';
       document.getElementById('p-insurance-company').value = p.insuranceCompany || '';
-      const contractRadios = document.querySelectorAll('input[name="p-contract"]');
-      contractRadios.forEach(r => { r.checked = (r.value === p.contractType); });
+      const cType = p.contractType || 'direct';
+      const contractRadios = document.querySelectorAll('input[name="p-contract-type"]');
+      contractRadios.forEach(r => { r.checked = (r.value === cType); });
+      this.onContractTypeChanged(cType);
     } else {
       insBox.style.display = 'none';
     }

@@ -1328,7 +1328,7 @@ body.not-authenticated #modal-auth #btn-cancel-login {
 
 .insurance-companies-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+  grid-template-columns: repeat(2, 1fr);
   gap: 8px;
   margin-top: 8px;
 }
@@ -1403,8 +1403,8 @@ body.not-authenticated #modal-auth #btn-cancel-login {
 }
 
 .insurance-companies-grid {
-  display: grid !important;
-  grid-template-columns: repeat(2, 1fr) !important;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
   gap: 8px !important;
   width: 100% !important;
   max-width: 100% !important;
@@ -1415,4 +1415,14 @@ body.not-authenticated #modal-auth #btn-cancel-login {
   min-width: 0 !important;
   max-width: 100% !important;
   box-sizing: border-box !important;
+}
+
+.insurance-companies-grid[style*="display: none"],
+.insurance-companies-grid[style*="display:none"] {
+  display: none !important;
+}
+
+.insurance-companies-grid[style*="display: grid"],
+.insurance-companies-grid[style*="display:grid"] {
+  display: grid !important;
 }
