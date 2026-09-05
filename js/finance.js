@@ -1,4 +1,4 @@
-import { escapeHTML } from './utils.js';
+import { escapeHTML, getLocalDateStr } from './utils.js';
 // ========================================================
 // ASCPT - Daily & Monthly Financial & Statistical Reports
 // ========================================================
@@ -11,7 +11,7 @@ export class FinanceManager {
   constructor(app) {
     this.app = app;
     this.reportMode = 'daily'; // 'daily' | 'monthly'
-    this.currentDate = new Date().toISOString().split('T')[0];
+    this.currentDate = getLocalDateStr();
     this.currentMonth = this.currentDate.substring(0, 7); // YYYY-MM
     this.selectedDoctor = 'all';
   }
@@ -112,11 +112,11 @@ export class FinanceManager {
 
   setDateQuick(type) {
     if (type === 'today') {
-      this.currentDate = new Date().toISOString().split('T')[0];
+      this.currentDate = getLocalDateStr();
     } else if (type === 'yesterday') {
       const d = new Date();
       d.setDate(d.getDate() - 1);
-      this.currentDate = d.toISOString().split('T')[0];
+      this.currentDate = getLocalDateStr(d);
     }
     const datePicker = document.getElementById('finance-date-picker');
     if (datePicker) datePicker.value = this.currentDate;
@@ -128,10 +128,10 @@ export class FinanceManager {
   syncQuickDateButtons(dateStr) {
     const btnToday = document.getElementById('btn-quick-fin-today');
     const btnYest = document.getElementById('btn-quick-fin-yesterday');
-    const today = new Date().toISOString().split('T')[0];
+    const today = getLocalDateStr();
     const d = new Date();
     d.setDate(d.getDate() - 1);
-    const yesterday = d.toISOString().split('T')[0];
+    const yesterday = getLocalDateStr(d);
 
     if (btnToday) {
       if (dateStr === today) {
@@ -174,7 +174,7 @@ export class FinanceManager {
     }
 
     const currentUser = auth.getCurrentUser();
-    const todayStr = new Date().toISOString().split('T')[0];
+    const todayStr = getLocalDateStr();
     const expenseData = {
       title,
       amount,
@@ -433,7 +433,7 @@ export class FinanceManager {
             <td style="font-size: 0.8rem; color: var(--text-muted);">${escapeHTML(e.recordedBy)}</td>
             <td style="font-size: 0.8rem; color: var(--text-muted);">${e.time}</td>
             <td class="no-print">
-              ${RolesManager.canDelete(auth.getCurrentUser()) ? `
+              ${RolesManager.canDeleteFinance(auth.getCurrentUser()) ? `
                 <button type="button" class="btn btn-outline btn-sm btn-delete-record btn-delete-expense" style="color: var(--danger);" data-expense-id="${e.id}" title="حذف">
                   <i class="fa-solid fa-trash"></i>
                 </button>

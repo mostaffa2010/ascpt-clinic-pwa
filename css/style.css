@@ -413,8 +413,8 @@ body {
 }
 
 .btn-sm {
-  padding: 5px 10px;
-  font-size: 0.8rem;
+  padding: 8px 12px;
+  font-size: 0.85rem;
   border-radius: 8px;
 }
 
@@ -699,6 +699,27 @@ table.data-table tr:hover {
 @keyframes toastPop {
   from { transform: translate(-50%, 20px); opacity: 0; }
   to { transform: translate(-50%, 0); opacity: 1; }
+}
+
+/* ================= Responsive for Tablet (768px - 991px) =================
+   Keeps the mobile navigation paradigm (top bar + bottom nav) since the
+   fixed 260px sidebar would crowd a ~768-991px screen, but gives forms
+   and stat grids room to breathe instead of stacking everything into
+   a single narrow column like on a phone. */
+@media (min-width: 768px) and (max-width: 991px) {
+  .main-content {
+    padding: 22px 28px;
+    padding-bottom: calc(var(--bottom-nav-height) + 24px);
+  }
+
+  .stats-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .form-grid.two-cols,
+  .form-grid.three-cols {
+    grid-template-columns: repeat(2, 1fr);
+  }
 }
 
 /* ================= Responsive for Desktop (>= 992px) ================= */

@@ -1,4 +1,4 @@
-import { escapeHTML } from './utils.js';
+import { escapeHTML, getLocalDateStr } from './utils.js';
 // ========================================================
 // ASCPT - Doctor Personal Clinical Dashboard
 // ========================================================
@@ -59,7 +59,7 @@ export class DoctorDashboardManager {
       return p.doctor && (p.doctor.includes(docName) || docName.includes(p.doctor));
     });
 
-    const todayStr = new Date().toISOString().split('T')[0];
+    const todayStr = getLocalDateStr();
     const currentMonth = todayStr.substring(0, 7);
 
     // 1. Today's sessions for this doctor
@@ -103,7 +103,7 @@ export class DoctorDashboardManager {
     const tbody = document.getElementById('doctor-personal-tbody');
     if (!tbody) return;
 
-    const todayStr = new Date().toISOString().split('T')[0];
+    const todayStr = getLocalDateStr();
     const currentMonth = todayStr.substring(0, 7);
 
     let displayList = [];

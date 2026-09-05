@@ -64,7 +64,7 @@ if (typeof window !== 'undefined' && !window.__print_lock_installed) {
   };
 }
 
-import { escapeHTML } from './utils.js';
+import { escapeHTML, getLocalDateStr } from './utils.js';
 import { ClaimsManager } from './claims.js';
 // ========================================================
 // ASCPT - Main Application Coordinator
@@ -556,7 +556,7 @@ class App {
 
     this.calendarViewingYear = initDate.getFullYear();
     this.calendarViewingMonth = initDate.getMonth();
-    this.calendarSelectedDate = input?.value || initDate.toISOString().split('T')[0];
+    this.calendarSelectedDate = input?.value || getLocalDateStr(initDate);
 
     this.renderCalendar();
     this.openModal('modal-custom-calendar');
@@ -584,11 +584,11 @@ class App {
   calendarSelectQuick(type) {
     const today = new Date();
     if (type === 'today') {
-      this.calendarSelectedDate = today.toISOString().split('T')[0];
+      this.calendarSelectedDate = getLocalDateStr(today);
     } else if (type === 'yesterday') {
       const yest = new Date();
       yest.setDate(yest.getDate() - 1);
-      this.calendarSelectedDate = yest.toISOString().split('T')[0];
+      this.calendarSelectedDate = getLocalDateStr(yest);
     } else if (type === 'firstOfMonth') {
       const mm = String(this.calendarViewingMonth + 1).padStart(2, '0');
       this.calendarSelectedDate = `${this.calendarViewingYear}-${mm}-01`;
@@ -645,7 +645,7 @@ class App {
     // السبت = 0, الأحد = 1, ... الجمعة = 6
     const startDayIndex = (firstDay.getDay() + 1) % 7;
 
-    const todayStr = new Date().toISOString().split('T')[0];
+    const todayStr = getLocalDateStr();
     let cellsHtml = '';
 
     // أيام الشهر السابق للحشو
@@ -794,7 +794,7 @@ class App {
       const blob = new Blob([str], { type: 'application/json' });
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
-      const dateStr = new Date().toISOString().split('T')[0];
+      const dateStr = getLocalDateStr();
       a.href = url;
       a.download = `نسخة_احتياطية_ASCPT_${dateStr}.json`;
       document.body.appendChild(a);

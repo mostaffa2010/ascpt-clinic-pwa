@@ -1,4 +1,4 @@
-import { escapeHTML } from './utils.js';
+import { escapeHTML, getLocalDateStr } from './utils.js';
 // ========================================================
 // PhysioFlow - Daily Sessions & Check-in Module
 // ========================================================
@@ -10,7 +10,7 @@ import { RolesManager } from './roles.js';
 export class SessionsManager {
   constructor(app) {
     this.app = app;
-    this.todayDateStr = new Date().toISOString().split('T')[0];
+    this.todayDateStr = getLocalDateStr();
     this.currentSessionDate = this.todayDateStr;
     this.selectedPatientId = null;
     this.editingSessionId = null;
@@ -775,7 +775,7 @@ export class SessionsManager {
     } else if (type === 'yesterday') {
       const d = new Date();
       d.setDate(d.getDate() - 1);
-      this.currentSessionDate = d.toISOString().split('T')[0];
+      this.currentSessionDate = getLocalDateStr(d);
     }
     const dateInput = document.getElementById('session-date');
     if (dateInput) dateInput.value = this.currentSessionDate;
@@ -791,7 +791,7 @@ export class SessionsManager {
     const today = this.todayDateStr;
     const d = new Date();
     d.setDate(d.getDate() - 1);
-    const yesterday = d.toISOString().split('T')[0];
+    const yesterday = getLocalDateStr(d);
 
     if (btnToday) {
       if (dateStr === today) {
@@ -817,7 +817,7 @@ export class SessionsManager {
     } else {
       const yest = new Date();
       yest.setDate(yest.getDate() - 1);
-      const yestStr = yest.toISOString().split('T')[0];
+      const yestStr = getLocalDateStr(yest);
       if (this.currentSessionDate === yestStr) {
         label.innerHTML = `أمس • <bdi dir="ltr">${this.currentSessionDate}</bdi>`;
       } else {

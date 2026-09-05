@@ -88,7 +88,8 @@ service cloud.firestore {
 
     // ================= 4. Expenses & Clinic Financials =================
     match /expenses/{expenseId} {
-      allow read, create, update, delete: if isAdmin() || isReceptionist();
+      allow read, create: if isAdmin() || isReceptionist();
+      allow update, delete: if isAdmin();
     }
 
     // ================= 5. Clinical Options & Insurance Companies =================
