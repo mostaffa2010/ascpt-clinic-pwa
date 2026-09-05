@@ -1387,3 +1387,32 @@ body.not-authenticated #modal-auth #btn-cancel-login {
   color: #0284c7;
   font-size: 0.85rem;
 }
+
+/* Fix modal and grid horizontal containment */
+.modal-content {
+  overflow-x: hidden !important;
+  max-width: 95vw !important;
+  box-sizing: border-box !important;
+}
+
+#modal-patient .modal-body,
+#p-insurance-details {
+  max-width: 100% !important;
+  box-sizing: border-box !important;
+  overflow-x: hidden !important;
+}
+
+.insurance-companies-grid {
+  display: grid !important;
+  grid-template-columns: repeat(2, 1fr) !important;
+  gap: 8px !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  box-sizing: border-box !important;
+}
+
+.insurance-company-card {
+  min-width: 0 !important;
+  max-width: 100% !important;
+  box-sizing: border-box !important;
+}

@@ -429,11 +429,11 @@ export class PatientsManager {
 
     if (directCont && indirectCont) {
       if (contractType === 'direct') {
-        directCont.style.display = 'flex';
+        directCont.style.display = 'grid';
         indirectCont.style.display = 'none';
       } else {
         directCont.style.display = 'none';
-        indirectCont.style.display = 'flex';
+        indirectCont.style.display = 'grid';
       }
     }
   }
@@ -546,7 +546,7 @@ export class PatientsManager {
     if (insComp) insComp.value = '';
     const insPrev = document.getElementById('p-selected-ins-preview');
     if (insPrev) insPrev.textContent = '';
-    document.querySelectorAll('#p-ins-direct-container .sheet-chip, #p-ins-indirect-container .sheet-chip').forEach(btn => {
+    document.querySelectorAll('#p-ins-direct-container .insurance-company-card, #p-ins-indirect-container .insurance-company-card').forEach(btn => {
       btn.classList.remove('selected');
     });
     document.getElementById('modal-patient-title').innerHTML = '<i class="fa-solid fa-user-plus"></i> تسجيل مريض جديد';
