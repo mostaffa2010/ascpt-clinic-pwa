@@ -86,14 +86,18 @@ service cloud.firestore {
     // ================= 3. Sessions =================
     match /sessions/{sessionId} {
       allow read: if isUserActive();
-      allow create, update, delete: if isAdmin() || isReceptionist();
+      allow create, update: if (isAdmin() || isReceptionist()) &&
+        request.resource.data.amountPaid is number &&
+        request.resource.data.amountPaid >= 0;
+      allow delete: if isAdmin() || isReceptionist();
     }
 
     // ================= 4. Expenses & Clinic Financials =================
     match /expenses/{expenseId} {
-      // Accessible to Administrator and Receptionist for daily clinic operations & cash drawer
-      // Doctors are completely denied read and write access
-      allow read, create, update, delete: if isAdmin() || isReceptionist();
+      allow read, delete: if isAdmin() || isReceptionist();
+      allow create, update: if (isAdmin() || isReceptionist()) &&
+        request.resource.data.amount is number &&
+        request.resource.data.amount >= 0;
     }
 
     // ================= 5. Clinical Options & Insurance Companies =================
@@ -110,7 +114,12 @@ service cloud.firestore {
     // ================= 6. Audit Logs =================
     match /audit_logs/{logId} {
       allow read: if isAdmin();
-      allow write: if false;
+      allow create: if isUserActive() &&
+        request.resource.data.userId == request.auth.uid &&
+        request.resource.data.actionType is string &&
+        request.resource.data.description is string &&
+        request.resource.data.timestampRaw is number;
+      allow update, delete: if false;
     }
   }
 }

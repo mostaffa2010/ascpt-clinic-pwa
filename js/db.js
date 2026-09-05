@@ -233,33 +233,37 @@ class FirestoreDatabaseService {
     }
   }
 
-  async getDoctors() {
+  async getDoctorsList() {
     this.ensureConnected();
     try {
       const users = await this.getUsers();
       const doctorMap = new Map();
 
-      // Collect all active doctors and admins from registered users in Firestore
       users
         .filter(u => (u.role === 'doctor' || u.role === 'admin') && u.active !== false && u.name)
         .forEach(u => {
           const norm = u.name.trim().replace(/\s+/g, ' ');
-          if (norm && !doctorMap.has(norm)) {
-            doctorMap.set(norm, norm);
+          const uid = u.uid || u.id;
+          if (norm && uid && !doctorMap.has(uid)) {
+            doctorMap.set(uid, { uid, name: norm });
           }
         });
 
-      // Fallback only if no staff users exist yet in Firestore
       if (doctorMap.size === 0 && CLINIC_CONFIG.director?.name) {
         const dirNorm = CLINIC_CONFIG.director.name.trim().replace(/\s+/g, ' ');
-        doctorMap.set(dirNorm, dirNorm);
+        doctorMap.set('director', { uid: 'director', name: dirNorm });
       }
 
       return Array.from(doctorMap.values());
     } catch (err) {
-      console.error('Firestore getDoctors error:', err);
-      return CLINIC_CONFIG.director?.name ? [CLINIC_CONFIG.director.name.trim().replace(/\s+/g, ' ')] : [];
+      console.error('Firestore getDoctorsList error:', err);
+      return CLINIC_CONFIG.director?.name ? [{ uid: 'director', name: CLINIC_CONFIG.director.name.trim().replace(/\s+/g, ' ') }] : [];
     }
+  }
+
+  async getDoctors() {
+    const list = await this.getDoctorsList();
+    return list.map(d => d.name);
   }
 
   // ================= 5. Audit Trail =================
@@ -276,8 +280,31 @@ class FirestoreDatabaseService {
   }
 
   async logAudit(actionType, description, user) {
-    // Safe non-blocking resolver for client callers. Authoritative logs are written by Backend Admin SDK.
-    return Promise.resolve();
+    if (!this.isCloud) return;
+    const logId = 'log-' + Date.now() + '-' + Math.random().toString(36).substr(2, 5);
+    const currentUser = (typeof auth !== 'undefined' && auth.getCurrentUser) ? auth.getCurrentUser() : null;
+    const uid = user?.uid || user?.id || currentUser?.uid;
+    const name = user?.name || currentUser?.name || 'مستخدم المركز';
+    const role = user?.role || currentUser?.role || 'staff';
+
+    if (!uid) return;
+
+    const logData = {
+      id: logId,
+      actionType: String(actionType || 'إجراء'),
+      description: String(description || ''),
+      userId: uid,
+      userName: name,
+      userRole: role,
+      timestamp: new Date().toLocaleString('ar-EG-u-nu-latn'),
+      timestampRaw: Date.now()
+    };
+
+    try {
+      await setDoc(doc(firestoreDb, 'audit_logs', logId), logData);
+    } catch (err) {
+      console.warn('Audit logging notice:', err.message);
+    }
   }
 
   // ================= 6. Clinical Options =================

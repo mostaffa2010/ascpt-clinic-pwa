@@ -330,6 +330,23 @@ class App {
       });
     }
 
+    // Forgot Password Trigger
+    document.getElementById('btn-forgot-password')?.addEventListener('click', async () => {
+      const emailInput = document.getElementById('login-email');
+      const email = emailInput?.value?.trim();
+      if (!email) {
+        await this.showAlert('يرجى كتابة البريد الإلكتروني في خانة البريد أولاً، ثم الضغط على "نسيت كلمة السر".', 'استعادة كلمة السر', 'warning');
+        emailInput?.focus();
+        return;
+      }
+      try {
+        await auth.resetPassword(email);
+        await this.showAlert(`تم إرسال رابط استعادة كلمة السر إلى بريدك الإلكتروني (${email}). يرجى فحص صندوق الوارد ورسائل الـ Spam.`, 'تم الإرسال بنجاح', 'success');
+      } catch (err) {
+        await this.showAlert(err.message || 'فشل إرسال رابط استعادة كلمة السر.', 'خطأ', 'danger');
+      }
+    });
+
     // Close Auth Modal buttons
     document.getElementById('btn-close-auth-modal')?.addEventListener('click', () => auth.hideLoginModal());
     document.getElementById('btn-cancel-login')?.addEventListener('click', () => auth.hideLoginModal());
@@ -893,7 +910,7 @@ class App {
       const isSelected = opt.value === currentVal;
       return `
         <div class="custom-picker-row ${isSelected ? 'active-choice' : ''}" data-select-id="${selectId}" data-select-value="${escapeHTML(opt.value)}">
-          <span>${opt.text}</span>
+          <span>${escapeHTML(opt.text)}</span>
           ${isSelected ? '<i class="fa-solid fa-check check-icon"></i>' : ''}
         </div>
       `;
@@ -1017,20 +1034,24 @@ class App {
   }
 
   async populateDoctorDropdowns() {
-    const doctors = await db.getDoctors();
+    const doctorObjects = await db.getDoctorsList();
 
     const pDoc = document.getElementById('p-doctor');
     if (pDoc) {
       const prev = pDoc.value;
-      pDoc.innerHTML = doctors.map(d => `<option value="${d}">${d}</option>`).join('');
-      if (prev && doctors.includes(prev)) pDoc.value = prev;
+      pDoc.innerHTML = doctorObjects.map(d =>
+        `<option value="${escapeHTML(d.name)}" data-uid="${escapeHTML(d.uid)}">${escapeHTML(d.name)}</option>`
+      ).join('');
+      if (prev && doctorObjects.some(d => d.name === prev)) pDoc.value = prev;
     }
 
     const sessDoc = document.getElementById('session-doctor-select');
     if (sessDoc) {
       const prev = sessDoc.value;
-      sessDoc.innerHTML = doctors.map(d => `<option value="${d}">${d}</option>`).join('');
-      if (prev && doctors.includes(prev)) sessDoc.value = prev;
+      sessDoc.innerHTML = doctorObjects.map(d =>
+        `<option value="${escapeHTML(d.name)}" data-uid="${escapeHTML(d.uid)}">${escapeHTML(d.name)}</option>`
+      ).join('');
+      if (prev && doctorObjects.some(d => d.name === prev)) sessDoc.value = prev;
     }
 
     // Sync custom button displays

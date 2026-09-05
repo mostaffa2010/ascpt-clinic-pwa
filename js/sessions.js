@@ -458,7 +458,10 @@ export class SessionsManager {
     const patient = patients.find(p => p.id === this.selectedPatientId);
     const patientName = patient ? patient.name : 'مريض';
 
-    const doctor = document.getElementById('session-doctor-select').value;
+    const docSelectEl = document.getElementById('session-doctor-select');
+    const doctor = docSelectEl?.value || '';
+    const selectedDoctorOpt = docSelectEl?.options[docSelectEl.selectedIndex];
+    const doctorUid = selectedDoctorOpt?.getAttribute('data-uid') || patient?.doctorUid || '';
     
     // Body parts selection
     const selectedParts = this.getSelectedBodyParts();
@@ -491,6 +494,7 @@ export class SessionsManager {
       patientId: this.selectedPatientId,
       patientName,
       doctor,
+      doctorUid,
       bodyParts: selectedParts,
       bodyPartsCount: selectedParts.length,
       payType,

@@ -1,3 +1,4 @@
+import { escapeHTML } from './utils.js';
 // ========================================================
 // ASCPT - Doctor Personal Clinical Dashboard
 // ========================================================
@@ -38,21 +39,25 @@ export class DoctorDashboardManager {
     const docName = user.name;
     const subEl = document.getElementById('doctor-dashboard-sub');
     if (subEl) {
-      subEl.innerHTML = `مرحباً بك يا <strong>${docName}</strong> • متابعة حالاتك الطبية وجلساتك السريرية`;
+      subEl.innerHTML = `مرحباً بك يا <strong>${escapeHTML(docName)}</strong> • متابعة حالاتك الطبية وجلساتك السريرية`;
     }
 
     const allSessions = await db.getSessions();
     const allPatients = await db.getPatients();
 
-    // Filter sessions matching this doctor
-    this.docSessions = allSessions.filter(s => 
-      s.doctor && (s.doctor.includes(docName) || docName.includes(s.doctor))
-    );
+    const docUid = user.uid || user.id;
 
-    // Filter patients assigned to this doctor
-    this.docPatients = allPatients.filter(p => 
-      p.doctor && (p.doctor.includes(docName) || docName.includes(p.doctor))
-    );
+    // Filter sessions matching this doctor by UID exclusively (with fallback for legacy records)
+    this.docSessions = allSessions.filter(s => {
+      if (s.doctorUid) return s.doctorUid === docUid;
+      return s.doctor && (s.doctor.includes(docName) || docName.includes(s.doctor));
+    });
+
+    // Filter patients assigned to this doctor by UID exclusively (with fallback for legacy records)
+    this.docPatients = allPatients.filter(p => {
+      if (p.doctorUid) return p.doctorUid === docUid;
+      return p.doctor && (p.doctor.includes(docName) || docName.includes(p.doctor));
+    });
 
     const todayStr = new Date().toISOString().split('T')[0];
     const currentMonth = todayStr.substring(0, 7);

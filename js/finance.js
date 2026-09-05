@@ -332,7 +332,7 @@ export class FinanceManager {
     if (docFilter) {
       const currentVal = docFilter.value;
       docFilter.innerHTML = '<option value="all">كل الأطباء</option>' + 
-        doctors.map(d => `<option value="${d}">${d}</option>`).join('');
+        doctors.map(d => `<option value="${escapeHTML(d)}">${escapeHTML(d)}</option>`).join('');
       if (doctors.includes(currentVal) || currentVal === 'all') {
         docFilter.value = currentVal;
       }
@@ -347,7 +347,7 @@ export class FinanceManager {
           <div style="background-color: var(--bg-subtle); border: 1px solid var(--border-color); padding: 10px 16px; border-radius: var(--radius-md); display: flex; align-items: center; gap: 10px;">
             <i class="fa-solid fa-user-doctor" style="color: var(--primary);"></i>
             <div>
-              <div style="font-weight: 700; font-size: 0.9rem;">${doc}</div>
+              <div style="font-weight: 700; font-size: 0.9rem;">${escapeHTML(doc)}</div>
               <div style="font-size: 0.8rem; color: var(--text-muted);">${count} مريض اليوم</div>
             </div>
           </div>

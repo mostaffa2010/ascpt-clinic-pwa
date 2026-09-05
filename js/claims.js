@@ -76,7 +76,7 @@ export class ClaimsManager {
     });
 
     select.innerHTML = '<option value="">-- اضغط هنا لاختيار شركة التأمين --</option>' + 
-      companies.map(c => `<option value="${c.name}">${c.label}</option>`).join('');
+      companies.map(c => `<option value="${escapeHTML(c.name)}">${escapeHTML(c.label)}</option>`).join('');
 
     // Keep default empty placeholder
     select.value = '';
@@ -447,7 +447,7 @@ export class ClaimsManager {
       if (selected.length === 0) {
         previewList.innerHTML = '<span style="color: var(--text-muted); font-size: 0.8rem;">اضغط على الأزرار أعلاه لتحديد الخطة العلاجية...</span>';
       } else {
-        previewList.innerHTML = selected.map(t => `<div style="padding: 2px 0; font-weight: 700; color: #1e293b;">- ${t}</div>`).join('');
+        previewList.innerHTML = selected.map(t => `<div style="padding: 2px 0; font-weight: 700; color: #1e293b;">- ${escapeHTML(t)}</div>`).join('');
       }
     }
   }

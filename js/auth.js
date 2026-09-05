@@ -7,7 +7,8 @@
 import {
   signInWithEmailAndPassword,
   signOut,
-  onAuthStateChanged
+  onAuthStateChanged,
+  sendPasswordResetEmail
 } from 'https://www.gstatic.com/firebasejs/12.18.0/firebase-auth.js';
 import {
   doc,
@@ -202,6 +203,22 @@ class AuthService {
 
       this.showLoginError(friendlyMsg);
       throw new Error(friendlyMsg);
+    }
+  }
+
+  async resetPassword(email) {
+    if (!isConfigured || !firebaseAuth) {
+      throw new Error('خدمة المصادقة غير مهيأة.');
+    }
+    if (!email || !email.trim()) {
+      throw new Error('يرجى إدخال البريد الإلكتروني لاستعادة كلمة المرور.');
+    }
+    try {
+      await sendPasswordResetEmail(firebaseAuth, email.trim());
+      return true;
+    } catch (err) {
+      console.error('Password reset error:', err);
+      throw new Error(this.mapAuthError(err));
     }
   }
 

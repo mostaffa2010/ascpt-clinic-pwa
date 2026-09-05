@@ -41,6 +41,15 @@ export class AuditAndAdminManager {
           const userId = btnDelete.getAttribute('data-user-id');
           const userName = btnDelete.getAttribute('data-user-name');
           await this.deleteUser(userId, userName);
+          return;
+        }
+
+        const btnPass = e.target.closest('.btn-reset-password');
+        if (btnPass) {
+          const userId = btnPass.getAttribute('data-user-id');
+          const userName = btnPass.getAttribute('data-user-name');
+          await this.resetUserPassword(userId, userName);
+          return;
         }
       });
     }
@@ -135,6 +144,36 @@ export class AuditAndAdminManager {
     }
   }
 
+  async resetUserPassword(userId, userName) {
+    const newPass = prompt(`أدخل كلمة المرور الجديدة للموظف (${userName}):\n(يجب ألا تقل عن 6 خانات)`);
+    if (!newPass) return;
+    if (newPass.length < 6) {
+      await this.app.showAlert('كلمة المرور يجب ألا تقل عن 6 خانات/أحرف.', 'خطأ', 'warning');
+      return;
+    }
+
+    try {
+      if (!firebaseAuth.currentUser) {
+        throw new Error('جلسة تسجيل الدخول منتهية.');
+      }
+      const idToken = await firebaseAuth.currentUser.getIdToken(true);
+      const res = await fetch('/api/admin/users', {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${idToken}`
+        },
+        body: JSON.stringify({ targetUid: userId, password: newPass })
+      });
+      const result = await res.json();
+      if (!res.ok) throw new Error(result.error || 'فشل تغيير كلمة المرور.');
+      this.app.showToast(`تم تعيين كلمة مرور جديدة للموظف (${userName}) بنجاح 🔑`);
+      await this.loadAuditLogs();
+    } catch (err) {
+      await this.app.showAlert(err.message, 'خطأ', 'danger');
+    }
+  }
+
   async deleteUser(userId, userName) {
     const confirmed = await this.app.showConfirm(
       `هل أنت متأكد من حذف حساب الموظف: (${userName}) نهائياً من النظام؟`,
@@ -209,9 +248,14 @@ export class AuditAndAdminManager {
           <td><span class="badge badge-role-${safeRole}">${roleLabel}</span></td>
           <td>
             ${!isSelf ? `
-              <button type="button" class="btn btn-outline btn-sm btn-delete-user" style="color: var(--danger); border-radius: 6px; padding: 4px 10px;" data-user-id="${escapeHTML(u.id)}" data-user-name="${safeName}" title="حذف المستخدم نهائياً">
-                <i class="fa-solid fa-trash"></i> <span>حذف</span>
-              </button>
+              <div style="display: flex; gap: 6px; align-items: center;">
+                <button type="button" class="btn btn-outline btn-sm btn-reset-password" style="color: var(--primary); border-radius: 6px; padding: 4px 8px;" data-user-id="${escapeHTML(u.id)}" data-user-name="${safeName}" title="إعادة تعيين كلمة المرور">
+                  <i class="fa-solid fa-key"></i>
+                </button>
+                <button type="button" class="btn btn-outline btn-sm btn-delete-user" style="color: var(--danger); border-radius: 6px; padding: 4px 8px;" data-user-id="${escapeHTML(u.id)}" data-user-name="${safeName}" title="حذف المستخدم نهائياً">
+                  <i class="fa-solid fa-trash"></i>
+                </button>
+              </div>
             ` : '<span style="font-size: 0.8rem; color: var(--text-muted); font-weight: 700;">حسابك الحالي</span>'}
           </td>
         </tr>

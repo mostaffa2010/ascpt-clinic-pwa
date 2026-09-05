@@ -224,21 +224,16 @@ export default async function handler(req, res) {
     }
   }
 
-  // ================= PATCH: Update Status (Active / Disabled ONLY) =================
+  // ================= PATCH: Update Status or Reset Password =================
   if (req.method === 'PATCH') {
-    const { targetUid, active } = req.body;
+    const { targetUid, active, password } = req.body;
 
-    // Strict rejection if any role modification is attempted
     if ('role' in req.body) {
       return res.status(400).json({ error: 'تعديل الأدوار والصلاحيات غير مسموح به عبر هذه الواجهة.' });
     }
 
     if (!targetUid || typeof targetUid !== 'string' || targetUid.trim().length === 0) {
       return res.status(400).json({ error: 'معرف المستخدم المستهدف مطلوب.' });
-    }
-
-    if (typeof active !== 'boolean') {
-      return res.status(400).json({ error: 'حالة الحساب يجب أن تكون قيمة منطقية (true أو false).' });
     }
 
     if (targetUid === callerUid && active === false) {
@@ -256,9 +251,32 @@ export default async function handler(req, res) {
         return res.status(400).json({ error: 'لا يمكن تعطيل حسابات المديرين من هذه الواجهة.' });
       }
 
+      // 1. Password Reset by Admin
+      if (password !== undefined) {
+        if (typeof password !== 'string' || password.length < 6 || password.length > 128) {
+          return res.status(400).json({ error: 'كلمة السر الجديدة يجب أن تكون بين 6 و 128 خانة.' });
+        }
+        await adminAuth.updateUser(targetUid, { password });
+        await firestore.collection('audit_logs').add({
+          actionType: 'تغيير كلمة المرور',
+          description: `قام المدير بإعادة تعيين كلمة مرور الموظف: ${targetData.name || targetUid} (UID: ${targetUid})`,
+          userId: callerUid,
+          userName: callerName,
+          userRole: 'admin',
+          targetUid,
+          timestamp: new Date().toISOString(),
+          timestampRaw: Date.now()
+        });
+        return res.status(200).json({ success: true, targetUid, passwordReset: true });
+      }
+
+      if (typeof active !== 'boolean') {
+        return res.status(400).json({ error: 'حالة الحساب يجب أن تكون قيمة منطقية (true أو false).' });
+      }
+
       const prevActive = targetData?.active !== false;
 
-      // 1. Update Auth disabled state
+      // 2. Update Auth disabled state
       await adminAuth.updateUser(targetUid, { disabled: !active });
 
       // 2. Update Firestore with compensation

@@ -627,7 +627,10 @@ export class PatientsManager {
     const age = parseInt(document.getElementById('p-age').value);
     const phone = document.getElementById('p-phone').value.trim();
     const address = document.getElementById('p-address').value.trim();
-    const doctor = document.getElementById('p-doctor').value;
+    const docSelectEl = document.getElementById('p-doctor');
+    const doctor = docSelectEl?.value || '';
+    const selectedDoctorOpt = docSelectEl?.options[docSelectEl.selectedIndex];
+    const doctorUid = selectedDoctorOpt?.getAttribute('data-uid') || '';
     const billing = document.querySelector('input[name="p-billing"]:checked')?.value || 'cash';
 
     // 1. Name Validation (must be at least 2 words and not contain numbers)
@@ -724,6 +727,7 @@ export class PatientsManager {
       phone: normalizedPhone,
       address,
       doctor,
+      doctorUid,
       billing,
       insuranceCompany,
       contractType
