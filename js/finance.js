@@ -155,19 +155,21 @@ export class FinanceManager {
 
   async handleAddExpense(e) {
     e.preventDefault();
-    const title = document.getElementById('expense-title')?.value.trim();
-    const amountStr = document.getElementById('expense-amount')?.value.trim();
+    const titleInput = document.getElementById('exp-title') || document.getElementById('expense-title');
+    const amountInput = document.getElementById('exp-amount') || document.getElementById('expense-amount');
+    const title = titleInput?.value.trim();
+    const amountStr = amountInput?.value.trim();
     const amount = parseFloat(amountStr);
 
     if (!title) {
       await this.app.showAlert('يرجى إدخال بند أو بيان المصروف.', 'بيانات مطلوبة', 'warning');
-      document.getElementById('expense-title')?.focus();
+      titleInput?.focus();
       return;
     }
 
     if (isNaN(amount) || amount <= 0) {
       await this.app.showAlert('يرجى إدخال مبلغ صحيح للمصروف أكبر من صفر.', 'مبلغ غير صحيح', 'warning');
-      document.getElementById('expense-amount')?.focus();
+      amountInput?.focus();
       return;
     }
 

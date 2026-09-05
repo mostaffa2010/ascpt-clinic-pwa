@@ -767,46 +767,7 @@ class App {
 
 
 
-  // ================= Sandbox & Training Mode =================
-  updateTrainingModeUI() {
-    const isTraining = db.isTraining;
-    const banner = document.getElementById('sandbox-banner');
-    if (banner) banner.style.display = isTraining ? 'flex' : 'none';
 
-    // في وضع التدريب نخفي زر التدريب العلوي لتوفير مساحة لأن الشريط السفلي يحتوي على زر الخروج
-    const mBtn = document.getElementById('btn-toggle-training-mobile');
-    if (mBtn) mBtn.style.display = isTraining ? 'none' : 'inline-flex';
-
-    const dText = document.getElementById('training-btn-text-desktop');
-    if (dText) dText.textContent = isTraining ? 'الخروج من التدريب (بيانات حقيقية)' : 'تفعيل الوضع التدريبي (Sandbox)';
-  }
-
-  async toggleTrainingMode(forceState = null) {
-    const nextState = forceState !== null ? forceState : !db.isTraining;
-    db.setTrainingMode(nextState);
-
-    this.updateTrainingModeUI();
-
-    if (nextState) {
-      this.showToast('تم تفعيل الوضع التدريبي بنجاح - بيانات آمنة للشرح والتجربة');
-    } else {
-      this.showToast('تم الرجوع إلى قاعدة بيانات ASCPT السحابية الحقيقية');
-    }
-
-    await this.refreshAll();
-  }
-
-  async resetTrainingData() {
-    const confirmed = await this.showConfirm(
-      'هل ترغب في إعادة تعيين عينات التدريب الافتراضية (المرضى والجلسات التجريبية للشرح)؟',
-      'إعادة ضبط عينات التدريب'
-    );
-    if (confirmed) {
-      db.initSandboxData(true);
-      await this.refreshAll();
-      this.showToast('تمت استعادة عينات التدريب بنجاح');
-    }
-  }
 
   // ================= Backup & Restore =================
   async downloadBackup() {
@@ -818,7 +779,7 @@ class App {
       const a = document.createElement('a');
       const dateStr = new Date().toISOString().split('T')[0];
       a.href = url;
-      a.download = `نسخة_احتياطية_PhysioFlow_${dateStr}.json`;
+      a.download = `نسخة_احتياطية_ASCPT_${dateStr}.json`;
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
