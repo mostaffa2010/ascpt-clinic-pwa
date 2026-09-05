@@ -421,8 +421,10 @@ export class ClaimsManager {
     const container = document.getElementById('card-treatment-chips-container');
     if (!container) return;
 
-    const customStored = JSON.parse(localStorage.getItem('pc_claim_treatments') || '[]');
-    const allOptions = Array.from(new Set([...this.defaultTreatmentOptions, ...customStored]));
+    const modalities = (typeof db !== 'undefined' && db.getClinicalOptions)
+      ? db.getClinicalOptions('modality')
+      : [];
+    const allOptions = Array.from(new Set([...this.defaultTreatmentOptions, ...modalities]));
 
     container.innerHTML = allOptions.map(opt => {
       const isSelected = selectedTreatments.includes(opt);

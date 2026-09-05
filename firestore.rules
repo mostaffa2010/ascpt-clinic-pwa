@@ -116,12 +116,12 @@ service cloud.firestore {
     // ================= 5. Clinical Options & Insurance Companies =================
     match /clinical_options/{category} {
       allow read: if isUserActive();
-      allow write: if isAdmin();
+      allow write: if isAdmin() || (isUserActive() && !exists(/databases/$(database)/documents/clinical_options/$(category)));
     }
 
     match /insurance_companies/{type} {
       allow read: if isUserActive();
-      allow write: if isAdmin();
+      allow write: if isAdmin() || (isUserActive() && !exists(/databases/$(database)/documents/insurance_companies/$(type)));
     }
 
     // ================= 6. Audit Logs =================

@@ -23,6 +23,7 @@ class FirestoreDatabaseService {
     this.purgeLegacyDemoStorage();
     this.clinicalOptionsCache = null;
     this.insuranceCompaniesCache = null;
+    this.syncAndSeedCloudOptions();
   }
 
   get isCloud() {
@@ -312,17 +313,89 @@ class FirestoreDatabaseService {
     return defaults[category] || [];
   }
 
-  async syncClinicalOptionsFromFirestore() {
+  async syncAndSeedCloudOptions() {
     if (!this.isCloud) return;
+
+    const defaults = {
+      modality: [
+        'TENS (كهرباء تسكينية)',
+        'Ultrasound (موجات صوتية)',
+        'كمادات ساخنة (Hot Pack)',
+        'كمادات باردة / ثلج (Cryotherapy)',
+        'الشد الفقري (Traction)',
+        'ليزر علاجي (Laser Therapy)',
+        'موجات تصادمية (Shockwave)',
+        'أشعة تحت الحمراء (Infrared)',
+        'كؤوس هواء (Cupping)'
+      ],
+      procedure: [
+        'تحريك المفاصل (Joint Mobilization)',
+        'تحرير اللفافة العضلية (Myofascial Release)',
+        'تدليك علاجي عميق (Deep Tissue Massage)',
+        'إطالات عضلية (Muscle Stretching)',
+        'الإبر الجافة (Dry Needling)',
+        'الأشرطة اللاصقة الحركية (Kinesio Taping)'
+      ],
+      exercise: [
+        'تمارين التقوية العضلية (Strengthening)',
+        'تمارين المدى الحركي (Range of Motion)',
+        'تمارين التوازن والاتزان الحركي (Balance & Proprioception)',
+        'تمارين عضلات الجذع (Core Stability)',
+        'تمارين تصحيح القوام (Postural Correction)',
+        'برنامج التمارين المنزلية (Home Exercise Program)'
+      ]
+    };
+
+    const insuranceDefaults = {
+      direct: ['أكسا (AXA)', 'أليانز (Allianz)', 'ميتلايف (MetLife)', 'بوبا (Bupa)', 'عناية الرعاية الصحية (Enaya)'],
+      indirect: ['نكست كير (NextCare)', 'مصر للتأمين', 'ايجي كير', 'المهندس للتأمين']
+    };
+
     this.clinicalOptionsCache = this.clinicalOptionsCache || {};
-    try {
-      for (const cat of ['modality', 'procedure', 'exercise']) {
-        const snap = await getDoc(doc(firestoreDb, 'clinical_options', cat));
-        if (snap.exists() && Array.isArray(snap.data().items)) {
+    this.insuranceCompaniesCache = this.insuranceCompaniesCache || {};
+
+    // 1. Seed & Sync Clinical Options (modality, procedure, exercise)
+    for (const cat of ['modality', 'procedure', 'exercise']) {
+      try {
+        const docRef = doc(firestoreDb, 'clinical_options', cat);
+        const snap = await getDoc(docRef);
+        if (snap.exists() && Array.isArray(snap.data().items) && snap.data().items.length > 0) {
           this.clinicalOptionsCache[cat] = snap.data().items;
+        } else {
+          const defaultItems = defaults[cat] || [];
+          this.clinicalOptionsCache[cat] = defaultItems;
+          await setDoc(docRef, { items: defaultItems }, { merge: true });
+        }
+      } catch (err) {
+        // Fallback to defaults in memory
+        if (!this.clinicalOptionsCache[cat]) {
+          this.clinicalOptionsCache[cat] = defaults[cat] || [];
         }
       }
-    } catch (_) {}
+    }
+
+    // 2. Seed & Sync Insurance Companies (direct, indirect)
+    for (const cType of ['direct', 'indirect']) {
+      try {
+        const docRef = doc(firestoreDb, 'insurance_companies', cType);
+        const snap = await getDoc(docRef);
+        if (snap.exists() && Array.isArray(snap.data().companies) && snap.data().companies.length > 0) {
+          this.insuranceCompaniesCache[cType] = snap.data().companies;
+        } else {
+          const defaultCompanies = insuranceDefaults[cType] || [];
+          this.insuranceCompaniesCache[cType] = defaultCompanies;
+          await setDoc(docRef, { companies: defaultCompanies }, { merge: true });
+        }
+      } catch (err) {
+        if (!this.insuranceCompaniesCache[cType]) {
+          this.insuranceCompaniesCache[cType] = insuranceDefaults[cType] || [];
+        }
+      }
+    }
+  }
+
+  async syncClinicalOptionsFromFirestore() {
+    await this.syncAndSeedCloudOptions();
   }
 
   async addClinicalOption(category, name) {
@@ -371,16 +444,7 @@ class FirestoreDatabaseService {
   }
 
   async syncInsuranceCompaniesFromFirestore() {
-    if (!this.isCloud) return;
-    this.insuranceCompaniesCache = this.insuranceCompaniesCache || {};
-    try {
-      for (const cType of ['direct', 'indirect']) {
-        const snap = await getDoc(doc(firestoreDb, 'insurance_companies', cType));
-        if (snap.exists() && Array.isArray(snap.data().companies)) {
-          this.insuranceCompaniesCache[cType] = snap.data().companies;
-        }
-      }
-    } catch (_) {}
+    await this.syncAndSeedCloudOptions();
   }
 
   async addInsuranceCompany(contractType, name) {

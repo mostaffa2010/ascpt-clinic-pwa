@@ -133,6 +133,9 @@ class App {
     try { await this.claimsManager.init(); } catch (e) { console.warn('claimsManager init notice:', e); }
     try {
       await auth.init(async (user) => {
+        if (user) {
+          try { await db.syncAndSeedCloudOptions(); } catch (_) {}
+        }
         await this.refreshAll();
       });
     } catch (e) { console.warn('auth init notice:', e); }
