@@ -1,7 +1,7 @@
 // ========================================================
 // ASCPT - Production Firebase Authentication Service
 // Pinned CDN Modules: Firebase v12.18.0
-// Strict Fail-Closed Security & Authoritative Profile Verification
+// Strict Fail-Closed Security with True Offline Cache Support
 // ========================================================
 
 import {
@@ -11,7 +11,8 @@ import {
 } from 'https://www.gstatic.com/firebasejs/12.18.0/firebase-auth.js';
 import {
   doc,
-  getDoc
+  getDoc,
+  getDocFromCache
 } from 'https://www.gstatic.com/firebasejs/12.18.0/firebase-firestore.js';
 import { firebaseAuth, firestoreDb, isConfigured } from './firebase-init.js';
 import { RolesManager, ROLES } from './roles.js';
@@ -24,10 +25,11 @@ class AuthService {
   }
 
   /**
-   * Authoritatively fetches and validates the user profile from Firestore users/{uid}.
+   * Authoritatively fetches and validates user profile from Firestore users/{uid}.
+   * Supports offline operation via Firestore IndexedDB persistent cache.
    * Strict Fail-Closed Policy:
    * - No localStorage role fallbacks.
-   * - No email prefix heuristics (e.g. email heuristics).
+   * - No email heuristics.
    * - No default doctor role assumptions.
    * If profile is missing, inactive, or invalid, access is completely denied.
    */
@@ -36,13 +38,30 @@ class AuthService {
       throw new Error('FIRESTORE_UNAVAILABLE');
     }
 
-    let userSnap;
-    try {
-      const userDocRef = doc(firestoreDb, 'users', firebaseUser.uid);
-      userSnap = await getDoc(userDocRef);
-    } catch (fsErr) {
-      console.error('Firestore profile verification error:', fsErr);
-      throw new Error('FIRESTORE_UNAVAILABLE');
+    let userSnap = null;
+    const userDocRef = doc(firestoreDb, 'users', firebaseUser.uid);
+
+    // If device is offline (Wi-Fi off), read immediately from Firestore IndexedDB cache
+    if (!navigator.onLine) {
+      try {
+        userSnap = await getDocFromCache(userDocRef);
+      } catch (e) {
+        console.warn('Offline cache read notice:', e.message);
+      }
+    }
+
+    if (!userSnap || !userSnap.exists()) {
+      try {
+        const fetchPromise = getDoc(userDocRef);
+        const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 1500));
+        userSnap = await Promise.race([fetchPromise, timeoutPromise]);
+      } catch (err) {
+        try {
+          userSnap = await getDocFromCache(userDocRef);
+        } catch (cacheErr) {
+          throw new Error('FIRESTORE_UNAVAILABLE');
+        }
+      }
     }
 
     if (!userSnap || !userSnap.exists()) {
@@ -86,10 +105,9 @@ class AuthService {
     onAuthStateChanged(firebaseAuth, async (firebaseUser) => {
       if (firebaseUser) {
         try {
-          // Authoritatively verify profile (Fail-Closed)
           this.currentUser = await this.resolveUserProfile(firebaseUser);
 
-          // Unlock application only upon successful authoritative verification
+          // Unlock application
           document.body.classList.remove('not-authenticated');
           this.hideLoginModal();
           this.hideLoginError();
@@ -101,34 +119,31 @@ class AuthService {
             window.app.showToast(`مرحباً بك: ${this.currentUser.name} (${RolesManager.getRoleLabel(this.currentUser.role)})`);
           }
         } catch (err) {
-          console.error('Auth verification failed, enforcing Fail-Closed:', err.message);
+          console.error('Auth verification notice:', err.message);
 
-          // Force immediate sign out to prevent any privileged or ambiguous state
-          try {
-            await signOut(firebaseAuth);
-          } catch (_) {}
+          if (navigator.onLine || err.message === 'ACCOUNT_DISABLED' || err.message === 'PROFILE_MISSING') {
+            try { await signOut(firebaseAuth); } catch (_) {}
+            this.currentUser = null;
+            document.body.classList.add('not-authenticated');
+            this.updateUI();
+            this.showLoginModal();
 
-          this.currentUser = null;
-          document.body.classList.add('not-authenticated');
-          this.updateUI();
-          this.showLoginModal();
+            let userMsg = 'تعذر تسجيل الدخول، يرجى مراجعة إدارة المركز.';
+            if (err.message === 'PROFILE_MISSING') {
+              userMsg = 'حسابك غير مسجل في قاعدة بيانات المركز. يرجى التواصل مع إدارة المركز لإضافة ملفك.';
+            } else if (err.message === 'ACCOUNT_DISABLED') {
+              userMsg = 'تم تعطيل هذا الحساب من قبل إدارة المركز.';
+            } else if (err.message === 'MALFORMED_PROFILE') {
+              userMsg = 'صلاحيات هذا الحساب غير صالحة. يرجى مراجعة إدارة المركز.';
+            } else if (err.message === 'FIRESTORE_UNAVAILABLE') {
+              userMsg = 'تعذر التحقق من صلاحيات الحساب بسبب انقطاع الاتصال بقاعدة البيانات. يرجى التحقق من اتصال الإنترنت.';
+            }
 
-          let userMsg = 'تعذر تسجيل الدخول، يرجى مراجعة إدارة المركز.';
-          if (err.message === 'PROFILE_MISSING') {
-            userMsg = 'حسابك غير مسجل في قاعدة بيانات المركز. يرجى التواصل مع إدارة المركز لإضافة ملفك.';
-          } else if (err.message === 'ACCOUNT_DISABLED') {
-            userMsg = 'تم تعطيل هذا الحساب من قبل إدارة المركز.';
-          } else if (err.message === 'MALFORMED_PROFILE') {
-            userMsg = 'صلاحيات هذا الحساب غير محددة أو غير صالحة. يرجى مراجعة إدارة المركز.';
-          } else if (err.message === 'FIRESTORE_UNAVAILABLE') {
-            userMsg = 'تعذر التحقق من صلاحيات الحساب بسبب انقطاع الاتصال بقاعدة البيانات. يرجى التحقق من اتصال الإنترنت.';
+            this.showLoginError(userMsg);
+            if (this.onUserChanged) this.onUserChanged(null);
           }
-
-          this.showLoginError(userMsg);
-          if (this.onUserChanged) this.onUserChanged(null);
         }
       } else {
-        // User is completely signed out
         this.currentUser = null;
         document.body.classList.add('not-authenticated');
         this.updateUI();
@@ -169,7 +184,6 @@ class AuthService {
       const userCredential = await signInWithEmailAndPassword(firebaseAuth, email.trim(), password);
       const user = userCredential.user;
 
-      // Authoritatively resolve and enforce role upon login (Fail-Closed)
       this.currentUser = await this.resolveUserProfile(user);
 
       document.body.classList.remove('not-authenticated');
@@ -182,8 +196,7 @@ class AuthService {
     } catch (err) {
       console.error('Firebase Login error:', err.code, err.message);
 
-      // If user was partially signed in on Firebase Auth, sign out to enforce Fail-Closed
-      if (firebaseAuth.currentUser) {
+      if (firebaseAuth.currentUser && (err.message === 'ACCOUNT_DISABLED' || err.message === 'PROFILE_MISSING')) {
         try { await signOut(firebaseAuth); } catch (_) {}
       }
       this.currentUser = null;
@@ -245,7 +258,7 @@ class AuthService {
   }
 
   hideLoginModal() {
-    if (!this.currentUser) return; // Never dismiss if unauthenticated
+    if (!this.currentUser) return;
     const modal = document.getElementById('modal-auth');
     if (modal) modal.classList.remove('active');
   }
