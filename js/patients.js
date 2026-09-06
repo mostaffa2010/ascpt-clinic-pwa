@@ -176,6 +176,12 @@ export class PatientsManager {
           if (pid) this.confirmDelete(pid);
           return;
         }
+        const insLetterBtn = e.target.closest('.btn-insurance-letter-row');
+        if (insLetterBtn) {
+          const pid = insLetterBtn.getAttribute('data-patient-id');
+          if (pid) this.openInsuranceLetterModalForPatient(pid);
+          return;
+        }
       });
     }
   }
@@ -348,6 +354,11 @@ export class PatientsManager {
               <a href="https://wa.me/${cleanWaPhone}" target="_blank" class="btn btn-outline btn-sm" style="color: #10b981; border-color: #10b981;" title="محادثة واتساب">
                 <i class="fa-brands fa-whatsapp"></i>
               </a>
+              ${!isDoctor && p.billing !== 'cash' ? `
+                <button type="button" class="btn btn-outline btn-sm btn-insurance-letter-row" style="color: #0284c7; border-color: #0284c7;" data-patient-id="${safeId}" title="طباعة خطاب تجديد تأمين">
+                  <i class="fa-solid fa-file-shield"></i>
+                </button>
+              ` : ''}
               ${!isDoctor ? `
                 <button type="button" class="btn btn-outline btn-sm btn-edit-patient" data-patient-id="${safeId}" title="تعديل بيانات المريض">
                   <i class="fa-solid fa-pen-to-square"></i>
@@ -1303,6 +1314,13 @@ export class PatientsManager {
   }
 
   // ================= Insurance Renewal Letter (A5) =================
+  openInsuranceLetterModalForPatient(patientId) {
+    const p = this.patients.find((item) => item.id === patientId);
+    if (!p) return;
+    this.currentSheetPatient = p;
+    this.openInsuranceLetterModal();
+  }
+
   openInsuranceLetterModal() {
     if (!this.currentSheetPatient) return;
     const p = this.currentSheetPatient;
