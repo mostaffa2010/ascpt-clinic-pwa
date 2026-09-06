@@ -85,18 +85,33 @@ export class AppointmentsManager {
 
   // ================= Full Grid (all doctors mixed per cell, like the paper sheet) =================
   async render() {
-    await this.loadAll();
     const grid = document.getElementById('appointments-grid');
     if (!grid) return;
-    grid.innerHTML = this.buildGridHTML(null);
+    try {
+      await this.loadAll();
+      grid.innerHTML = this.buildGridHTML(null);
+    } catch (err) {
+      console.error('Appointments render error:', err);
+      grid.innerHTML = `<div style="padding: 20px; text-align: center; color: var(--danger);">
+        <i class="fa-solid fa-triangle-exclamation"></i> تعذر تحميل جدول المواعيد.<br>
+        <span style="font-size: 0.8rem; color: var(--text-muted);">${escapeHTML(err.message || 'خطأ غير معروف')}</span>
+      </div>`;
+    }
   }
 
   // ================= Doctor's Own Column (used inside the Doctor Dashboard) =================
   async renderForDoctor(doctorUid) {
-    await this.loadAll();
     const grid = document.getElementById('my-appointments-grid');
     if (!grid) return;
-    grid.innerHTML = this.buildGridHTML(doctorUid);
+    try {
+      await this.loadAll();
+      grid.innerHTML = this.buildGridHTML(doctorUid);
+    } catch (err) {
+      console.error('Appointments (doctor) render error:', err);
+      grid.innerHTML = `<div style="padding: 16px; text-align: center; color: var(--danger); font-size: 0.85rem;">
+        <i class="fa-solid fa-triangle-exclamation"></i> تعذر تحميل الجدول: ${escapeHTML(err.message || 'خطأ غير معروف')}
+      </div>`;
+    }
   }
 
   buildGridHTML(filterDoctorUid) {
