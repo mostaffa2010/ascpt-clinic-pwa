@@ -102,6 +102,10 @@
           <i class="fa-solid fa-file-invoice-dollar"></i>
           <span>الحسابات والتقرير اليومي</span>
         </button>
+        <button class="nav-link" data-view="appointments">
+          <i class="fa-solid fa-calendar-week"></i>
+          <span>جدول المواعيد</span>
+        </button>
         <button class="nav-link admin-only" data-view="admin">
           <i class="fa-solid fa-user-shield"></i>
           <span>لوحة المدير والصلاحيات</span>
@@ -250,6 +254,16 @@
                 <div class="stat-value" id="stat-doc-types-ratio">-</div>
                 <div class="stat-label">توزيع الحالات (هذا الشهر)</div>
               </div>
+            </div>
+          </div>
+
+          <!-- Doctor's Own Weekly Appointments Schedule -->
+          <div class="card" style="margin-top: 20px;">
+            <div class="card-header">
+              <span class="card-title"><i class="fa-solid fa-calendar-week"></i> جدولي الأسبوعي</span>
+            </div>
+            <div class="table-responsive">
+              <div id="my-appointments-grid"><!-- Populated by JS --></div>
             </div>
           </div>
 
@@ -1084,6 +1098,19 @@
 
       </section>
 
+      <!-- ================= View: Weekly Appointments Schedule ================= -->
+      <section id="view-appointments" class="view-section">
+        <div style="margin-bottom: 20px;">
+          <h2 style="font-size: 1.35rem; font-weight: 800;"><i class="fa-solid fa-calendar-week" style="color: var(--primary);"></i> جدول المواعيد الأسبوعي</h2>
+          <p style="font-size: 0.85rem; color: var(--text-muted);">قالب أسبوعي ثابت لكل الدكاترة — يفضل الموعد كما هو كل أسبوع حتى تحذفه وتحجز مكانه مريضاً آخر.</p>
+        </div>
+        <div class="card">
+          <div class="table-responsive">
+            <div id="appointments-grid"><!-- Populated by JS --></div>
+          </div>
+        </div>
+      </section>
+
       <!-- ================= View 5: Admin Panel & Permissions ================= -->
       <section id="view-admin" class="view-section">
         <div style="margin-bottom: 20px;">
@@ -1223,6 +1250,10 @@
         <i class="fa-solid fa-file-invoice-dollar"></i>
         <span>الحسابات</span>
       </button>
+      <button class="b-nav-item" data-view="appointments">
+        <i class="fa-solid fa-calendar-week"></i>
+        <span>المواعيد</span>
+      </button>
       <button class="b-nav-item admin-only" data-view="admin">
         <i class="fa-solid fa-user-shield"></i>
         <span>المدير</span>
@@ -1354,6 +1385,34 @@
         <div class="modal-footer">
           <button type="button" class="btn btn-outline" data-close-modal="modal-expense">إلغاء</button>
           <button type="submit" class="btn btn-danger">حفظ المصروف</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal: Book Appointment -->
+  <div class="modal-backdrop" id="modal-appointment">
+    <div class="modal-content" style="max-width: 420px;">
+      <div class="modal-header">
+        <h3 id="appt-modal-title"><i class="fa-solid fa-calendar-plus"></i> حجز موعد</h3>
+        <button type="button" class="modal-close" data-close-modal="modal-appointment">&times;</button>
+      </div>
+      <form id="modal-appointment-form" novalidate>
+        <div class="modal-body">
+          <input type="hidden" id="appt-modal-day">
+          <input type="hidden" id="appt-modal-slot">
+          <div class="form-group" style="margin-bottom: 12px;">
+            <label for="appt-modal-doctor">الدكتور المعالج *</label>
+            <select id="appt-modal-doctor" class="form-control" required></select>
+          </div>
+          <div class="form-group">
+            <label for="appt-modal-patient">المريض (من السجل) *</label>
+            <select id="appt-modal-patient" class="form-control" required></select>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline" data-close-modal="modal-appointment">إلغاء</button>
+          <button type="submit" class="btn btn-primary">حجز الموعد</button>
         </div>
       </form>
     </div>

@@ -47,6 +47,10 @@ export class DoctorDashboardManager {
 
     const docUid = user.uid || user.id;
 
+    if (this.app?.appointmentsManager) {
+      this.app.appointmentsManager.renderForDoctor(docUid).catch((e) => console.warn('appointments schedule notice:', e));
+    }
+
     // Filter sessions matching this doctor by UID exclusively (with fallback for legacy records)
     this.docSessions = allSessions.filter(s => {
       if (s.doctorUid) return s.doctorUid === docUid;

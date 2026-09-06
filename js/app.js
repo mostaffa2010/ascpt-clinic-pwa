@@ -77,6 +77,7 @@ import { PatientsManager } from './patients.js';
 import { SessionsManager } from './sessions.js';
 import { FinanceManager } from './finance.js';
 import { DoctorDashboardManager } from './doctor-dashboard.js';
+import { AppointmentsManager } from './appointments.js';
 import { ExportManager } from './export.js';
 import { AuditAndAdminManager } from './audit.js';
 
@@ -95,9 +96,11 @@ class App {
     this.auditManager = new AuditAndAdminManager(this);
     this.claimsManager = new ClaimsManager(this);
     this.doctorDashboardManager = new DoctorDashboardManager(this);
+    this.appointmentsManager = new AppointmentsManager(this);
 
     window.patientsManager = this.patientsManager;
     window.sessionsManager = this.sessionsManager;
+    window.appointmentsManager = this.appointmentsManager;
     window.financeManager = this.financeManager;
     window.exportManager = this.exportManager;
     window.auditManager = this.auditManager;
@@ -149,6 +152,7 @@ class App {
     try { await this.financeManager.init(); } catch (e) { console.warn('financeManager init notice:', e); }
     try { this.exportManager.init(); } catch (e) { console.warn('exportManager init notice:', e); }
     try { await this.auditManager.init(); } catch (e) { console.warn('auditManager init notice:', e); }
+    try { await this.appointmentsManager.init(); } catch (e) { console.warn('appointmentsManager init notice:', e); }
 
     // مزامنة أزرار القوائم المخصصة
     ['claim-company-select', 'patient-filter-type', 'session-doctor-select', 'finance-doctor-filter', 'newuser-role', 'p-doctor'].forEach(id => {
@@ -248,6 +252,7 @@ class App {
       this.auditManager.loadUsers();
       this.auditManager.loadAuditLogs();
     }
+    if (viewName === 'appointments') this.appointmentsManager.render();
   }
 
   bindModalsAndAuth() {

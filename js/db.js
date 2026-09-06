@@ -523,6 +523,33 @@ class FirestoreDatabaseService {
     return updatedList;
   }
 
+  // ================= 9. Weekly Appointments Schedule =================
+  // Fixed recurring weekly template (not tied to specific calendar dates):
+  // a slot stays booked for the same patient every week until someone
+  // deletes it and books a different patient in its place.
+  async getAppointments() {
+    this.ensureConnected();
+    const snap = await getDocs(collection(firestoreDb, 'appointments'));
+    return snap.docs.map((d) => ({ id: d.id, ...d.data() }));
+  }
+
+  async addAppointment(apptData) {
+    this.ensureConnected();
+    const ref = doc(collection(firestoreDb, 'appointments'));
+    const payload = {
+      ...apptData,
+      id: ref.id,
+      createdAt: new Date().toISOString()
+    };
+    await setDoc(ref, payload);
+    return payload;
+  }
+
+  async deleteAppointment(apptId) {
+    this.ensureConnected();
+    await deleteDoc(doc(firestoreDb, 'appointments', apptId));
+  }
+
   // ================= 8. Backup & Restore =================
   // NOTE: `users` and `audit_logs` are intentionally excluded from backups.
   // Staff accounts must only ever be created/changed through the vetted
@@ -532,10 +559,11 @@ class FirestoreDatabaseService {
   async createFullBackup() {
     this.ensureConnected();
 
-    const [patients, sessions, expenses] = await Promise.all([
+    const [patients, sessions, expenses, appointments] = await Promise.all([
       this.getPatients(),
       this.getSessions(),
-      this.getExpenses()
+      this.getExpenses(),
+      this.getAppointments()
     ]);
 
     const clinicalOptionsSnap = await getDocs(collection(firestoreDb, 'clinical_options'));
@@ -553,11 +581,13 @@ class FirestoreDatabaseService {
       counts: {
         patients: patients.length,
         sessions: sessions.length,
-        expenses: expenses.length
+        expenses: expenses.length,
+        appointments: appointments.length
       },
       patients,
       sessions,
       expenses,
+      appointments,
       clinicalOptions,
       insuranceCompanies
     };
@@ -591,6 +621,7 @@ class FirestoreDatabaseService {
     await restoreCollection('patients', data.patients);
     await restoreCollection('sessions', data.sessions);
     await restoreCollection('expenses', data.expenses);
+    await restoreCollection('appointments', data.appointments);
 
     if (data.clinicalOptions && typeof data.clinicalOptions === 'object') {
       for (const [category, value] of Object.entries(data.clinicalOptions)) {

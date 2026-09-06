@@ -92,6 +92,26 @@ service cloud.firestore {
       allow update, delete: if isAdmin();
     }
 
+    // ================= 4.أ. Weekly Appointments Schedule (fixed recurring template) =================
+    match /appointments/{apptId} {
+      allow read: if isUserActive();
+      allow create: if isUserActive() && (
+        isAdmin() || isReceptionist() ||
+        (isDoctor() && request.resource.data.doctorUid == request.auth.uid)
+      ) && request.resource.data.day in ['sat', 'sun', 'mon', 'tue', 'wed', 'thu']
+        && request.resource.data.timeSlot is string
+        && request.resource.data.doctorUid is string
+        && request.resource.data.patientId is string;
+      allow update: if isUserActive() && (
+        isAdmin() || isReceptionist() ||
+        (isDoctor() && resource.data.doctorUid == request.auth.uid && request.resource.data.doctorUid == request.auth.uid)
+      );
+      allow delete: if isUserActive() && (
+        isAdmin() || isReceptionist() ||
+        (isDoctor() && resource.data.doctorUid == request.auth.uid)
+      );
+    }
+
     // ================= 5. Clinical Options & Insurance Companies =================
     match /clinical_options/{category} {
       allow read: if isUserActive();

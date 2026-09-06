@@ -521,6 +521,99 @@ table.data-table tr:hover {
   background-color: #fafbfc;
 }
 
+/* ================= Weekly Appointments Schedule ================= */
+table.appt-table td,
+table.appt-table th {
+  white-space: normal;
+  vertical-align: top;
+}
+
+.appt-time-label {
+  font-weight: 800;
+  color: var(--primary);
+  white-space: nowrap !important;
+  text-align: center;
+  background-color: var(--bg-subtle);
+}
+
+.appt-cell {
+  min-width: 150px;
+  padding: 8px !important;
+}
+
+.appt-cell-over {
+  background-color: #fef2f2;
+}
+
+.appt-over-badge {
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: var(--danger);
+  background-color: #fee2e2;
+  border-radius: 6px;
+  padding: 3px 6px;
+  margin-bottom: 6px;
+  display: block;
+  text-align: center;
+}
+
+.appt-chip {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+  background-color: #eef2ff;
+  border: 1px solid #c7d2fe;
+  border-radius: 8px;
+  padding: 5px 8px;
+  margin-bottom: 5px;
+  font-size: 0.78rem;
+}
+
+.appt-chip-patient {
+  font-weight: 700;
+  color: var(--text-main);
+}
+
+.appt-chip-doctor {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+
+.appt-chip-remove {
+  background: none;
+  border: none;
+  color: var(--danger);
+  font-size: 1rem;
+  line-height: 1;
+  cursor: pointer;
+  padding: 0 2px;
+}
+
+.btn-add-appt {
+  width: 100%;
+  background: none;
+  border: 1px dashed var(--border-color);
+  border-radius: 8px;
+  color: var(--text-muted);
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 6px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  transition: all 0.15s;
+}
+
+.btn-add-appt:hover {
+  border-color: var(--primary);
+  color: var(--primary);
+  background-color: #eff6ff;
+}
+
 /* ================= Badges ================= */
 .badge {
   display: inline-flex;
