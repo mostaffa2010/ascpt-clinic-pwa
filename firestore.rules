@@ -98,8 +98,7 @@ service cloud.firestore {
       allow create: if isUserActive() && (
         isAdmin() || isReceptionist() ||
         (isDoctor() && request.resource.data.doctorUid == request.auth.uid)
-      ) && request.resource.data.day in ['sat', 'sun', 'mon', 'tue', 'wed', 'thu']
-        && request.resource.data.timeSlot is string
+      ) && request.resource.data.timeSlot is string
         && request.resource.data.doctorUid is string
         && request.resource.data.patientId is string;
       allow update: if isUserActive() && (

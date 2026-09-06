@@ -1399,15 +1399,12 @@
       </div>
       <form id="modal-appointment-form" novalidate>
         <div class="modal-body">
-          <input type="hidden" id="appt-modal-day">
-          <input type="hidden" id="appt-modal-slot">
-          <div class="form-group" style="margin-bottom: 12px;">
-            <label for="appt-modal-doctor">الدكتور المعالج *</label>
-            <select id="appt-modal-doctor" class="form-control" required></select>
-          </div>
           <div class="form-group">
-            <label for="appt-modal-patient">المريض (من السجل) *</label>
-            <select id="appt-modal-patient" class="form-control" required></select>
+            <label>المريض (من السجل) *</label>
+            <button type="button" class="custom-select-btn" id="appt-patient-picker-trigger" style="width: 100%;">
+              <span class="btn-text">-- اختر مريض من السجل --</span>
+              <i class="fa-solid fa-magnifying-glass"></i>
+            </button>
           </div>
         </div>
         <div class="modal-footer">
@@ -1415,6 +1412,25 @@
           <button type="submit" class="btn btn-primary">حجز الموعد</button>
         </div>
       </form>
+    </div>
+  </div>
+
+  <!-- Modal: Appointment Patient Picker (searchable) -->
+  <div class="modal-backdrop" id="modal-appt-patient-picker">
+    <div class="modal-content" style="max-width: 500px;">
+      <div class="modal-header">
+        <h3><i class="fa-solid fa-users"></i> اختيار المريض</h3>
+        <button type="button" class="modal-close" data-close-modal="modal-appt-patient-picker">&times;</button>
+      </div>
+      <div class="modal-body" style="padding: 16px;">
+        <input type="text" id="appt-picker-search-input" class="form-control" placeholder="ابحث بالاسم أو رقم الموبايل..." autofocus>
+        <div class="patient-picker-list" id="appt-picker-patients-list">
+          <!-- Items rendered dynamically -->
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline btn-sm" data-close-modal="modal-appt-patient-picker">إغلاق</button>
+      </div>
     </div>
   </div>
 
