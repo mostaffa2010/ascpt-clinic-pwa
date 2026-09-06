@@ -117,6 +117,12 @@ export class PatientsManager {
       };
     }
 
+    document.getElementById('btn-print-insurance-letter')?.addEventListener('click', () => this.openInsuranceLetterModal());
+    document.getElementById('form-insurance-letter')?.addEventListener('submit', (e) => {
+      e.preventDefault();
+      this.submitInsuranceLetter();
+    });
+
     // Patient Sheet Form Submit
     const formSheet = document.getElementById('form-patient-sheet');
     if (formSheet) {
@@ -856,6 +862,8 @@ export class PatientsManager {
     if (docEl) docEl.textContent = p.doctor;
 
         const badgeEl = document.getElementById('sheet-patient-billing-badge');
+    const insLetterBtn = document.getElementById('btn-print-insurance-letter');
+    if (insLetterBtn) insLetterBtn.style.display = (p.billing === 'cash') ? 'none' : 'inline-flex';
     if (badgeEl) {
       if (p.billing === 'cash') {
         badgeEl.innerHTML = '<span class="badge badge-cash" style="font-size: 0.82rem; padding: 4px 12px; font-weight: 700; white-space: nowrap; display: inline-flex; align-items: center; gap: 5px;"><i class="fa-solid fa-money-bill-wave"></i> نقدي</span>';
@@ -1292,5 +1300,78 @@ export class PatientsManager {
     window.print();
 
     setTimeout(cleanPrintClass, 2000);
+  }
+
+  // ================= Insurance Renewal Letter (A5) =================
+  openInsuranceLetterModal() {
+    if (!this.currentSheetPatient) return;
+    const p = this.currentSheetPatient;
+    const sheet = p.clinicalSheet || {};
+
+    document.getElementById('ins-letter-company').value = p.insuranceCompany || '';
+    document.getElementById('ins-letter-diagnosis').value = sheet.diagnosis || '';
+    document.getElementById('ins-letter-sessions').value = '';
+
+    this.app.openModal('modal-insurance-letter');
+  }
+
+  async submitInsuranceLetter() {
+    if (this._isPrinting) return;
+
+    const p = this.currentSheetPatient;
+    if (!p) return;
+
+    const diagnosis = document.getElementById('ins-letter-diagnosis')?.value.trim();
+    const sessionsRaw = document.getElementById('ins-letter-sessions')?.value.trim();
+    const sessionCount = parseInt(sessionsRaw, 10);
+
+    if (!diagnosis) {
+      this.app.showAlert('يرجى كتابة التشخيص.', 'بيانات مطلوبة', 'warning');
+      return;
+    }
+    if (!sessionCount || sessionCount <= 0) {
+      this.app.showAlert('يرجى كتابة عدد جلسات صحيح.', 'بيانات مطلوبة', 'warning');
+      return;
+    }
+
+    this._isPrinting = true;
+    setTimeout(() => { this._isPrinting = false; }, 2500);
+
+    const currentUser = auth.getCurrentUser();
+    const todayLabel = new Date().toLocaleDateString('ar-EG-u-nu-latn', { year: 'numeric', month: 'long', day: 'numeric' });
+
+    try {
+      // 1. Save a copy of the letter in the database first
+      await db.addInsuranceLetter({
+        patientId: p.id,
+        patientName: p.name,
+        insuranceCompany: p.insuranceCompany || '',
+        diagnosis,
+        sessionCount,
+        issuedBy: currentUser?.name || '',
+        createdByUid: currentUser?.uid || ''
+      });
+
+      // 2. Fill the printable A5 template
+      document.getElementById('ins-print-company').textContent = p.insuranceCompany || '-';
+      document.getElementById('ins-print-patient-name').textContent = p.name;
+      document.getElementById('ins-print-diagnosis').textContent = diagnosis;
+      document.getElementById('ins-print-sessions').textContent = sessionCount;
+      document.getElementById('ins-print-date').textContent = `تحريراً في: ${todayLabel}`;
+
+      this.app.closeModal('modal-insurance-letter');
+
+      // 3. Trigger print
+      document.body.classList.add('printing-insurance-letter');
+      const cleanPrintClass = () => {
+        document.body.classList.remove('printing-insurance-letter');
+        window.removeEventListener('afterprint', cleanPrintClass);
+      };
+      window.addEventListener('afterprint', cleanPrintClass);
+      window.print();
+      setTimeout(cleanPrintClass, 2000);
+    } catch (err) {
+      this.app.showAlert('تعذر حفظ/طباعة الخطاب: ' + err.message, 'خطأ', 'danger');
+    }
   }
 }

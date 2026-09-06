@@ -381,9 +381,14 @@
               <i class="fa-solid fa-file-waveform" style="color: var(--primary);"></i> شيت المريض
             </h2>
           </div>
-          <button type="button" class="btn btn-primary btn-sm btn-print-sheet" id="btn-print-sheet-top" style="padding: 6px 12px; font-weight: 700;">
-            <i class="fa-solid fa-print"></i> طباعة Wi-Fi
-          </button>
+          <div style="display: flex; gap: 8px;">
+            <button type="button" class="btn btn-outline btn-sm" id="btn-print-insurance-letter" style="padding: 6px 12px; font-weight: 700; display: none;">
+              <i class="fa-solid fa-file-shield"></i> خطاب تجديد تأمين
+            </button>
+            <button type="button" class="btn btn-primary btn-sm btn-print-sheet" id="btn-print-sheet-top" style="padding: 6px 12px; font-weight: 700;">
+              <i class="fa-solid fa-print"></i> طباعة Wi-Fi
+            </button>
+          </div>
         </div>
 
         <!-- Patient Demographics Header Card (Clean & Responsive) -->
@@ -1434,6 +1439,36 @@
     </div>
   </div>
 
+  <!-- Modal: Insurance Renewal Letter Data Entry -->
+  <div class="modal-backdrop" id="modal-insurance-letter">
+    <div class="modal-content" style="max-width: 460px;">
+      <div class="modal-header">
+        <h3><i class="fa-solid fa-file-shield"></i> خطاب تجديد جلسات تأمين</h3>
+        <button type="button" class="modal-close" data-close-modal="modal-insurance-letter">&times;</button>
+      </div>
+      <form id="form-insurance-letter" novalidate>
+        <div class="modal-body">
+          <div class="form-group" style="margin-bottom: 12px;">
+            <label>شركة التأمين</label>
+            <input type="text" id="ins-letter-company" class="form-control" readonly style="background: var(--bg-subtle);">
+          </div>
+          <div class="form-group" style="margin-bottom: 12px;">
+            <label for="ins-letter-diagnosis">التشخيص (قابل للتعديل قبل الطباعة) *</label>
+            <textarea id="ins-letter-diagnosis" class="form-control" rows="3" required></textarea>
+          </div>
+          <div class="form-group">
+            <label for="ins-letter-sessions">عدد الجلسات المطلوبة *</label>
+            <input type="number" id="ins-letter-sessions" class="form-control" min="1" step="1" required placeholder="مثال: 12">
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline" data-close-modal="modal-insurance-letter">إلغاء</button>
+          <button type="submit" class="btn btn-primary"><i class="fa-solid fa-print"></i> حفظ وطباعة</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
   <!-- Modal 3: Authentication / Login -->
   <div class="modal-backdrop" id="modal-auth" style="z-index: 230;">
     <div class="modal-content" style="max-width: 420px; border-radius: 14px; overflow: hidden; padding: 0; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);">
@@ -1621,6 +1656,35 @@
   <!-- ================= Printable Attendance Cards (مطابقة للورقة 2) ================= -->
   <div id="printable-attendance-cards" class="printable-doc" style="display: none;">
     <!-- Populated dynamically -->
+  </div>
+
+  <!-- ================= Printable Insurance Renewal Letter (A5) ================= -->
+  <div id="printable-insurance-letter" style="display: none;">
+    <div class="ins-letter-header">
+      <h1><i class="fa-solid fa-notes-medical"></i> مركز اسكندرية التخصصي للعلاج الطبيعي (ASCPT)</h1>
+      <p id="ins-print-director">د. حسني أحمد الجويلي — إستشاري العلاج الطبيعي والتقويم الحركي للعمود الفقري</p>
+    </div>
+
+    <div class="ins-letter-body">
+      <p style="font-weight: 800; font-size: 11pt;">السادة شركة <span id="ins-print-company">-</span></p>
+      <p>تحية طيبة وبعد،،،</p>
+      <p>يرجى العلم بأن السيد/ة <strong id="ins-print-patient-name">-</strong> والتي تعاني من:</p>
+      <p style="padding: 6px 10px; border: 1px solid #cbd5e1; border-radius: 6px; background: #f8fafc;" id="ins-print-diagnosis">-</p>
+      <p>تحتاج إلى <strong id="ins-print-sessions">-</strong> جلسة علاج طبيعي.</p>
+      <p>برجاء الموافقة، ولكم جزيل الشكر.</p>
+    </div>
+
+    <div class="ins-letter-footer">
+      <div style="text-align: left;">
+        مدير المركز
+        <div class="ins-letter-signature-space"></div>
+      </div>
+      <div id="ins-print-date">تحريراً في: -</div>
+    </div>
+
+    <div class="ins-letter-footer-contact" id="ins-print-contact">
+      ١٧ شارع حسين شيرين - لوران - الإسكندرية | تليفون: 03-5702356 | البريد: algewelyspinecare@yahoo.com
+    </div>
   </div>
 
   <!-- Printable Patient Clinical Sheet (Visible only when printing sheet) -->

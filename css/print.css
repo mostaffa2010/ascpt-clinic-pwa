@@ -418,3 +418,80 @@
     page-break-after: always !important;
     page-break-inside: avoid !important;
   }
+
+  /* ================= CASE 5: PRINTING INSURANCE RENEWAL LETTER (A5) ================= */
+  @page insuranceLetterPage {
+    size: A5 portrait;
+    margin: 10mm;
+  }
+
+  body.printing-insurance-letter > *:not(#printable-insurance-letter) {
+    display: none !important;
+    height: 0 !important;
+    max-height: 0 !important;
+    min-height: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    border: none !important;
+    overflow: hidden !important;
+  }
+
+  body.printing-insurance-letter #printable-insurance-letter {
+    display: block !important;
+    position: relative !important;
+    width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    page: insuranceLetterPage;
+    font-size: 10pt !important;
+    line-height: 1.6 !important;
+    color: #000000 !important;
+  }
+
+  body.printing-insurance-letter .ins-letter-header {
+    text-align: center !important;
+    border-bottom: 2px solid #0284c7 !important;
+    padding-bottom: 6px !important;
+    margin-bottom: 14px !important;
+  }
+
+  body.printing-insurance-letter .ins-letter-header h1 {
+    font-size: 12pt !important;
+    margin: 0 0 3px 0 !important;
+    color: #0284c7 !important;
+    font-weight: 800 !important;
+  }
+
+  body.printing-insurance-letter .ins-letter-header p {
+    margin: 2px 0 !important;
+    font-size: 8pt !important;
+    color: #1e293b !important;
+  }
+
+  body.printing-insurance-letter .ins-letter-body {
+    font-size: 10.5pt !important;
+    padding: 0 4px !important;
+  }
+
+  body.printing-insurance-letter .ins-letter-body p {
+    margin: 8px 0 !important;
+  }
+
+  body.printing-insurance-letter .ins-letter-footer {
+    margin-top: 30px !important;
+    font-size: 9.5pt !important;
+    font-weight: 700 !important;
+  }
+
+  body.printing-insurance-letter .ins-letter-signature-space {
+    height: 20mm !important;
+  }
+
+  body.printing-insurance-letter .ins-letter-footer-contact {
+    margin-top: 16px !important;
+    padding-top: 6px !important;
+    border-top: 1px dashed #94a3b8 !important;
+    font-size: 7.5pt !important;
+    color: #475569 !important;
+    text-align: center !important;
+  }

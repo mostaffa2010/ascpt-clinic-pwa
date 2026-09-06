@@ -132,5 +132,16 @@ service cloud.firestore {
         request.resource.data.timestampRaw is number;
       allow update, delete: if false;
     }
+
+    // ================= 7. Insurance Renewal Letters (append-only archive) =================
+    match /insurance_letters/{letterId} {
+      allow read: if isUserActive();
+      allow create: if isUserActive() &&
+        request.resource.data.createdByUid == request.auth.uid &&
+        request.resource.data.patientId is string &&
+        request.resource.data.diagnosis is string &&
+        request.resource.data.sessionCount is number;
+      allow update, delete: if false;
+    }
   }
 }
