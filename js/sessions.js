@@ -17,6 +17,9 @@ export class SessionsManager {
     this.insEditMode = false;
     this.bodyPartsEditMode = false;
     this.currentContractType = 'direct';
+    this.entryMode = 'session'; // 'session' | 'examination'
+    this.examType = 'cash'; // 'cash' | 'contract'
+    this.selectedPatient = null;
     window.sessionsManager = this;
   }
 
@@ -45,6 +48,14 @@ export class SessionsManager {
     // Quick Date Buttons
     document.getElementById('btn-quick-sess-today')?.addEventListener('click', () => this.setDateQuick('today'));
     document.getElementById('btn-quick-sess-yesterday')?.addEventListener('click', () => this.setDateQuick('yesterday'));
+
+    // Mode Switcher (Session vs Examination)
+    document.getElementById('btn-mode-session')?.addEventListener('click', () => this.setEntryMode('session'));
+    document.getElementById('btn-mode-exam')?.addEventListener('click', () => this.setEntryMode('examination'));
+
+    // Examination Type Toggle (Cash vs Contract)
+    document.getElementById('btn-exam-type-cash')?.addEventListener('click', () => this.setExamType('cash'));
+    document.getElementById('btn-exam-type-contract')?.addEventListener('click', () => this.setExamType('contract'));
 
     // 1. Dynamic Body Parts Management (Add, Delete & Select)
     document.getElementById('btn-toggle-chips-body-parts')?.addEventListener('click', () => this.toggleBodyPartsEditMode());
@@ -329,36 +340,181 @@ export class SessionsManager {
     }).join('');
   }
 
-  async selectPatient(patientId) {
-    const patients = await db.getPatients();
-    const patient = patients.find(p => p.id === patientId);
-    if (!patient) return;
+  // ================= Mode Switcher: Session vs Examination =================
+  setEntryMode(mode) {
+    this.entryMode = mode === 'examination' ? 'examination' : 'session';
+    const isExam = (this.entryMode === 'examination');
 
-    this.selectedPatientId = patient.id;
-    document.getElementById('session-patient-id').value = patient.id;
+    const btnSession = document.getElementById('btn-mode-session');
+    const btnExam = document.getElementById('btn-mode-exam');
+    const bodyPartsGroup = document.getElementById('form-group-body-parts');
+    const examTypeGroup = document.getElementById('form-group-exam-type');
+    const dateLabel = document.getElementById('session-date-label');
+    const payLabel = document.getElementById('session-payment-method-label');
+    const btnSubmitText = document.getElementById('btn-submit-session-text');
+    const btnSubmitIcon = document.getElementById('icon-submit-session');
 
-    // Update UI Box
-    const trigger = document.getElementById('patient-picker-trigger');
-    const selectedBox = document.getElementById('selected-patient-box');
-    const nameEl = document.getElementById('selected-patient-name');
-    const subEl = document.getElementById('selected-patient-sub');
-
-    if (trigger) trigger.style.display = 'none';
-    if (selectedBox) selectedBox.style.display = 'flex';
-
-    if (nameEl) nameEl.textContent = patient.name;
-    if (subEl) {
-      const billingTxt = patient.billing === 'cash' 
-        ? 'نقدي' 
-        : `تأمين: ${patient.insuranceCompany || 'شركة'} (${patient.contractType === 'direct' ? 'مباشر' : 'غير مباشر'})`;
-      subEl.textContent = `الهاتف: ${patient.phone} | الطبيب: ${patient.doctor} | ${billingTxt}`;
+    if (btnSession && btnExam) {
+      if (isExam) {
+        btnExam.style.background = 'var(--primary, #0284c7)';
+        btnExam.style.color = '#ffffff';
+        btnExam.style.boxShadow = '0 2px 4px rgba(0,0,0,0.06)';
+        btnSession.style.background = 'transparent';
+        btnSession.style.color = 'var(--text-muted, #64748b)';
+        btnSession.style.boxShadow = 'none';
+      } else {
+        btnSession.style.background = 'var(--primary, #0284c7)';
+        btnSession.style.color = '#ffffff';
+        btnSession.style.boxShadow = '0 2px 4px rgba(0,0,0,0.06)';
+        btnExam.style.background = 'transparent';
+        btnExam.style.color = 'var(--text-muted, #64748b)';
+        btnExam.style.boxShadow = 'none';
+      }
     }
 
-    // Auto-fill Doctor
-    const docSelect = document.getElementById('session-doctor-select');
-    if (docSelect) docSelect.value = patient.doctor;
+    if (bodyPartsGroup) bodyPartsGroup.style.display = isExam ? 'none' : 'block';
+    if (examTypeGroup) examTypeGroup.style.display = isExam ? 'block' : 'none';
 
-    // Auto-fill Billing & Insurance (Clean Smart Automation)
+    if (dateLabel) {
+      dateLabel.innerHTML = `<i class="fa-solid fa-calendar-day"></i> ${isExam ? 'تاريخ الكشف *' : 'تاريخ الجلسة *'}`;
+    }
+    if (payLabel) {
+      payLabel.textContent = isExam ? 'جهة السداد ونظام المحاسبة للكشف *' : 'نظام وطريقة السداد للجلسة *';
+    }
+    if (btnSubmitText) {
+      if (this.editingSessionId) {
+        btnSubmitText.textContent = isExam ? 'حفظ تعديلات الكشف' : 'حفظ تعديلات الجلسة';
+      } else {
+        btnSubmitText.textContent = isExam ? 'حفظ الكشف' : 'حفظ الجلسة';
+      }
+    }
+    if (btnSubmitIcon) {
+      btnSubmitIcon.className = isExam ? 'fa-solid fa-stethoscope' : 'fa-solid fa-check';
+    }
+
+    if (isExam) {
+      this.updateExamPaymentUI();
+    } else {
+      if (this.selectedPatient) {
+        this.updateSessionPaymentUI(this.selectedPatient);
+      } else {
+        const paymentContainer = document.getElementById('session-payment-method-container');
+        if (paymentContainer) {
+          paymentContainer.innerHTML = `
+            <div style="background: var(--bg-subtle); border: 1.5px dashed var(--border-color); border-radius: 10px; padding: 14px; text-align: center; color: var(--text-muted); font-size: 0.85rem;">
+              <i class="fa-solid fa-hand-pointer" style="margin-left: 6px; color: var(--primary);"></i> اختر المريض بالأعلى لتحديد نظام السداد تلقائياً (نقدي / تأمين)
+            </div>
+          `;
+        }
+      }
+    }
+  }
+
+  setExamType(type) {
+    this.examType = type === 'contract' ? 'contract' : 'cash';
+    this.updateExamPaymentUI();
+  }
+
+  updateExamPaymentUI() {
+    const btnCash = document.getElementById('btn-exam-type-cash');
+    const btnContract = document.getElementById('btn-exam-type-contract');
+    const paymentContainer = document.getElementById('session-payment-method-container');
+    const amountLabel = document.getElementById('session-amount-label');
+    const amountHelp = document.getElementById('session-amount-help');
+    const payTypeInput = document.getElementById('session-pay-type-hidden');
+
+    const isContract = (this.examType === 'contract');
+
+    if (btnCash && btnContract) {
+      if (isContract) {
+        btnContract.style.borderColor = 'var(--primary, #0284c7)';
+        btnContract.style.background = 'var(--primary, #0284c7)';
+        btnContract.style.color = '#ffffff';
+        btnCash.style.borderColor = 'var(--border-color, #cbd5e1)';
+        btnCash.style.background = '#ffffff';
+        btnCash.style.color = 'var(--text-muted, #64748b)';
+      } else {
+        btnCash.style.borderColor = 'var(--primary, #0284c7)';
+        btnCash.style.background = 'var(--primary, #0284c7)';
+        btnCash.style.color = '#ffffff';
+        btnContract.style.borderColor = 'var(--border-color, #cbd5e1)';
+        btnContract.style.background = '#ffffff';
+        btnContract.style.color = 'var(--text-muted, #64748b)';
+      }
+    }
+
+    if (payTypeInput) payTypeInput.value = isContract ? 'insurance' : 'cash';
+
+    if (amountLabel) {
+      amountLabel.textContent = isContract ? 'مبلغ التحمل المسدد بالدرج (إن وجد) *' : 'سعر الكشف المسدد بالدرج (ج.م) *';
+    }
+    if (amountHelp) {
+      amountHelp.textContent = isContract ? 'في حالة كشف التعاقد، ضع مبلغ نسبة التحمل النقدي إن وُجد، أو 0.' : 'اكتب المبلغ المسدد بالدرج للكشف النقدي.';
+    }
+
+    if (!paymentContainer) return;
+
+    if (!isContract) {
+      paymentContainer.innerHTML = `
+        <div style="background: #f0fdf4; border: 1.5px solid #bbf7d0; border-radius: 10px; padding: 12px 14px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px;">
+          <div style="display: flex; align-items: center; gap: 10px;">
+            <div style="width: 38px; height: 38px; border-radius: 8px; background: #dcfce7; color: #15803d; display: flex; align-items: center; justify-content: center; font-size: 1.15rem; flex-shrink: 0;">
+              <i class="fa-solid fa-money-bill-wave"></i>
+            </div>
+            <div>
+              <div style="font-weight: 800; font-size: 0.95rem; color: #166534;">كشف نقدي مباشر (Cash)</div>
+              <div style="font-size: 0.78rem; color: #15803d; font-weight: 600;">يتم تحصيل سعر الكشف نقداً وتوريده لخزينة المركز</div>
+            </div>
+          </div>
+          <span class="badge badge-cash" style="font-size: 0.76rem; padding: 4px 10px; border-radius: 9999px;">كشف نقدي</span>
+        </div>
+      `;
+    } else {
+      const allCompanies = db.getInsuranceCompaniesList();
+      const patientComp = (this.selectedPatient?.insuranceCompany || document.getElementById('session-insurance-name')?.value || '').trim();
+      const defaultComp = patientComp || (allCompanies[0]?.name || '');
+
+      const insInput = document.getElementById('session-insurance-name');
+      if (insInput) insInput.value = defaultComp;
+
+      paymentContainer.innerHTML = `
+        <div style="background: #f0fdf4; border: 1.5px solid #bbf7d0; border-radius: 10px; padding: 12px 14px; display: flex; flex-direction: column; gap: 10px;">
+          <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px;">
+            <div style="display: flex; align-items: center; gap: 10px;">
+              <div style="width: 38px; height: 38px; border-radius: 8px; background: #dcfce7; color: #15803d; display: flex; align-items: center; justify-content: center; font-size: 1.15rem; flex-shrink: 0;">
+                <i class="fa-solid fa-file-contract"></i>
+              </div>
+              <div>
+                <div style="font-weight: 800; font-size: 0.95rem; color: #166534;">كشف تعاقد شركة تأمين</div>
+                <div style="font-size: 0.78rem; color: #15803d; font-weight: 600;">اختر شركة التعاقد المحول منها المريض:</div>
+              </div>
+            </div>
+            <span class="badge" style="background: #16a34a; color: #ffffff; font-weight: 700; font-size: 0.76rem; padding: 4px 10px; border-radius: 9999px;">كشف تعاقد</span>
+          </div>
+          <div>
+            <select id="exam-contract-company-select" class="form-control" style="font-weight: 700;">
+              ${allCompanies.map(c => `<option value="${escapeHTML(c.name)}" data-contract="${escapeHTML(c.contractType)}" ${c.name === defaultComp ? 'selected' : ''}>${escapeHTML(c.label)}</option>`).join('')}
+            </select>
+          </div>
+        </div>
+      `;
+
+      const compSelect = document.getElementById('exam-contract-company-select');
+      if (compSelect) {
+        compSelect.addEventListener('change', (e) => {
+          const opt = compSelect.options[compSelect.selectedIndex];
+          const cName = e.target.value;
+          const cType = opt?.getAttribute('data-contract') || 'direct';
+          const insNameInput = document.getElementById('session-insurance-name');
+          const contractTypeInput = document.getElementById('session-contract-type-hidden');
+          if (insNameInput) insNameInput.value = cName;
+          if (contractTypeInput) contractTypeInput.value = cType;
+        });
+      }
+    }
+  }
+
+  updateSessionPaymentUI(patient) {
     const isInsurance = Boolean(
       patient.billing === 'insurance' ||
       (patient.insuranceCompany && String(patient.insuranceCompany).trim().length > 0)
@@ -426,6 +582,45 @@ export class SessionsManager {
         if (amountLabel) amountLabel.textContent = 'المبلغ المدفوع بالدرج (ج.م) *';
       }
     }
+  }
+
+  async selectPatient(patientId) {
+    const patients = await db.getPatients();
+    const patient = patients.find(p => p.id === patientId);
+    if (!patient) return;
+
+    this.selectedPatientId = patient.id;
+    document.getElementById('session-patient-id').value = patient.id;
+
+    // Update UI Box
+    const trigger = document.getElementById('patient-picker-trigger');
+    const selectedBox = document.getElementById('selected-patient-box');
+    const nameEl = document.getElementById('selected-patient-name');
+    const subEl = document.getElementById('selected-patient-sub');
+
+    if (trigger) trigger.style.display = 'none';
+    if (selectedBox) selectedBox.style.display = 'flex';
+
+    if (nameEl) nameEl.textContent = patient.name;
+    if (subEl) {
+      const billingTxt = patient.billing === 'cash' 
+        ? 'نقدي' 
+        : `تأمين: ${patient.insuranceCompany || 'شركة'} (${patient.contractType === 'direct' ? 'مباشر' : 'غير مباشر'})`;
+      subEl.textContent = `الهاتف: ${patient.phone} | الطبيب: ${patient.doctor} | ${billingTxt}`;
+    }
+
+    // Auto-fill Doctor
+    const docSelect = document.getElementById('session-doctor-select');
+    if (docSelect) docSelect.value = patient.doctor;
+
+    this.selectedPatient = patient;
+
+    if (this.entryMode === 'examination') {
+      const isIns = Boolean(patient.billing === 'insurance' || (patient.insuranceCompany && String(patient.insuranceCompany).trim().length > 0));
+      this.setExamType(isIns ? 'contract' : 'cash');
+    } else {
+      this.updateSessionPaymentUI(patient);
+    }
 
     this.app.closeModal('modal-patient-picker');
   }
@@ -482,23 +677,46 @@ export class SessionsManager {
     const selectedDoctorOpt = docSelectEl?.options[docSelectEl.selectedIndex];
     const doctorUid = selectedDoctorOpt?.getAttribute('data-uid') || patient?.doctorUid || '';
     
-    // Body parts selection
-    const selectedParts = this.getSelectedBodyParts();
-    if (selectedParts.length === 0) {
-      await this.app.showAlert('يرجى تحديد عضو واحد على الأقل تم علاجه في الجلسة (اضغط على أزرار الأعضاء المعالجة).', 'تنبيه', 'warning');
-      return;
+    // Body parts selection (Required for session, skipped for examination)
+    let selectedParts = [];
+    if (this.entryMode === 'session') {
+      selectedParts = this.getSelectedBodyParts();
+      if (selectedParts.length === 0) {
+        await this.app.showAlert('يرجى تحديد عضو واحد على الأقل تم علاجه في الجلسة (اضغط على أزرار الأعضاء المعالجة).', 'تنبيه', 'warning');
+        return;
+      }
     }
 
-    const isPatientInsured = Boolean(
-      patient?.billing === 'insurance' ||
-      (patient?.insuranceCompany && String(patient?.insuranceCompany).trim().length > 0)
-    );
-    const payType = isPatientInsured ? 'insurance' : 'cash';
+    let payType = 'cash';
     let insuranceName = '';
-    let contractType = '';
-    if (payType === 'insurance') {
-      insuranceName = (patient?.insuranceCompany || document.getElementById('session-insurance-name')?.value || '').trim();
-      contractType = patient?.contractType || document.getElementById('session-contract-type-hidden')?.value || 'direct';
+    let contractType = '-';
+
+    if (this.entryMode === 'examination') {
+      if (this.examType === 'contract') {
+        payType = 'insurance';
+        const compSelect = document.getElementById('exam-contract-company-select');
+        insuranceName = (compSelect?.value || patient?.insuranceCompany || document.getElementById('session-insurance-name')?.value || '').trim();
+        const selOpt = compSelect?.options[compSelect?.selectedIndex];
+        contractType = selOpt?.getAttribute('data-contract') || patient?.contractType || 'direct';
+        if (!insuranceName) {
+          await this.app.showAlert('يرجى اختيار شركة التعاقد المحول منها المريض للكشف.', 'بيانات ناقصة', 'warning');
+          return;
+        }
+      } else {
+        payType = 'cash';
+        insuranceName = '';
+        contractType = '-';
+      }
+    } else {
+      const isPatientInsured = Boolean(
+        patient?.billing === 'insurance' ||
+        (patient?.insuranceCompany && String(patient?.insuranceCompany).trim().length > 0)
+      );
+      payType = isPatientInsured ? 'insurance' : 'cash';
+      if (payType === 'insurance') {
+        insuranceName = (patient?.insuranceCompany || document.getElementById('session-insurance-name')?.value || '').trim();
+        contractType = patient?.contractType || document.getElementById('session-contract-type-hidden')?.value || 'direct';
+      }
     }
 
     const amountPaid = parseFloat(document.getElementById('session-amount-paid').value) || 0;
@@ -509,13 +727,15 @@ export class SessionsManager {
 
     const sessionData = {
       id: this.editingSessionId || null,
+      entryType: this.entryMode, // 'session' | 'examination'
+      examType: this.entryMode === 'examination' ? this.examType : null,
       date: sessionDateVal,
       patientId: this.selectedPatientId,
       patientName,
       doctor,
       doctorUid,
-      bodyParts: selectedParts,
-      bodyPartsCount: selectedParts.length,
+      bodyParts: this.entryMode === 'examination' ? [] : selectedParts,
+      bodyPartsCount: this.entryMode === 'examination' ? 0 : selectedParts.length,
       payType,
       insuranceName,
       contractType,
@@ -524,13 +744,25 @@ export class SessionsManager {
     };
 
     await db.saveSession(sessionData, currentUser);
-    const auditAction = isEdit ? 'تعديل جلسة' : 'تسجيل جلسة';
-    const auditDesc = isEdit
-      ? `تعديل بيانات جلسة المريض ${patientName} بتاريخ ${sessionDateVal} (مسدد: ${amountPaid} ج.م)`
-      : `تسجيل جلسة للمريض ${patientName} مع ${doctor} بتاريخ ${sessionDateVal} (${selectedParts.length} أعضاء: ${selectedParts.join('، ')} - مسدد: ${amountPaid} ج.م)`;
+    
+    let auditAction = isEdit ? 'تعديل جلسة' : 'تسجيل جلسة';
+    let auditDesc = '';
+    if (this.entryMode === 'examination') {
+      auditAction = isEdit ? 'تعديل كشف' : 'تسجيل كشف';
+      auditDesc = isEdit
+        ? `تعديل بيانات كشف المريض ${patientName} بتاريخ ${sessionDateVal} (${this.examType === 'contract' ? 'كشف تعاقد: ' + insuranceName : 'كشف نقدي'} - مسدد: ${amountPaid} ج.م)`
+        : `تسجيل كشف للمريض ${patientName} مع ${doctor} بتاريخ ${sessionDateVal} (${this.examType === 'contract' ? 'كشف تعاقد: ' + insuranceName : 'كشف نقدي'} - مسدد: ${amountPaid} ج.م)`;
+    } else {
+      auditDesc = isEdit
+        ? `تعديل بيانات جلسة المريض ${patientName} بتاريخ ${sessionDateVal} (مسدد: ${amountPaid} ج.م)`
+        : `تسجيل جلسة للمريض ${patientName} مع ${doctor} بتاريخ ${sessionDateVal} (${selectedParts.length} أعضاء: ${selectedParts.join('، ')} - مسدد: ${amountPaid} ج.م)`;
+    }
 
     try { await db.logAudit(auditAction, auditDesc, currentUser); } catch (_) {}
-    this.app.showToast(isEdit ? 'تم تعديل بيانات الجلسة بنجاح' : 'تم تسجيل وحفظ الجلسة بنجاح');
+    const toastMsg = isEdit 
+      ? (this.entryMode === 'examination' ? 'تم تعديل بيانات الكشف بنجاح' : 'تم تعديل بيانات الجلسة بنجاح')
+      : (this.entryMode === 'examination' ? 'تم تسجيل وحفظ الكشف بنجاح' : 'تم تسجيل وحفظ الجلسة بنجاح');
+    this.app.showToast(toastMsg);
     this.resetSessionForm();
     this.renderAllInsuranceChips();
     this.renderBodyPartsChips();
@@ -834,6 +1066,16 @@ export class SessionsManager {
     // 1. Switch to sessions view
     this.app.switchView('sessions');
 
+    // 2. Set mode & exam type
+    if (s.entryType === 'examination') {
+      this.setEntryMode('examination');
+      if (s.examType) {
+        this.setExamType(s.examType);
+      }
+    } else {
+      this.setEntryMode('session');
+    }
+
     // 2. Set state
     this.editingSessionId = s.id;
     this.currentSessionDate = s.date || this.todayDateStr;
@@ -885,18 +1127,17 @@ export class SessionsManager {
 
   resetSessionForm() {
     this.editingSessionId = null;
-    const submitBtn = document.querySelector('#form-log-session button[type="submit"]');
-    if (submitBtn) {
-      submitBtn.innerHTML = '<i class="fa-solid fa-check"></i> حفظ الجلسة';
-      submitBtn.className = 'btn btn-primary';
-    }
+    this.selectedPatient = null;
     document.getElementById('form-log-session').reset();
     const dateInput = document.getElementById('session-date');
     if (dateInput) dateInput.value = this.currentSessionDate;
     this.renderBodyPartsChips([]);
-    document.getElementById('selected-parts-count').textContent = '0';
-    const insF = document.getElementById('session-insurance-fields'); if (insF) insF.style.display = 'none';
+    const countEl = document.getElementById('selected-parts-count');
+    if (countEl) countEl.textContent = '0';
+    const insF = document.getElementById('session-insurance-fields');
+    if (insF) insF.style.display = 'none';
     this.resetPatientSelection();
+    this.setEntryMode(this.entryMode);
   }
 
   async loadTodaySessions() {
