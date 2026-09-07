@@ -607,6 +607,7 @@ export class PatientsManager {
     document.getElementById('p-id').value = p.id;
     document.getElementById('p-name').value = p.name;
     document.getElementById('p-age').value = p.age;
+    document.getElementById('p-gender').value = p.gender || '';
     document.getElementById('p-phone').value = p.phone;
     document.getElementById('p-address').value = p.address || '';
     document.getElementById('p-doctor').value = p.doctor;
@@ -645,6 +646,7 @@ export class PatientsManager {
     const id = document.getElementById('p-id').value;
     const name = document.getElementById('p-name').value.trim();
     const age = parseInt(document.getElementById('p-age').value);
+    const gender = document.getElementById('p-gender').value;
     const phone = document.getElementById('p-phone').value.trim();
     const address = document.getElementById('p-address').value.trim();
     const docSelectEl = document.getElementById('p-doctor');
@@ -673,6 +675,14 @@ export class PatientsManager {
       if (saveBtn) { saveBtn.disabled = false; saveBtn.innerHTML = 'حفظ المريض'; }
       await this.app.showAlert('يرجى إدخال سن صحيح للمريض (بين 1 و 120 سنة).', 'خطأ في السن', 'warning');
       document.getElementById('p-age')?.focus();
+      return;
+    }
+
+    // 2.أ. Gender Validation
+    if (gender !== 'male' && gender !== 'female') {
+      if (saveBtn) { saveBtn.disabled = false; saveBtn.innerHTML = 'حفظ المريض'; }
+      await this.app.showAlert('يرجى اختيار نوع المريض (ذكر / أنثى).', 'بيانات ناقصة', 'warning');
+      document.getElementById('p-gender')?.focus();
       return;
     }
 
@@ -744,6 +754,7 @@ export class PatientsManager {
       id: id || null,
       name,
       age,
+      gender,
       phone: normalizedPhone,
       address,
       doctor,
@@ -862,6 +873,11 @@ export class PatientsManager {
 
     const ageEl = document.getElementById('sheet-patient-age');
     if (ageEl) ageEl.textContent = p.age;
+
+    const genderEl = document.getElementById('sheet-patient-gender');
+    if (genderEl) {
+      genderEl.textContent = p.gender === 'male' ? '- ذكر' : (p.gender === 'female' ? '- أنثى' : '');
+    }
 
     const phoneEl = document.getElementById('sheet-patient-phone');
     if (phoneEl) phoneEl.textContent = p.phone;
@@ -1376,6 +1392,25 @@ export class PatientsManager {
       document.getElementById('ins-print-diagnosis').textContent = diagnosis;
       document.getElementById('ins-print-sessions').textContent = sessionCount;
       document.getElementById('ins-print-date').textContent = `تحريراً في: ${todayLabel}`;
+
+      // Gender-correct wording when known; falls back to the neutral
+      // slash form for older patient records saved before this field existed.
+      const honorificEl = document.getElementById('ins-print-honorific');
+      const sufferVerbEl = document.getElementById('ins-print-verb-suffer');
+      const needVerbEl = document.getElementById('ins-print-verb-need');
+      if (p.gender === 'male') {
+        honorificEl.textContent = 'السيد';
+        sufferVerbEl.textContent = 'يعاني';
+        needVerbEl.textContent = 'يحتاج';
+      } else if (p.gender === 'female') {
+        honorificEl.textContent = 'السيدة';
+        sufferVerbEl.textContent = 'تعاني';
+        needVerbEl.textContent = 'تحتاج';
+      } else {
+        honorificEl.textContent = 'السيد/ة';
+        sufferVerbEl.textContent = 'يعاني/تعاني';
+        needVerbEl.textContent = 'يحتاج/تحتاج';
+      }
 
       this.app.closeModal('modal-insurance-letter');
 

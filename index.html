@@ -414,7 +414,7 @@
           <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; font-size: 0.85rem; color: var(--text-muted);">
             <div style="display: flex; align-items: center; gap: 6px;">
               <i class="fa-solid fa-cake-candles" style="color: var(--primary); font-size: 0.8rem;"></i>
-              <span>السن: <strong id="sheet-patient-age" style="color: var(--text-main);">-</strong> سنة</span>
+              <span>السن: <strong id="sheet-patient-age" style="color: var(--text-main);">-</strong> سنة <span id="sheet-patient-gender" style="color: var(--text-muted);"></span></span>
             </div>
             <div style="display: flex; align-items: center; gap: 6px;">
               <i class="fa-solid fa-phone" style="color: var(--primary); font-size: 0.8rem;"></i>
@@ -1288,6 +1288,14 @@
               <input type="number" id="p-age" class="form-control" required min="1" max="120" placeholder="مثال: 35">
             </div>
             <div class="form-group">
+              <label for="p-gender">النوع *</label>
+              <select id="p-gender" class="form-control" required>
+                <option value="" disabled selected>-- اختر --</option>
+                <option value="male">ذكر</option>
+                <option value="female">أنثى</option>
+              </select>
+            </div>
+            <div class="form-group">
               <label for="p-phone">رقم الموبايل *</label>
               <input type="tel" id="p-phone" class="form-control" required placeholder="01xxxxxxxxx" maxlength="11" inputmode="numeric">
               <div id="p-phone-feedback" class="form-feedback-msg" style="display: none;"></div>
@@ -1668,9 +1676,9 @@
     <div class="ins-letter-body">
       <p style="font-weight: 800; font-size: 11pt;">السادة شركة <span id="ins-print-company">-</span></p>
       <p>تحية طيبة وبعد،،،</p>
-      <p>يرجى العلم بأن السيد/ة <strong id="ins-print-patient-name">-</strong> يعاني/تعاني من:</p>
+      <p>يرجى العلم بأن <span id="ins-print-honorific">السيد/ة</span> <strong id="ins-print-patient-name">-</strong> <span id="ins-print-verb-suffer">يعاني/تعاني</span> من:</p>
       <p style="padding: 6px 10px; border: 1px solid #cbd5e1; border-radius: 6px; background: #f8fafc;" id="ins-print-diagnosis">-</p>
-      <p>يحتاج/تحتاج إلى <strong id="ins-print-sessions">-</strong> جلسة علاج طبيعي.</p>
+      <p><span id="ins-print-verb-need">يحتاج/تحتاج</span> إلى <strong id="ins-print-sessions">-</strong> جلسة علاج طبيعي.</p>
       <p>برجاء الموافقة، ولكم جزيل الشكر.</p>
     </div>
 
