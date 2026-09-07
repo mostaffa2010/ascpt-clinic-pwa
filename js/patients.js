@@ -134,6 +134,41 @@ export class PatientsManager {
     document.getElementById('btn-toggle-chips-procedure')?.addEventListener('click', () => this.toggleChipsEditMode('procedure'));
     document.getElementById('btn-toggle-chips-exercise')?.addEventListener('click', () => this.toggleChipsEditMode('exercise'));
 
+    // Event Delegation: Clinical Sheet Chips Containers (Modality, Procedure, Exercise)
+    [
+      { id: 'sheet-modalities-container', cat: 'modality' },
+      { id: 'sheet-procedures-container', cat: 'procedure' },
+      { id: 'sheet-exercises-container', cat: 'exercise' }
+    ].forEach(({ id, cat }) => {
+      const container = document.getElementById(id);
+      if (container) {
+        container.addEventListener('click', async (e) => {
+          const delTag = e.target.closest('[data-action="delete-option"]');
+          if (delTag) {
+            e.preventDefault();
+            e.stopPropagation();
+            const optName = delTag.dataset.option || delTag.closest('.chip-choice')?.getAttribute('data-val');
+            await this.deleteOptionDirect(delTag.dataset.category || cat, optName);
+            return;
+          }
+
+          const addBtn = e.target.closest('[data-action="add-option"]');
+          if (addBtn) {
+            e.preventDefault();
+            e.stopPropagation();
+            this.openAddOptionModal(addBtn.dataset.category || cat);
+            return;
+          }
+
+          const chip = e.target.closest('.chip-choice');
+          if (chip && !this.chipsEditMode[cat]) {
+            e.preventDefault();
+            chip.classList.toggle('selected');
+          }
+        });
+      }
+    });
+
     // Real-time phone input digits filter
     const phoneInp = document.getElementById('p-phone');
     if (phoneInp) {
@@ -1118,17 +1153,6 @@ export class PatientsManager {
     }
 
     container.innerHTML = html;
-
-    // Bind selection click listener (only toggles selection in normal mode)
-    container.querySelectorAll('.chip-choice').forEach(btn => {
-      btn.addEventListener('click', (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        if (!this.chipsEditMode[category]) {
-          btn.classList.toggle('selected');
-        }
-      });
-    });
   }
 
   async deleteOptionDirect(category, optionName) {
