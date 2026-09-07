@@ -496,6 +496,10 @@ class FirestoreDatabaseService {
     return res;
   }
 
+  getInsuranceCompaniesList() {
+    return this.getAllInsuranceCompaniesWithTypes();
+  }
+
   async syncInsuranceCompaniesFromFirestore() {
     await this.syncAndSeedCloudOptions();
   }

@@ -392,6 +392,15 @@ export class SessionsManager {
       btnSubmitIcon.className = isExam ? 'fa-solid fa-stethoscope' : 'fa-solid fa-check';
     }
 
+    const notesLabel = document.getElementById('session-notes-label');
+    const notesInput = document.getElementById('session-notes');
+    if (notesLabel) {
+      notesLabel.textContent = isExam ? 'ملاحظات الكشف (اختياري)' : 'ملاحظات الجلسة (اختياري)';
+    }
+    if (notesInput) {
+      notesInput.placeholder = isExam ? 'أي ملاحظة بخصوص الكشف' : 'أي ملاحظة بخصوص الجلسة';
+    }
+
     if (isExam) {
       this.updateExamPaymentUI();
     } else {
@@ -470,12 +479,19 @@ export class SessionsManager {
         </div>
       `;
     } else {
-      const allCompanies = db.getInsuranceCompaniesList();
+      const allCompanies = (typeof db.getAllInsuranceCompaniesWithTypes === 'function')
+        ? db.getAllInsuranceCompaniesWithTypes()
+        : db.getInsuranceCompaniesList();
+
       const patientComp = (this.selectedPatient?.insuranceCompany || document.getElementById('session-insurance-name')?.value || '').trim();
       const defaultComp = patientComp || (allCompanies[0]?.name || '');
+      const patientContractType = this.selectedPatient?.contractType || 'direct';
+      const cTypeLabel = patientContractType === 'indirect' ? 'تعاقد غير مباشر' : 'تعاقد مباشر';
 
       const insInput = document.getElementById('session-insurance-name');
       if (insInput) insInput.value = defaultComp;
+      const contractInput = document.getElementById('session-contract-type-hidden');
+      if (contractInput) contractInput.value = patientContractType;
 
       paymentContainer.innerHTML = `
         <div style="background: #f0fdf4; border: 1.5px solid #bbf7d0; border-radius: 10px; padding: 12px 14px; display: flex; flex-direction: column; gap: 10px;">
@@ -485,14 +501,21 @@ export class SessionsManager {
                 <i class="fa-solid fa-file-contract"></i>
               </div>
               <div>
-                <div style="font-weight: 800; font-size: 0.95rem; color: #166534;">كشف تعاقد شركة تأمين</div>
-                <div style="font-size: 0.78rem; color: #15803d; font-weight: 600;">اختر شركة التعاقد المحول منها المريض:</div>
+                <div style="font-weight: 800; font-size: 0.95rem; color: #166534;" id="exam-company-display-title">
+                  ${escapeHTML(defaultComp || 'شركة تأمين')}
+                </div>
+                <div style="font-size: 0.78rem; color: #15803d; font-weight: 600;">
+                  كشف تعاقد • <span class="badge badge-direct" id="exam-contract-badge" style="font-size: 0.7rem; padding: 1px 6px;">${cTypeLabel}</span>
+                </div>
               </div>
             </div>
-            <span class="badge" style="background: #16a34a; color: #ffffff; font-weight: 700; font-size: 0.76rem; padding: 4px 10px; border-radius: 9999px;">كشف تعاقد</span>
+            <span class="badge" style="background: #16a34a; color: #ffffff; font-weight: 700; font-size: 0.76rem; padding: 4px 10px; border-radius: 9999px;">
+              كشف تعاقد
+            </span>
           </div>
-          <div>
-            <select id="exam-contract-company-select" class="form-control" style="font-weight: 700;">
+          <div style="display: flex; align-items: center; gap: 8px; border-top: 1px dashed #bbf7d0; padding-top: 8px;">
+            <span style="font-size: 0.8rem; font-weight: 700; color: #166534; white-space: nowrap;">تغيير الشركة:</span>
+            <select id="exam-contract-company-select" class="form-control" style="font-weight: 700; font-size: 0.85rem;">
               ${allCompanies.map(c => `<option value="${escapeHTML(c.name)}" data-contract="${escapeHTML(c.contractType)}" ${c.name === defaultComp ? 'selected' : ''}>${escapeHTML(c.label)}</option>`).join('')}
             </select>
           </div>
@@ -509,6 +532,13 @@ export class SessionsManager {
           const contractTypeInput = document.getElementById('session-contract-type-hidden');
           if (insNameInput) insNameInput.value = cName;
           if (contractTypeInput) contractTypeInput.value = cType;
+          const titleEl = document.getElementById('exam-company-display-title');
+          if (titleEl) titleEl.textContent = cName;
+          const badgeEl = document.getElementById('exam-contract-badge');
+          if (badgeEl) {
+            badgeEl.textContent = cType === 'indirect' ? 'تعاقد غير مباشر' : 'تعاقد مباشر';
+            badgeEl.className = cType === 'indirect' ? 'badge badge-indirect' : 'badge badge-direct';
+          }
         });
       }
     }
@@ -585,6 +615,12 @@ export class SessionsManager {
   }
 
   async selectPatient(patientId) {
+    // 1. Dismiss picker modal immediately and blur active focus
+    this.app.closeModal('modal-patient-picker');
+    if (document.activeElement && typeof document.activeElement.blur === 'function') {
+      try { document.activeElement.blur(); } catch (_) {}
+    }
+
     const patients = await db.getPatients();
     const patient = patients.find(p => p.id === patientId);
     if (!patient) return;
