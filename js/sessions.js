@@ -513,11 +513,17 @@ export class SessionsManager {
               كشف تعاقد
             </span>
           </div>
-          <div style="display: flex; align-items: center; gap: 8px; border-top: 1px dashed #bbf7d0; padding-top: 8px;">
-            <span style="font-size: 0.8rem; font-weight: 700; color: #166534; white-space: nowrap;">تغيير الشركة:</span>
-            <select id="exam-contract-company-select" class="form-control" style="font-weight: 700; font-size: 0.85rem;">
-              ${allCompanies.map(c => `<option value="${escapeHTML(c.name)}" data-contract="${escapeHTML(c.contractType)}" ${c.name === defaultComp ? 'selected' : ''}>${escapeHTML(c.label)}</option>`).join('')}
-            </select>
+          <div style="border-top: 1px dashed #bbf7d0; padding-top: 8px;">
+            <label style="font-size: 0.82rem; font-weight: 700; color: #166534; margin-bottom: 5px; display: block;">اختيار / تغيير شركة التعاقد للكشف:</label>
+            <div class="custom-select-wrapper" style="width: 100%;">
+              <select id="exam-contract-company-select" class="form-control" style="display: none;">
+                ${allCompanies.map(c => `<option value="${escapeHTML(c.name)}" data-contract="${escapeHTML(c.contractType)}" ${c.name === defaultComp ? 'selected' : ''}>${escapeHTML(c.name)} (${c.contractType === 'direct' ? 'تعاقد مباشر' : 'تعاقد غير مباشر'})</option>`).join('')}
+              </select>
+              <button type="button" class="custom-select-btn" id="btn-select-exam-contract-company-select" data-open-picker="exam-contract-company-select" data-picker-title="اختر شركة التعاقد للكشف" style="background: #ffffff; border: 1.5px solid #bbf7d0; border-radius: 8px; padding: 8px 12px; width: 100%; display: flex; justify-content: space-between; align-items: center; cursor: pointer;">
+                <span class="btn-text" style="font-weight: 700; color: #0f172a;">${escapeHTML(defaultComp ? `${defaultComp} (${cTypeLabel})` : '-- اختر شركة التعاقد --')}</span>
+                <i class="fa-solid fa-chevron-down" style="color: var(--primary);"></i>
+              </button>
+            </div>
           </div>
         </div>
       `;
@@ -538,6 +544,10 @@ export class SessionsManager {
           if (badgeEl) {
             badgeEl.textContent = cType === 'indirect' ? 'تعاقد غير مباشر' : 'تعاقد مباشر';
             badgeEl.className = cType === 'indirect' ? 'badge badge-indirect' : 'badge badge-direct';
+          }
+          const btnText = document.querySelector('#btn-select-exam-contract-company-select .btn-text');
+          if (btnText) {
+            btnText.textContent = `${cName} (${cType === 'indirect' ? 'تعاقد غير مباشر' : 'تعاقد مباشر'})`;
           }
         });
       }

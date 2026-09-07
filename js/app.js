@@ -926,10 +926,24 @@ class App {
 
     container.innerHTML = options.map((opt) => {
       const isSelected = opt.value === currentVal;
+      const contractType = opt.getAttribute('data-contract') || '';
+      let badgeHtml = '';
+      if (contractType === 'direct') {
+        badgeHtml = `<span class="badge" style="font-size: 0.72rem; padding: 2px 8px; font-weight: 800; background: #e0f2fe; color: #0284c7; border: 1px solid #bae6fd; border-radius: 6px; white-space: nowrap;">تعاقد مباشر</span>`;
+      } else if (contractType === 'indirect') {
+        badgeHtml = `<span class="badge" style="font-size: 0.72rem; padding: 2px 8px; font-weight: 800; background: #fef3c7; color: #b45309; border: 1px solid #fde68a; border-radius: 6px; white-space: nowrap;">تعاقد غير مباشر</span>`;
+      }
+
+      // Clean company display name by removing the parenthetical contract tag if present
+      const cleanLabel = opt.text.replace(/\s*\((تعاقد مباشر|تعاقد غير مباشر)\)\s*/g, '').trim();
+
       return `
-        <div class="custom-picker-row ${isSelected ? 'active-choice' : ''}" data-select-id="${selectId}" data-select-value="${escapeHTML(opt.value)}">
-          <span>${escapeHTML(opt.text)}</span>
-          ${isSelected ? '<i class="fa-solid fa-check check-icon"></i>' : ''}
+        <div class="custom-picker-row ${isSelected ? 'active-choice' : ''}" data-select-id="${selectId}" data-select-value="${escapeHTML(opt.value)}" style="display: flex; align-items: center; justify-content: space-between; gap: 8px;">
+          <span style="font-weight: 700; color: var(--text-main);">${escapeHTML(cleanLabel)}</span>
+          <div style="display: flex; align-items: center; gap: 8px;">
+            ${badgeHtml}
+            ${isSelected ? '<i class="fa-solid fa-check check-icon" style="color: var(--primary);"></i>' : ''}
+          </div>
         </div>
       `;
     }).join('');
