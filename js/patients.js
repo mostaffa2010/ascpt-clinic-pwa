@@ -562,6 +562,7 @@ export class PatientsManager {
     document.getElementById('form-patient').reset();
     this.clearPhoneValidation();
     document.getElementById('p-id').value = '';
+    this.app.updateCustomSelectDisplay('p-gender');
     const insComp = document.getElementById('p-insurance-company');
     if (insComp) insComp.value = '';
     const insPrev = document.getElementById('p-selected-ins-preview');
@@ -611,6 +612,8 @@ export class PatientsManager {
     document.getElementById('p-phone').value = p.phone;
     document.getElementById('p-address').value = p.address || '';
     document.getElementById('p-doctor').value = p.doctor;
+    this.app.updateCustomSelectDisplay('p-gender');
+    this.app.updateCustomSelectDisplay('p-doctor');
 
     const billingRadios = document.querySelectorAll('input[name="p-billing"]');
     billingRadios.forEach(r => { r.checked = (r.value === p.billing); });

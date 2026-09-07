@@ -1289,11 +1289,17 @@
             </div>
             <div class="form-group">
               <label for="p-gender">النوع *</label>
-              <select id="p-gender" class="form-control" required>
-                <option value="" disabled selected>-- اختر --</option>
-                <option value="male">ذكر</option>
-                <option value="female">أنثى</option>
-              </select>
+              <div class="custom-select-wrapper">
+                <select id="p-gender" class="form-control" style="display: none;" required>
+                  <option value="" disabled selected>-- اختر --</option>
+                  <option value="male">ذكر</option>
+                  <option value="female">أنثى</option>
+                </select>
+                <button type="button" class="custom-select-btn" id="btn-select-p-gender" data-open-picker="p-gender" data-picker-title="اختر نوع المريض">
+                  <span class="btn-text">-- اختر --</span>
+                  <i class="fa-solid fa-chevron-down"></i>
+                </button>
+              </div>
             </div>
             <div class="form-group">
               <label for="p-phone">رقم الموبايل *</label>
