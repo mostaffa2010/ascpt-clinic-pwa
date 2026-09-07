@@ -903,12 +903,23 @@ export class SessionsManager {
     const sessions = await db.getSessions(this.currentSessionDate);
     const tbody = document.getElementById('sessions-today-tbody');
     const badge = document.getElementById('sessions-today-count-badge');
-    if (badge) badge.textContent = `${sessions.length} جلسة`;
+    
+    const examsCount = sessions.filter(s => s.entryType === 'examination').length;
+    const sessCount = sessions.length - examsCount;
+    if (badge) {
+      if (examsCount > 0 && sessCount > 0) {
+        badge.textContent = `${sessions.length} حركات (${sessCount} جلسة • ${examsCount} كشف)`;
+      } else if (examsCount > 0) {
+        badge.textContent = `${examsCount} كشف`;
+      } else {
+        badge.textContent = `${sessions.length} جلسة`;
+      }
+    }
 
     if (!tbody) return;
 
     if (sessions.length === 0) {
-      tbody.innerHTML = `<tr><td colspan="7" style="text-align: center; color: var(--text-muted); padding: 25px;">لا توجد جلسات مسجلة اليوم حتى الآن.</td></tr>`;
+      tbody.innerHTML = `<tr><td colspan="7" style="text-align: center; color: var(--text-muted); padding: 25px;">لا توجد حركات أو جلسات مسجلة اليوم حتى الآن.</td></tr>`;
       return;
     }
 
@@ -919,60 +930,91 @@ export class SessionsManager {
       const safeId = escapeHTML(s.id);
       const safePatient = escapeHTML(s.patientName);
       const safeDoc = escapeHTML(s.doctor);
-      const safeIns = escapeHTML(s.insuranceName || 'تأمين');
+      const safeIns = escapeHTML(s.insuranceName || 'تعاقد');
       const safeAmount = escapeHTML(s.amountPaid);
       const safeRecBy = escapeHTML(s.recordedBy);
       const safeRecAt = escapeHTML(s.recordedAt);
-      const safeParts = Array.isArray(s.bodyParts) ? s.bodyParts.map(b => escapeHTML(b)).join('، ') : escapeHTML(s.bodyParts || '');
-      const safePartsShort = Array.isArray(s.bodyParts) ? s.bodyParts.slice(0, 2).map(b => escapeHTML(b)).join('، ') : escapeHTML(s.bodyParts || '');
+
+      const isExam = (s.entryType === 'examination');
 
       let payBadge = '';
-      if (s.payType === 'cash') {
-        payBadge = `<span class="badge badge-cash"><i class="fa-solid fa-money-bill"></i> نقدي</span>`;
-      } else if (s.contractType === 'direct') {
-        payBadge = `<span class="badge badge-direct"><i class="fa-solid fa-file-contract"></i> ${safeIns} (مباشر)</span>`;
+      if (isExam) {
+        if (s.examType === 'cash' || s.payType === 'cash') {
+          payBadge = `<span class="badge badge-cash" style="background:#dcfce7; color:#15803d;"><i class="fa-solid fa-money-bill"></i> كشف نقدي</span>`;
+        } else {
+          const cTypeLabel = s.contractType === 'indirect' ? 'غير مباشر' : 'مباشر';
+          payBadge = `<span class="badge badge-direct" style="background:#e0e7ff; color:#3730a3;"><i class="fa-solid fa-file-contract"></i> كشف تعاقد: ${safeIns} (${cTypeLabel})</span>`;
+        }
       } else {
-        payBadge = `<span class="badge badge-indirect"><i class="fa-solid fa-handshake"></i> ${safeIns} (غير مباشر)</span>`;
+        if (s.payType === 'cash') {
+          payBadge = `<span class="badge badge-cash"><i class="fa-solid fa-money-bill"></i> نقدي</span>`;
+        } else if (s.contractType === 'direct') {
+          payBadge = `<span class="badge badge-direct"><i class="fa-solid fa-file-contract"></i> ${safeIns} (مباشر)</span>`;
+        } else {
+          payBadge = `<span class="badge badge-indirect"><i class="fa-solid fa-handshake"></i> ${safeIns} (غير مباشر)</span>`;
+        }
       }
+
+      let partsCell = '';
+      if (isExam) {
+        partsCell = `
+          <span class="badge" style="background: #f8fafc; color: #0284c7; border: 1px solid #bae6fd; font-weight: 800; font-size: 0.76rem; padding: 3px 8px;">
+            <i class="fa-solid fa-stethoscope"></i> فحص سريري / كشف
+          </span>
+        `;
+      } else {
+        const safeParts = Array.isArray(s.bodyParts) ? s.bodyParts.map(b => escapeHTML(b)).join('، ') : escapeHTML(s.bodyParts || '');
+        const safePartsShort = Array.isArray(s.bodyParts) ? s.bodyParts.slice(0, 2).map(b => escapeHTML(b)).join('، ') : escapeHTML(s.bodyParts || '');
+        partsCell = `
+          <span class="badge badge-role-doctor" title="${safeParts}">
+            ${escapeHTML(s.bodyPartsCount)} أعضاء (${safePartsShort}${s.bodyParts && s.bodyParts.length > 2 ? '...' : ''})
+          </span>
+        `;
+      }
+
+      const examTag = isExam
+        ? `<span class="badge" style="background: #ede9fe; color: #6d28d9; font-size: 0.72rem; padding: 1px 6px; margin-right: 6px; border-radius: 4px; font-weight: 800;"><i class="fa-solid fa-stethoscope"></i> كشف</span>`
+        : '';
 
       return `
         <tr>
-          <td style="font-weight: 700;">${safePatient}</td>
+          <td style="font-weight: 700;">${safePatient} ${examTag}</td>
           <td>${safeDoc}</td>
           <td>${payBadge}</td>
-          <td>
-            <span class="badge badge-role-doctor" title="${safeParts}">
-              ${escapeHTML(s.bodyPartsCount)} أعضاء (${safePartsShort}${s.bodyParts && s.bodyParts.length > 2 ? '...' : ''})
-            </span>
-          </td>
+          <td>${partsCell}</td>
           <td style="font-weight: 700; color: var(--success);">${safeAmount} ج.م</td>
           <td style="font-size: 0.8rem; color: var(--text-muted);">${safeRecBy} (${safeRecAt})</td>
           <td>
             <div style="display: flex; gap: 4px;">
-              <button type="button" class="btn btn-outline btn-sm btn-edit-session" data-session-id="${safeId}" onclick="sessionsManager.editSession('${safeId}')" title="تعديل بيانات الجلسة">
+              <button type="button" class="btn btn-outline btn-sm btn-edit-session" data-session-id="${safeId}" onclick="sessionsManager.editSession('${safeId}')" title="${isExam ? 'تعديل بيانات الكشف' : 'تعديل بيانات الجلسة'}">
                 <i class="fa-solid fa-pen-to-square"></i>
               </button>
               ${canDelete ? `
-                <button type="button" class="btn btn-outline btn-sm btn-delete-record btn-delete-session" style="color: var(--danger);" data-session-id="${safeId}" onclick="sessionsManager.deleteSession('${safeId}')" title="حذف">
+                <button type="button" class="btn btn-outline btn-sm btn-delete-record btn-delete-session" style="color: var(--danger);" data-session-id="${safeId}" onclick="sessionsManager.deleteSession('${safeId}')" title="${isExam ? 'حذف الكشف' : 'حذف الجلسة'}">
                   <i class="fa-solid fa-trash"></i>
                 </button>
               ` : ''}
             </div>
           </td>
         </tr>
-      `;    }).join('');
+      `;
+    }).join('');
   }
 
   async deleteSession(sessionId) {
-    const confirmed = await this.app.showConfirm('هل أنت متأكد من حذف هذه الجلسة من سجلات اليوم؟', 'تأكيد الحذف');
+    const allSessions = await db.getSessions();
+    const s = allSessions.find(item => item.id === sessionId);
+    const itemLabel = s?.entryType === 'examination' ? 'الكشف' : 'الجلسة';
+    const confirmed = await this.app.showConfirm(`هل أنت متأكد من حذف ${itemLabel} من سجلات اليوم؟`, `تأكيد حذف ${itemLabel}`);
     if (confirmed) {
       const currentUser = auth.getCurrentUser();
       await db.deleteSession(sessionId);
-      await db.logAudit('حذف جلسة', `حذف حركة جلسة برقم ${sessionId}`, currentUser);
-      this.app.showToast('تم حذف الجلسة');
+      const auditAction = s?.entryType === 'examination' ? 'حذف كشف' : 'حذف جلسة';
+      await db.logAudit(auditAction, `حذف حركة ${itemLabel} برقم ${sessionId}`, currentUser);
+      this.app.showToast(`تم حذف ${itemLabel}`);
       this.renderAllInsuranceChips();
-    this.renderBodyPartsChips();
-    await this.loadTodaySessions();
+      this.renderBodyPartsChips();
+      await this.loadTodaySessions();
       await this.app.financeManager.loadDailyReport();
     }
   }

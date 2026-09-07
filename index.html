@@ -573,10 +573,18 @@
         </div>
 
         <div class="split-screen">
-          <!-- Form: Log New Session -->
+          <!-- Form: Log New Session or Examination -->
           <div class="card">
-            <div class="card-header">
-              <span class="card-title"><i class="fa-solid fa-plus-circle"></i> تسجيل جلسة جديدة</span>
+            <div class="card-header" style="padding: 10px 14px 6px 14px; border-bottom: none;">
+              <!-- 2 Panels Switcher: تسجيل جلسة جديدة / تسجيل كشف جديد -->
+              <div class="session-mode-switcher" style="display: flex; background: var(--bg-subtle, #f1f5f9); border-radius: 12px; padding: 4px; gap: 4px; width: 100%; border: 1px solid var(--border-color, #e2e8f0);">
+                <button type="button" id="btn-mode-session" class="session-mode-btn active" style="flex: 1; padding: 9px 12px; border: none; border-radius: 9px; font-weight: 800; font-size: 0.92rem; cursor: pointer; transition: all 0.2s ease; background: var(--primary, #0284c7); color: #ffffff; display: flex; align-items: center; justify-content: center; gap: 6px; box-shadow: 0 2px 4px rgba(0,0,0,0.06);">
+                  <i class="fa-solid fa-user-clock"></i> <span id="label-mode-session">تسجيل جلسة جديدة</span>
+                </button>
+                <button type="button" id="btn-mode-exam" class="session-mode-btn" style="flex: 1; padding: 9px 12px; border: none; border-radius: 9px; font-weight: 800; font-size: 0.92rem; cursor: pointer; transition: all 0.2s ease; background: transparent; color: var(--text-muted, #64748b); display: flex; align-items: center; justify-content: center; gap: 6px;">
+                  <i class="fa-solid fa-stethoscope"></i> <span id="label-mode-exam">تسجيل كشف جديد</span>
+                </button>
+              </div>
             </div>
             <form id="form-log-session" novalidate>
               <input type="hidden" id="session-edit-id" value="">
@@ -584,7 +592,7 @@
                 <!-- Session Date Selection with Quick Today / Yesterday buttons -->
                 <div class="form-group" style="background-color: #f0f9ff; border: 1px solid #bae6fd; border-radius: var(--radius-md); padding: 10px;">
                   <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
-                    <label for="session-date" style="font-weight: 800; color: #0369a1; font-size: 0.85rem;">
+                    <label for="session-date" id="session-date-label" style="font-weight: 800; color: #0369a1; font-size: 0.85rem;">
                       <i class="fa-solid fa-calendar-day"></i> تاريخ الجلسة *
                     </label>
                     <div style="display: flex; gap: 6px;">
@@ -632,7 +640,7 @@
                   </div>
                 </div>
 
-                <div class="form-group">
+                <div class="form-group" id="form-group-body-parts">
                   <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
                     <label style="margin: 0; font-weight: 800; font-size: 0.88rem; color: #0f172a;">الأعضاء المعالجة في الجلسة *</label>
                     <button type="button" class="btn-edit-chips" id="btn-toggle-chips-body-parts" style="padding: 3px 10px; font-size: 0.75rem;">
@@ -645,13 +653,28 @@
                   </div>
                 </div>
 
+                <!-- Examination Type Selector (Shown only in Examination mode) -->
+                <div class="form-group" id="form-group-exam-type" style="display: none; background: #f8fafc; border: 1.5px solid #e2e8f0; border-radius: var(--radius-md, 10px); padding: 12px;">
+                  <label style="margin: 0 0 8px 0; font-weight: 800; font-size: 0.88rem; color: #0f172a; display: block;">
+                    <i class="fa-solid fa-stethoscope" style="color: var(--primary);"></i> نوع الكشف المطلوب *
+                  </label>
+                  <div class="exam-type-segmented" style="display: flex; gap: 8px;">
+                    <button type="button" class="btn exam-type-btn active" id="btn-exam-type-cash" style="flex: 1; padding: 10px 12px; font-weight: 800; font-size: 0.9rem; border-radius: 9px; display: flex; align-items: center; justify-content: center; gap: 6px; border: 1.5px solid var(--primary, #0284c7); background: var(--primary, #0284c7); color: #ffffff; cursor: pointer; transition: all 0.2s;">
+                      <i class="fa-solid fa-money-bill-wave"></i> <span>كشف نقدي</span>
+                    </button>
+                    <button type="button" class="btn exam-type-btn" id="btn-exam-type-contract" style="flex: 1; padding: 10px 12px; font-weight: 800; font-size: 0.9rem; border-radius: 9px; display: flex; align-items: center; justify-content: center; gap: 6px; border: 1.5px solid var(--border-color, #cbd5e1); background: #ffffff; color: var(--text-muted, #64748b); cursor: pointer; transition: all 0.2s;">
+                      <i class="fa-solid fa-file-contract"></i> <span>كشف تعاقد</span>
+                    </button>
+                  </div>
+                </div>
+
                 <!-- Smart Automated Payment Mode Container -->
                 <input type="hidden" name="session-pay-type" id="session-pay-type-hidden" value="cash">
                 <input type="hidden" name="session-contract-type" id="session-contract-type-hidden" value="direct">
                 <input type="hidden" id="session-insurance-name" value="">
 
                 <div class="form-group">
-                  <label>نظام وطريقة السداد للجلسة *</label>
+                  <label id="session-payment-method-label">نظام وطريقة السداد للجلسة *</label>
                   <div id="session-payment-method-container">
                     <div style="background: var(--bg-subtle); border: 1.5px dashed var(--border-color); border-radius: 10px; padding: 14px; text-align: center; color: var(--text-muted); font-size: 0.85rem;">
                       <i class="fa-solid fa-hand-pointer" style="margin-left: 6px; color: var(--primary);"></i> اختر المريض بالأعلى لتحديد نظام السداد تلقائياً (نقدي / تأمين)
@@ -662,7 +685,7 @@
                 <div class="form-group">
                   <label for="session-amount-paid" id="session-amount-label">المبلغ المدفوع بالدرج (ج.م) *</label>
                   <input type="number" id="session-amount-paid" class="form-control" value="0" min="0" required>
-                  <small style="font-size: 0.75rem; color: var(--text-muted);">في حالة التأمين، ضع مبلغ نسبة التحمل النقدي إن وُجد، أو 0.</small>
+                  <small id="session-amount-help" style="font-size: 0.75rem; color: var(--text-muted);">في حالة التأمين، ضع مبلغ نسبة التحمل النقدي إن وُجد، أو 0.</small>
                 </div>
 
                 <div class="form-group">
@@ -670,8 +693,8 @@
                   <input type="text" id="session-notes" class="form-control" placeholder="أي ملاحظة بخصوص الجلسة">
                 </div>
 
-                <button type="submit" class="btn btn-primary" style="margin-top: 10px;">
-                  <i class="fa-solid fa-check"></i> حفظ الجلسة
+                <button type="submit" class="btn btn-primary" id="btn-submit-session" style="margin-top: 10px;">
+                  <i class="fa-solid fa-check" id="icon-submit-session"></i> <span id="btn-submit-session-text">حفظ الجلسة</span>
                 </button>
               </div>
             </form>
