@@ -70,14 +70,22 @@ export class DoctorDashboardManager {
     const todaySessions = this.docSessions.filter(s => s.date === todayStr);
     const todayCountEl = document.getElementById('stat-doc-today-count');
     if (todayCountEl) {
-      todayCountEl.textContent = `${todaySessions.length} ${todaySessions.length === 1 ? 'حالة' : (todaySessions.length <= 10 ? 'حالات' : 'حالة')}`;
+      const todayCredited = todaySessions.reduce((acc, s) => {
+        if (s.entryType === 'examination') return acc + 1;
+        return acc + (s.bodyPartsCount || 1);
+      }, 0);
+      todayCountEl.textContent = `${todaySessions.length} مريض - ${todayCredited} جلسة`;
     }
 
     // 2. This month's sessions
     const monthSessions = this.docSessions.filter(s => s.date && s.date.startsWith(currentMonth));
     const monthCountEl = document.getElementById('stat-doc-month-count');
     if (monthCountEl) {
-      monthCountEl.textContent = `${monthSessions.length} حالة`;
+      const monthCredited = monthSessions.reduce((acc, s) => {
+        if (s.entryType === 'examination') return acc + 1;
+        return acc + (s.bodyPartsCount || 1);
+      }, 0);
+      monthCountEl.textContent = `${monthSessions.length} مريض - ${monthCredited} جلسة`;
     }
 
     // 3. Lifetime patients treated by this doctor

@@ -344,13 +344,19 @@ export class FinanceManager {
     const docContainer = document.getElementById('doctors-breakdown-container');
     if (docContainer) {
       docContainer.innerHTML = doctors.map(doc => {
-        const count = docCounts[doc] || 0;
+        const docSessions = allSessions.filter(s => s.doctor === doc);
+        const patientCount = docSessions.length;
+        const creditedSessions = docSessions.reduce((acc, s) => {
+          if (s.entryType === 'examination') return acc + 1;
+          return acc + (s.bodyPartsCount || 1);
+        }, 0);
+
         return `
           <div style="background-color: var(--bg-subtle); border: 1px solid var(--border-color); padding: 10px 16px; border-radius: var(--radius-md); display: flex; align-items: center; gap: 10px;">
             <i class="fa-solid fa-user-doctor" style="color: var(--primary);"></i>
             <div>
               <div style="font-weight: 700; font-size: 0.9rem;">${escapeHTML(doc)}</div>
-              <div style="font-size: 0.8rem; color: var(--text-muted);">${count} مريض اليوم</div>
+              <div style="font-size: 0.8rem; color: var(--text-muted);">${patientCount} مريض - ${creditedSessions} جلسة</div>
             </div>
           </div>
         `;
