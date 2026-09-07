@@ -389,9 +389,16 @@ export class FinanceManager {
             }
           }
 
-          const rawParts = Array.isArray(s.bodyParts) ? s.bodyParts.join('، ') : (s.bodyParts || '');
-          const parts = escapeHTML(rawParts);
-          const count = escapeHTML(s.bodyPartsCount || (Array.isArray(s.bodyParts) ? s.bodyParts.length : 1));
+          const isExam = (s.entryType === 'examination');
+          let partsCell = '';
+          if (isExam) {
+            partsCell = `<span class="badge" style="background: #f8fafc; color: #0284c7; border: 1px solid #bae6fd; font-weight: 800; font-size: 0.76rem; padding: 3px 8px;"><i class="fa-solid fa-stethoscope"></i> فحص سريري / كشف</span>`;
+          } else {
+            const rawParts = Array.isArray(s.bodyParts) ? s.bodyParts.join('، ') : (s.bodyParts || '');
+            const parts = escapeHTML(rawParts);
+            const count = escapeHTML(s.bodyPartsCount || (Array.isArray(s.bodyParts) ? s.bodyParts.length : 1));
+            partsCell = `<span class="badge badge-role-doctor">${count} أعضاء (${parts})</span>`;
+          }
 
           return `
             <tr>
@@ -400,7 +407,7 @@ export class FinanceManager {
               <td>${payBadge}</td>
               <td>${safeIns === 'شركة' && s.payType === 'cash' ? '-' : safeIns}</td>
               <td>${contractLabel}</td>
-              <td><span class="badge badge-role-doctor">${count} أعضاء (${parts})</span></td>
+              <td>${partsCell}</td>
               <td style="font-weight: 700; color: var(--success);">${safeAmount} ج.م</td>
               <td style="font-size: 0.8rem; color: var(--text-muted);">${safeRecBy}</td>
               <td class="no-print">
@@ -517,7 +524,7 @@ export class FinanceManager {
     const docTbody = document.getElementById('monthly-doctors-tbody');
     if (docTbody) {
       if (doctors.length === 0 || totalPatients === 0) {
-        docTbody.innerHTML = `<tr><td colspan="5" style="text-align: center; color: var(--text-muted); padding: 20px;">لا توجد بيانات جلسات مسجلة لهذا الشهر.</td></tr>`;
+        docTbody.innerHTML = `<tr><td colspan="6" style="text-align: center; color: var(--text-muted); padding: 20px;">لا توجد بيانات جلسات مسجلة لهذا الشهر.</td></tr>`;
       } else {
         docTbody.innerHTML = doctors.map(doc => {
           const docSessions = allSessions.filter(s => s.doctor === doc);
@@ -526,6 +533,14 @@ export class FinanceManager {
           const total = docSessions.length;
           const pct = totalPatients > 0 ? ((total / totalPatients) * 100).toFixed(1) : 0;
 
+          // Credited sessions rule:
+          // If session: s.bodyPartsCount || 1 (minimum 1)
+          // If examination: exactly 1 always
+          const creditedSessions = docSessions.reduce((acc, s) => {
+            if (s.entryType === 'examination') return acc + 1;
+            return acc + (s.bodyPartsCount || 1);
+          }, 0);
+
           const safeDoc = escapeHTML(doc);
           return `
             <tr>
@@ -533,6 +548,7 @@ export class FinanceManager {
               <td style="color: var(--success); font-weight: 700;">${cashCount} مريض</td>
               <td style="color: var(--primary); font-weight: 700;">${insCount} مريض</td>
               <td style="font-weight: 800; font-size: 0.95rem;">${total} مريض</td>
+              <td style="font-weight: 800; color: var(--primary); font-size: 0.95rem;">${creditedSessions} جلسة</td>
               <td>
                 <div style="display: flex; align-items: center; gap: 8px;">
                   <span style="font-weight: 700; width: 45px;">${pct}%</span>

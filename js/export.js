@@ -150,12 +150,21 @@ export class ExportManager {
         const total = docSessions.length;
         const pct = totalPatients > 0 ? ((total / totalPatients) * 100).toFixed(1) + '%' : '0%';
 
+        // Credited sessions rule:
+        // If session: s.bodyPartsCount || 1 (minimum 1)
+        // If examination: exactly 1 always
+        const creditedSessions = docSessions.reduce((acc, s) => {
+          if (s.entryType === 'examination') return acc + 1;
+          return acc + (s.bodyPartsCount || 1);
+        }, 0);
+
         return {
           'م': idx + 1,
           'الطبيب المعالج': doc,
           'مرضى نقدي': docCash,
           'مرضى شركات تأمين': docIns,
           'إجمالي الحالات': total,
+          'عدد الجلسات المحتسبة': creditedSessions,
           'النسبة من إجمالي المركز': pct
         };
       });
@@ -223,9 +232,9 @@ export class ExportManager {
       let csv = '\uFEFF';
       csv += `نظام PhysioFlow لإدارة مراكز العلاج الطبيعي - التقرير الشهري: ${monthStr}\r\n\r\n`;
       csv += `إجمالي مرضى الشهر,${totalPatients},نقدي,${cashCount},تأمين,${insCount},إيرادات,${totalCash} ج.م,مصروفات,${totalExp} ج.م,صافي الأرباح,${netCash} ج.م\r\n\r\n`;
-      csv += 'إحصائية الأطباء الشهرية:\r\nم,الطبيب المعالج,مرضى نقدي,مرضى شركات تأمين,إجمالي الحالات,النسبة\r\n';
+      csv += 'إحصائية الأطباء الشهرية:\r\nم,الطبيب المعالج,مرضى نقدي,مرضى شركات تأمين,إجمالي الحالات,عدد الجلسات المحتسبة,النسبة\r\n';
       doctorsData.forEach(d => {
-        csv += `${d['م']},"${csvSafe(d['الطبيب المعالج'])}",${d['مرضى نقدي']},${d['مرضى شركات تأمين']},${d['إجمالي الحالات']},${d['النسبة من إجمالي المركز']}\r\n`;
+        csv += `${d['م']},"${csvSafe(d['الطبيب المعالج'])}",${d['مرضى نقدي']},${d['مرضى شركات تأمين']},${d['إجمالي الحالات']},${d['عدد الجلسات المحتسبة']},${d['النسبة من إجمالي المركز']}\r\n`;
       });
       csv += '\r\nتوزيع جهات التأمين والنقدي:\r\nم,الجهة,نوع التعاقد,عدد الحالات,النسبة\r\n';
       insuranceData.forEach(i => {

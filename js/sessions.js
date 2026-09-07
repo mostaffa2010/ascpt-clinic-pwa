@@ -199,6 +199,19 @@ export class SessionsManager {
     if (countDisplay) {
       countDisplay.textContent = selected.length;
     }
+
+    const hintEl = document.getElementById('body-parts-cash-hint');
+    if (hintEl) {
+      const isCashPatient = Boolean(this.selectedPatient && this.selectedPatient.billing === 'cash');
+      const count = selected.length;
+      if (this.entryMode === 'session' && isCashPatient && count >= 2) {
+        hintEl.textContent = `💡 تم تحديد ${count} عضو (يُحاسب المريض على ${count} جلسة نقدياً)`;
+        hintEl.style.display = 'block';
+      } else {
+        hintEl.textContent = '';
+        hintEl.style.display = 'none';
+      }
+    }
   }
 
   getSelectedBodyParts() {
@@ -668,6 +681,7 @@ export class SessionsManager {
       this.updateSessionPaymentUI(patient);
     }
 
+    this.updateBodyPartsCount();
     this.app.closeModal('modal-patient-picker');
   }
 

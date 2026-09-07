@@ -144,7 +144,15 @@ export class DoctorDashboardManager {
         billingBadge = `<span class="badge badge-indirect"><i class="fa-solid fa-handshake"></i> ${escapeHTML(s.insuranceName || 'شركة')} (غير مباشر)</span>`;
       }
 
-      const parts = Array.isArray(s.bodyParts) ? s.bodyParts.join('، ') : (s.bodyParts || '-');
+      const isExam = (s.entryType === 'examination');
+      let partsDisplay = '';
+      if (isExam) {
+        partsDisplay = `<span class="badge" style="background: #f8fafc; color: #0284c7; border: 1px solid #bae6fd; font-weight: 800; font-size: 0.76rem; padding: 3px 8px;"><i class="fa-solid fa-stethoscope"></i> فحص سريري / كشف</span>`;
+      } else {
+        const parts = Array.isArray(s.bodyParts) ? s.bodyParts.join('، ') : (s.bodyParts || '-');
+        partsDisplay = escapeHTML(parts);
+      }
+
       const timeDisplay = s.recordedAt || '';
       const dateDisplay = s.date || '';
       const safePatientId = escapeHTML(s.patientId || '');
@@ -156,7 +164,7 @@ export class DoctorDashboardManager {
             ${escapeHTML(s.patientName)}
           </td>
           <td>${billingBadge}</td>
-          <td style="font-size: 0.85rem; color: #334155;">${escapeHTML(parts)}</td>
+          <td style="font-size: 0.85rem; color: #334155;">${partsDisplay}</td>
           <td style="font-size: 0.85rem; color: var(--text-muted); white-space: nowrap;">
             <bdi dir="ltr">${escapeHTML(dateDisplay)}</bdi> ${timeDisplay ? `• ${escapeHTML(timeDisplay)}` : ''}
           </td>
