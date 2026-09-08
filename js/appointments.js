@@ -77,6 +77,7 @@ export class AppointmentsManager {
   }
 
   async init() {
+    try { await this.loadAll(); } catch (_) {}
     const grid = document.getElementById('appointments-grid');
     if (grid) grid.addEventListener('click', (e) => this.handleGridClick(e));
 
@@ -650,6 +651,9 @@ export class AppointmentsManager {
     if (myGrid) {
       const uid = auth.getCurrentUser()?.uid;
       if (uid) await this.renderForDoctor(uid);
+    }
+    if (this.app?.patientsManager?.renderPatients) {
+      this.app.patientsManager.renderPatients();
     }
   }
 }

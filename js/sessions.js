@@ -12,6 +12,7 @@ export class SessionsManager {
     this.app = app;
     this.todayDateStr = getLocalDateStr();
     this.currentSessionDate = this.todayDateStr;
+    this.sessions = [];
     this.selectedPatientId = null;
     this.editingSessionId = null;
     this.insEditMode = false;
@@ -1206,6 +1207,7 @@ export class SessionsManager {
 
   async loadTodaySessions() {
     const sessions = await db.getSessions(this.currentSessionDate);
+    this.sessions = sessions;
     const tbody = document.getElementById('sessions-today-tbody');
     const badge = document.getElementById('sessions-today-count-badge');
     

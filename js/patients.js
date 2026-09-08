@@ -233,6 +233,14 @@ export class PatientsManager {
   }
 
   async loadPatients() {
+    // If sessions or appointments not loaded yet, fetch them for accurate today counting
+    if (this.app?.sessionsManager && (!this.app.sessionsManager.sessions || this.app.sessionsManager.sessions.length === 0)) {
+      try { await this.app.sessionsManager.loadTodaySessions(); } catch (_) {}
+    }
+    if (this.app?.appointmentsManager && (!this.app.appointmentsManager.appointments || this.app.appointmentsManager.appointments.length === 0)) {
+      try { await this.app.appointmentsManager.loadAll(); } catch (_) {}
+    }
+
     this.patients = await db.getPatients();
     this.renderPatients();
   }
@@ -304,27 +312,29 @@ export class PatientsManager {
     this.renderPatients();
   }
 
-  getTodayPatientIds() {
+  getTodayPatientIdentifiers() {
     const todayIds = new Set();
+    const todayNames = new Set();
     const todayStr = getLocalDateStr();
 
     // 1. Sessions recorded today
     const sessions = this.app?.sessionsManager?.sessions || [];
     sessions.forEach(s => {
-      if (s.date === todayStr && s.patientId) {
-        todayIds.add(s.patientId);
+      const sDate = s.date || (s.createdAt ? s.createdAt.substring(0, 10) : '');
+      if (sDate === todayStr) {
+        if (s.patientId) todayIds.add(String(s.patientId).trim());
+        if (s.patientName) todayNames.add(this.normalizeArabic(s.patientName));
       }
     });
 
     // 2. Weekly appointments schedule
     const appts = this.app?.appointmentsManager?.appointments || [];
     appts.forEach(a => {
-      if (a.patientId) {
-        todayIds.add(a.patientId);
-      }
+      if (a.patientId) todayIds.add(String(a.patientId).trim());
+      if (a.patientName) todayNames.add(this.normalizeArabic(a.patientName));
     });
 
-    return todayIds;
+    return { todayIds, todayNames };
   }
 
   renderPatients() {
@@ -336,14 +346,24 @@ export class PatientsManager {
     const normSearch = this.normalizeArabic(rawSearch);
     const cleanDigits = rawSearch.replace(/[^0-9]/g, '');
 
-    const todayIds = this.getTodayPatientIds();
+    const { todayIds, todayNames } = this.getTodayPatientIdentifiers();
     const countBadge = document.getElementById('badge-today-patients-count');
-    if (countBadge) countBadge.textContent = todayIds.size;
+    
+    // Count matches among all patients
+    const todayMatches = this.patients.filter(p => {
+      const pId = String(p.id || '').trim();
+      const pName = this.normalizeArabic(p.name || '');
+      return todayIds.has(pId) || (pName && todayNames.has(pName));
+    });
+    if (countBadge) countBadge.textContent = todayMatches.length;
 
     let filtered = this.patients.filter(p => {
       // 0. Filter Today Only if active
-      if (this.filterTodayOnly && !todayIds.has(p.id)) {
-        return false;
+      if (this.filterTodayOnly) {
+        const pId = String(p.id || '').trim();
+        const pName = this.normalizeArabic(p.name || '');
+        const isToday = todayIds.has(pId) || (pName && todayNames.has(pName));
+        if (!isToday) return false;
       }
       // 1. Smart Normalized Arabic & Phone Search
       let matchSearch = true;
