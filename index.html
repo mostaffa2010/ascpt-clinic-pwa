@@ -1140,6 +1140,15 @@
           <p style="font-size: 0.85rem; color: var(--text-muted);">قالب أسبوعي ثابت لكل الدكاترة — يفضل الموعد كما هو كل أسبوع حتى تحذفه وتحجز مكانه مريضاً آخر.</p>
         </div>
         <div class="card">
+          <div class="card-header" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; padding: 12px 16px;">
+            <div style="display: flex; align-items: center; gap: 10px;">
+              <span class="card-title" style="margin: 0;"><i class="fa-solid fa-table-cells" style="color: var(--primary);"></i> مواعيد أطباء المركز</span>
+              <button type="button" class="btn btn-outline btn-sm" id="btn-add-new-slot" style="color: var(--primary); border-color: var(--primary); font-weight: 800; font-size: 0.78rem; padding: 4px 10px; border-radius: 8px; cursor: pointer;">
+                <i class="fa-solid fa-plus"></i> إضافة موعد جديد
+              </button>
+            </div>
+            <span class="badge" style="background: #e0f2fe; color: #0284c7; font-weight: 800; font-size: 0.8rem;" id="appt-bed-count-badge">سعة المواعيد: ٦ أسرة لكل موعد</span>
+          </div>
           <div class="table-responsive">
             <div id="appointments-grid"><!-- Populated by JS --></div>
           </div>
@@ -2086,5 +2095,94 @@
       });
     }
   </script>
+
+  <!-- Modal: Edit / Customize Appointment Slot Time -->
+  <div class="modal-backdrop" id="modal-edit-appointment-slot" style="z-index: 225;">
+    <div class="modal-content" style="max-width: 440px;">
+      <div class="modal-header">
+        <h3 id="modal-slot-title"><i class="fa-solid fa-clock" style="color: var(--primary);"></i> تعديل موعد في الجدول</h3>
+        <button type="button" class="modal-close" data-close-modal="modal-edit-appointment-slot">&times;</button>
+      </div>
+      <form id="form-edit-appointment-slot" novalidate>
+        <input type="hidden" id="slot-edit-old-key" value="">
+        <input type="hidden" id="slot-edit-mode" value="edit">
+
+        <div class="modal-body">
+          <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 12px;">
+            يمكنك اختيار الوقت المناسب من المواعيد السريعة أو تحديده يدوياً:
+          </p>
+
+          <!-- Quick Common Times Grid -->
+          <label style="font-weight: 700; font-size: 0.84rem; color: var(--text-main); margin-bottom: 6px; display: block;">
+            <i class="fa-solid fa-bolt" style="color: #f59e0b;"></i> مواعيد سريعة شائعة:
+          </label>
+          <div id="slot-quick-chips" style="display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 14px;">
+            <!-- Rendered by JS -->
+          </div>
+
+          <!-- Time Input Row: Hour, Minute, Period -->
+          <div style="background: #f8fafc; border: 1.5px solid var(--border-color); border-radius: 10px; padding: 12px; margin-bottom: 14px;">
+            <label style="font-weight: 800; font-size: 0.88rem; color: var(--primary); margin-bottom: 8px; display: block;">
+              <i class="fa-regular fa-clock"></i> تحديد الموعد بدقة:
+            </label>
+            <div style="display: flex; gap: 8px; align-items: center;">
+              <div style="flex: 1;">
+                <label style="font-size: 0.75rem; color: var(--text-muted); font-weight: 700;">الساعة</label>
+                <select id="slot-input-hour" class="form-control" style="font-weight: 800; text-align: center; font-size: 1.05rem;">
+                  <option value="1">1</option>
+                  <option value="2">2</option>
+                  <option value="3" selected>3</option>
+                  <option value="4">4</option>
+                  <option value="5">5</option>
+                  <option value="6">6</option>
+                  <option value="7">7</option>
+                  <option value="8">8</option>
+                  <option value="9">9</option>
+                  <option value="10">10</option>
+                  <option value="11">11</option>
+                  <option value="12">12</option>
+                </select>
+              </div>
+              <div style="font-size: 1.2rem; font-weight: 800; color: var(--primary); padding-top: 16px;">:</div>
+              <div style="flex: 1;">
+                <label style="font-size: 0.75rem; color: var(--text-muted); font-weight: 700;">الدقيقة</label>
+                <select id="slot-input-minute" class="form-control" style="font-weight: 800; text-align: center; font-size: 1.05rem;">
+                  <option value="00">00</option>
+                  <option value="15">15</option>
+                  <option value="30" selected>30</option>
+                  <option value="45">45</option>
+                </select>
+              </div>
+              <div style="flex: 1.2;">
+                <label style="font-size: 0.75rem; color: var(--text-muted); font-weight: 700;">الفترة</label>
+                <select id="slot-input-period" class="form-control" style="font-weight: 800; text-align: center; font-size: 1rem;">
+                  <option value="PM" selected>مساءً (م)</option>
+                  <option value="AM">صباحاً (ص)</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <!-- Preview of how it will look in table -->
+          <div style="background: #e0f2fe; border: 1px solid #bae6fd; border-radius: 8px; padding: 8px 12px; text-align: center; font-size: 0.88rem; font-weight: 800; color: #0369a1;">
+            المظهر في الجدول: <span id="slot-preview-label" style="color: var(--primary); font-size: 1rem; margin-right: 4px;">٣:٣٠ م</span>
+          </div>
+        </div>
+
+        <div class="modal-footer" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
+          <button type="button" class="btn btn-outline btn-sm" id="btn-delete-slot-row" style="color: var(--danger); border-color: #fca5a5;">
+            <i class="fa-solid fa-trash"></i> حذف هذا الصف
+          </button>
+          <div style="display: flex; gap: 8px;">
+            <button type="button" class="btn btn-outline btn-sm" data-close-modal="modal-edit-appointment-slot">إلغاء</button>
+            <button type="submit" class="btn btn-primary btn-sm" id="btn-save-slot-time">
+              <i class="fa-solid fa-check"></i> <span>حفظ التعديل</span>
+            </button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+
 </body>
 </html>

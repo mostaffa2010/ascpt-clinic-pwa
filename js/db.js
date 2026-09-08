@@ -547,7 +547,85 @@ class FirestoreDatabaseService {
     return patientId ? all.filter((l) => l.patientId === patientId) : all;
   }
 
-  // ================= 9. Weekly Appointments Schedule =================
+  // ================= 9. Weekly Appointments Schedule & Custom Slots =================
+  async getAppointmentSlots() {
+    this.ensureConnected();
+    try {
+      const docRef = doc(firestoreDb, 'clinical_options', 'appointment_slots');
+      const snap = await getDoc(docRef);
+      if (snap.exists() && Array.isArray(snap.data().slots) && snap.data().slots.length > 0) {
+        return snap.data().slots;
+      }
+    } catch (e) {
+      console.warn('getAppointmentSlots notice:', e.message);
+    }
+    return [
+      { key: '15:30', label: '٣:٣٠ م' },
+      { key: '16:30', label: '٤:٣٠ م' },
+      { key: '17:30', label: '٥:٣٠ م' },
+      { key: '18:30', label: '٦:٣٠ م' },
+      { key: '19:00', label: '٧:٠٠ م' }
+    ];
+  }
+
+  async saveAppointmentSlots(slots) {
+    this.ensureConnected();
+    const docRef = doc(firestoreDb, 'clinical_options', 'appointment_slots');
+    await setDoc(docRef, { slots }, { merge: true });
+    return slots;
+  }
+
+  async updateAppointmentSlot(oldKey, newKey, newLabel) {
+    this.ensureConnected();
+    let slots = await this.getAppointmentSlots();
+    slots = slots.map(s => s.key === oldKey ? { key: newKey, label: newLabel } : s);
+    slots.sort((a, b) => a.key.localeCompare(b.key));
+    await this.saveAppointmentSlots(slots);
+
+    if (oldKey !== newKey) {
+      try {
+        const appts = await this.getAppointments();
+        const affected = appts.filter(a => a.timeSlot === oldKey);
+        for (const a of affected) {
+          await setDoc(doc(firestoreDb, 'appointments', a.id), { timeSlot: newKey }, { merge: true });
+        }
+      } catch (err) {
+        console.warn('Update affected appts notice:', err.message);
+      }
+    }
+    return slots;
+  }
+
+  async deleteAppointmentSlot(slotKey) {
+    this.ensureConnected();
+    let slots = await this.getAppointmentSlots();
+    slots = slots.filter(s => s.key !== slotKey);
+    await this.saveAppointmentSlots(slots);
+
+    try {
+      const appts = await this.getAppointments();
+      const affected = appts.filter(a => a.timeSlot === slotKey);
+      for (const a of affected) {
+        await deleteDoc(doc(firestoreDb, 'appointments', a.id));
+      }
+    } catch (err) {
+      console.warn('Delete affected appts notice:', err.message);
+    }
+    return slots;
+  }
+
+  async addAppointmentSlot(newKey, newLabel) {
+    this.ensureConnected();
+    let slots = await this.getAppointmentSlots();
+    if (!slots.some(s => s.key === newKey)) {
+      slots.push({ key: newKey, label: newLabel });
+      slots.sort((a, b) => a.key.localeCompare(b.key));
+      await this.saveAppointmentSlots(slots);
+    }
+    return slots;
+  }
+
+    // ================= 9. Weekly Appointments Schedule =================
   // Fixed recurring weekly template (not tied to specific calendar dates):
   // a slot stays booked for the same patient every week until someone
   // deletes it and books a different patient in its place.

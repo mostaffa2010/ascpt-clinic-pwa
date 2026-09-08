@@ -534,6 +534,40 @@ table.appt-table th {
   white-space: nowrap !important;
   text-align: center;
   background-color: var(--bg-subtle);
+  padding: 8px !important;
+}
+
+.appt-time-box {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: 8px;
+  background-color: #ffffff;
+  border: 1.5px solid #cbd5e1;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  color: var(--primary, #0284c7);
+  font-weight: 800;
+  font-size: 0.95rem;
+}
+
+.appt-time-box:hover {
+  background-color: #f0f9ff;
+  border-color: var(--primary, #0284c7);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 5px rgba(2, 132, 199, 0.15);
+}
+
+.appt-time-edit-icon {
+  font-size: 0.75rem;
+  opacity: 0.7;
+  color: var(--primary, #0284c7);
+}
+
+.appt-time-box:hover .appt-time-edit-icon {
+  opacity: 1;
 }
 
 .appt-cell {
