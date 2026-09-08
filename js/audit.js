@@ -51,6 +51,15 @@ export class AuditAndAdminManager {
           await this.resetUserPassword(userId, userName);
           return;
         }
+
+        const btnRate = e.target.closest('.btn-edit-doc-rate');
+        if (btnRate) {
+          const docName = btnRate.getAttribute('data-doc');
+          if (docName && this.app.openDoctorRateModal) {
+            this.app.openDoctorRateModal(docName);
+          }
+          return;
+        }
       });
     }
   }
@@ -233,9 +242,10 @@ export class AuditAndAdminManager {
     }
 
     const currentUser = auth.getCurrentUser();
+    const doctorRates = await db.getDoctorRates ? await db.getDoctorRates() : {};
 
     if (users.length === 0) {
-      tbody.innerHTML = `<tr><td colspan="4" style="text-align: center; color: var(--text-muted); padding: 20px;">لا يوجد أطباء أو موظفين مسجلين حالياً. استخدم النموذج أعلاه لإنشاء حساب جديد.</td></tr>`;
+      tbody.innerHTML = `<tr><td colspan="5" style="text-align: center; color: var(--text-muted); padding: 20px;">لا يوجد أطباء أو موظفين مسجلين حالياً. استخدم النموذج أعلاه لإنشاء حساب جديد.</td></tr>`;
       return;
     }
 
@@ -246,11 +256,39 @@ export class AuditAndAdminManager {
       const safeRole = escapeHTML(u.role || 'doctor');
       const roleLabel = escapeHTML(RolesManager.getRoleLabel(u.role));
 
+      const isDoc = (u.role === 'doctor' || u.role === 'admin');
+      const cleanUName = (u.name || '').trim().replace(/\s+/g, ' ');
+      const rateInfo = isDoc ? (doctorRates[cleanUName] || null) : null;
+      let rateBadge = '';
+      if (isDoc) {
+        if (rateInfo) {
+          if (rateInfo.type === 'percentage') {
+            rateBadge = `<span class="badge" style="background: #f0fdf4; color: #166534; font-weight: 800; font-size: 0.76rem;">نسبة ${rateInfo.value}%</span>`;
+          } else {
+            rateBadge = `<span class="badge" style="background: #e0f2fe; color: #0284c7; font-weight: 800; font-size: 0.76rem;">${rateInfo.value} ج.م / جلسة</span>`;
+          }
+        } else {
+          rateBadge = `<span class="badge" style="background: #f1f5f9; color: var(--text-muted); font-size: 0.74rem;">غير محدد</span>`;
+        }
+      } else {
+        rateBadge = `<span style="color: var(--text-muted); font-size: 0.78rem;">-</span>`;
+      }
+
       return `
         <tr>
           <td style="font-weight: 700;">${safeName}</td>
           <td dir="ltr" style="text-align: right;">${safeEmail}</td>
           <td><span class="badge badge-role-${safeRole}">${roleLabel}</span></td>
+          <td>
+            <div style="display: flex; align-items: center; gap: 6px;">
+              ${rateBadge}
+              ${isDoc ? `
+                <button type="button" class="btn btn-outline btn-sm btn-edit-doc-rate" data-doc="${safeName}" title="تحديد / تعديل نظام المستحقات" style="padding: 2px 6px; border-radius: 6px; font-size: 0.72rem; color: var(--primary); border-color: #bae6fd; background: #f0f9ff; cursor: pointer;">
+                  <i class="fa-solid fa-coins"></i>
+                </button>
+              ` : ''}
+            </div>
+          </td>
           <td>
             ${!isSelf ? `
               <div style="display: flex; gap: 6px; align-items: center;">

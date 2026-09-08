@@ -260,6 +260,13 @@
                 <div class="stat-label">توزيع الحالات (هذا الشهر)</div>
               </div>
             </div>
+            <div class="stat-box">
+              <div class="stat-icon" style="background-color: #dcfce7; color: #166534;"><i class="fa-solid fa-coins"></i></div>
+              <div class="stat-info">
+                <div class="stat-value" id="stat-doc-month-comp">0 ج.م</div>
+                <div class="stat-label">مستحقاتك المقدرة (الشهر)</div>
+              </div>
+            </div>
           </div>
 
           <!-- Doctor's Own Weekly Appointments Schedule -->
@@ -913,8 +920,9 @@
         <div id="finance-monthly-content" style="display: none;">
           <!-- Doctors Performance Table -->
           <div class="card" style="margin-bottom: 16px;">
-            <div class="card-header">
-              <span class="card-title"><i class="fa-solid fa-user-doctor"></i> إحصائية أطباء المركز للشهر (مصنفة نقدي وشركات)</span>
+            <div class="card-header" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
+              <span class="card-title" style="margin: 0;"><i class="fa-solid fa-user-doctor"></i> إحصائية أطباء المركز للشهر (مصنفة نقدي وشركات)</span>
+              <span id="monthly-doctors-total-comp-badge" class="badge" style="background: #dcfce7; color: #166534; font-size: 0.82rem; font-weight: 800; padding: 4px 10px;">إجمالي المستحقات: 0 ج.م</span>
             </div>
             <div class="table-responsive">
               <table class="data-table">
@@ -926,6 +934,7 @@
                     <th>إجمالي الحالات</th>
                     <th>عدد الجلسات المحتسبة</th>
                     <th>النسبة من إجمالي المركز</th>
+                    <th>مستحقات الطبيب</th>
                   </tr>
                 </thead>
                 <tbody id="monthly-doctors-tbody">
@@ -1215,6 +1224,7 @@
                     <th>الاسم</th>
                     <th>اسم المستخدم</th>
                     <th>الدور</th>
+                    <th>نظام المستحقات</th>
                     <th>إجراء</th>
                   </tr>
                 </thead>
@@ -2177,6 +2187,81 @@
             <button type="button" class="btn btn-outline btn-sm" data-close-modal="modal-edit-appointment-slot">إلغاء</button>
             <button type="submit" class="btn btn-primary btn-sm" id="btn-save-slot-time">
               <i class="fa-solid fa-check"></i> <span>حفظ التعديل</span>
+            </button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+
+
+  <!-- Modal: Edit Doctor Compensation Rate (Admin Only) -->
+  <div class="modal-backdrop" id="modal-edit-doctor-rate" style="z-index: 230;">
+    <div class="modal-content" style="max-width: 440px;">
+      <div class="modal-header">
+        <h3 id="modal-rate-title"><i class="fa-solid fa-coins" style="color: #f59e0b;"></i> تحديد مستحقات الطبيب</h3>
+        <button type="button" class="modal-close" data-close-modal="modal-edit-doctor-rate">&times;</button>
+      </div>
+      <form id="form-edit-doctor-rate" novalidate>
+        <input type="hidden" id="rate-doc-name" value="">
+
+        <div class="modal-body">
+          <div style="background: #f0fdf4; border: 1.5px solid #bbf7d0; border-radius: 10px; padding: 12px; margin-bottom: 14px; display: flex; align-items: center; gap: 10px;">
+            <div style="width: 40px; height: 40px; border-radius: 50%; background: #dcfce7; color: #166534; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; flex-shrink: 0;">
+              <i class="fa-solid fa-user-doctor"></i>
+            </div>
+            <div>
+              <div style="font-size: 0.8rem; color: #15803d; font-weight: 700;">الطبيب المعالج:</div>
+              <div id="rate-display-doc-name" style="font-size: 1rem; font-weight: 800; color: #0f172a;">-</div>
+            </div>
+          </div>
+
+          <div class="form-group" style="margin-bottom: 14px;">
+            <label style="font-weight: 800; font-size: 0.88rem; color: #0f172a; margin-bottom: 8px; display: block;">
+              اختر طريقة احتساب مستحقات الطبيب:
+            </label>
+            <div style="display: flex; flex-direction: column; gap: 8px;">
+              <label class="rate-type-card" style="display: flex; align-items: center; gap: 10px; padding: 10px 14px; border: 1.5px solid var(--border-color); border-radius: 10px; cursor: pointer; background: #ffffff;">
+                <input type="radio" name="rate-type" value="percentage" checked style="accent-color: var(--primary);">
+                <div>
+                  <div style="font-weight: 800; font-size: 0.92rem; color: var(--text-main);">نسبة مئوية (%) من إجمالي الإيراد</div>
+                  <div style="font-size: 0.76rem; color: var(--text-muted);">تُحسب كنسبة مئوية من إجمالي مبالغ الجلسات المحصلة لهذا الطبيب بالدرج.</div>
+                </div>
+              </label>
+              <label class="rate-type-card" style="display: flex; align-items: center; gap: 10px; padding: 10px 14px; border: 1.5px solid var(--border-color); border-radius: 10px; cursor: pointer; background: #ffffff;">
+                <input type="radio" name="rate-type" value="fixed" style="accent-color: var(--primary);">
+                <div>
+                  <div style="font-weight: 800; font-size: 0.92rem; color: var(--text-main);">مبلغ محدد ثابت (ج.م) عن كل جلسة</div>
+                  <div style="font-size: 0.76rem; color: var(--text-muted);">يُضرب المبلغ المحدد في إجمالي عدد الجلسات المحتسبة للطبيب في الشهر.</div>
+                </div>
+              </label>
+            </div>
+          </div>
+
+          <div class="form-group" style="margin-bottom: 14px;">
+            <label id="rate-value-label" for="rate-value" style="font-weight: 800; font-size: 0.88rem; color: #0f172a;">
+              النسبة المئوية (%) *
+            </label>
+            <div style="position: relative;">
+              <input type="number" id="rate-value" class="form-control" required min="0" max="1000" step="any" placeholder="مثال: 40" style="font-weight: 800; font-size: 1.05rem; padding-left: 50px;">
+              <span id="rate-unit-display" style="position: absolute; left: 14px; top: 50%; transform: translateY(-50%); font-weight: 800; color: var(--primary); font-size: 0.9rem;">%</span>
+            </div>
+          </div>
+
+          <!-- Live Explanation Box -->
+          <div id="rate-explanation-box" style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 10px 12px; font-size: 0.82rem; color: #334155; line-height: 1.5;">
+            💡 <span id="rate-explanation-text">سيحصل الطبيب على 40% من إجمالي مبالغ جلساته المسددة بالخزينة.</span>
+          </div>
+        </div>
+
+        <div class="modal-footer" style="display: flex; justify-content: space-between; align-items: center;">
+          <button type="button" class="btn btn-outline btn-sm" id="btn-clear-doc-rate" style="color: var(--danger); border-color: #fca5a5;">
+            <i class="fa-solid fa-trash"></i> إلغاء التحديد
+          </button>
+          <div style="display: flex; gap: 8px;">
+            <button type="button" class="btn btn-outline btn-sm" data-close-modal="modal-edit-doctor-rate">إلغاء</button>
+            <button type="submit" class="btn btn-primary btn-sm" id="btn-save-doc-rate">
+              <i class="fa-solid fa-check"></i> حفظ المستحقات
             </button>
           </div>
         </div>

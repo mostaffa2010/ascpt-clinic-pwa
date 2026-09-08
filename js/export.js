@@ -142,7 +142,9 @@ export class ExportManager {
       const cashCount = allSessions.filter(s => s.payType === 'cash').length;
       const insCount = allSessions.filter(s => s.payType === 'insurance').length;
 
-      // بيانات إحصائية الأطباء
+      // بيانات إحصائية الأطباء وحساب المستحقات
+      const doctorRates = await db.getDoctorRates ? await db.getDoctorRates() : {};
+
       const doctorsData = doctors.map((doc, idx) => {
         const docSessions = allSessions.filter(s => s.doctor === doc);
         const docCash = docSessions.filter(s => s.payType === 'cash').length;
@@ -158,6 +160,25 @@ export class ExportManager {
           return acc + (s.bodyPartsCount || 1);
         }, 0);
 
+        const cleanDoc = doc.trim().replace(/\s+/g, ' ');
+        const rateInfo = doctorRates[cleanDoc] || null;
+        const docRevenue = docSessions.reduce((acc, curr) => acc + (parseFloat(curr.amountPaid) || 0), 0);
+
+        let rateModel = 'غير محدد';
+        let compVal = 0;
+
+        if (rateInfo) {
+          if (rateInfo.type === 'percentage') {
+            const pctVal = parseFloat(rateInfo.value) || 0;
+            compVal = Math.round(docRevenue * (pctVal / 100));
+            rateModel = `نسبة ${pctVal}% من الإيراد`;
+          } else if (rateInfo.type === 'fixed') {
+            const fixedVal = parseFloat(rateInfo.value) || 0;
+            compVal = Math.round(creditedSessions * fixedVal);
+            rateModel = `${fixedVal} ج.م / جلسة`;
+          }
+        }
+
         return {
           'م': idx + 1,
           'الطبيب المعالج': doc,
@@ -165,7 +186,9 @@ export class ExportManager {
           'مرضى شركات تأمين': docIns,
           'إجمالي الحالات': total,
           'عدد الجلسات المحتسبة': creditedSessions,
-          'النسبة من إجمالي المركز': pct
+          'النسبة من إجمالي المركز': pct,
+          'نظام المستحقات': rateModel,
+          'مستحقات الطبيب (ج.م)': compVal
         };
       });
 
@@ -232,9 +255,9 @@ export class ExportManager {
       let csv = '\uFEFF';
       csv += `نظام PhysioFlow لإدارة مراكز العلاج الطبيعي - التقرير الشهري: ${monthStr}\r\n\r\n`;
       csv += `إجمالي مرضى الشهر,${totalPatients},نقدي,${cashCount},تأمين,${insCount},إيرادات,${totalCash} ج.م,مصروفات,${totalExp} ج.م,صافي الأرباح,${netCash} ج.م\r\n\r\n`;
-      csv += 'إحصائية الأطباء الشهرية:\r\nم,الطبيب المعالج,مرضى نقدي,مرضى شركات تأمين,إجمالي الحالات,عدد الجلسات المحتسبة,النسبة\r\n';
+      csv += 'إحصائية الأطباء الشهرية:\r\nم,الطبيب المعالج,مرضى نقدي,مرضى شركات تأمين,إجمالي الحالات,عدد الجلسات المحتسبة,النسبة,نظام المستحقات,مستحقات الطبيب (ج.م)\r\n';
       doctorsData.forEach(d => {
-        csv += `${d['م']},"${csvSafe(d['الطبيب المعالج'])}",${d['مرضى نقدي']},${d['مرضى شركات تأمين']},${d['إجمالي الحالات']},${d['عدد الجلسات المحتسبة']},${d['النسبة من إجمالي المركز']}\r\n`;
+        csv += `${d['م']},"${csvSafe(d['الطبيب المعالج'])}",${d['مرضى نقدي']},${d['مرضى شركات تأمين']},${d['إجمالي الحالات']},${d['عدد الجلسات المحتسبة']},${d['النسبة من إجمالي المركز']},"${csvSafe(d['نظام المستحقات'])}",${d['مستحقات الطبيب (ج.م)']}\r\n`;
       });
       csv += '\r\nتوزيع جهات التأمين والنقدي:\r\nم,الجهة,نوع التعاقد,عدد الحالات,النسبة\r\n';
       insuranceData.forEach(i => {

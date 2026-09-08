@@ -526,11 +526,14 @@ export class FinanceManager {
       netCashEl.style.color = netCash >= 0 ? 'var(--success)' : 'var(--danger)';
     }
 
-    // A. Doctors Breakdown Table (Monthly)
+    // A. Doctors Breakdown Table (Monthly) & Compensation Calculation
+    const doctorRates = await db.getDoctorRates();
+    let totalMonthlyComp = 0;
+
     const docTbody = document.getElementById('monthly-doctors-tbody');
     if (docTbody) {
       if (doctors.length === 0 || totalPatients === 0) {
-        docTbody.innerHTML = `<tr><td colspan="6" style="text-align: center; color: var(--text-muted); padding: 20px;">لا توجد بيانات جلسات مسجلة لهذا الشهر.</td></tr>`;
+        docTbody.innerHTML = `<tr><td colspan="7" style="text-align: center; color: var(--text-muted); padding: 20px;">لا توجد بيانات جلسات مسجلة لهذا الشهر.</td></tr>`;
       } else {
         docTbody.innerHTML = doctors.map(doc => {
           const docSessions = allSessions.filter(s => s.doctor === doc);
@@ -547,7 +550,41 @@ export class FinanceManager {
             return acc + (s.bodyPartsCount || 1);
           }, 0);
 
+          // Doctor cash revenue & automated compensation calculation
+          const docRevenue = docSessions.reduce((acc, curr) => acc + (parseFloat(curr.amountPaid) || 0), 0);
+          const cleanDoc = doc.trim().replace(/\s+/g, ' ');
+          const rateInfo = doctorRates[cleanDoc] || null;
+
+          let compAmount = 0;
+          let compSubtext = '';
+          let compBadge = '';
+
+          if (rateInfo) {
+            if (rateInfo.type === 'percentage') {
+              const pctVal = parseFloat(rateInfo.value) || 0;
+              compAmount = Math.round(docRevenue * (pctVal / 100));
+              compSubtext = `نسبة ${pctVal}% من الإيراد (${docRevenue.toLocaleString('en-US')} ج.م)`;
+            } else if (rateInfo.type === 'fixed') {
+              const fixedVal = parseFloat(rateInfo.value) || 0;
+              compAmount = Math.round(creditedSessions * fixedVal);
+              compSubtext = `${fixedVal} ج.م × ${creditedSessions} جلسة`;
+            }
+            totalMonthlyComp += compAmount;
+            compBadge = `
+              <div>
+                <div style="font-weight: 800; color: #166534; font-size: 0.95rem;">${compAmount.toLocaleString('en-US')} ج.م</div>
+                <div style="font-size: 0.72rem; color: var(--text-muted); font-weight: 600;">${compSubtext}</div>
+              </div>
+            `;
+          } else {
+            compBadge = `
+              <span class="badge" style="background: #f1f5f9; color: var(--text-muted); font-size: 0.75rem;">غير محدد</span>
+            `;
+          }
+
           const safeDoc = escapeHTML(doc);
+          const canManage = RolesManager.canManageUsers(auth.getCurrentUser());
+
           return `
             <tr>
               <td style="font-weight: 700;"><i class="fa-solid fa-user-doctor" style="color: var(--primary); margin-left: 6px;"></i> ${safeDoc}</td>
@@ -563,9 +600,24 @@ export class FinanceManager {
                   </div>
                 </div>
               </td>
+              <td>
+                <div style="display: flex; align-items: center; justify-content: space-between; gap: 6px;">
+                  ${compBadge}
+                  ${canManage ? `
+                    <button type="button" class="btn btn-outline btn-sm btn-edit-doc-rate" data-doc="${safeDoc}" title="تحديد / تعديل نظام المستحقات" style="padding: 3px 8px; border-radius: 6px; color: var(--primary); border-color: #bae6fd; background: #f0f9ff; cursor: pointer;">
+                      <i class="fa-solid fa-coins"></i>
+                    </button>
+                  ` : ''}
+                </div>
+              </td>
             </tr>
           `;
         }).join('');
+      }
+
+      const compTotalBadge = document.getElementById('monthly-doctors-total-comp-badge');
+      if (compTotalBadge) {
+        compTotalBadge.textContent = `إجمالي المستحقات: ${totalMonthlyComp.toLocaleString('en-US')} ج.م`;
       }
     }
 
