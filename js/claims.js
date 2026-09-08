@@ -208,11 +208,7 @@ export class ClaimsManager {
     this.endDate = endInput?.value || this.endDate || '2026-08-31';
 
     if (!this.currentCompany) {
-      if (this.app && this.app.showAlert) {
-        this.app.showAlert('يرجى اختيار شركة التأمين أولاً من القائمة.', 'تنبيه');
-      } else {
-        alert('يرجى اختيار شركة التأمين أولاً.');
-      }
+      await this.app.showAlert('يرجى اختيار شركة التأمين أولاً من القائمة.', 'بيانات ناقصة', 'warning');
       return;
     }
 

@@ -898,7 +898,11 @@ export class SessionsManager {
   }
 
   async promptAddBodyPart() {
-    const name = prompt('اكتب اسم العضو المعالج الجديد:');
+    const name = await this.app.showPrompt(
+      'اكتب اسم العضو المعالج الجديد لإضافته كزر دائم:',
+      'إضافة عضو معالج جديد',
+      'مثال: الفقرات الصدرية'
+    );
     if (name && name.trim()) {
       await db.addClinicalOption('body_parts', name.trim());
       const curSelected = this.getSelectedBodyParts();

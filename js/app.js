@@ -476,6 +476,16 @@ class App {
         if (this.dialogResolve) this.dialogResolve(isPrompt ? null : false);
       });
     }
+
+    const dialogInput = document.getElementById('dialog-input');
+    if (dialogInput) {
+      dialogInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          btnConfirm?.click();
+        }
+      });
+    }
   }
 
   // ================= Disable Pull-To-Refresh on Mobile =================

@@ -78,7 +78,12 @@ export class PatientsManager {
           if (addBtn) {
             e.stopPropagation();
             const contract = addBtn.dataset.contract || this.currentContractType || 'direct';
-            const name = prompt(`اكتب اسم شركة التأمين الجديدة (${contract === 'direct' ? 'تعاقد مباشر' : 'تعاقد غير مباشر'}):`);
+            const contractLabel = contract === 'direct' ? 'تعاقد مباشر' : 'تعاقد غير مباشر';
+            const name = await this.app.showPrompt(
+              `اكتب اسم شركة التأمين الجديدة (${contractLabel}):`,
+              'إضافة شركة تأمين جديدة',
+              'مثال: شركة أكسا / أليانز'
+            );
             if (name && name.trim()) {
               await db.addInsuranceCompany(contract, name.trim());
               this.renderAllInsuranceChips();
