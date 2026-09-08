@@ -1,11 +1,11 @@
 // ========================================================
 // ASCPT - Service Worker & Offline PWA Cache Engine
 // Alexandria Specialized Center for Physical Therapy
-// Version: 1.1.8 (Cache: ascpt-clinic-v1.1.8)
+// Version: 1.1.9 (Cache: ascpt-clinic-v1.1.9)
 // True Offline Navigation & Fault-Tolerant Cache Architecture
 // ========================================================
 
-const CACHE_NAME = 'ascpt-clinic-v1.1.8';
+const CACHE_NAME = 'ascpt-clinic-v1.1.9';
 
 // Core App Shell assets required for offline rendering
 const APP_SHELL_ASSETS = [
@@ -32,7 +32,12 @@ const APP_SHELL_ASSETS = [
   '/js/pwa.js',
   '/js/utils.js',
   '/js/clinic-config.js',
-  '/js/firebase-init.js'
+  '/js/firebase-init.js',
+  'https://www.gstatic.com/firebasejs/12.18.0/firebase-app.js',
+  'https://www.gstatic.com/firebasejs/12.18.0/firebase-auth.js',
+  'https://www.gstatic.com/firebasejs/12.18.0/firebase-firestore.js',
+  'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css',
+  'https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&display=swap'
 ];
 
 // 1. Install Event: Cache all shell assets resiliently one by one
@@ -81,12 +86,12 @@ self.addEventListener('fetch', (event) => {
 
   const url = event.request.url;
 
-  // Let Firebase Auth and Firestore network calls pass directly to Firebase SDK
-  // so Firestore's built-in IndexedDB persistentLocalCache manages them
+  // Let Firebase backend data APIs pass directly to Firebase SDK
+  // so Firestore's built-in IndexedDB persistentLocalCache and Auth manage them
   if (
-    url.includes('firebase') ||
-    url.includes('googleapis.com') ||
-    url.includes('gstatic.com') ||
+    url.includes('firestore.googleapis.com') ||
+    url.includes('identitytoolkit.googleapis.com') ||
+    url.includes('securetoken.googleapis.com') ||
     url.includes('/api/')
   ) {
     return;

@@ -25,6 +25,26 @@ class AuthService {
     this.isInitialized = false;
   }
 
+  getCachedUser() {
+    try {
+      const raw = localStorage.getItem('ascpt_cached_user');
+      return raw ? JSON.parse(raw) : null;
+    } catch (_) {
+      return null;
+    }
+  }
+
+  setCachedUser(user) {
+    try {
+      if (user) {
+        localStorage.setItem('ascpt_cached_user', JSON.stringify(user));
+      } else {
+        localStorage.removeItem('ascpt_cached_user');
+      }
+    } catch (_) {}
+  }
+
+
   /**
    * Authoritatively fetches and validates user profile from Firestore users/{uid}.
    * Supports offline operation via Firestore IndexedDB persistent cache.
@@ -57,6 +77,10 @@ class AuthService {
         try {
           userSnap = await getDocFromCache(userDocRef);
         } catch (_) {
+          const cached = this.getCachedUser();
+          if (cached && cached.uid === firebaseUser.uid && cached.active === true) {
+            return cached;
+          }
           throw new Error('FIRESTORE_UNAVAILABLE');
         }
       }
@@ -92,7 +116,7 @@ class AuthService {
       throw new Error('MALFORMED_PROFILE');
     }
 
-    return {
+    const resolvedUser = {
       uid: firebaseUser.uid,
       id: firebaseUser.uid,
       name: profile.name || firebaseUser.displayName || firebaseUser.email,
@@ -100,6 +124,8 @@ class AuthService {
       role: profile.role,
       active: true
     };
+    this.setCachedUser(resolvedUser);
+    return resolvedUser;
   }
 
   async init(onUserChanged) {
@@ -134,6 +160,20 @@ class AuthService {
         } catch (err) {
           console.error('Auth verification notice:', err.message);
 
+          if (!navigator.onLine && (err.message === 'FIRESTORE_UNAVAILABLE' || err.message === 'PROFILE_MISSING')) {
+            const cached = this.getCachedUser();
+            if (cached && cached.uid === firebaseUser.uid && cached.active === true) {
+              this.currentUser = cached;
+              localStorage.setItem('ascpt_has_session', 'true');
+              document.body.classList.remove('not-authenticated');
+              this.hideLoginModal();
+              this.hideLoginError();
+              this.updateUI();
+              if (this.onUserChanged) this.onUserChanged(this.currentUser);
+              return;
+            }
+          }
+
           if (navigator.onLine || err.message === 'ACCOUNT_DISABLED' || err.message === 'PROFILE_MISSING') {
             try { await signOut(firebaseAuth); } catch (_) {}
             this.currentUser = null;
@@ -159,6 +199,7 @@ class AuthService {
       } else {
         this.currentUser = null;
         localStorage.removeItem('ascpt_has_session');
+    this.setCachedUser(null);
         document.body.classList.add('not-authenticated');
         this.updateUI();
         this.showLoginModal();
@@ -251,6 +292,7 @@ class AuthService {
 
   async logout() {
     localStorage.removeItem('ascpt_has_session');
+    this.setCachedUser(null);
     try {
       if (firebaseAuth) {
         await signOut(firebaseAuth);
