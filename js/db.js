@@ -547,45 +547,6 @@ class FirestoreDatabaseService {
     return patientId ? all.filter((l) => l.patientId === patientId) : all;
   }
 
-  // ================= 11. Doctor Compensation Rates =================
-  async getDoctorRates() {
-    this.ensureConnected();
-    try {
-      const docRef = doc(firestoreDb, 'clinical_options', 'doctor_rates');
-      const snap = await getDoc(docRef);
-      if (snap.exists() && snap.data().rates) {
-        return snap.data().rates;
-      }
-    } catch (err) {
-      console.warn('getDoctorRates notice:', err.message);
-    }
-    return {};
-  }
-
-  async saveDoctorRate(doctorName, rateData) {
-    this.ensureConnected();
-    const currentRates = await this.getDoctorRates();
-    const cleanDoc = doctorName.trim().replace(/\s+/g, ' ');
-    currentRates[cleanDoc] = {
-      type: rateData.type || 'percentage',
-      value: parseFloat(rateData.value) || 0,
-      updatedAt: new Date().toISOString()
-    };
-    const docRef = doc(firestoreDb, 'clinical_options', 'doctor_rates');
-    await setDoc(docRef, { rates: currentRates }, { merge: true });
-    return currentRates;
-  }
-
-  async deleteDoctorRate(doctorName) {
-    this.ensureConnected();
-    const currentRates = await this.getDoctorRates();
-    const cleanDoc = doctorName.trim().replace(/\s+/g, ' ');
-    delete currentRates[cleanDoc];
-    const docRef = doc(firestoreDb, 'clinical_options', 'doctor_rates');
-    await setDoc(docRef, { rates: currentRates }, { merge: true });
-    return currentRates;
-  }
-
   // ================= 9. Weekly Appointments Schedule & Custom Slots =================
   async getAppointmentSlots() {
     this.ensureConnected();

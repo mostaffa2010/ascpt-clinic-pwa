@@ -108,33 +108,6 @@ export class DoctorDashboardManager {
       ratioEl.textContent = `${cashCount} نقدي • ${insCount} تأمين`;
     }
 
-    // 5. Estimated doctor dues this month
-    const compEl = document.getElementById('stat-doc-month-comp');
-    if (compEl) {
-      try {
-        const doctorRates = await db.getDoctorRates();
-        const currentDocName = (this.currentUser?.name || '').trim().replace(/\s+/g, ' ');
-        const myRate = doctorRates[currentDocName] || null;
-
-        if (myRate) {
-          let myComp = 0;
-          if (myRate.type === 'percentage') {
-            const docRev = monthSessions.reduce((sum, s) => sum + (parseFloat(s.amountPaid) || 0), 0);
-            myComp = Math.round(docRev * (parseFloat(myRate.value) / 100));
-            compEl.textContent = `${myComp.toLocaleString('en-US')} ج.م`;
-          } else if (myRate.type === 'fixed') {
-            const monthCredited = monthSessions.reduce((acc, s) => acc + (s.entryType === 'examination' ? 1 : (s.bodyPartsCount || 1)), 0);
-            myComp = Math.round(monthCredited * (parseFloat(myRate.value) || 0));
-            compEl.textContent = `${myComp.toLocaleString('en-US')} ج.م`;
-          }
-        } else {
-          compEl.textContent = 'غير محدد';
-        }
-      } catch (_) {
-        compEl.textContent = '-';
-      }
-    }
-
     this.renderTable();
   }
 

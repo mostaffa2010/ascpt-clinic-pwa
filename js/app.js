@@ -450,30 +450,6 @@ class App {
     document.getElementById('btn-download-backup')?.addEventListener('click', () => this.downloadBackup());
     document.getElementById('btn-restore-backup')?.addEventListener('click', () => this.triggerRestoreBackup());
     document.getElementById('backup-file-input')?.addEventListener('change', (e) => this.handleFileRestore(e));
-
-    // Doctor Compensation Rate Modal Triggers & Form
-    document.addEventListener('click', (e) => {
-      const btn = e.target.closest('.btn-edit-doc-rate');
-      if (btn) {
-        const docName = btn.getAttribute('data-doc') || btn.getAttribute('data-user-name');
-        if (docName) this.openDoctorRateModal(docName);
-      }
-    });
-
-    document.getElementById('form-edit-doctor-rate')?.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      await this.handleSaveDoctorRate();
-    });
-
-    document.getElementById('btn-clear-doc-rate')?.addEventListener('click', async () => {
-      await this.handleClearDoctorRate();
-    });
-
-    document.querySelectorAll('#modal-edit-doctor-rate input[name="rate-type"]').forEach(r => {
-      r.addEventListener('change', () => this.updateDoctorRateModalUI());
-    });
-
-    document.getElementById('rate-value')?.addEventListener('input', () => this.updateDoctorRateModalUI());
   }
 
   bindCustomDialog() {
@@ -925,97 +901,6 @@ class App {
     }
   }
 
-  // ================= Doctor Compensation Rate Modal Controls =================
-  async openDoctorRateModal(docName) {
-    const cleanName = (docName || '').trim().replace(/\s+/g, ' ');
-    const doctorRates = await db.getDoctorRates ? await db.getDoctorRates() : {};
-    const rateInfo = doctorRates[cleanName] || null;
-
-    const modal = document.getElementById('modal-edit-doctor-rate');
-    if (!modal) return;
-
-    document.getElementById('rate-doc-name').value = cleanName;
-    const dispEl = document.getElementById('rate-display-doc-name');
-    if (dispEl) dispEl.textContent = cleanName;
-
-    const radios = modal.querySelectorAll('input[name="rate-type"]');
-    radios.forEach(r => {
-      r.checked = rateInfo ? (r.value === rateInfo.type) : (r.value === 'percentage');
-    });
-
-    const valInput = document.getElementById('rate-value');
-    if (valInput) valInput.value = rateInfo ? rateInfo.value : '';
-
-    const btnClear = document.getElementById('btn-clear-doc-rate');
-    if (btnClear) btnClear.style.display = rateInfo ? 'inline-flex' : 'none';
-
-    this.updateDoctorRateModalUI();
-    this.openModal('modal-edit-doctor-rate');
-  }
-
-  updateDoctorRateModalUI() {
-    const modal = document.getElementById('modal-edit-doctor-rate');
-    if (!modal) return;
-
-    const checkedType = modal.querySelector('input[name="rate-type"]:checked')?.value || 'percentage';
-    const valInput = document.getElementById('rate-value');
-    const unitDisplay = document.getElementById('rate-unit-display');
-    const labelEl = document.getElementById('rate-value-label');
-    const expText = document.getElementById('rate-explanation-text');
-    const val = parseFloat(valInput?.value) || 0;
-
-    if (checkedType === 'percentage') {
-      if (unitDisplay) unitDisplay.textContent = '%';
-      if (labelEl) labelEl.textContent = 'النسبة المئوية (%) *';
-      if (valInput) valInput.placeholder = 'مثال: 40';
-      if (expText) expText.textContent = `سيحصل الطبيب على ${val}% من إجمالي مبالغ جلساته وكشوفاته المسددة بالخزينة.`;
-    } else {
-      if (unitDisplay) unitDisplay.textContent = 'ج.م';
-      if (labelEl) labelEl.textContent = 'المبلغ الثابت لكل جلسة (ج.م) *';
-      if (valInput) valInput.placeholder = 'مثال: 50';
-      if (expText) expText.textContent = `سيحصل الطبيب على ${val} ج.م مضروبة في إجمالي عدد الجلسات المحتسبة في الشهر.`;
-    }
-  }
-
-  async handleSaveDoctorRate() {
-    const docName = document.getElementById('rate-doc-name')?.value;
-    const type = document.querySelector('#modal-edit-doctor-rate input[name="rate-type"]:checked')?.value || 'percentage';
-    const val = parseFloat(document.getElementById('rate-value')?.value);
-
-    if (!docName) return;
-    if (isNaN(val) || val < 0) {
-      await this.showAlert('يرجى إدخال قيمة صحيحة للنسبة أو المبلغ.', 'خطأ', 'warning');
-      return;
-    }
-
-    try {
-      await db.saveDoctorRate(docName, { type, value: val });
-      this.closeModal('modal-edit-doctor-rate');
-      this.showToast(`تم حفظ نظام مستحقات (${docName}) بنجاح`);
-      if (this.financeManager) await this.financeManager.loadMonthlyReport();
-      if (this.auditManager) await this.auditManager.loadUsers();
-    } catch (err) {
-      this.showAlert('تعذر حفظ مستحقات الطبيب: ' + err.message, 'خطأ', 'danger');
-    }
-  }
-
-  async handleClearDoctorRate() {
-    const docName = document.getElementById('rate-doc-name')?.value;
-    if (!docName) return;
-    const confirmed = await this.showConfirm(`هل تريد إلغاء تحديد نظام المستحقات للطبيب (${docName})؟`, 'تأكيد الإلغاء');
-    if (!confirmed) return;
-
-    try {
-      await db.deleteDoctorRate(docName);
-      this.closeModal('modal-edit-doctor-rate');
-      this.showToast(`تم إلغاء نظام مستحقات (${docName})`);
-      if (this.financeManager) await this.financeManager.loadMonthlyReport();
-      if (this.auditManager) await this.auditManager.loadUsers();
-    } catch (err) {
-      this.showAlert('تعذر الإلغاء: ' + err.message, 'خطأ', 'danger');
-    }
-  }
-
   // اختصارات مباشرة للأزرار
   exportToExcel() {
     if (this.exportManager) this.exportManager.exportToExcel();
@@ -1268,9 +1153,8 @@ class App {
     if (this.claimsManager && typeof this.claimsManager.loadClaims === 'function') {
       await this.claimsManager.loadClaims();
     }
-    if (this.auditManager) {
-      if (typeof this.auditManager.loadUsers === 'function') await this.auditManager.loadUsers();
-      if (typeof this.auditManager.loadAuditLogs === 'function') await this.auditManager.loadAuditLogs();
+    if (this.auditManager && typeof this.auditManager.loadAuditLogs === 'function') {
+      await this.auditManager.loadAuditLogs();
     }
   }
 }
