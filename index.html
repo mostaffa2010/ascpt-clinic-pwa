@@ -375,7 +375,7 @@
         <!-- Patients List / Table with Top & Bottom Scrollbars -->
         <div class="card">
           <!-- Top Horizontal Scrollbar (Synchronized for instant scrolling on desktop) -->
-          <div class="top-scrollbar-wrapper no-print" id="patients-top-scroll-wrap" style="display: none; overflow-x: auto; overflow-y: hidden; height: 12px; margin-bottom: 6px; border-radius: 4px; background: #f8fafc;">
+          <div class="top-scrollbar-wrapper no-print" id="patients-top-scroll-wrap" style="display: none; overflow-x: auto; overflow-y: hidden; height: 12px; margin-bottom: 6px; border-radius: 4px; background: var(--bg-subtle);">
             <div class="top-scrollbar-dummy" id="patients-top-scroll-dummy" style="height: 1px;"></div>
           </div>
           <div class="table-responsive" id="patients-table-container">
@@ -622,9 +622,9 @@
               <input type="hidden" id="session-edit-id" value="">
               <div class="form-grid">
                 <!-- Session Date Selection with Quick Today / Yesterday buttons -->
-                <div class="form-group" style="background-color: #f0f9ff; border: 1px solid #bae6fd; border-radius: var(--radius-md); padding: 10px;">
+                <div class="form-group" style="background-color: var(--bg-subtle); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 10px;">
                   <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
-                    <label for="session-date" id="session-date-label" style="font-weight: 800; color: #0369a1; font-size: 0.85rem;">
+                    <label for="session-date" id="session-date-label" style="font-weight: 800; color: var(--primary); font-size: 0.85rem;">
                       <i class="fa-solid fa-calendar-day"></i> تاريخ الجلسة *
                     </label>
                     <div style="display: flex; gap: 6px;">
@@ -1131,7 +1131,7 @@
               </div>
 
               <!-- Top Horizontal Scrollbar (Synchronized for instant scrolling on desktop & mobile) -->
-              <div class="top-scrollbar-wrapper no-print" id="claim-top-scroll-wrap" style="display: none; overflow-x: auto; overflow-y: hidden; height: 12px; margin-bottom: 6px; border-radius: 4px; background: #f8fafc;">
+              <div class="top-scrollbar-wrapper no-print" id="claim-top-scroll-wrap" style="display: none; overflow-x: auto; overflow-y: hidden; height: 12px; margin-bottom: 6px; border-radius: 4px; background: var(--bg-subtle);">
                 <div class="top-scrollbar-dummy" id="claim-top-scroll-dummy" style="height: 1px;"></div>
               </div>
               <div class="table-responsive" id="claim-table-container">
@@ -2148,7 +2148,7 @@
           </div>
 
           <!-- Time Input Row: Hour, Minute, Period -->
-          <div style="background: #f8fafc; border: 1.5px solid var(--border-color); border-radius: 10px; padding: 12px; margin-bottom: 14px;">
+          <div style="background: var(--bg-subtle); border: 1.5px solid var(--border-color); border-radius: 10px; padding: 12px; margin-bottom: 14px;">
             <label style="font-weight: 800; font-size: 0.88rem; color: var(--primary); margin-bottom: 8px; display: block;">
               <i class="fa-regular fa-clock"></i> تحديد الموعد بدقة:
             </label>
@@ -2191,7 +2191,7 @@
           </div>
 
           <!-- Preview of how it will look in table -->
-          <div style="background: #e0f2fe; border: 1px solid #bae6fd; border-radius: 8px; padding: 8px 12px; text-align: center; font-size: 0.88rem; font-weight: 800; color: #0369a1;">
+          <div style="background: var(--primary-light); border: 1px solid var(--border-color); border-radius: 8px; padding: 8px 12px; text-align: center; font-size: 0.88rem; font-weight: 800; color: var(--primary);">
             المظهر في الجدول: <span id="slot-preview-label" style="color: var(--primary); font-size: 1rem; margin-right: 4px;">٣:٣٠ م</span>
           </div>
         </div>

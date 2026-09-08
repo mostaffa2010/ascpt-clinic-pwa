@@ -473,6 +473,10 @@ body {
   cursor: pointer;
   user-select: none;
   transition: all 0.2s;
+  color: var(--text-main);
+}
+.chip-choice i {
+  color: var(--primary);
 }
 
 .chip-choice input {
@@ -1206,7 +1210,8 @@ table.appt-table th {
 
 .date-picker-clickable {
   cursor: pointer;
-  background-color: #ffffff !important;
+  background-color: var(--bg-surface) !important;
+  color: var(--text-main) !important;
   padding-left: 32px !important;
 }
 
@@ -1932,4 +1937,123 @@ body.not-authenticated #modal-auth #btn-cancel-login {
 
 [data-theme="dark"] body.not-authenticated #modal-auth {
   background: #0b1120 !important;
+}
+
+
+/* ================= Comprehensive Dark Theme Refinements (v1.2.1) ================= */
+[data-theme="dark"] .date-picker-clickable {
+  background-color: var(--bg-subtle) !important;
+  color: var(--text-main) !important;
+  border-color: var(--border-color) !important;
+}
+
+[data-theme="dark"] .top-scrollbar-wrapper {
+  background: var(--bg-subtle) !important;
+}
+
+[data-theme="dark"] .custom-calendar-header {
+  background-color: var(--bg-subtle) !important;
+  border-bottom: 1.5px solid var(--border-color) !important;
+}
+
+[data-theme="dark"] .custom-calendar-header h3 {
+  color: var(--primary) !important;
+}
+
+[data-theme="dark"] .custom-calendar-header span {
+  color: var(--text-muted) !important;
+}
+
+[data-theme="dark"] .cal-nav-btn {
+  background-color: var(--bg-surface) !important;
+  border-color: var(--border-color) !important;
+  color: var(--text-main) !important;
+}
+
+[data-theme="dark"] .cal-nav-btn:hover {
+  background-color: var(--border-color) !important;
+  color: var(--primary) !important;
+}
+
+[data-theme="dark"] .cal-quick-btn {
+  background-color: var(--bg-surface) !important;
+  border-color: var(--border-color) !important;
+  color: var(--primary) !important;
+}
+
+[data-theme="dark"] .cal-quick-btn.active {
+  background-color: var(--primary) !important;
+  color: #ffffff !important;
+  border-color: var(--primary) !important;
+}
+
+[data-theme="dark"] .cal-weekdays-grid {
+  background-color: var(--bg-surface);
+  border-bottom-color: var(--border-color);
+  color: var(--text-muted);
+}
+
+[data-theme="dark"] .custom-calendar-footer {
+  background-color: var(--bg-subtle) !important;
+  border-top-color: var(--border-color) !important;
+}
+
+[data-theme="dark"] .chip-choice {
+  background-color: var(--bg-subtle);
+  border-color: var(--border-color);
+  color: #f1f5f9;
+}
+
+[data-theme="dark"] .chip-choice i {
+  color: var(--primary);
+}
+
+[data-theme="dark"] .chip-choice.selected {
+  background-color: var(--primary) !important;
+  color: #ffffff !important;
+  border-color: var(--primary) !important;
+}
+
+[data-theme="dark"] .chip-choice.selected i {
+  color: #ffffff !important;
+}
+
+.cal-months-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+
+.cal-month-cell {
+  background: var(--bg-subtle);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 10px 4px;
+  color: var(--text-main);
+  cursor: pointer;
+  text-align: center;
+  transition: all 0.15s;
+}
+
+.cal-month-cell:hover {
+  background: var(--primary-light);
+  border-color: var(--primary);
+}
+
+.cal-month-cell.selected {
+  background: var(--primary) !important;
+  color: #ffffff !important;
+  border-color: var(--primary) !important;
+}
+
+[data-theme="dark"] .cal-month-cell {
+  background-color: var(--bg-subtle);
+  border-color: var(--border-color);
+  color: var(--text-main);
+}
+
+[data-theme="dark"] .cal-month-cell.selected {
+  background-color: var(--primary) !important;
+  color: #ffffff !important;
+  border-color: var(--primary) !important;
 }
