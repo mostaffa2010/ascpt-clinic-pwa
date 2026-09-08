@@ -1666,3 +1666,51 @@ body.not-authenticated #modal-auth #btn-cancel-login {
   background-color: #dc2626 !important;
   transform: translateY(-50%) scale(1.18) !important;
 }
+
+
+/* ================= Today Patients Filter Button ================= */
+.btn-today-active {
+  background-color: var(--primary) !important;
+  color: #ffffff !important;
+  border-color: var(--primary) !important;
+}
+.btn-today-active i {
+  color: #ffffff !important;
+}
+.btn-today-active .badge {
+  background-color: rgba(255, 255, 255, 0.3) !important;
+  color: #ffffff !important;
+}
+
+/* ================= Appointment Chip Actions & Move Button ================= */
+.appt-chip-patient {
+  cursor: pointer;
+  flex: 1;
+}
+.appt-chip-patient:hover {
+  color: var(--primary);
+  text-decoration: underline;
+}
+.appt-chip-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+.appt-chip-move {
+  background: none;
+  border: none;
+  color: var(--primary);
+  font-size: 0.8rem;
+  line-height: 1;
+  cursor: pointer;
+  padding: 2px 4px;
+  border-radius: 4px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s ease;
+}
+.appt-chip-move:hover {
+  background: rgba(2, 132, 199, 0.18);
+  transform: scale(1.1);
+}

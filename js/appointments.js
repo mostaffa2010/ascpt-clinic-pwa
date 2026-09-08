@@ -73,6 +73,7 @@ export class AppointmentsManager {
     // Slot Editing State
     this.slotEditMode = 'edit'; // 'edit' | 'add'
     this.slotEditOldKey = null;
+    this.movingAppt = null;
   }
 
   async init() {
@@ -98,6 +99,11 @@ export class AppointmentsManager {
     });
 
     // Add New Slot Trigger Button in Card Header
+    document.getElementById('form-move-appointment')?.addEventListener('submit', (e) => {
+      e.preventDefault();
+      this.handleConfirmMoveAppointment();
+    });
+
     document.getElementById('btn-add-new-slot')?.addEventListener('click', () => this.openAddSlotModal());
 
     // Slot Edit Form Controls
@@ -210,8 +216,13 @@ export class AppointmentsManager {
         const cellAppts = this.getCellAppointments(doc.uid, slot.key);
         const chips = cellAppts.map((a) => `
           <div class="appt-chip" data-appt-id="${escapeHTML(a.id)}">
-            <span class="appt-chip-patient">${escapeHTML(a.patientName)}</span>
-            <button type="button" class="appt-chip-remove" data-remove-appt="${escapeHTML(a.id)}" title="حذف">&times;</button>
+            <span class="appt-chip-patient" data-move-appt="${escapeHTML(a.id)}" title="اضغط لنقل الموعد أو تعديله">${escapeHTML(a.patientName)}</span>
+            <div class="appt-chip-actions">
+              <button type="button" class="appt-chip-move" data-move-appt="${escapeHTML(a.id)}" title="نقل الموعد لطبيب أو ساعة أخرى">
+                <i class="fa-solid fa-arrow-right-arrow-left"></i>
+              </button>
+              <button type="button" class="appt-chip-remove" data-remove-appt="${escapeHTML(a.id)}" title="حذف">&times;</button>
+            </div>
           </div>
         `).join('');
 
@@ -259,6 +270,13 @@ export class AppointmentsManager {
     const removeBtn = e.target.closest('[data-remove-appt]');
     if (removeBtn) {
       this.deleteAppointment(removeBtn.getAttribute('data-remove-appt'));
+      return;
+    }
+
+    // 2.5 Move / reschedule appointment
+    const moveBtn = e.target.closest('[data-move-appt]');
+    if (moveBtn) {
+      this.openMoveModal(moveBtn.getAttribute('data-move-appt'));
       return;
     }
 
@@ -545,6 +563,84 @@ export class AppointmentsManager {
       await this.refreshVisibleGrids();
     } catch (err) {
       this.app.showAlert('تعذر حذف الموعد: ' + err.message, 'خطأ', 'danger');
+    }
+  }
+
+  // ================= Move / Reschedule Appointment Modal =================
+  openMoveModal(apptId) {
+    const appt = this.appointments.find((a) => a.id === apptId);
+    if (!appt) return;
+
+    this.movingAppt = appt;
+    const nameEl = document.getElementById('move-appt-patient-name');
+    if (nameEl) nameEl.textContent = appt.patientName;
+
+    const currentSlotObj = (this.slots || []).find((s) => s.key === appt.timeSlot);
+    const slotLabel = currentSlotObj ? currentSlotObj.label : appt.timeSlot;
+    const infoEl = document.getElementById('move-appt-current-info');
+    if (infoEl) {
+      infoEl.textContent = `الموعد الحالي: د. ${appt.doctorName || '-'} — الساعة ${slotLabel}`;
+    }
+
+    const docSel = document.getElementById('move-appt-doctor');
+    if (docSel) {
+      docSel.innerHTML = this.doctors.map((d) => `
+        <option value="${escapeHTML(d.uid)}" data-name="${escapeHTML(d.name)}" ${d.uid === appt.doctorUid ? 'selected' : ''}>
+          ${escapeHTML(d.name)}
+        </option>
+      `).join('');
+    }
+
+    const slotSel = document.getElementById('move-appt-slot');
+    if (slotSel) {
+      const slotsToUse = (this.slots && this.slots.length > 0) ? this.slots : DEFAULT_APPT_SLOTS;
+      slotSel.innerHTML = slotsToUse.map((s) => {
+        const count = this.getSlotTotalCount(s.key);
+        return `
+          <option value="${escapeHTML(s.key)}" ${s.key === appt.timeSlot ? 'selected' : ''}>
+            ${escapeHTML(s.label)} (${count}/${MAX_BEDS_PER_SLOT} حالات)
+          </option>
+        `;
+      }).join('');
+    }
+
+    this.app.openModal('modal-move-appointment');
+  }
+
+  async handleConfirmMoveAppointment() {
+    if (!this.movingAppt) return;
+    const apptId = this.movingAppt.id;
+    const docSel = document.getElementById('move-appt-doctor');
+    const slotSel = document.getElementById('move-appt-slot');
+
+    const targetDoctorUid = docSel?.value;
+    const targetDoctorName = docSel?.options[docSel.selectedIndex]?.getAttribute('data-name') || '';
+    const targetSlotKey = slotSel?.value;
+    const targetSlotLabel = (this.slots || []).find((s) => s.key === targetSlotKey)?.label || targetSlotKey;
+
+    if (!targetDoctorUid || !targetSlotKey) {
+      this.app.showAlert('من فضلك اختر الطبيب والميعاد المطلوب النقل إليه.', 'بيانات ناقصة', 'warning');
+      return;
+    }
+
+    // If no change, simply close modal
+    if (targetDoctorUid === this.movingAppt.doctorUid && targetSlotKey === this.movingAppt.timeSlot) {
+      this.app.closeModal('modal-move-appointment');
+      return;
+    }
+
+    try {
+      await db.updateAppointment(apptId, {
+        doctorUid: targetDoctorUid,
+        doctorName: targetDoctorName,
+        timeSlot: targetSlotKey
+      });
+      this.app.closeModal('modal-move-appointment');
+      this.app.showToast(`تم نقل موعد ${this.movingAppt.patientName} إلى د. ${targetDoctorName} (${targetSlotLabel}) بنجاح`);
+      this.movingAppt = null;
+      await this.refreshVisibleGrids();
+    } catch (err) {
+      this.app.showAlert('تعذر نقل الموعد: ' + err.message, 'خطأ', 'danger');
     }
   }
 

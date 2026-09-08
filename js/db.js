@@ -647,6 +647,16 @@ class FirestoreDatabaseService {
     return payload;
   }
 
+  async updateAppointment(apptId, updates) {
+    this.ensureConnected();
+    const ref = doc(firestoreDb, 'appointments', apptId);
+    await updateDoc(ref, {
+      ...updates,
+      updatedAt: new Date().toISOString()
+    });
+    return { id: apptId, ...updates };
+  }
+
   async deleteAppointment(apptId) {
     this.ensureConnected();
     await deleteDoc(doc(firestoreDb, 'appointments', apptId));

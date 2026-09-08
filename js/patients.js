@@ -1,4 +1,4 @@
-import { escapeHTML } from './utils.js';
+import { escapeHTML, getLocalDateStr } from './utils.js';
 // ========================================================
 // PhysioFlow - Patients Management Module
 // ========================================================
@@ -20,6 +20,7 @@ export class PatientsManager {
       procedure: false,
       exercise: false
     };
+    this.filterTodayOnly = false;
   }
 
   async init() {
@@ -37,6 +38,11 @@ export class PatientsManager {
     const filterType = document.getElementById('patient-filter-type');
     if (filterType) {
       filterType.addEventListener('change', () => this.renderPatients());
+    }
+
+    const btnToday = document.getElementById('btn-filter-today-patients');
+    if (btnToday) {
+      btnToday.addEventListener('click', () => this.toggleTodayFilter());
     }
 
     const btnOpenAdd = document.getElementById('btn-open-add-patient');
@@ -285,6 +291,42 @@ export class PatientsManager {
     return -1;
   }
 
+  toggleTodayFilter() {
+    this.filterTodayOnly = !this.filterTodayOnly;
+    const btn = document.getElementById('btn-filter-today-patients');
+    if (btn) {
+      if (this.filterTodayOnly) {
+        btn.classList.add('btn-today-active');
+      } else {
+        btn.classList.remove('btn-today-active');
+      }
+    }
+    this.renderPatients();
+  }
+
+  getTodayPatientIds() {
+    const todayIds = new Set();
+    const todayStr = getLocalDateStr();
+
+    // 1. Sessions recorded today
+    const sessions = this.app?.sessionsManager?.sessions || [];
+    sessions.forEach(s => {
+      if (s.date === todayStr && s.patientId) {
+        todayIds.add(s.patientId);
+      }
+    });
+
+    // 2. Weekly appointments schedule
+    const appts = this.app?.appointmentsManager?.appointments || [];
+    appts.forEach(a => {
+      if (a.patientId) {
+        todayIds.add(a.patientId);
+      }
+    });
+
+    return todayIds;
+  }
+
   renderPatients() {
     const tbody = document.getElementById('patients-tbody');
     if (!tbody) return;
@@ -294,7 +336,15 @@ export class PatientsManager {
     const normSearch = this.normalizeArabic(rawSearch);
     const cleanDigits = rawSearch.replace(/[^0-9]/g, '');
 
+    const todayIds = this.getTodayPatientIds();
+    const countBadge = document.getElementById('badge-today-patients-count');
+    if (countBadge) countBadge.textContent = todayIds.size;
+
     let filtered = this.patients.filter(p => {
+      // 0. Filter Today Only if active
+      if (this.filterTodayOnly && !todayIds.has(p.id)) {
+        return false;
+      }
       // 1. Smart Normalized Arabic & Phone Search
       let matchSearch = true;
       if (rawSearch) {
@@ -335,6 +385,17 @@ export class PatientsManager {
     }
 
     if (filtered.length === 0) {
+      if (this.filterTodayOnly) {
+        tbody.innerHTML = `<tr><td colspan="8" style="text-align: center; color: var(--text-muted); padding: 30px;">
+          <i class="fa-solid fa-calendar-xmark" style="font-size: 1.8rem; color: var(--text-muted); margin-bottom: 8px; display: block;"></i>
+          لا توجد حالات مسجلة في مواعيد أو جلسات اليوم.<br>
+          <button type="button" class="btn btn-outline btn-sm" id="btn-reset-today-filter" style="margin-top: 10px;">
+            عرض كافة المرضى
+          </button>
+        </td></tr>`;
+        document.getElementById('btn-reset-today-filter')?.addEventListener('click', () => this.toggleTodayFilter());
+        return;
+      }
       tbody.innerHTML = `<tr><td colspan="8" style="text-align: center; color: var(--text-muted); padding: 30px;">لا يوجد مرضى مطابقين لكلمة البحث: <strong>"${escapeHTML(rawSearch)}"</strong></td></tr>`;
       return;
     }
