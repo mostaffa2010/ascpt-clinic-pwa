@@ -42,26 +42,35 @@ class AuthService {
     let userSnap = null;
     const userDocRef = doc(firestoreDb, 'users', firebaseUser.uid);
 
-    // If device is offline (Wi-Fi off), read immediately from Firestore IndexedDB cache
-    if (!navigator.onLine) {
-      try {
-        userSnap = await getDocFromCache(userDocRef);
-      } catch (e) {
-        console.warn('Offline cache read notice:', e.message);
-      }
-    }
+    // 1. Fast Cache-First retrieval from Firestore IndexedDB cache for instant startup (<15ms)
+    try {
+      userSnap = await getDocFromCache(userDocRef);
+    } catch (_) {}
 
+    // 2. If not found in cache, fetch from Firestore server
     if (!userSnap || !userSnap.exists()) {
       try {
         const fetchPromise = getDoc(userDocRef);
-        const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 1500));
+        const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 2500));
         userSnap = await Promise.race([fetchPromise, timeoutPromise]);
       } catch (err) {
         try {
           userSnap = await getDocFromCache(userDocRef);
-        } catch (cacheErr) {
+        } catch (_) {
           throw new Error('FIRESTORE_UNAVAILABLE');
         }
+      }
+    } else {
+      // 3. Background silent revalidation if online
+      if (navigator.onLine) {
+        getDoc(userDocRef).then((freshSnap) => {
+          if (freshSnap && freshSnap.exists()) {
+            const freshProfile = freshSnap.data();
+            if (freshProfile && freshProfile.active !== true) {
+              this.logout();
+            }
+          }
+        }).catch(() => {});
       }
     }
 
@@ -108,6 +117,9 @@ class AuthService {
         try {
           this.currentUser = await this.resolveUserProfile(firebaseUser);
 
+          // Mark session active in localStorage for instant zero-delay launch next time
+          localStorage.setItem('ascpt_has_session', 'true');
+
           // Unlock application
           document.body.classList.remove('not-authenticated');
           this.hideLoginModal();
@@ -146,6 +158,7 @@ class AuthService {
         }
       } else {
         this.currentUser = null;
+        localStorage.removeItem('ascpt_has_session');
         document.body.classList.add('not-authenticated');
         this.updateUI();
         this.showLoginModal();
@@ -187,6 +200,7 @@ class AuthService {
 
       this.currentUser = await this.resolveUserProfile(user);
 
+      localStorage.setItem('ascpt_has_session', 'true');
       document.body.classList.remove('not-authenticated');
       this.hideLoginModal();
       this.hideLoginError();
@@ -236,6 +250,7 @@ class AuthService {
   }
 
   async logout() {
+    localStorage.removeItem('ascpt_has_session');
     try {
       if (firebaseAuth) {
         await signOut(firebaseAuth);
