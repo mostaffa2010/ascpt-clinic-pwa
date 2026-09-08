@@ -109,8 +109,9 @@ class App {
   }
 
   async init() {
-    // 1. تفعيل PWA
+    // 1. تفعيل PWA والوضع الليلي
     PWAManager.init();
+    this.initTheme();
 
     // 2. ضبط عرض التاريخ
     const dateDisplay = document.getElementById('dashboard-date-display');
@@ -166,6 +167,46 @@ class App {
 
 
     console.log('ASCPT Clinic Management System fully initialized.');
+  }
+
+  // ================= Dark / Light Theme Manager =================
+  initTheme() {
+    const saved = localStorage.getItem('ascpt_theme');
+    const isDark = saved === 'dark' || (!saved && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches);
+    this.applyTheme(isDark ? 'dark' : 'light');
+
+    const toggleBtns = document.querySelectorAll('#btn-toggle-theme, #btn-toggle-theme-desktop');
+    toggleBtns.forEach(btn => {
+      btn.addEventListener('click', () => this.toggleTheme());
+    });
+  }
+
+  toggleTheme() {
+    const current = document.documentElement.getAttribute('data-theme');
+    const next = current === 'dark' ? 'light' : 'dark';
+    this.applyTheme(next);
+    localStorage.setItem('ascpt_theme', next);
+    this.showToast(next === 'dark' ? 'تم تفعيل الوضع الليلي 🌙' : 'تم تفعيل الوضع النهاري ☀️');
+  }
+
+  applyTheme(theme) {
+    if (theme === 'dark') {
+      document.documentElement.setAttribute('data-theme', 'dark');
+      const meta = document.querySelector('meta[name="theme-color"]');
+      if (meta) meta.setAttribute('content', '#0b1120');
+      document.querySelectorAll('#btn-toggle-theme i, #btn-toggle-theme-desktop i').forEach(icon => {
+        icon.className = 'fa-solid fa-sun';
+        icon.style.color = '#f59e0b';
+      });
+    } else {
+      document.documentElement.removeAttribute('data-theme');
+      const meta = document.querySelector('meta[name="theme-color"]');
+      if (meta) meta.setAttribute('content', '#0284c7');
+      document.querySelectorAll('#btn-toggle-theme i, #btn-toggle-theme-desktop i').forEach(icon => {
+        icon.className = 'fa-solid fa-moon';
+        icon.style.color = '';
+      });
+    }
   }
 
   bindNavigation() {

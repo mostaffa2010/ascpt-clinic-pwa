@@ -6,6 +6,18 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="theme-color" content="#0284c7">
+    <script>
+      (function() {
+        try {
+          const saved = localStorage.getItem("ascpt_theme");
+          if (saved === "dark" || (!saved && window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches)) {
+            document.documentElement.setAttribute("data-theme", "dark");
+            const meta = document.querySelector("meta[name='theme-color']");
+            if (meta) meta.setAttribute("content", "#0b1120");
+          }
+        } catch (e) {}
+      })();
+    </script>
     
     <title>مركز اسكندرية التخصصي للعلاج الطبيعي (ASCPT)</title>
 
@@ -70,6 +82,11 @@
         <span id="header-user-display" style="white-space: nowrap;">تسجيل الدخول</span>
       </div>
 
+      <!-- Theme Toggle Button (Mobile) -->
+      <button type="button" class="btn btn-outline btn-sm" id="btn-toggle-theme" style="border-radius: 10px; padding: 6px 10px; font-weight: 700; width: 36px; height: 34px; display: inline-flex; align-items: center; justify-content: center;" title="التبديل بين الوضع الليلي والنهاري">
+        <i class="fa-solid fa-moon"></i>
+      </button>
+
       <!-- Logout / Switch Account Button -->
       <button type="button" class="btn btn-outline btn-sm" id="btn-logout-mobile" style="border-radius: 10px; padding: 6px 10px; font-weight: 700;" title="تسجيل الخروج / تبديل الحساب" >
         <i class="fa-solid fa-right-from-bracket"></i>
@@ -131,6 +148,9 @@
                 <div id="sidebar-user-role" class="badge" style="font-size: 0.72rem; padding: 2px 6px;">زائر</div>
               </div>
             </div>
+            <button class="btn btn-outline btn-sm" id="btn-toggle-theme-desktop" style="width: 30px; height: 30px; padding: 0; display: flex; align-items: center; justify-content: center; border-radius: 8px; color: var(--text-muted); margin-left: 6px;" title="التبديل بين الوضع الليلي والنهاري">
+              <i class="fa-solid fa-moon"></i>
+            </button>
             <button class="btn btn-outline btn-sm" id="btn-logout-desktop" style="width: 30px; height: 30px; padding: 0; display: flex; align-items: center; justify-content: center; border-radius: 8px; color: var(--text-muted);" title="تسجيل الخروج">
               <i class="fa-solid fa-right-from-bracket"></i>
             </button>

@@ -495,3 +495,18 @@
     color: #475569 !important;
     text-align: center !important;
   }
+
+
+/* Strict Dark-Mode Isolation for Printing */
+@media print {
+  html, body, [data-theme="dark"] {
+    --bg-main: #ffffff !important;
+    --bg-surface: #ffffff !important;
+    --bg-subtle: #f8fafc !important;
+    --text-main: #000000 !important;
+    --text-muted: #475569 !important;
+    --border-color: #cbd5e1 !important;
+    background: #ffffff !important;
+    color: #000000 !important;
+  }
+}
