@@ -13,6 +13,7 @@ import {
 
 import { firestoreDb, firebaseAuth } from './firebase-init.js';
 import { auth } from './auth.js';
+import { db } from './db.js';
 import { RolesManager } from './roles.js';
 import { escapeHTML } from './utils.js';
 
@@ -231,23 +232,31 @@ export class AuditAndAdminManager {
     const tbody = document.getElementById('admin-users-tbody');
     if (!tbody) return;
 
-    let users = [];
-    if (firestoreDb) {
-      try {
-        const snap = await getDocs(collection(firestoreDb, 'users'));
-        users = snap.docs.map(d => ({ ...d.data(), id: d.id }));
-      } catch (err) {
-        console.error('Error loading users from Firestore:', err);
+    try {
+      let users = [];
+      if (firestoreDb) {
+        try {
+          const snap = await getDocs(collection(firestoreDb, 'users'));
+          users = snap.docs.map(d => ({ ...d.data(), id: d.id }));
+        } catch (err) {
+          console.error('Error loading users from Firestore:', err);
+        }
       }
-    }
 
-    const currentUser = auth.getCurrentUser();
-    const doctorRates = await db.getDoctorRates ? await db.getDoctorRates() : {};
+      const currentUser = auth.getCurrentUser();
+      let doctorRates = {};
+      try {
+        if (typeof db !== 'undefined' && typeof db.getDoctorRates === 'function') {
+          doctorRates = await db.getDoctorRates();
+        }
+      } catch (e) {
+        console.warn('getDoctorRates notice:', e.message);
+      }
 
-    if (users.length === 0) {
-      tbody.innerHTML = `<tr><td colspan="5" style="text-align: center; color: var(--text-muted); padding: 20px;">لا يوجد أطباء أو موظفين مسجلين حالياً. استخدم النموذج أعلاه لإنشاء حساب جديد.</td></tr>`;
-      return;
-    }
+      if (users.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="5" style="text-align: center; color: var(--text-muted); padding: 20px;">لا يوجد أطباء أو موظفين مسجلين حالياً. استخدم النموذج أعلاه لإنشاء حساب جديد.</td></tr>`;
+        return;
+      }
 
     tbody.innerHTML = users.map(u => {
       const isSelf = currentUser && (currentUser.uid === u.id || currentUser.id === u.id || currentUser.email === u.email);
@@ -304,6 +313,10 @@ export class AuditAndAdminManager {
         </tr>
       `;
     }).join('');
+    } catch (err) {
+      console.error('loadUsers unexpected error:', err);
+      tbody.innerHTML = `<tr><td colspan="5" style="text-align: center; color: var(--danger); padding: 20px;"><i class="fa-solid fa-triangle-exclamation"></i> تعذر تحميل قائمة فريق العمل: ${escapeHTML(err.message)}</td></tr>`;
+    }
   }
 
   async loadAuditLogs() {

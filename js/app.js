@@ -1268,8 +1268,9 @@ class App {
     if (this.claimsManager && typeof this.claimsManager.loadClaims === 'function') {
       await this.claimsManager.loadClaims();
     }
-    if (this.auditManager && typeof this.auditManager.loadAuditLogs === 'function') {
-      await this.auditManager.loadAuditLogs();
+    if (this.auditManager) {
+      if (typeof this.auditManager.loadUsers === 'function') await this.auditManager.loadUsers();
+      if (typeof this.auditManager.loadAuditLogs === 'function') await this.auditManager.loadAuditLogs();
     }
   }
 }
