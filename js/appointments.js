@@ -605,6 +605,11 @@ export class AppointmentsManager {
       }).join('');
     }
 
+    if (this.app?.updateCustomSelectDisplay) {
+      this.app.updateCustomSelectDisplay('move-appt-doctor');
+      this.app.updateCustomSelectDisplay('move-appt-slot');
+    }
+
     this.app.openModal('modal-move-appointment');
   }
 
