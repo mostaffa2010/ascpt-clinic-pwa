@@ -588,6 +588,10 @@ export class FinanceManager {
     }
   }
 
+  async updateDashboardStats() {
+    await this.loadDailyReport();
+  }
+
   // ================= 1. DAILY REPORT =================
   async loadDailyReport() {
     const allSessions = await db.getSessions(this.currentDate);
@@ -802,13 +806,15 @@ export class FinanceManager {
     const dashExpenses = document.getElementById('stat-expenses-today');
 
     if (dashPatients) dashPatients.textContent = allSessions.length;
-    if (dashCash) dashCash.textContent = `${totalCash.toLocaleString('en-US')} ج.م`;
+    if (dashCash) dashCash.textContent = `${totalDrawerCash.toLocaleString('en-US')} ج.م`;
     if (dashInsurance) dashInsurance.textContent = `${allSessions.filter(s => s.payType === 'insurance').length} حالات`;
     if (dashExpenses) dashExpenses.textContent = `${totalExpenses.toLocaleString('en-US')} ج.م`;
 
     const dashTbody = document.querySelector('#dashboard-recent-table tbody');
     if (dashTbody) {
-      const recent = allSessions.slice(0, 5);
+      // Sort newest recorded sessions first
+      const sortedSessions = [...allSessions].sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
+      const recent = sortedSessions.slice(0, 5);
       if (recent.length === 0) {
         dashTbody.innerHTML = `<tr><td colspan="6" style="text-align: center; color: var(--text-muted); padding: 15px;">لا توجد جلسات مسجلة اليوم.</td></tr>`;
       } else {
@@ -817,8 +823,11 @@ export class FinanceManager {
           const safeDoc = escapeHTML(s.doctor);
           const safeIns = escapeHTML(s.insuranceName || 'تأمين');
           const safeAmount = escapeHTML(s.amountPaid);
-          const safeRecAt = escapeHTML(s.recordedAt);
-          const safeCount = escapeHTML(s.bodyPartsCount || 1);
+          const safeRecAt = escapeHTML(s.recordedAt || '');
+          const isExam = (s.entryType === 'examination');
+          const safeCount = isExam
+            ? '<span class="badge" style="background: var(--bg-subtle); color: var(--primary); font-weight: 700; font-size: 0.75rem;"><i class="fa-solid fa-stethoscope"></i> كشف</span>'
+            : `${escapeHTML(s.bodyPartsCount || 1)} أعضاء`;
 
           return `
             <tr>
@@ -831,7 +840,7 @@ export class FinanceManager {
                     ? `<span class="badge badge-direct"><i class="fa-solid fa-file-contract"></i> ${safeIns}</span>` 
                     : `<span class="badge badge-indirect"><i class="fa-solid fa-handshake"></i> ${safeIns}</span>`)}
               </td>
-              <td>${safeCount} أعضاء</td>
+              <td>${safeCount}</td>
               <td style="font-weight: 700; color: var(--success);">${safeAmount} ج.م</td>
               <td style="font-size: 0.8rem; color: var(--text-muted);">${safeRecAt}</td>
             </tr>

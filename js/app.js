@@ -283,7 +283,7 @@ class App {
       if (user?.role === 'doctor') {
         if (this.doctorDashboardManager) this.doctorDashboardManager.render();
       } else {
-        if (this.financeManager) this.financeManager.updateDashboardStats();
+        if (this.financeManager) this.financeManager.loadDailyReport();
       }
     }
     if (viewName === 'finance') this.financeManager.loadDailyReport();
