@@ -134,6 +134,12 @@ export class PatientsManager {
       this.submitInsuranceLetter();
     });
 
+    // Renew Insurance Approval Form Submit
+    const formRenew = document.getElementById('form-renew-approval');
+    if (formRenew) {
+      formRenew.addEventListener('submit', (e) => this.handleConfirmRenewApproval(e));
+    }
+
     // Patient Sheet Form Submit
     const formSheet = document.getElementById('form-patient-sheet');
     if (formSheet) {
@@ -208,6 +214,12 @@ export class PatientsManager {
         if (sheetAction) {
           const pid = sheetAction.getAttribute('data-patient-id');
           if (pid) this.openPatientSheet(pid);
+          return;
+        }
+        const renewBtn = e.target.closest('.btn-renew-approval');
+        if (renewBtn) {
+          const pid = renewBtn.getAttribute('data-patient-id');
+          if (pid) this.openRenewApprovalModal(pid);
           return;
         }
         const editBtn = e.target.closest('.btn-edit-patient');
@@ -476,6 +488,9 @@ export class PatientsManager {
                 <i class="fa-brands fa-whatsapp"></i>
               </a>
               ${!isDoctor && p.billing !== 'cash' ? `
+                <button type="button" class="btn btn-outline btn-sm btn-renew-approval" data-patient-id="${safeId}" style="color: #0284c7; border-color: #0284c7;" title="تجديد جواب الموافقة وبدء دورة جلسات جديدة">
+                  <i class="fa-solid fa-rotate-right"></i>
+                </button>
                 <button type="button" class="btn btn-outline btn-sm btn-insurance-letter-row" style="color: #0284c7; border-color: #0284c7;" data-patient-id="${safeId}" title="طباعة خطاب تجديد تأمين">
                   <i class="fa-solid fa-file-shield"></i>
                 </button>
@@ -693,6 +708,8 @@ export class PatientsManager {
     });
     document.getElementById('modal-patient-title').innerHTML = '<i class="fa-solid fa-user-plus"></i> تسجيل مريض جديد';
     document.getElementById('p-insurance-details').style.display = 'none';
+    const appSessionsInp = document.getElementById('p-approved-sessions');
+    if (appSessionsInp) appSessionsInp.value = '12';
     this.onContractTypeChanged('direct');
     const directRadio = document.querySelector('input[name="p-contract-type"][value="direct"]');
     if (directRadio) directRadio.checked = true;
@@ -747,6 +764,8 @@ export class PatientsManager {
       const contractRadios = document.querySelectorAll('input[name="p-contract-type"]');
       contractRadios.forEach(r => { r.checked = (r.value === cType); });
       this.onContractTypeChanged(cType);
+      const appSessionsInp = document.getElementById('p-approved-sessions');
+      if (appSessionsInp) appSessionsInp.value = p.approvedSessions || 12;
     } else {
       insBox.style.display = 'none';
     }
@@ -874,6 +893,11 @@ export class PatientsManager {
       contractType = document.querySelector('input[name="p-contract"]:checked')?.value || 'direct';
     }
 
+    let approvedSessions = 12;
+    if (billing === 'insurance') {
+      approvedSessions = parseInt(document.getElementById('p-approved-sessions')?.value) || 12;
+    }
+
     const patientData = {
       id: id || null,
       name,
@@ -885,8 +909,16 @@ export class PatientsManager {
       doctorUid,
       billing,
       insuranceCompany,
-      contractType
+      contractType,
+      approvedSessions
     };
+
+    if (!id && billing === 'insurance') {
+      patientData.currentApprovalStartDate = getLocalDateStr();
+    } else if (id && billing === 'insurance') {
+      const existingP = this.patients.find(p => p.id === id);
+      patientData.currentApprovalStartDate = existingP?.currentApprovalStartDate || getLocalDateStr();
+    }
 
     const actionResult = await db.savePatient(patientData, currentUser);
     const auditDesc = id 
@@ -918,6 +950,63 @@ export class PatientsManager {
       this.app.showToast('تم حذف ملف المريض');
       this.renderAllInsuranceChips();
     await this.loadPatients();
+    }
+  }
+
+  openRenewApprovalModal(patientId) {
+    const patient = this.patients.find(p => p.id === patientId);
+    if (!patient) return;
+
+    document.getElementById('renew-patient-id').value = patient.id;
+    document.getElementById('renew-patient-name').textContent = patient.name;
+    const cTypeLabel = patient.contractType === 'indirect' ? 'تعاقد غير مباشر' : 'تعاقد مباشر';
+    document.getElementById('renew-company-name').textContent = `${patient.insuranceCompany || 'شركة التأمين'} (${cTypeLabel})`;
+    document.getElementById('renew-sessions-count').value = patient.approvedSessions || 12;
+    document.getElementById('renew-approval-date').value = getLocalDateStr();
+    document.getElementById('renew-approval-no').value = patient.insuranceApprovalNo || '';
+
+    this.app.openModal('modal-renew-approval');
+  }
+
+  async handleConfirmRenewApproval(e) {
+    e.preventDefault();
+    const pid = document.getElementById('renew-patient-id')?.value;
+    const newSessions = parseInt(document.getElementById('renew-sessions-count')?.value) || 12;
+    const renewDate = document.getElementById('renew-approval-date')?.value || getLocalDateStr();
+    const newApprovalNo = document.getElementById('renew-approval-no')?.value?.trim() || '';
+
+    const patient = this.patients.find(p => p.id === pid);
+    if (!patient) return;
+
+    try {
+      const currentUser = auth.getCurrentUser();
+      const updates = {
+        approvedSessions: newSessions,
+        currentApprovalStartDate: renewDate,
+        lastRenewalDate: renewDate,
+        lastRenewedBy: currentUser?.name || 'الاستقبال'
+      };
+      if (newApprovalNo) {
+        updates.insuranceApprovalNo = newApprovalNo;
+      }
+
+      await db.savePatient({ ...patient, ...updates }, currentUser);
+      try {
+        await db.logAudit(
+          'تجديد موافقة تأمين',
+          `تجديد موافقة التأمين للمريض ${patient.name} (${newSessions} جلسة - سريان من ${renewDate})`,
+          currentUser
+        );
+      } catch (_) {}
+
+      this.app.closeModal('modal-renew-approval');
+      this.app.showToast(`تم تجديد جواب الموافقة للمريض (${patient.name}) وبدء دورة جديدة (${newSessions} جلسة) بنجاح.`);
+      await this.loadPatients();
+      if (this.app?.sessionsManager?.loadTodaySessions) {
+        await this.app.sessionsManager.loadTodaySessions();
+      }
+    } catch (err) {
+      this.app.showAlert('تعذر تجديد الموافقة: ' + err.message, 'خطأ', 'danger');
     }
   }
 

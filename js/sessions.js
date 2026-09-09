@@ -786,6 +786,27 @@ export class SessionsManager {
     const sessionDateVal = document.getElementById('session-date')?.value || this.currentSessionDate;
     const isEdit = Boolean(this.editingSessionId);
 
+    // Calculate session number for patient's approval cycle
+    let sessionNumber = null;
+    let approvedSessionsTotal = null;
+    if (this.entryMode === 'session' && patient) {
+      try {
+        const allPatientSessions = (await db.getSessions()).filter(x => x.patientId === patient.id && x.entryType !== 'examination');
+        const cycleStart = patient.currentApprovalStartDate || '';
+        const cycleSessions = (payType === 'insurance' && cycleStart)
+          ? allPatientSessions.filter(x => (x.date || '').localeCompare(cycleStart) >= 0)
+          : allPatientSessions;
+
+        if (isEdit && this.editingSessionId) {
+          const editIdx = cycleSessions.findIndex(x => x.id === this.editingSessionId);
+          sessionNumber = editIdx >= 0 ? (editIdx + 1) : (cycleSessions.length || 1);
+        } else {
+          sessionNumber = cycleSessions.length + 1;
+        }
+        approvedSessionsTotal = patient.approvedSessions || 12;
+      } catch (_) {}
+    }
+
     const sessionData = {
       id: this.editingSessionId || null,
       entryType: this.entryMode, // 'session' | 'examination'
@@ -801,7 +822,9 @@ export class SessionsManager {
       insuranceName,
       contractType,
       amountPaid,
-      notes
+      notes,
+      sessionNumber,
+      approvedSessionsTotal
     };
 
     await db.saveSession(sessionData, currentUser);
@@ -1226,12 +1249,33 @@ export class SessionsManager {
     if (!tbody) return;
 
     if (sessions.length === 0) {
-      tbody.innerHTML = `<tr><td colspan="7" style="text-align: center; color: var(--text-muted); padding: 25px;">لا توجد حركات أو جلسات مسجلة اليوم حتى الآن.</td></tr>`;
+      tbody.innerHTML = `<tr><td colspan="8" style="text-align: center; color: var(--text-muted); padding: 25px;">لا توجد حركات أو جلسات مسجلة اليوم حتى الآن.</td></tr>`;
       return;
     }
 
     const currentUser = auth.getCurrentUser();
     const canDelete = RolesManager.canDelete(currentUser);
+
+    // Preload patients and sessions history to compute accurate approval cycle session numbers
+    const patientsList = await db.getPatients();
+    const patientsMap = new Map(patientsList.map(p => [p.id, p]));
+    const allSessions = await db.getSessions();
+    const patientSessionsHistory = {};
+    allSessions.forEach(sess => {
+      if (sess.entryType === 'examination') return;
+      const pid = sess.patientId;
+      if (!pid) return;
+      if (!patientSessionsHistory[pid]) patientSessionsHistory[pid] = [];
+      patientSessionsHistory[pid].push(sess);
+    });
+
+    Object.keys(patientSessionsHistory).forEach(pid => {
+      patientSessionsHistory[pid].sort((a, b) => {
+        const da = (a.date || '') + ' ' + (a.recordedAt || a.time || '');
+        const db = (b.date || '') + ' ' + (b.recordedAt || b.time || '');
+        return da.localeCompare(db);
+      });
+    });
 
     tbody.innerHTML = sessions.map(s => {
       const safeId = escapeHTML(s.id);
@@ -1243,6 +1287,36 @@ export class SessionsManager {
       const safeRecAt = escapeHTML(s.recordedAt);
 
       const isExam = (s.entryType === 'examination');
+
+      // Calculate Session Number Badge
+      let sessionNumBadge = '';
+      if (isExam) {
+        sessionNumBadge = `<span class="badge" style="background: #ede9fe; color: #6d28d9; font-weight: 800; font-size: 0.76rem;"><i class="fa-solid fa-stethoscope"></i> كشف</span>`;
+      } else {
+        const pObj = patientsMap.get(s.patientId);
+        const cycleStart = pObj?.currentApprovalStartDate || '';
+        const approvedTotal = parseInt(pObj?.approvedSessions) || parseInt(s.approvedSessionsTotal) || 12;
+
+        const hist = patientSessionsHistory[s.patientId] || [];
+        const cycleSessions = (s.payType === 'insurance' && cycleStart)
+          ? hist.filter(h => (h.date || '').localeCompare(cycleStart) >= 0)
+          : hist;
+
+        let idx = cycleSessions.findIndex(h => h.id === s.id);
+        const sessNum = idx >= 0 ? (idx + 1) : (s.sessionNumber || cycleSessions.length || 1);
+
+        if (s.payType === 'insurance') {
+          if (sessNum > approvedTotal) {
+            sessionNumBadge = `<span class="badge" style="background:#fee2e2; color:#b91c1c; border:1px solid #fecaca; font-weight:800; font-size:0.78rem;" title="تجاوز عدد جلسات الجواب المصرح بها (${approvedTotal})"><i class="fa-solid fa-triangle-exclamation"></i> ${sessNum} من ${approvedTotal}</span>`;
+          } else if (sessNum === approvedTotal) {
+            sessionNumBadge = `<span class="badge" style="background:#fef3c7; color:#b45309; border:1px solid #fde68a; font-weight:800; font-size:0.78rem;" title="اكتملت جلسات جواب الموافقة"><i class="fa-solid fa-flag-checkered"></i> ${sessNum} من ${approvedTotal}</span>`;
+          } else {
+            sessionNumBadge = `<span class="badge" style="background:var(--bg-subtle); color:var(--primary); border:1px solid var(--border-color); font-weight:800; font-size:0.8rem;"><i class="fa-solid fa-hashtag"></i> ${sessNum} من ${approvedTotal}</span>`;
+          }
+        } else {
+          sessionNumBadge = `<span class="badge" style="background:var(--bg-subtle); color:var(--text-main); border:1px solid var(--border-color); font-weight:700; font-size:0.8rem;">الجلسة ${sessNum}</span>`;
+        }
+      }
 
       let payBadge = '';
       if (isExam) {
@@ -1286,6 +1360,7 @@ export class SessionsManager {
       return `
         <tr>
           <td style="font-weight: 700;">${safePatient} ${examTag}</td>
+          <td style="text-align: center; white-space: nowrap;">${sessionNumBadge}</td>
           <td>${safeDoc}</td>
           <td>${payBadge}</td>
           <td>${partsCell}</td>
