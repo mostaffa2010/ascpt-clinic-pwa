@@ -1717,7 +1717,7 @@ export class PatientsManager {
 
   openInsuranceLetterFromRow(patientId) {
     this.app.closeModal('modal-patient-docs');
-    this.openInsuranceLetterModal(patientId);
+    this.openInsuranceLetterModalForPatient(patientId);
   }
 
   // ================= Cash Receipt Methods =================

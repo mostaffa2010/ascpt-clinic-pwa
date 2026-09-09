@@ -574,7 +574,16 @@
     padding: 6mm 4mm !important;
   }
 
-  /* ================= CASE 6: PRINTING MEDICAL STATEMENT ================= */
+  /* ================= CASE 6: PRINTING MEDICAL STATEMENT (A5 FULL-BLEED) ================= */
+  @page statementPage {
+    size: A5 portrait;
+    margin: 6mm 8mm;
+  }
+
+  body.printing-statement {
+    page: statementPage;
+  }
+
   body.printing-statement > *:not(#printable-medical-statement) {
     display: none !important;
     height: 0 !important;
@@ -590,6 +599,15 @@
     display: block !important;
     position: relative !important;
     width: 100% !important;
+    height: 100% !important;
     margin: 0 auto !important;
-    padding: 6mm 4mm !important;
+    padding: 0 !important;
+  }
+
+  body.printing-statement #printable-medical-statement > div {
+    min-height: 186mm !important;
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: space-between !important;
+    box-sizing: border-box !important;
   }

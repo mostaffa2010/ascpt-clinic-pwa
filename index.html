@@ -2796,49 +2796,48 @@
 
   <!-- Printable Medical Statement (إفادة طبية - إلى من يهمه الأمر) -->
   <div id="printable-medical-statement" class="printable-doc" style="display: none;">
-    <div style="border: 2px solid #0284c7; border-radius: 8px; padding: 22px 28px; position: relative;">
-      <!-- Header -->
-      <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #0284c7; padding-bottom: 10px; margin-bottom: 18px;">
-        <div style="display: flex; align-items: center; gap: 12px;">
-          <img src="./icons/icon-192.png" alt="ASCPT Logo" style="width: 44px; height: 44px; object-fit: contain; border-radius: 6px;">
-          <div>
-            <h2 style="font-size: 13pt; margin: 0; font-weight: 800; color: #0284c7;">مركز اسكندرية التخصصي للعلاج الطبيعي (ASCPT)</h2>
-            <div style="font-size: 9.5pt; font-weight: 700; color: #0f172a;">د. حسني أحمد الجويلي — إستشاري العلاج الطبيعي والتقويم الحركي للعمود الفقري</div>
-          </div>
-        </div>
-        <div style="text-align: left; font-size: 9pt; font-weight: 700;" id="statement-print-date">
-          تحريراً في: 2026/09/10
+    <div style="border: 2px solid #0284c7; border-radius: 8px; padding: 18px 22px; position: relative; display: flex; flex-direction: column; justify-content: space-between; min-height: 186mm; box-sizing: border-box;">
+      <!-- Header: Clean centered branding without colliding date -->
+      <div style="display: flex; align-items: center; justify-content: center; gap: 12px; border-bottom: 2px solid #0284c7; padding-bottom: 8px; margin-bottom: 14px; text-align: center;">
+        <img src="./icons/icon-192.png" alt="ASCPT Logo" style="width: 36px; height: 36px; object-fit: contain; border-radius: 6px; flex-shrink: 0;">
+        <div>
+          <h2 style="font-size: 12.5pt; margin: 0; font-weight: 800; color: #0284c7; white-space: nowrap;">مركز اسكندرية التخصصي للعلاج الطبيعي (ASCPT)</h2>
+          <div style="font-size: 9pt; font-weight: 700; color: #0f172a; margin-top: 2px; white-space: nowrap;">د. حسني أحمد الجويلي — إستشاري العلاج الطبيعي والتقويم الحركي للعمود الفقري</div>
         </div>
       </div>
 
-      <!-- Title (Matching Image 2) -->
-      <div style="text-align: center; margin: 10px 0 16px 0;">
-        <h1 style="font-size: 18pt; margin: 0 0 6px 0; font-weight: 900; text-decoration: underline; color: #0f172a;">إفـــــــــــــــــادة</h1>
-        <h3 style="font-size: 13pt; margin: 0; font-weight: 800; color: #0284c7;">إلى من يهمه الأمر</h3>
+      <!-- Title -->
+      <div style="text-align: center; margin: 6px 0 14px 0;">
+        <h1 style="font-size: 17pt; margin: 0 0 4px 0; font-weight: 900; text-decoration: underline; color: #0f172a; letter-spacing: 2px;">إفـــــــــــــــــادة</h1>
+        <h3 style="font-size: 12pt; margin: 0; font-weight: 800; color: #0284c7;">إلى من يهمه الأمر</h3>
       </div>
 
-      <!-- Body -->
-      <div style="font-size: 12pt; line-height: 2.1; margin-bottom: 24px;">
-        <div>يرجى العلم بأن السيد / السيدة: <strong id="statement-print-patient-name" style="font-size: 13pt; border-bottom: 1.5px dotted #000; padding: 0 8px;">-</strong></div>
-        <div style="margin-top: 4px;">والتي / والذي تعاني من:</div>
-        <div style="padding: 6px 12px; background: #f8fafc; border-radius: 6px; border: 1px solid #e2e8f0; font-weight: 800; font-size: 11.5pt; color: #0284c7; margin: 6px 0 14px 0; direction: ltr; text-align: left;" id="statement-print-diagnosis">-</div>
+      <!-- Body: Spacious to fill the sheet gracefully -->
+      <div style="font-size: 11.5pt; line-height: 2.2; flex: 1; margin-bottom: 14px;">
+        <div style="margin-bottom: 8px;">يرجى العلم بأن السيد / السيدة: <strong id="statement-print-patient-name" style="font-size: 12.5pt; border-bottom: 1.5px dotted #000; padding: 0 8px;">-</strong></div>
+        <div style="margin-top: 4px; font-weight: 700;">والتي / والذي تعاني من:</div>
+        <div style="padding: 6px 12px; background: #f8fafc; border-radius: 6px; border: 1px solid #e2e8f0; font-weight: 800; font-size: 11pt; color: #0284c7; margin: 4px 0 14px 0; direction: ltr; text-align: left;" id="statement-print-diagnosis">-</div>
         
         <!-- Editable Free-text area from user -->
-        <div id="statement-print-custom-body" style="white-space: pre-wrap; line-height: 2; text-align: justify; font-size: 11pt; color: #0f172a; margin-bottom: 16px;"></div>
+        <div id="statement-print-custom-body" style="white-space: pre-wrap; line-height: 2.2; text-align: justify; font-size: 11pt; color: #0f172a; margin-bottom: 14px; min-height: 25mm;"></div>
 
-        <div style="margin-top: 14px; font-weight: 800;">وذلك للعلم .</div>
+        <div style="margin-top: 10px; font-weight: 800; font-size: 11.5pt;">وذلك للعلم .</div>
       </div>
 
-      <!-- Signature & Footer -->
-      <div style="display: flex; justify-content: flex-start; margin-top: 24px; padding-top: 10px;">
+      <!-- Signatures Bar: Date on RIGHT, Director on LEFT -->
+      <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-top: auto; padding: 8px 6px 4px 6px;">
+        <div style="text-align: right;">
+          <div style="font-size: 10.5pt; font-weight: 800; color: #0f172a;" id="statement-print-date">تحريراً في: 2026/09/10</div>
+        </div>
+
         <div style="text-align: center;">
-          <div style="font-size: 11pt; font-weight: 800;">مدير المركز</div>
-          <div style="font-size: 9.5pt; color: #475569; margin-top: 2px;">د. حسني أحمد الجويلي</div>
-          <div style="margin-top: 25px; border-bottom: 1.5px solid #000; width: 150px;"></div>
+          <div style="font-size: 11pt; font-weight: 800; color: #0f172a;">مدير المركز</div>
+          <div style="font-size: 9pt; color: #475569; margin-top: 2px;">د. حسني أحمد الجويلي</div>
+          <div style="margin-top: 22px; border-bottom: 1.5px solid #000; width: 130px;"></div>
         </div>
       </div>
 
-      <div style="margin-top: 24px; padding-top: 8px; border-top: 1px dashed #cbd5e1; font-size: 7.5pt; color: #64748b; text-align: center;">
+      <div style="margin-top: 10px; padding-top: 6px; border-top: 1px dashed #cbd5e1; font-size: 7.5pt; color: #64748b; text-align: center;">
         ١٧ شارع حسين شيرين - لوران - الإسكندرية | تليفون: 03-5702356 | البريد: algewelyspinecare@yahoo.com
       </div>
     </div>
