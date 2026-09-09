@@ -1490,13 +1490,15 @@
           </div>
 
           <div class="form-group" style="margin-top: 12px;">
-            <label>نظام الدفع والمحاسبة *</label>
-            <div style="display: flex; gap: 20px; margin-top: 4px;">
-              <label style="display: flex; align-items: center; gap: 6px; cursor: pointer;">
-                <input type="radio" name="p-billing" value="cash" checked> نقدي (Cash)
+            <label style="font-weight: 800; font-size: 0.88rem; color: var(--text-main); margin-bottom: 6px; display: block;">نظام الدفع والمحاسبة *</label>
+            <div style="display: flex; gap: 14px; flex-wrap: wrap;">
+              <label class="custom-radio-card" style="display: inline-flex; align-items: center; gap: 8px; cursor: pointer; padding: 8px 14px; border: 1.5px solid var(--border-color); border-radius: 10px; background: var(--bg-surface); font-weight: 700; font-size: 0.88rem; transition: all 0.2s ease;">
+                <input type="radio" name="p-billing" value="cash" checked>
+                <span><i class="fa-solid fa-money-bill-wave" style="color: var(--success); margin-left: 4px;"></i> نقدي (Cash)</span>
               </label>
-              <label style="display: flex; align-items: center; gap: 6px; cursor: pointer;">
-                <input type="radio" name="p-billing" value="insurance"> تابع لشركة تأمين
+              <label class="custom-radio-card" style="display: inline-flex; align-items: center; gap: 8px; cursor: pointer; padding: 8px 14px; border: 1.5px solid var(--border-color); border-radius: 10px; background: var(--bg-surface); font-weight: 700; font-size: 0.88rem; transition: all 0.2s ease;">
+                <input type="radio" name="p-billing" value="insurance">
+                <span><i class="fa-solid fa-file-shield" style="color: var(--primary); margin-left: 4px;"></i> تابع لشركة تأمين</span>
               </label>
             </div>
           </div>

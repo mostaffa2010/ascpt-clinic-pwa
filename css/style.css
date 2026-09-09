@@ -560,8 +560,9 @@ table.data-table td {
   white-space: nowrap;
 }
 
-table.data-table tr:hover {
-  background-color: #fafbfc;
+table.data-table tr:hover,
+table.data-table tr:hover td {
+  background-color: #f8fafc;
 }
 
 /* ================= Weekly Appointments Schedule ================= */
@@ -963,6 +964,129 @@ table.appt-table th {
 .print-header,
 .print-footer {
   display: none;
+}
+
+/* ================= Custom App Checkboxes & Radio Buttons ================= */
+input[type="checkbox"],
+input[type="radio"] {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  display: inline-grid;
+  place-content: center;
+  margin: 0;
+  vertical-align: middle;
+  cursor: pointer;
+  position: relative;
+  flex-shrink: 0;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  background-color: var(--bg-surface) !important;
+  border: 2px solid var(--border-color) !important;
+}
+
+/* Custom Checkbox */
+input[type="checkbox"] {
+  width: 20px;
+  height: 20px;
+  border-radius: 6px;
+}
+
+input[type="checkbox"]:hover {
+  border-color: var(--primary) !important;
+  box-shadow: 0 0 0 3px var(--primary-light);
+}
+
+input[type="checkbox"]:checked {
+  background-color: var(--primary) !important;
+  border-color: var(--primary) !important;
+}
+
+input[type="checkbox"]:checked::before {
+  content: "";
+  width: 10px;
+  height: 6px;
+  border-left: 2.2px solid #ffffff;
+  border-bottom: 2.2px solid #ffffff;
+  transform: rotate(-45deg) translate(1px, -1px);
+  box-sizing: border-box;
+}
+
+input[type="checkbox"]:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+
+/* Custom Radio Button */
+input[type="radio"] {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+}
+
+input[type="radio"]:hover {
+  border-color: var(--primary) !important;
+  box-shadow: 0 0 0 3px var(--primary-light);
+}
+
+input[type="radio"]:checked {
+  border-color: var(--primary) !important;
+  background-color: var(--bg-surface) !important;
+}
+
+input[type="radio"]:checked::before {
+  content: "";
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background-color: var(--primary);
+}
+
+input[type="radio"]:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+
+/* Radio Button Card Wrapper */
+.custom-radio-card:hover {
+  border-color: var(--primary) !important;
+}
+
+/* Dark Mode Overrides for Custom Checkboxes & Radio Buttons */
+[data-theme="dark"] input[type="checkbox"],
+[data-theme="dark"] input[type="radio"] {
+  background-color: #1e293b !important;
+  border-color: #475569 !important;
+}
+
+[data-theme="dark"] input[type="checkbox"]:hover,
+[data-theme="dark"] input[type="radio"]:hover {
+  border-color: var(--primary) !important;
+  box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.25) !important;
+}
+
+[data-theme="dark"] input[type="checkbox"]:checked {
+  background-color: var(--primary) !important;
+  border-color: var(--primary) !important;
+}
+
+[data-theme="dark"] input[type="radio"]:checked {
+  background-color: #1e293b !important;
+  border-color: var(--primary) !important;
+}
+
+[data-theme="dark"] input[type="radio"]:checked::before {
+  background-color: var(--primary) !important;
+}
+
+[data-theme="dark"] .custom-radio-card {
+  background-color: var(--bg-surface) !important;
+  border-color: var(--border-color) !important;
+}
+
+/* Ensure segmented controls keep native inputs hidden */
+.insurance-contract-segmented input[type="radio"],
+.settle-pay-segmented input[type="radio"] {
+  display: none !important;
 }
 
 /* ================= Custom Searchable Patient Picker ================= */
@@ -1892,8 +2016,15 @@ body.not-authenticated #modal-auth #btn-cancel-login {
   color: var(--text-main);
 }
 
+[data-theme="dark"] table.data-table tr:hover,
+[data-theme="dark"] table.data-table tr:hover td,
 [data-theme="dark"] .data-table tr:hover td {
-  background-color: rgba(51, 65, 85, 0.4);
+  background-color: #1e293b !important;
+}
+
+[data-theme="dark"] table.data-table tr:hover td .patient-sheet-link,
+[data-theme="dark"] table.data-table tr:hover td a[style*="var(--primary)"] {
+  color: #38bdf8 !important;
 }
 
 [data-theme="dark"] .custom-select-btn {
