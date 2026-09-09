@@ -1565,6 +1565,105 @@
     </div>
   </div>
 
+  
+  <!-- Modal: Patient Documents Hub (نافذة المستندات والطباعة الموحدة) -->
+  <div class="modal-backdrop" id="modal-patient-docs" style="z-index: 210;">
+    <div class="modal-content" style="max-width: 460px;">
+      <div class="modal-header">
+        <h3><i class="fa-solid fa-file-invoice" style="color: var(--primary);"></i> المستندات والطباعة للمريض</h3>
+        <button type="button" class="modal-close" data-close-modal="modal-patient-docs">&times;</button>
+      </div>
+      <div class="modal-body" style="padding: 16px;">
+        <div style="background: var(--bg-subtle); border-radius: 10px; padding: 12px; margin-bottom: 16px; border: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center;">
+          <div>
+            <div style="font-weight: 800; font-size: 1rem; color: var(--text-main);" id="p-docs-modal-name">-</div>
+            <div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 2px;" id="p-docs-modal-info">-</div>
+          </div>
+          <span id="p-docs-modal-badge" class="badge">نقدي</span>
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 10px;" id="p-docs-actions-container">
+          <!-- Populated dynamically based on patient billing type -->
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline" data-close-modal="modal-patient-docs">إغلاق</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Cash Receipt Data Entry (إيصال استلام نقدية) -->
+  <div class="modal-backdrop" id="modal-cash-receipt" style="z-index: 220;">
+    <div class="modal-content" style="max-width: 460px;">
+      <div class="modal-header">
+        <h3><i class="fa-solid fa-receipt" style="color: var(--primary);"></i> طباعة إيصال استلام نقدية</h3>
+        <button type="button" class="modal-close" data-close-modal="modal-cash-receipt">&times;</button>
+      </div>
+      <form id="form-cash-receipt" novalidate>
+        <input type="hidden" id="receipt-patient-id" value="">
+        <div class="modal-body" style="padding: 16px;">
+          <div class="form-group" style="margin-bottom: 12px;">
+            <label style="font-weight: 800; font-size: 0.85rem;">اسم المريض</label>
+            <input type="text" id="receipt-patient-name" class="form-control" readonly style="background: var(--bg-subtle); font-weight: 700;">
+          </div>
+          <div class="form-group" style="margin-bottom: 12px;">
+            <label for="receipt-amount" style="font-weight: 800; font-size: 0.85rem;">المبلغ المسدد (ج.م) *</label>
+            <input type="number" id="receipt-amount" class="form-control" required min="1" step="any" value="400" style="height: 40px; font-weight: 800; font-size: 1rem; color: var(--primary);">
+          </div>
+          <div class="form-group" style="margin-bottom: 12px;">
+            <label for="receipt-item-desc" style="font-weight: 800; font-size: 0.85rem;">وذلك عن (البيان) *</label>
+            <input type="text" id="receipt-item-desc" class="form-control" required value="جلسة علاج طبيعي" style="height: 40px; font-weight: 700;">
+          </div>
+          <div class="form-group">
+            <label for="receipt-date" style="font-weight: 800; font-size: 0.85rem;">تحريراً في (التاريخ) *</label>
+            <input type="text" id="receipt-date" readonly class="form-control date-picker-clickable" required style="height: 40px; font-weight: 700;" data-open-calendar="receipt-date">
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline" data-close-modal="modal-cash-receipt">إلغاء</button>
+          <button type="submit" class="btn btn-primary" style="font-weight: 800;"><i class="fa-solid fa-print"></i> حفظ وطباعة الإيصال</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal: Medical Statement Data Entry (إفادة طبية - إلى من يهمه الأمر) -->
+  <div class="modal-backdrop" id="modal-medical-statement" style="z-index: 220;">
+    <div class="modal-content" style="max-width: 520px;">
+      <div class="modal-header">
+        <h3><i class="fa-solid fa-file-lines" style="color: var(--primary);"></i> إفادة طبية (إلى من يهمه الأمر)</h3>
+        <button type="button" class="modal-close" data-close-modal="modal-medical-statement">&times;</button>
+      </div>
+      <form id="form-medical-statement" novalidate>
+        <input type="hidden" id="statement-patient-id" value="">
+        <div class="modal-body" style="padding: 16px;">
+          <div class="form-group" style="margin-bottom: 12px;">
+            <label style="font-weight: 800; font-size: 0.85rem;">اسم المريض</label>
+            <input type="text" id="statement-patient-name" class="form-control" readonly style="background: var(--bg-subtle); font-weight: 700;">
+          </div>
+          <div class="form-group" style="margin-bottom: 12px;">
+            <label for="statement-diagnosis" style="font-weight: 800; font-size: 0.85rem;">التشخيص الطبي *</label>
+            <input type="text" id="statement-diagnosis" class="form-control" required placeholder="مثال: Post traumatic stiff shoulder..." style="height: 40px; font-weight: 700;">
+          </div>
+          <div class="form-group" style="margin-bottom: 12px;">
+            <label for="statement-body-text" style="font-weight: 800; font-size: 0.85rem;">
+              نص التقرير والتقييم الطبي (اكتب بحرية تحت التشخيص) *
+            </label>
+            <textarea id="statement-body-text" class="form-control" rows="5" required style="font-size: 0.88rem; line-height: 1.6; font-weight: 600;"></textarea>
+            <small style="color: var(--text-muted); font-size: 0.74rem;">يمكنك تعديل الأرقام في النص الجاهز أو مسحه وكتابة أي نص آخر تريده للحالة.</small>
+          </div>
+          <div class="form-group">
+            <label for="statement-date" style="font-weight: 800; font-size: 0.85rem;">تحريراً في (التاريخ) *</label>
+            <input type="text" id="statement-date" readonly class="form-control date-picker-clickable" required style="height: 40px; font-weight: 700;" data-open-calendar="statement-date">
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline" data-close-modal="modal-medical-statement">إلغاء</button>
+          <button type="submit" class="btn btn-primary" style="font-weight: 800;"><i class="fa-solid fa-print"></i> حفظ وطباعة الإفادة</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
   <!-- Modal: Renew Insurance Approval (تجديد موافقة التأمين وتصفير العداد) -->
   <div class="modal-backdrop" id="modal-renew-approval" style="z-index: 220;">
     <div class="modal-content" style="max-width: 440px;">
@@ -2644,6 +2743,105 @@
           </button>
         </div>
       </form>
+    </div>
+  </div>
+
+
+  <!-- Printable Cash Receipt (إيصال استلام نقدية) -->
+  <div id="printable-cash-receipt" class="printable-doc" style="display: none;">
+    <div style="border: 2px solid #0284c7; border-radius: 8px; padding: 18px 24px; position: relative;">
+      <!-- Header -->
+      <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #0284c7; padding-bottom: 10px; margin-bottom: 16px;">
+        <div style="display: flex; align-items: center; gap: 12px;">
+          <img src="./icons/icon-192.png" alt="ASCPT Logo" style="width: 44px; height: 44px; object-fit: contain; border-radius: 6px;">
+          <div>
+            <h2 style="font-size: 13pt; margin: 0; font-weight: 800; color: #0284c7;">مركز اسكندرية التخصصي للعلاج الطبيعي (ASCPT)</h2>
+            <div style="font-size: 9.5pt; font-weight: 700; color: #0f172a;">د. حسني أحمد الجويلي — إستشاري العلاج الطبيعي والتقويم الحركي للعمود الفقري</div>
+          </div>
+        </div>
+        <div style="text-align: left; font-size: 9pt; font-weight: 700;" id="receipt-print-date">
+          تحريراً في: 2026/09/10
+        </div>
+      </div>
+
+      <!-- Receipt Title -->
+      <div style="text-align: center; margin: 12px 0 20px 0;">
+        <h1 style="font-size: 16pt; margin: 0; font-weight: 900; text-decoration: underline; color: #0f172a;">إيصال استلام نقدية</h1>
+      </div>
+
+      <!-- Receipt Body (Matching Image 1) -->
+      <div style="font-size: 12.5pt; line-height: 2.2; margin-bottom: 24px;">
+        <div>وصلنا من السيد / السيدة: <strong id="receipt-print-patient-name" style="font-size: 13.5pt; border-bottom: 1.5px dotted #000; padding: 0 10px;">-</strong></div>
+        <div>مبلغ وقدره: <strong id="receipt-print-amount-text" style="font-size: 13.5pt; color: #0284c7; border-bottom: 1.5px dotted #000; padding: 0 10px;">-</strong> فقط لا غير .</div>
+        <div>وذلك عن: <strong id="receipt-print-item-desc" style="border-bottom: 1.5px dotted #000; padding: 0 10px;">جلسة علاج طبيعي</strong></div>
+        <div style="margin-top: 10px; font-weight: 700;">ولكم جزيل الشكر .</div>
+      </div>
+
+      <!-- Signatures & Footer -->
+      <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-top: 30px; padding-top: 10px;">
+        <div style="text-align: center;">
+          <div style="font-size: 10.5pt; font-weight: 800;">المستلم (الاستقبال)</div>
+          <div style="margin-top: 25px; border-bottom: 1.5px solid #000; width: 140px;" id="receipt-print-receiver">-</div>
+        </div>
+        <div style="text-align: center;">
+          <div style="font-size: 10.5pt; font-weight: 800;">مدير المركز</div>
+          <div style="margin-top: 25px; border-bottom: 1.5px solid #000; width: 140px;">د. حسني أحمد الجويلي</div>
+        </div>
+      </div>
+
+      <div style="margin-top: 20px; padding-top: 8px; border-top: 1px dashed #cbd5e1; font-size: 7.5pt; color: #64748b; text-align: center;">
+        ١٧ شارع حسين شيرين - لوران - الإسكندرية | تليفون: 03-5702356 | البريد: algewelyspinecare@yahoo.com
+      </div>
+    </div>
+  </div>
+
+  <!-- Printable Medical Statement (إفادة طبية - إلى من يهمه الأمر) -->
+  <div id="printable-medical-statement" class="printable-doc" style="display: none;">
+    <div style="border: 2px solid #0284c7; border-radius: 8px; padding: 22px 28px; position: relative;">
+      <!-- Header -->
+      <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #0284c7; padding-bottom: 10px; margin-bottom: 18px;">
+        <div style="display: flex; align-items: center; gap: 12px;">
+          <img src="./icons/icon-192.png" alt="ASCPT Logo" style="width: 44px; height: 44px; object-fit: contain; border-radius: 6px;">
+          <div>
+            <h2 style="font-size: 13pt; margin: 0; font-weight: 800; color: #0284c7;">مركز اسكندرية التخصصي للعلاج الطبيعي (ASCPT)</h2>
+            <div style="font-size: 9.5pt; font-weight: 700; color: #0f172a;">د. حسني أحمد الجويلي — إستشاري العلاج الطبيعي والتقويم الحركي للعمود الفقري</div>
+          </div>
+        </div>
+        <div style="text-align: left; font-size: 9pt; font-weight: 700;" id="statement-print-date">
+          تحريراً في: 2026/09/10
+        </div>
+      </div>
+
+      <!-- Title (Matching Image 2) -->
+      <div style="text-align: center; margin: 10px 0 16px 0;">
+        <h1 style="font-size: 18pt; margin: 0 0 6px 0; font-weight: 900; text-decoration: underline; color: #0f172a;">إفـــــــــــــــــادة</h1>
+        <h3 style="font-size: 13pt; margin: 0; font-weight: 800; color: #0284c7;">إلى من يهمه الأمر</h3>
+      </div>
+
+      <!-- Body -->
+      <div style="font-size: 12pt; line-height: 2.1; margin-bottom: 24px;">
+        <div>يرجى العلم بأن السيد / السيدة: <strong id="statement-print-patient-name" style="font-size: 13pt; border-bottom: 1.5px dotted #000; padding: 0 8px;">-</strong></div>
+        <div style="margin-top: 4px;">والتي / والذي تعاني من:</div>
+        <div style="padding: 6px 12px; background: #f8fafc; border-radius: 6px; border: 1px solid #e2e8f0; font-weight: 800; font-size: 11.5pt; color: #0284c7; margin: 6px 0 14px 0; direction: ltr; text-align: left;" id="statement-print-diagnosis">-</div>
+        
+        <!-- Editable Free-text area from user -->
+        <div id="statement-print-custom-body" style="white-space: pre-wrap; line-height: 2; text-align: justify; font-size: 11pt; color: #0f172a; margin-bottom: 16px;"></div>
+
+        <div style="margin-top: 14px; font-weight: 800;">وذلك للعلم .</div>
+      </div>
+
+      <!-- Signature & Footer -->
+      <div style="display: flex; justify-content: flex-start; margin-top: 24px; padding-top: 10px;">
+        <div style="text-align: center;">
+          <div style="font-size: 11pt; font-weight: 800;">مدير المركز</div>
+          <div style="font-size: 9.5pt; color: #475569; margin-top: 2px;">د. حسني أحمد الجويلي</div>
+          <div style="margin-top: 25px; border-bottom: 1.5px solid #000; width: 150px;"></div>
+        </div>
+      </div>
+
+      <div style="margin-top: 24px; padding-top: 8px; border-top: 1px dashed #cbd5e1; font-size: 7.5pt; color: #64748b; text-align: center;">
+        ١٧ شارع حسين شيرين - لوران - الإسكندرية | تليفون: 03-5702356 | البريد: algewelyspinecare@yahoo.com
+      </div>
     </div>
   </div>
 

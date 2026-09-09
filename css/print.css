@@ -553,3 +553,43 @@
     print-color-adjust: exact !important;
     image-rendering: -webkit-optimize-contrast;
   }
+
+  /* ================= CASE 5: PRINTING CASH RECEIPT ================= */
+  body.printing-receipt > *:not(#printable-cash-receipt) {
+    display: none !important;
+    height: 0 !important;
+    max-height: 0 !important;
+    min-height: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    border: none !important;
+    overflow: hidden !important;
+  }
+
+  body.printing-receipt #printable-cash-receipt {
+    display: block !important;
+    position: relative !important;
+    width: 100% !important;
+    margin: 0 auto !important;
+    padding: 6mm 4mm !important;
+  }
+
+  /* ================= CASE 6: PRINTING MEDICAL STATEMENT ================= */
+  body.printing-statement > *:not(#printable-medical-statement) {
+    display: none !important;
+    height: 0 !important;
+    max-height: 0 !important;
+    min-height: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    border: none !important;
+    overflow: hidden !important;
+  }
+
+  body.printing-statement #printable-medical-statement {
+    display: block !important;
+    position: relative !important;
+    width: 100% !important;
+    margin: 0 auto !important;
+    padding: 6mm 4mm !important;
+  }

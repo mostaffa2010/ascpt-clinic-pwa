@@ -140,6 +140,18 @@ export class PatientsManager {
       formRenew.addEventListener('submit', (e) => this.handleConfirmRenewApproval(e));
     }
 
+    // Cash Receipt Form Submit
+    document.getElementById('form-cash-receipt')?.addEventListener('submit', (e) => {
+      e.preventDefault();
+      this.printCashReceipt();
+    });
+
+    // Medical Statement Form Submit
+    document.getElementById('form-medical-statement')?.addEventListener('submit', (e) => {
+      e.preventDefault();
+      this.printMedicalStatement();
+    });
+
     // Patient Sheet Form Submit
     const formSheet = document.getElementById('form-patient-sheet');
     if (formSheet) {
@@ -214,6 +226,12 @@ export class PatientsManager {
         if (sheetAction) {
           const pid = sheetAction.getAttribute('data-patient-id');
           if (pid) this.openPatientSheet(pid);
+          return;
+        }
+        const docsBtn = e.target.closest('.btn-patient-docs');
+        if (docsBtn) {
+          const pid = docsBtn.getAttribute('data-patient-id');
+          if (pid) this.openPatientDocsModal(pid);
           return;
         }
         const renewBtn = e.target.closest('.btn-renew-approval');
@@ -487,12 +505,9 @@ export class PatientsManager {
               <a href="https://wa.me/${cleanWaPhone}" target="_blank" class="btn btn-outline btn-sm" style="color: #10b981; border-color: #10b981;" title="محادثة واتساب">
                 <i class="fa-brands fa-whatsapp"></i>
               </a>
-              ${!isDoctor && p.billing !== 'cash' ? `
-                <button type="button" class="btn btn-outline btn-sm btn-renew-approval" data-patient-id="${safeId}" style="color: #0284c7; border-color: #0284c7;" title="تجديد جواب الموافقة وبدء دورة جلسات جديدة">
-                  <i class="fa-solid fa-rotate-right"></i>
-                </button>
-                <button type="button" class="btn btn-outline btn-sm btn-insurance-letter-row" style="color: #0284c7; border-color: #0284c7;" data-patient-id="${safeId}" title="طباعة خطاب تجديد تأمين">
-                  <i class="fa-solid fa-file-shield"></i>
+              ${!isDoctor ? `
+                <button type="button" class="btn btn-outline btn-sm btn-patient-docs" data-patient-id="${safeId}" style="color: #0284c7; border-color: #0284c7; font-weight: 700; gap: 4px; display: inline-flex; align-items: center;" title="المستندات والطباعة (إيصال، إفادة، موافقات)">
+                  <i class="fa-solid fa-file-invoice"></i> <span style="font-size: 0.76rem;">مستندات</span>
                 </button>
               ` : ''}
               ${!isDoctor ? `
@@ -1630,3 +1645,169 @@ export class PatientsManager {
     }
   }
 }
+  // ================= Patient Documents Hub (نافذة المستندات والطباعة) =================
+  openPatientDocsModal(patientId) {
+    const p = this.patients.find(item => item.id === patientId);
+    if (!p) return;
+
+    this.activeDocsPatientId = patientId;
+    document.getElementById('p-docs-modal-name').textContent = p.name;
+    const isIns = p.billing === 'insurance';
+    const cType = p.contractType === 'indirect' ? 'غير مباشر' : 'مباشر';
+    document.getElementById('p-docs-modal-info').textContent = isIns
+      ? `${p.insuranceCompany || 'شركة التأمين'} (${cType}) • السن: ${p.age} سنة`
+      : `مريض نقدي • كود: ${p.id.slice(-5)} • السن: ${p.age} سنة`;
+
+    const badge = document.getElementById('p-docs-modal-badge');
+    if (badge) {
+      badge.className = `badge ${isIns ? 'badge-direct' : 'badge-cash'}`;
+      badge.textContent = isIns ? 'تأمين' : 'نقدي';
+    }
+
+    const container = document.getElementById('p-docs-actions-container');
+    if (!container) return;
+
+    if (!isIns) {
+      // Cash Patient Actions
+      container.innerHTML = `
+        <button type="button" class="btn btn-outline" onclick="patientsManager.openCashReceiptModal('${p.id}')" style="justify-content: flex-start; padding: 12px 16px; border-radius: 10px; font-weight: 800; font-size: 0.95rem; gap: 12px; border-color: var(--border-color); background: var(--bg-surface);">
+          <i class="fa-solid fa-receipt" style="font-size: 1.3rem; color: var(--success);"></i>
+          <div style="text-align: right;">
+            <div>طباعة إيصال استلام نقدية</div>
+            <small style="color: var(--text-muted); font-weight: 600; font-size: 0.74rem;">إيصال معتمد بالمبلغ والبيان لجلسات المريض</small>
+          </div>
+        </button>
+        <button type="button" class="btn btn-outline" onclick="patientsManager.openMedicalStatementModal('${p.id}')" style="justify-content: flex-start; padding: 12px 16px; border-radius: 10px; font-weight: 800; font-size: 0.95rem; gap: 12px; border-color: var(--border-color); background: var(--bg-surface);">
+          <i class="fa-solid fa-file-lines" style="font-size: 1.3rem; color: var(--primary);"></i>
+          <div style="text-align: right;">
+            <div>إصدار إفادة طبية (إلى من يهمه الأمر)</div>
+            <small style="color: var(--text-muted); font-weight: 600; font-size: 0.74rem;">تقرير بالتشخيص ونسبة التحسن وملاحظات الجلسات</small>
+          </div>
+        </button>
+      `;
+    } else {
+      // Insurance Patient Actions
+      container.innerHTML = `
+        <button type="button" class="btn btn-outline" onclick="patientsManager.openMedicalStatementModal('${p.id}')" style="justify-content: flex-start; padding: 12px 16px; border-radius: 10px; font-weight: 800; font-size: 0.95rem; gap: 12px; border-color: var(--border-color); background: var(--bg-surface);">
+          <i class="fa-solid fa-file-lines" style="font-size: 1.3rem; color: var(--primary);"></i>
+          <div style="text-align: right;">
+            <div>إصدار إفادة طبية (إلى من يهمه الأمر)</div>
+            <small style="color: var(--text-muted); font-weight: 600; font-size: 0.74rem;">تقرير بالتشخيص ونسبة التحسن وملاحظات الجلسات</small>
+          </div>
+        </button>
+        <button type="button" class="btn btn-outline" onclick="patientsManager.openRenewApprovalModal('${p.id}')" style="justify-content: flex-start; padding: 12px 16px; border-radius: 10px; font-weight: 800; font-size: 0.95rem; gap: 12px; border-color: var(--border-color); background: var(--bg-surface);">
+          <i class="fa-solid fa-rotate-right" style="font-size: 1.3rem; color: #0284c7;"></i>
+          <div style="text-align: right;">
+            <div>تجديد جواب الموافقة (وبدء دورة جديدة)</div>
+            <small style="color: var(--text-muted); font-weight: 600; font-size: 0.74rem;">اعتماد جواب جديد وتصفير العداد للبدء من الجلسة 1</small>
+          </div>
+        </button>
+        <button type="button" class="btn btn-outline" onclick="patientsManager.openInsuranceLetterFromRow('${p.id}')" style="justify-content: flex-start; padding: 12px 16px; border-radius: 10px; font-weight: 800; font-size: 0.95rem; gap: 12px; border-color: var(--border-color); background: var(--bg-surface);">
+          <i class="fa-solid fa-file-shield" style="font-size: 1.3rem; color: #2563eb;"></i>
+          <div style="text-align: right;">
+            <div>طباعة خطاب تجديد تأمين (A5)</div>
+            <small style="color: var(--text-muted); font-weight: 600; font-size: 0.74rem;">خطاب رسمي لشركة التأمين بطلب تجديد الجلسات</small>
+          </div>
+        </button>
+      `;
+    }
+
+    this.app.openModal('modal-patient-docs');
+  }
+
+  openInsuranceLetterFromRow(patientId) {
+    this.app.closeModal('modal-patient-docs');
+    this.openInsuranceLetterModal(patientId);
+  }
+
+  // ================= Cash Receipt Methods =================
+  openCashReceiptModal(patientId) {
+    this.app.closeModal('modal-patient-docs');
+    const p = this.patients.find(item => item.id === patientId);
+    if (!p) return;
+
+    this.activeReceiptPatient = p;
+    document.getElementById('receipt-patient-id').value = p.id;
+    document.getElementById('receipt-patient-name').value = p.name;
+    document.getElementById('receipt-amount').value = '400';
+    document.getElementById('receipt-item-desc').value = 'جلسة علاج طبيعي';
+    document.getElementById('receipt-date').value = getLocalDateStr();
+
+    this.app.openModal('modal-cash-receipt');
+  }
+
+  printCashReceipt() {
+    if (this._isPrinting) return;
+    this._isPrinting = true;
+    setTimeout(() => { this._isPrinting = false; }, 2500);
+
+    const p = this.activeReceiptPatient;
+    if (!p) return;
+
+    const amount = document.getElementById('receipt-amount')?.value || '400';
+    const itemDesc = document.getElementById('receipt-item-desc')?.value.trim() || 'جلسة علاج طبيعي';
+    const dateVal = document.getElementById('receipt-date')?.value || getLocalDateStr();
+    const currentUser = auth.getCurrentUser();
+
+    document.getElementById('receipt-print-patient-name').textContent = p.name;
+    document.getElementById('receipt-print-amount-text').textContent = `${amount} ج.م`;
+    document.getElementById('receipt-print-item-desc').textContent = itemDesc;
+    document.getElementById('receipt-print-date').textContent = `تحريراً في: ${dateVal}`;
+    document.getElementById('receipt-print-receiver').textContent = currentUser?.name || 'الاستقبال';
+
+    this.app.closeModal('modal-cash-receipt');
+    document.body.classList.add('printing-receipt');
+    window.print();
+    setTimeout(() => {
+      document.body.classList.remove('printing-receipt');
+    }, 1500);
+  }
+
+  // ================= Medical Statement Methods =================
+  openMedicalStatementModal(patientId) {
+    this.app.closeModal('modal-patient-docs');
+    const p = this.patients.find(item => item.id === patientId);
+    if (!p) return;
+
+    this.activeStatementPatient = p;
+    document.getElementById('statement-patient-id').value = p.id;
+    document.getElementById('statement-patient-name').value = p.name;
+    
+    // Prefill diagnosis from sheet or fallback
+    const sheetDiag = p.clinicalSheet?.diagnosis || p.diagnosis || 'Post traumatic Post immobilization stiff RT shoulder';
+    document.getElementById('statement-diagnosis').value = sheetDiag;
+
+    // Default template exactly from Image 2
+    const defaultText = `بعد إتمام 12 جلسة علاج طبيعي، أظهر المريض تحسناً ملحوظاً في الحالة بنسبة تقدر بحوالي 70%، مع تحسن في الحركة والأداء الوظيفي وانخفاض في مستوى الألم، إلا أن الألم ما زال موجوداً بدرجة ملحوظة.
+
+وبناءً على التقييم الحالي، يُوصى بإضافة 12 جلسة علاج طبيعي أخرى بهدف استكمال التحسن والوصول إلى مستوى وظيفي أفضل.`;
+    document.getElementById('statement-body-text').value = defaultText;
+    document.getElementById('statement-date').value = getLocalDateStr();
+
+    this.app.openModal('modal-medical-statement');
+  }
+
+  printMedicalStatement() {
+    if (this._isPrinting) return;
+    this._isPrinting = true;
+    setTimeout(() => { this._isPrinting = false; }, 2500);
+
+    const p = this.activeStatementPatient;
+    if (!p) return;
+
+    const diag = document.getElementById('statement-diagnosis')?.value.trim() || '-';
+    const bodyText = document.getElementById('statement-body-text')?.value.trim() || '';
+    const dateVal = document.getElementById('statement-date')?.value || getLocalDateStr();
+
+    document.getElementById('statement-print-patient-name').textContent = p.name;
+    document.getElementById('statement-print-diagnosis').textContent = diag;
+    document.getElementById('statement-print-custom-body').textContent = bodyText;
+    document.getElementById('statement-print-date').textContent = `تحريراً في: ${dateVal}`;
+
+    this.app.closeModal('modal-medical-statement');
+    document.body.classList.add('printing-statement');
+    window.print();
+    setTimeout(() => {
+      document.body.classList.remove('printing-statement');
+    }, 1500);
+  }
