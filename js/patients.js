@@ -462,7 +462,7 @@ export class PatientsManager {
             </a>
           </td>
           <td style="white-space: nowrap;">${safeAddress}</td>
-          <td style="white-space: nowrap;"><span style="font-weight: 600; color: #1e293b;">${safeDoctor}</span></td>
+          <td style="white-space: nowrap;"><span style="font-weight: 600; color: var(--text-main);">${safeDoctor}</span></td>
           <td style="white-space: nowrap;">${billingBadge}</td>
           <td style="font-size: 0.8rem; color: var(--text-muted); white-space: nowrap;">${safeEditor}</td>
           <td style="white-space: nowrap;">
@@ -1359,7 +1359,7 @@ export class PatientsManager {
               <div>${s.date}</div>
               <small style="color: var(--text-muted); font-size: 0.72rem;">${s.recordedAt || ''}</small>
             </td>
-            <td><span style="font-weight: 700; color: #1e293b;">${escapeHTML(s.doctor)}</span></td>
+            <td><span style="font-weight: 700; color: var(--text-main);">${escapeHTML(s.doctor)}</span></td>
             <td style="font-size: 0.85rem;">${escapeHTML(parts)}</td>
             <td>${payBadge}</td>
             <td style="font-size: 0.82rem; color: var(--text-muted);">${escapeHTML(s.notes || '-')}</td>

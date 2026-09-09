@@ -345,7 +345,7 @@ export class SessionsManager {
               <i class="fa-solid fa-user" style="color: var(--primary); margin-left: 6px;"></i> ${safeName}
             </div>
             <div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 3px;">
-              <i class="fa-solid fa-phone" style="font-size: 0.75rem;"></i> ${safePhone} | <span style="color: #1e293b; font-weight: 600;">${safeDoctor}</span>
+              <i class="fa-solid fa-phone" style="font-size: 0.75rem;"></i> ${safePhone} | <span style="color: var(--text-main); font-weight: 600;">${safeDoctor}</span>
             </div>
           </div>
           <div>${badge}</div>
@@ -450,19 +450,19 @@ export class SessionsManager {
 
     if (btnCash && btnContract) {
       if (isContract) {
-        btnContract.style.borderColor = 'var(--primary, #0284c7)';
-        btnContract.style.background = 'var(--primary, #0284c7)';
+        btnContract.style.borderColor = 'var(--primary)';
+        btnContract.style.background = 'var(--primary)';
         btnContract.style.color = '#ffffff';
-        btnCash.style.borderColor = 'var(--border-color, #cbd5e1)';
-        btnCash.style.background = '#ffffff';
-        btnCash.style.color = 'var(--text-muted, #64748b)';
+        btnCash.style.borderColor = 'var(--border-color)';
+        btnCash.style.background = 'var(--bg-surface)';
+        btnCash.style.color = 'var(--text-muted)';
       } else {
-        btnCash.style.borderColor = 'var(--primary, #0284c7)';
-        btnCash.style.background = 'var(--primary, #0284c7)';
+        btnCash.style.borderColor = 'var(--primary)';
+        btnCash.style.background = 'var(--primary)';
         btnCash.style.color = '#ffffff';
-        btnContract.style.borderColor = 'var(--border-color, #cbd5e1)';
-        btnContract.style.background = '#ffffff';
-        btnContract.style.color = 'var(--text-muted, #64748b)';
+        btnContract.style.borderColor = 'var(--border-color)';
+        btnContract.style.background = 'var(--bg-surface)';
+        btnContract.style.color = 'var(--text-muted)';
       }
     }
 
@@ -479,14 +479,14 @@ export class SessionsManager {
 
     if (!isContract) {
       paymentContainer.innerHTML = `
-        <div style="background: #f0fdf4; border: 1.5px solid #bbf7d0; border-radius: 10px; padding: 12px 14px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px;">
+        <div class="payment-info-box-contract">
           <div style="display: flex; align-items: center; gap: 10px;">
-            <div style="width: 38px; height: 38px; border-radius: 8px; background: #dcfce7; color: #15803d; display: flex; align-items: center; justify-content: center; font-size: 1.15rem; flex-shrink: 0;">
+            <div class="pay-icon">
               <i class="fa-solid fa-money-bill-wave"></i>
             </div>
             <div>
-              <div style="font-weight: 800; font-size: 0.95rem; color: #166534;">كشف نقدي مباشر (Cash)</div>
-              <div style="font-size: 0.78rem; color: #15803d; font-weight: 600;">يتم تحصيل سعر الكشف نقداً وتوريده لخزينة المركز</div>
+              <div class="pay-title">كشف نقدي مباشر (Cash)</div>
+              <div class="pay-sub">يتم تحصيل سعر الكشف نقداً وتوريده لخزينة المركز</div>
             </div>
           </div>
           <span class="badge badge-cash" style="font-size: 0.76rem; padding: 4px 10px; border-radius: 9999px;">كشف نقدي</span>
@@ -508,33 +508,33 @@ export class SessionsManager {
       if (contractInput) contractInput.value = patientContractType;
 
       paymentContainer.innerHTML = `
-        <div style="background: #f0fdf4; border: 1.5px solid #bbf7d0; border-radius: 10px; padding: 12px 14px; display: flex; flex-direction: column; gap: 10px;">
-          <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px;">
+        <div class="payment-info-box-contract" style="flex-direction: column; gap: 10px;">
+          <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px; width: 100%;">
             <div style="display: flex; align-items: center; gap: 10px;">
-              <div style="width: 38px; height: 38px; border-radius: 8px; background: #dcfce7; color: #15803d; display: flex; align-items: center; justify-content: center; font-size: 1.15rem; flex-shrink: 0;">
+              <div class="pay-icon">
                 <i class="fa-solid fa-file-contract"></i>
               </div>
               <div>
-                <div style="font-weight: 800; font-size: 0.95rem; color: #166534;" id="exam-company-display-title">
+                <div class="pay-title" id="exam-company-display-title">
                   ${escapeHTML(defaultComp || 'شركة تأمين')}
                 </div>
-                <div style="font-size: 0.78rem; color: #15803d; font-weight: 600;">
+                <div class="pay-sub">
                   كشف تعاقد • <span class="badge badge-direct" id="exam-contract-badge" style="font-size: 0.7rem; padding: 1px 6px;">${cTypeLabel}</span>
                 </div>
               </div>
             </div>
-            <span class="badge" style="background: #16a34a; color: #ffffff; font-weight: 700; font-size: 0.76rem; padding: 4px 10px; border-radius: 9999px;">
+            <span class="badge badge-direct" style="font-weight: 700; font-size: 0.76rem; padding: 4px 10px; border-radius: 9999px;">
               كشف تعاقد
             </span>
           </div>
-          <div style="border-top: 1px dashed #bbf7d0; padding-top: 8px;">
-            <label style="font-size: 0.82rem; font-weight: 700; color: #166534; margin-bottom: 5px; display: block;">اختيار / تغيير شركة التعاقد للكشف:</label>
+          <div style="border-top: 1px dashed var(--border-color); padding-top: 8px; width: 100%;">
+            <label style="font-size: 0.82rem; font-weight: 700; color: var(--text-main); margin-bottom: 5px; display: block;">اختيار / تغيير شركة التعاقد للكشف:</label>
             <div class="custom-select-wrapper" style="width: 100%;">
               <select id="exam-contract-company-select" class="form-control" style="display: none;">
                 ${allCompanies.map(c => `<option value="${escapeHTML(c.name)}" data-contract="${escapeHTML(c.contractType)}" ${c.name === defaultComp ? 'selected' : ''}>${escapeHTML(c.name)} (${c.contractType === 'direct' ? 'تعاقد مباشر' : 'تعاقد غير مباشر'})</option>`).join('')}
               </select>
-              <button type="button" class="custom-select-btn" id="btn-select-exam-contract-company-select" data-open-picker="exam-contract-company-select" data-picker-title="اختر شركة التعاقد للكشف" style="background: #ffffff; border: 1.5px solid #bbf7d0; border-radius: 8px; padding: 8px 12px; width: 100%; display: flex; justify-content: space-between; align-items: center; cursor: pointer;">
-                <span class="btn-text" style="font-weight: 700; color: #0f172a;">${escapeHTML(defaultComp ? `${defaultComp} (${cTypeLabel})` : '-- اختر شركة التعاقد --')}</span>
+              <button type="button" class="custom-select-btn" id="btn-select-exam-contract-company-select" data-open-picker="exam-contract-company-select" data-picker-title="اختر شركة التعاقد للكشف" style="background: var(--bg-surface); border: 1.5px solid var(--border-color); border-radius: 8px; padding: 8px 12px; width: 100%; display: flex; justify-content: space-between; align-items: center; cursor: pointer;">
+                <span class="btn-text" style="font-weight: 700; color: var(--text-main);">${escapeHTML(defaultComp ? `${defaultComp} (${cTypeLabel})` : '-- اختر شركة التعاقد --')}</span>
                 <i class="fa-solid fa-chevron-down" style="color: var(--primary);"></i>
               </button>
             </div>
@@ -614,16 +614,16 @@ export class SessionsManager {
         if (amountInput && !this.editingSessionId) amountInput.value = '0';
       } else {
         paymentContainer.innerHTML = `
-          <div style="background: #f0f9ff; border: 1.5px solid #bae6fd; border-radius: 10px; padding: 12px 14px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px;">
+          <div class="payment-info-box-cash">
             <div style="display: flex; align-items: center; gap: 10px;">
-              <div style="width: 38px; height: 38px; border-radius: 8px; background: #e0f2fe; color: #0284c7; display: flex; align-items: center; justify-content: center; font-size: 1.15rem; flex-shrink: 0;">
+              <div class="pay-icon">
                 <i class="fa-solid fa-money-bill-wave"></i>
               </div>
               <div>
-                <div style="font-weight: 800; font-size: 0.95rem; color: #0369a1;">
+                <div class="pay-title">
                   سداد نقدي مباشر (Cash)
                 </div>
-                <div style="font-size: 0.78rem; color: #0284c7; font-weight: 600;">
+                <div class="pay-sub">
                   المريض غير خاضع لأي تعاقد تأميني
                 </div>
               </div>

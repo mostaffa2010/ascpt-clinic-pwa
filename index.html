@@ -687,7 +687,7 @@
                 </div>
 
                 <!-- Examination Type Selector (Shown only in Examination mode) -->
-                <div class="form-group" id="form-group-exam-type" style="display: none; background: #f8fafc; border: 1.5px solid #e2e8f0; border-radius: var(--radius-md, 10px); padding: 12px;">
+                <div class="form-group" id="form-group-exam-type" style="display: none; background: var(--bg-subtle); border: 1.5px solid var(--border-color); border-radius: var(--radius-md, 10px); padding: 12px;">
                   <label style="margin: 0 0 8px 0; font-weight: 800; font-size: 0.88rem; color: var(--text-main); display: block;">
                     <i class="fa-solid fa-stethoscope" style="color: var(--primary);"></i> نوع الكشف المطلوب *
                   </label>
@@ -1074,25 +1074,25 @@
             </div>
 
             <!-- Grand Summary Stats Banner -->
-            <div class="stat-grid" style="margin-bottom: 16px;">
-              <div class="stat-card">
+            <div class="stats-grid" style="margin-bottom: 16px; width: 100%;">
+              <div class="stat-box">
                 <div class="stat-info">
-                  <h3>المرضى المحددون</h3>
-                  <p id="claim-total-patients-count" style="color: var(--primary);">0 مريض</p>
+                  <div class="stat-value" id="claim-total-patients-count" style="color: var(--primary);">0 مريض</div>
+                  <div class="stat-label">المرضى المحددون</div>
                 </div>
                 <div class="stat-icon blue"><i class="fa-solid fa-users"></i></div>
               </div>
-              <div class="stat-card">
+              <div class="stat-box">
                 <div class="stat-info">
-                  <h3>إجمالي عدد الجلسات</h3>
-                  <p id="claim-total-sessions-count" style="color: var(--primary);">0 جلسة</p>
+                  <div class="stat-value" id="claim-total-sessions-count" style="color: var(--primary);">0 جلسة</div>
+                  <div class="stat-label">إجمالي عدد الجلسات</div>
                 </div>
                 <div class="stat-icon amber"><i class="fa-solid fa-calendar-check"></i></div>
               </div>
-              <div class="stat-card">
+              <div class="stat-box">
                 <div class="stat-info">
-                  <h3>إجمالي مبلغ المطالبة</h3>
-                  <p id="claim-grand-total-amount" style="color: var(--success); font-size: 1.4rem;">0 ج.م</p>
+                  <div class="stat-value" id="claim-grand-total-amount" style="color: var(--success); font-size: 1.4rem;">0 ج.م</div>
+                  <div class="stat-label">إجمالي مبلغ المطالبة</div>
                 </div>
                 <div class="stat-icon green"><i class="fa-solid fa-hand-holding-dollar"></i></div>
               </div>

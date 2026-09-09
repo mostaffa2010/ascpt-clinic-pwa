@@ -567,7 +567,7 @@ export class ClaimsManager {
       if (selected.length === 0) {
         previewList.innerHTML = '<span style="color: var(--text-muted); font-size: 0.8rem;">اضغط على الأزرار أعلاه لتحديد الخطة العلاجية...</span>';
       } else {
-        previewList.innerHTML = selected.map(t => `<div style="padding: 2px 0; font-weight: 700; color: #1e293b;">- ${escapeHTML(t)}</div>`).join('');
+        previewList.innerHTML = selected.map(t => `<div style="padding: 2px 0; font-weight: 700; color: var(--text-main);">- ${escapeHTML(t)}</div>`).join('');
       }
     }
   }
