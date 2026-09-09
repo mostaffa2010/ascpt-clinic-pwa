@@ -1644,7 +1644,7 @@ export class PatientsManager {
       this.app.showAlert('تعذر حفظ/طباعة الخطاب: ' + err.message, 'خطأ', 'danger');
     }
   }
-}
+
   // ================= Patient Documents Hub (نافذة المستندات والطباعة) =================
   openPatientDocsModal(patientId) {
     const p = this.patients.find(item => item.id === patientId);
@@ -1811,3 +1811,4 @@ export class PatientsManager {
       document.body.classList.remove('printing-statement');
     }, 1500);
   }
+}
