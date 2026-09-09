@@ -746,14 +746,11 @@ export class ClaimsManager {
 
       return `
         <div class="attendance-card-print-page">
-          <div style="display: flex; align-items: flex-start; justify-content: space-between; border-bottom: 2px solid #000; padding-bottom: 6px; margin-bottom: 16px;">
-            <div style="text-align: right; line-height: 1.4;">
-              <h2 style="font-size: 13pt; margin: 0; font-weight: 800; color: #0284c7;">مركز اسكندرية التخصصي للعلاج الطبيعي (ASCPT)</h2>
-              <div style="font-size: 10pt; font-weight: 700; color: var(--text-main);">د. حسني أحمد الجويلي</div>
-              <div style="font-size: 8.5pt; color: #475569;">إستشاري العلاج الطبيعي والتقويم الحركي للعمود الفقري</div>
-              <div style="font-size: 8pt; color: #64748b;">١٧ شارع حسين شيرين - لوران - الإسكندرية | تليفون: 03-5702356 | البريد: algewelyspinecare@yahoo.com</div>
-            </div>
-            <img src="./icons/icon-192.png" alt="ASCPT Logo" style="width: 46px; height: 46px; object-fit: contain; border-radius: 6px; flex-shrink: 0;">
+          <div style="text-align: right; line-height: 1.4; border-bottom: 2px solid #000; padding-bottom: 6px; margin-bottom: 16px;">
+            <h2 style="font-size: 13pt; margin: 0; font-weight: 800; color: #0284c7;">مركز اسكندرية التخصصي للعلاج الطبيعي (ASCPT)</h2>
+            <div style="font-size: 10pt; font-weight: 700; color: var(--text-main);">د. حسني أحمد الجويلي</div>
+            <div style="font-size: 8.5pt; color: #475569;">إستشاري العلاج الطبيعي والتقويم الحركي للعمود الفقري</div>
+            <div style="font-size: 8pt; color: #64748b;">١٧ شارع حسين شيرين - لوران - الإسكندرية | تليفون: 03-5702356 | البريد: algewelyspinecare@yahoo.com</div>
           </div>
 
           <div style="text-align: center; margin: 20px 0;">
