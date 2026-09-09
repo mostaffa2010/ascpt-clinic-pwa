@@ -297,7 +297,8 @@ export class FinanceManager {
 
     const periodInput = document.getElementById('settle-claim-period');
     if (periodInput) {
-      periodInput.value = prefill.period || (this.currentMonth ? `مطالبة شهر ${this.currentMonth}` : '');
+      periodInput.value = prefill.period || '';
+      periodInput.placeholder = 'مثال: مطالبة شهر 09-2026 أو أغسطس 2026';
     }
 
     const dateInput = document.getElementById('settle-date');
