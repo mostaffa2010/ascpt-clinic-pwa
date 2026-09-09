@@ -32,6 +32,12 @@ export class ClaimsManager {
       'Myofascial Release',
       'Cryotherapy'
     ];
+
+    // Claims Ledger State
+    this.claimsLedgerData = [];
+    this.ledgerStatusFilter = 'all';
+    this.ledgerCompanyFilter = 'all';
+    this.ledgerSearchQuery = '';
   }
 
   async init() {
@@ -39,6 +45,7 @@ export class ClaimsManager {
     this.setDefaultDates();
     this.setupScrollSync();
     await this.populateCompaniesDropdown();
+    await this.loadClaims();
   }
 
   setDefaultDates() {
@@ -86,6 +93,16 @@ export class ClaimsManager {
     if (this.app && this.app.updateCustomSelectDisplay) {
       this.app.updateCustomSelectDisplay('claim-company-select');
     }
+
+    // Populate Claims Ledger Company Filter
+    const ledgerCompSelect = document.getElementById('claims-ledger-company-filter');
+    if (ledgerCompSelect) {
+      ledgerCompSelect.innerHTML = '<option value="all">كل شركات التأمين</option>' +
+        companies.map(c => `<option value="${escapeHTML(c.name)}">${escapeHTML(c.name)}</option>`).join('');
+      if (this.app && this.app.updateCustomSelectDisplay) {
+        this.app.updateCustomSelectDisplay('claims-ledger-company-filter');
+      }
+    }
   }
 
   onCompanyChanged(companyName) {
@@ -128,11 +145,69 @@ export class ClaimsManager {
     }
 
     document.getElementById('btn-load-claim-patients')?.addEventListener('click', () => this.loadCompanyPatients());
+    document.getElementById('btn-save-claim')?.addEventListener('click', () => this.saveCurrentClaim());
     document.getElementById('btn-settle-claim-action')?.addEventListener('click', () => this.openSettleClaim());
     const bClaim = document.getElementById('btn-print-claim-statement'); if (bClaim) bClaim.onclick = (e) => { e.preventDefault(); e.stopPropagation(); this.printClaimStatement(); };
     const bCards = document.getElementById('btn-print-attendance-cards'); if (bCards) bCards.onclick = (e) => { e.preventDefault(); e.stopPropagation(); this.printAttendanceCards(); };
     document.getElementById('btn-export-claim-excel')?.addEventListener('click', () => this.exportClaimExcel());
     document.getElementById('claim-patient-search-input')?.addEventListener('input', (e) => this.onSearchInput(e.target.value));
+
+    // Claims Ledger Search & Filters
+    document.getElementById('claims-ledger-search')?.addEventListener('input', (e) => {
+      this.ledgerSearchQuery = e.target.value.trim().toLowerCase();
+      this.renderClaimsLedgerTable();
+    });
+
+    document.getElementById('claims-ledger-company-filter')?.addEventListener('change', (e) => {
+      this.ledgerCompanyFilter = e.target.value;
+      this.renderClaimsLedgerTable();
+    });
+
+    // Status Filter Pills for Claims Ledger
+    document.querySelectorAll('.btn-claim-filter-pill').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        document.querySelectorAll('.btn-claim-filter-pill').forEach(b => {
+          b.classList.remove('active');
+          b.style.background = 'var(--bg-subtle)';
+          b.style.color = 'var(--text-main)';
+        });
+        btn.classList.add('active');
+        btn.style.background = 'var(--primary)';
+        btn.style.color = 'white';
+        this.ledgerStatusFilter = btn.getAttribute('data-status') || 'all';
+        this.renderClaimsLedgerTable();
+      });
+    });
+
+    // Event Delegation for Claims Ledger Table
+    const ledgerTbody = document.getElementById('claims-ledger-tbody');
+    if (ledgerTbody) {
+      ledgerTbody.addEventListener('click', async (e) => {
+        const settleBtn = e.target.closest('.btn-settle-ledger-claim');
+        if (settleBtn) {
+          const claimId = settleBtn.getAttribute('data-claim-id');
+          const claim = this.claimsLedgerData.find(c => c.id === claimId);
+          if (claim) {
+            this.openSettleClaim(claim);
+          }
+          return;
+        }
+
+        const loadBtn = e.target.closest('.btn-load-ledger-claim');
+        if (loadBtn) {
+          const claimId = loadBtn.getAttribute('data-claim-id');
+          await this.loadClaimIntoEditor(claimId);
+          return;
+        }
+
+        const delBtn = e.target.closest('.btn-delete-ledger-claim');
+        if (delBtn) {
+          const claimId = delBtn.getAttribute('data-claim-id');
+          await this.deleteClaim(claimId);
+          return;
+        }
+      });
+    }
 
     // Modal attendance card buttons
     document.getElementById('btn-card-add-treatment')?.addEventListener('click', () => this.toggleCardTreatmentsEditMode());
@@ -782,7 +857,23 @@ export class ClaimsManager {
   }
 
   // ================= Top & Bottom Horizontal Scroll Synchronization =================
-  openSettleClaim() {
+  openSettleClaim(prefillClaim = null) {
+    if (prefillClaim) {
+      if (this.app?.financeManager?.openSettleClaimModal) {
+        const periodStr = prefillClaim.startDate && prefillClaim.endDate
+          ? `مطالبة من ${prefillClaim.startDate} إلى ${prefillClaim.endDate}`
+          : (prefillClaim.period || `مطالبة ${prefillClaim.companyName}`);
+
+        this.app.financeManager.openSettleClaimModal({
+          company: prefillClaim.companyName,
+          grossAmount: prefillClaim.totalAmount,
+          period: periodStr,
+          claimId: prefillClaim.id
+        });
+      }
+      return;
+    }
+
     if (!this.currentCompany) {
       this.app.showAlert('يرجى اختيار شركة التأمين واستخراج بيانات المطالبة أولاً.', 'تنبيه', 'warning');
       return;
@@ -791,13 +882,305 @@ export class ClaimsManager {
       ? this.claimPatientsData.filter(i => i.isChecked).reduce((acc, curr) => acc + (parseFloat(curr.total) || 0), 0)
       : 0;
 
-    const periodStr = `${this.startDate || ''} إلى ${this.endDate || ''}`;
+    const periodStr = `مطالبة من ${this.startDate || ''} إلى ${this.endDate || ''}`;
     if (this.app?.financeManager?.openSettleClaimModal) {
       this.app.financeManager.openSettleClaimModal({
         company: this.currentCompany,
         grossAmount: gross,
         period: periodStr
       });
+    }
+  }
+
+  // ================= 4. Claims Ledger Management Methods =================
+  async loadClaims() {
+    try {
+      this.claimsLedgerData = await db.getInsuranceClaims();
+      this.renderClaimsLedgerTable();
+    } catch (err) {
+      console.error('Error loading claims ledger:', err);
+    }
+  }
+
+  renderClaimsLedgerTable() {
+    const tbody = document.getElementById('claims-ledger-tbody');
+    const countBadge = document.getElementById('claims-ledger-count-badge');
+    if (!tbody) return;
+
+    let filtered = Array.isArray(this.claimsLedgerData) ? [...this.claimsLedgerData] : [];
+
+    // Filter by company
+    if (this.ledgerCompanyFilter && this.ledgerCompanyFilter !== 'all') {
+      filtered = filtered.filter(c => c.companyName === this.ledgerCompanyFilter);
+    }
+
+    // Filter by status
+    if (this.ledgerStatusFilter === 'pending') {
+      filtered = filtered.filter(c => c.status === 'pending');
+    } else if (this.ledgerStatusFilter === 'settled') {
+      filtered = filtered.filter(c => c.status === 'settled' || c.status === 'partial');
+    }
+
+    // Filter by search query
+    if (this.ledgerSearchQuery) {
+      const q = this.ledgerSearchQuery;
+      filtered = filtered.filter(c => 
+        (c.companyName || '').toLowerCase().includes(q) ||
+        (c.claimCode || '').toLowerCase().includes(q) ||
+        (c.startDate || '').includes(q) ||
+        (c.endDate || '').includes(q) ||
+        (c.recordedBy || '').toLowerCase().includes(q)
+      );
+    }
+
+    if (countBadge) {
+      countBadge.textContent = `${filtered.length} مطالبة`;
+    }
+
+    if (filtered.length === 0) {
+      tbody.innerHTML = `<tr><td colspan="8" style="text-align: center; color: var(--text-muted); padding: 24px;">لا توجد مطالبات تأمين مسجلة مطابقة للبحث.</td></tr>`;
+      return;
+    }
+
+    const currentUser = auth.getCurrentUser();
+    const canDelete = RolesManager.canDelete(currentUser);
+
+    tbody.innerHTML = filtered.map(c => {
+      const safeId = escapeHTML(c.id);
+      const safeCode = escapeHTML(c.claimCode || 'CLM-SYS');
+      const safeCompany = escapeHTML(c.companyName);
+      const safePeriod = `من ${escapeHTML(c.startDate || '')} إلى ${escapeHTML(c.endDate || '')}`;
+      const safePatientsCount = escapeHTML(c.totalPatients || 0);
+      const safeSessionsCount = escapeHTML(c.totalSessions || 0);
+      const safeAmount = (parseFloat(c.totalAmount) || 0).toLocaleString('en-US');
+      const safeDate = escapeHTML(c.claimDate || (c.createdAt ? c.createdAt.slice(0, 10) : ''));
+
+      let statusBadge = '';
+      if (c.status === 'settled') {
+        statusBadge = `<span class="badge" style="background: #dcfce7; color: #15803d; border: 1px solid #bbf7d0; font-weight: 800; font-size: 0.78rem;"><i class="fa-solid fa-circle-check"></i> تم التحصيل</span>`;
+      } else if (c.status === 'partial') {
+        const ded = (parseFloat(c.deductions) || 0).toLocaleString('en-US');
+        statusBadge = `<span class="badge" style="background: #e0e7ff; color: #3730a3; border: 1px solid #c7d2fe; font-weight: 800; font-size: 0.78rem;"><i class="fa-solid fa-hand-holding-dollar"></i> تحصيل جزئي (${ded} ج.م استقطاع)</span>`;
+      } else {
+        statusBadge = `<span class="badge" style="background: #fef3c7; color: #b45309; border: 1px solid #fde68a; font-weight: 800; font-size: 0.78rem;"><i class="fa-solid fa-clock"></i> قيد التحصيل</span>`;
+      }
+
+      let settledDisplay = '<span style="color: var(--text-muted); font-size: 0.85rem;">-</span>';
+      if (c.status === 'settled' || c.status === 'partial') {
+        const netSettled = (parseFloat(c.settledAmount) || 0).toLocaleString('en-US');
+        settledDisplay = `<span style="font-weight: 800; color: var(--success); font-size: 0.92rem;">${netSettled} ج.م</span><br><small style="color: var(--text-muted); font-size: 0.74rem;">بتاريخ ${escapeHTML(c.settledDate || '')}</small>`;
+      }
+
+      return `
+        <tr>
+          <td style="font-weight: 800; color: var(--primary); font-family: monospace; font-size: 0.88rem;">
+            ${safeCode}
+            <div style="font-size: 0.74rem; font-weight: normal; color: var(--text-muted); font-family: sans-serif;">${safeDate}</div>
+          </td>
+          <td style="font-weight: 800; color: var(--text-main); font-size: 0.92rem;">
+            <i class="fa-solid fa-building-shield" style="color: var(--primary); margin-left: 5px;"></i>
+            ${safeCompany}
+          </td>
+          <td style="font-size: 0.84rem; font-weight: 600;">${safePeriod}</td>
+          <td style="text-align: center;">
+            <span class="badge badge-role-doctor" style="font-weight: 700;">${safePatientsCount} مريض</span>
+            <span class="badge" style="background: var(--bg-subtle); color: var(--text-main); border: 1px solid var(--border-color); font-weight: 700;">${safeSessionsCount} جلسة</span>
+          </td>
+          <td style="font-weight: 800; color: var(--primary); font-size: 0.95rem;">${safeAmount} ج.م</td>
+          <td style="text-align: center;">${statusBadge}</td>
+          <td>${settledDisplay}</td>
+          <td class="no-print" style="text-align: center;">
+            <div style="display: flex; gap: 4px; justify-content: center;">
+              <button type="button" class="btn btn-outline btn-sm btn-settle-ledger-claim" data-claim-id="${safeId}" title="تسجيل تحصيل المطالبة" style="color: var(--primary); border-color: var(--primary); padding: 4px 8px;">
+                <i class="fa-solid fa-money-bill-transfer"></i>
+              </button>
+              <button type="button" class="btn btn-outline btn-sm btn-load-ledger-claim" data-claim-id="${safeId}" title="استدعاء المطالبة للشاشة للطباعة والتصدير" style="color: var(--text-main); padding: 4px 8px;">
+                <i class="fa-solid fa-eye"></i>
+              </button>
+              ${canDelete ? `
+                <button type="button" class="btn btn-outline btn-sm btn-delete-ledger-claim" data-claim-id="${safeId}" title="حذف المطالبة" style="color: var(--danger); border-color: var(--danger); padding: 4px 8px;">
+                  <i class="fa-solid fa-trash"></i>
+                </button>
+              ` : ''}
+            </div>
+          </td>
+        </tr>
+      `;
+    }).join('');
+  }
+
+  async saveCurrentClaim() {
+    if (!this.currentCompany) {
+      await this.app.showAlert('يرجى اختيار شركة التأمين واستخراج المرضى أولاً.', 'بيانات ناقصة', 'warning');
+      return;
+    }
+
+    const checkedItems = this.claimPatientsData.filter(i => i.isChecked);
+    if (checkedItems.length === 0) {
+      await this.app.showAlert('يرجى تحديد مريض واحد على الأقل للمطالبة قبل الحفظ.', 'تنبيه', 'warning');
+      return;
+    }
+
+    // Check if duplicate claim exists for same company & period
+    const existing = this.claimsLedgerData.find(c => 
+      c.companyName === this.currentCompany &&
+      c.startDate === this.startDate &&
+      c.endDate === this.endDate
+    );
+
+    let targetClaimId = null;
+    let claimCode = null;
+
+    if (existing) {
+      const confirmUpdate = await this.app.showConfirm(
+        `توجد مطالبة سابقة لنفس الشركة (${this.currentCompany}) عن نفس الفترة (${this.startDate} إلى ${this.endDate}). هل ترغب في تحديثها بالمطالبة الحالية؟`,
+        'تحديث مطالبة قائمة'
+      );
+      if (!confirmUpdate) return;
+      targetClaimId = existing.id;
+      claimCode = existing.claimCode;
+    } else {
+      const now = new Date();
+      const yy = String(now.getFullYear()).slice(-2);
+      const mm = String(now.getMonth() + 1).padStart(2, '0');
+      const seq = (this.claimsLedgerData.length + 1).toString().padStart(2, '0');
+      claimCode = `CLM-${yy}${mm}-${seq}`;
+    }
+
+    const totalPatients = checkedItems.length;
+    const totalSessions = checkedItems.reduce((acc, curr) => acc + (curr.attendedSessions ? curr.attendedSessions.length : 0), 0);
+    const totalAmount = checkedItems.reduce((acc, curr) => acc + (parseFloat(curr.total) || 0), 0);
+    const claimDate = document.getElementById('claim-doc-date')?.value || new Date().toISOString().slice(0, 10);
+    const taxNumber = document.getElementById('claim-tax-number')?.value.trim() || '';
+    const sessionRate = parseFloat(document.getElementById('claim-default-session-rate')?.value) || 120;
+    const evalFee = parseFloat(document.getElementById('claim-default-eval-fee')?.value) || 150;
+
+    const claimData = {
+      claimCode,
+      companyName: this.currentCompany,
+      startDate: this.startDate,
+      endDate: this.endDate,
+      claimDate,
+      taxNumber,
+      defaultSessionRate: sessionRate,
+      defaultEvalFee: evalFee,
+      totalPatients,
+      totalSessions,
+      totalAmount,
+      status: existing ? existing.status : 'pending',
+      settledAmount: existing ? existing.settledAmount : 0,
+      deductions: existing ? existing.deductions : 0,
+      deductionReason: existing ? existing.deductionReason : '',
+      settledDate: existing ? existing.settledDate : null,
+      settlementId: existing ? existing.settlementId : null,
+      patientsData: checkedItems.map(item => ({
+        patient: {
+          id: item.patient.id,
+          name: item.patient.name,
+          phone: item.patient.phone || '',
+          insuranceMembershipNo: item.patient.insuranceMembershipNo || '',
+          insuranceApprovalNo: item.patient.insuranceApprovalNo || ''
+        },
+        cardData: item.cardData || null,
+        attendedSessions: (item.attendedSessions || []).map(s => ({
+          id: s.id,
+          date: s.date,
+          doctor: s.doctor,
+          recordedAt: s.recordedAt
+        })),
+        evalFee: item.evalFee,
+        sessionRate: item.sessionRate,
+        sessionsCost: item.sessionsCost,
+        total: item.total,
+        isChecked: true
+      }))
+    };
+
+    if (targetClaimId) {
+      claimData.id = targetClaimId;
+    }
+
+    try {
+      const currentUser = auth.getCurrentUser();
+      await db.saveInsuranceClaim(claimData, currentUser);
+      try {
+        await db.logAudit('اعتماد مطالبة تأمين', `حفظ مطالبة ${claimData.companyName} (${claimCode}) بقيمة ${totalAmount.toLocaleString('en-US')} ج.م`, currentUser);
+      } catch (_) {}
+
+      this.app.showToast(`تم حفظ واعتماد المطالبة (${claimCode}) بنجاح وإدراجها في السجل.`);
+      await this.loadClaims();
+
+      const ledgerCard = document.getElementById('claims-ledger-card');
+      if (ledgerCard) {
+        ledgerCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    } catch (err) {
+      console.error('Error saving claim:', err);
+      await this.app.showAlert('تعذر حفظ المطالبة: ' + err.message, 'خطأ', 'danger');
+    }
+  }
+
+  async loadClaimIntoEditor(claimId) {
+    const claim = this.claimsLedgerData.find(c => c.id === claimId);
+    if (!claim) return;
+
+    this.currentCompany = claim.companyName;
+    const compSelect = document.getElementById('claim-company-select');
+    if (compSelect) {
+      compSelect.value = claim.companyName;
+      if (this.app?.updateCustomSelectDisplay) {
+        this.app.updateCustomSelectDisplay('claim-company-select');
+      }
+    }
+
+    this.startDate = claim.startDate;
+    this.endDate = claim.endDate;
+    const startEl = document.getElementById('claim-start-date');
+    const endEl = document.getElementById('claim-end-date');
+    const claimDateEl = document.getElementById('claim-doc-date');
+    const taxEl = document.getElementById('claim-tax-number');
+    const rateEl = document.getElementById('claim-default-session-rate');
+    const evalEl = document.getElementById('claim-default-eval-fee');
+
+    if (startEl) startEl.value = claim.startDate;
+    if (endEl) endEl.value = claim.endDate;
+    if (claimDateEl) claimDateEl.value = claim.claimDate || '';
+    if (taxEl) taxEl.value = claim.taxNumber || '';
+    if (rateEl) rateEl.value = claim.defaultSessionRate || 120;
+    if (evalEl) evalEl.value = claim.defaultEvalFee || 150;
+
+    if (Array.isArray(claim.patientsData) && claim.patientsData.length > 0) {
+      this.claimPatientsData = claim.patientsData.map(p => ({
+        ...p,
+        isChecked: true
+      }));
+      this.renderPatientsTable();
+      this.recalcGrandTotals();
+
+      this.app.showToast(`تم استدعاء بيانات المطالبة (${claim.claimCode || ''}) للطباعة والتصدير`);
+      const tableContainer = document.getElementById('claim-table-container');
+      if (tableContainer) {
+        tableContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    } else {
+      await this.loadCompanyPatients();
+    }
+  }
+
+  async deleteClaim(claimId) {
+    const confirmed = await this.app.showConfirm('هل أنت متأكد من حذف هذه المطالبة من السجل المعتمد؟', 'تأكيد الحذف');
+    if (!confirmed) return;
+
+    try {
+      const currentUser = auth.getCurrentUser();
+      await db.deleteInsuranceClaim(claimId);
+      try {
+        await db.logAudit('حذف مطالبة تأمين', `حذف مطالبة برقم ${claimId}`, currentUser);
+      } catch (_) {}
+      this.app.showToast('تم حذف المطالبة من السجل بنجاح');
+      await this.loadClaims();
+    } catch (err) {
+      this.app.showAlert('تعذر حذف المطالبة: ' + err.message, 'خطأ', 'danger');
     }
   }
 

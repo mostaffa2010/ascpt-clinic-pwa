@@ -281,6 +281,7 @@ export class FinanceManager {
 
   // ================= Insurance Claim Settlements Handlers =================
   openSettleClaimModal(prefill = {}) {
+    this.currentSettlingClaimId = prefill.claimId || null;
     const allCompanies = (typeof db.getAllInsuranceCompaniesWithTypes === 'function')
       ? db.getAllInsuranceCompaniesWithTypes()
       : db.getInsuranceCompaniesList();
@@ -401,7 +402,45 @@ export class FinanceManager {
     };
 
     try {
-      await db.saveInsuranceSettlement(settlementData, currentUser);
+      const savedSettlement = await db.saveInsuranceSettlement(settlementData, currentUser);
+
+      // Update linked claim if this settlement was initiated from a claim
+      try {
+        const linkedClaimId = this.currentSettlingClaimId;
+        if (linkedClaimId) {
+          await db.updateInsuranceClaim(linkedClaimId, {
+            status: deductions > 0 ? 'partial' : 'settled',
+            settledAmount: netAmount,
+            deductions: deductions,
+            deductionReason: deductions > 0 ? reason : 'تحصيل كامل',
+            settledDate: date,
+            settlementId: savedSettlement.id
+          });
+        } else {
+          // Check if there is an exact pending claim for this company matching this period
+          const allClaims = await db.getInsuranceClaims(company);
+          const match = allClaims.find(c => c.status === 'pending' && (
+            (c.startDate && period.includes(c.startDate)) ||
+            (c.endDate && period.includes(c.endDate)) ||
+            (c.claimCode && period.includes(c.claimCode)) ||
+            (Math.abs((parseFloat(c.totalAmount) || 0) - gross) < 1)
+          ));
+          if (match) {
+            await db.updateInsuranceClaim(match.id, {
+              status: deductions > 0 ? 'partial' : 'settled',
+              settledAmount: netAmount,
+              deductions: deductions,
+              deductionReason: deductions > 0 ? reason : 'تحصيل كامل',
+              settledDate: date,
+              settlementId: savedSettlement.id
+            });
+          }
+        }
+      } catch (claimErr) {
+        console.warn('Update claim status notice:', claimErr);
+      }
+      this.currentSettlingClaimId = null;
+
       try {
         await db.logAudit(
           'تحصيل مطالبة تأمين',
@@ -413,6 +452,9 @@ export class FinanceManager {
       this.app.closeModal('modal-settle-claim');
       this.app.showToast(`تم تسجيل تحصيل مطالبة (${company}) بمبلغ صافي ${netAmount.toLocaleString('en-US')} ج.م`);
       await this.loadReport();
+      if (this.app.claimsManager && typeof this.app.claimsManager.loadClaims === 'function') {
+        await this.app.claimsManager.loadClaims();
+      }
       this.app.refreshAll();
     } catch (err) {
       this.app.showAlert('تعذر تسجيل التحصيل: ' + err.message, 'خطأ', 'danger');
@@ -426,9 +468,29 @@ export class FinanceManager {
     try {
       const currentUser = auth.getCurrentUser();
       await db.deleteInsuranceSettlement(id);
+
+      // Revert any claim linked to this settlement
+      try {
+        const allClaims = await db.getInsuranceClaims();
+        const linked = allClaims.find(c => c.settlementId === id);
+        if (linked) {
+          await db.updateInsuranceClaim(linked.id, {
+            status: 'pending',
+            settledAmount: 0,
+            deductions: 0,
+            deductionReason: '',
+            settledDate: null,
+            settlementId: null
+          });
+        }
+      } catch (_) {}
+
       try { await db.logAudit('حذف تحصيل تأمين', `حذف حركة تحصيل تأمين برقم ${id}`, currentUser); } catch (_) {}
       this.app.showToast('تم حذف حركة التحصيل بنجاح');
       await this.loadReport();
+      if (this.app.claimsManager && typeof this.app.claimsManager.loadClaims === 'function') {
+        await this.app.claimsManager.loadClaims();
+      }
       this.app.refreshAll();
     } catch (err) {
       this.app.showAlert('تعذر حذف الحركة: ' + err.message, 'خطأ', 'danger');
@@ -575,6 +637,9 @@ export class FinanceManager {
       setTimeout(() => {
         if (this.app.claimsManager) {
           this.app.claimsManager.setupScrollSync();
+          if (typeof this.app.claimsManager.loadClaims === 'function') {
+            this.app.claimsManager.loadClaims();
+          }
         }
       }, 100);
     }

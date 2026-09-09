@@ -150,5 +150,11 @@ service cloud.firestore {
       allow read: if isUserActive();
       allow create, update, delete: if isAdmin() || isReceptionist();
     }
+
+    // ================= 8.أ. Insurance Claims (سجل مطالبات التأمين الصادرة) =================
+    match /insurance_claims/{claimId} {
+      allow read: if isUserActive();
+      allow create, update, delete: if isAdmin() || isReceptionist();
+    }
   }
 }

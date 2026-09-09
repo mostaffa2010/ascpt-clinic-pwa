@@ -647,6 +647,69 @@ class FirestoreDatabaseService {
     await deleteDoc(doc(firestoreDb, 'insurance_settlements', settlementId));
   }
 
+  // ================= 8.أ. Insurance Claims (سجل مطالبات التأمين الصادرة) =================
+  async getInsuranceClaims(companyName = null) {
+    this.ensureConnected();
+    try {
+      let q;
+      if (companyName && companyName !== 'all') {
+        q = query(
+          collection(firestoreDb, 'insurance_claims'),
+          where('companyName', '==', companyName)
+        );
+      } else {
+        q = query(
+          collection(firestoreDb, 'insurance_claims'),
+          orderBy('createdAt', 'desc'),
+          limit(100)
+        );
+      }
+      const snap = await getDocs(q);
+      const list = snap.docs.map((d) => ({ ...d.data(), id: d.id }));
+      list.sort((a, b) => (b.createdAt || '').localeCompare(a.createdAt || ''));
+      return list;
+    } catch (err) {
+      console.warn('Firestore getInsuranceClaims error:', err.message);
+      return [];
+    }
+  }
+
+  async saveInsuranceClaim(claimData, currentUser) {
+    this.ensureConnected();
+    const claimId = claimData.id || doc(collection(firestoreDb, 'insurance_claims')).id;
+    const dataToSave = {
+      ...claimData,
+      id: claimId,
+      recordedBy: currentUser?.name || 'مدير المركز',
+      recordedByUid: currentUser?.uid || '',
+      createdAt: claimData.createdAt || new Date().toISOString()
+    };
+
+    try {
+      await setDoc(doc(firestoreDb, 'insurance_claims', claimId), dataToSave, { merge: true });
+      return dataToSave;
+    } catch (err) {
+      console.error('Save insurance claim error:', err);
+      throw err;
+    }
+  }
+
+  async updateInsuranceClaim(claimId, updateData) {
+    this.ensureConnected();
+    try {
+      await setDoc(doc(firestoreDb, 'insurance_claims', claimId), updateData, { merge: true });
+      return true;
+    } catch (err) {
+      console.error('Update insurance claim error:', err);
+      throw err;
+    }
+  }
+
+  async deleteInsuranceClaim(claimId) {
+    this.ensureConnected();
+    await deleteDoc(doc(firestoreDb, 'insurance_claims', claimId));
+  }
+
   // ================= 9. Weekly Appointments Schedule & Custom Slots =================
   async getAppointmentSlots() {
     this.ensureConnected();
@@ -771,12 +834,13 @@ class FirestoreDatabaseService {
   async createFullBackup() {
     this.ensureConnected();
 
-    const [patients, sessions, expenses, appointments, insuranceLetters] = await Promise.all([
+    const [patients, sessions, expenses, appointments, insuranceLetters, insuranceClaims] = await Promise.all([
       this.getPatients(),
       this.getSessions(),
       this.getExpenses(),
       this.getAppointments(),
-      this.getInsuranceLetters()
+      this.getInsuranceLetters(),
+      this.getInsuranceClaims()
     ]);
 
     const clinicalOptionsSnap = await getDocs(collection(firestoreDb, 'clinical_options'));
@@ -796,13 +860,15 @@ class FirestoreDatabaseService {
         sessions: sessions.length,
         expenses: expenses.length,
         appointments: appointments.length,
-        insuranceLetters: insuranceLetters.length
+        insuranceLetters: insuranceLetters.length,
+        insuranceClaims: insuranceClaims.length
       },
       patients,
       sessions,
       expenses,
       appointments,
       insuranceLetters,
+      insuranceClaims,
       clinicalOptions,
       insuranceCompanies
     };

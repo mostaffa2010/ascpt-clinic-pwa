@@ -1143,6 +1143,9 @@
                   <button type="button" class="btn btn-outline btn-sm" id="btn-export-claim-excel" style="font-weight: 800; padding: 6px 12px; color: var(--success); border-color: var(--success);">
                     <i class="fa-solid fa-file-excel"></i> تصدير Excel
                   </button>
+                  <button type="button" class="btn btn-success btn-sm" id="btn-save-claim" style="font-weight: 800; padding: 6px 12px; color: white; display: inline-flex; align-items: center; gap: 6px;" title="حفظ واعتماد المطالبة في السجل">
+                    <i class="fa-solid fa-cloud-arrow-up"></i> <span>حفظ واعتماد المطالبة</span>
+                  </button>
                   <button type="button" class="btn btn-outline btn-sm" id="btn-settle-claim-action" style="font-weight: 800; padding: 6px 12px; color: var(--primary); border-color: var(--primary); display: inline-flex; align-items: center; gap: 6px;" title="تسجيل تحصيل المبلغ المستحق لهذه المطالبة">
                     <i class="fa-solid fa-money-bill-transfer"></i> <span>تسجيل تحصيل المطالبة</span>
                   </button>
@@ -1184,6 +1187,69 @@
                   </thead>
                   <tbody id="claim-patients-tbody">
                     <tr><td colspan="8" style="text-align: center; padding: 24px; color: var(--text-muted);">يرجى اختيار شركة التأمين ثم الضغط على "استخراج وعرض مرضى الشركة".</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <!-- ================= 4. Insurance Claims Ledger (سجل مطالبات التأمين الصادرة والتحصيلات) ================= -->
+            <div class="card" id="claims-ledger-card" style="margin-bottom: 24px; border: 1.5px solid var(--border-color); background: var(--bg-surface);">
+              <div class="card-header" style="border-bottom: 1px solid var(--border-color); padding-bottom: 12px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+                <div style="display: flex; align-items: center; gap: 10px;">
+                  <span class="card-title" style="font-size: 1.05rem; color: var(--primary); font-weight: 800; display: inline-flex; align-items: center; gap: 8px;">
+                    <i class="fa-solid fa-folder-open"></i> سجل مطالبات التأمين الصادرة والتحصيلات
+                  </span>
+                  <span class="badge badge-cash" id="claims-ledger-count-badge" style="font-size: 0.8rem; font-weight: 700;">0 مطالبة</span>
+                </div>
+                <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
+                  <!-- Status Filter Pills -->
+                  <div class="filter-pills" style="display: flex; gap: 4px;">
+                    <button type="button" class="btn-claim-filter-pill active" data-status="all" style="padding: 4px 12px; font-size: 0.78rem; font-weight: 700; border-radius: 20px; border: 1px solid var(--border-color); background: var(--primary); color: white; cursor: pointer;">الكل</button>
+                    <button type="button" class="btn-claim-filter-pill" data-status="pending" style="padding: 4px 12px; font-size: 0.78rem; font-weight: 700; border-radius: 20px; border: 1px solid var(--border-color); background: var(--bg-subtle); color: var(--text-main); cursor: pointer;">قيد التحصيل</button>
+                    <button type="button" class="btn-claim-filter-pill" data-status="settled" style="padding: 4px 12px; font-size: 0.78rem; font-weight: 700; border-radius: 20px; border: 1px solid var(--border-color); background: var(--bg-subtle); color: var(--text-main); cursor: pointer;">تم التحصيل</button>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Search & Company Filter Controls for Claims Ledger -->
+              <div style="padding: 10px 14px; background: var(--bg-subtle); border-radius: var(--radius-md); margin-bottom: 14px; display: flex; gap: 12px; flex-wrap: wrap; align-items: center;">
+                <div class="search-box" style="flex: 1; min-width: 240px;">
+                  <i class="fa-solid fa-magnifying-glass"></i>
+                  <input type="text" id="claims-ledger-search" class="form-control" placeholder="ابحث بكود المطالبة، اسم الشركة، أو الفترة..." style="height: 38px; font-size: 0.84rem;">
+                </div>
+                <div style="display: flex; align-items: center; gap: 6px; min-width: 210px;">
+                  <label for="claims-ledger-company-filter" style="font-size: 0.82rem; font-weight: 800; white-space: nowrap; color: var(--text-main);">
+                    <i class="fa-solid fa-filter" style="color: var(--primary);"></i> الشركة:
+                  </label>
+                  <div class="custom-select-wrapper" style="flex: 1;">
+                    <select id="claims-ledger-company-filter" style="display: none;">
+                      <option value="all">كل شركات التأمين</option>
+                    </select>
+                    <button type="button" class="custom-select-btn" id="btn-select-claims-ledger-company-filter" data-open-picker="claims-ledger-company-filter" data-picker-title="تصفية سجل المطالبات بالشركة" style="height: 38px; font-size: 0.84rem; padding: 0 10px;">
+                      <span class="btn-text">كل شركات التأمين</span>
+                      <i class="fa-solid fa-chevron-down"></i>
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Claims Ledger Table -->
+              <div class="table-responsive">
+                <table class="data-table" id="claims-ledger-table">
+                  <thead>
+                    <tr>
+                      <th style="width: 120px;">كود المطالبة</th>
+                      <th>شركة التأمين</th>
+                      <th>فترة المطالبة</th>
+                      <th style="text-align: center;">المرضى / الجلسات</th>
+                      <th style="font-weight: 800;">إجمالي المبلغ</th>
+                      <th style="text-align: center;">حالة التحصيل</th>
+                      <th>المحصل الفعلي</th>
+                      <th class="no-print" style="text-align: center; width: 140px;">الإجراءات</th>
+                    </tr>
+                  </thead>
+                  <tbody id="claims-ledger-tbody">
+                    <!-- Populated dynamically by JS -->
                   </tbody>
                 </table>
               </div>
