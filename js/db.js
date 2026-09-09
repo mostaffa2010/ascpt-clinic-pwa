@@ -8,6 +8,7 @@ import {
   collection,
   doc,
   getDocs,
+  getDocsFromCache,
   getDoc,
   setDoc,
   deleteDoc,
@@ -63,12 +64,34 @@ class FirestoreDatabaseService {
     }
   }
 
+  /**
+   * Reads a query from the local Firestore persistent cache first for an
+   * instant result (no network wait). If the cache already has data, a
+   * fresh network read is kicked off silently in the background (its
+   * result isn't awaited here - it just warms the cache for the NEXT
+   * read/reload, which is what makes the following app open feel instant
+   * too). Falls back to a normal network read when the cache is empty
+   * (e.g. first login ever on this device).
+   */
+  async getDocsCacheFirst(q) {
+    try {
+      const cacheSnap = await getDocsFromCache(q);
+      if (cacheSnap && !cacheSnap.empty) {
+        getDocs(q).catch(() => {});
+        return cacheSnap;
+      }
+    } catch (_) {
+      // Cache unsupported/unavailable - fall through to a normal network read.
+    }
+    return getDocs(q);
+  }
+
   // ================= 1. Patients Management =================
   async getPatients() {
     this.ensureConnected();
     try {
       const q = query(collection(firestoreDb, 'patients'), orderBy('createdAt', 'desc'));
-      const snap = await getDocs(q);
+      const snap = await this.getDocsCacheFirst(q);
       return snap.docs.map(d => ({ ...d.data(), id: d.id }));
     } catch (err) {
       console.error('Firestore getPatients error:', err);
@@ -118,7 +141,7 @@ class FirestoreDatabaseService {
     this.ensureConnected();
     try {
       const q = query(collection(firestoreDb, 'sessions'), orderBy('date', 'desc'));
-      const snap = await getDocs(q);
+      const snap = await this.getDocsCacheFirst(q);
       let sessions = snap.docs.map(d => ({ ...d.data(), id: d.id }));
 
       if (filterDate) {
@@ -177,7 +200,7 @@ class FirestoreDatabaseService {
     this.ensureConnected();
     try {
       const q = query(collection(firestoreDb, 'expenses'), orderBy('date', 'desc'));
-      const snap = await getDocs(q);
+      const snap = await this.getDocsCacheFirst(q);
       let expenses = snap.docs.map(d => ({ ...d.data(), id: d.id }));
 
       if (filterDate) {
@@ -228,7 +251,7 @@ class FirestoreDatabaseService {
   async getUsers() {
     this.ensureConnected();
     try {
-      const snap = await getDocs(collection(firestoreDb, 'users'));
+      const snap = await this.getDocsCacheFirst(collection(firestoreDb, 'users'));
       return snap.docs.map(d => ({ ...d.data(), id: d.id }));
     } catch (err) {
       console.error('Firestore getUsers error:', err);
@@ -660,7 +683,7 @@ class FirestoreDatabaseService {
   // deletes it and books a different patient in its place.
   async getAppointments() {
     this.ensureConnected();
-    const snap = await getDocs(collection(firestoreDb, 'appointments'));
+    const snap = await this.getDocsCacheFirst(collection(firestoreDb, 'appointments'));
     return snap.docs.map((d) => ({ id: d.id, ...d.data() }));
   }
 
