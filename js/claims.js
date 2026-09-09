@@ -343,7 +343,7 @@ export class ClaimsManager {
       item.total = rowTotal;
 
       return `
-        <tr style="${!item.isChecked ? 'opacity: 0.55; background-color: #f8fafc;' : ''}">
+        <tr style="${!item.isChecked ? 'opacity: 0.55; background-color: var(--bg-subtle);' : ''}">
           <td style="text-align: center;">
             <input type="checkbox" class="claim-patient-check" data-patient-id="${safeId}" style="width: 18px; height: 18px; cursor: pointer;" ${rowChecked}>
           </td>
@@ -365,7 +365,7 @@ export class ClaimsManager {
             <span id="claim-row-total-${safeId}">${rowTotal.toLocaleString('en-US')}</span> ج.م
           </td>
           <td style="text-align: center;">
-            <button type="button" class="btn btn-outline btn-sm btn-open-card-modal" data-patient-id="${safeId}" style="padding: 4px 10px; font-size: 0.78rem; font-weight: 700; color: #0369a1; border-color: #bae6fd; background-color: #f0f9ff;" title="تخصيص وطباعة بطاقة التردد">
+            <button type="button" class="btn btn-outline btn-sm btn-open-card-modal" data-patient-id="${safeId}" style="padding: 4px 10px; font-size: 0.78rem; font-weight: 700; color: var(--primary); border-color: var(--border-color); background-color: var(--bg-subtle);" title="تخصيص وطباعة بطاقة التردد">
               <i class="fa-solid fa-id-card"></i> بطاقة التردد
             </button>
           </td>
@@ -672,7 +672,7 @@ export class ClaimsManager {
         <div class="attendance-card-print-page">
           <div style="text-align: right; line-height: 1.4; border-bottom: 2px solid #000; padding-bottom: 6px; margin-bottom: 16px;">
             <h2 style="font-size: 13pt; margin: 0; font-weight: 800; color: #0284c7;">مركز اسكندرية التخصصي للعلاج الطبيعي (ASCPT)</h2>
-            <div style="font-size: 10pt; font-weight: 700; color: #0f172a;">د. حسني أحمد الجويلي</div>
+            <div style="font-size: 10pt; font-weight: 700; color: var(--text-main);">د. حسني أحمد الجويلي</div>
             <div style="font-size: 8.5pt; color: #475569;">إستشاري العلاج الطبيعي والتقويم الحركي للعمود الفقري</div>
             <div style="font-size: 8pt; color: #64748b;">١٧ شارع حسين شيرين - لوران - الإسكندرية | تليفون: 03-5702356 | البريد: algewelyspinecare@yahoo.com</div>
           </div>
@@ -683,25 +683,25 @@ export class ClaimsManager {
 
           <!-- Top Line: Name on the RIGHT, Company on the LEFT (No 'Referred from') -->
           <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; font-size: 11.5pt; font-weight: bold; border-bottom: 1.5px dashed #777; padding-bottom: 10px; direction: rtl;">
-            <div style="text-align: right;">الاسم: <span style="font-size: 12.5pt; font-weight: 800; color: #0f172a;">${escapeHTML(p.name)}</span></div>
-            <div style="text-align: left;">شركة: <span style="font-weight: 800; color: #0f172a;">${escapeHTML(companyName)}</span></div>
+            <div style="text-align: right;">الاسم: <span style="font-size: 12.5pt; font-weight: 800; color: var(--text-main);">${escapeHTML(p.name)}</span></div>
+            <div style="text-align: left;">شركة: <span style="font-weight: 800; color: var(--text-main);">${escapeHTML(companyName)}</span></div>
           </div>
 
           <!-- Content Block: strictly LTR, left-aligned, with bullet points underneath -->
           <div style="direction: ltr; text-align: left; line-height: 1.8; margin-bottom: 30px; font-size: 11pt;">
             <div style="margin-bottom: 20px;">
               <strong style="font-size: 12pt; display: block; color: #000; text-decoration: underline; margin-bottom: 6px;">Referred diagnosis:</strong>
-              <div style="padding-left: 14px; font-weight: 700; color: #0f172a;">• ${escapeHTML(diag)}</div>
+              <div style="padding-left: 14px; font-weight: 700; color: var(--text-main);">• ${escapeHTML(diag)}</div>
             </div>
 
             <div style="margin-bottom: 20px;">
               <strong style="font-size: 12pt; display: block; color: #000; text-decoration: underline; margin-bottom: 6px;">P.T. Evaluation:</strong>
-              <div style="padding-left: 14px; color: #334155;">• ${escapeHTML(evaluation)}</div>
+              <div style="padding-left: 14px; color: var(--text-muted);">• ${escapeHTML(evaluation)}</div>
             </div>
 
             <div style="margin-bottom: 20px;">
               <strong style="font-size: 12pt; display: block; color: #000; text-decoration: underline; margin-bottom: 6px;">Plan of P.T. Treatment:</strong>
-              <div style="padding-left: 14px; font-weight: 700; color: #0f172a; line-height: 1.8;">
+              <div style="padding-left: 14px; font-weight: 700; color: var(--text-main); line-height: 1.8;">
                 ${treatments.map(t => `<div style="margin-bottom: 4px;">• ${t}</div>`).join('')}
               </div>
             </div>
@@ -710,7 +710,7 @@ export class ClaimsManager {
           <div style="display: flex; justify-content: flex-end; margin-top: 50px; padding-left: 20px;">
             <div style="text-align: center;">
               <div style="font-size: 10.5pt; font-weight: bold;">د. حسني أحمد الجويلي</div>
-              <div style="font-size: 9.5pt; margin-top: 4px; color: #334155;">إستشاري العلاج الطبيعي والتقويم الحركي للعمود الفقري</div>
+              <div style="font-size: 9.5pt; margin-top: 4px; color: var(--text-muted);">إستشاري العلاج الطبيعي والتقويم الحركي للعمود الفقري</div>
               <div style="margin-top: 35px; border-bottom: 1.5px solid #000; width: 150px;"></div>
             </div>
           </div>

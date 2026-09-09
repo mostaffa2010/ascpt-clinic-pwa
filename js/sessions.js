@@ -1265,7 +1265,7 @@ export class SessionsManager {
       let partsCell = '';
       if (isExam) {
         partsCell = `
-          <span class="badge" style="background: #f8fafc; color: #0284c7; border: 1px solid #bae6fd; font-weight: 800; font-size: 0.76rem; padding: 3px 8px;">
+          <span class="badge" style="background: var(--bg-subtle); color: var(--primary); border: 1px solid var(--border-color); font-weight: 800; font-size: 0.76rem; padding: 3px 8px;">
             <i class="fa-solid fa-stethoscope"></i> فحص سريري / كشف
           </span>
         `;

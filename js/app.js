@@ -980,9 +980,9 @@ class App {
       const contractType = opt.getAttribute('data-contract') || '';
       let badgeHtml = '';
       if (contractType === 'direct') {
-        badgeHtml = `<span class="badge" style="font-size: 0.72rem; padding: 2px 8px; font-weight: 800; background: #e0f2fe; color: #0284c7; border: 1px solid #bae6fd; border-radius: 6px; white-space: nowrap;">تعاقد مباشر</span>`;
+        badgeHtml = `<span class="badge" style="font-size: 0.72rem; padding: 2px 8px; font-weight: 800; background: rgba(56, 189, 248, 0.15); color: var(--primary); border: 1px solid rgba(56, 189, 248, 0.3); border-radius: 6px; white-space: nowrap;">تعاقد مباشر</span>`;
       } else if (contractType === 'indirect') {
-        badgeHtml = `<span class="badge" style="font-size: 0.72rem; padding: 2px 8px; font-weight: 800; background: #fef3c7; color: #b45309; border: 1px solid #fde68a; border-radius: 6px; white-space: nowrap;">تعاقد غير مباشر</span>`;
+        badgeHtml = `<span class="badge" style="font-size: 0.72rem; padding: 2px 8px; font-weight: 800; background: rgba(251, 191, 36, 0.15); color: var(--warning); border: 1px solid rgba(251, 191, 36, 0.3); border-radius: 6px; white-space: nowrap;">تعاقد غير مباشر</span>`;
       }
 
       // Clean company display name by removing the parenthetical contract tag if present

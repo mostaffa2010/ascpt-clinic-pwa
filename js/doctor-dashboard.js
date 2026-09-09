@@ -155,7 +155,7 @@ export class DoctorDashboardManager {
       const isExam = (s.entryType === 'examination');
       let partsDisplay = '';
       if (isExam) {
-        partsDisplay = `<span class="badge" style="background: #f8fafc; color: #0284c7; border: 1px solid #bae6fd; font-weight: 800; font-size: 0.76rem; padding: 3px 8px;"><i class="fa-solid fa-stethoscope"></i> فحص سريري / كشف</span>`;
+        partsDisplay = `<span class="badge" style="background: var(--bg-subtle); color: var(--primary); border: 1px solid var(--border-color); font-weight: 800; font-size: 0.76rem; padding: 3px 8px;"><i class="fa-solid fa-stethoscope"></i> فحص سريري / كشف</span>`;
       } else {
         const parts = Array.isArray(s.bodyParts) ? s.bodyParts.join('، ') : (s.bodyParts || '-');
         partsDisplay = escapeHTML(parts);
@@ -167,12 +167,12 @@ export class DoctorDashboardManager {
 
       return `
         <tr>
-          <td style="font-weight: 800; color: #0f172a; cursor: pointer;" onclick="patientsManager.openPatientSheet('${safePatientId}')" title="اضغط لفتح الشيت الطبي">
+          <td style="font-weight: 800; color: var(--text-main); cursor: pointer;" onclick="patientsManager.openPatientSheet('${safePatientId}')" title="اضغط لفتح الشيت الطبي">
             <i class="fa-solid fa-user-injured" style="color: var(--primary); margin-left: 6px;"></i>
             ${escapeHTML(s.patientName)}
           </td>
           <td>${billingBadge}</td>
-          <td style="font-size: 0.85rem; color: #334155;">${partsDisplay}</td>
+          <td style="font-size: 0.85rem; color: var(--text-muted);">${partsDisplay}</td>
           <td style="font-size: 0.85rem; color: var(--text-muted); white-space: nowrap;">
             <bdi dir="ltr">${escapeHTML(dateDisplay)}</bdi> ${timeDisplay ? `• ${escapeHTML(timeDisplay)}` : ''}
           </td>

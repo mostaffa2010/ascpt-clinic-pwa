@@ -466,7 +466,7 @@
           <div style="margin-top: 12px; padding-top: 10px; border-top: 1px dashed var(--border-color); font-size: 0.78rem; color: var(--text-muted); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
             <span><i class="fa-solid fa-clock-rotate-left"></i> آخر تحديث: <strong id="sheet-last-update-text" style="color: var(--text-main);">-</strong></span>
             
-            <button type="button" class="btn btn-outline btn-sm" id="btn-view-patient-sessions" onclick="patientsManager.openPatientSessionsModal()" style="display: inline-flex; align-items: center; gap: 6px; border-color: var(--primary); color: var(--primary); font-weight: 800; padding: 5px 12px; border-radius: 8px; background-color: #f0f9ff;">
+            <button type="button" class="btn btn-outline btn-sm" id="btn-view-patient-sessions" onclick="patientsManager.openPatientSessionsModal()" style="display: inline-flex; align-items: center; gap: 6px; border-color: var(--primary); color: var(--primary); font-weight: 800; padding: 5px 12px; border-radius: 8px; background-color: var(--primary-light);">
               <i class="fa-solid fa-calendar-check" style="font-size: 0.95rem;"></i>
               <span>سجل الجلسات</span>
               <span class="badge" id="sheet-sessions-badge-count" style="background-color: var(--primary); color: #ffffff; font-size: 0.76rem; padding: 2px 7px; border-radius: 6px;">0 جلسة</span>
@@ -1567,14 +1567,14 @@
       <div class="modal-body" style="padding: 20px 22px;">
         <form id="form-login" autocomplete="off" novalidate>
           <div class="form-group" style="margin-bottom: 14px;">
-            <label for="login-email" style="display: block; font-size: 0.85rem; font-weight: 700; color: #334155; margin-bottom: 6px;">
+            <label for="login-email" style="display: block; font-size: 0.85rem; font-weight: 700; color: var(--text-main); margin-bottom: 6px;">
               <i class="fa-solid fa-envelope" style="color: var(--primary);"></i> البريد الإلكتروني
             </label>
             <input type="email" id="login-email" class="form-control" placeholder="staff@ascpt.clinic" required autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" style="width: 100%; border-radius: 8px; padding: 10px 12px; font-size: 0.9rem; border: 1.5px solid var(--border-color);" dir="ltr">
           </div>
 
           <div class="form-group" style="margin-bottom: 14px;">
-            <label for="login-password" style="display: block; font-size: 0.85rem; font-weight: 700; color: #334155; margin-bottom: 6px;">
+            <label for="login-password" style="display: block; font-size: 0.85rem; font-weight: 700; color: var(--text-main); margin-bottom: 6px;">
               <i class="fa-solid fa-lock" style="color: var(--primary);"></i> كلمة السر
             </label>
             <div style="position: relative;">
@@ -1592,7 +1592,7 @@
           </div>
 
           <!-- Error message container -->
-          <div id="login-error-msg" style="display: none; background-color: #fef2f2; border: 1px solid #fecaca; color: #dc2626; border-radius: 8px; padding: 9px 12px; font-size: 0.82rem; margin-bottom: 14px; line-height: 1.4;"></div>
+          <div id="login-error-msg" style="display: none; background-color: rgba(239, 68, 68, 0.15); border: 1px solid rgba(239, 68, 68, 0.3); color: #f87171; border-radius: 8px; padding: 9px 12px; font-size: 0.82rem; margin-bottom: 14px; line-height: 1.4;"></div>
 
           <button type="submit" id="btn-do-login" class="btn btn-primary" style="width: 100%; padding: 11px; border-radius: 8px; font-weight: 800; font-size: 0.92rem; display: flex; align-items: center; justify-content: center; gap: 8px;">
             <i class="fa-solid fa-right-to-bracket"></i>
@@ -1959,9 +1959,9 @@
     <!-- Modal: Attendance Card Customization (بطاقة تردد المريض) -->
   <div class="modal-backdrop" id="modal-attendance-card" style="z-index: 230;">
     <div class="modal-content" style="max-width: 500px; border-radius: 10px;">
-      <div class="modal-header" style="background: #f0f9ff; border-bottom: 1.5px solid #bae6fd; padding: 12px 16px;">
+      <div class="modal-header" style="background: var(--bg-subtle); border-bottom: 1.5px solid var(--border-color); padding: 12px 16px;">
         <h3 style="color: var(--primary); font-size: 1.1rem; margin: 0; font-weight: 800;">
-          <i class="fa-solid fa-id-card"></i> بطاقة تردد: <span id="card-modal-patient-name" style="color: #0f172a;">اسم المريض</span>
+          <i class="fa-solid fa-id-card"></i> بطاقة تردد: <span id="card-modal-patient-name" style="color: var(--text-main);">اسم المريض</span>
         </h3>
         <button type="button" class="modal-close" data-close-modal="modal-attendance-card">&times;</button>
       </div>
@@ -2001,14 +2001,14 @@
           </div>
         </div>
       </div>
-      <div class="modal-footer" style="padding: 10px 16px; background: #f8fafc; border-top: 1px solid var(--border-color); display: flex; justify-content: space-between;">
-        <button type="button" class="btn btn-outline btn-sm" id="btn-card-print-current">
-          <i class="fa-solid fa-print"></i> طباعة هذه البطاقة فقط
+      <div class="modal-footer" style="padding: 10px 14px; background: var(--bg-subtle); border-top: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; overflow-x: hidden;">
+        <button type="button" class="btn btn-outline btn-sm" id="btn-card-print-current" style="font-weight: 700; padding: 6px 12px; flex: 1; min-width: 140px; justify-content: center;">
+          <i class="fa-solid fa-print"></i> <span>طباعة هذه البطاقة فقط</span>
         </button>
-        <div style="display: flex; gap: 6px;">
-          <button type="button" class="btn btn-outline btn-sm" data-close-modal="modal-attendance-card">إلغاء</button>
-          <button type="button" class="btn btn-primary btn-sm" id="btn-card-save">
-            <i class="fa-solid fa-check"></i> حفظ البطاقة
+        <div style="display: flex; gap: 6px; flex: 1; min-width: 140px; justify-content: flex-end;">
+          <button type="button" class="btn btn-outline btn-sm" data-close-modal="modal-attendance-card" style="font-weight: 700; padding: 6px 12px; min-width: 60px; justify-content: center;">إلغاء</button>
+          <button type="button" class="btn btn-primary btn-sm" id="btn-card-save" style="font-weight: 700; padding: 6px 14px; flex: 1; justify-content: center;">
+            <i class="fa-solid fa-check"></i> <span>حفظ البطاقة</span>
           </button>
         </div>
       </div>
@@ -2019,13 +2019,13 @@
   <div class="modal-backdrop" id="modal-patient-sessions-history" style="z-index: 230;">
     <div class="modal-content" style="max-width: 720px; max-height: 85vh; display: flex; flex-direction: column; padding: 0; border-radius: var(--radius-lg); overflow: hidden;">
       <!-- Modal Header -->
-      <div class="modal-header" style="background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%); border-bottom: 2px solid #0284c7; padding: 14px 18px;">
+      <div class="modal-header" style="background: var(--bg-subtle); border-bottom: 2px solid var(--primary); padding: 14px 18px;">
         <div>
-          <h3 style="font-size: 1.15rem; font-weight: 800; color: #0369a1; margin: 0; display: flex; align-items: center; gap: 8px;">
+          <h3 style="font-size: 1.15rem; font-weight: 800; color: var(--primary); margin: 0; display: flex; align-items: center; gap: 8px;">
             <i class="fa-solid fa-calendar-days" style="color: var(--primary);"></i>
             <span>سجل جلسات: <strong id="modal-p-sess-patient-name" style="color: var(--text-main);">-</strong></span>
           </h3>
-          <p style="margin: 4px 0 0 0; font-size: 0.8rem; color: #64748b; font-weight: 700;">
+          <p style="margin: 4px 0 0 0; font-size: 0.8rem; color: var(--text-muted); font-weight: 700;">
             إجمالي الجلسات السابقة: <span class="badge badge-cash" id="modal-p-sess-total-badge" style="font-size: 0.78rem;">0 جلسة</span>
           </p>
         </div>
