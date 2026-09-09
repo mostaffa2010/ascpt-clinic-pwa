@@ -1556,11 +1556,16 @@ body.not-authenticated #modal-auth #btn-cancel-login {
   font-size: 0.85rem;
 }
 
-/* Fix modal and grid horizontal containment */
+/* Fix modal and grid horizontal containment: on mobile protect from viewport overflow, but on desktop allow modals to respect their specified max-width */
+@media (max-width: 580px) {
+  .modal-content {
+    max-width: 95vw !important;
+  }
+}
+
 .modal-content {
-  overflow-x: hidden !important;
-  max-width: 95vw !important;
-  box-sizing: border-box !important;
+  overflow-x: hidden;
+  box-sizing: border-box;
 }
 
 #modal-patient .modal-body,
