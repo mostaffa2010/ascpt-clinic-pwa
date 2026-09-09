@@ -511,12 +511,44 @@
   }
 }
 
-  /* Ensure clinic official logo prints crisply without omission */
+  /* Refined, Elegant Clinic Logo Sizing for Printing Only */
   .print-header img,
   .sheet-print-header img,
-  .ins-letter-header img,
-  #printable-insurance-claim img,
+  .ins-letter-header img {
+    width: 25px !important;
+    height: 25px !important;
+    max-width: 25px !important;
+    max-height: 25px !important;
+    object-fit: contain !important;
+    vertical-align: middle !important;
+    display: inline-block !important;
+    border-radius: 4px !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+    image-rendering: -webkit-optimize-contrast;
+  }
+
+  #printable-insurance-claim img {
+    width: 32px !important;
+    height: 32px !important;
+    max-width: 32px !important;
+    max-height: 32px !important;
+    object-fit: contain !important;
+    vertical-align: middle !important;
+    border-radius: 4px !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+    image-rendering: -webkit-optimize-contrast;
+  }
+
   .attendance-card-print-page img {
+    width: 28px !important;
+    height: 28px !important;
+    max-width: 28px !important;
+    max-height: 28px !important;
+    object-fit: contain !important;
+    vertical-align: middle !important;
+    border-radius: 4px !important;
     -webkit-print-color-adjust: exact !important;
     print-color-adjust: exact !important;
     image-rendering: -webkit-optimize-contrast;
