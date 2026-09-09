@@ -130,7 +130,8 @@ service cloud.firestore {
         request.resource.data.actionType is string &&
         request.resource.data.description is string &&
         request.resource.data.timestampRaw is number;
-      allow update, delete: if false;
+      allow update: if false;
+      allow delete: if isAdmin();
     }
 
     // ================= 7. Insurance Renewal Letters (append-only archive) =================

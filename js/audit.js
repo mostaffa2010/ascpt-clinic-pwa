@@ -8,7 +8,8 @@ import {
   getDocs,
   collection,
   query,
-  orderBy
+  orderBy,
+  limit
 } from 'https://www.gstatic.com/firebasejs/12.18.0/firebase-firestore.js';
 
 import { firestoreDb, firebaseAuth } from './firebase-init.js';
@@ -272,10 +273,17 @@ export class AuditAndAdminManager {
     const tbody = document.getElementById('audit-log-tbody');
     if (!tbody) return;
 
+    // Automatic 60-day audit log purge in background
+    try { await db.purgeOldAuditLogs(); } catch (_) {}
+
     let logs = [];
     if (firestoreDb) {
       try {
-        const q = query(collection(firestoreDb, 'audit_logs'), orderBy('timestampRaw', 'desc'));
+        const q = query(
+          collection(firestoreDb, 'audit_logs'),
+          orderBy('timestampRaw', 'desc'),
+          limit(50)
+        );
         const snap = await getDocs(q);
         logs = snap.docs.map(d => ({ ...d.data(), id: d.id }));
       } catch (err) {

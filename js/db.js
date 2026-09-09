@@ -13,6 +13,8 @@ import {
   deleteDoc,
   query,
   orderBy,
+  limit,
+  where,
   writeBatch
 } from 'https://www.gstatic.com/firebasejs/12.18.0/firebase-firestore.js';
 
@@ -268,15 +270,42 @@ class FirestoreDatabaseService {
   }
 
   // ================= 5. Audit Trail =================
-  async getAuditLogs() {
+  async getAuditLogs(limitCount = 50) {
     this.ensureConnected();
     try {
-      const q = query(collection(firestoreDb, 'audit_logs'), orderBy('timestampRaw', 'desc'));
+      const q = query(
+        collection(firestoreDb, 'audit_logs'),
+        orderBy('timestampRaw', 'desc'),
+        limit(limitCount)
+      );
       const snap = await getDocs(q);
       return snap.docs.map(d => ({ ...d.data(), id: d.id }));
     } catch (err) {
       console.warn('Firestore getAuditLogs error:', err.message);
       return [];
+    }
+  }
+
+  async purgeOldAuditLogs() {
+    if (!this.isCloud) return;
+    try {
+      const sixtyDaysAgo = Date.now() - (60 * 24 * 60 * 60 * 1000);
+      const q = query(
+        collection(firestoreDb, 'audit_logs'),
+        where('timestampRaw', '<', sixtyDaysAgo),
+        limit(100)
+      );
+      const snap = await getDocs(q);
+      if (snap.empty) return;
+
+      const batch = writeBatch(firestoreDb);
+      snap.docs.forEach(d => {
+        batch.delete(d.ref);
+      });
+      await batch.commit();
+      console.log(`ASCPT Audit: Automatically purged ${snap.docs.length} audit logs older than 60 days.`);
+    } catch (e) {
+      console.warn('Audit purge notice:', e.message);
     }
   }
 
