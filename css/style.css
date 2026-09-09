@@ -160,6 +160,9 @@ body {
   flex: 1;
   min-height: calc(100vh - var(--topbar-height));
   position: relative;
+  min-width: 0;
+  max-width: 100%;
+  overflow-x: hidden;
 }
 
 /* Sidebar for Desktop */
@@ -231,10 +234,13 @@ body {
 /* Main Content Area */
 .main-content {
   flex: 1;
+  min-width: 0;
   padding: 16px;
-  max-width: 1360px;
+  max-width: 100%;
   margin: 0 auto;
   width: 100%;
+  box-sizing: border-box;
+  overflow-x: hidden;
   padding-bottom: calc(var(--bottom-nav-height) + 20px);
 }
 
@@ -283,6 +289,10 @@ body {
 .view-section {
   display: none;
   animation: fadeIn 0.2s ease-in-out;
+  min-width: 0;
+  max-width: 100%;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .view-section.active {
@@ -302,6 +312,9 @@ body {
   padding: 18px;
   box-shadow: var(--shadow-sm);
   margin-bottom: 18px;
+  min-width: 0;
+  max-width: 100%;
+  box-sizing: border-box;
 }
 
 .card-header {
@@ -510,9 +523,13 @@ body {
 /* ================= Tables ================= */
 .table-responsive {
   width: 100%;
+  max-width: 100%;
+  min-width: 0;
   overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
   border-radius: var(--radius-md);
   border: 1px solid var(--border-color);
+  box-sizing: border-box;
 }
 
 table.data-table {
@@ -527,13 +544,13 @@ table.data-table th {
   background-color: var(--bg-subtle);
   color: var(--text-muted);
   font-weight: 700;
-  padding: 12px 14px;
+  padding: 10px 12px;
   border-bottom: 1px solid var(--border-color);
   white-space: nowrap;
 }
 
 table.data-table td {
-  padding: 12px 14px;
+  padding: 10px 12px;
   border-bottom: 1px solid var(--border-color);
   color: var(--text-main);
   white-space: nowrap;
@@ -886,8 +903,11 @@ table.appt-table th {
   }
 
   .main-content {
-    padding: 28px 36px;
+    padding: 20px 24px;
     padding-bottom: 40px;
+    min-width: 0;
+    max-width: 100%;
+    width: 100%;
   }
 
   .stats-grid {
@@ -904,9 +924,24 @@ table.appt-table th {
 
   .split-screen {
     display: grid;
-    grid-template-columns: 380px 1fr;
-    gap: 24px;
+    grid-template-columns: 350px minmax(0, 1fr);
+    gap: 20px;
     align-items: start;
+    min-width: 0;
+    max-width: 100%;
+    width: 100%;
+  }
+
+  .split-screen > * {
+    min-width: 0;
+    max-width: 100%;
+  }
+
+  @media (min-width: 992px) and (max-width: 1180px) {
+    .split-screen {
+      grid-template-columns: 320px minmax(0, 1fr);
+      gap: 16px;
+    }
   }
 }
 
