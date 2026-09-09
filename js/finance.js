@@ -76,6 +76,29 @@ export class FinanceManager {
     // Add Expense Button
     document.getElementById('btn-add-expense')?.addEventListener('click', () => this.app.openAddExpenseModal());
 
+    // Insurance Claim Settlements Triggers & Forms
+    document.getElementById('btn-add-settlement')?.addEventListener('click', () => this.openSettleClaimModal());
+    document.getElementById('btn-settle-claim-action')?.addEventListener('click', () => this.openSettleClaimModalFromClaims());
+
+    ['settle-gross-amount', 'settle-deductions'].forEach(id => {
+      document.getElementById(id)?.addEventListener('input', () => this.updateNetSettlementDisplay());
+    });
+
+    document.getElementById('form-settle-claim')?.addEventListener('submit', (e) => {
+      e.preventDefault();
+      this.handleSubmitSettlement(e);
+    });
+
+    ['daily-settlements-tbody', 'monthly-settlements-tbody'].forEach(id => {
+      document.getElementById(id)?.addEventListener('click', (e) => {
+        const delBtn = e.target.closest('.btn-delete-settlement');
+        if (delBtn) {
+          const sid = delBtn.getAttribute('data-settlement-id');
+          if (sid) this.handleDeleteSettlement(sid);
+        }
+      });
+    });
+
     // Expense Categories Management
     document.getElementById('btn-manage-expense-categories')?.addEventListener('click', () => {
       this.openManageExpenseCategoriesModal();
@@ -256,6 +279,156 @@ export class FinanceManager {
     }
   }
 
+  // ================= Insurance Claim Settlements Handlers =================
+  openSettleClaimModal(prefill = {}) {
+    const allCompanies = (typeof db.getAllInsuranceCompaniesWithTypes === 'function')
+      ? db.getAllInsuranceCompaniesWithTypes()
+      : db.getInsuranceCompaniesList();
+
+    const compSelect = document.getElementById('settle-company-select');
+    if (compSelect) {
+      compSelect.innerHTML = allCompanies.map(c => 
+        `<option value="${escapeHTML(c.name)}" ${c.name === prefill.company ? 'selected' : ''}>${escapeHTML(c.name)}</option>`
+      ).join('');
+      if (this.app?.updateCustomSelectDisplay) {
+        this.app.updateCustomSelectDisplay('settle-company-select');
+      }
+    }
+
+    const periodInput = document.getElementById('settle-claim-period');
+    if (periodInput) {
+      periodInput.value = prefill.period || (this.currentMonth ? `مطالبة شهر ${this.currentMonth}` : '');
+    }
+
+    const dateInput = document.getElementById('settle-date');
+    if (dateInput) {
+      dateInput.value = this.currentDate || getLocalDateStr();
+    }
+
+    const grossInput = document.getElementById('settle-gross-amount');
+    if (grossInput) {
+      grossInput.value = prefill.grossAmount ? prefill.grossAmount : '';
+    }
+
+    const dedInput = document.getElementById('settle-deductions');
+    if (dedInput) dedInput.value = '0';
+
+    const refInput = document.getElementById('settle-ref-number');
+    if (refInput) refInput.value = '';
+
+    const notesInput = document.getElementById('settle-notes');
+    if (notesInput) notesInput.value = '';
+
+    const reasonSelect = document.getElementById('settle-deduction-reason');
+    if (reasonSelect) reasonSelect.value = 'لا توجد خصومات';
+
+    const bankRadio = document.querySelector('input[name="settle-pay-method"][value="bank"]');
+    if (bankRadio) bankRadio.checked = true;
+
+    this.updateNetSettlementDisplay();
+    this.app.openModal('modal-settle-claim');
+  }
+
+  openSettleClaimModalFromClaims() {
+    const claimsMgr = this.app?.claimsManager;
+    const company = claimsMgr?.currentCompany || '';
+    const grossAmount = claimsMgr?.totalClaimAmount || 0;
+    const period = (claimsMgr?.startDate && claimsMgr?.endDate) 
+      ? `فترة ${claimsMgr.startDate} إلى ${claimsMgr.endDate}`
+      : '';
+    this.openSettleClaimModal({ company, grossAmount, period });
+  }
+
+  updateNetSettlementDisplay() {
+    const gross = parseFloat(document.getElementById('settle-gross-amount')?.value) || 0;
+    const ded = parseFloat(document.getElementById('settle-deductions')?.value) || 0;
+    const net = Math.max(0, gross - ded);
+    const disp = document.getElementById('settle-net-display');
+    if (disp) {
+      disp.textContent = `${net.toLocaleString('en-US')} ج.م`;
+    }
+  }
+
+  async handleSubmitSettlement(e) {
+    const compSelect = document.getElementById('settle-company-select');
+    const company = compSelect?.value?.trim();
+    const period = document.getElementById('settle-claim-period')?.value?.trim();
+    const date = document.getElementById('settle-date')?.value?.trim() || getLocalDateStr();
+    const payMethodRadio = document.querySelector('input[name="settle-pay-method"]:checked');
+    const paymentMethod = payMethodRadio?.value || 'bank';
+
+    const gross = parseFloat(document.getElementById('settle-gross-amount')?.value) || 0;
+    const deductions = parseFloat(document.getElementById('settle-deductions')?.value) || 0;
+    const reason = document.getElementById('settle-deduction-reason')?.value || 'لا توجد خصومات';
+    const refNum = document.getElementById('settle-ref-number')?.value?.trim() || '';
+    const notes = document.getElementById('settle-notes')?.value?.trim() || '';
+
+    if (!company) {
+      await this.app.showAlert('يرجى اختيار شركة التأمين المحصل منها.', 'بيانات ناقصة', 'warning');
+      return;
+    }
+    if (!period) {
+      await this.app.showAlert('يرجى كتابة شهر أو فترة المطالبة.', 'بيانات ناقصة', 'warning');
+      return;
+    }
+    if (gross <= 0) {
+      await this.app.showAlert('يرجى إدخال مبلغ صحيح للمطالبة أكبر من صفر.', 'مبلغ غير صحيح', 'warning');
+      return;
+    }
+
+    const netAmount = Math.max(0, gross - deductions);
+    const currentUser = auth.getCurrentUser();
+
+    const settlementData = {
+      companyName: company,
+      claimPeriod: period,
+      settlementDate: date,
+      paymentMethod,
+      grossAmount: gross,
+      deductions,
+      deductionReason: deductions > 0 ? reason : 'تحصيل كامل',
+      netAmount,
+      referenceNumber: refNum,
+      notes,
+      recordedBy: currentUser?.name || 'مدير المركز',
+      recordedByUid: currentUser?.uid || ''
+    };
+
+    try {
+      await db.saveInsuranceSettlement(settlementData, currentUser);
+      try {
+        await db.logAudit(
+          'تحصيل مطالبة تأمين',
+          `تحصيل مطالبة ${company} صافي: ${netAmount} ج.م (${paymentMethod === 'cash' ? 'نقدي بالدرج' : 'تحويل بنكي/شيك'})`,
+          currentUser
+        );
+      } catch (_) {}
+
+      this.app.closeModal('modal-settle-claim');
+      this.app.showToast(`تم تسجيل تحصيل مطالبة (${company}) بمبلغ صافي ${netAmount.toLocaleString('en-US')} ج.م`);
+      await this.loadReport();
+      this.app.refreshAll();
+    } catch (err) {
+      this.app.showAlert('تعذر تسجيل التحصيل: ' + err.message, 'خطأ', 'danger');
+    }
+  }
+
+  async handleDeleteSettlement(id) {
+    const confirmed = await this.app.showConfirm('هل أنت متأكد من حذف حركة تحصيل التأمين هذه؟', 'تأكيد الحذف');
+    if (!confirmed) return;
+
+    try {
+      const currentUser = auth.getCurrentUser();
+      await db.deleteInsuranceSettlement(id);
+      try { await db.logAudit('حذف تحصيل تأمين', `حذف حركة تحصيل تأمين برقم ${id}`, currentUser); } catch (_) {}
+      this.app.showToast('تم حذف حركة التحصيل بنجاح');
+      await this.loadReport();
+      this.app.refreshAll();
+    } catch (err) {
+      this.app.showAlert('تعذر حذف الحركة: ' + err.message, 'خطأ', 'danger');
+    }
+  }
+
   async handleAddExpense(e) {
     e.preventDefault();
     const categorySelect = document.getElementById('exp-category-select');
@@ -421,18 +594,66 @@ export class FinanceManager {
       filteredSessions = allSessions.filter(s => s.doctor === this.selectedDoctor);
     }
 
+    const todaySettlements = await db.getInsuranceSettlements(this.currentDate, null);
     const totalPatients = filteredSessions.length;
-    const totalCash = filteredSessions.reduce((acc, curr) => acc + (parseFloat(curr.amountPaid) || 0), 0);
+    const totalSessionsCash = filteredSessions.reduce((acc, curr) => acc + (parseFloat(curr.amountPaid) || 0), 0);
+    const cashSettlements = todaySettlements.filter(s => s.paymentMethod === 'cash').reduce((acc, s) => acc + (parseFloat(s.netAmount) || 0), 0);
+    const bankSettlements = todaySettlements.filter(s => s.paymentMethod !== 'cash').reduce((acc, s) => acc + (parseFloat(s.netAmount) || 0), 0);
+    const totalDrawerCash = totalSessionsCash + cashSettlements;
     const totalExpenses = allExpenses.reduce((acc, curr) => acc + (parseFloat(curr.amount) || 0), 0);
-    const netCash = totalCash - totalExpenses;
+    const netCash = totalDrawerCash - totalExpenses;
 
     const docCounts = {};
     allSessions.forEach(s => { docCounts[s.doctor] = (docCounts[s.doctor] || 0) + 1; });
 
     // Update KPI UI
     document.getElementById('rep-total-patients').textContent = totalPatients;
-    document.getElementById('rep-total-cash').textContent = `${totalCash.toLocaleString('en-US')} ج.م`;
+    document.getElementById('rep-total-cash').textContent = `${totalDrawerCash.toLocaleString('en-US')} ج.م`;
     document.getElementById('rep-total-expenses').textContent = `${totalExpenses.toLocaleString('en-US')} ج.م`;
+
+    // Render Today Insurance Settlements
+    const dailySetCard = document.getElementById('finance-daily-settlements-card');
+    const dailySetTbody = document.getElementById('daily-settlements-tbody');
+    const dailySetBadge = document.getElementById('daily-settlements-total-badge');
+
+    if (dailySetCard && dailySetTbody) {
+      if (todaySettlements.length > 0) {
+        dailySetCard.style.display = 'block';
+        const totalNet = todaySettlements.reduce((acc, s) => acc + (parseFloat(s.netAmount) || 0), 0);
+        if (dailySetBadge) {
+          dailySetBadge.textContent = `صافي: ${totalNet.toLocaleString('en-US')} ج.م ${bankSettlements > 0 ? `(بنكي: ${bankSettlements.toLocaleString('en-US')})` : ''}`;
+        }
+        const canDel = RolesManager.canDeleteFinance(auth.getCurrentUser());
+        dailySetTbody.innerHTML = todaySettlements.map(s => `
+          <tr>
+            <td style="font-weight: 800; color: var(--text-main);">${escapeHTML(s.companyName)}</td>
+            <td style="font-size: 0.85rem;">${escapeHTML(s.claimPeriod || '-')}</td>
+            <td style="font-weight: 700;">${(parseFloat(s.grossAmount) || 0).toLocaleString('en-US')} ج.م</td>
+            <td style="color: var(--danger); font-size: 0.85rem;">
+              ${(parseFloat(s.deductions) || 0) > 0 ? `${(parseFloat(s.deductions) || 0).toLocaleString('en-US')} ج.م (${escapeHTML(s.deductionReason || '')})` : '-'}
+            </td>
+            <td style="font-weight: 800; color: var(--success); font-size: 0.95rem;">${(parseFloat(s.netAmount) || 0).toLocaleString('en-US')} ج.م</td>
+            <td>
+              <span class="badge ${s.paymentMethod === 'cash' ? 'badge-cash' : 'badge-direct'}">
+                <i class="fa-solid ${s.paymentMethod === 'cash' ? 'fa-money-bill-wave' : 'fa-building-columns'}"></i>
+                ${s.paymentMethod === 'cash' ? 'نقداً بالدرج' : 'تحويل بنكي / شيك'}
+              </span>
+            </td>
+            <td style="font-size: 0.8rem; color: var(--text-muted);">${escapeHTML(s.recordedBy || '-')}</td>
+            <td class="no-print">
+              ${canDel ? `
+                <button type="button" class="btn btn-outline btn-sm btn-delete-record btn-delete-settlement" style="color: var(--danger);" data-settlement-id="${s.id}" title="حذف حركة التحصيل">
+                  <i class="fa-solid fa-trash"></i>
+                </button>
+              ` : '-'}
+            </td>
+          </tr>
+        `).join('');
+      } else {
+        dailySetCard.style.display = 'none';
+        dailySetTbody.innerHTML = '';
+      }
+    }
     
     const netCashEl = document.getElementById('rep-net-cash');
     if (netCashEl) {
@@ -621,20 +842,65 @@ export class FinanceManager {
     const rawDoctors = await db.getDoctors();
     const doctors = Array.from(new Set(rawDoctors.map(d => (d || '').trim().replace(/\s+/g, ' ')))).filter(Boolean);
 
+    const monthSettlements = await db.getInsuranceSettlements(null, this.currentMonth);
     const totalPatients = allSessions.length;
-    const totalCash = allSessions.reduce((acc, curr) => acc + (parseFloat(curr.amountPaid) || 0), 0);
+    const totalSessionsIncome = allSessions.reduce((acc, curr) => acc + (parseFloat(curr.amountPaid) || 0), 0);
+    const totalSettlementsNet = monthSettlements.reduce((acc, s) => acc + (parseFloat(s.netAmount) || 0), 0);
+    const totalSettlementsDeductions = monthSettlements.reduce((acc, s) => acc + (parseFloat(s.deductions) || 0), 0);
+    const totalIncome = totalSessionsIncome + totalSettlementsNet;
     const totalExpenses = allExpenses.reduce((acc, curr) => acc + (parseFloat(curr.amount) || 0), 0);
-    const netCash = totalCash - totalExpenses;
+    const netProfit = totalIncome - totalExpenses;
 
     // Update KPI UI
     document.getElementById('rep-total-patients').textContent = totalPatients;
-    document.getElementById('rep-total-cash').textContent = `${totalCash.toLocaleString('en-US')} ج.م`;
+    document.getElementById('rep-total-cash').textContent = `${totalIncome.toLocaleString('en-US')} ج.م`;
     document.getElementById('rep-total-expenses').textContent = `${totalExpenses.toLocaleString('en-US')} ج.م`;
     
     const netCashEl = document.getElementById('rep-net-cash');
     if (netCashEl) {
-      netCashEl.textContent = `${netCash.toLocaleString('en-US')} ج.م`;
-      netCashEl.style.color = netCash >= 0 ? 'var(--success)' : 'var(--danger)';
+      netCashEl.textContent = `${netProfit.toLocaleString('en-US')} ج.م`;
+      netCashEl.style.color = netProfit >= 0 ? 'var(--success)' : 'var(--danger)';
+    }
+
+    // Render Monthly Settlements Table
+    const mSetTbody = document.getElementById('monthly-settlements-tbody');
+    const mSetBadge = document.getElementById('monthly-settlements-total-badge');
+    if (mSetBadge) {
+      mSetBadge.textContent = `صافي: ${totalSettlementsNet.toLocaleString('en-US')} ج.م ${totalSettlementsDeductions > 0 ? `(استقطاعات: ${totalSettlementsDeductions.toLocaleString('en-US')} ج.م)` : ''}`;
+    }
+
+    if (mSetTbody) {
+      if (monthSettlements.length === 0) {
+        mSetTbody.innerHTML = `<tr><td colspan="9" style="text-align: center; color: var(--text-muted); padding: 20px;">لا توجد تحصيلات مطالبات مسجلة لهذا الشهر حتى الآن.</td></tr>`;
+      } else {
+        const canDel = RolesManager.canDeleteFinance(auth.getCurrentUser());
+        mSetTbody.innerHTML = monthSettlements.map(s => `
+          <tr>
+            <td style="font-weight: 700;">${escapeHTML(s.settlementDate || '-')}</td>
+            <td style="font-weight: 800; color: var(--text-main);">${escapeHTML(s.companyName)}</td>
+            <td style="font-size: 0.85rem;">${escapeHTML(s.claimPeriod || '-')}</td>
+            <td style="font-weight: 700;">${(parseFloat(s.grossAmount) || 0).toLocaleString('en-US')} ج.م</td>
+            <td style="color: var(--danger); font-size: 0.85rem;">
+              ${(parseFloat(s.deductions) || 0) > 0 ? `${(parseFloat(s.deductions) || 0).toLocaleString('en-US')} ج.م (${escapeHTML(s.deductionReason || '')})` : '-'}
+            </td>
+            <td style="font-weight: 800; color: var(--success); font-size: 0.95rem;">${(parseFloat(s.netAmount) || 0).toLocaleString('en-US')} ج.م</td>
+            <td>
+              <span class="badge ${s.paymentMethod === 'cash' ? 'badge-cash' : 'badge-direct'}">
+                <i class="fa-solid ${s.paymentMethod === 'cash' ? 'fa-money-bill-wave' : 'fa-building-columns'}"></i>
+                ${s.paymentMethod === 'cash' ? 'نقداً بالدرج' : 'تحويل بنكي / شيك'}
+              </span>
+            </td>
+            <td style="font-size: 0.8rem; color: var(--text-muted);">${escapeHTML(s.recordedBy || '-')}</td>
+            <td class="no-print">
+              ${canDel ? `
+                <button type="button" class="btn btn-outline btn-sm btn-delete-record btn-delete-settlement" style="color: var(--danger);" data-settlement-id="${s.id}" title="حذف حركة التحصيل">
+                  <i class="fa-solid fa-trash"></i>
+                </button>
+              ` : '-'}
+            </td>
+          </tr>
+        `).join('');
+      }
     }
 
     // A. Doctors Breakdown Table (Monthly)

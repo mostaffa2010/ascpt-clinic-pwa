@@ -587,6 +587,66 @@ class FirestoreDatabaseService {
     return patientId ? all.filter((l) => l.patientId === patientId) : all;
   }
 
+  // ================= 8. Insurance Claim Settlements =================
+  async getInsuranceSettlements(dateStr = null, monthStr = null) {
+    this.ensureConnected();
+    try {
+      let q;
+      if (dateStr) {
+        q = query(
+          collection(firestoreDb, 'insurance_settlements'),
+          where('settlementDate', '==', dateStr)
+        );
+      } else if (monthStr) {
+        const startOfMonth = `${monthStr}-01`;
+        const endOfMonth = `${monthStr}-31`;
+        q = query(
+          collection(firestoreDb, 'insurance_settlements'),
+          where('settlementDate', '>=', startOfMonth),
+          where('settlementDate', '<=', endOfMonth)
+        );
+      } else {
+        q = query(
+          collection(firestoreDb, 'insurance_settlements'),
+          orderBy('settlementDate', 'desc'),
+          limit(100)
+        );
+      }
+      const snap = await getDocs(q);
+      const list = snap.docs.map((d) => ({ ...d.data(), id: d.id }));
+      list.sort((a, b) => (b.createdAt || '').localeCompare(a.createdAt || ''));
+      return list;
+    } catch (err) {
+      console.warn('Firestore getInsuranceSettlements error:', err.message);
+      return [];
+    }
+  }
+
+  async saveInsuranceSettlement(settlementData, currentUser) {
+    this.ensureConnected();
+    const settlementId = settlementData.id || doc(collection(firestoreDb, 'insurance_settlements')).id;
+    const dataToSave = {
+      ...settlementData,
+      id: settlementId,
+      time: new Date().toLocaleTimeString('ar-EG-u-nu-latn', { hour: '2-digit', minute: '2-digit' }),
+      recordedBy: currentUser?.name || 'مدير المركز',
+      createdAt: new Date().toISOString()
+    };
+
+    try {
+      await setDoc(doc(firestoreDb, 'insurance_settlements', settlementId), dataToSave);
+      return dataToSave;
+    } catch (err) {
+      console.error('Save insurance settlement error:', err);
+      throw err;
+    }
+  }
+
+  async deleteInsuranceSettlement(settlementId) {
+    this.ensureConnected();
+    await deleteDoc(doc(firestoreDb, 'insurance_settlements', settlementId));
+  }
+
   // ================= 9. Weekly Appointments Schedule & Custom Slots =================
   async getAppointmentSlots() {
     this.ensureConnected();

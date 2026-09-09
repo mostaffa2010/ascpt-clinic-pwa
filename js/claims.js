@@ -128,6 +128,7 @@ export class ClaimsManager {
     }
 
     document.getElementById('btn-load-claim-patients')?.addEventListener('click', () => this.loadCompanyPatients());
+    document.getElementById('btn-settle-claim-action')?.addEventListener('click', () => this.openSettleClaim());
     const bClaim = document.getElementById('btn-print-claim-statement'); if (bClaim) bClaim.onclick = (e) => { e.preventDefault(); e.stopPropagation(); this.printClaimStatement(); };
     const bCards = document.getElementById('btn-print-attendance-cards'); if (bCards) bCards.onclick = (e) => { e.preventDefault(); e.stopPropagation(); this.printAttendanceCards(); };
     document.getElementById('btn-export-claim-excel')?.addEventListener('click', () => this.exportClaimExcel());
@@ -781,6 +782,25 @@ export class ClaimsManager {
   }
 
   // ================= Top & Bottom Horizontal Scroll Synchronization =================
+  openSettleClaim() {
+    if (!this.currentCompany) {
+      this.app.showAlert('يرجى اختيار شركة التأمين واستخراج بيانات المطالبة أولاً.', 'تنبيه', 'warning');
+      return;
+    }
+    const gross = this.claimPatientsData
+      ? this.claimPatientsData.filter(i => i.isChecked).reduce((acc, curr) => acc + (parseFloat(curr.total) || 0), 0)
+      : 0;
+
+    const periodStr = `${this.startDate || ''} إلى ${this.endDate || ''}`;
+    if (this.app?.financeManager?.openSettleClaimModal) {
+      this.app.financeManager.openSettleClaimModal({
+        company: this.currentCompany,
+        grossAmount: gross,
+        period: periodStr
+      });
+    }
+  }
+
   setupScrollSync() {
     const topWrap = document.getElementById('claim-top-scroll-wrap');
     const container = document.getElementById('claim-table-container');

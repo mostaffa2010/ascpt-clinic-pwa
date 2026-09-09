@@ -50,6 +50,7 @@ export class ExportManager {
     try {
       const allSessions = await db.getSessions(dateStr);
       const allExpenses = await db.getExpenses(dateStr);
+      const allSettlements = (typeof db.getInsuranceSettlements === 'function') ? await db.getInsuranceSettlements(dateStr, null) : [];
 
       const totalCash = allSessions.reduce((acc, curr) => acc + (parseFloat(curr.amountPaid) || 0), 0);
       const totalExp = allExpenses.reduce((acc, curr) => acc + (parseFloat(curr.amount) || 0), 0);
@@ -103,6 +104,23 @@ export class ExportManager {
         const wsExpenses = XLSX.utils.json_to_sheet(expensesData.length ? expensesData : [{ 'تنبيه': 'لا توجد مصروفات' }]);
         XLSX.utils.book_append_sheet(wb, wsExpenses, 'المصروفات');
 
+        if (allSettlements && allSettlements.length > 0) {
+          const settlementsData = allSettlements.map((s, idx) => ({
+            'م': idx + 1,
+            'شركة التأمين': s.companyName,
+            'فترة المطالبة': s.claimPeriod,
+            'المبلغ الأصلي': s.grossAmount,
+            'الاستقطاعات والخصومات': s.deductions,
+            'سبب الخصم': s.deductionReason,
+            'الصافي المحصل': s.netAmount,
+            'طريقة الاستلام': s.paymentMethod === 'cash' ? 'نقداً بالدرج' : 'تحويل بنكي / شيك',
+            'رقم المعاملة / الشيك': s.referenceNumber || '-',
+            'المسؤول': s.recordedBy
+          }));
+          const wsSet = XLSX.utils.json_to_sheet(settlementsData);
+          XLSX.utils.book_append_sheet(wb, wsSet, 'تحصيلات التأمين');
+        }
+
         XLSX.writeFile(wb, `تقرير_PhysioFlow_اليومي_${dateStr}.xlsx`);
         this.app.showToast('تم تصدير تقرير اليوم (Excel) بنجاح');
         return;
@@ -132,6 +150,7 @@ export class ExportManager {
     try {
       const allSessions = await db.getSessions(monthStr);
       const allExpenses = await db.getExpenses(monthStr);
+      const allSettlements = (typeof db.getInsuranceSettlements === 'function') ? await db.getInsuranceSettlements(null, monthStr) : [];
       const doctors = await db.getDoctors();
 
       const totalPatients = allSessions.length;
@@ -222,6 +241,25 @@ export class ExportManager {
         // 4. المصروفات
         const wsExp = XLSX.utils.json_to_sheet(expensesData.length ? expensesData : [{ 'تنبيه': 'لا توجد مصروفات' }]);
         XLSX.utils.book_append_sheet(wb, wsExp, 'سجل المصروفات');
+
+        // 5. تحصيلات التأمين
+        if (allSettlements && allSettlements.length > 0) {
+          const settlementsData = allSettlements.map((s, idx) => ({
+            'م': idx + 1,
+            'تاريخ التحصيل': s.settlementDate,
+            'شركة التأمين': s.companyName,
+            'فترة المطالبة': s.claimPeriod,
+            'المبلغ الأصلي': s.grossAmount,
+            'الاستقطاعات والخصومات': s.deductions,
+            'سبب الخصم': s.deductionReason,
+            'الصافي المحصل': s.netAmount,
+            'طريقة الاستلام': s.paymentMethod === 'cash' ? 'نقداً بالدرج' : 'تحويل بنكي / شيك',
+            'رقم المعاملة / الشيك': s.referenceNumber || '-',
+            'المسؤول': s.recordedBy
+          }));
+          const wsSet = XLSX.utils.json_to_sheet(settlementsData);
+          XLSX.utils.book_append_sheet(wb, wsSet, 'تحصيلات التأمين للشهر');
+        }
 
         XLSX.writeFile(wb, `تقرير_PhysioFlow_الشهري_${monthStr}.xlsx`);
         this.app.showToast('تم تصدير التقرير الشهري (Excel) بنجاح');

@@ -144,5 +144,11 @@ service cloud.firestore {
         request.resource.data.sessionCount is number;
       allow update, delete: if false;
     }
+
+    // ================= 8. Insurance Claim Settlements =================
+    match /insurance_settlements/{settlementId} {
+      allow read: if isUserActive();
+      allow create, update, delete: if isAdmin() || isReceptionist();
+    }
   }
 }
