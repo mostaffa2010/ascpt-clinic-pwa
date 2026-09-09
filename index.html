@@ -424,11 +424,11 @@
         </div>
 
         <!-- Patient Demographics Header Card (Clean & Responsive) -->
-        <div class="card" style="background: #ffffff; border: 1.5px solid var(--border-color); border-radius: var(--radius-lg); padding: 16px; margin-bottom: 16px; box-shadow: var(--shadow-sm);">
+        <div class="card" style="background: var(--bg-surface); border: 1.5px solid var(--border-color); border-radius: var(--radius-lg); padding: 16px; margin-bottom: 16px; box-shadow: var(--shadow-sm);">
           <!-- Patient Header Block: Name & Badge on Right, 3 Quick Actions on Left -->
           <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; border-bottom: 1px solid var(--border-color); padding-bottom: 12px; margin-bottom: 12px; flex-wrap: nowrap;">
             <div style="flex: 1; min-width: 0;">
-              <div style="font-size: 1.25rem; font-weight: 800; color: #0f172a; display: flex; align-items: center; gap: 8px; margin-bottom: 6px;">
+              <div style="font-size: 1.25rem; font-weight: 800; color: var(--text-main); display: flex; align-items: center; gap: 8px; margin-bottom: 6px;">
                 <i class="fa-solid fa-user-injured" style="color: var(--primary); font-size: 1.15rem; flex-shrink: 0;"></i>
                 <span id="sheet-patient-name" style="word-break: break-word;">اسم المريض</span>
               </div>
@@ -674,7 +674,7 @@
 
                 <div class="form-group" id="form-group-body-parts">
                   <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
-                    <label style="margin: 0; font-weight: 800; font-size: 0.88rem; color: #0f172a;">الأعضاء المعالجة في الجلسة *</label>
+                    <label style="margin: 0; font-weight: 800; font-size: 0.88rem; color: var(--text-main);">الأعضاء المعالجة في الجلسة *</label>
                     <button type="button" class="btn-edit-chips" id="btn-toggle-chips-body-parts" style="padding: 3px 10px; font-size: 0.75rem;">
                       <i class="fa-solid fa-pen-to-square"></i> <span class="edit-text">تعديل الأزرار</span>
                     </button>
@@ -688,14 +688,14 @@
 
                 <!-- Examination Type Selector (Shown only in Examination mode) -->
                 <div class="form-group" id="form-group-exam-type" style="display: none; background: #f8fafc; border: 1.5px solid #e2e8f0; border-radius: var(--radius-md, 10px); padding: 12px;">
-                  <label style="margin: 0 0 8px 0; font-weight: 800; font-size: 0.88rem; color: #0f172a; display: block;">
+                  <label style="margin: 0 0 8px 0; font-weight: 800; font-size: 0.88rem; color: var(--text-main); display: block;">
                     <i class="fa-solid fa-stethoscope" style="color: var(--primary);"></i> نوع الكشف المطلوب *
                   </label>
                   <div class="exam-type-segmented" style="display: flex; gap: 8px;">
                     <button type="button" class="btn exam-type-btn active" id="btn-exam-type-cash" style="flex: 1; padding: 10px 12px; font-weight: 800; font-size: 0.9rem; border-radius: 9px; display: flex; align-items: center; justify-content: center; gap: 6px; border: 1.5px solid var(--primary, #0284c7); background: var(--primary, #0284c7); color: #ffffff; cursor: pointer; transition: all 0.2s;">
                       <i class="fa-solid fa-money-bill-wave"></i> <span>كشف نقدي</span>
                     </button>
-                    <button type="button" class="btn exam-type-btn" id="btn-exam-type-contract" style="flex: 1; padding: 10px 12px; font-weight: 800; font-size: 0.9rem; border-radius: 9px; display: flex; align-items: center; justify-content: center; gap: 6px; border: 1.5px solid var(--border-color, #cbd5e1); background: #ffffff; color: var(--text-muted, #64748b); cursor: pointer; transition: all 0.2s;">
+                    <button type="button" class="btn exam-type-btn" id="btn-exam-type-contract" style="flex: 1; padding: 10px 12px; font-weight: 800; font-size: 0.9rem; border-radius: 9px; display: flex; align-items: center; justify-content: center; gap: 6px; border: 1.5px solid var(--border-color); background: var(--bg-surface); color: var(--text-muted); cursor: pointer; transition: all 0.2s;">
                       <i class="fa-solid fa-file-contract"></i> <span>كشف تعاقد</span>
                     </button>
                   </div>
@@ -1022,7 +1022,7 @@
           <!-- ================= 3. Insurance Claims & Attendance Cards (مطالبات شركات التأمين وبطاقات التردد) ================= -->
           <div id="finance-claims-content" style="display: none;">
             <!-- Control Panel -->
-            <div class="card" style="margin-bottom: 16px; border: 1.5px solid var(--border-color); background: #ffffff;">
+            <div class="card" style="margin-bottom: 16px; border: 1.5px solid var(--border-color); background: var(--bg-surface);">
               <div class="card-header" style="border-bottom: 1px solid var(--border-color); padding-bottom: 8px; margin-bottom: 12px;">
                 <span class="card-title" style="font-size: 1.05rem; color: var(--primary); font-weight: 800;">
                   <i class="fa-solid fa-sliders"></i> إعداد بيانات مطالبة شركة التأمين
@@ -1108,7 +1108,7 @@
                   <button type="button" class="btn btn-primary btn-sm" id="btn-print-claim-statement" style="font-weight: 800; padding: 6px 12px;">
                     <i class="fa-solid fa-print"></i> طباعة المطالبة الرسمية A4
                   </button>
-                  <button type="button" class="btn btn-outline btn-sm" id="btn-print-attendance-cards" style="font-weight: 800; padding: 6px 12px; color: #0369a1; border-color: #0284c7; background: #f0f9ff;">
+                  <button type="button" class="btn btn-outline btn-sm" id="btn-print-attendance-cards" style="font-weight: 800; padding: 6px 12px; color: var(--primary); border-color: var(--primary); background: var(--bg-surface);">
                     <i class="fa-solid fa-id-card"></i> طباعة جميع بطاقات التردد
                   </button>
                   <button type="button" class="btn btn-outline btn-sm" id="btn-export-claim-excel" style="font-weight: 800; padding: 6px 12px; color: var(--success); border-color: var(--success);">
@@ -1118,7 +1118,7 @@
               </div>
 
                             <!-- Search Bar for Claim Patients -->
-              <div style="padding: 12px 14px 10px 14px; border-bottom: 1px solid var(--border-color); background: #fafbfc;">
+              <div style="padding: 12px 14px 10px 14px; border-bottom: 1px solid var(--border-color); background: var(--bg-subtle);">
                 <div style="display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap;">
                   <div class="search-box" style="flex: 1; min-width: 260px;">
                     <i class="fa-solid fa-magnifying-glass"></i>
@@ -1276,7 +1276,7 @@
           </div>
         </div>
                       <!-- Backup & Restore Card (Admin only) -->
-        <div class="card admin-only" style="margin-top: 20px; border-color: var(--primary); background-color: #f0f9ff;">
+        <div class="card admin-only" style="margin-top: 20px; border-color: var(--border-color); background-color: var(--bg-subtle);">
           <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
             <div>
               <div style="font-weight: 800; color: #0369a1; font-size: 1rem;">
@@ -1406,7 +1406,7 @@
             <!-- نوع التعاقد Switcher -->
             <div class="form-group" style="margin-bottom: 12px;">
               <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
-                <label style="font-weight: 800; font-size: 0.88rem; color: #0f172a;">نوع التعاقد مع الشركة *</label>
+                <label style="font-weight: 800; font-size: 0.88rem; color: var(--text-main);">نوع التعاقد مع الشركة *</label>
                 <div class="admin-only">
                   <button type="button" class="btn-edit-chips" id="btn-toggle-chips-ins-patient" style="padding: 3px 10px; font-size: 0.75rem;">
                     <i class="fa-solid fa-pen-to-square"></i> <span class="edit-text">تعديل الشركات</span>
@@ -1428,7 +1428,7 @@
             <!-- أزرار شركات التأمين -->
             <div class="form-group" style="margin-bottom: 4px;">
               <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-                <label style="font-weight: 800; font-size: 0.88rem; color: #0f172a;">اختر شركة التأمين *</label>
+                <label style="font-weight: 800; font-size: 0.88rem; color: var(--text-main);">اختر شركة التأمين *</label>
                 <span id="p-selected-ins-preview" style="font-size: 0.82rem; font-weight: 800; color: var(--primary);"></span>
               </div>
               <input type="hidden" id="p-insurance-company" value="">
@@ -1995,7 +1995,7 @@
           </div>
 
           <!-- Live Preview Box matching Image 2 -->
-          <div style="background: #fafbfc; border: 1px dashed #cbd5e1; border-radius: 8px; padding: 10px; margin-top: 8px;">
+          <div style="background: var(--bg-subtle); border: 1px dashed var(--border-color); border-radius: 8px; padding: 10px; margin-top: 8px;">
             <strong style="font-size: 0.8rem; color: var(--primary); display: block; margin-bottom: 4px;">معاينة ما سيُطبع في بطاقة التردد:</strong>
             <div id="card-plan-preview-list" style="font-size: 0.85rem; line-height: 1.6;"></div>
           </div>
