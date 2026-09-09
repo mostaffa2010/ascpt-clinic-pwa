@@ -1773,15 +1773,14 @@ export class PatientsManager {
     document.getElementById('statement-patient-id').value = p.id;
     document.getElementById('statement-patient-name').value = p.name;
     
-    // Prefill diagnosis from sheet or fallback
-    const sheetDiag = p.clinicalSheet?.diagnosis || p.diagnosis || 'Post traumatic Post immobilization stiff RT shoulder';
+    // Fetch diagnosis directly from the patient's clinical sheet (or patient record) without hardcoded fallback
+    const sheetDiag = (p.clinicalSheet && p.clinicalSheet.diagnosis)
+      ? p.clinicalSheet.diagnosis.trim()
+      : (p.diagnosis ? p.diagnosis.trim() : '');
     document.getElementById('statement-diagnosis').value = sheetDiag;
 
-    // Default template exactly from Image 2
-    const defaultText = `بعد إتمام 12 جلسة علاج طبيعي، أظهر المريض تحسناً ملحوظاً في الحالة بنسبة تقدر بحوالي 70%، مع تحسن في الحركة والأداء الوظيفي وانخفاض في مستوى الألم، إلا أن الألم ما زال موجوداً بدرجة ملحوظة.
-
-وبناءً على التقييم الحالي، يُوصى بإضافة 12 جلسة علاج طبيعي أخرى بهدف استكمال التحسن والوصول إلى مستوى وظيفي أفضل.`;
-    document.getElementById('statement-body-text').value = defaultText;
+    // Clear body text so it relies cleanly on the placeholder without forcing the user to erase
+    document.getElementById('statement-body-text').value = '';
     document.getElementById('statement-date').value = getLocalDateStr();
 
     this.app.openModal('modal-medical-statement');
