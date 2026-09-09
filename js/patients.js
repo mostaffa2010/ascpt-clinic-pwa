@@ -1749,6 +1749,13 @@ export class PatientsManager {
     const dateVal = document.getElementById('receipt-date')?.value || getLocalDateStr();
     const currentUser = auth.getCurrentUser();
 
+    const isFemaleReceipt = (p.gender === 'female');
+    const isMaleReceipt = (p.gender === 'male');
+    const receiptHonorificEl = document.getElementById('receipt-print-honorific');
+    if (receiptHonorificEl) {
+      receiptHonorificEl.textContent = isFemaleReceipt ? 'السيدة' : (isMaleReceipt ? 'السيد' : 'السيد / السيدة');
+    }
+
     document.getElementById('receipt-print-patient-name').textContent = p.name;
     document.getElementById('receipt-print-amount-text').textContent = `${amount} ج.م`;
     document.getElementById('receipt-print-item-desc').textContent = itemDesc;
@@ -1797,6 +1804,18 @@ export class PatientsManager {
     const diag = document.getElementById('statement-diagnosis')?.value.trim() || '-';
     const bodyText = document.getElementById('statement-body-text')?.value.trim() || '';
     const dateVal = document.getElementById('statement-date')?.value || getLocalDateStr();
+
+    const isFemaleStmt = (p.gender === 'female');
+    const isMaleStmt = (p.gender === 'male');
+    const stmtHonorificEl = document.getElementById('statement-print-honorific');
+    const stmtRelVerbEl = document.getElementById('statement-print-rel-verb');
+
+    if (stmtHonorificEl) {
+      stmtHonorificEl.textContent = isFemaleStmt ? 'السيدة' : (isMaleStmt ? 'السيد' : 'السيد / السيدة');
+    }
+    if (stmtRelVerbEl) {
+      stmtRelVerbEl.textContent = isFemaleStmt ? 'والتي تعاني من:' : (isMaleStmt ? 'والذي يعاني من:' : 'والذي / والتي تعاني من:');
+    }
 
     document.getElementById('statement-print-patient-name').textContent = p.name;
     document.getElementById('statement-print-diagnosis').textContent = diag;
