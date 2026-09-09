@@ -162,7 +162,6 @@ body {
   position: relative;
   min-width: 0;
   max-width: 100%;
-  overflow-x: hidden;
 }
 
 /* Sidebar for Desktop */
@@ -172,11 +171,14 @@ body {
   border-left: 1px solid var(--border-color);
   display: none;
   flex-direction: column;
-  position: sticky;
+  position: fixed;
   top: 0;
+  right: 0;
+  bottom: 0;
   height: 100vh;
   padding: 20px 14px;
   z-index: 50;
+  box-sizing: border-box;
 }
 
 .sidebar .brand-section {
@@ -193,6 +195,8 @@ body {
   flex-direction: column;
   gap: 6px;
   flex: 1;
+  overflow-y: auto;
+  min-height: 0;
 }
 
 .nav-link {
@@ -895,7 +899,14 @@ table.appt-table th {
   }
 
   .sidebar {
-    display: flex; /* Show sidebar on desktop */
+    display: flex; /* Show fixed sidebar on desktop */
+    position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    height: 100vh;
+    width: var(--sidebar-width);
+    z-index: 50;
   }
 
   .bottom-nav {
@@ -903,11 +914,15 @@ table.appt-table th {
   }
 
   .main-content {
+    margin-right: var(--sidebar-width);
+    margin-left: 0;
+    width: calc(100% - var(--sidebar-width));
+    max-width: calc(100% - var(--sidebar-width));
     padding: 20px 24px;
     padding-bottom: 40px;
     min-width: 0;
-    max-width: 100%;
-    width: 100%;
+    box-sizing: border-box;
+    overflow-x: hidden;
   }
 
   .stats-grid {
