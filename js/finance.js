@@ -320,7 +320,12 @@ export class FinanceManager {
     if (notesInput) notesInput.value = '';
 
     const reasonSelect = document.getElementById('settle-deduction-reason');
-    if (reasonSelect) reasonSelect.value = 'لا توجد خصومات';
+    if (reasonSelect) {
+      reasonSelect.value = 'لا توجد خصومات';
+      if (this.app?.updateCustomSelectDisplay) {
+        this.app.updateCustomSelectDisplay('settle-deduction-reason');
+      }
+    }
 
     const bankRadio = document.querySelector('input[name="settle-pay-method"][value="bank"]');
     if (bankRadio) bankRadio.checked = true;

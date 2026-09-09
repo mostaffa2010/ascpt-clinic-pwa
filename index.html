@@ -2450,17 +2450,23 @@
 
             <!-- Deduction Reason -->
             <div class="form-group" style="margin-bottom: 10px;">
-              <label for="settle-deduction-reason" style="font-size: 0.8rem; font-weight: 700; color: var(--text-muted); margin-bottom: 4px; display: block;">
+              <label style="font-size: 0.8rem; font-weight: 700; color: var(--text-muted); margin-bottom: 4px; display: block;">
                 سبب الاستقطاع / الخصم (إن وجد):
               </label>
-              <select id="settle-deduction-reason" class="form-control" style="height: 38px; font-size: 0.85rem;">
-                <option value="لا توجد خصومات">لا توجد خصومات (تحصيل كامل 100%)</option>
-                <option value="ضرائب أرباح تجارية ومنبع">ضرائب أرباح تجارية ومنبع</option>
-                <option value="استقطاعات وغرامات تأخير">استقطاعات وغرامات تأخير</option>
-                <option value="رفض فني لعدم اكتمال توقيعات أو أختام">رفض فني لعدم اكتمال توقيعات أو أختام</option>
-                <option value="خصم تعاقدي ونسبة إضافية">خصم تعاقدي ونسبة إضافية</option>
-                <option value="أخرى">أسباب أخرى متنوعة</option>
-              </select>
+              <div class="custom-select-wrapper">
+                <select id="settle-deduction-reason" class="form-control" style="display: none;">
+                  <option value="لا توجد خصومات" selected>لا توجد خصومات (تحصيل كامل 100%)</option>
+                  <option value="ضرائب أرباح تجارية ومنبع">ضرائب أرباح تجارية ومنبع</option>
+                  <option value="استقطاعات وغرامات تأخير">استقطاعات وغرامات تأخير</option>
+                  <option value="رفض فني لعدم اكتمال توقيعات أو أختام">رفض فني لعدم اكتمال توقيعات أو أختام</option>
+                  <option value="خصم تعاقدي ونسبة إضافية">خصم تعاقدي ونسبة إضافية</option>
+                  <option value="أسباب أخرى متنوعة">أسباب أخرى متنوعة</option>
+                </select>
+                <button type="button" class="custom-select-btn" id="btn-select-settle-deduction-reason" data-open-picker="settle-deduction-reason" data-picker-title="اختر سبب الخصم / الاستقطاع" style="height: 42px;">
+                  <span class="btn-text">لا توجد خصومات (تحصيل كامل 100%)</span>
+                  <i class="fa-solid fa-chevron-down"></i>
+                </button>
+              </div>
             </div>
 
             <!-- Net Amount Live Display -->
