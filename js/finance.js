@@ -25,6 +25,7 @@ export class FinanceManager {
     const monthPicker = document.getElementById('finance-month-picker');
     if (monthPicker) monthPicker.value = this.currentMonth;
 
+    this.populateExpenseCategoriesDropdown();
     await this.loadReport();
   }
 
@@ -74,6 +75,24 @@ export class FinanceManager {
 
     // Add Expense Button
     document.getElementById('btn-add-expense')?.addEventListener('click', () => this.app.openAddExpenseModal());
+
+    // Expense Categories Management
+    document.getElementById('btn-manage-expense-categories')?.addEventListener('click', () => {
+      this.openManageExpenseCategoriesModal();
+    });
+
+    document.getElementById('form-add-expense-category')?.addEventListener('submit', (e) => {
+      e.preventDefault();
+      this.handleAddExpenseCategory();
+    });
+
+    document.getElementById('manage-expense-categories-list')?.addEventListener('click', (e) => {
+      const delBtn = e.target.closest('.btn-delete-exp-cat');
+      if (delBtn) {
+        const catName = delBtn.getAttribute('data-cat-name');
+        if (catName) this.handleDeleteExpenseCategory(catName);
+      }
+    });
 
     // Export & Print Buttons are handled exclusively in export.js to prevent duplicate events
 
@@ -153,17 +172,103 @@ export class FinanceManager {
     this.app.openAddExpenseModal();
   }
 
+  populateExpenseCategoriesDropdown() {
+    const select = document.getElementById('exp-category-select');
+    if (!select) return;
+
+    const categories = db.getClinicalOptions('expense_categories') || [];
+    const prevVal = select.value;
+
+    select.innerHTML = categories.map(cat => 
+      `<option value="${escapeHTML(cat)}" ${cat === prevVal ? 'selected' : ''}>${escapeHTML(cat)}</option>`
+    ).join('');
+
+    if (this.app?.updateCustomSelectDisplay) {
+      this.app.updateCustomSelectDisplay('exp-category-select');
+    }
+  }
+
+  openManageExpenseCategoriesModal() {
+    this.renderManageCategoriesList();
+    this.app.openModal('modal-manage-expense-categories');
+    const input = document.getElementById('input-new-expense-category');
+    if (input) {
+      input.value = '';
+      setTimeout(() => input.focus(), 250);
+    }
+  }
+
+  renderManageCategoriesList() {
+    const container = document.getElementById('manage-expense-categories-list');
+    if (!container) return;
+
+    const categories = db.getClinicalOptions('expense_categories') || [];
+    if (categories.length === 0) {
+      container.innerHTML = `<div style="text-align: center; color: var(--text-muted); font-size: 0.85rem; padding: 20px;">لا توجد بنود مصروفات حالياً. أضف بنداً جديداً بالأعلى.</div>`;
+      return;
+    }
+
+    container.innerHTML = categories.map(cat => `
+      <div class="custom-picker-row" style="display: flex; justify-content: space-between; align-items: center; padding: 9px 12px; background: var(--bg-surface); border: 1px solid var(--border-color); border-radius: 8px; margin-bottom: 6px;">
+        <div style="font-weight: 700; font-size: 0.88rem; color: var(--text-main); display: flex; align-items: center; gap: 8px;">
+          <i class="fa-solid fa-tag" style="color: var(--primary);"></i>
+          <span>${escapeHTML(cat)}</span>
+        </div>
+        <button type="button" class="btn btn-outline btn-sm btn-delete-exp-cat" data-cat-name="${escapeHTML(cat)}" style="color: var(--danger); border-color: rgba(239, 68, 68, 0.3); padding: 4px 9px; border-radius: 6px;" title="حذف هذا البند من القائمة">
+          <i class="fa-solid fa-trash-can"></i>
+        </button>
+      </div>
+    `).join('');
+  }
+
+  async handleAddExpenseCategory() {
+    const input = document.getElementById('input-new-expense-category');
+    const newName = input?.value.trim();
+    if (!newName) return;
+
+    try {
+      await db.addClinicalOption('expense_categories', newName);
+      input.value = '';
+      this.renderManageCategoriesList();
+      this.populateExpenseCategoriesDropdown();
+      const select = document.getElementById('exp-category-select');
+      if (select) {
+        select.value = newName;
+        this.app?.updateCustomSelectDisplay('exp-category-select');
+      }
+      this.app.showToast(`تمت إضافة بند (${newName}) للقائمة بنجاح`);
+    } catch (err) {
+      this.app.showAlert('تعذر إضافة البند: ' + err.message, 'خطأ', 'danger');
+    }
+  }
+
+  async handleDeleteExpenseCategory(catName) {
+    const confirmed = await this.app.showConfirm(`هل تريد بالتأكيد حذف بند (${catName}) من قائمة المصروفات؟`, 'تأكيد الحذف');
+    if (!confirmed) return;
+
+    try {
+      await db.deleteClinicalOption('expense_categories', catName);
+      this.renderManageCategoriesList();
+      this.populateExpenseCategoriesDropdown();
+      this.app.showToast(`تم حذف بند (${catName}) من القائمة`);
+    } catch (err) {
+      this.app.showAlert('تعذر حذف البند: ' + err.message, 'خطأ', 'danger');
+    }
+  }
+
   async handleAddExpense(e) {
     e.preventDefault();
-    const titleInput = document.getElementById('exp-title');
+    const categorySelect = document.getElementById('exp-category-select');
+    const notesInput = document.getElementById('exp-notes');
     const amountInput = document.getElementById('exp-amount');
-    const title = titleInput?.value.trim();
-    const amountStr = amountInput?.value.trim();
+
+    const category = categorySelect?.value?.trim();
+    const notes = notesInput?.value?.trim() || '';
+    const amountStr = amountInput?.value?.trim();
     const amount = parseFloat(amountStr);
 
-    if (!title) {
-      await this.app.showAlert('يرجى إدخال بند أو بيان المصروف.', 'بيانات مطلوبة', 'warning');
-      titleInput?.focus();
+    if (!category) {
+      await this.app.showAlert('يرجى اختيار بند المصروف من القائمة.', 'بيانات مطلوبة', 'warning');
       return;
     }
 
@@ -173,21 +278,27 @@ export class FinanceManager {
       return;
     }
 
+    const fullTitle = notes ? `${category} (${notes})` : category;
     const currentUser = auth.getCurrentUser();
     const todayStr = getLocalDateStr();
     const expenseData = {
-      title,
+      title: fullTitle,
+      category,
+      notes,
       amount,
       date: this.currentDate || todayStr,
       recordedBy: currentUser?.name || 'مدير المركز'
     };
 
     await db.saveExpense(expenseData, currentUser);
-    try { await db.logAudit('تسجيل مصروف', `تسجيل مصروف: ${title} بمبلغ ${amount} ج.م`, currentUser); } catch (_) {}
+    try { await db.logAudit('تسجيل مصروف', `تسجيل مصروف: ${fullTitle} بمبلغ ${amount} ج.م`, currentUser); } catch (_) {}
 
     this.app.closeModal('modal-expense');
     this.app.showToast('تم تسجيل وحفظ المصروف بنجاح');
     document.getElementById('form-expense')?.reset();
+    if (this.app?.updateCustomSelectDisplay) {
+      this.app.updateCustomSelectDisplay('exp-category-select');
+    }
     await this.loadReport();
     this.app.refreshAll();
   }

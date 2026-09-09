@@ -1450,29 +1450,90 @@
     </div>
   </div>
 
-  <!-- Modal 2: Add Expense -->
+  <!-- Modal 2: Add Expense (Custom Dropdown with Category Management) -->
   <div class="modal-backdrop" id="modal-expense">
-    <div class="modal-content" style="max-width: 420px;">
+    <div class="modal-content" style="max-width: 440px;">
       <div class="modal-header">
-        <h3><i class="fa-solid fa-receipt"></i> تسجيل مصروف جديد</h3>
+        <h3><i class="fa-solid fa-receipt" style="color: var(--primary);"></i> تسجيل مصروف جديد</h3>
         <button type="button" class="modal-close" data-close-modal="modal-expense">&times;</button>
       </div>
       <form id="form-expense" novalidate>
         <div class="modal-body">
-          <div class="form-group" style="margin-bottom: 12px;">
-            <label for="exp-title">بند المصروف *</label>
-            <input type="text" id="exp-title" class="form-control" placeholder="مثال: مستلزمات طبية، نظافة، ضيافة..." required>
+          <!-- Expense Category Dropdown + Manage Button -->
+          <div class="form-group" style="margin-bottom: 14px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+              <label style="font-weight: 700; margin: 0; font-size: 0.88rem; color: var(--text-main);">
+                <i class="fa-solid fa-tags" style="color: var(--primary);"></i> بند المصروف *
+              </label>
+              <button type="button" class="btn-edit-chips" id="btn-manage-expense-categories" style="padding: 2px 8px; font-size: 0.74rem; font-weight: 700; display: inline-flex; align-items: center; gap: 4px;" title="إضافة أو حذف بنود من القائمة">
+                <i class="fa-solid fa-gear"></i> <span>إدارة البنود</span>
+              </button>
+            </div>
+            <div class="custom-select-wrapper">
+              <select id="exp-category-select" class="form-control" style="display: none;" required>
+                <!-- Populated dynamically -->
+              </select>
+              <button type="button" class="custom-select-btn" id="btn-select-exp-category-select" data-open-picker="exp-category-select" data-picker-title="اختر بند المصروف" style="height: 42px;">
+                <span class="btn-text">-- اختر بند المصروف --</span>
+                <i class="fa-solid fa-chevron-down"></i>
+              </button>
+            </div>
           </div>
+
+          <!-- Optional Details / Notes Field -->
+          <div class="form-group" style="margin-bottom: 14px;">
+            <label for="exp-notes" style="font-weight: 700; font-size: 0.85rem; margin-bottom: 6px; display: block; color: var(--text-main);">
+              <i class="fa-solid fa-pen-to-square" style="color: var(--primary);"></i> بيان / تفاصيل إضافية (اختياري)
+            </label>
+            <input type="text" id="exp-notes" class="form-control" placeholder="مثال: فاتورة كهرباء شهر أغسطس، شراء قطن وكحول..." style="height: 42px; font-size: 0.88rem;">
+          </div>
+
+          <!-- Amount Field -->
           <div class="form-group">
-            <label for="exp-amount">المبلغ المنصرف (ج.م) *</label>
-            <input type="number" id="exp-amount" class="form-control" min="1" required placeholder="0">
+            <label for="exp-amount" style="font-weight: 700; font-size: 0.85rem; margin-bottom: 6px; display: block; color: var(--text-main);">
+              <i class="fa-solid fa-money-bill-wave" style="color: var(--danger);"></i> المبلغ المنصرف (ج.م) *
+            </label>
+            <input type="number" id="exp-amount" class="form-control" min="1" step="any" required placeholder="0" style="height: 42px; font-size: 1.05rem; font-weight: 800;">
           </div>
         </div>
-        <div class="modal-footer">
+        <div class="modal-footer" style="padding: 12px 16px; background: var(--bg-subtle); display: flex; justify-content: flex-end; gap: 8px;">
           <button type="button" class="btn btn-outline" data-close-modal="modal-expense">إلغاء</button>
-          <button type="submit" class="btn btn-danger">حفظ المصروف</button>
+          <button type="submit" class="btn btn-danger" style="font-weight: 700;">
+            <i class="fa-solid fa-check"></i> حفظ المصروف
+          </button>
         </div>
       </form>
+    </div>
+  </div>
+
+  <!-- Modal: Manage Expense Categories (إدارة بنود المصروفات) -->
+  <div class="modal-backdrop" id="modal-manage-expense-categories" style="z-index: 240;">
+    <div class="modal-content" style="max-width: 440px;">
+      <div class="modal-header">
+        <h3 id="manage-exp-modal-title"><i class="fa-solid fa-tags" style="color: var(--primary);"></i> إدارة بنود المصروفات</h3>
+        <button type="button" class="modal-close" data-close-modal="modal-manage-expense-categories">&times;</button>
+      </div>
+      <div class="modal-body" style="padding: 16px;">
+        <!-- Add New Category Form Row -->
+        <form id="form-add-expense-category" style="display: flex; gap: 8px; margin-bottom: 14px;" novalidate>
+          <input type="text" id="input-new-expense-category" class="form-control" placeholder="اكتب اسم البند الجديد..." required style="height: 40px; font-size: 0.88rem; flex: 1;">
+          <button type="submit" class="btn btn-primary btn-sm" style="font-weight: 700; padding: 0 14px; white-space: nowrap;">
+            <i class="fa-solid fa-plus"></i> إضافة
+          </button>
+        </form>
+
+        <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 10px; font-weight: 600;">
+          البنود المعرفة حالياً (اضغط على أيقونة الحذف لإزالة أي بند):
+        </p>
+
+        <!-- Dynamic List of Current Categories with Delete Buttons -->
+        <div id="manage-expense-categories-list" style="display: flex; flex-direction: column; gap: 6px; max-height: 280px; overflow-y: auto; padding-left: 2px;">
+          <!-- Rendered dynamically by JS -->
+        </div>
+      </div>
+      <div class="modal-footer" style="padding: 10px 16px; background: var(--bg-subtle); display: flex; justify-content: flex-end;">
+        <button type="button" class="btn btn-outline btn-sm" data-close-modal="modal-manage-expense-categories" style="font-weight: 700; padding: 6px 14px;">تم</button>
+      </div>
     </div>
   </div>
 

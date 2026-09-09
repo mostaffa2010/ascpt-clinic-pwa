@@ -2263,3 +2263,18 @@ body.not-authenticated #modal-auth #btn-cancel-login {
   background-color: var(--bg-surface) !important;
   border-color: var(--border-color) !important;
 }
+
+
+/* ================= Expense Category Management (v1.2.9) ================= */
+.btn-delete-exp-cat {
+  color: var(--danger);
+  border-color: rgba(239, 68, 68, 0.3);
+  padding: 4px 9px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+.btn-delete-exp-cat:hover {
+  background-color: rgba(239, 68, 68, 0.15) !important;
+  color: #ef4444 !important;
+}
