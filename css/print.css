@@ -510,3 +510,14 @@
     color: #000000 !important;
   }
 }
+
+  /* Ensure clinic official logo prints crisply without omission */
+  .print-header img,
+  .sheet-print-header img,
+  .ins-letter-header img,
+  #printable-insurance-claim img,
+  .attendance-card-print-page img {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+    image-rendering: -webkit-optimize-contrast;
+  }
