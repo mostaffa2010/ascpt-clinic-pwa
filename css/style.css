@@ -324,7 +324,7 @@ body {
 
 .stats-grid, .stat-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  grid-template-columns: repeat(2, 1fr);
   gap: 12px;
   margin-bottom: 18px;
   width: 100%;
@@ -334,25 +334,15 @@ body {
   background-color: var(--bg-surface);
   border: 1px solid var(--border-color);
   border-radius: var(--radius-md);
-  padding: 14px;
+  padding: 14px 16px;
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 12px;
+  justify-content: flex-start;
+  gap: 14px;
   box-shadow: var(--shadow-sm);
   width: 100%;
   box-sizing: border-box;
-}
-
-.stat-box {
-  background-color: var(--bg-surface);
-  border: 1px solid var(--border-color);
-  border-radius: var(--radius-md);
-  padding: 14px;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  box-shadow: var(--shadow-sm);
+  transition: all 0.2s ease;
 }
 
 .stat-icon {
@@ -370,15 +360,28 @@ body {
 .stat-icon.amber { background-color: var(--warning-light); color: var(--warning); }
 .stat-icon.red { background-color: var(--danger-light); color: var(--danger); }
 
+.stat-info {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  text-align: right;
+  min-width: 0;
+  flex: 1;
+  gap: 3px;
+}
+
 .stat-info .stat-value {
   font-size: 1.25rem;
-  font-weight: 700;
+  font-weight: 800;
   color: var(--text-main);
+  line-height: 1.2;
 }
 
 .stat-info .stat-label {
   font-size: 0.8rem;
   color: var(--text-muted);
+  font-weight: 600;
+  line-height: 1.2;
 }
 
 /* ================= Buttons ================= */
