@@ -140,6 +140,12 @@ export class PatientsManager {
       formRenew.addEventListener('submit', (e) => this.handleConfirmRenewApproval(e));
     }
 
+    // Dynamic Approval Units Calculation Listeners
+    document.getElementById('p-approved-sessions')?.addEventListener('input', () => this.updateApprovalUnitsSummary('patient'));
+    document.getElementById('p-approved-body-parts')?.addEventListener('change', () => this.updateApprovalUnitsSummary('patient'));
+    document.getElementById('renew-sessions-count')?.addEventListener('input', () => this.updateApprovalUnitsSummary('renew'));
+    document.getElementById('renew-approved-body-parts')?.addEventListener('change', () => this.updateApprovalUnitsSummary('renew'));
+
     // Cash Receipt Form Submit
     document.getElementById('form-cash-receipt')?.addEventListener('submit', (e) => {
       e.preventDefault();
@@ -459,12 +465,14 @@ export class PatientsManager {
     tbody.innerHTML = filtered.map(p => {
       let billingBadge = '';
       const safeComp = escapeHTML(p.insuranceCompany || 'تأمين');
+      const approvedVisits = p.approvedSessions || 12;
+      const approvedParts = p.approvedBodyParts || 2;
       if (p.billing === 'cash') {
         billingBadge = `<span class="badge badge-cash"><i class="fa-solid fa-money-bill"></i> نقدي</span>`;
       } else if (p.contractType === 'direct') {
-        billingBadge = `<span class="badge badge-direct"><i class="fa-solid fa-file-contract"></i> ${safeComp} (مباشر)</span>`;
+        billingBadge = `<span class="badge badge-direct" title="${approvedVisits} زيارة معتمدة (${approvedParts} أعضاء)"><i class="fa-solid fa-file-contract"></i> ${safeComp} (${approvedVisits} زيارة - ${approvedParts} أعضاء)</span>`;
       } else {
-        billingBadge = `<span class="badge badge-indirect"><i class="fa-solid fa-handshake"></i> ${safeComp} (غير مباشر)</span>`;
+        billingBadge = `<span class="badge badge-indirect" title="${approvedVisits} زيارة معتمدة (${approvedParts} أعضاء)"><i class="fa-solid fa-handshake"></i> ${safeComp} (${approvedVisits} زيارة - ${approvedParts} أعضاء)</span>`;
       }
 
       const safeId = escapeHTML(p.id);
@@ -709,6 +717,26 @@ export class PatientsManager {
     if (feedback) { feedback.style.display = 'none'; feedback.innerHTML = ''; }
   }
 
+  updateApprovalUnitsSummary(scope = 'patient') {
+    if (scope === 'patient') {
+      const v = parseInt(document.getElementById('p-approved-sessions')?.value) || 12;
+      const p = parseInt(document.getElementById('p-approved-body-parts')?.value) || 2;
+      const totalUnits = v * p;
+      const txt = document.getElementById('p-approval-units-text');
+      if (txt) {
+        txt.textContent = `الرصيد: ${v} زيارة للمريض • يعادل ${totalUnits} جلسة/وحدة عمل للطبيب (${v} زيارة × ${p} عضو)`;
+      }
+    } else if (scope === 'renew') {
+      const v = parseInt(document.getElementById('renew-sessions-count')?.value) || 12;
+      const p = parseInt(document.getElementById('renew-approved-body-parts')?.value) || 2;
+      const totalUnits = v * p;
+      const txt = document.getElementById('renew-approval-units-text');
+      if (txt) {
+        txt.textContent = `الرصيد: ${v} زيارة للمريض • يعادل ${totalUnits} جلسة/وحدة عمل للطبيب (${v} زيارة × ${p} عضو)`;
+      }
+    }
+  }
+
   openAddModal() {
     document.getElementById('form-patient').reset();
     this.clearPhoneValidation();
@@ -725,6 +753,9 @@ export class PatientsManager {
     document.getElementById('p-insurance-details').style.display = 'none';
     const appSessionsInp = document.getElementById('p-approved-sessions');
     if (appSessionsInp) appSessionsInp.value = '12';
+    const appPartsSelect = document.getElementById('p-approved-body-parts');
+    if (appPartsSelect) appPartsSelect.value = '2';
+    this.updateApprovalUnitsSummary('patient');
     this.onContractTypeChanged('direct');
     const directRadio = document.querySelector('input[name="p-contract-type"][value="direct"]');
     if (directRadio) directRadio.checked = true;
@@ -781,6 +812,9 @@ export class PatientsManager {
       this.onContractTypeChanged(cType);
       const appSessionsInp = document.getElementById('p-approved-sessions');
       if (appSessionsInp) appSessionsInp.value = p.approvedSessions || 12;
+      const appPartsSelect = document.getElementById('p-approved-body-parts');
+      if (appPartsSelect) appPartsSelect.value = String(p.approvedBodyParts || 2);
+      this.updateApprovalUnitsSummary('patient');
     } else {
       insBox.style.display = 'none';
     }
@@ -909,8 +943,10 @@ export class PatientsManager {
     }
 
     let approvedSessions = 12;
+    let approvedBodyParts = 2;
     if (billing === 'insurance') {
       approvedSessions = parseInt(document.getElementById('p-approved-sessions')?.value) || 12;
+      approvedBodyParts = parseInt(document.getElementById('p-approved-body-parts')?.value) || 2;
     }
 
     const patientData = {
@@ -925,7 +961,8 @@ export class PatientsManager {
       billing,
       insuranceCompany,
       contractType,
-      approvedSessions
+      approvedSessions,
+      approvedBodyParts
     };
 
     if (!id && billing === 'insurance') {
@@ -977,6 +1014,9 @@ export class PatientsManager {
     const cTypeLabel = patient.contractType === 'indirect' ? 'تعاقد غير مباشر' : 'تعاقد مباشر';
     document.getElementById('renew-company-name').textContent = `${patient.insuranceCompany || 'شركة التأمين'} (${cTypeLabel})`;
     document.getElementById('renew-sessions-count').value = patient.approvedSessions || 12;
+    const renewPartsSelect = document.getElementById('renew-approved-body-parts');
+    if (renewPartsSelect) renewPartsSelect.value = String(patient.approvedBodyParts || 2);
+    this.updateApprovalUnitsSummary('renew');
     document.getElementById('renew-approval-date').value = getLocalDateStr();
     document.getElementById('renew-approval-no').value = patient.insuranceApprovalNo || '';
 
@@ -987,6 +1027,7 @@ export class PatientsManager {
     e.preventDefault();
     const pid = document.getElementById('renew-patient-id')?.value;
     const newSessions = parseInt(document.getElementById('renew-sessions-count')?.value) || 12;
+    const newParts = parseInt(document.getElementById('renew-approved-body-parts')?.value) || patient?.approvedBodyParts || 2;
     const renewDate = document.getElementById('renew-approval-date')?.value || getLocalDateStr();
     const newApprovalNo = document.getElementById('renew-approval-no')?.value?.trim() || '';
 
@@ -997,6 +1038,7 @@ export class PatientsManager {
       const currentUser = auth.getCurrentUser();
       const updates = {
         approvedSessions: newSessions,
+        approvedBodyParts: newParts,
         currentApprovalStartDate: renewDate,
         lastRenewalDate: renewDate,
         lastRenewedBy: currentUser?.name || 'الاستقبال'

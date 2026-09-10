@@ -256,14 +256,14 @@
               <div class="stat-icon blue"><i class="fa-solid fa-user-injured"></i></div>
               <div class="stat-info">
                 <div class="stat-value" id="stat-doc-today-count">0 حالة</div>
-                <div class="stat-label">مرضاك اليوم</div>
+                <div class="stat-label">مرضاك اليوم (زيارات • وحدات)</div>
               </div>
             </div>
             <div class="stat-box">
               <div class="stat-icon green"><i class="fa-solid fa-calendar-check"></i></div>
               <div class="stat-info">
                 <div class="stat-value" id="stat-doc-month-count">0 حالة</div>
-                <div class="stat-label">حالات هذا الشهر</div>
+                <div class="stat-label">حالات هذا الشهر (زيارات • وحدات)</div>
               </div>
             </div>
             <div class="stat-box">
@@ -1542,15 +1542,37 @@
               <div id="p-ins-indirect-container" class="insurance-companies-grid" style="display: none;"></div>
             </div>
 
-            <!-- Approved Sessions Count for Insurance Approval -->
-            <div class="form-group" style="margin-top: 12px; border-top: 1px dashed var(--border-color); padding-top: 10px;">
-              <label for="p-approved-sessions" style="font-weight: 800; font-size: 0.88rem; color: var(--text-main); margin-bottom: 4px; display: block;">
-                <i class="fa-solid fa-calculator" style="color: var(--primary);"></i> عدد جلسات جواب الموافقة *
-              </label>
-              <input type="number" id="p-approved-sessions" class="form-control" value="12" min="1" max="100" style="height: 40px; font-weight: 800; font-size: 0.95rem;" placeholder="مثال: 12">
-              <small style="color: var(--text-muted); font-size: 0.74rem; display: block; margin-top: 3px;">
-                عدد الجلسات المصرح بها في جواب الموافقة الحالي للمريض (افتراضي: 12 جلسة)
-              </small>
+            <!-- Approved Visits & Body Parts for Insurance Approval -->
+            <div style="margin-top: 12px; border-top: 1px dashed var(--border-color); padding-top: 10px;">
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                <div class="form-group">
+                  <label for="p-approved-sessions" style="font-weight: 800; font-size: 0.88rem; color: var(--text-main); margin-bottom: 4px; display: block;">
+                    <i class="fa-solid fa-calendar-check" style="color: var(--primary);"></i> عدد زيارات الجواب المعتمدة *
+                  </label>
+                  <input type="number" id="p-approved-sessions" class="form-control" value="12" min="1" max="100" style="height: 40px; font-weight: 800; font-size: 0.95rem;" placeholder="مثال: 12">
+                  <small style="color: var(--text-muted); font-size: 0.72rem; display: block; margin-top: 3px;">
+                    عدد مرات حضور المريض الفعلي بالمركز
+                  </small>
+                </div>
+                <div class="form-group">
+                  <label for="p-approved-body-parts" style="font-weight: 800; font-size: 0.88rem; color: var(--text-main); margin-bottom: 4px; display: block;">
+                    <i class="fa-solid fa-person-dots-from-line" style="color: var(--primary);"></i> عدد الأعضاء المصرح بها *
+                  </label>
+                  <select id="p-approved-body-parts" class="form-control" style="height: 40px; font-weight: 800; font-size: 0.95rem;">
+                    <option value="1">عضو واحد (1)</option>
+                    <option value="2" selected>عضوين (2)</option>
+                    <option value="3">3 أعضاء (3)</option>
+                    <option value="4">4 أعضاء (4)</option>
+                  </select>
+                  <small style="color: var(--text-muted); font-size: 0.72rem; display: block; margin-top: 3px;">
+                    عدد الأعضاء المعالجة في الزيارة
+                  </small>
+                </div>
+              </div>
+              <div id="p-approval-units-summary" style="background: var(--bg-subtle); border-radius: 8px; padding: 8px 12px; margin-top: 8px; font-size: 0.8rem; font-weight: 700; color: var(--primary); border: 1px solid var(--border-color); display: flex; align-items: center; gap: 8px;">
+                <i class="fa-solid fa-circle-info"></i>
+                <span id="p-approval-units-text">الرصيد: 12 زيارة للمريض • يعادل 24 جلسة/وحدة عمل للطبيب (12 زيارة × 2 عضو)</span>
+              </div>
             </div>
           </div>
         </div>
@@ -1674,11 +1696,28 @@
             <div style="font-weight: 800; color: var(--text-main); font-size: 0.95rem;" id="renew-patient-name">-</div>
             <div style="font-size: 0.8rem; color: var(--primary); font-weight: 700; margin-top: 2px;" id="renew-company-name">-</div>
           </div>
-          <div class="form-group" style="margin-bottom: 12px;">
-            <label for="renew-sessions-count" style="font-weight: 800; font-size: 0.88rem; color: var(--text-main);">
-              <i class="fa-solid fa-calculator" style="color: var(--primary);"></i> عدد جلسات الجواب الجديد *
-            </label>
-            <input type="number" id="renew-sessions-count" class="form-control" required min="1" max="100" value="12" style="height: 40px; font-weight: 800; font-size: 0.95rem;">
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px;">
+            <div class="form-group">
+              <label for="renew-sessions-count" style="font-weight: 800; font-size: 0.88rem; color: var(--text-main); margin-bottom: 4px; display: block;">
+                <i class="fa-solid fa-calendar-check" style="color: var(--primary);"></i> عدد زيارات الجواب الجديد *
+              </label>
+              <input type="number" id="renew-sessions-count" class="form-control" required min="1" max="100" value="12" style="height: 40px; font-weight: 800; font-size: 0.95rem;">
+            </div>
+            <div class="form-group">
+              <label for="renew-approved-body-parts" style="font-weight: 800; font-size: 0.88rem; color: var(--text-main); margin-bottom: 4px; display: block;">
+                <i class="fa-solid fa-person-dots-from-line" style="color: var(--primary);"></i> عدد الأعضاء المصرح بها *
+              </label>
+              <select id="renew-approved-body-parts" class="form-control" style="height: 40px; font-weight: 800; font-size: 0.95rem;">
+                <option value="1">عضو واحد (1)</option>
+                <option value="2" selected>عضوين (2)</option>
+                <option value="3">3 أعضاء (3)</option>
+                <option value="4">4 أعضاء (4)</option>
+              </select>
+            </div>
+          </div>
+          <div id="renew-approval-units-summary" style="background: var(--bg-subtle); border-radius: 8px; padding: 8px 12px; margin-bottom: 12px; font-size: 0.8rem; font-weight: 700; color: var(--primary); border: 1px solid var(--border-color); display: flex; align-items: center; gap: 8px;">
+            <i class="fa-solid fa-circle-info"></i>
+            <span id="renew-approval-units-text">الرصيد: 12 زيارة للمريض • يعادل 24 جلسة/وحدة عمل للطبيب (12 زيارة × 2 عضو)</span>
           </div>
           <div class="form-group" style="margin-bottom: 12px;">
             <label for="renew-approval-date" style="font-weight: 800; font-size: 0.88rem; color: var(--text-main);">

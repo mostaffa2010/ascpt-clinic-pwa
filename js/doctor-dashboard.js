@@ -74,7 +74,7 @@ export class DoctorDashboardManager {
         if (s.entryType === 'examination') return acc + 1;
         return acc + (s.bodyPartsCount || 1);
       }, 0);
-      todayCountEl.textContent = `${todaySessions.length} مريض - ${todayCredited} جلسة`;
+      todayCountEl.textContent = `${todaySessions.length} زيارة • ${todayCredited} جلسة/وحدة عمل`;
     }
 
     // 2. This month's sessions
@@ -85,7 +85,7 @@ export class DoctorDashboardManager {
         if (s.entryType === 'examination') return acc + 1;
         return acc + (s.bodyPartsCount || 1);
       }, 0);
-      monthCountEl.textContent = `${monthSessions.length} مريض - ${monthCredited} جلسة`;
+      monthCountEl.textContent = `${monthSessions.length} زيارة • ${monthCredited} جلسة/وحدة عمل`;
     }
 
     // 3. Lifetime patients treated by this doctor
@@ -155,10 +155,12 @@ export class DoctorDashboardManager {
       const isExam = (s.entryType === 'examination');
       let partsDisplay = '';
       if (isExam) {
-        partsDisplay = `<span class="badge" style="background: var(--bg-subtle); color: var(--primary); border: 1px solid var(--border-color); font-weight: 800; font-size: 0.76rem; padding: 3px 8px;"><i class="fa-solid fa-stethoscope"></i> فحص سريري / كشف</span>`;
+        partsDisplay = `<span class="badge" style="background: var(--bg-subtle); color: var(--primary); border: 1px solid var(--border-color); font-weight: 800; font-size: 0.76rem; padding: 3px 8px;"><i class="fa-solid fa-stethoscope"></i> فحص سريري / كشف (1 جلسة)</span>`;
       } else {
         const parts = Array.isArray(s.bodyParts) ? s.bodyParts.join('، ') : (s.bodyParts || '-');
-        partsDisplay = escapeHTML(parts);
+        const unitCount = s.bodyPartsCount || 1;
+        const unitWord = unitCount === 1 ? 'جلسة' : unitCount === 2 ? 'جلستان' : 'جلسات';
+        partsDisplay = `<span class="badge" style="background: #e0f2fe; color: #0369a1; border: 1px solid #bae6fd; font-weight: 800; font-size: 0.76rem; padding: 2px 6px; margin-left: 6px;">${unitCount} ${unitWord}</span> ${escapeHTML(parts)}`;
       }
 
       const timeDisplay = s.recordedAt || '';

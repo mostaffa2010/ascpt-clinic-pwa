@@ -590,6 +590,8 @@ export class SessionsManager {
       if (isInsurance) {
         const cTypeLabel = patient.contractType === 'direct' ? 'تعاقد مباشر' : 'تعاقد غير مباشر';
         const safeCompName = escapeHTML(patient.insuranceCompany || 'شركة تأمين');
+        const approvedVisits = patient.approvedSessions || 12;
+        const approvedParts = patient.approvedBodyParts || 2;
         paymentContainer.innerHTML = `
           <div style="background: #f0fdf4; border: 1.5px solid #bbf7d0; border-radius: 10px; padding: 12px 14px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px;">
             <div style="display: flex; align-items: center; gap: 10px;">
@@ -598,10 +600,10 @@ export class SessionsManager {
               </div>
               <div>
                 <div style="font-weight: 800; font-size: 0.95rem; color: #166534;">
-                  ${safeCompName}
+                  ${safeCompName} • رصيد ${approvedVisits} زيارة معتمدة (${approvedParts} أعضاء)
                 </div>
                 <div style="font-size: 0.78rem; color: #15803d; font-weight: 600;">
-                  تأمين المريض التلقائي • <span class="badge badge-direct" style="font-size: 0.7rem; padding: 1px 6px;">${cTypeLabel}</span>
+                  تأمين المريض التلقائي • <span class="badge badge-direct" style="font-size: 0.7rem; padding: 1px 6px;">${cTypeLabel}</span> • حضور اليوم يُحتسب زيارة واحدة للمريض
                 </div>
               </div>
             </div>
@@ -663,9 +665,13 @@ export class SessionsManager {
 
     if (nameEl) nameEl.textContent = patient.name;
     if (subEl) {
-      const billingTxt = patient.billing === 'cash' 
-        ? 'نقدي' 
-        : `تأمين: ${patient.insuranceCompany || 'شركة'} (${patient.contractType === 'direct' ? 'مباشر' : 'غير مباشر'})`;
+      let billingTxt = 'نقدي';
+      if (patient.billing === 'insurance') {
+        const cTypeLabel = patient.contractType === 'direct' ? 'مباشر' : 'غير مباشر';
+        const visits = patient.approvedSessions || 12;
+        const parts = patient.approvedBodyParts || 2;
+        billingTxt = `تأمين: ${patient.insuranceCompany || 'شركة'} (${cTypeLabel}) • رصيد الجواب: ${visits} زيارة (${parts} أعضاء)`;
+      }
       subEl.textContent = `الهاتف: ${patient.phone} | الطبيب: ${patient.doctor} | ${billingTxt}`;
     }
 
@@ -824,7 +830,8 @@ export class SessionsManager {
       amountPaid,
       notes,
       sessionNumber,
-      approvedSessionsTotal
+      approvedSessionsTotal,
+      approvedBodyPartsTotal: patient?.approvedBodyParts || 2
     };
 
     await db.saveSession(sessionData, currentUser);
@@ -1307,11 +1314,11 @@ export class SessionsManager {
 
         if (s.payType === 'insurance') {
           if (sessNum > approvedTotal) {
-            sessionNumBadge = `<span class="badge" style="background:#fee2e2; color:#b91c1c; border:1px solid #fecaca; font-weight:800; font-size:0.78rem;" title="تجاوز عدد جلسات الجواب المصرح بها (${approvedTotal})"><i class="fa-solid fa-triangle-exclamation"></i> ${sessNum} من ${approvedTotal}</span>`;
+            sessionNumBadge = `<span class="badge" style="background:#fee2e2; color:#b91c1c; border:1px solid #fecaca; font-weight:800; font-size:0.78rem;" title="تجاوز عدد زيارات الجواب المصرح بها (${approvedTotal} زيارة)"><i class="fa-solid fa-triangle-exclamation"></i> زيارة ${sessNum} من ${approvedTotal}</span>`;
           } else if (sessNum === approvedTotal) {
-            sessionNumBadge = `<span class="badge" style="background:#fef3c7; color:#b45309; border:1px solid #fde68a; font-weight:800; font-size:0.78rem;" title="اكتملت جلسات جواب الموافقة"><i class="fa-solid fa-flag-checkered"></i> ${sessNum} من ${approvedTotal}</span>`;
+            sessionNumBadge = `<span class="badge" style="background:#fef3c7; color:#b45309; border:1px solid #fde68a; font-weight:800; font-size:0.78rem;" title="اكتملت زيارات جواب الموافقة (${approvedTotal} زيارة)"><i class="fa-solid fa-flag-checkered"></i> زيارة ${sessNum} من ${approvedTotal}</span>`;
           } else {
-            sessionNumBadge = `<span class="badge" style="background:var(--bg-subtle); color:var(--primary); border:1px solid var(--border-color); font-weight:800; font-size:0.8rem;"><i class="fa-solid fa-hashtag"></i> ${sessNum} من ${approvedTotal}</span>`;
+            sessionNumBadge = `<span class="badge" style="background:var(--bg-subtle); color:var(--primary); border:1px solid var(--border-color); font-weight:800; font-size:0.8rem;" title="حضور المريض بالمركز: زيارة ${sessNum} من ${approvedTotal}"><i class="fa-solid fa-calendar-check"></i> زيارة ${sessNum} من ${approvedTotal}</span>`;
           }
         } else {
           sessionNumBadge = `<span class="badge" style="background:var(--bg-subtle); color:var(--text-main); border:1px solid var(--border-color); font-weight:700; font-size:0.8rem;">الجلسة ${sessNum}</span>`;
@@ -1347,7 +1354,7 @@ export class SessionsManager {
         const safeParts = Array.isArray(s.bodyParts) ? s.bodyParts.map(b => escapeHTML(b)).join('، ') : escapeHTML(s.bodyParts || '');
         const safePartsShort = Array.isArray(s.bodyParts) ? s.bodyParts.slice(0, 2).map(b => escapeHTML(b)).join('، ') : escapeHTML(s.bodyParts || '');
         partsCell = `
-          <span class="badge badge-role-doctor" title="${safeParts}">
+          <span class="badge badge-role-doctor" title="${safeParts} (${s.bodyPartsCount || 1} وحدات علاجية للطبيب)">
             ${escapeHTML(s.bodyPartsCount)} أعضاء (${safePartsShort}${s.bodyParts && s.bodyParts.length > 2 ? '...' : ''})
           </span>
         `;
