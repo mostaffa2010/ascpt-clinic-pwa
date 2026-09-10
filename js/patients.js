@@ -569,15 +569,13 @@ export class PatientsManager {
     const hidden = document.getElementById('p-approved-body-parts-count');
     if (hidden) hidden.value = partsCount;
 
-    // Update Counter Badge above chips
-    const badge = document.getElementById('p-approved-parts-counter-badge');
-    if (badge) {
+    // Update Counter Display below chips (Identical to sessions screen)
+    const countDisplay = document.getElementById('p-approved-parts-count-display');
+    if (countDisplay) {
       if (selected.length === 0) {
-        badge.textContent = 'عضو واحد (افتراضي)';
-        badge.style.color = 'var(--text-muted)';
+        countDisplay.textContent = 'عضو واحد (افتراضي)';
       } else {
-        badge.textContent = `${this.formatPartsCountLabel(selected.length)} (${selected.length})`;
-        badge.style.color = 'var(--primary)';
+        countDisplay.textContent = `${this.formatPartsCountLabel(selected.length)} (${selected.length})`;
       }
     }
 
@@ -598,14 +596,12 @@ export class PatientsManager {
     const hidden = document.getElementById('renew-body-parts-count');
     if (hidden) hidden.value = partsCount;
 
-    const badge = document.getElementById('renew-parts-counter-badge');
-    if (badge) {
+    const countDisplay = document.getElementById('renew-approved-parts-count-display');
+    if (countDisplay) {
       if (selected.length === 0) {
-        badge.textContent = 'عضو واحد (افتراضي)';
-        badge.style.color = 'var(--text-muted)';
+        countDisplay.textContent = 'عضو واحد (افتراضي)';
       } else {
-        badge.textContent = `${this.formatPartsCountLabel(selected.length)} (${selected.length})`;
-        badge.style.color = 'var(--primary)';
+        countDisplay.textContent = `${this.formatPartsCountLabel(selected.length)} (${selected.length})`;
       }
     }
 
@@ -624,7 +620,7 @@ export class PatientsManager {
     container.innerHTML = parts.map(part => {
       const isSelected = Array.isArray(selectedParts) && selectedParts.includes(part);
       return `
-        <button type="button" class="chip-choice ${isSelected ? 'selected' : ''}" data-action="toggle-approved-part" data-part="${part}" style="padding: 5px 12px; font-size: 0.8rem;">
+        <button type="button" class="chip-choice ${isSelected ? 'selected' : ''}" data-action="toggle-approved-part" data-part="${part}">
           <i class="fa-solid fa-bone"></i> <span>${part}</span>
         </button>
       `;
@@ -645,7 +641,7 @@ export class PatientsManager {
     container.innerHTML = parts.map(part => {
       const isSelected = Array.isArray(selectedParts) && selectedParts.includes(part);
       return `
-        <button type="button" class="chip-choice ${isSelected ? 'selected' : ''}" data-action="toggle-renew-part" data-part="${part}" style="padding: 4px 10px; font-size: 0.78rem;">
+        <button type="button" class="chip-choice ${isSelected ? 'selected' : ''}" data-action="toggle-renew-part" data-part="${part}">
           <i class="fa-solid fa-bone"></i> <span>${part}</span>
         </button>
       `;

@@ -523,6 +523,9 @@ body {
   color: #ffffff;
   border-color: var(--primary);
 }
+.chip-choice.selected i {
+  color: #ffffff !important;
+}
 
 /* ================= Tables ================= */
 .table-responsive {
