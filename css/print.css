@@ -1,5 +1,7 @@
 /* ========================================================
-   ASCPT - Universal Single-Page A4 Print Stylesheet
+   ASCPT - Universal Single-Page A4 & A5 Print Stylesheet
+   Phase 2.9: Dual-Friendly High-Contrast Print Palette
+   Optimized for both Brilliant Full-Color & Crisp Monochrome / Grayscale Laser Printing
    ======================================================== */
 
 @page {
@@ -8,6 +10,42 @@
 }
 
 @media print {
+  /* ================= 0. DUAL-FRIENDLY HIGH-CONTRAST PALETTE ================= */
+  :root, html, body, [data-theme="dark"] {
+    /* Primary / Headings: Deep Medical Sapphire / Navy */
+    --primary: #0369a1 !important;
+    --primary-dark: #075985 !important;
+    --primary-light: #f0f9ff !important;
+
+    /* Cash / Success / Net Profit: Deep Forest Emerald (Dense Solid Charcoal/Black in B&W) */
+    --success: #15803d !important;
+    --success-light: #f0fdf4 !important;
+
+    /* Expenses / Deductions / Danger: Deep Crimson Burgundy (High Contrast Sharp Black in B&W) */
+    --danger: #b91c1c !important;
+    --danger-light: #fef2f2 !important;
+
+    /* Warnings / Amber: Deep Russet Amber */
+    --warning: #92400e !important;
+    --warning-light: #fefce8 !important;
+
+    /* Indirect Contracts / Purple: Deep Royal Violet / Indigo (Crisp Solid in B&W) */
+    --purple: #581c87 !important;
+    --purple-light: #faf5ff !important;
+
+    /* Neutral Base */
+    --bg-main: #ffffff !important;
+    --bg-surface: #ffffff !important;
+    --bg-subtle: #f8fafc !important;
+    --text-main: #000000 !important;
+    --text-muted: #334155 !important;
+    --border-color: #64748b !important;
+
+    background: #ffffff !important;
+    color: #000000 !important;
+    background-color: #ffffff !important;
+  }
+
   /* Reset HTML & BODY display to block so flexbox never breaks print flow */
   html, body {
     display: block !important;
@@ -29,7 +67,7 @@
     box-sizing: border-box !important;
   }
 
-  /* Universal hide for common UI elements */
+  /* Universal hide for common interactive UI elements */
   nav,
   .sidebar,
   .bottom-nav,
@@ -46,8 +84,79 @@
     display: none !important;
   }
 
+  /* Universal High-Contrast Badge System for Printing */
+  .badge {
+    display: inline-block !important;
+    padding: 1.5px 6px !important;
+    border-radius: 4px !important;
+    font-size: 7pt !important;
+    font-weight: 800 !important;
+    text-align: center !important;
+    white-space: nowrap !important;
+    line-height: 1.25 !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  .badge-cash,
+  .badge-success {
+    background-color: #f0fdf4 !important;
+    color: #14532d !important;
+    border: 1.2px solid #166534 !important;
+  }
+
+  .badge-direct,
+  .badge-primary {
+    background-color: #f0f9ff !important;
+    color: #075985 !important;
+    border: 1.2px solid #0369a1 !important;
+  }
+
+  .badge-indirect {
+    background-color: #faf5ff !important;
+    color: #581c87 !important;
+    border: 1.2px solid #7e22ce !important;
+  }
+
+  .badge-role-admin,
+  .badge-danger {
+    background-color: #fef2f2 !important;
+    color: #7f1d1d !important;
+    border: 1.2px solid #991b1b !important;
+  }
+
+  .badge-role-doctor {
+    background-color: #eef2ff !important;
+    color: #1e1b4b !important;
+    border: 1.2px solid #3730a3 !important;
+  }
+
+  .badge-role-rec {
+    background-color: #fdf2f8 !important;
+    color: #831843 !important;
+    border: 1.2px solid #9d174d !important;
+  }
+
+  /* Universal High-Contrast Table Text for Financial Values */
+  [style*="color: var(--success)"],
+  [style*="color:var(--success)"] {
+    color: #14532d !important;
+    font-weight: 800 !important;
+  }
+
+  [style*="color: var(--danger)"],
+  [style*="color:var(--danger)"] {
+    color: #991b1b !important;
+    font-weight: 800 !important;
+  }
+
+  [style*="color: var(--primary)"],
+  [style*="color:var(--primary)"] {
+    color: #0369a1 !important;
+    font-weight: 800 !important;
+  }
+
   /* ================= CASE 1: PRINTING CLINICAL PATIENT SHEET ================= */
-  /* Hide EVERY direct child of body except the printable sheet */
   body.printing-sheet > *:not(#printable-patient-sheet) {
     display: none !important;
     height: 0 !important;
@@ -74,7 +183,7 @@
   body.printing-sheet .sheet-print-header {
     display: block !important;
     text-align: center !important;
-    border-bottom: 2.5px solid #0284c7 !important;
+    border-bottom: 2.5px solid #0369a1 !important;
     padding-bottom: 8px !important;
     margin-bottom: 14px !important;
   }
@@ -82,22 +191,31 @@
   body.printing-sheet .sheet-print-header h1 {
     font-size: 16pt !important;
     margin: 0 0 4px 0 !important;
-    color: #0284c7 !important;
+    color: #0369a1 !important;
     font-weight: 800 !important;
     letter-spacing: -0.2px !important;
   }
 
-  body.printing-sheet .sheet-print-header p.sheet-sub {
-    margin: 3px 0 !important;
-    font-size: 10.5pt !important;
+  body.printing-sheet .sheet-print-header p {
+    font-size: 9pt !important;
+    margin: 1px 0 !important;
+    color: #000000 !important;
     font-weight: 700 !important;
-    color: #1e293b !important;
   }
 
-  body.printing-sheet .sheet-print-header p.sheet-meta {
-    margin: 3px 0 0 0 !important;
-    font-size: 8.5pt !important;
-    color: #64748b !important;
+  body.printing-sheet .sheet-print-header .director-line {
+    font-size: 10.5pt !important;
+    font-weight: 800 !important;
+    color: #075985 !important;
+    margin-top: 3px !important;
+    margin-bottom: 3px !important;
+  }
+
+  body.printing-sheet .sheet-print-header .meta-sub {
+    font-size: 7.5pt !important;
+    color: #334155 !important;
+    margin-top: 4px !important;
+    font-weight: 600 !important;
   }
 
   /* 2. Patient Details Table: comfortable height, large readable font */
@@ -109,7 +227,7 @@
 
   body.printing-sheet #printable-patient-sheet table.data-table th,
   body.printing-sheet #printable-patient-sheet table.data-table td {
-    border: 1.2px solid #94a3b8 !important;
+    border: 1.2px solid #475569 !important;
     padding: 6px 10px !important;
     font-size: 10pt !important;
     line-height: 1.35 !important;
@@ -117,13 +235,13 @@
 
   body.printing-sheet #printable-patient-sheet table.data-table th {
     background-color: #f1f5f9 !important;
-    color: #0f172a !important;
+    color: #000000 !important;
     font-weight: 800 !important;
   }
 
-  /* 3. 5 Clinical Section Boxes: spacious, comfortable padding and min-heights */
+  /* 3. Clinical Section Boxes: spacious, comfortable padding and min-heights */
   body.printing-sheet #printable-patient-sheet .sheet-section-box {
-    border: 1.2px solid #cbd5e1 !important;
+    border: 1.2px solid #64748b !important;
     border-radius: 6px !important;
     padding: 8px 12px !important;
     margin-bottom: 10px !important;
@@ -132,7 +250,7 @@
   }
 
   body.printing-sheet #printable-patient-sheet .sheet-section-box strong {
-    color: #0284c7 !important;
+    color: #075985 !important;
     font-size: 11pt !important;
     font-weight: 800 !important;
     display: block !important;
@@ -141,30 +259,17 @@
 
   body.printing-sheet #printable-patient-sheet .sheet-section-box div {
     font-size: 10pt !important;
-    color: #0f172a !important;
+    color: #000000 !important;
     line-height: 1.4 !important;
+    font-weight: 500 !important;
   }
 
   /* Minimum heights so sections look full even with short content */
-  body.printing-sheet #printable-patient-sheet #p-print-diagnosis {
-    min-height: 16px !important;
-  }
-
-  body.printing-sheet #printable-patient-sheet #p-print-modalities {
-    min-height: 20px !important;
-  }
-
-  body.printing-sheet #printable-patient-sheet #p-print-procedures {
-    min-height: 20px !important;
-  }
-
-  body.printing-sheet #printable-patient-sheet #p-print-exercises {
-    min-height: 24px !important;
-  }
-
-  body.printing-sheet #printable-patient-sheet #p-print-notes {
-    min-height: 24px !important;
-  }
+  body.printing-sheet #printable-patient-sheet #p-print-diagnosis { min-height: 16px !important; }
+  body.printing-sheet #printable-patient-sheet #p-print-modalities { min-height: 20px !important; }
+  body.printing-sheet #printable-patient-sheet #p-print-procedures { min-height: 20px !important; }
+  body.printing-sheet #printable-patient-sheet #p-print-exercises { min-height: 24px !important; }
+  body.printing-sheet #printable-patient-sheet #p-print-notes { min-height: 24px !important; }
 
   /* 4. Signatures: comfortable breathing space at the bottom */
   body.printing-sheet .print-footer {
@@ -172,7 +277,7 @@
     justify-content: space-around !important;
     margin-top: 24px !important;
     padding-top: 8px !important;
-    border-top: 1.5px dashed #94a3b8 !important;
+    border-top: 1.5px dashed #475569 !important;
     font-size: 10.5pt !important;
     font-weight: 800 !important;
     page-break-inside: avoid !important;
@@ -212,61 +317,63 @@
 
   body:not(.printing-sheet) .print-header {
     display: block !important;
-    text-align: center;
-    border-bottom: 2px solid #0284c7;
-    padding-bottom: 3px;
-    margin-bottom: 6px;
+    text-align: center !important;
+    border-bottom: 2px solid #0369a1 !important;
+    padding-bottom: 4px !important;
+    margin-bottom: 8px !important;
   }
 
   body:not(.printing-sheet) .print-header h1 {
     font-size: 13pt !important;
     margin: 0 0 2px 0 !important;
-    color: #0284c7 !important;
+    color: #0369a1 !important;
     font-weight: 800 !important;
   }
 
   body:not(.printing-sheet) .print-header p {
     margin: 1px 0 !important;
     font-size: 8pt !important;
-    color: #475569 !important;
+    color: #334155 !important;
+    font-weight: 600 !important;
   }
 
   body:not(.printing-sheet) .card {
     border: none !important;
     box-shadow: none !important;
     padding: 0 !important;
-    margin-bottom: 6px !important;
+    margin-bottom: 8px !important;
     background: transparent !important;
   }
 
   body:not(.printing-sheet) .card-header {
-    border-bottom: 1px solid #94a3b8 !important;
-    padding-bottom: 2px !important;
-    margin-bottom: 4px !important;
+    border-bottom: 1.5px solid #475569 !important;
+    padding-bottom: 3px !important;
+    margin-bottom: 6px !important;
   }
 
   body:not(.printing-sheet) .card-title {
     font-size: 9pt !important;
-    font-weight: 700 !important;
-    color: #0f172a !important;
+    font-weight: 800 !important;
+    color: #000000 !important;
   }
 
   body:not(.printing-sheet) .stats-grid {
     display: flex !important;
     flex-direction: row !important;
     gap: 6px !important;
-    margin-bottom: 6px !important;
+    margin-bottom: 8px !important;
   }
 
   body:not(.printing-sheet) .stat-box {
     flex: 1 !important;
-    border: 1px solid #cbd5e1 !important;
+    border: 1.2px solid #64748b !important;
     border-radius: 4px !important;
-    padding: 3px 5px !important;
+    padding: 4px 6px !important;
     box-shadow: none !important;
     display: flex !important;
     align-items: center !important;
-    gap: 5px !important;
+    gap: 6px !important;
+    background-color: #ffffff !important;
   }
 
   body:not(.printing-sheet) .stat-icon {
@@ -276,27 +383,30 @@
   }
 
   body:not(.printing-sheet) .stat-info .stat-value {
-    font-size: 9pt !important;
-    font-weight: 700 !important;
+    font-size: 9.5pt !important;
+    font-weight: 800 !important;
     color: #000000 !important;
   }
 
   body:not(.printing-sheet) .stat-info .stat-label {
-    font-size: 6.5pt !important;
-    color: #475569 !important;
+    font-size: 7pt !important;
+    color: #334155 !important;
+    font-weight: 700 !important;
   }
 
   body:not(.printing-sheet) #doctors-breakdown-container {
     display: flex !important;
     flex-direction: row !important;
-    gap: 5px !important;
+    gap: 6px !important;
   }
 
   body:not(.printing-sheet) #doctors-breakdown-container > div {
     flex: 1 !important;
-    padding: 3px 5px !important;
-    font-size: 7pt !important;
+    padding: 4px 6px !important;
+    font-size: 7.5pt !important;
+    border: 1px solid #64748b !important;
     border-radius: 4px !important;
+    font-weight: 700 !important;
   }
 
   body:not(.printing-sheet) .table-responsive {
@@ -312,40 +422,35 @@
 
   body:not(.printing-sheet) table.data-table th,
   body:not(.printing-sheet) table.data-table td {
-    border: 0.5pt solid #cbd5e1 !important;
-    padding: 2.5px 5px !important;
+    border: 1px solid #64748b !important;
+    padding: 3px 6px !important;
     white-space: normal !important;
-    line-height: 1.15 !important;
+    line-height: 1.2 !important;
   }
 
   body:not(.printing-sheet) table.data-table th {
-    background-color: #f1f5f9 !important;
-    color: #0f172a !important;
-    font-weight: 700 !important;
-  }
-
-  body:not(.printing-sheet) .badge {
-    border: none !important;
-    padding: 1px 4px !important;
-    font-size: 6.5pt !important;
+    background-color: #e2e8f0 !important;
+    color: #000000 !important;
+    font-weight: 800 !important;
+    border: 1.2px solid #475569 !important;
   }
 
   body:not(.printing-sheet) .print-footer {
     display: flex !important;
     justify-content: space-around !important;
-    margin-top: 10px !important;
-    padding-top: 4px !important;
-    border-top: 1px dashed #94a3b8 !important;
-    font-size: 7.5pt !important;
+    margin-top: 12px !important;
+    padding-top: 6px !important;
+    border-top: 1.2px dashed #475569 !important;
+    font-size: 8pt !important;
+    font-weight: 800 !important;
     page-break-inside: avoid !important;
   }
 
   body:not(.printing-sheet) .print-footer .signature-line {
-    margin-top: 14px !important;
-    border-bottom: 1px solid #000000 !important;
+    margin-top: 16px !important;
+    border-bottom: 1.2px solid #000000 !important;
     width: 130px !important;
   }
-}
 
   /* ================= CASE 3: PRINTING INSURANCE CLAIM STATEMENT (مطابقة للورقة 1) ================= */
   body.printing-claim > *:not(#printable-insurance-claim) {
@@ -370,6 +475,11 @@
     page-break-before: avoid !important;
   }
 
+  body.printing-claim #printable-insurance-claim h2 {
+    color: #0369a1 !important;
+    font-weight: 800 !important;
+  }
+
   body.printing-claim table.claim-print-table {
     width: 100% !important;
     border-collapse: collapse !important;
@@ -386,7 +496,14 @@
 
   body.printing-claim table.claim-print-table th {
     background-color: #f1f5f9 !important;
+    color: #000000 !important;
     font-weight: 800 !important;
+  }
+
+  body.printing-claim table.claim-print-table tfoot td {
+    font-weight: 900 !important;
+    background-color: #e2e8f0 !important;
+    border-top: 2px solid #000000 !important;
   }
 
   /* ================= CASE 4: PRINTING ATTENDANCE / TREATMENT CARDS (مطابقة للورقة 2) ================= */
@@ -417,6 +534,22 @@
     padding: 6mm 4mm !important;
     page-break-after: always !important;
     page-break-inside: avoid !important;
+  }
+
+  body.printing-cards .attendance-card-print-page h2 {
+    color: #0369a1 !important;
+    font-weight: 800 !important;
+  }
+
+  body.printing-cards .attendance-card-print-page table th,
+  body.printing-cards .attendance-card-print-page table td {
+    border: 1.2px solid #000000 !important;
+  }
+
+  body.printing-cards .attendance-card-print-page table th {
+    background-color: #f1f5f9 !important;
+    color: #000000 !important;
+    font-weight: 800 !important;
   }
 
   /* ================= CASE 5: PRINTING INSURANCE RENEWAL LETTER (A5) ================= */
@@ -450,22 +583,23 @@
 
   body.printing-insurance-letter .ins-letter-header {
     text-align: center !important;
-    border-bottom: 2px solid #0284c7 !important;
+    border-bottom: 2px solid #0369a1 !important;
     padding-bottom: 6px !important;
     margin-bottom: 14px !important;
   }
 
   body.printing-insurance-letter .ins-letter-header h1 {
-    font-size: 12pt !important;
+    font-size: 12.5pt !important;
     margin: 0 0 3px 0 !important;
-    color: #0284c7 !important;
+    color: #0369a1 !important;
     font-weight: 800 !important;
   }
 
   body.printing-insurance-letter .ins-letter-header p {
     margin: 2px 0 !important;
     font-size: 8pt !important;
-    color: #1e293b !important;
+    color: #000000 !important;
+    font-weight: 700 !important;
   }
 
   body.printing-insurance-letter .ins-letter-body {
@@ -477,10 +611,17 @@
     margin: 8px 0 !important;
   }
 
+  body.printing-insurance-letter #ins-print-diagnosis {
+    border: 1.2px solid #64748b !important;
+    background-color: #f8fafc !important;
+    font-weight: 700 !important;
+    color: #000000 !important;
+  }
+
   body.printing-insurance-letter .ins-letter-footer {
     margin-top: 30px !important;
     font-size: 9.5pt !important;
-    font-weight: 700 !important;
+    font-weight: 800 !important;
   }
 
   body.printing-insurance-letter .ins-letter-signature-space {
@@ -490,28 +631,110 @@
   body.printing-insurance-letter .ins-letter-footer-contact {
     margin-top: 16px !important;
     padding-top: 6px !important;
-    border-top: 1px dashed #94a3b8 !important;
+    border-top: 1.2px dashed #475569 !important;
     font-size: 7.5pt !important;
-    color: #475569 !important;
+    color: #334155 !important;
     text-align: center !important;
+    font-weight: 600 !important;
   }
 
+  /* ================= CASE 6: PRINTING CASH RECEIPT ================= */
+  body.printing-receipt > *:not(#printable-cash-receipt) {
+    display: none !important;
+    height: 0 !important;
+    max-height: 0 !important;
+    min-height: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    border: none !important;
+    overflow: hidden !important;
+  }
 
-/* Strict Dark-Mode Isolation for Printing */
-@media print {
-  html, body, [data-theme="dark"] {
-    --bg-main: #ffffff !important;
-    --bg-surface: #ffffff !important;
-    --bg-subtle: #f8fafc !important;
-    --text-main: #000000 !important;
-    --text-muted: #475569 !important;
-    --border-color: #cbd5e1 !important;
-    background: #ffffff !important;
+  body.printing-receipt #printable-cash-receipt {
+    display: block !important;
+    position: relative !important;
+    width: 100% !important;
+    margin: 0 auto !important;
+    padding: 6mm 4mm !important;
+  }
+
+  body.printing-receipt #printable-cash-receipt > div {
+    border: 2px solid #000000 !important;
+  }
+
+  body.printing-receipt #printable-cash-receipt h2 {
+    color: #0369a1 !important;
+    font-weight: 800 !important;
+  }
+
+  body.printing-receipt #printable-cash-receipt div[style*="border-bottom: 2px solid"] {
+    border-bottom: 2px solid #000000 !important;
+  }
+
+  body.printing-receipt #receipt-print-amount-box {
+    border: 2px solid #166534 !important;
+    background-color: #f0fdf4 !important;
+    color: #14532d !important;
+    font-weight: 900 !important;
+  }
+
+  /* ================= CASE 7: PRINTING MEDICAL STATEMENT (A5 FULL-BLEED) ================= */
+  @page statementPage {
+    size: A5 portrait;
+    margin: 6mm 8mm;
+  }
+
+  body.printing-statement {
+    page: statementPage;
+  }
+
+  body.printing-statement > *:not(#printable-medical-statement) {
+    display: none !important;
+    height: 0 !important;
+    max-height: 0 !important;
+    min-height: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    border: none !important;
+    overflow: hidden !important;
+  }
+
+  body.printing-statement #printable-medical-statement {
+    display: block !important;
+    position: relative !important;
+    width: 100% !important;
+    height: 100% !important;
+    margin: 0 auto !important;
+    padding: 0 !important;
+  }
+
+  body.printing-statement #printable-medical-statement > div {
+    border: 2px solid #0369a1 !important;
+    min-height: 186mm !important;
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: space-between !important;
+    box-sizing: border-box !important;
+  }
+
+  body.printing-statement #printable-medical-statement h2,
+  body.printing-statement #printable-medical-statement h3 {
+    color: #0369a1 !important;
+    font-weight: 800 !important;
+  }
+
+  body.printing-statement #printable-medical-statement div[style*="border-bottom: 2px solid"] {
+    border-bottom: 2px solid #0369a1 !important;
+  }
+
+  body.printing-statement #printable-medical-statement .statement-diagnosis-box {
+    border: 1.5px solid #475569 !important;
+    background-color: #f8fafc !important;
+    font-weight: 700 !important;
     color: #000000 !important;
   }
-}
 
-  /* Refined, Elegant Clinic Logo Sizing for Printing Only */
+  /* Refined, Elegant Clinic Logo Sizing for Printing */
   .print-header img,
   .sheet-print-header img,
   .ins-letter-header img {
@@ -553,61 +776,4 @@
     print-color-adjust: exact !important;
     image-rendering: -webkit-optimize-contrast;
   }
-
-  /* ================= CASE 5: PRINTING CASH RECEIPT ================= */
-  body.printing-receipt > *:not(#printable-cash-receipt) {
-    display: none !important;
-    height: 0 !important;
-    max-height: 0 !important;
-    min-height: 0 !important;
-    margin: 0 !important;
-    padding: 0 !important;
-    border: none !important;
-    overflow: hidden !important;
-  }
-
-  body.printing-receipt #printable-cash-receipt {
-    display: block !important;
-    position: relative !important;
-    width: 100% !important;
-    margin: 0 auto !important;
-    padding: 6mm 4mm !important;
-  }
-
-  /* ================= CASE 6: PRINTING MEDICAL STATEMENT (A5 FULL-BLEED) ================= */
-  @page statementPage {
-    size: A5 portrait;
-    margin: 6mm 8mm;
-  }
-
-  body.printing-statement {
-    page: statementPage;
-  }
-
-  body.printing-statement > *:not(#printable-medical-statement) {
-    display: none !important;
-    height: 0 !important;
-    max-height: 0 !important;
-    min-height: 0 !important;
-    margin: 0 !important;
-    padding: 0 !important;
-    border: none !important;
-    overflow: hidden !important;
-  }
-
-  body.printing-statement #printable-medical-statement {
-    display: block !important;
-    position: relative !important;
-    width: 100% !important;
-    height: 100% !important;
-    margin: 0 auto !important;
-    padding: 0 !important;
-  }
-
-  body.printing-statement #printable-medical-statement > div {
-    min-height: 186mm !important;
-    display: flex !important;
-    flex-direction: column !important;
-    justify-content: space-between !important;
-    box-sizing: border-box !important;
-  }
+}
