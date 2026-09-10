@@ -992,6 +992,34 @@
             </div>
           </div>
 
+          <!-- Monthly Insurance Settlements -->
+          <div class="card" style="margin-bottom: 16px;">
+            <div class="card-header" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
+              <span class="card-title"><i class="fa-solid fa-money-bill-transfer" style="color: var(--primary);"></i> تحصيلات مطالبات التأمين هذا الشهر</span>
+              <span class="badge badge-cash" id="monthly-settlements-total-badge" style="font-size: 0.8rem; font-weight: 800;">0 ج.م</span>
+            </div>
+            <div class="table-responsive">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>التاريخ</th>
+                    <th>شركة التأمين</th>
+                    <th>فترة المطالبة</th>
+                    <th>المبلغ الأصلي</th>
+                    <th>الاستقطاعات والخصومات</th>
+                    <th>الصافي المحصل</th>
+                    <th>طريقة الاستلام</th>
+                    <th>المسجل</th>
+                    <th class="no-print">إجراءات</th>
+                  </tr>
+                </thead>
+                <tbody id="monthly-settlements-tbody">
+                  <!-- Rendered dynamically -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+
           <!-- Insurance and Cash Distribution Table -->
           <div class="card" style="margin-bottom: 16px;">
             <div class="card-header">

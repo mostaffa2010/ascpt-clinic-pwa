@@ -135,6 +135,19 @@ class App {
 
     // 4. تهيئة المصادقة والوحدات بأمان تام (Fault-Tolerant)
     try { await this.claimsManager.init(); } catch (e) { console.warn('claimsManager init notice:', e); }
+
+    // 4.أ. فتح فوري متفائل ببيانات آخر جلسة معروفة (بدون انتظار تحقق Firebase
+    // الحقيقي، اللي بياخد وقت بسبب تجديد التوكن عبر الشبكة). التحقق الحقيقي
+    // بيكمل شغله في الخلفية عادي جوه auth.init() تحت، وهيصحح/يقفل الجلسة
+    // فورًا لو فعلاً في مشكلة حقيقية (حساب معطل، إلخ).
+    const optimisticUser = auth.tryOptimisticLogin();
+    if (optimisticUser) {
+      document.body.classList.remove('not-authenticated');
+      auth.hideLoginModal();
+      auth.updateUI();
+      try { await this.refreshAll(); } catch (e) { console.warn('optimistic refreshAll notice:', e); }
+    }
+
     try {
       await auth.init(async (user) => {
         if (user) {

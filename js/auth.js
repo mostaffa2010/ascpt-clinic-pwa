@@ -44,6 +44,29 @@ class AuthService {
     } catch (_) {}
   }
 
+  /**
+   * Instantly unlocks the UI using the last known cached profile, WITHOUT
+   * waiting for Firebase Auth's own startup + token-refresh round trip
+   * (which is what actually causes the multi-second delay on cold app
+   * opens - it happens before onAuthStateChanged even fires, so no
+   * amount of caching inside resolveUserProfile() can avoid it).
+   *
+   * This is purely optimistic: the real onAuthStateChanged verification
+   * still runs right afterwards in the background via init(), and will
+   * correct/kick out the session if anything is actually wrong (account
+   * disabled, deleted, etc). Matches the "show cached data first, verify
+   * quietly after" pattern used by most mainstream apps.
+   */
+  tryOptimisticLogin() {
+    if (localStorage.getItem('ascpt_has_session') !== 'true') return null;
+    const cached = this.getCachedUser();
+    if (cached && cached.active === true) {
+      this.currentUser = cached;
+      return cached;
+    }
+    return null;
+  }
+
 
   /**
    * Authoritatively fetches and validates user profile from Firestore users/{uid}.
