@@ -74,7 +74,7 @@ export class DoctorDashboardManager {
         if (s.entryType === 'examination') return acc + 1;
         return acc + (s.bodyPartsCount || 1);
       }, 0);
-      todayCountEl.textContent = `${todaySessions.length} مريض - ${todayCredited} جلسة`;
+      todayCountEl.textContent = `${todaySessions.length} مريض (حضور) • ${todayCredited} جلسة علاجية`;
     }
 
     // 2. This month's sessions
@@ -85,7 +85,7 @@ export class DoctorDashboardManager {
         if (s.entryType === 'examination') return acc + 1;
         return acc + (s.bodyPartsCount || 1);
       }, 0);
-      monthCountEl.textContent = `${monthSessions.length} مريض - ${monthCredited} جلسة`;
+      monthCountEl.textContent = `${monthSessions.length} مريض (حضور) • ${monthCredited} جلسة علاجية`;
     }
 
     // 3. Lifetime patients treated by this doctor
@@ -158,7 +158,9 @@ export class DoctorDashboardManager {
         partsDisplay = `<span class="badge" style="background: var(--bg-subtle); color: var(--primary); border: 1px solid var(--border-color); font-weight: 800; font-size: 0.76rem; padding: 3px 8px;"><i class="fa-solid fa-stethoscope"></i> فحص سريري / كشف</span>`;
       } else {
         const parts = Array.isArray(s.bodyParts) ? s.bodyParts.join('، ') : (s.bodyParts || '-');
-        partsDisplay = escapeHTML(parts);
+        const partsCount = s.bodyPartsCount || (Array.isArray(s.bodyParts) ? s.bodyParts.length : 1);
+        const docBadge = partsCount > 1 ? `<span class="badge" style="background:#e0e7ff; color:#3730a3; font-weight:800; font-size:0.74rem; margin-left:5px;">${partsCount} جلسات للطبيب</span>` : '';
+        partsDisplay = `${docBadge}${escapeHTML(parts)}`;
       }
 
       const timeDisplay = s.recordedAt || '';

@@ -763,7 +763,7 @@ export class FinanceManager {
             <i class="fa-solid fa-user-doctor" style="color: var(--primary);"></i>
             <div>
               <div style="font-weight: 700; font-size: 0.9rem;">${escapeHTML(doc)}</div>
-              <div style="font-size: 0.8rem; color: var(--text-muted);">${patientCount} مريض - ${creditedSessions} جلسة</div>
+              <div style="font-size: 0.8rem; color: var(--text-muted);">${patientCount} مريض (حضور) • ${creditedSessions} جلسة أطباء</div>
             </div>
           </div>
         `;
@@ -810,7 +810,8 @@ export class FinanceManager {
             const rawParts = Array.isArray(s.bodyParts) ? s.bodyParts.join('، ') : (s.bodyParts || '');
             const parts = escapeHTML(rawParts);
             const count = escapeHTML(s.bodyPartsCount || (Array.isArray(s.bodyParts) ? s.bodyParts.length : 1));
-            partsCell = `<span class="badge badge-role-doctor">${count} أعضاء (${parts})</span>`;
+            const docUnits = (s.bodyPartsCount && s.bodyPartsCount > 1) ? ` (${s.bodyPartsCount} جلسات للطبيب)` : '';
+            partsCell = `<span class="badge badge-role-doctor" title="${parts}${docUnits}">${count} أعضاء${docUnits}</span>`;
           }
 
           return `

@@ -106,6 +106,40 @@ export class PatientsManager {
       }
     });
 
+    // Approved Body Parts Count Segmented Buttons in Patient Modal
+    document.querySelectorAll('.approved-parts-count-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.preventDefault();
+        const count = parseInt(btn.dataset.count) || 1;
+        this.setApprovedBodyPartsCount(count);
+      });
+    });
+
+    // Input listener on approved sessions to update summary live
+    document.getElementById('p-approved-sessions')?.addEventListener('input', () => this.updateApprovalSummary());
+
+    // Approved Body Parts Chips toggle
+    document.getElementById('p-approved-body-parts-container')?.addEventListener('click', (e) => {
+      const btn = e.target.closest('[data-action="toggle-approved-part"]');
+      if (btn) {
+        btn.classList.toggle('selected');
+        const selected = this.getSelectedApprovedBodyParts();
+        if (selected.length > 0 && selected.length <= 3) {
+          this.setApprovedBodyPartsCount(selected.length);
+        }
+      }
+    });
+
+    // Renew Modal Listeners
+    document.querySelectorAll('.renew-parts-count-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.preventDefault();
+        const count = parseInt(btn.dataset.count) || 1;
+        this.setRenewBodyPartsCount(count);
+      });
+    });
+    document.getElementById('renew-sessions-count')?.addEventListener('input', () => this.updateRenewSummary());
+
     // Patient Sheet Navigation & Print Buttons
     document.getElementById('btn-back-to-patients-top')?.addEventListener('click', () => this.app.switchView('patients'));
     document.getElementById('btn-back-to-patients-bottom')?.addEventListener('click', () => this.app.switchView('patients'));
@@ -462,9 +496,11 @@ export class PatientsManager {
       if (p.billing === 'cash') {
         billingBadge = `<span class="badge badge-cash"><i class="fa-solid fa-money-bill"></i> نقدي</span>`;
       } else if (p.contractType === 'direct') {
-        billingBadge = `<span class="badge badge-direct"><i class="fa-solid fa-file-contract"></i> ${safeComp} (مباشر)</span>`;
+        const partsInfo = (p.approvedBodyPartsCount && p.approvedBodyPartsCount > 1) ? ` • ${p.approvedBodyPartsCount} أعضاء` : '';
+        billingBadge = `<span class="badge badge-direct"><i class="fa-solid fa-file-contract"></i> ${safeComp} (مباشر)</span> <span class="badge" style="background: var(--bg-subtle); color: var(--text-main); border: 1px solid var(--border-color); font-size: 0.74rem; font-weight: 700; margin-right: 4px;" title="رصيد زيارات الجواب">${p.approvedSessions || 12} زيارة${partsInfo}</span>`;
       } else {
-        billingBadge = `<span class="badge badge-indirect"><i class="fa-solid fa-handshake"></i> ${safeComp} (غير مباشر)</span>`;
+        const partsInfo = (p.approvedBodyPartsCount && p.approvedBodyPartsCount > 1) ? ` • ${p.approvedBodyPartsCount} أعضاء` : '';
+        billingBadge = `<span class="badge badge-indirect"><i class="fa-solid fa-handshake"></i> ${safeComp} (غير مباشر)</span> <span class="badge" style="background: var(--bg-subtle); color: var(--text-main); border: 1px solid var(--border-color); font-size: 0.74rem; font-weight: 700; margin-right: 4px;" title="رصيد زيارات الجواب">${p.approvedSessions || 12} زيارة${partsInfo}</span>`;
       }
 
       const safeId = escapeHTML(p.id);
@@ -525,6 +561,79 @@ export class PatientsManager {
         </tr>
       `;
     }).join('');
+  }
+
+
+  // ================= Approved Sessions & Body Parts Live Calculation =================
+  setApprovedBodyPartsCount(count) {
+    const hidden = document.getElementById('p-approved-body-parts-count');
+    if (hidden) hidden.value = count;
+    document.querySelectorAll('.approved-parts-count-btn').forEach(b => {
+      const active = (parseInt(b.dataset.count) === count);
+      b.className = active ? 'btn approved-parts-count-btn active' : 'btn approved-parts-count-btn';
+      b.style.background = active ? 'var(--primary)' : 'var(--bg-surface)';
+      b.style.color = active ? '#ffffff' : 'var(--text-main)';
+      b.style.borderColor = active ? 'var(--primary)' : 'var(--border-color)';
+    });
+    this.updateApprovalSummary();
+  }
+
+  updateApprovalSummary() {
+    const visits = parseInt(document.getElementById('p-approved-sessions')?.value) || 0;
+    const partsCount = parseInt(document.getElementById('p-approved-body-parts-count')?.value) || 1;
+    const docSessions = visits * partsCount;
+
+    const visitsEl = document.getElementById('p-summary-visits');
+    const docEl = document.getElementById('p-summary-doctor-sessions');
+    if (visitsEl) visitsEl.textContent = `${visits} زيارة حضور فعلية`;
+    if (docEl) {
+      const partsLabel = partsCount === 1 ? 'عضو واحد' : (partsCount === 2 ? 'عضوين' : '3 أعضاء');
+      docEl.textContent = `${docSessions} جلسة عمل للطبيب (${visits} زيارة × ${partsLabel})`;
+    }
+  }
+
+  setRenewBodyPartsCount(count) {
+    const hidden = document.getElementById('renew-body-parts-count');
+    if (hidden) hidden.value = count;
+    document.querySelectorAll('.renew-parts-count-btn').forEach(b => {
+      const active = (parseInt(b.dataset.count) === count);
+      b.className = active ? 'btn renew-parts-count-btn active' : 'btn renew-parts-count-btn';
+      b.style.background = active ? 'var(--primary)' : 'var(--bg-surface)';
+      b.style.color = active ? '#ffffff' : 'var(--text-main)';
+      b.style.borderColor = active ? 'var(--primary)' : 'var(--border-color)';
+    });
+    this.updateRenewSummary();
+  }
+
+  updateRenewSummary() {
+    const visits = parseInt(document.getElementById('renew-sessions-count')?.value) || 0;
+    const partsCount = parseInt(document.getElementById('renew-body-parts-count')?.value) || 1;
+    const docSessions = visits * partsCount;
+    const docEl = document.getElementById('renew-summary-doctor-sessions');
+    if (docEl) {
+      const partsLabel = partsCount === 1 ? 'عضو واحد' : (partsCount === 2 ? 'عضوين' : '3 أعضاء');
+      docEl.textContent = `${docSessions} جلسة للطبيب (${visits} زيارة × ${partsLabel})`;
+    }
+  }
+
+  renderApprovedBodyPartsChips(selectedParts = []) {
+    const container = document.getElementById('p-approved-body-parts-container');
+    if (!container) return;
+    const parts = db.getClinicalOptions('body_parts') || [];
+    container.innerHTML = parts.map(part => {
+      const isSelected = Array.isArray(selectedParts) && selectedParts.includes(part);
+      return `
+        <button type="button" class="chip-choice ${isSelected ? 'selected' : ''}" data-action="toggle-approved-part" data-part="${part}" style="padding: 4px 10px; font-size: 0.78rem;">
+          <i class="fa-solid fa-bone"></i> <span>${part}</span>
+        </button>
+      `;
+    }).join('');
+  }
+
+  getSelectedApprovedBodyParts() {
+    const container = document.getElementById('p-approved-body-parts-container');
+    if (!container) return [];
+    return Array.from(container.querySelectorAll('.chip-choice.selected')).map(el => el.dataset.part);
   }
 
   // ================= Insurance Interactive Buttons for Patient Registration =================
@@ -725,6 +834,9 @@ export class PatientsManager {
     document.getElementById('p-insurance-details').style.display = 'none';
     const appSessionsInp = document.getElementById('p-approved-sessions');
     if (appSessionsInp) appSessionsInp.value = '12';
+    this.setApprovedBodyPartsCount(1);
+    this.renderApprovedBodyPartsChips([]);
+    this.updateApprovalSummary();
     this.onContractTypeChanged('direct');
     const directRadio = document.querySelector('input[name="p-contract-type"][value="direct"]');
     if (directRadio) directRadio.checked = true;
@@ -781,6 +893,9 @@ export class PatientsManager {
       this.onContractTypeChanged(cType);
       const appSessionsInp = document.getElementById('p-approved-sessions');
       if (appSessionsInp) appSessionsInp.value = p.approvedSessions || 12;
+      this.setApprovedBodyPartsCount(p.approvedBodyPartsCount || 1);
+      this.renderApprovedBodyPartsChips(p.approvedBodyParts || []);
+      this.updateApprovalSummary();
     } else {
       insBox.style.display = 'none';
     }
@@ -909,8 +1024,12 @@ export class PatientsManager {
     }
 
     let approvedSessions = 12;
+    let approvedBodyPartsCount = 1;
+    let approvedBodyParts = [];
     if (billing === 'insurance') {
       approvedSessions = parseInt(document.getElementById('p-approved-sessions')?.value) || 12;
+      approvedBodyPartsCount = parseInt(document.getElementById('p-approved-body-parts-count')?.value) || 1;
+      approvedBodyParts = this.getSelectedApprovedBodyParts();
     }
 
     const patientData = {
@@ -925,7 +1044,9 @@ export class PatientsManager {
       billing,
       insuranceCompany,
       contractType,
-      approvedSessions
+      approvedSessions,
+      approvedBodyPartsCount,
+      approvedBodyParts
     };
 
     if (!id && billing === 'insurance') {
@@ -977,6 +1098,8 @@ export class PatientsManager {
     const cTypeLabel = patient.contractType === 'indirect' ? 'تعاقد غير مباشر' : 'تعاقد مباشر';
     document.getElementById('renew-company-name').textContent = `${patient.insuranceCompany || 'شركة التأمين'} (${cTypeLabel})`;
     document.getElementById('renew-sessions-count').value = patient.approvedSessions || 12;
+    this.setRenewBodyPartsCount(patient.approvedBodyPartsCount || 1);
+    this.updateRenewSummary();
     document.getElementById('renew-approval-date').value = getLocalDateStr();
     document.getElementById('renew-approval-no').value = patient.insuranceApprovalNo || '';
 
@@ -987,6 +1110,7 @@ export class PatientsManager {
     e.preventDefault();
     const pid = document.getElementById('renew-patient-id')?.value;
     const newSessions = parseInt(document.getElementById('renew-sessions-count')?.value) || 12;
+    const newPartsCount = parseInt(document.getElementById('renew-body-parts-count')?.value) || 1;
     const renewDate = document.getElementById('renew-approval-date')?.value || getLocalDateStr();
     const newApprovalNo = document.getElementById('renew-approval-no')?.value?.trim() || '';
 
@@ -997,6 +1121,7 @@ export class PatientsManager {
       const currentUser = auth.getCurrentUser();
       const updates = {
         approvedSessions: newSessions,
+        approvedBodyPartsCount: newPartsCount,
         currentApprovalStartDate: renewDate,
         lastRenewalDate: renewDate,
         lastRenewedBy: currentUser?.name || 'الاستقبال'

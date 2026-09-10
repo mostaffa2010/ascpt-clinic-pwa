@@ -992,34 +992,6 @@
             </div>
           </div>
 
-          <!-- Monthly Insurance Settlements -->
-          <div class="card" style="margin-bottom: 16px;">
-            <div class="card-header" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
-              <span class="card-title"><i class="fa-solid fa-money-bill-transfer" style="color: var(--primary);"></i> تحصيلات مطالبات التأمين هذا الشهر</span>
-              <span class="badge badge-cash" id="monthly-settlements-total-badge" style="font-size: 0.8rem; font-weight: 800;">0 ج.م</span>
-            </div>
-            <div class="table-responsive">
-              <table class="data-table">
-                <thead>
-                  <tr>
-                    <th>التاريخ</th>
-                    <th>شركة التأمين</th>
-                    <th>فترة المطالبة</th>
-                    <th>المبلغ الأصلي</th>
-                    <th>الاستقطاعات والخصومات</th>
-                    <th>الصافي المحصل</th>
-                    <th>طريقة الاستلام</th>
-                    <th>المسجل</th>
-                    <th class="no-print">إجراءات</th>
-                  </tr>
-                </thead>
-                <tbody id="monthly-settlements-tbody">
-                  <!-- Rendered dynamically -->
-                </tbody>
-              </table>
-            </div>
-          </div>
-
           <!-- Insurance and Cash Distribution Table -->
           <div class="card" style="margin-bottom: 16px;">
             <div class="card-header">
@@ -1570,15 +1542,53 @@
               <div id="p-ins-indirect-container" class="insurance-companies-grid" style="display: none;"></div>
             </div>
 
-            <!-- Approved Sessions Count for Insurance Approval -->
-            <div class="form-group" style="margin-top: 12px; border-top: 1px dashed var(--border-color); padding-top: 10px;">
-              <label for="p-approved-sessions" style="font-weight: 800; font-size: 0.88rem; color: var(--text-main); margin-bottom: 4px; display: block;">
-                <i class="fa-solid fa-calculator" style="color: var(--primary);"></i> عدد جلسات جواب الموافقة *
-              </label>
-              <input type="number" id="p-approved-sessions" class="form-control" value="12" min="1" max="100" style="height: 40px; font-weight: 800; font-size: 0.95rem;" placeholder="مثال: 12">
-              <small style="color: var(--text-muted); font-size: 0.74rem; display: block; margin-top: 3px;">
-                عدد الجلسات المصرح بها في جواب الموافقة الحالي للمريض (افتراضي: 12 جلسة)
-              </small>
+            <!-- Approved Sessions & Body Parts for Insurance Approval -->
+            <div style="margin-top: 14px; border-top: 1.5px dashed var(--border-color); padding-top: 12px;">
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px;">
+                <!-- 1. Approved Visits/Sessions -->
+                <div class="form-group" style="margin-bottom: 0;">
+                  <label for="p-approved-sessions" style="font-weight: 800; font-size: 0.88rem; color: var(--text-main); margin-bottom: 4px; display: block;">
+                    <i class="fa-solid fa-calendar-check" style="color: var(--primary);"></i> عدد زيارات الجواب *
+                  </label>
+                  <input type="number" id="p-approved-sessions" class="form-control" value="12" min="1" max="100" style="height: 40px; font-weight: 800; font-size: 0.95rem;" placeholder="مثال: 12">
+                  <small style="color: var(--text-muted); font-size: 0.72rem; display: block; margin-top: 3px;">
+                    رصيد حضور المريض بالمركز (افتراضي: 12)
+                  </small>
+                </div>
+
+                <!-- 2. Approved Body Parts per Visit -->
+                <div class="form-group" style="margin-bottom: 0;">
+                  <label style="font-weight: 800; font-size: 0.88rem; color: var(--text-main); margin-bottom: 4px; display: block;">
+                    <i class="fa-solid fa-bone" style="color: var(--primary);"></i> عدد الأعضاء بالزيارة *
+                  </label>
+                  <div class="approved-parts-segmented" style="display: flex; gap: 6px;">
+                    <button type="button" class="btn approved-parts-count-btn active" data-count="1" style="flex: 1; padding: 8px 4px; font-weight: 800; font-size: 0.85rem; border-radius: 8px; border: 1.5px solid var(--primary); background: var(--primary); color: #fff; cursor: pointer;">عضو (1)</button>
+                    <button type="button" class="btn approved-parts-count-btn" data-count="2" style="flex: 1; padding: 8px 4px; font-weight: 800; font-size: 0.85rem; border-radius: 8px; border: 1.5px solid var(--border-color); background: var(--bg-surface); color: var(--text-main); cursor: pointer;">عضوين (2)</button>
+                    <button type="button" class="btn approved-parts-count-btn" data-count="3" style="flex: 1; padding: 8px 4px; font-weight: 800; font-size: 0.85rem; border-radius: 8px; border: 1.5px solid var(--border-color); background: var(--bg-surface); color: var(--text-main); cursor: pointer;">3 أعضاء</button>
+                  </div>
+                  <input type="hidden" id="p-approved-body-parts-count" value="1">
+                </div>
+              </div>
+
+              <!-- 3. Approved Body Parts Chips (Optional Default Selector) -->
+              <div class="form-group" style="margin-bottom: 12px;">
+                <label style="font-weight: 700; font-size: 0.82rem; color: var(--text-main); margin-bottom: 6px; display: block;">
+                  <i class="fa-solid fa-tags" style="color: var(--primary); font-size: 0.8rem;"></i> تحديد الأعضاء المصرح بها بالجواب (لتنزيلها تلقائياً عند تسجيل الجلسة):
+                </label>
+                <div class="body-parts-chips" id="p-approved-body-parts-container" style="display: flex; flex-wrap: wrap; gap: 6px;"></div>
+              </div>
+
+              <!-- 4. Live Calculation Card -->
+              <div id="p-approval-summary-card" style="background: var(--bg-subtle); border: 1px solid var(--border-color); border-radius: 10px; padding: 10px 14px; font-size: 0.82rem; display: flex; flex-direction: column; gap: 4px;">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                  <span style="color: var(--text-muted);"><i class="fa-solid fa-id-card-clip" style="color: var(--primary); margin-left: 5px;"></i> رصيد حضور المريض:</span>
+                  <span id="p-summary-visits" style="font-weight: 800; color: var(--text-main);">12 زيارة فعلية</span>
+                </div>
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                  <span style="color: var(--text-muted);"><i class="fa-solid fa-user-doctor" style="color: #0284c7; margin-left: 5px;"></i> استحقاق الطبيب المعتمد:</span>
+                  <span id="p-summary-doctor-sessions" style="font-weight: 800; color: #0284c7;">12 جلسة عمل للطبيب</span>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -1702,11 +1712,28 @@
             <div style="font-weight: 800; color: var(--text-main); font-size: 0.95rem;" id="renew-patient-name">-</div>
             <div style="font-size: 0.8rem; color: var(--primary); font-weight: 700; margin-top: 2px;" id="renew-company-name">-</div>
           </div>
-          <div class="form-group" style="margin-bottom: 12px;">
-            <label for="renew-sessions-count" style="font-weight: 800; font-size: 0.88rem; color: var(--text-main);">
-              <i class="fa-solid fa-calculator" style="color: var(--primary);"></i> عدد جلسات الجواب الجديد *
-            </label>
-            <input type="number" id="renew-sessions-count" class="form-control" required min="1" max="100" value="12" style="height: 40px; font-weight: 800; font-size: 0.95rem;">
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px;">
+            <div class="form-group" style="margin-bottom: 0;">
+              <label for="renew-sessions-count" style="font-weight: 800; font-size: 0.88rem; color: var(--text-main);">
+                <i class="fa-solid fa-calculator" style="color: var(--primary);"></i> عدد زيارات الجواب *
+              </label>
+              <input type="number" id="renew-sessions-count" class="form-control" required min="1" max="100" value="12" style="height: 40px; font-weight: 800; font-size: 0.95rem;">
+            </div>
+            <div class="form-group" style="margin-bottom: 0;">
+              <label style="font-weight: 800; font-size: 0.88rem; color: var(--text-main);">
+                <i class="fa-solid fa-bone" style="color: var(--primary);"></i> عدد الأعضاء *
+              </label>
+              <div class="renew-parts-segmented" style="display: flex; gap: 4px;">
+                <button type="button" class="btn renew-parts-count-btn active" data-count="1" style="flex: 1; padding: 8px 2px; font-weight: 800; font-size: 0.82rem; border-radius: 8px; border: 1.5px solid var(--primary); background: var(--primary); color: #fff; cursor: pointer;">عضو (1)</button>
+                <button type="button" class="btn renew-parts-count-btn" data-count="2" style="flex: 1; padding: 8px 2px; font-weight: 800; font-size: 0.82rem; border-radius: 8px; border: 1.5px solid var(--border-color); background: var(--bg-surface); color: var(--text-main); cursor: pointer;">عضوين (2)</button>
+                <button type="button" class="btn renew-parts-count-btn" data-count="3" style="flex: 1; padding: 8px 2px; font-weight: 800; font-size: 0.82rem; border-radius: 8px; border: 1.5px solid var(--border-color); background: var(--bg-surface); color: var(--text-main); cursor: pointer;">3 أعضاء</button>
+              </div>
+              <input type="hidden" id="renew-body-parts-count" value="1">
+            </div>
+          </div>
+          <div id="renew-summary-card" style="background: var(--bg-subtle); border: 1px solid var(--border-color); border-radius: 8px; padding: 8px 12px; font-size: 0.8rem; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center;">
+            <span style="color: var(--text-muted);"><i class="fa-solid fa-user-doctor" style="color: #0284c7; margin-left: 4px;"></i> إجمالي استحقاق الطبيب:</span>
+            <span id="renew-summary-doctor-sessions" style="font-weight: 800; color: #0284c7;">12 جلسة للطبيب</span>
           </div>
           <div class="form-group" style="margin-bottom: 12px;">
             <label for="renew-approval-date" style="font-weight: 800; font-size: 0.88rem; color: var(--text-main);">
