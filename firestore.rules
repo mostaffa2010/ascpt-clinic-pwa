@@ -69,7 +69,7 @@ service cloud.firestore {
         isAdmin() ||
         (
           isReceptionist() &&
-          request.resource.data.clinicalSheet == resource.data.clinicalSheet
+          !request.resource.data.diff(resource.data).affectedKeys().hasAny(['clinicalSheet'])
         ) ||
         (
           isDoctor() &&

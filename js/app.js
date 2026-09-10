@@ -135,6 +135,7 @@ class App {
 
     // 4. تهيئة المصادقة والوحدات بأمان تام (Fault-Tolerant)
     try { await this.claimsManager.init(); } catch (e) { console.warn('claimsManager init notice:', e); }
+    try { this.doctorDashboardManager?.init(); } catch (e) { console.warn('doctorDashboardManager init notice:', e); }
     try {
       await auth.init(async (user) => {
         if (user) {
@@ -513,6 +514,25 @@ class App {
       btn.addEventListener('click', () => this.calendarSelectQuick(btn.getAttribute('data-cal-quick')));
     });
 
+    // Month Picker Modal Controls
+    document.getElementById('month-picker-prev-year')?.addEventListener('click', () => this.monthPickerNavigateYear(-1));
+    document.getElementById('month-picker-next-year')?.addEventListener('click', () => this.monthPickerNavigateYear(1));
+    document.getElementById('month-picker-quick-current')?.addEventListener('click', () => this.monthPickerSelectQuick('current'));
+    document.getElementById('month-picker-quick-last')?.addEventListener('click', () => this.monthPickerSelectQuick('last'));
+    document.getElementById('month-picker-confirm-btn')?.addEventListener('click', () => this.monthPickerConfirm());
+
+    // Event Delegation: Month Picker Months Grid
+    const monthPickerMonthsContainer = document.getElementById('month-picker-months-container');
+    if (monthPickerMonthsContainer) {
+      monthPickerMonthsContainer.addEventListener('click', (e) => {
+        const btn = e.target.closest('[data-month-index]');
+        if (btn) {
+          const idx = parseInt(btn.getAttribute('data-month-index'), 10);
+          this.monthPickerSelectMonth(idx);
+        }
+      });
+    }
+
 
 
     // Patient Picker Modal: Add New Patient Action
@@ -866,7 +886,7 @@ class App {
 
       const numStr = String(idx + 1).padStart(2, '0');
       return `
-        <button type="button" class="${cls}" onclick="app.monthPickerSelectMonth(${idx})">
+        <button type="button" class="${cls}" data-month-index="${idx}">
           <div style="font-size: 0.95rem;">${name}</div>
           <div style="font-size: 0.72rem; opacity: 0.75;">(${numStr})</div>
         </button>

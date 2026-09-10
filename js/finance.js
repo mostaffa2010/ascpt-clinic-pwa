@@ -43,6 +43,11 @@ export class FinanceManager {
     // Monthly Month Picker
     const monthPicker = document.getElementById('finance-month-picker');
     if (monthPicker) {
+      monthPicker.addEventListener('click', () => {
+        if (this.app?.openMonthPicker) {
+          this.app.openMonthPicker('finance-month-picker');
+        }
+      });
       monthPicker.addEventListener('change', (e) => {
         this.currentMonth = e.target.value;
         this.loadMonthlyReport();

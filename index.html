@@ -245,7 +245,7 @@
                 متابعة الحالات الطبية وسجل الجلسات الخاص بك
               </p>
             </div>
-            <button type="button" class="btn btn-outline btn-sm" onclick="app.switchView('patients')" style="font-weight: 700;">
+            <button type="button" class="btn btn-outline btn-sm" data-view-target="patients" style="font-weight: 700;">
               <i class="fa-solid fa-users"></i> سجل المرضى العام
             </button>
           </div>
@@ -300,9 +300,9 @@
                 <span id="doc-table-title">جلسات مرضاك اليوم</span>
               </div>
               <div style="display: flex; gap: 6px; flex-wrap: wrap;">
-                <button type="button" class="btn-quick-date active" id="btn-doc-filter-today" onclick="doctorDashboardManager.setFilter('today')">جلسات اليوم</button>
-                <button type="button" class="btn-quick-date" id="btn-doc-filter-month" onclick="doctorDashboardManager.setFilter('month')">حالات هذا الشهر</button>
-                <button type="button" class="btn-quick-date" id="btn-doc-filter-lifetime" onclick="doctorDashboardManager.setFilter('lifetime')">كل مرضاي (Lifetime)</button>
+                <button type="button" class="btn-quick-date active" id="btn-doc-filter-today">جلسات اليوم</button>
+                <button type="button" class="btn-quick-date" id="btn-doc-filter-month">حالات هذا الشهر</button>
+                <button type="button" class="btn-quick-date" id="btn-doc-filter-lifetime">كل مرضاي (Lifetime)</button>
               </div>
             </div>
             <div class="table-responsive">
@@ -466,7 +466,7 @@
           <div style="margin-top: 12px; padding-top: 10px; border-top: 1px dashed var(--border-color); font-size: 0.78rem; color: var(--text-muted); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
             <span><i class="fa-solid fa-clock-rotate-left"></i> آخر تحديث: <strong id="sheet-last-update-text" style="color: var(--text-main);">-</strong></span>
             
-            <button type="button" class="btn btn-outline btn-sm" id="btn-view-patient-sessions" onclick="patientsManager.openPatientSessionsModal()" style="display: inline-flex; align-items: center; gap: 6px; border-color: var(--primary); color: var(--primary); font-weight: 800; padding: 5px 12px; border-radius: 8px; background-color: var(--primary-light);">
+            <button type="button" class="btn btn-outline btn-sm" id="btn-view-patient-sessions" style="display: inline-flex; align-items: center; gap: 6px; border-color: var(--primary); color: var(--primary); font-weight: 800; padding: 5px 12px; border-radius: 8px; background-color: var(--primary-light);">
               <i class="fa-solid fa-calendar-check" style="font-size: 0.95rem;"></i>
               <span>سجل الجلسات</span>
               <span class="badge" id="sheet-sessions-badge-count" style="background-color: var(--primary); color: #ffffff; font-size: 0.76rem; padding: 2px 7px; border-radius: 6px;">0 جلسة</span>
@@ -772,7 +772,7 @@
             <button type="button" class="btn btn-outline" id="btn-add-settlement" style="height: 42px; padding: 0 16px; border-color: var(--primary); color: var(--primary); font-weight: 700; display: inline-flex; align-items: center; gap: 6px;" title="تسجيل تحصيل مطالبة تأمين من شركة">
               <i class="fa-solid fa-money-bill-transfer"></i> <span>تسجيل تحصيل تأمين</span>
             </button>
-            <button type="button" class="btn btn-success" id="btn-export-excel" onclick="exportManager.exportToExcel()" style="height: 42px; padding: 0 16px; font-weight: 700; display: inline-flex; align-items: center; gap: 6px;">
+            <button type="button" class="btn btn-success" id="btn-export-excel" style="height: 42px; padding: 0 16px; font-weight: 700; display: inline-flex; align-items: center; gap: 6px;">
               <i class="fa-solid fa-file-excel"></i> <span>تصدير Excel</span>
             </button>
             <button type="button" class="btn btn-primary" id="btn-print-report" style="height: 42px; padding: 0 16px; font-weight: 700; display: inline-flex; align-items: center; gap: 6px;">
@@ -826,7 +826,7 @@
             <div style="display: flex; align-items: center; gap: 8px;">
               <label style="font-size: 0.85rem; font-weight: bold;">شهر التقرير:</label>
               <div style="position: relative; display: inline-block;">
-                <input type="text" id="finance-month-picker" readonly class="form-control date-picker-clickable" style="width: 145px; font-weight: 700;" onclick="app.openMonthPicker('finance-month-picker')" placeholder="اختر الشهر...">
+                <input type="text" id="finance-month-picker" readonly class="form-control date-picker-clickable" style="width: 145px; font-weight: 700;" placeholder="اختر الشهر...">
                 <i class="fa-solid fa-calendar-days" style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--primary); pointer-events: none;"></i>
               </div>
             </div>
@@ -999,6 +999,35 @@
                   </tr>
                 </thead>
                 <tbody id="monthly-insurance-tbody">
+                  <!-- Rendered dynamically -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          
+          <!-- Monthly Insurance Settlements Table -->
+          <div class="card" style="margin-bottom: 16px;">
+            <div class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
+              <span class="card-title"><i class="fa-solid fa-file-invoice-dollar"></i> تحصيلات وتوريدات شركات التأمين في الشهر</span>
+              <span id="monthly-settlements-total-badge" class="badge badge-success" style="font-size: 0.85rem; padding: 6px 12px;"></span>
+            </div>
+            <div class="table-responsive">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>تاريخ التحصيل</th>
+                    <th>شركة التأمين</th>
+                    <th>فترة المطالبة</th>
+                    <th>المبلغ الأصلي</th>
+                    <th>الاستقطاعات والخصومات</th>
+                    <th>الصافي المحصل</th>
+                    <th>طريقة الاستلام</th>
+                    <th>المسجل</th>
+                    <th class="no-print">إجراءات</th>
+                  </tr>
+                </thead>
+                <tbody id="monthly-settlements-tbody">
                   <!-- Rendered dynamically -->
                 </tbody>
               </table>
@@ -2421,7 +2450,7 @@
             إجمالي الجلسات السابقة: <span class="badge badge-cash" id="modal-p-sess-total-badge" style="font-size: 0.78rem;">0 جلسة</span>
           </p>
         </div>
-        <button class="modal-close" onclick="app.closeModal('modal-patient-sessions-history')">&times;</button>
+        <button class="modal-close" data-close-modal="modal-patient-sessions-history">&times;</button>
       </div>
 
       <!-- Modal Body (Scrollable table) -->
@@ -2451,7 +2480,7 @@
         <span style="font-size: 0.78rem; color: var(--text-muted); font-weight: 600;">
           <i class="fa-solid fa-info-circle"></i> مرتبة تنازلياً من أحدث جلسة إلى الأقدم
         </span>
-        <button type="button" class="btn btn-outline btn-sm" onclick="app.closeModal('modal-patient-sessions-history')">إغلاق</button>
+        <button type="button" class="btn btn-outline btn-sm" data-close-modal="modal-patient-sessions-history">إغلاق</button>
       </div>
     </div>
   </div>
@@ -2462,22 +2491,22 @@
       <!-- Header -->
       <div class="custom-calendar-header">
         <div style="display: flex; justify-content: space-between; align-items: center;">
-          <button type="button" class="cal-nav-btn" onclick="app.monthPickerNavigateYear(-1)" title="السنة السابقة">
+          <button type="button" class="cal-nav-btn" id="month-picker-prev-year" title="السنة السابقة">
             <i class="fa-solid fa-chevron-right"></i>
           </button>
           <div style="text-align: center;">
             <h3 id="month-picker-year" style="font-size: 1.25rem; font-weight: 800; color: var(--primary); margin: 0;">2026</h3>
             <span id="month-picker-sub" style="font-size: 0.8rem; color: var(--text-muted); font-weight: 600;">سبتمبر 2026</span>
           </div>
-          <button type="button" class="cal-nav-btn" onclick="app.monthPickerNavigateYear(1)" title="السنة التالية">
+          <button type="button" class="cal-nav-btn" id="month-picker-next-year" title="السنة التالية">
             <i class="fa-solid fa-chevron-left"></i>
           </button>
         </div>
 
         <!-- Quick Jump Buttons -->
         <div style="display: flex; justify-content: center; gap: 8px; margin-top: 10px;">
-          <button type="button" class="btn btn-outline btn-sm cal-quick-btn" onclick="app.monthPickerSelectQuick('current')">هذا الشهر</button>
-          <button type="button" class="btn btn-outline btn-sm cal-quick-btn" onclick="app.monthPickerSelectQuick('last')">الشهر الماضي</button>
+          <button type="button" class="btn btn-outline btn-sm cal-quick-btn" id="month-picker-quick-current">هذا الشهر</button>
+          <button type="button" class="btn btn-outline btn-sm cal-quick-btn" id="month-picker-quick-last">الشهر الماضي</button>
         </div>
       </div>
 
@@ -2490,8 +2519,8 @@
 
       <!-- Footer Actions -->
       <div class="modal-footer" style="padding: 10px 14px; background-color: var(--bg-subtle); display: flex; justify-content: space-between; align-items: center;">
-        <button type="button" class="btn btn-outline btn-sm" onclick="app.closeModal('modal-custom-month-picker')">إلغاء</button>
-        <button type="button" class="btn btn-primary btn-sm" onclick="app.monthPickerConfirm()">
+        <button type="button" class="btn btn-outline btn-sm" data-close-modal="modal-custom-month-picker">إلغاء</button>
+        <button type="button" class="btn btn-primary btn-sm" id="month-picker-confirm-btn">
           <i class="fa-solid fa-check"></i> اختيار هذا الشهر
         </button>
       </div>

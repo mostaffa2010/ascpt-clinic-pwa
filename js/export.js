@@ -52,9 +52,12 @@ export class ExportManager {
       const allExpenses = await db.getExpenses(dateStr);
       const allSettlements = (typeof db.getInsuranceSettlements === 'function') ? await db.getInsuranceSettlements(dateStr, null) : [];
 
-      const totalCash = allSessions.reduce((acc, curr) => acc + (parseFloat(curr.amountPaid) || 0), 0);
+      const totalSessionsCash = allSessions.reduce((acc, curr) => acc + (parseFloat(curr.amountPaid) || 0), 0);
+      const cashSettlements = allSettlements.filter(s => s.paymentMethod === 'cash').reduce((acc, s) => acc + (parseFloat(s.netAmount) || 0), 0);
+      const bankSettlements = allSettlements.filter(s => s.paymentMethod !== 'cash').reduce((acc, s) => acc + (parseFloat(s.netAmount) || 0), 0);
+      const totalDrawerCash = totalSessionsCash + cashSettlements;
       const totalExp = allExpenses.reduce((acc, curr) => acc + (parseFloat(curr.amount) || 0), 0);
-      const netCash = totalCash - totalExp;
+      const netCash = totalDrawerCash - totalExp;
 
       // أ. استخدام SheetJS إن وُجدت
       if (typeof XLSX !== 'undefined') {
@@ -83,7 +86,10 @@ export class ExportManager {
         const summaryData = [
           { 'البيان': 'تاريخ التقرير اليومي', 'القيمة': dateStr },
           { 'البيان': 'إجمالي عدد المرضى المترددين', 'القيمة': allSessions.length },
-          { 'البيان': 'إجمالي الإيرادات النقدية', 'القيمة': `${totalCash} ج.م` },
+          { 'البيان': 'إيرادات الجلسات النقدية', 'القيمة': `${totalSessionsCash} ج.م` },
+          { 'البيان': 'تحصيلات التأمين النقدية بالدرج', 'القيمة': `${cashSettlements} ج.م` },
+          { 'البيان': 'تحصيلات التأمين البنكية', 'القيمة': `${bankSettlements} ج.م` },
+          { 'البيان': 'إجمالي المقبوضات النقدية بالدرج', 'القيمة': `${totalDrawerCash} ج.م` },
           { 'البيان': 'إجمالي المصروفات', 'القيمة': `${totalExp} ج.م` },
           { 'البيان': 'صافي النقدية بالدرج', 'القيمة': `${netCash} ج.م` }
         ];
@@ -154,9 +160,11 @@ export class ExportManager {
       const doctors = await db.getDoctors();
 
       const totalPatients = allSessions.length;
-      const totalCash = allSessions.reduce((acc, curr) => acc + (parseFloat(curr.amountPaid) || 0), 0);
+      const totalSessionsIncome = allSessions.reduce((acc, curr) => acc + (parseFloat(curr.amountPaid) || 0), 0);
+      const totalSettlementsNet = allSettlements.reduce((acc, s) => acc + (parseFloat(s.netAmount) || 0), 0);
+      const totalIncome = totalSessionsIncome + totalSettlementsNet;
       const totalExp = allExpenses.reduce((acc, curr) => acc + (parseFloat(curr.amount) || 0), 0);
-      const netCash = totalCash - totalExp;
+      const netCash = totalIncome - totalExp;
 
       const cashCount = allSessions.filter(s => s.payType === 'cash').length;
       const insCount = allSessions.filter(s => s.payType === 'insurance').length;
@@ -223,9 +231,11 @@ export class ExportManager {
           { 'البيان': 'إجمالي عدد المرضى المترددين خلال الشهر', 'القيمة': totalPatients },
           { 'البيان': 'عدد المرضى المسددين نقداً', 'القيمة': `${cashCount} (${totalPatients > 0 ? ((cashCount/totalPatients)*100).toFixed(1) : 0}%)` },
           { 'البيان': 'عدد مرضى شركات التأمين', 'القيمة': `${insCount} (${totalPatients > 0 ? ((insCount/totalPatients)*100).toFixed(1) : 0}%)` },
-          { 'البيان': 'إجمالي الإيرادات النقدية للمركز', 'القيمة': `${totalCash} ج.م` },
+          { 'البيان': 'إيرادات الجلسات النقدية للمركز', 'القيمة': `${totalSessionsIncome} ج.م` },
+          { 'البيان': 'صافي تحصيلات مطالبات التأمين', 'القيمة': `${totalSettlementsNet} ج.م` },
+          { 'البيان': 'إجمالي الإيرادات الكلية للمركز', 'القيمة': `${totalIncome} ج.م` },
           { 'البيان': 'إجمالي المصروفات المنصرفة', 'القيمة': `${totalExp} ج.م` },
-          { 'البيان': 'صافي الأرباح / النقدية بالدرج', 'القيمة': `${netCash} ج.م` }
+          { 'البيان': 'صافي الأرباح للشهر', 'القيمة': `${netCash} ج.م` }
         ];
         const wsSummary = XLSX.utils.json_to_sheet(summaryData);
         XLSX.utils.book_append_sheet(wb, wsSummary, 'ملخص الشهر والأرباح');

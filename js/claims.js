@@ -1,4 +1,4 @@
-import { escapeHTML } from './utils.js';
+import { escapeHTML, getLocalDateStr } from './utils.js';
 // ========================================================
 // PhysioFlow - Insurance Claims & Attendance Cards Module
 // نظام مطالبات شركات التأمين وبطاقات التردد
@@ -12,8 +12,9 @@ export class ClaimsManager {
   constructor(app) {
     this.app = app;
     this.currentCompany = '';
-    this.startDate = '2026-08-01';
-    this.endDate = '2026-08-31';
+    const defDates = this._getDefaultMonthDates();
+    this.startDate = defDates.start;
+    this.endDate = defDates.end;
     this.claimPatientsData = [];
     this.activeCardPatientId = null;
     this.attendanceCardsStore = {};
@@ -48,17 +49,31 @@ export class ClaimsManager {
     await this.loadClaims();
   }
 
+  _getDefaultMonthDates() {
+    const now = new Date();
+    const y = now.getFullYear();
+    const m = String(now.getMonth() + 1).padStart(2, '0');
+    const lastDay = new Date(y, now.getMonth() + 1, 0).getDate();
+    return {
+      start: `${y}-${m}-01`,
+      end: `${y}-${m}-${String(lastDay).padStart(2, '0')}`,
+      today: getLocalDateStr(now)
+    };
+  }
+
   setDefaultDates() {
     const startEl = document.getElementById('claim-start-date');
     const endEl = document.getElementById('claim-end-date');
     const claimDateEl = document.getElementById('claim-doc-date');
 
-    if (startEl) startEl.value = '2026-08-01';
-    if (endEl) endEl.value = '2026-08-31';
-    if (claimDateEl) claimDateEl.value = '2026-08-31';
+    const defDates = this._getDefaultMonthDates();
 
-    this.startDate = '2026-08-01';
-    this.endDate = '2026-08-31';
+    if (startEl) startEl.value = defDates.start;
+    if (endEl) endEl.value = defDates.end;
+    if (claimDateEl) claimDateEl.value = defDates.today;
+
+    this.startDate = defDates.start;
+    this.endDate = defDates.end;
   }
 
   async populateCompaniesDropdown() {
@@ -292,8 +307,9 @@ export class ClaimsManager {
     const defaultEvalInput = document.getElementById('claim-default-eval-fee');
 
     this.currentCompany = compSelect?.value || this.currentCompany || '';
-    this.startDate = startInput?.value || this.startDate || '2026-08-01';
-    this.endDate = endInput?.value || this.endDate || '2026-08-31';
+    const defDates = this._getDefaultMonthDates();
+    this.startDate = startInput?.value || this.startDate || defDates.start;
+    this.endDate = endInput?.value || this.endDate || defDates.end;
 
     if (!this.currentCompany) {
       await this.app.showAlert('يرجى اختيار شركة التأمين أولاً من القائمة.', 'بيانات ناقصة', 'warning');
@@ -689,7 +705,7 @@ export class ClaimsManager {
 
     const companyName = this.currentCompany || 'شركة التأمين';
     const taxNumber = document.getElementById('claim-tax-number')?.value.trim() || '';
-    const claimDate = document.getElementById('claim-doc-date')?.value || '2026-08-31';
+    const claimDate = document.getElementById('claim-doc-date')?.value || getLocalDateStr();
 
     document.getElementById('claim-print-company-name').textContent = companyName;
     document.getElementById('claim-print-tax-no').textContent = taxNumber ? `رقم البطاقة الضريبية: ${taxNumber}` : 'رقم البطاقة الضريبية: ';
@@ -828,7 +844,7 @@ export class ClaimsManager {
 
     const companyName = this.currentCompany || 'شركة التأمين';
     const taxNumber = document.getElementById('claim-tax-number')?.value.trim() || '';
-    const claimDate = document.getElementById('claim-doc-date')?.value || '2026-08-31';
+    const claimDate = document.getElementById('claim-doc-date')?.value || getLocalDateStr();
 
     const wsData = [
       ['مركز اسكندرية التخصصي للعلاج الطبيعي (ASCPT)'],

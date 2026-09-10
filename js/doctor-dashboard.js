@@ -12,6 +12,14 @@ export class DoctorDashboardManager {
     this.currentFilter = 'today'; // 'today' | 'month' | 'lifetime'
   }
 
+  init() {
+    ['today', 'month', 'lifetime'].forEach(t => {
+      document.getElementById(`btn-doc-filter-${t}`)?.addEventListener('click', () => {
+        this.setFilter(t);
+      });
+    });
+  }
+
   setFilter(filterType) {
     this.currentFilter = filterType;
 
@@ -123,7 +131,7 @@ export class DoctorDashboardManager {
     if (this.currentFilter === 'today') {
       displayList = this.docSessions.filter(s => s.date === todayStr);
     } else if (this.currentFilter === 'month') {
-      displayList = this.docSessions.filter(s => s.date && (s.date.startsWith(currentMonth) || s.date.startsWith('2026-08')));
+      displayList = this.docSessions.filter(s => s.date && s.date.startsWith(currentMonth));
     } else {
       // Lifetime: all sessions for this doctor (or latest 50)
       displayList = [...this.docSessions];

@@ -50,6 +50,11 @@ export class PatientsManager {
       btnOpenAdd.addEventListener('click', () => this.openAddModal());
     }
 
+    const btnViewSessions = document.getElementById('btn-view-patient-sessions');
+    if (btnViewSessions) {
+      btnViewSessions.addEventListener('click', () => this.openPatientSessionsModal());
+    }
+
     // Toggle Insurance Fields in Patient Form
     const billingRadios = document.querySelectorAll('input[name="p-billing"]');
     billingRadios.forEach(r => {
