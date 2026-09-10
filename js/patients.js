@@ -502,14 +502,14 @@ export class PatientsManager {
                   <i class="fa-solid fa-file-waveform"></i> الشيت الطبي
                 </button>
               ` : ''}
-              <a href="https://wa.me/${cleanWaPhone}" target="_blank" class="btn btn-outline btn-sm" style="color: #10b981; border-color: #10b981;" title="محادثة واتساب">
-                <i class="fa-brands fa-whatsapp"></i>
-              </a>
               ${!isDoctor ? `
                 <button type="button" class="btn btn-outline btn-sm btn-patient-docs" data-patient-id="${safeId}" style="color: #0284c7; border-color: #0284c7; font-weight: 700; gap: 4px; display: inline-flex; align-items: center;" title="المستندات والطباعة (إيصال، إفادة، موافقات)">
                   <i class="fa-solid fa-file-invoice"></i> <span style="font-size: 0.76rem;">مستندات</span>
                 </button>
               ` : ''}
+              <a href="https://wa.me/${cleanWaPhone}" target="_blank" class="btn btn-outline btn-sm" style="color: #10b981; border-color: #10b981;" title="محادثة واتساب">
+                <i class="fa-brands fa-whatsapp"></i>
+              </a>
               ${!isDoctor ? `
                 <button type="button" class="btn btn-outline btn-sm btn-edit-patient" data-patient-id="${safeId}" title="تعديل بيانات المريض">
                   <i class="fa-solid fa-pen-to-square"></i>
