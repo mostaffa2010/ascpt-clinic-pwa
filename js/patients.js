@@ -589,46 +589,16 @@ export class PatientsManager {
 
   // ================= Insurance Interactive Buttons for Patient Registration =================
   renderAllInsuranceChips() {
-    this.renderInsuranceChips('direct', 'p-ins-direct-container');
-    this.renderInsuranceChips('indirect', 'p-ins-indirect-container');
+    // Companies are selected via Custom Picker
+    const directCont = document.getElementById('p-ins-direct-container');
+    const indirectCont = document.getElementById('p-ins-indirect-container');
+    if (directCont) { directCont.innerHTML = ''; directCont.style.display = 'none'; }
+    if (indirectCont) { indirectCont.innerHTML = ''; indirectCont.style.display = 'none'; }
   }
 
   renderInsuranceChips(contractType, containerId) {
     const container = document.getElementById(containerId);
-    if (!container) return;
-
-    const companies = db.getInsuranceCompanies(contractType);
-    const selectedCompany = document.getElementById('p-insurance-company')?.value || '';
-    const isEdit = Boolean(this.insEditMode);
-    const icon = contractType === 'direct' ? 'fa-solid fa-file-contract' : 'fa-solid fa-handshake';
-
-    let html = companies.map(comp => {
-      const isSelected = (comp === selectedCompany);
-      const safeComp = comp.replace(/'/g, "\\'");
-      const editClass = isEdit ? 'in-edit-mode' : '';
-      const deleteIconHtml = isEdit
-        ? `<span class="chip-delete-tag" data-action="delete-insurance" data-contract="${contractType}" data-company="${safeComp}" title="حذف الشركة"><i class="fa-solid fa-circle-xmark"></i></span>`
-        : '';
-
-      return `
-        <button type="button" class="insurance-company-card ${isSelected ? 'selected' : ''} ${editClass}" data-action="select-insurance" data-contract="${contractType}" data-company="${safeComp}">
-          <span class="ins-icon-wrap"><i class="${icon}"></i></span>
-          <span style="flex: 1; text-align: right; line-height: 1.25;">${comp}</span>
-          ${isSelected ? '<i class="fa-solid fa-check ins-check-icon"></i>' : ''}
-          ${deleteIconHtml}
-        </button>
-      `;
-    }).join('');
-
-    if (isEdit) {
-      html += `
-        <button type="button" class="chip-add-new-btn" data-action="add-insurance" data-contract="${contractType}" data-source="patient" style="grid-column: 1 / -1;">
-          <i class="fa-solid fa-plus"></i> <span>إضافة شركة جديدة</span>
-        </button>
-      `;
-    }
-
-    container.innerHTML = html;
+    if (container) { container.innerHTML = ''; container.style.display = 'none'; }
   }
 
   selectInsuranceCompany(contractType, compName) {
@@ -666,16 +636,8 @@ export class PatientsManager {
     this.currentContractType = contractType;
     const directCont = document.getElementById('p-ins-direct-container');
     const indirectCont = document.getElementById('p-ins-indirect-container');
-
-    if (directCont && indirectCont) {
-      if (contractType === 'direct') {
-        directCont.style.display = 'grid';
-        indirectCont.style.display = 'none';
-      } else {
-        directCont.style.display = 'none';
-        indirectCont.style.display = 'grid';
-      }
-    }
+    if (directCont) directCont.style.display = 'none';
+    if (indirectCont) indirectCont.style.display = 'none';
   }
 
   toggleInsuranceEditMode() {

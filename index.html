@@ -494,72 +494,57 @@
           </div>
 
           <!-- 2. Modalities (الأجهزة الفيزيائية) -->
-          <div class="card">
+          <div class="card" style="margin-bottom: 16px;">
             <div class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
               <span class="card-title"><i class="fa-solid fa-bolt-lightning"></i> 2. الأجهزة والوسائل الفيزيائية (Physical Modalities)</span>
-              <div class="admin-only">
-                <button type="button" class="btn-edit-chips" id="btn-toggle-chips-modality">
-                  <i class="fa-solid fa-pen-to-square"></i> <span class="edit-text">تعديل الأزرار</span>
-                </button>
-              </div>
+              <span id="sheet-modalities-count-badge" class="badge badge-primary" style="font-size: 0.78rem;">0 محدد</span>
             </div>
-            <p style="font-size: 0.82rem; color: var(--text-muted); margin-bottom: 8px;">اضغط لاختيار الأجهزة والوسائل المقررة في جلسة المريض:</p>
-            <div class="body-parts-chips" id="sheet-modalities-container">
-              <button type="button" class="chip-choice sheet-chip" data-group="modality" data-val="TENS (تيار تنبيهي)"><i class="fa-solid fa-bolt"></i> TENS (كهرباء تسكينية)</button>
-              <button type="button" class="chip-choice sheet-chip" data-group="modality" data-val="Ultrasound (موجات صوتية)"><i class="fa-solid fa-wave-square"></i> Ultrasound (موجات صوتية)</button>
-              <button type="button" class="chip-choice sheet-chip" data-val="كمادات ساخنة (Hot Pack)"><i class="fa-solid fa-fire-flame-curved"></i> كمادات ساخنة</button>
-              <button type="button" class="chip-choice sheet-chip" data-group="modality" data-val="كمادات باردة / ثلج (Cryotherapy)"><i class="fa-solid fa-snowflake"></i> كمادات باردة / ثلج</button>
-              <button type="button" class="chip-choice sheet-chip" data-group="modality" data-val="الشد الفقري (Traction)"><i class="fa-solid fa-arrows-up-down"></i> الشد الفقري</button>
-              <button type="button" class="chip-choice sheet-chip" data-group="modality" data-val="ليزر علاجي (Laser Therapy)"><i class="fa-solid fa-bullseye"></i> ليزر علاجي</button>
-              <button type="button" class="chip-choice sheet-chip" data-group="modality" data-val="موجات تصادمية (Shockwave)"><i class="fa-solid fa-burst"></i> Shockwave (موجات تصادمية)</button>
-              <button type="button" class="chip-choice sheet-chip" data-group="modality" data-val="أشعة تحت الحمراء (Infrared)"><i class="fa-solid fa-sun"></i> أشعة تحت الحمراء</button>
-              <button type="button" class="chip-choice sheet-chip" data-group="modality" data-val="كؤوس هواء (Cupping)"><i class="fa-solid fa-circle-dot"></i> كؤوس هواء</button>
+            <div style="padding: 12px 16px;">
+              <button type="button" class="custom-select-btn" id="btn-open-picker-modalities" style="min-height: 44px; padding: 8px 12px; display: flex; align-items: center; justify-content: space-between; width: 100%;">
+                <div id="sheet-modalities-selected-preview" class="multi-select-preview" style="display: flex; flex-wrap: wrap; gap: 4px; align-items: center; flex: 1;">
+                  <span style="color: var(--text-muted); font-size: 0.88rem;">-- اضغط لاختيار وتحديد الأجهزة المقررة --</span>
+                </div>
+                <i class="fa-solid fa-chevron-down custom-select-arrow" style="margin-right: 6px;"></i>
+              </button>
+              <div class="body-parts-chips" id="sheet-modalities-container" style="display: none;"></div>
             </div>
-
           </div>
 
           <!-- 3. Procedures & Manual Therapy -->
-          <div class="card">
+          <div class="card" style="margin-bottom: 16px;">
             <div class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
               <span class="card-title"><i class="fa-solid fa-hand-holding-hand"></i> 3. الإجراءات والعلاج اليدوي (Procedures & Manual Therapy)</span>
-              <div class="admin-only">
-                <button type="button" class="btn-edit-chips" id="btn-toggle-chips-procedure">
-                  <i class="fa-solid fa-pen-to-square"></i> <span class="edit-text">تعديل الأزرار</span>
-                </button>
-              </div>
+              <span id="sheet-procedures-count-badge" class="badge badge-primary" style="font-size: 0.78rem;">0 محدد</span>
             </div>
-            <div class="body-parts-chips" id="sheet-procedures-container">
-              <button type="button" class="chip-choice sheet-chip" data-group="procedure" data-val="تحريك المفاصل (Joint Mobilization)"><i class="fa-solid fa-bone"></i> تحريك مفاصل (Mobilization)</button>
-              <button type="button" class="chip-choice sheet-chip" data-group="procedure" data-val="تحرير اللفافة العضلية (Myofascial Release)"><i class="fa-solid fa-hand-dots"></i> تحرير اللفافة العضلية</button>
-              <button type="button" class="chip-choice sheet-chip" data-group="procedure" data-val="تدليك علاجي عميق (Deep Tissue Massage)"><i class="fa-solid fa-hands"></i> تدليك علاجي</button>
-              <button type="button" class="chip-choice sheet-chip" data-group="procedure" data-val="إطالات عضلية (Muscle Stretching)"><i class="fa-solid fa-child-reaching"></i> إطالات عضلية (Stretching)</button>
-              <button type="button" class="chip-choice sheet-chip" data-group="procedure" data-val="الإبر الجافة (Dry Needling)"><i class="fa-solid fa-syringe"></i> إبر جافة (Dry Needling)</button>
-              <button type="button" class="chip-choice sheet-chip" data-group="procedure" data-val="الأشرطة اللاصقة الحركية (Kinesio Taping)"><i class="fa-solid fa-tape"></i> أشرطة لاصقة (Taping)</button>
+            <div style="padding: 12px 16px;">
+              <button type="button" class="custom-select-btn" id="btn-open-picker-procedures" style="min-height: 44px; padding: 8px 12px; display: flex; align-items: center; justify-content: space-between; width: 100%;">
+                <div id="sheet-procedures-selected-preview" class="multi-select-preview" style="display: flex; flex-wrap: wrap; gap: 4px; align-items: center; flex: 1;">
+                  <span style="color: var(--text-muted); font-size: 0.88rem;">-- اضغط لاختيار وتحديد إجراءات العلاج اليدوي --</span>
+                </div>
+                <i class="fa-solid fa-chevron-down custom-select-arrow" style="margin-right: 6px;"></i>
+              </button>
+              <div class="body-parts-chips" id="sheet-procedures-container" style="display: none;"></div>
             </div>
-
           </div>
 
           <!-- 4. Therapeutic Exercises -->
-          <div class="card">
+          <div class="card" style="margin-bottom: 16px;">
             <div class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
               <span class="card-title"><i class="fa-solid fa-person-running"></i> 4. التمارين العلاجية الموصوفة (Therapeutic Exercises)</span>
-              <div class="admin-only">
-                <button type="button" class="btn-edit-chips" id="btn-toggle-chips-exercise">
-                  <i class="fa-solid fa-pen-to-square"></i> <span class="edit-text">تعديل الأزرار</span>
-                </button>
+              <span id="sheet-exercises-count-badge" class="badge badge-primary" style="font-size: 0.78rem;">0 محدد</span>
+            </div>
+            <div style="padding: 12px 16px;">
+              <button type="button" class="custom-select-btn" id="btn-open-picker-exercises" style="min-height: 44px; padding: 8px 12px; display: flex; align-items: center; justify-content: space-between; width: 100%;">
+                <div id="sheet-exercises-selected-preview" class="multi-select-preview" style="display: flex; flex-wrap: wrap; gap: 4px; align-items: center; flex: 1;">
+                  <span style="color: var(--text-muted); font-size: 0.88rem;">-- اضغط لاختيار وتحديد التمارين العلاجية --</span>
+                </div>
+                <i class="fa-solid fa-chevron-down custom-select-arrow" style="margin-right: 6px;"></i>
+              </button>
+              <div class="body-parts-chips" id="sheet-exercises-container" style="display: none;"></div>
+              <div class="form-group" style="margin-top: 12px;">
+                <label for="sheet-exercise-details">تفاصيل وبروتوكول التمارين والتكرارات:</label>
+                <textarea id="sheet-exercise-details" class="form-control" rows="2" placeholder="اكتب عدد التكرارات، المجموعات، التعليمات للمريض..."></textarea>
               </div>
-            </div>
-            <div class="body-parts-chips" id="sheet-exercises-container">
-              <button type="button" class="chip-choice sheet-chip" data-group="exercise" data-val="تمارين التقوية العضلية (Strengthening)"><i class="fa-solid fa-dumbbell"></i> تمارين تقوية عضلية</button>
-              <button type="button" class="chip-choice sheet-chip" data-group="exercise" data-val="تمارين المدى الحركي (Range of Motion)"><i class="fa-solid fa-arrows-spin"></i> المدى الحركي (ROM)</button>
-              <button type="button" class="chip-choice sheet-chip" data-group="exercise" data-val="تمارين التوازن والاتزان الحركي (Balance & Proprioception)"><i class="fa-solid fa-scale-balanced"></i> اتزان وتوازن حركي</button>
-              <button type="button" class="chip-choice sheet-chip" data-group="exercise" data-val="تمارين عضلات الجذع (Core Stability)"><i class="fa-solid fa-shield-heart"></i> عضلات الجذع (Core)</button>
-              <button type="button" class="chip-choice sheet-chip" data-group="exercise" data-val="تمارين تصحيح القوام (Postural Correction)"><i class="fa-solid fa-person"></i> تصحيح القوام</button>
-              <button type="button" class="chip-choice sheet-chip" data-group="exercise" data-val="برنامج التمارين المنزلية (Home Exercise Program)"><i class="fa-solid fa-house-medical"></i> تمارين منزلية (Home Program)</button>
-            </div>
-            <div class="form-group" style="margin-top: 12px;">
-              <label for="sheet-exercise-details">تفاصيل التمارين والمجموعات والتكرارات</label>
-              <textarea id="sheet-exercise-details" class="form-control" rows="3" placeholder="مثال: تمرين الجسر 3 مجموعات × 10 عدات، تمرين تمديد الركبة ضد مقاومة، إطالة العضلة الخلفية 30 ثانية..."></textarea>
             </div>
           </div>
 
@@ -674,12 +659,18 @@
 
                 <div class="form-group" id="form-group-body-parts">
                   <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
-                    <label style="margin: 0; font-weight: 800; font-size: 0.88rem; color: var(--text-main);">الأعضاء المعالجة في الجلسة *</label>
-                    <button type="button" class="btn-edit-chips" id="btn-toggle-chips-body-parts" style="padding: 3px 10px; font-size: 0.75rem;">
-                      <i class="fa-solid fa-pen-to-square"></i> <span class="edit-text">تعديل الأزرار</span>
-                    </button>
+                    <label style="margin: 0; font-weight: 800; font-size: 0.88rem; color: var(--text-main);">
+                      <i class="fa-solid fa-bone" style="color: var(--primary);"></i> الأعضاء المعالجة في الجلسة *
+                    </label>
+                    <span id="session-body-parts-badge" class="badge badge-primary" style="font-size: 0.78rem;">0 أعضاء</span>
                   </div>
-                  <div class="body-parts-chips" id="body-parts-container"></div>
+                  <button type="button" class="custom-select-btn" id="btn-open-picker-body-parts" style="min-height: 44px; padding: 8px 12px; display: flex; align-items: center; justify-content: space-between; width: 100%;">
+                    <div id="session-body-parts-preview" class="multi-select-preview" style="display: flex; flex-wrap: wrap; gap: 4px; align-items: center; flex: 1;">
+                      <span style="color: var(--text-muted); font-size: 0.88rem;">-- اضغط لاختيار وتحديد الأعضاء المعالجة --</span>
+                    </div>
+                    <i class="fa-solid fa-chevron-down custom-select-arrow" style="margin-right: 6px;"></i>
+                  </button>
+                  <div class="body-parts-chips" id="body-parts-container" style="display: none;"></div>
                   <div style="font-size: 0.8rem; color: var(--primary); font-weight: bold; margin-top: 5px;">
                     إجمالي الأعضاء المحددة: <span id="selected-parts-count">0</span>
                   </div>
@@ -1509,11 +1500,6 @@
             <div class="form-group" style="margin-bottom: 12px;">
               <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
                 <label style="font-weight: 800; font-size: 0.88rem; color: var(--text-main);">نوع التعاقد مع الشركة *</label>
-                <div class="admin-only">
-                  <button type="button" class="btn-edit-chips" id="btn-toggle-chips-ins-patient" style="padding: 3px 10px; font-size: 0.75rem;">
-                    <i class="fa-solid fa-pen-to-square"></i> <span class="edit-text">تعديل الشركات</span>
-                  </button>
-                </div>
               </div>
               <div class="insurance-contract-segmented">
                 <label class="segmented-option">
