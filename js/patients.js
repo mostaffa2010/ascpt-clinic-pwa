@@ -146,6 +146,58 @@ export class PatientsManager {
     document.getElementById('renew-sessions-count')?.addEventListener('input', () => this.updateApprovalUnitsSummary('renew'));
     document.getElementById('renew-approved-body-parts')?.addEventListener('change', () => this.updateApprovalUnitsSummary('renew'));
 
+    // Multi-Picker Triggers for Clinical Sheet
+    document.getElementById('btn-open-picker-modalities')?.addEventListener('click', () => {
+      this.app.openMultiPicker({
+        category: 'modality',
+        title: 'الأجهزة والوسائل الفيزيائية',
+        currentSelected: this.currentSheetModalities || [],
+        onConfirm: (selected) => {
+          this.currentSheetModalities = selected;
+          this.updateSheetPickerPreview('modality', selected);
+        }
+      });
+    });
+
+    document.getElementById('btn-open-picker-procedures')?.addEventListener('click', () => {
+      this.app.openMultiPicker({
+        category: 'procedure',
+        title: 'الإجراءات والعلاج اليدوي',
+        currentSelected: this.currentSheetProcedures || [],
+        onConfirm: (selected) => {
+          this.currentSheetProcedures = selected;
+          this.updateSheetPickerPreview('procedure', selected);
+        }
+      });
+    });
+
+    document.getElementById('btn-open-picker-exercises')?.addEventListener('click', () => {
+      this.app.openMultiPicker({
+        category: 'exercise',
+        title: 'التمارين العلاجية والتأهيل',
+        currentSelected: this.currentSheetExercises || [],
+        onConfirm: (selected) => {
+          this.currentSheetExercises = selected;
+          this.updateSheetPickerPreview('exercise', selected);
+        }
+      });
+    });
+
+    // Custom Picker Trigger for Insurance Company in Patient Modal
+    document.getElementById('btn-open-picker-p-insurance')?.addEventListener('click', () => {
+      const cType = document.querySelector('input[name="p-contract-type"]:checked')?.value || 'direct';
+      this.app.openMultiPicker({
+        category: 'insurance_company',
+        title: 'اختر شركة التأمين',
+        contractType: cType,
+        isSingleSelect: true,
+        currentSelected: document.getElementById('p-insurance-company')?.value || '',
+        onConfirm: (compName, optContract) => {
+          this.selectInsuranceCompany(optContract || cType, compName);
+        }
+      });
+    });
+
     // Cash Receipt Form Submit
     document.getElementById('form-cash-receipt')?.addEventListener('submit', (e) => {
       e.preventDefault();
@@ -588,6 +640,12 @@ export class PatientsManager {
     const preview = document.getElementById('p-selected-ins-preview');
     if (preview) preview.textContent = `المختارة: ${compName}`;
 
+    const btnText = document.getElementById('p-insurance-btn-text');
+    if (btnText) {
+      const cLabel = contractType === 'direct' ? 'تعاقد مباشر' : 'تعاقد غير مباشر';
+      btnText.innerHTML = `<strong>${escapeHTML(compName)}</strong> <span class="badge" style="font-size:0.72rem; margin-right:6px; background:rgba(56,189,248,0.15); color:var(--primary); padding:1px 6px; border-radius:4px;">${cLabel}</span>`;
+    }
+
     document.querySelectorAll('#p-ins-direct-container .insurance-company-card, #p-ins-indirect-container .insurance-company-card').forEach(btn => {
       const isMatch = (btn.getAttribute('data-company') === compName);
       btn.classList.toggle('selected', isMatch);
@@ -746,6 +804,8 @@ export class PatientsManager {
     if (insComp) insComp.value = '';
     const insPrev = document.getElementById('p-selected-ins-preview');
     if (insPrev) insPrev.textContent = '';
+    const insBtnText = document.getElementById('p-insurance-btn-text');
+    if (insBtnText) insBtnText.textContent = '-- اضغط لاختيار شركة التأمين --';
     document.querySelectorAll('#p-ins-direct-container .insurance-company-card, #p-ins-indirect-container .insurance-company-card').forEach(btn => {
       btn.classList.remove('selected');
     });
@@ -808,6 +868,12 @@ export class PatientsManager {
       insBox.style.display = 'block';
       document.getElementById('p-insurance-company').value = p.insuranceCompany || '';
       const cType = p.contractType || 'direct';
+      if (p.insuranceCompany) {
+        this.selectInsuranceCompany(cType, p.insuranceCompany);
+      } else {
+        const insBtnText = document.getElementById('p-insurance-btn-text');
+        if (insBtnText) insBtnText.textContent = '-- اضغط لاختيار شركة التأمين --';
+      }
       const contractRadios = document.querySelectorAll('input[name="p-contract-type"]');
       contractRadios.forEach(r => { r.checked = (r.value === cType); });
       this.onContractTypeChanged(cType);
@@ -1249,17 +1315,10 @@ export class PatientsManager {
       }, 1500);
     }
 
-    // Collect Modalities
-    const modalities = Array.from(document.querySelectorAll('#sheet-modalities-container .sheet-chip.selected'))
-      .map(b => b.getAttribute('data-val'));
-
-    // Collect Procedures
-    const procedures = Array.from(document.querySelectorAll('#sheet-procedures-container .sheet-chip.selected'))
-      .map(b => b.getAttribute('data-val'));
-
-    // Collect Exercises
-    const exercises = Array.from(document.querySelectorAll('#sheet-exercises-container .sheet-chip.selected'))
-      .map(b => b.getAttribute('data-val'));
+    // Collect Modalities, Procedures, Exercises
+    const modalities = this.currentSheetModalities || [];
+    const procedures = this.currentSheetProcedures || [];
+    const exercises = this.currentSheetExercises || [];
 
     const clinicalSheet = {
       diagnosis: document.getElementById('sheet-diagnosis').value.trim(),
@@ -1329,20 +1388,48 @@ export class PatientsManager {
     this.renderCategoryChips(category, containerMap[category], curSelected);
   }
 
-  renderAllClinicalChips(sheet = {}) {
-    // Reset edit modes on sheet open
-    this.chipsEditMode = { modality: false, procedure: false, exercise: false };
-    ['modality', 'procedure', 'exercise'].forEach(cat => {
-      const btn = document.getElementById(`btn-toggle-chips-${cat}`);
-      if (btn) {
-        btn.className = 'btn-edit-chips';
-        btn.innerHTML = '<i class="fa-solid fa-pen-to-square"></i> <span class="edit-text">تعديل الأزرار</span>';
-      }
-    });
+  updateSheetPickerPreview(category, selectedList = []) {
+    const containerMap = {
+      modality: { preview: 'sheet-modalities-selected-preview', badge: 'sheet-modalities-count-badge', placeholder: '-- اضغط لاختيار وتحديد الأجهزة المقررة --', icon: 'fa-bolt-lightning' },
+      procedure: { preview: 'sheet-procedures-selected-preview', badge: 'sheet-procedures-count-badge', placeholder: '-- اضغط لاختيار وتحديد إجراءات العلاج اليدوي --', icon: 'fa-hand-holding-hand' },
+      exercise: { preview: 'sheet-exercises-selected-preview', badge: 'sheet-exercises-count-badge', placeholder: '-- اضغط لاختيار وتحديد التمارين العلاجية --', icon: 'fa-person-running' }
+    };
+    const cfg = containerMap[category];
+    if (!cfg) return;
 
-    this.renderCategoryChips('modality', 'sheet-modalities-container', sheet.modalities || []);
-    this.renderCategoryChips('procedure', 'sheet-procedures-container', sheet.procedures || []);
-    this.renderCategoryChips('exercise', 'sheet-exercises-container', sheet.exercises || []);
+    const previewEl = document.getElementById(cfg.preview);
+    const badgeEl = document.getElementById(cfg.badge);
+    if (badgeEl) badgeEl.textContent = `${selectedList.length} محدد`;
+
+    if (previewEl) {
+      if (!selectedList || selectedList.length === 0) {
+        previewEl.innerHTML = `<span style="color: var(--text-muted); font-size: 0.88rem;">${cfg.placeholder}</span>`;
+      } else {
+        previewEl.innerHTML = selectedList.map(item => `
+          <span class="badge badge-primary" style="font-size: 0.78rem; padding: 4px 10px; margin: 2px; border-radius: 6px; font-weight: 700;">
+            <i class="fa-solid ${cfg.icon}" style="margin-left: 4px;"></i> ${escapeHTML(item)}
+          </span>
+        `).join('');
+      }
+    }
+
+    // Populate hidden container for backward compatibility
+    const hiddenContainer = document.getElementById(`sheet-${category === 'modality' ? 'modalities' : category === 'procedure' ? 'procedures' : 'exercises'}-container`);
+    if (hiddenContainer) {
+      hiddenContainer.innerHTML = selectedList.map(item => `
+        <button type="button" class="sheet-chip selected" data-val="${escapeHTML(item)}"></button>
+      `).join('');
+    }
+  }
+
+  renderAllClinicalChips(sheet = {}) {
+    this.currentSheetModalities = Array.isArray(sheet.modalities) ? [...sheet.modalities] : [];
+    this.currentSheetProcedures = Array.isArray(sheet.procedures) ? [...sheet.procedures] : [];
+    this.currentSheetExercises = Array.isArray(sheet.exercises) ? [...sheet.exercises] : [];
+
+    this.updateSheetPickerPreview('modality', this.currentSheetModalities);
+    this.updateSheetPickerPreview('procedure', this.currentSheetProcedures);
+    this.updateSheetPickerPreview('exercise', this.currentSheetExercises);
   }
 
   renderCategoryChips(category, containerId, selectedList = []) {

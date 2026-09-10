@@ -149,6 +149,18 @@ export class ClaimsManager {
     document.getElementById('btn-settle-claim-action')?.addEventListener('click', () => this.openSettleClaim());
     const bClaim = document.getElementById('btn-print-claim-statement'); if (bClaim) bClaim.onclick = (e) => { e.preventDefault(); e.stopPropagation(); this.printClaimStatement(); };
     const bCards = document.getElementById('btn-print-attendance-cards'); if (bCards) bCards.onclick = (e) => { e.preventDefault(); e.stopPropagation(); this.printAttendanceCards(); };
+
+    // Custom Multi-Picker Trigger for Card Treatments
+    document.getElementById('btn-open-picker-card-treatments')?.addEventListener('click', () => {
+      this.app.openMultiPicker({
+        category: 'card_treatments',
+        title: 'خطة ووسائل العلاج بكارت التردد',
+        currentSelected: this.activeCardTreatments || [],
+        onConfirm: (selected) => {
+          this.updateCardTreatmentsPreview(selected);
+        }
+      });
+    });
     document.getElementById('btn-export-claim-excel')?.addEventListener('click', () => this.exportClaimExcel());
     document.getElementById('claim-patient-search-input')?.addEventListener('input', (e) => this.onSearchInput(e.target.value));
 
@@ -517,42 +529,37 @@ export class ClaimsManager {
     this.app.openModal('modal-attendance-card');
   }
 
-  renderCardTreatmentChips(selectedTreatments = []) {
-    const container = document.getElementById('card-treatment-chips-container');
-    if (!container) return;
+  updateCardTreatmentsPreview(selectedTreatments = []) {
+    this.activeCardTreatments = Array.isArray(selectedTreatments) ? [...selectedTreatments] : [];
+    const previewEl = document.getElementById('card-treatments-selected-preview');
+    const badgeEl = document.getElementById('card-treatments-count-badge');
+    if (badgeEl) badgeEl.textContent = `${this.activeCardTreatments.length} محدد`;
 
-    const modalities = (typeof db !== 'undefined' && db.getClinicalOptions)
-      ? db.getClinicalOptions('modality')
-      : [];
-    const allOptions = Array.from(new Set([...this.defaultTreatmentOptions, ...modalities]));
-    const isEdit = Boolean(this.cardTreatmentsEditMode);
-
-    let html = allOptions.map(opt => {
-      const isSelected = selectedTreatments.includes(opt);
-      const safeOpt = opt.replace(/'/g, "\\'");
-      const editClass = isEdit ? 'in-edit-mode' : '';
-      const deleteIconHtml = isEdit
-        ? `<span class="chip-delete-tag" data-action="delete-card-treatment" data-treatment="${safeOpt}" title="حذف الوسيلة"><i class="fa-solid fa-circle-xmark"></i></span>`
-        : '';
-
-      return `
-        <button type="button" class="chip-choice sheet-chip card-treatment-chip ${isSelected ? 'selected' : ''} ${editClass}" data-val="${opt}">
-          <i class="fa-solid fa-bolt"></i> <span>${escapeHTML(opt)}</span>
-          ${deleteIconHtml}
-        </button>
-      `;
-    }).join('');
-
-    if (isEdit) {
-      html += `
-        <button type="button" class="chip-add-new-btn" id="btn-card-add-new-treatment" data-action="add-card-treatment" style="width: 100%; margin-top: 8px; justify-content: center;">
-          <i class="fa-solid fa-plus"></i> <span>إضافة وسيلة علاجية</span>
-        </button>
-      `;
+    if (previewEl) {
+      if (this.activeCardTreatments.length === 0) {
+        previewEl.innerHTML = `<span style="color: var(--text-muted); font-size: 0.88rem;">-- اضغط لاختيار وتحديد وسائل كارت التردد --</span>`;
+      } else {
+        previewEl.innerHTML = this.activeCardTreatments.map(t => `
+          <span class="badge badge-primary" style="font-size: 0.78rem; padding: 4px 10px; margin: 2px; border-radius: 6px; font-weight: 700;">
+            <i class="fa-solid fa-bolt" style="margin-left: 4px;"></i> ${escapeHTML(t)}
+          </span>
+        `).join('');
+      }
     }
 
-    container.innerHTML = html;
+    // Populate hidden container for backward compatibility
+    const hiddenContainer = document.getElementById('card-treatment-chips-container');
+    if (hiddenContainer) {
+      hiddenContainer.innerHTML = this.activeCardTreatments.map(t => `
+        <button type="button" class="sheet-chip card-treatment-chip selected" data-val="${escapeHTML(t)}"></button>
+      `).join('');
+    }
+
     this.updateCardLivePreview();
+  }
+
+  renderCardTreatmentChips(selectedTreatments = []) {
+    this.updateCardTreatmentsPreview(selectedTreatments);
   }
 
   toggleCardTreatmentsEditMode() {
@@ -653,8 +660,9 @@ export class ClaimsManager {
 
     const diagnosis = document.getElementById('card-input-diagnosis')?.value.trim() || '';
     const evaluation = document.getElementById('card-input-eval')?.value.trim() || '';
-    const treatments = Array.from(document.querySelectorAll('#card-treatment-chips-container .sheet-chip.selected'))
-      .map(b => b.getAttribute('data-val'));
+    const treatments = (this.activeCardTreatments && this.activeCardTreatments.length > 0)
+      ? this.activeCardTreatments
+      : Array.from(document.querySelectorAll('#card-treatment-chips-container .sheet-chip.selected')).map(b => b.getAttribute('data-val'));
 
     this.attendanceCardsStore[this.activeCardPatientId] = {
       diagnosis,

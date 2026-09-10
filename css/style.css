@@ -2459,3 +2459,39 @@ body.not-authenticated #modal-auth #btn-cancel-login {
   background-color: rgba(239, 68, 68, 0.15) !important;
   color: #ef4444 !important;
 }
+
+/* ========================================================
+   Multi-Picker & Option Selection Architecture
+   ======================================================== */
+.multi-picker-row {
+  cursor: pointer;
+  user-select: none;
+  transition: all 0.15s ease;
+}
+
+.multi-picker-row:hover {
+  border-color: var(--primary) !important;
+}
+
+.multi-picker-row.selected {
+  background-color: var(--primary-light) !important;
+  border-color: var(--primary) !important;
+}
+
+[data-theme="dark"] .multi-picker-row.selected {
+  background-color: rgba(2, 132, 199, 0.25) !important;
+  border-color: var(--primary) !important;
+}
+
+.multi-select-preview {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  align-items: center;
+}
+
+.multi-select-preview .badge {
+  font-size: 0.78rem;
+  padding: 3px 8px;
+  border-radius: 6px;
+}

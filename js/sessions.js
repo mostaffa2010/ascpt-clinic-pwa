@@ -54,6 +54,18 @@ export class SessionsManager {
     document.getElementById('btn-mode-session')?.addEventListener('click', () => this.setEntryMode('session'));
     document.getElementById('btn-mode-exam')?.addEventListener('click', () => this.setEntryMode('examination'));
 
+    // Custom Multi-Picker Trigger for Body Parts
+    document.getElementById('btn-open-picker-body-parts')?.addEventListener('click', () => {
+      this.app.openMultiPicker({
+        category: 'body_parts',
+        title: 'المنطقة أو الأعضاء المعالجة في الجلسة',
+        currentSelected: this.selectedBodyParts || [],
+        onConfirm: (selected) => {
+          this.updateBodyPartsPickerButtonPreview(selected);
+        }
+      });
+    });
+
     // Examination Type Toggle (Cash vs Contract)
     document.getElementById('btn-exam-type-cash')?.addEventListener('click', () => this.setExamType('cash'));
     document.getElementById('btn-exam-type-contract')?.addEventListener('click', () => this.setExamType('contract'));
@@ -216,8 +228,7 @@ export class SessionsManager {
   }
 
   getSelectedBodyParts() {
-    return Array.from(document.querySelectorAll('#body-parts-container .chip-choice.selected'))
-      .map(btn => btn.getAttribute('data-part'));
+    return this.selectedBodyParts || [];
   }
 
   // Searchable Patient Picker
@@ -863,40 +874,41 @@ export class SessionsManager {
     await this.app.financeManager.loadDailyReport();
   }
 
-  // ================= Dynamic Body Parts (Add & Delete like Modalities) =================
-  renderBodyPartsChips(selectedParts = []) {
-    const container = document.getElementById('body-parts-container');
-    if (!container) return;
+  // ================= Dynamic Body Parts Custom Multi-Picker =================
+  updateBodyPartsPickerButtonPreview(selectedParts = []) {
+    this.selectedBodyParts = Array.isArray(selectedParts) ? [...selectedParts] : [];
+    const previewEl = document.getElementById('session-body-parts-preview');
+    const badgeEl = document.getElementById('session-body-parts-badge');
+    const countEl = document.getElementById('selected-parts-count');
 
-    const parts = db.getClinicalOptions('body_parts');
-    const isEdit = Boolean(this.bodyPartsEditMode);
+    if (badgeEl) badgeEl.textContent = `${this.selectedBodyParts.length} أعضاء`;
+    if (countEl) countEl.textContent = this.selectedBodyParts.length;
 
-    let html = parts.map(part => {
-      const isSelected = selectedParts.includes(part);
-      const editClass = isEdit ? 'in-edit-mode' : '';
-      const safePart = part.replace(/'/g, "\\'");
-      const deleteIconHtml = isEdit
-        ? `<span class="chip-delete-tag" data-action="delete-body-part" data-part="${safePart}" title="حذف هذا العضو"><i class="fa-solid fa-circle-xmark"></i></span>`
-        : '';
-
-      return `
-        <button type="button" class="chip-choice ${isSelected ? 'selected' : ''} ${editClass}" data-part="${part}">
-          <i class="fa-solid fa-bone"></i> <span>${part}</span>
-          ${deleteIconHtml}
-        </button>
-      `;
-    }).join('');
-
-    if (isEdit) {
-      html += `
-        <button type="button" class="chip-add-new-btn" data-action="add-body-part">
-          <i class="fa-solid fa-plus"></i> <span>إضافة عضو جديد</span>
-        </button>
-      `;
+    if (previewEl) {
+      if (this.selectedBodyParts.length === 0) {
+        previewEl.innerHTML = `<span style="color: var(--text-muted); font-size: 0.88rem;">-- اضغط لاختيار وتحديد الأعضاء المعالجة --</span>`;
+      } else {
+        previewEl.innerHTML = this.selectedBodyParts.map(part => `
+          <span class="badge badge-role-doctor" style="font-size: 0.8rem; padding: 4px 10px; margin: 2px; border-radius: 6px; font-weight: 700;">
+            <i class="fa-solid fa-bone" style="margin-left: 4px;"></i> ${escapeHTML(part)}
+          </span>
+        `).join('');
+      }
     }
 
-    container.innerHTML = html;
+    // Populate hidden container for backward compatibility
+    const hiddenContainer = document.getElementById('body-parts-container');
+    if (hiddenContainer) {
+      hiddenContainer.innerHTML = this.selectedBodyParts.map(p => `
+        <button type="button" class="chip-choice selected" data-part="${escapeHTML(p)}"></button>
+      `).join('');
+    }
+
     this.updateBodyPartsCount();
+  }
+
+  renderBodyPartsChips(selectedParts = []) {
+    this.updateBodyPartsPickerButtonPreview(selectedParts);
   }
 
   toggleBodyPartsEditMode() {

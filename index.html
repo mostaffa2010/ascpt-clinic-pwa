@@ -1527,19 +1527,21 @@
               </div>
             </div>
 
-            <!-- أزرار شركات التأمين -->
-            <div class="form-group" style="margin-bottom: 4px;">
-              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-                <label style="font-weight: 800; font-size: 0.88rem; color: var(--text-main);">اختر شركة التأمين *</label>
+            <!-- اختيار شركة التأمين (Custom Picker) -->
+            <div class="form-group" style="margin-bottom: 12px;">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                <label style="font-weight: 800; font-size: 0.88rem; color: var(--text-main); margin: 0;">اختر شركة التأمين *</label>
                 <span id="p-selected-ins-preview" style="font-size: 0.82rem; font-weight: 800; color: var(--primary);"></span>
               </div>
               <input type="hidden" id="p-insurance-company" value="">
-              
-              <!-- Direct Companies Grid -->
-              <div id="p-ins-direct-container" class="insurance-companies-grid" style="display: grid;"></div>
-
-              <!-- Indirect Companies Grid -->
-              <div id="p-ins-indirect-container" class="insurance-companies-grid" style="display: none;"></div>
+              <div class="custom-select-wrapper">
+                <button type="button" class="custom-select-btn" id="btn-open-picker-p-insurance" style="min-height: 42px; padding: 0 12px; font-weight: 800; font-size: 0.92rem; line-height: 1.4; display: flex; align-items: center; justify-content: space-between; width: 100%;">
+                  <span id="p-insurance-btn-text" class="btn-text">-- اضغط لاختيار شركة التأمين --</span>
+                  <i class="fa-solid fa-chevron-down custom-select-arrow"></i>
+                </button>
+              </div>
+              <div id="p-ins-direct-container" style="display: none;"></div>
+              <div id="p-ins-indirect-container" style="display: none;"></div>
             </div>
 
             <!-- Approved Visits & Body Parts for Insurance Approval -->
@@ -2038,6 +2040,41 @@
     </div>
   </div>
 
+  <!-- Modal: Custom Multi-Select & Option Management Picker -->
+  <div class="modal-backdrop" id="modal-multi-picker" style="z-index: 360;">
+    <div class="modal-content" style="max-width: 460px; max-height: 85vh; display: flex; flex-direction: column;">
+      <div class="modal-header" style="flex-shrink: 0;">
+        <h3 id="multi-picker-title"><i class="fa-solid fa-list-check" style="color: var(--primary);"></i> اختر من القائمة</h3>
+        <button type="button" class="modal-close" data-close-modal="modal-multi-picker">&times;</button>
+      </div>
+      
+      <div class="modal-body" style="padding: 14px 16px; overflow-y: auto; flex: 1;">
+        <!-- Search bar & Add Button Header -->
+        <div style="display: flex; gap: 8px; margin-bottom: 12px; align-items: center;">
+          <div style="position: relative; flex: 1;">
+            <i class="fa-solid fa-magnifying-glass" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); color: var(--text-muted); font-size: 0.85rem;"></i>
+            <input type="text" id="multi-picker-search" class="form-control" placeholder="بحث سريع في الخيارات..." style="height: 38px; padding-right: 32px; font-size: 0.88rem;">
+          </div>
+          <button type="button" class="btn btn-outline btn-sm" id="btn-multi-picker-add-new" style="height: 38px; padding: 0 12px; font-weight: 800; font-size: 0.82rem; white-space: nowrap; border-radius: 8px;">
+            <i class="fa-solid fa-plus"></i> إضافة خيار
+          </button>
+        </div>
+
+        <!-- Options Container -->
+        <div id="multi-picker-options-list" class="custom-picker-options-list" style="display: flex; flex-direction: column; gap: 6px;">
+          <!-- Populated dynamically -->
+        </div>
+      </div>
+
+      <div class="modal-footer" style="flex-shrink: 0; display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--border-color); padding: 10px 16px;">
+        <button type="button" class="btn btn-outline btn-sm" data-close-modal="modal-multi-picker">إلغاء</button>
+        <button type="button" class="btn btn-primary btn-sm" id="btn-multi-picker-confirm" style="display: inline-flex; padding: 6px 18px; font-weight: 800; font-size: 0.9rem;">
+          <i class="fa-solid fa-check" style="margin-left: 6px;"></i> <span id="multi-picker-confirm-text">تأكيد الاختيار</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
   
     <!-- ================= Printable Insurance Claim Statement (مطابقة للورقة 1) ================= -->
   <div id="printable-insurance-claim" class="printable-doc" style="display: none;">
@@ -2353,17 +2390,21 @@
           <input type="text" id="card-input-eval" class="form-control" placeholder="P.T. Initial functional evaluation">
         </div>
 
-        <!-- 3. Plan of P.T. Treatment (Interactive Chips) -->
+        <!-- 3. Plan of P.T. Treatment (Custom Multi-Picker) -->
         <div class="form-group" style="margin-bottom: 12px;">
           <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
-            <label style="font-weight: 800; margin: 0;">Plan of P.T. Treatment (أزرار خطة العلاج الطبيعي):</label>
-            <button type="button" class="btn-edit-chips admin-only" id="btn-card-add-treatment" style="padding: 3px 10px; font-size: 0.75rem;">
-              <i class="fa-solid fa-pen-to-square"></i> <span class="edit-text">تعديل الوسائل</span>
-            </button>
+            <label style="font-weight: 800; margin: 0; font-size: 0.88rem; color: var(--text-main);">
+              <i class="fa-solid fa-list-check" style="color: var(--primary);"></i> خطة ووسائل العلاج (Plan of Treatment) *
+            </label>
+            <span id="card-treatments-count-badge" class="badge badge-primary" style="font-size: 0.76rem;">0 محدد</span>
           </div>
-          <div class="body-parts-chips" id="card-treatment-chips-container" style="gap: 5px; margin-bottom: 8px;">
-            <!-- Populated dynamically -->
-          </div>
+          <button type="button" class="custom-select-btn" id="btn-open-picker-card-treatments" style="min-height: 44px; padding: 8px 12px; display: flex; align-items: center; justify-content: space-between; width: 100%;">
+            <div id="card-treatments-selected-preview" class="multi-select-preview" style="display: flex; flex-wrap: wrap; gap: 4px; align-items: center; flex: 1;">
+              <span style="color: var(--text-muted); font-size: 0.88rem;">-- اضغط لاختيار وتحديد وسائل كارت التردد --</span>
+            </div>
+            <i class="fa-solid fa-chevron-down custom-select-arrow" style="margin-right: 6px;"></i>
+          </button>
+          <div class="body-parts-chips" id="card-treatment-chips-container" style="display: none;"></div>
 
           <!-- Live Preview Box matching Image 2 -->
           <div style="background: var(--bg-subtle); border: 1px dashed var(--border-color); border-radius: 8px; padding: 10px; margin-top: 8px;">

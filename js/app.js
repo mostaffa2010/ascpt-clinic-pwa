@@ -457,6 +457,43 @@ class App {
       });
     }
 
+    // Multi-Picker Search Input
+    document.getElementById('multi-picker-search')?.addEventListener('input', (e) => {
+      this.renderMultiPickerOptions(e.target.value);
+    });
+
+    // Multi-Picker Add New Button
+    document.getElementById('btn-multi-picker-add-new')?.addEventListener('click', () => {
+      this.handleMultiPickerAddNew();
+    });
+
+    // Multi-Picker Confirm Button
+    document.getElementById('btn-multi-picker-confirm')?.addEventListener('click', () => {
+      this.confirmMultiPickerSelection();
+    });
+
+    // Event Delegation: Multi-Picker Options List
+    const multiPickerList = document.getElementById('multi-picker-options-list');
+    if (multiPickerList) {
+      multiPickerList.addEventListener('click', (e) => {
+        const delBtn = e.target.closest('[data-action="delete-multi-option"]');
+        if (delBtn) {
+          e.stopPropagation();
+          const val = delBtn.getAttribute('data-val');
+          const contract = delBtn.getAttribute('data-contract') || '';
+          this.handleMultiPickerDeleteOption(val, contract);
+          return;
+        }
+
+        const row = e.target.closest('.multi-picker-row');
+        if (row) {
+          const val = row.getAttribute('data-val');
+          const contract = row.getAttribute('data-contract') || '';
+          this.toggleMultiPickerOption(val, contract);
+        }
+      });
+    }
+
     // Event Delegation: Calendar Days Grid
     const calDaysContainer = document.getElementById('cal-days-container');
     if (calDaysContainer) {
@@ -1025,6 +1062,224 @@ class App {
       const selectedOpt = select.options[select.selectedIndex];
       textSpan.textContent = selectedOpt ? selectedOpt.text : '-- اختر --';
     }
+  }
+
+  // ================= Universal Multi-Select & Option Management Custom Picker =================
+  openMultiPicker({ category, title, currentSelected = [], onConfirm, isSingleSelect = false, contractType = null }) {
+    this.activeMultiPicker = {
+      category,
+      title,
+      selected: isSingleSelect ? (currentSelected ? [currentSelected] : []) : [...currentSelected],
+      onConfirm,
+      isSingleSelect,
+      contractType
+    };
+
+    const titleEl = document.getElementById('multi-picker-title');
+    if (titleEl) titleEl.innerHTML = `<i class="fa-solid fa-list-check" style="color: var(--primary);"></i> ${title}`;
+
+    const searchInput = document.getElementById('multi-picker-search');
+    if (searchInput) searchInput.value = '';
+
+    const confirmBtn = document.getElementById('btn-multi-picker-confirm');
+    if (confirmBtn) {
+      confirmBtn.style.display = isSingleSelect ? 'none' : 'inline-flex';
+    }
+
+    this.renderMultiPickerOptions('');
+    this.openModal('modal-multi-picker');
+
+    if (searchInput) {
+      setTimeout(() => searchInput.focus(), 250);
+    }
+  }
+
+  renderMultiPickerOptions(searchQuery = '') {
+    if (!this.activeMultiPicker) return;
+    const { category, selected, isSingleSelect, contractType } = this.activeMultiPicker;
+    const container = document.getElementById('multi-picker-options-list');
+    if (!container) return;
+
+    let options = [];
+    if (category === 'insurance_company') {
+      if (contractType) {
+        options = db.getInsuranceCompanies(contractType).map(c => ({ name: c, contract: contractType }));
+      } else {
+        const direct = db.getInsuranceCompanies('direct').map(c => ({ name: c, contract: 'direct' }));
+        const indirect = db.getInsuranceCompanies('indirect').map(c => ({ name: c, contract: 'indirect' }));
+        options = [...direct, ...indirect];
+      }
+    } else if (category === 'card_treatments') {
+      const modalities = (typeof db !== 'undefined' && db.getClinicalOptions) ? db.getClinicalOptions('modality') : [];
+      const defaultTreatments = ['pulsed Ultrasound', 'Heat application', 'Interferential current', 'Therapeutic ex', 'Laser Therapy', 'Cryotherapy'];
+      options = Array.from(new Set([...defaultTreatments, ...modalities]));
+    } else {
+      options = db.getClinicalOptions(category);
+    }
+
+    const q = (searchQuery || '').trim().toLowerCase();
+    const filtered = options.filter(opt => {
+      const name = typeof opt === 'object' ? opt.name : opt;
+      return !q || name.toLowerCase().includes(q);
+    });
+
+    if (filtered.length === 0) {
+      container.innerHTML = `
+        <div style="text-align: center; color: var(--text-muted); padding: 24px; font-size: 0.88rem;">
+          <i class="fa-solid fa-filter-circle-xmark" style="font-size: 1.5rem; display: block; margin-bottom: 8px; color: var(--text-muted);"></i>
+          لا توجد عناصر مطابقة للبحث
+        </div>
+      `;
+      this.updateMultiPickerConfirmBtn();
+      return;
+    }
+
+    container.innerHTML = filtered.map(opt => {
+      const name = typeof opt === 'object' ? opt.name : opt;
+      const cType = typeof opt === 'object' ? opt.contract : '';
+      const isSelected = selected.includes(name);
+
+      let badgeHtml = '';
+      if (cType === 'direct') {
+        badgeHtml = `<span class="badge" style="font-size: 0.72rem; padding: 2px 8px; font-weight: 800; background: rgba(56, 189, 248, 0.15); color: var(--primary); border: 1px solid rgba(56, 189, 248, 0.3); border-radius: 6px;">تعاقد مباشر</span>`;
+      } else if (cType === 'indirect') {
+        badgeHtml = `<span class="badge" style="font-size: 0.72rem; padding: 2px 8px; font-weight: 800; background: rgba(251, 191, 36, 0.15); color: var(--warning); border: 1px solid rgba(251, 191, 36, 0.3); border-radius: 6px;">تعاقد غير مباشر</span>`;
+      }
+
+      const iconClass = isSingleSelect
+        ? (isSelected ? 'fa-solid fa-circle-dot' : 'fa-regular fa-circle')
+        : (isSelected ? 'fa-solid fa-square-check' : 'fa-regular fa-square');
+
+      return `
+        <div class="multi-picker-row ${isSelected ? 'selected active-choice' : ''}" data-val="${escapeHTML(name)}" data-contract="${escapeHTML(cType)}" style="display: flex; align-items: center; justify-content: space-between; padding: 10px 12px; border-radius: 8px; border: 1.5px solid ${isSelected ? 'var(--primary)' : 'var(--border-color)'}; background: ${isSelected ? 'var(--primary-light)' : 'var(--bg-surface)'}; cursor: pointer; transition: all 0.15s ease;">
+          <div style="display: flex; align-items: center; gap: 10px; flex: 1;">
+            <i class="${iconClass}" style="color: ${isSelected ? 'var(--primary)' : 'var(--text-muted)'}; font-size: 1.15rem; flex-shrink: 0;"></i>
+            <span style="font-weight: 700; font-size: 0.9rem; color: var(--text-main);">${escapeHTML(name)}</span>
+          </div>
+          <div style="display: flex; align-items: center; gap: 8px;">
+            ${badgeHtml}
+            <button type="button" class="btn-delete-option-direct" data-action="delete-multi-option" data-val="${escapeHTML(name)}" data-contract="${escapeHTML(cType)}" style="background: none; border: none; color: #ef4444; padding: 4px 6px; cursor: pointer; font-size: 0.9rem; border-radius: 4px;" title="حذف من النظام">
+              <i class="fa-solid fa-trash-can"></i>
+            </button>
+          </div>
+        </div>
+      `;
+    }).join('');
+
+    this.updateMultiPickerConfirmBtn();
+  }
+
+  updateMultiPickerConfirmBtn() {
+    if (!this.activeMultiPicker || this.activeMultiPicker.isSingleSelect) return;
+    const count = this.activeMultiPicker.selected.length;
+    const txt = document.getElementById('multi-picker-confirm-text');
+    if (txt) {
+      txt.textContent = `تأكيد الاختيار (${count})`;
+    }
+  }
+
+  toggleMultiPickerOption(val, contractType = '') {
+    if (!this.activeMultiPicker) return;
+    const { isSingleSelect, selected, onConfirm } = this.activeMultiPicker;
+
+    if (isSingleSelect) {
+      this.activeMultiPicker.selected = [val];
+      if (typeof onConfirm === 'function') {
+        onConfirm(val, contractType);
+      }
+      this.closeModal('modal-multi-picker');
+      return;
+    }
+
+    const idx = selected.indexOf(val);
+    if (idx >= 0) {
+      selected.splice(idx, 1);
+    } else {
+      selected.push(val);
+    }
+
+    const searchInput = document.getElementById('multi-picker-search');
+    this.renderMultiPickerOptions(searchInput ? searchInput.value : '');
+  }
+
+  confirmMultiPickerSelection() {
+    if (!this.activeMultiPicker) return;
+    const { selected, onConfirm } = this.activeMultiPicker;
+    if (typeof onConfirm === 'function') {
+      onConfirm(selected);
+    }
+    this.closeModal('modal-multi-picker');
+  }
+
+  async handleMultiPickerAddNew() {
+    if (!this.activeMultiPicker) return;
+    const { category, contractType } = this.activeMultiPicker;
+
+    const titles = {
+      modality: 'إضافة وسيلة فيزيائية جديدة',
+      procedure: 'إضافة إجراء علاجي يدوي جديد',
+      exercise: 'إضافة تمرين علاجي جديد',
+      body_parts: 'إضافة عضو أو منطقة علاجية جديدة',
+      card_treatments: 'إضافة وسيلة جديدة لكارت التردد',
+      insurance_company: 'إضافة شركة تأمين جديدة'
+    };
+    const title = titles[category] || 'إضافة خيار جديد';
+
+    const val = await this.showPrompt(
+      'اكتب اسم العنصر الجديد لإضافته بشكل دائم للنظام:',
+      title,
+      'اكتب الاسم هنا...'
+    );
+
+    if (val && val.trim()) {
+      const cleanVal = val.trim();
+      if (category === 'insurance_company') {
+        const cType = contractType || 'direct';
+        await db.addInsuranceCompany(cType, cleanVal);
+        this.activeMultiPicker.selected = [cleanVal];
+        if (typeof this.activeMultiPicker.onConfirm === 'function') {
+          this.activeMultiPicker.onConfirm(cleanVal, cType);
+        }
+        this.showToast(`تمت إضافة شركة التأمين: ${cleanVal}`);
+        this.closeModal('modal-multi-picker');
+        return;
+      } else if (category === 'card_treatments') {
+        await db.addClinicalOption('modality', cleanVal);
+      } else {
+        await db.addClinicalOption(category, cleanVal);
+      }
+
+      if (!this.activeMultiPicker.selected.includes(cleanVal)) {
+        this.activeMultiPicker.selected.push(cleanVal);
+      }
+      this.showToast(`تمت إضافة: ${cleanVal}`);
+      const searchInput = document.getElementById('multi-picker-search');
+      this.renderMultiPickerOptions(searchInput ? searchInput.value : '');
+    }
+  }
+
+  async handleMultiPickerDeleteOption(val, optContract) {
+    if (!this.activeMultiPicker) return;
+    const { category, contractType } = this.activeMultiPicker;
+
+    const confirmed = await this.showConfirm(`هل أنت متأكد من حذف "${val}" نهائياً من النظام؟`, 'حذف عنصر');
+    if (!confirmed) return;
+
+    if (category === 'insurance_company') {
+      const cType = optContract || contractType || 'direct';
+      await db.deleteInsuranceCompany(cType, val);
+      this.activeMultiPicker.selected = this.activeMultiPicker.selected.filter(x => x !== val);
+    } else if (category === 'card_treatments') {
+      await db.deleteClinicalOption('modality', val);
+      this.activeMultiPicker.selected = this.activeMultiPicker.selected.filter(x => x !== val);
+    } else {
+      await db.deleteClinicalOption(category, val);
+      this.activeMultiPicker.selected = this.activeMultiPicker.selected.filter(x => x !== val);
+    }
+
+    this.showToast(`تم حذف: ${val}`);
+    const searchInput = document.getElementById('multi-picker-search');
+    this.renderMultiPickerOptions(searchInput ? searchInput.value : '');
   }
 
   showAlert(message, title = 'تنبيه المركز', type = 'info') {
