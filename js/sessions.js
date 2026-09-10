@@ -602,7 +602,7 @@ export class SessionsManager {
         const cTypeLabel = patient.contractType === 'direct' ? 'تعاقد مباشر' : 'تعاقد غير مباشر';
         const safeCompName = escapeHTML(patient.insuranceCompany || 'شركة تأمين');
         const approvedVisits = patient.approvedSessions || 12;
-        const approvedParts = patient.approvedBodyParts || 2;
+        const approvedParts = patient.approvedBodyParts || 1;
         paymentContainer.innerHTML = `
           <div style="background: #f0fdf4; border: 1.5px solid #bbf7d0; border-radius: 10px; padding: 12px 14px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px;">
             <div style="display: flex; align-items: center; gap: 10px;">
@@ -680,7 +680,7 @@ export class SessionsManager {
       if (patient.billing === 'insurance') {
         const cTypeLabel = patient.contractType === 'direct' ? 'مباشر' : 'غير مباشر';
         const visits = patient.approvedSessions || 12;
-        const parts = patient.approvedBodyParts || 2;
+        const parts = patient.approvedBodyParts || 1;
         billingTxt = `تأمين: ${patient.insuranceCompany || 'شركة'} (${cTypeLabel}) • رصيد الجواب: ${visits} زيارة (${parts} أعضاء)`;
       }
       subEl.textContent = `الهاتف: ${patient.phone} | الطبيب: ${patient.doctor} | ${billingTxt}`;
@@ -842,7 +842,7 @@ export class SessionsManager {
       notes,
       sessionNumber,
       approvedSessionsTotal,
-      approvedBodyPartsTotal: patient?.approvedBodyParts || 2
+      approvedBodyPartsTotal: patient?.approvedBodyParts || 1
     };
 
     await db.saveSession(sessionData, currentUser);
