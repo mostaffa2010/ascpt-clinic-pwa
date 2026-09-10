@@ -37,3 +37,63 @@ export function getLocalDateStr(date = new Date()) {
   const d = String(date.getDate()).padStart(2, '0');
   return `${y}-${m}-${d}`;
 }
+
+/**
+ * Renders the trigger box summary, badge, and removable tags for a picker field.
+ */
+export function updatePickerTriggerDisplay({
+  summaryId,
+  subId,
+  countBadgeId,
+  tagsContainerId,
+  selectedItems = [],
+  placeholder = 'اضغط للاختيار...',
+  emptySub = 'لم يتم تحديد أي عنصر',
+  unitName = 'عناصر',
+  icon = 'fa-solid fa-tag',
+  onRemove
+}) {
+  const summaryEl = document.getElementById(summaryId);
+  const subEl = document.getElementById(subId);
+  const countBadgeEl = document.getElementById(countBadgeId);
+  const tagsContainer = document.getElementById(tagsContainerId);
+
+  const items = Array.isArray(selectedItems) ? selectedItems : (selectedItems ? [selectedItems] : []);
+  const count = items.length;
+
+  if (count === 0) {
+    if (summaryEl) summaryEl.textContent = placeholder;
+    if (subEl) subEl.textContent = emptySub;
+    if (countBadgeEl) countBadgeEl.textContent = `0 ${unitName}`;
+    if (tagsContainer) tagsContainer.innerHTML = '';
+    return;
+  }
+
+  if (summaryEl) {
+    summaryEl.textContent = items.slice(0, 3).join('، ') + (count > 3 ? ` ... (+${count - 3})` : '');
+  }
+  if (subEl) {
+    subEl.textContent = `تم تحديد ${count} ${unitName}`;
+  }
+  if (countBadgeEl) {
+    countBadgeEl.textContent = `${count} ${unitName}`;
+  }
+
+  if (tagsContainer) {
+    tagsContainer.innerHTML = items.map(item => `
+      <span class="selected-pill">
+        <i class="${icon}"></i>
+        <span>${escapeHTML(item)}</span>
+        <button type="button" data-remove-item="${escapeHTML(item)}" title="إلغاء">&times;</button>
+      </span>
+    `).join('');
+
+    tagsContainer.querySelectorAll('[data-remove-item]').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const itm = btn.getAttribute('data-remove-item');
+        if (typeof onRemove === 'function') onRemove(itm);
+      });
+    });
+  }
+}

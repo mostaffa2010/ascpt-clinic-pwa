@@ -1,4 +1,4 @@
-import { escapeHTML, getLocalDateStr } from './utils.js';
+import { escapeHTML, getLocalDateStr, updatePickerTriggerDisplay } from './utils.js';
 // ========================================================
 // PhysioFlow - Patients Management Module
 // ========================================================
@@ -12,6 +12,11 @@ export class PatientsManager {
     this.app = app;
     this.patients = [];
     this.currentSheetPatient = null;
+    this.selectedApprovedBodyParts = [];
+    this.selectedRenewApprovedBodyParts = [];
+    this.selectedModalities = [];
+    this.selectedProcedures = [];
+    this.selectedExercises = [];
     window.patientsManager = this;
     this.insEditMode = false;
     this.currentContractType = "direct";
@@ -67,68 +72,60 @@ export class PatientsManager {
     });
 
     // Toggle Insurance Edit Mode in Patient Form
-    document.getElementById('btn-toggle-chips-ins-patient')?.addEventListener('click', () => this.toggleInsuranceEditMode('patient'));
+    // Patient Modal: Insurance Company Picker & Approved Body Parts Picker
+    document.getElementById('btn-open-p-insurance-picker')?.addEventListener('click', () => {
+      const contractType = document.querySelector('input[name="p-contract-type"]:checked')?.value || 'direct';
+      const curComp = document.getElementById('p-insurance-company')?.value || '';
+      this.app.multiSelectPicker.open({
+        title: `اختر شركة التأمين (${contractType === 'direct' ? 'تعاقد مباشر' : 'تعاقد غير مباشر'})`,
+        icon: 'fa-solid fa-file-contract',
+        category: 'insurance_company',
+        contractType: contractType,
+        selected: curComp,
+        mode: 'single',
+        searchPlaceholder: 'ابحث في شركات التأمين...',
+        addPlaceholder: 'إضافة شركة تأمين جديدة...',
+        onConfirm: (val) => {
+          this.selectInsuranceCompany(contractType, val);
+        }
+      });
+    });
 
-    // Event Delegation: Patient Modal Insurance Chips Containers
-    ['p-ins-direct-container', 'p-ins-indirect-container'].forEach(id => {
-      const container = document.getElementById(id);
-      if (container) {
-        container.addEventListener('click', async (e) => {
-          const delTag = e.target.closest('[data-action="delete-insurance"]');
-          if (delTag) {
-            e.stopPropagation();
-            this.deleteInsuranceDirect(delTag.dataset.contract, delTag.dataset.company);
-            return;
-          }
-          const addBtn = e.target.closest('[data-action="add-insurance"]');
-          if (addBtn) {
-            e.stopPropagation();
-            const contract = addBtn.dataset.contract || this.currentContractType || 'direct';
-            const contractLabel = contract === 'direct' ? 'تعاقد مباشر' : 'تعاقد غير مباشر';
-            const name = await this.app.showPrompt(
-              `اكتب اسم شركة التأمين الجديدة (${contractLabel}):`,
-              'إضافة شركة تأمين جديدة',
-              'مثال: شركة أكسا / أليانز'
-            );
-            if (name && name.trim()) {
-              await db.addInsuranceCompany(contract, name.trim());
-              this.renderAllInsuranceChips();
-              this.selectInsuranceCompany(contract, name.trim());
-              this.app.showToast(`تمت إضافة شركة "${name.trim()}" بنجاح`);
-            }
-            return;
-          }
-          const chip = e.target.closest('[data-action="select-insurance"]');
-          if (chip) {
-            this.selectInsuranceCompany(chip.dataset.contract, chip.dataset.company);
-          }
-        });
-      }
+    document.getElementById('btn-open-p-approved-body-parts-picker')?.addEventListener('click', () => {
+      this.app.multiSelectPicker.open({
+        title: 'الأعضاء المعالجة المعتمدة بالجواب',
+        icon: 'fa-solid fa-bone',
+        category: 'body_parts',
+        selected: this.selectedApprovedBodyParts,
+        searchPlaceholder: 'ابحث في الأعضاء المعتمدة...',
+        addPlaceholder: 'إضافة عضو جديد...',
+        onConfirm: (vals) => {
+          this.selectedApprovedBodyParts = vals;
+          this.renderApprovedBodyPartsChips();
+        }
+      });
+    });
+
+    document.getElementById('btn-open-renew-body-parts-picker')?.addEventListener('click', () => {
+      this.app.multiSelectPicker.open({
+        title: 'الأعضاء المعتمدة بالدورة الجديدة',
+        icon: 'fa-solid fa-bone',
+        category: 'body_parts',
+        selected: this.selectedRenewApprovedBodyParts,
+        searchPlaceholder: 'ابحث في الأعضاء المعتمدة...',
+        addPlaceholder: 'إضافة عضو جديد...',
+        onConfirm: (vals) => {
+          this.selectedRenewApprovedBodyParts = vals;
+          this.renderRenewApprovedBodyPartsChips();
+        }
+      });
     });
 
     // Input listener on approved sessions in patient modal
     document.getElementById('p-approved-sessions')?.addEventListener('input', () => this.updateApprovalSummary());
 
-    // Approved Body Parts Chips toggle (Pure Dynamic Selection: 1, 2, 3, 4, 5+ parts)
-    document.getElementById('p-approved-body-parts-container')?.addEventListener('click', (e) => {
-      const btn = e.target.closest('[data-action="toggle-approved-part"]');
-      if (btn) {
-        e.preventDefault();
-        btn.classList.toggle('selected');
-        this.updateApprovalSummary();
-      }
-    });
-
-    // Renew Modal input listener & dynamic chips toggle
+    // Renew Modal input listener
     document.getElementById('renew-sessions-count')?.addEventListener('input', () => this.updateRenewSummary());
-    document.getElementById('renew-approved-body-parts-container')?.addEventListener('click', (e) => {
-      const btn = e.target.closest('[data-action="toggle-renew-part"]');
-      if (btn) {
-        e.preventDefault();
-        btn.classList.toggle('selected');
-        this.updateRenewSummary();
-      }
-    });
 
     // Patient Sheet Navigation & Print Buttons
     document.getElementById('btn-back-to-patients-top')?.addEventListener('click', () => this.app.switchView('patients'));
@@ -182,44 +179,50 @@ export class PatientsManager {
       formSheet.addEventListener('submit', (e) => this.handleSaveSheet(e));
     }
 
-    // Toggle Chips Edit Mode Buttons in Clinical Sheet
-    document.getElementById('btn-toggle-chips-modality')?.addEventListener('click', () => this.toggleChipsEditMode('modality'));
-    document.getElementById('btn-toggle-chips-procedure')?.addEventListener('click', () => this.toggleChipsEditMode('procedure'));
-    document.getElementById('btn-toggle-chips-exercise')?.addEventListener('click', () => this.toggleChipsEditMode('exercise'));
+    // Clinical Sheet Searchable Pickers
+    document.getElementById('btn-open-sheet-modalities-picker')?.addEventListener('click', () => {
+      this.app.multiSelectPicker.open({
+        title: 'الأجهزة والوسائل الفيزيائية',
+        icon: 'fa-solid fa-bolt-lightning',
+        category: 'modality',
+        selected: this.selectedModalities,
+        searchPlaceholder: 'ابحث في الأجهزة والوسائل...',
+        addPlaceholder: 'إضافة جهاز فيزيائي جديد...',
+        onConfirm: (vals) => {
+          this.selectedModalities = vals;
+          this.renderClinicalPickersUI();
+        }
+      });
+    });
 
-    // Event Delegation: Clinical Sheet Chips Containers (Modality, Procedure, Exercise)
-    [
-      { id: 'sheet-modalities-container', cat: 'modality' },
-      { id: 'sheet-procedures-container', cat: 'procedure' },
-      { id: 'sheet-exercises-container', cat: 'exercise' }
-    ].forEach(({ id, cat }) => {
-      const container = document.getElementById(id);
-      if (container) {
-        container.addEventListener('click', async (e) => {
-          const delTag = e.target.closest('[data-action="delete-option"]');
-          if (delTag) {
-            e.preventDefault();
-            e.stopPropagation();
-            const optName = delTag.dataset.option || delTag.closest('.chip-choice')?.getAttribute('data-val');
-            await this.deleteOptionDirect(delTag.dataset.category || cat, optName);
-            return;
-          }
+    document.getElementById('btn-open-sheet-procedures-picker')?.addEventListener('click', () => {
+      this.app.multiSelectPicker.open({
+        title: 'الإجراءات والعلاج اليدوي',
+        icon: 'fa-solid fa-hand-holding-hand',
+        category: 'procedure',
+        selected: this.selectedProcedures,
+        searchPlaceholder: 'ابحث في الإجراءات والعلاج اليدوي...',
+        addPlaceholder: 'إضافة إجراء يدوي جديد...',
+        onConfirm: (vals) => {
+          this.selectedProcedures = vals;
+          this.renderClinicalPickersUI();
+        }
+      });
+    });
 
-          const addBtn = e.target.closest('[data-action="add-option"]');
-          if (addBtn) {
-            e.preventDefault();
-            e.stopPropagation();
-            this.openAddOptionModal(addBtn.dataset.category || cat);
-            return;
-          }
-
-          const chip = e.target.closest('.chip-choice');
-          if (chip && !this.chipsEditMode[cat]) {
-            e.preventDefault();
-            chip.classList.toggle('selected');
-          }
-        });
-      }
+    document.getElementById('btn-open-sheet-exercises-picker')?.addEventListener('click', () => {
+      this.app.multiSelectPicker.open({
+        title: 'التمارين العلاجية الموصوفة',
+        icon: 'fa-solid fa-person-running',
+        category: 'exercise',
+        selected: this.selectedExercises,
+        searchPlaceholder: 'ابحث في التمارين العلاجية...',
+        addPlaceholder: 'إضافة تمرين علاجي جديد...',
+        onConfirm: (vals) => {
+          this.selectedExercises = vals;
+          this.renderClinicalPickersUI();
+        }
+      });
     });
 
     // Real-time phone input digits filter
@@ -613,221 +616,104 @@ export class PatientsManager {
     }
   }
 
-  renderApprovedBodyPartsChips(selectedParts = []) {
-    const container = document.getElementById('p-approved-body-parts-container');
-    if (!container) return;
-    const parts = db.getClinicalOptions('body_parts') || [];
-    container.innerHTML = parts.map(part => {
-      const isSelected = Array.isArray(selectedParts) && selectedParts.includes(part);
-      return `
-        <button type="button" class="chip-choice ${isSelected ? 'selected' : ''}" data-action="toggle-approved-part" data-part="${part}">
-          <i class="fa-solid fa-bone"></i> <span>${part}</span>
-        </button>
-      `;
-    }).join('');
+  renderApprovedBodyPartsChips(selectedParts = null) {
+    if (selectedParts !== null) {
+      this.selectedApprovedBodyParts = Array.isArray(selectedParts) ? [...selectedParts] : [];
+    }
+    updatePickerTriggerDisplay({
+      summaryId: 'p-approved-parts-summary',
+      subId: 'p-approved-parts-sub',
+      countBadgeId: 'p-approved-parts-count-badge',
+      tagsContainerId: 'p-approved-parts-tags',
+      selectedItems: this.selectedApprovedBodyParts,
+      placeholder: 'اضغط لاختيار الأعضاء المعتمدة...',
+      emptySub: 'حدد الأعضاء المذكورة بالخطاب',
+      unitName: 'أعضاء',
+      icon: 'fa-solid fa-bone',
+      onRemove: (item) => {
+        this.selectedApprovedBodyParts = this.selectedApprovedBodyParts.filter(p => p !== item);
+        this.renderApprovedBodyPartsChips();
+      }
+    });
+
+    const count = this.selectedApprovedBodyParts.length;
+    const displayEl = document.getElementById('p-approved-parts-count-display');
+    if (displayEl) {
+      displayEl.textContent = this.formatPartsCountLabel(count);
+    }
+    const hiddenCount = document.getElementById('p-approved-body-parts-count');
+    if (hiddenCount) {
+      hiddenCount.value = count || 1;
+    }
     this.updateApprovalSummary();
   }
 
   getSelectedApprovedBodyParts() {
-    const container = document.getElementById('p-approved-body-parts-container');
-    if (!container) return [];
-    return Array.from(container.querySelectorAll('.chip-choice.selected')).map(el => el.dataset.part);
+    return Array.isArray(this.selectedApprovedBodyParts) ? this.selectedApprovedBodyParts : [];
   }
 
-  renderRenewApprovedBodyPartsChips(selectedParts = []) {
-    const container = document.getElementById('renew-approved-body-parts-container');
-    if (!container) return;
-    const parts = db.getClinicalOptions('body_parts') || [];
-    container.innerHTML = parts.map(part => {
-      const isSelected = Array.isArray(selectedParts) && selectedParts.includes(part);
-      return `
-        <button type="button" class="chip-choice ${isSelected ? 'selected' : ''}" data-action="toggle-renew-part" data-part="${part}">
-          <i class="fa-solid fa-bone"></i> <span>${part}</span>
-        </button>
-      `;
-    }).join('');
+  renderRenewApprovedBodyPartsChips(selectedParts = null) {
+    if (selectedParts !== null) {
+      this.selectedRenewApprovedBodyParts = Array.isArray(selectedParts) ? [...selectedParts] : [];
+    }
+    updatePickerTriggerDisplay({
+      summaryId: 'renew-approved-parts-summary',
+      subId: 'renew-approved-parts-sub',
+      countBadgeId: 'renew-approved-parts-count-badge',
+      tagsContainerId: 'renew-approved-parts-tags',
+      selectedItems: this.selectedRenewApprovedBodyParts,
+      placeholder: 'اضغط لاختيار الأعضاء المعتمدة...',
+      emptySub: 'حدد الأعضاء للدورة الجديدة',
+      unitName: 'أعضاء',
+      icon: 'fa-solid fa-bone',
+      onRemove: (item) => {
+        this.selectedRenewApprovedBodyParts = this.selectedRenewApprovedBodyParts.filter(p => p !== item);
+        this.renderRenewApprovedBodyPartsChips();
+      }
+    });
+
+    const count = this.selectedRenewApprovedBodyParts.length;
+    const displayEl = document.getElementById('renew-approved-parts-count-display');
+    if (displayEl) {
+      displayEl.textContent = this.formatPartsCountLabel(count);
+    }
+    const hiddenCount = document.getElementById('renew-body-parts-count');
+    if (hiddenCount) {
+      hiddenCount.value = count || 1;
+    }
     this.updateRenewSummary();
   }
 
   getSelectedRenewApprovedBodyParts() {
-    const container = document.getElementById('renew-approved-body-parts-container');
-    if (!container) return [];
-    return Array.from(container.querySelectorAll('.chip-choice.selected')).map(el => el.dataset.part);
+    return Array.isArray(this.selectedRenewApprovedBodyParts) ? this.selectedRenewApprovedBodyParts : [];
   }
 
-  // ================= Insurance Interactive Buttons for Patient Registration =================
+  // ================= Insurance Picker Integration for Patient Registration =================
   renderAllInsuranceChips() {
-    this.renderInsuranceChips('direct', 'p-ins-direct-container');
-    this.renderInsuranceChips('indirect', 'p-ins-indirect-container');
-  }
-
-  renderInsuranceChips(contractType, containerId) {
-    const container = document.getElementById(containerId);
-    if (!container) return;
-
-    const companies = db.getInsuranceCompanies(contractType);
-    const selectedCompany = document.getElementById('p-insurance-company')?.value || '';
-    const isEdit = Boolean(this.insEditMode);
-    const icon = contractType === 'direct' ? 'fa-solid fa-file-contract' : 'fa-solid fa-handshake';
-
-    let html = companies.map(comp => {
-      const isSelected = (comp === selectedCompany);
-      const safeComp = comp.replace(/'/g, "\\'");
-      const editClass = isEdit ? 'in-edit-mode' : '';
-      const deleteIconHtml = isEdit
-        ? `<span class="chip-delete-tag" data-action="delete-insurance" data-contract="${contractType}" data-company="${safeComp}" title="حذف الشركة"><i class="fa-solid fa-circle-xmark"></i></span>`
-        : '';
-
-      return `
-        <button type="button" class="insurance-company-card ${isSelected ? 'selected' : ''} ${editClass}" data-action="select-insurance" data-contract="${contractType}" data-company="${safeComp}">
-          <span class="ins-icon-wrap"><i class="${icon}"></i></span>
-          <span style="flex: 1; text-align: right; line-height: 1.25;">${comp}</span>
-          ${isSelected ? '<i class="fa-solid fa-check ins-check-icon"></i>' : ''}
-          ${deleteIconHtml}
-        </button>
-      `;
-    }).join('');
-
-    if (isEdit) {
-      html += `
-        <button type="button" class="chip-add-new-btn" data-action="add-insurance" data-contract="${contractType}" data-source="patient" style="grid-column: 1 / -1;">
-          <i class="fa-solid fa-plus"></i> <span>إضافة شركة جديدة</span>
-        </button>
-      `;
-    }
-
-    container.innerHTML = html;
+    const compName = document.getElementById('p-insurance-company')?.value || '';
+    const contractType = document.querySelector('input[name="p-contract-type"]:checked')?.value || 'direct';
+    this.selectInsuranceCompany(contractType, compName);
   }
 
   selectInsuranceCompany(contractType, compName) {
-    if (this.insEditMode) return;
-
     const input = document.getElementById('p-insurance-company');
     if (input) input.value = compName;
 
-    const preview = document.getElementById('p-selected-ins-preview');
-    if (preview) preview.textContent = `المختارة: ${compName}`;
+    const summaryEl = document.getElementById('p-insurance-company-summary');
+    if (summaryEl) summaryEl.textContent = compName ? compName : '-- اضغط لاختيار شركة التأمين --';
 
-    document.querySelectorAll('#p-ins-direct-container .insurance-company-card, #p-ins-indirect-container .insurance-company-card').forEach(btn => {
-      const isMatch = (btn.getAttribute('data-company') === compName);
-      btn.classList.toggle('selected', isMatch);
-      let check = btn.querySelector('.ins-check-icon');
-      if (isMatch) {
-        if (!check) {
-          const checkIcon = document.createElement('i');
-          checkIcon.className = 'fa-solid fa-check ins-check-icon';
-          btn.appendChild(checkIcon);
-        }
-      } else {
-        if (check) check.remove();
-      }
-    });
+    const subEl = document.getElementById('p-insurance-company-sub');
+    if (subEl) {
+      subEl.textContent = compName
+        ? (contractType === 'direct' ? 'تعاقد مباشر' : 'تعاقد غير مباشر')
+        : 'اختر من الشركات المسجلة أو أضف جديدة';
+    }
   }
 
   onContractTypeChanged(contractType) {
     this.currentContractType = contractType;
-    const directCont = document.getElementById('p-ins-direct-container');
-    const indirectCont = document.getElementById('p-ins-indirect-container');
-
-    if (directCont && indirectCont) {
-      if (contractType === 'direct') {
-        directCont.style.display = 'grid';
-        indirectCont.style.display = 'none';
-      } else {
-        directCont.style.display = 'none';
-        indirectCont.style.display = 'grid';
-      }
-    }
-  }
-
-  toggleInsuranceEditMode() {
-    const user = auth.getCurrentUser();
-    if (!user || user.role === 'doctor') {
-      this.app.showAlert('تعديل وحذف شركات التأمين متاح للإدارة والاستقبال فقط.', 'تنبيه');
-      return;
-    }
-
-    this.insEditMode = !this.insEditMode;
-    const isEdit = this.insEditMode;
-
-    const btn = document.getElementById('btn-toggle-chips-ins-patient');
-    if (btn) {
-      if (isEdit) {
-        btn.className = 'btn-edit-chips active';
-        btn.innerHTML = '<i class="fa-solid fa-check"></i> <span class="edit-text">تم الانتهاء</span>';
-      } else {
-        btn.className = 'btn-edit-chips';
-        btn.innerHTML = '<i class="fa-solid fa-pen-to-square"></i> <span class="edit-text">تعديل الشركات</span>';
-      }
-    }
-
-    this.renderAllInsuranceChips();
-  }
-
-  async deleteInsuranceDirect(contractType, compName) {
-    const user = auth.getCurrentUser();
-    if (!user || user.role === 'doctor') return;
-
-    const confirmed = await this.app.showConfirm(`هل أنت متأكد من حذف شركة "${compName}" نهائياً؟`, 'حذف شركة تأمين');
-    if (confirmed) {
-      await db.deleteInsuranceCompany(contractType, compName);
-      this.renderAllInsuranceChips();
-      this.app.showToast(`تم حذف شركة "${compName}" بنجاح`);
-    }
-  }
-
-
-  validatePhoneLive() {
-    const phoneInput = document.getElementById('p-phone');
-    const feedback = document.getElementById('p-phone-feedback');
-    if (!phoneInput) return false;
-
-    let val = phoneInput.value.trim().replace(/[\s\-\(\)\.]/g, '');
-    if (val.startsWith('+20')) val = '0' + val.slice(3);
-    else if (val.startsWith('20') && val.length === 12) val = '0' + val.slice(2);
-
-    if (!val) {
-      phoneInput.classList.remove('input-error', 'input-success');
-      if (feedback) { feedback.style.display = 'none'; feedback.innerHTML = ''; }
-      return false;
-    }
-
-    const isValid = /^01[0125][0-9]{8}$/.test(val);
-
-    if (isValid) {
-      phoneInput.classList.remove('input-error');
-      phoneInput.classList.add('input-success');
-      if (feedback) {
-        feedback.className = 'form-feedback-msg success';
-        feedback.style.display = 'flex';
-        feedback.innerHTML = '<i class="fa-solid fa-circle-check" style="margin-top: 2px;"></i> <span>رقم موبايل مصري صحيح ومكتمل (11 رقماً).</span>';
-      }
-      return true;
-    } else {
-      phoneInput.classList.remove('input-success');
-      phoneInput.classList.add('input-error');
-      let whatIsWrong = '';
-      let whatToDo = 'اكتب 11 رقماً يبدأ بأحد شبكات المحمول المصرية (010، 011، 012، 015).';
-
-      if (!val.startsWith('01')) {
-        whatIsWrong = 'الرقم لا يبدأ بـ 01.';
-      } else if (val.length >= 3 && !/^01[0125]/.test(val)) {
-        whatIsWrong = `كود الشبكة (${val.slice(0, 3)}) غير معروف.`;
-      } else if (val.length < 11) {
-        whatIsWrong = `الرقم ناقص (${val.length} أرقام فقط من 11).`;
-      } else if (val.length > 11) {
-        whatIsWrong = `الرقم زائد عن 11 رقماً (${val.length} رقماً).`;
-      } else {
-        whatIsWrong = 'صيغة الرقم غير صحيحة.';
-      }
-
-      if (feedback) {
-        feedback.className = 'form-feedback-msg error';
-        feedback.style.display = 'flex';
-        feedback.innerHTML = `<i class="fa-solid fa-circle-exclamation" style="margin-top: 2px; flex-shrink: 0;"></i> <div><strong>خطأ:</strong> ${whatIsWrong}<br><span style="color: #7f1d1d;"><strong>الصحيح:</strong> ${whatToDo}</span></div>`;
-      }
-      return false;
-    }
+    const compName = document.getElementById('p-insurance-company')?.value || '';
+    this.selectInsuranceCompany(contractType, compName);
   }
 
   clearPhoneValidation() {
@@ -846,9 +732,7 @@ export class PatientsManager {
     if (insComp) insComp.value = '';
     const insPrev = document.getElementById('p-selected-ins-preview');
     if (insPrev) insPrev.textContent = '';
-    document.querySelectorAll('#p-ins-direct-container .insurance-company-card, #p-ins-indirect-container .insurance-company-card').forEach(btn => {
-      btn.classList.remove('selected');
-    });
+
     document.getElementById('modal-patient-title').innerHTML = '<i class="fa-solid fa-user-plus"></i> تسجيل مريض جديد';
     document.getElementById('p-insurance-details').style.display = 'none';
     const appSessionsInp = document.getElementById('p-approved-sessions');
@@ -1351,17 +1235,10 @@ export class PatientsManager {
       }, 1500);
     }
 
-    // Collect Modalities
-    const modalities = Array.from(document.querySelectorAll('#sheet-modalities-container .sheet-chip.selected'))
-      .map(b => b.getAttribute('data-val'));
-
-    // Collect Procedures
-    const procedures = Array.from(document.querySelectorAll('#sheet-procedures-container .sheet-chip.selected'))
-      .map(b => b.getAttribute('data-val'));
-
-    // Collect Exercises
-    const exercises = Array.from(document.querySelectorAll('#sheet-exercises-container .sheet-chip.selected'))
-      .map(b => b.getAttribute('data-val'));
+    // Collect Modalities, Procedures, Exercises from Pickers
+    const modalities = Array.isArray(this.selectedModalities) ? this.selectedModalities : [];
+    const procedures = Array.isArray(this.selectedProcedures) ? this.selectedProcedures : [];
+    const exercises = Array.isArray(this.selectedExercises) ? this.selectedExercises : [];
 
     const clinicalSheet = {
       diagnosis: document.getElementById('sheet-diagnosis').value.trim(),
@@ -1397,172 +1274,65 @@ export class PatientsManager {
     await this.loadPatients();
   }
 
-  // ================= Dynamic Clinical Chips (Manager Controlled) =================
-  toggleChipsEditMode(category) {
-    const user = auth.getCurrentUser();
-    if (!RolesManager.canManageUsers(user)) {
-      this.app.showAlert('تعديل وحذف الأزرار متاح لمدير المركز فقط.', 'صلاحية المدير');
-      return;
-    }
-
-    this.chipsEditMode[category] = !this.chipsEditMode[category];
-    const isEdit = this.chipsEditMode[category];
-
-    const btn = document.getElementById(`btn-toggle-chips-${category}`);
-    if (btn) {
-      if (isEdit) {
-        btn.className = 'btn-edit-chips active';
-        btn.innerHTML = '<i class="fa-solid fa-check"></i> <span class="edit-text">تم الانتهاء</span>';
-      } else {
-        btn.className = 'btn-edit-chips';
-        btn.innerHTML = '<i class="fa-solid fa-pen-to-square"></i> <span class="edit-text">تعديل الأزرار</span>';
-      }
-    }
-
-    const containerMap = {
-      modality: 'sheet-modalities-container',
-      procedure: 'sheet-procedures-container',
-      exercise: 'sheet-exercises-container'
-    };
-
-    const curSelected = Array.from(document.querySelectorAll(`#${containerMap[category]} .sheet-chip.selected`))
-      .map(b => b.getAttribute('data-val'));
-
-    this.renderCategoryChips(category, containerMap[category], curSelected);
+  // ================= Dynamic Clinical Pickers Integration =================
+  renderAllClinicalChips(sheet = {}) {
+    this.selectedModalities = Array.isArray(sheet.modalities) ? [...sheet.modalities] : [];
+    this.selectedProcedures = Array.isArray(sheet.procedures) ? [...sheet.procedures] : [];
+    this.selectedExercises = Array.isArray(sheet.exercises) ? [...sheet.exercises] : [];
+    this.renderClinicalPickersUI();
   }
 
-  renderAllClinicalChips(sheet = {}) {
-    // Reset edit modes on sheet open
-    this.chipsEditMode = { modality: false, procedure: false, exercise: false };
-    ['modality', 'procedure', 'exercise'].forEach(cat => {
-      const btn = document.getElementById(`btn-toggle-chips-${cat}`);
-      if (btn) {
-        btn.className = 'btn-edit-chips';
-        btn.innerHTML = '<i class="fa-solid fa-pen-to-square"></i> <span class="edit-text">تعديل الأزرار</span>';
+  renderClinicalPickersUI() {
+    // 1. Modalities
+    updatePickerTriggerDisplay({
+      summaryId: 'sheet-modalities-summary',
+      subId: 'sheet-modalities-sub',
+      countBadgeId: 'sheet-modalities-count-badge',
+      tagsContainerId: 'sheet-modalities-tags',
+      selectedItems: this.selectedModalities,
+      placeholder: 'اضغط لاختيار الأجهزة والوسائل...',
+      emptySub: 'لم يتم اختيار أي جهاز بعد',
+      unitName: 'أجهزة',
+      icon: 'fa-solid fa-bolt-lightning',
+      onRemove: (item) => {
+        this.selectedModalities = this.selectedModalities.filter(x => x !== item);
+        this.renderClinicalPickersUI();
       }
     });
 
-    this.renderCategoryChips('modality', 'sheet-modalities-container', sheet.modalities || []);
-    this.renderCategoryChips('procedure', 'sheet-procedures-container', sheet.procedures || []);
-    this.renderCategoryChips('exercise', 'sheet-exercises-container', sheet.exercises || []);
-  }
+    // 2. Procedures
+    updatePickerTriggerDisplay({
+      summaryId: 'sheet-procedures-summary',
+      subId: 'sheet-procedures-sub',
+      countBadgeId: 'sheet-procedures-count-badge',
+      tagsContainerId: 'sheet-procedures-tags',
+      selectedItems: this.selectedProcedures,
+      placeholder: 'اضغط لاختيار الإجراءات والعلاج اليدوي...',
+      emptySub: 'لم يتم اختيار أي إجراء بعد',
+      unitName: 'إجراءات',
+      icon: 'fa-solid fa-hand-holding-hand',
+      onRemove: (item) => {
+        this.selectedProcedures = this.selectedProcedures.filter(x => x !== item);
+        this.renderClinicalPickersUI();
+      }
+    });
 
-  renderCategoryChips(category, containerId, selectedList = []) {
-    const container = document.getElementById(containerId);
-    if (!container) return;
-
-    const options = db.getClinicalOptions(category);
-    const iconMap = {
-      modality: 'fa-solid fa-bolt-lightning',
-      procedure: 'fa-solid fa-hand-holding-hand',
-      exercise: 'fa-solid fa-person-running'
-    };
-    const defaultIcon = iconMap[category] || 'fa-solid fa-circle-check';
-    const isEdit = Boolean(this.chipsEditMode[category]);
-
-    let html = options.map(opt => {
-      const isSelected = selectedList.includes(opt);
-      const editClass = isEdit ? 'in-edit-mode' : '';
-      const safeOpt = opt.replace(/'/g, "\\'");
-      const deleteIconHtml = isEdit
-        ? `<span class="chip-delete-tag" data-action="delete-option" data-category="${category}" data-option="${safeOpt}" title="حذف هذا الزر"><i class="fa-solid fa-circle-xmark"></i></span>`
-        : '';
-
-      return `
-        <button type="button" class="chip-choice sheet-chip ${isSelected ? 'selected' : ''} ${editClass}" data-group="${category}" data-val="${opt}">
-          <i class="${defaultIcon}"></i> <span>${opt}</span>
-          ${deleteIconHtml}
-        </button>
-      `;
-    }).join('');
-
-    if (isEdit) {
-      const addLabels = {
-        modality: 'إضافة جهاز جديد',
-        procedure: 'إضافة إجراء جديد',
-        exercise: 'إضافة تمرين جديد'
-      };
-      html += `
-        <button type="button" class="chip-add-new-btn" data-action="add-option" data-category="${category}">
-          <i class="fa-solid fa-plus"></i> <span>${addLabels[category] || 'إضافة جديد'}</span>
-        </button>
-      `;
-    }
-
-    container.innerHTML = html;
-  }
-
-  async deleteOptionDirect(category, optionName) {
-    const user = auth.getCurrentUser();
-    if (!RolesManager.canManageUsers(user)) return;
-
-    const confirmed = await this.app.showConfirm(
-      `هل أنت متأكد من حذف زر "${optionName}" نهائياً من قائمة الأطباء؟`,
-      'حذف زر دائم'
-    );
-    if (confirmed) {
-      await db.deleteClinicalOption(category, optionName);
-      const containerMap = {
-        modality: 'sheet-modalities-container',
-        procedure: 'sheet-procedures-container',
-        exercise: 'sheet-exercises-container'
-      };
-      const curSelected = Array.from(document.querySelectorAll(`#${containerMap[category]} .sheet-chip.selected`))
-        .map(b => b.getAttribute('data-val'))
-        .filter(v => v !== optionName);
-
-      this.renderCategoryChips(category, containerMap[category], curSelected);
-      this.app.showToast(`تم حذف زر "${optionName}" بنجاح`);
-      await db.logAudit('حذف زر سريري', `حذف زر ${optionName} من قسم ${category}`, user);
-    }
-  }
-
-  openAddOptionModal(category) {
-    const user = auth.getCurrentUser();
-    if (!RolesManager.canManageUsers(user)) {
-      this.app.showAlert('إضافة الأزرار الدائمة متاح لمدير المركز فقط.', 'صلاحية المدير');
-      return;
-    }
-
-    const titles = {
-      modality: 'إضافة جهاز فيزيائي جديد',
-      procedure: 'إضافة إجراء / علاج يدوي جديد',
-      exercise: 'إضافة تمرين علاجي جديد'
-    };
-
-    document.getElementById('opt-target-category').value = category;
-    document.getElementById('modal-opt-title').innerHTML = `<i class="fa-solid fa-circle-plus"></i> ${titles[category] || 'إضافة زر جديد'}`;
-    document.getElementById('opt-new-name').value = '';
-    this.app.openModal('modal-add-clinical-option');
-  }
-
-  async handleSaveNewOption(e) {
-    e.preventDefault();
-    const category = document.getElementById('opt-target-category').value;
-    const nameInput = document.getElementById('opt-new-name');
-    const name = nameInput.value.trim();
-
-    if (!name) {
-      await this.app.showAlert('يرجى كتابة اسم الزر الجديد أولاً قبل الحفظ.', 'بيانات مطلوبة', 'warning');
-      nameInput?.focus();
-      return;
-    }
-    if (!category) return;
-
-    await db.addClinicalOption(category, name);
-    const containerMap = {
-      modality: 'sheet-modalities-container',
-      procedure: 'sheet-procedures-container',
-      exercise: 'sheet-exercises-container'
-    };
-
-    const curSelected = Array.from(document.querySelectorAll(`#${containerMap[category]} .sheet-chip.selected`)).map(b => b.getAttribute('data-val'));
-    curSelected.push(name);
-    this.renderCategoryChips(category, containerMap[category], curSelected);
-
-    this.app.closeModal('modal-add-clinical-option');
-    this.app.showToast(`تمت إضافة زر "${name}" بنجاح`);
-    await db.logAudit('إضافة زر سريري', `إضافة زر ${name} في قسم ${category}`, auth.getCurrentUser());
+    // 3. Exercises
+    updatePickerTriggerDisplay({
+      summaryId: 'sheet-exercises-summary',
+      subId: 'sheet-exercises-sub',
+      countBadgeId: 'sheet-exercises-count-badge',
+      tagsContainerId: 'sheet-exercises-tags',
+      selectedItems: this.selectedExercises,
+      placeholder: 'اضغط لاختيار التمارين العلاجية...',
+      emptySub: 'لم يتم اختيار أي تمرين بعد',
+      unitName: 'تمارين',
+      icon: 'fa-solid fa-person-running',
+      onRemove: (item) => {
+        this.selectedExercises = this.selectedExercises.filter(x => x !== item);
+        this.renderClinicalPickersUI();
+      }
+    });
   }
 
   // ================= Patient Sessions History Modal =================

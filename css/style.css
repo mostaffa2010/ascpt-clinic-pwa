@@ -2462,3 +2462,136 @@ body.not-authenticated #modal-auth #btn-cancel-login {
   background-color: rgba(239, 68, 68, 0.15) !important;
   color: #ef4444 !important;
 }
+
+/* ================= Universal Searchable Picker System (v1.3.22) ================= */
+.picker-trigger-box {
+  background: var(--bg-surface);
+  border: 1.5px solid var(--border-color);
+  border-radius: 10px;
+  padding: 10px 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  user-select: none;
+  width: 100%;
+}
+.picker-trigger-box:hover {
+  border-color: var(--primary);
+  background: var(--bg-subtle);
+}
+.picker-trigger-info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: 1;
+  min-width: 0;
+}
+.picker-trigger-title {
+  font-weight: 700;
+  font-size: 0.9rem;
+  color: var(--text-main);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.picker-trigger-sub {
+  font-size: 0.76rem;
+  color: var(--text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-top: 1px;
+}
+.selected-picker-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 8px;
+}
+.selected-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  background: var(--primary-light, #e0f2fe);
+  color: var(--primary, #0284c7);
+  border: 1px solid rgba(2, 132, 199, 0.25);
+  border-radius: 8px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  transition: all 0.15s ease;
+}
+.selected-pill i {
+  font-size: 0.8rem;
+}
+.selected-pill button {
+  background: none;
+  border: none;
+  color: inherit;
+  cursor: pointer;
+  font-size: 1rem;
+  line-height: 1;
+  padding: 0 2px;
+  opacity: 0.7;
+  transition: opacity 0.15s ease;
+}
+.selected-pill button:hover {
+  opacity: 1;
+  color: var(--danger, #ef4444);
+}
+[data-theme="dark"] .selected-pill {
+  background: rgba(2, 132, 199, 0.2);
+  color: #38bdf8;
+  border-color: rgba(56, 189, 248, 0.3);
+}
+
+/* Multi-Picker Modal List Items */
+.multi-picker-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 9px 12px;
+  border-radius: 8px;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-color);
+  transition: all 0.15s ease;
+  cursor: pointer;
+}
+.multi-picker-item:hover {
+  background: var(--bg-subtle);
+  border-color: var(--primary);
+}
+.multi-picker-item.selected {
+  background: rgba(2, 132, 199, 0.08);
+  border-color: var(--primary);
+}
+[data-theme="dark"] .multi-picker-item.selected {
+  background: rgba(56, 189, 248, 0.12);
+  border-color: #38bdf8;
+}
+.multi-picker-checkbox {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--primary);
+  cursor: pointer;
+}
+.btn-delete-picker-item {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  padding: 6px;
+  border-radius: 6px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s ease;
+}
+.btn-delete-picker-item:hover {
+  color: var(--danger) !important;
+  background: rgba(239, 68, 68, 0.12);
+}

@@ -81,6 +81,256 @@ import { AppointmentsManager } from './appointments.js';
 import { ExportManager } from './export.js';
 import { AuditAndAdminManager } from './audit.js';
 
+// ================= Universal Searchable Multi-Select Picker =================
+export class MultiSelectPicker {
+  constructor(app) {
+    this.app = app;
+    this.currentCategory = null;
+    this.selectedValues = new Set();
+    this.allItems = [];
+    this.onConfirmCallback = null;
+    this.mode = 'multi'; // 'multi' or 'single'
+    this.iconClass = 'fa-solid fa-circle-check';
+    this.contractType = 'direct';
+
+    this.bindEvents();
+  }
+
+  bindEvents() {
+    const searchInp = document.getElementById('multi-picker-search-input');
+    if (searchInp) {
+      searchInp.addEventListener('input', () => this.filterList());
+    }
+
+    const addBtn = document.getElementById('btn-multi-picker-add');
+    const addInp = document.getElementById('multi-picker-add-input');
+    const handleAdd = async () => {
+      const val = addInp?.value?.trim();
+      if (!val) return;
+      await this.addNewItem(val);
+      if (addInp) addInp.value = '';
+    };
+    if (addBtn) addBtn.addEventListener('click', handleAdd);
+    if (addInp) {
+      addInp.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          handleAdd();
+        }
+      });
+    }
+
+    const clearAllBtn = document.getElementById('btn-multi-picker-clear-all');
+    if (clearAllBtn) {
+      clearAllBtn.addEventListener('click', () => {
+        this.selectedValues.clear();
+        this.renderList();
+        this.updateCountDisplay();
+      });
+    }
+
+    const confirmBtn = document.getElementById('btn-multi-picker-confirm');
+    if (confirmBtn) {
+      confirmBtn.addEventListener('click', () => {
+        const result = Array.from(this.selectedValues);
+        this.app.closeModal('modal-multi-select-picker');
+        if (typeof this.onConfirmCallback === 'function') {
+          this.onConfirmCallback(this.mode === 'single' ? (result[0] || '') : result);
+        }
+      });
+    }
+
+    const itemsContainer = document.getElementById('multi-picker-items-list');
+    if (itemsContainer) {
+      itemsContainer.addEventListener('click', async (e) => {
+        const delBtn = e.target.closest('.btn-delete-picker-item');
+        if (delBtn) {
+          e.stopPropagation();
+          const itemVal = delBtn.getAttribute('data-item-val');
+          if (itemVal) {
+            await this.deleteItem(itemVal);
+          }
+          return;
+        }
+
+        const row = e.target.closest('.multi-picker-item');
+        if (row) {
+          const itemVal = row.getAttribute('data-val');
+          if (!itemVal) return;
+
+          if (this.mode === 'single') {
+            this.selectedValues.clear();
+            this.selectedValues.add(itemVal);
+            this.renderList();
+            this.updateCountDisplay();
+          } else {
+            if (this.selectedValues.has(itemVal)) {
+              this.selectedValues.delete(itemVal);
+            } else {
+              this.selectedValues.add(itemVal);
+            }
+            this.renderList();
+            this.updateCountDisplay();
+          }
+        }
+      });
+    }
+  }
+
+  async open({
+    title = 'اختر من القائمة',
+    icon = 'fa-solid fa-list-check',
+    category,
+    selected = [],
+    mode = 'multi',
+    contractType = 'direct',
+    searchPlaceholder = 'ابحث في القائمة...',
+    addPlaceholder = 'إضافة عنصر جديد للقائمة...',
+    onConfirm
+  }) {
+    this.currentCategory = category;
+    this.mode = mode;
+    this.iconClass = icon;
+    this.contractType = contractType;
+    this.onConfirmCallback = onConfirm;
+
+    if (mode === 'single') {
+      this.selectedValues = new Set(selected ? [selected] : []);
+    } else {
+      this.selectedValues = new Set(Array.isArray(selected) ? selected : []);
+    }
+
+    const titleEl = document.getElementById('multi-picker-title');
+    if (titleEl) {
+      titleEl.innerHTML = `<i class="${icon}"></i> <span>${escapeHTML(title)}</span>`;
+    }
+
+    const searchInp = document.getElementById('multi-picker-search-input');
+    if (searchInp) {
+      searchInp.value = '';
+      searchInp.placeholder = searchPlaceholder;
+    }
+
+    const addInp = document.getElementById('multi-picker-add-input');
+    if (addInp) {
+      addInp.value = '';
+      addInp.placeholder = addPlaceholder;
+    }
+
+    const clearBtn = document.getElementById('btn-multi-picker-clear-all');
+    if (clearBtn) {
+      clearBtn.style.display = mode === 'single' ? 'none' : 'inline-block';
+    }
+
+    await this.loadItems();
+    this.renderList();
+    this.updateCountDisplay();
+
+    this.app.openModal('modal-multi-select-picker');
+    if (searchInp) {
+      setTimeout(() => searchInp.focus(), 250);
+    }
+  }
+
+  async loadItems() {
+    if (this.currentCategory === 'insurance_company') {
+      this.allItems = db.getInsuranceCompanies(this.contractType) || [];
+    } else {
+      this.allItems = db.getClinicalOptions(this.currentCategory) || [];
+    }
+  }
+
+  renderList() {
+    const container = document.getElementById('multi-picker-items-list');
+    if (!container) return;
+
+    const searchVal = (document.getElementById('multi-picker-search-input')?.value || '').trim().toLowerCase();
+    const filtered = this.allItems.filter(item => {
+      if (!searchVal) return true;
+      return item.toLowerCase().includes(searchVal);
+    });
+
+    if (filtered.length === 0) {
+      container.innerHTML = `
+        <div style="text-align: center; color: var(--text-muted); padding: 24px 10px; font-size: 0.88rem;">
+          <i class="fa-solid fa-inbox" style="font-size: 1.6rem; opacity: 0.5; margin-bottom: 6px; display: block;"></i>
+          لا توجد عناصر مطابقة للبحث
+        </div>
+      `;
+      return;
+    }
+
+    container.innerHTML = filtered.map(item => {
+      const isChecked = this.selectedValues.has(item);
+      const safeItem = escapeHTML(item);
+      const attrSafe = item.replace(/"/g, '&quot;');
+      const inputType = this.mode === 'single' ? 'radio' : 'checkbox';
+
+      return `
+        <div class="multi-picker-item ${isChecked ? 'selected' : ''}" data-val="${attrSafe}">
+          <label class="multi-picker-label" style="display: flex; align-items: center; gap: 10px; flex: 1; cursor: pointer; margin: 0; user-select: none;">
+            <input type="${inputType}" class="multi-picker-checkbox" ${isChecked ? 'checked' : ''} tabindex="-1">
+            <i class="${this.iconClass}" style="color: var(--primary); font-size: 0.95rem; width: 18px; text-align: center;"></i>
+            <span class="multi-picker-text" style="font-weight: 700; color: var(--text-main); font-size: 0.88rem;">${safeItem}</span>
+          </label>
+          <button type="button" class="btn-delete-picker-item" data-action="delete" data-item-val="${attrSafe}" title="حذف من القائمة">
+            <i class="fa-solid fa-trash-can"></i>
+          </button>
+        </div>
+      `;
+    }).join('');
+  }
+
+  filterList() {
+    this.renderList();
+  }
+
+  updateCountDisplay() {
+    const countEl = document.getElementById('multi-picker-selected-count');
+    if (countEl) {
+      countEl.textContent = this.selectedValues.size;
+    }
+  }
+
+  async addNewItem(val) {
+    if (!val) return;
+    try {
+      if (this.currentCategory === 'insurance_company') {
+        await db.addInsuranceCompany(this.contractType, val);
+      } else {
+        await db.addClinicalOption(this.currentCategory, val);
+      }
+      this.selectedValues.add(val);
+      await this.loadItems();
+      this.renderList();
+      this.updateCountDisplay();
+      this.app.showToast(`تمت إضافة "${val}" بنجاح.`);
+    } catch (err) {
+      this.app.showAlert('تعذر إضافة العنصر: ' + err.message, 'خطأ', 'danger');
+    }
+  }
+
+  async deleteItem(val) {
+    const confirmed = await this.app.showConfirm(`هل أنت متأكد من حذف "${val}" نهائياً من القائمة؟`, 'تأكيد الحذف');
+    if (!confirmed) return;
+
+    try {
+      if (this.currentCategory === 'insurance_company') {
+        await db.deleteInsuranceCompany(this.contractType, val);
+      } else {
+        await db.deleteClinicalOption(this.currentCategory, val);
+      }
+      this.selectedValues.delete(val);
+      await this.loadItems();
+      this.renderList();
+      this.updateCountDisplay();
+      this.app.showToast(`تم حذف "${val}".`);
+    } catch (err) {
+      this.app.showAlert('تعذر حذف العنصر: ' + err.message, 'خطأ', 'danger');
+    }
+  }
+}
+
 class App {
   constructor() {
     this.currentView = 'dashboard';
@@ -97,6 +347,8 @@ class App {
     this.claimsManager = new ClaimsManager(this);
     this.doctorDashboardManager = new DoctorDashboardManager(this);
     this.appointmentsManager = new AppointmentsManager(this);
+    this.multiSelectPicker = new MultiSelectPicker(this);
+    window.multiSelectPicker = this.multiSelectPicker;
 
     window.patientsManager = this.patientsManager;
     window.sessionsManager = this.sessionsManager;

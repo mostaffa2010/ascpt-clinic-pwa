@@ -497,66 +497,64 @@
           <div class="card">
             <div class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
               <span class="card-title"><i class="fa-solid fa-bolt-lightning"></i> 2. الأجهزة والوسائل الفيزيائية (Physical Modalities)</span>
-              <div class="admin-only">
-                <button type="button" class="btn-edit-chips" id="btn-toggle-chips-modality">
-                  <i class="fa-solid fa-pen-to-square"></i> <span class="edit-text">تعديل الأزرار</span>
-                </button>
-              </div>
             </div>
             <p style="font-size: 0.82rem; color: var(--text-muted); margin-bottom: 8px;">اضغط لاختيار الأجهزة والوسائل المقررة في جلسة المريض:</p>
-            <div class="body-parts-chips" id="sheet-modalities-container">
-              <button type="button" class="chip-choice sheet-chip" data-group="modality" data-val="TENS (تيار تنبيهي)"><i class="fa-solid fa-bolt"></i> TENS (كهرباء تسكينية)</button>
-              <button type="button" class="chip-choice sheet-chip" data-group="modality" data-val="Ultrasound (موجات صوتية)"><i class="fa-solid fa-wave-square"></i> Ultrasound (موجات صوتية)</button>
-              <button type="button" class="chip-choice sheet-chip" data-val="كمادات ساخنة (Hot Pack)"><i class="fa-solid fa-fire-flame-curved"></i> كمادات ساخنة</button>
-              <button type="button" class="chip-choice sheet-chip" data-group="modality" data-val="كمادات باردة / ثلج (Cryotherapy)"><i class="fa-solid fa-snowflake"></i> كمادات باردة / ثلج</button>
-              <button type="button" class="chip-choice sheet-chip" data-group="modality" data-val="الشد الفقري (Traction)"><i class="fa-solid fa-arrows-up-down"></i> الشد الفقري</button>
-              <button type="button" class="chip-choice sheet-chip" data-group="modality" data-val="ليزر علاجي (Laser Therapy)"><i class="fa-solid fa-bullseye"></i> ليزر علاجي</button>
-              <button type="button" class="chip-choice sheet-chip" data-group="modality" data-val="موجات تصادمية (Shockwave)"><i class="fa-solid fa-burst"></i> Shockwave (موجات تصادمية)</button>
-              <button type="button" class="chip-choice sheet-chip" data-group="modality" data-val="أشعة تحت الحمراء (Infrared)"><i class="fa-solid fa-sun"></i> أشعة تحت الحمراء</button>
-              <button type="button" class="chip-choice sheet-chip" data-group="modality" data-val="كؤوس هواء (Cupping)"><i class="fa-solid fa-circle-dot"></i> كؤوس هواء</button>
+            <div class="picker-trigger-box" id="btn-open-sheet-modalities-picker">
+              <div class="picker-trigger-info">
+                <i class="fa-solid fa-bolt-lightning" style="color: var(--primary); font-size: 1.1rem;"></i>
+                <div style="flex: 1; min-width: 0;">
+                  <div class="picker-trigger-title" id="sheet-modalities-summary">اضغط لاختيار الأجهزة والوسائل...</div>
+                  <div class="picker-trigger-sub" id="sheet-modalities-sub">لم يتم اختيار أي جهاز بعد</div>
+                </div>
+              </div>
+              <div style="display: flex; align-items: center; gap: 6px;">
+                <span class="badge badge-cash" id="sheet-modalities-count-badge" style="font-size: 0.78rem; padding: 3px 8px;">0 أجهزة</span>
+                <i class="fa-solid fa-chevron-left" style="color: var(--text-muted); font-size: 0.85rem;"></i>
+              </div>
             </div>
-
+            <div class="selected-picker-tags" id="sheet-modalities-tags"></div>
           </div>
 
           <!-- 3. Procedures & Manual Therapy -->
           <div class="card">
             <div class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
               <span class="card-title"><i class="fa-solid fa-hand-holding-hand"></i> 3. الإجراءات والعلاج اليدوي (Procedures & Manual Therapy)</span>
-              <div class="admin-only">
-                <button type="button" class="btn-edit-chips" id="btn-toggle-chips-procedure">
-                  <i class="fa-solid fa-pen-to-square"></i> <span class="edit-text">تعديل الأزرار</span>
-                </button>
+            </div>
+            <div class="picker-trigger-box" id="btn-open-sheet-procedures-picker">
+              <div class="picker-trigger-info">
+                <i class="fa-solid fa-hand-holding-hand" style="color: var(--primary); font-size: 1.1rem;"></i>
+                <div style="flex: 1; min-width: 0;">
+                  <div class="picker-trigger-title" id="sheet-procedures-summary">اضغط لاختيار الإجراءات والعلاج اليدوي...</div>
+                  <div class="picker-trigger-sub" id="sheet-procedures-sub">لم يتم اختيار أي إجراء بعد</div>
+                </div>
+              </div>
+              <div style="display: flex; align-items: center; gap: 6px;">
+                <span class="badge badge-cash" id="sheet-procedures-count-badge" style="font-size: 0.78rem; padding: 3px 8px;">0 إجراءات</span>
+                <i class="fa-solid fa-chevron-left" style="color: var(--text-muted); font-size: 0.85rem;"></i>
               </div>
             </div>
-            <div class="body-parts-chips" id="sheet-procedures-container">
-              <button type="button" class="chip-choice sheet-chip" data-group="procedure" data-val="تحريك المفاصل (Joint Mobilization)"><i class="fa-solid fa-bone"></i> تحريك مفاصل (Mobilization)</button>
-              <button type="button" class="chip-choice sheet-chip" data-group="procedure" data-val="تحرير اللفافة العضلية (Myofascial Release)"><i class="fa-solid fa-hand-dots"></i> تحرير اللفافة العضلية</button>
-              <button type="button" class="chip-choice sheet-chip" data-group="procedure" data-val="تدليك علاجي عميق (Deep Tissue Massage)"><i class="fa-solid fa-hands"></i> تدليك علاجي</button>
-              <button type="button" class="chip-choice sheet-chip" data-group="procedure" data-val="إطالات عضلية (Muscle Stretching)"><i class="fa-solid fa-child-reaching"></i> إطالات عضلية (Stretching)</button>
-              <button type="button" class="chip-choice sheet-chip" data-group="procedure" data-val="الإبر الجافة (Dry Needling)"><i class="fa-solid fa-syringe"></i> إبر جافة (Dry Needling)</button>
-              <button type="button" class="chip-choice sheet-chip" data-group="procedure" data-val="الأشرطة اللاصقة الحركية (Kinesio Taping)"><i class="fa-solid fa-tape"></i> أشرطة لاصقة (Taping)</button>
-            </div>
-
+            <div class="selected-picker-tags" id="sheet-procedures-tags"></div>
           </div>
 
           <!-- 4. Therapeutic Exercises -->
           <div class="card">
             <div class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
               <span class="card-title"><i class="fa-solid fa-person-running"></i> 4. التمارين العلاجية الموصوفة (Therapeutic Exercises)</span>
-              <div class="admin-only">
-                <button type="button" class="btn-edit-chips" id="btn-toggle-chips-exercise">
-                  <i class="fa-solid fa-pen-to-square"></i> <span class="edit-text">تعديل الأزرار</span>
-                </button>
+            </div>
+            <div class="picker-trigger-box" id="btn-open-sheet-exercises-picker">
+              <div class="picker-trigger-info">
+                <i class="fa-solid fa-person-running" style="color: var(--primary); font-size: 1.1rem;"></i>
+                <div style="flex: 1; min-width: 0;">
+                  <div class="picker-trigger-title" id="sheet-exercises-summary">اضغط لاختيار التمارين العلاجية...</div>
+                  <div class="picker-trigger-sub" id="sheet-exercises-sub">لم يتم اختيار أي تمرين بعد</div>
+                </div>
+              </div>
+              <div style="display: flex; align-items: center; gap: 6px;">
+                <span class="badge badge-cash" id="sheet-exercises-count-badge" style="font-size: 0.78rem; padding: 3px 8px;">0 تمارين</span>
+                <i class="fa-solid fa-chevron-left" style="color: var(--text-muted); font-size: 0.85rem;"></i>
               </div>
             </div>
-            <div class="body-parts-chips" id="sheet-exercises-container">
-              <button type="button" class="chip-choice sheet-chip" data-group="exercise" data-val="تمارين التقوية العضلية (Strengthening)"><i class="fa-solid fa-dumbbell"></i> تمارين تقوية عضلية</button>
-              <button type="button" class="chip-choice sheet-chip" data-group="exercise" data-val="تمارين المدى الحركي (Range of Motion)"><i class="fa-solid fa-arrows-spin"></i> المدى الحركي (ROM)</button>
-              <button type="button" class="chip-choice sheet-chip" data-group="exercise" data-val="تمارين التوازن والاتزان الحركي (Balance & Proprioception)"><i class="fa-solid fa-scale-balanced"></i> اتزان وتوازن حركي</button>
-              <button type="button" class="chip-choice sheet-chip" data-group="exercise" data-val="تمارين عضلات الجذع (Core Stability)"><i class="fa-solid fa-shield-heart"></i> عضلات الجذع (Core)</button>
-              <button type="button" class="chip-choice sheet-chip" data-group="exercise" data-val="تمارين تصحيح القوام (Postural Correction)"><i class="fa-solid fa-person"></i> تصحيح القوام</button>
-              <button type="button" class="chip-choice sheet-chip" data-group="exercise" data-val="برنامج التمارين المنزلية (Home Exercise Program)"><i class="fa-solid fa-house-medical"></i> تمارين منزلية (Home Program)</button>
-            </div>
+            <div class="selected-picker-tags" id="sheet-exercises-tags"></div>
             <div class="form-group" style="margin-top: 12px;">
               <label for="sheet-exercise-details">تفاصيل التمارين والمجموعات والتكرارات</label>
               <textarea id="sheet-exercise-details" class="form-control" rows="3" placeholder="مثال: تمرين الجسر 3 مجموعات × 10 عدات، تمرين تمديد الركبة ضد مقاومة، إطالة العضلة الخلفية 30 ثانية..."></textarea>
@@ -673,13 +671,21 @@
                 </div>
 
                 <div class="form-group" id="form-group-body-parts">
-                  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
-                    <label style="margin: 0; font-weight: 800; font-size: 0.88rem; color: var(--text-main);">الأعضاء المعالجة في الجلسة *</label>
-                    <button type="button" class="btn-edit-chips" id="btn-toggle-chips-body-parts" style="padding: 3px 10px; font-size: 0.75rem;">
-                      <i class="fa-solid fa-pen-to-square"></i> <span class="edit-text">تعديل الأزرار</span>
-                    </button>
+                  <label style="margin: 0 0 6px 0; font-weight: 800; font-size: 0.88rem; color: var(--text-main); display: block;">الأعضاء المعالجة في الجلسة *</label>
+                  <div class="picker-trigger-box" id="btn-open-session-body-parts-picker">
+                    <div class="picker-trigger-info">
+                      <i class="fa-solid fa-bone" style="color: var(--primary); font-size: 1.1rem;"></i>
+                      <div style="flex: 1; min-width: 0;">
+                        <div class="picker-trigger-title" id="session-body-parts-summary">اضغط لاختيار الأعضاء المعالجة...</div>
+                        <div class="picker-trigger-sub" id="session-body-parts-sub">اختر عضواً أو أكثر من القائمة</div>
+                      </div>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 6px;">
+                      <span class="badge badge-cash" id="selected-parts-count-badge" style="font-size: 0.78rem; padding: 3px 8px;">0 أعضاء</span>
+                      <i class="fa-solid fa-chevron-left" style="color: var(--text-muted); font-size: 0.85rem;"></i>
+                    </div>
                   </div>
-                  <div class="body-parts-chips" id="body-parts-container"></div>
+                  <div class="selected-picker-tags" id="session-selected-parts-tags"></div>
                   <div style="font-size: 0.8rem; color: var(--primary); font-weight: bold; margin-top: 5px;">
                     إجمالي الأعضاء المحددة: <span id="selected-parts-count">0</span>
                   </div>
@@ -1507,14 +1513,7 @@
           <div id="p-insurance-details" style="display: none; background-color: var(--bg-subtle); padding: 12px; border-radius: 10px; margin-top: 10px; border: 1px solid var(--border-color);">
             <!-- نوع التعاقد Switcher -->
             <div class="form-group" style="margin-bottom: 12px;">
-              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
-                <label style="font-weight: 800; font-size: 0.88rem; color: var(--text-main);">نوع التعاقد مع الشركة *</label>
-                <div class="admin-only">
-                  <button type="button" class="btn-edit-chips" id="btn-toggle-chips-ins-patient" style="padding: 3px 10px; font-size: 0.75rem;">
-                    <i class="fa-solid fa-pen-to-square"></i> <span class="edit-text">تعديل الشركات</span>
-                  </button>
-                </div>
-              </div>
+              <label style="font-weight: 800; font-size: 0.88rem; color: var(--text-main); margin-bottom: 6px; display: block;">نوع التعاقد مع الشركة *</label>
               <div class="insurance-contract-segmented">
                 <label class="segmented-option">
                   <input type="radio" name="p-contract-type" value="direct" checked>
@@ -1527,19 +1526,23 @@
               </div>
             </div>
 
-            <!-- أزرار شركات التأمين -->
-            <div class="form-group" style="margin-bottom: 4px;">
-              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-                <label style="font-weight: 800; font-size: 0.88rem; color: var(--text-main);">اختر شركة التأمين *</label>
-                <span id="p-selected-ins-preview" style="font-size: 0.82rem; font-weight: 800; color: var(--primary);"></span>
-              </div>
+            <!-- اختيار شركة التأمين عبر الـ Picker -->
+            <div class="form-group" style="margin-bottom: 12px;">
+              <label style="font-weight: 800; font-size: 0.88rem; color: var(--text-main); margin-bottom: 6px; display: block;">اختر شركة التأمين *</label>
               <input type="hidden" id="p-insurance-company" value="">
               
-              <!-- Direct Companies Grid -->
-              <div id="p-ins-direct-container" class="insurance-companies-grid" style="display: grid;"></div>
-
-              <!-- Indirect Companies Grid -->
-              <div id="p-ins-indirect-container" class="insurance-companies-grid" style="display: none;"></div>
+              <div class="picker-trigger-box" id="btn-open-p-insurance-picker">
+                <div class="picker-trigger-info">
+                  <i class="fa-solid fa-file-contract" style="color: var(--primary); font-size: 1.1rem;"></i>
+                  <div style="flex: 1; min-width: 0;">
+                    <div class="picker-trigger-title" id="p-insurance-company-summary">-- اضغط لاختيار شركة التأمين --</div>
+                    <div class="picker-trigger-sub" id="p-insurance-company-sub">اختر من الشركات المسجلة أو أضف جديدة</div>
+                  </div>
+                </div>
+                <div style="display: flex; align-items: center; gap: 6px;">
+                  <i class="fa-solid fa-chevron-left" style="color: var(--text-muted); font-size: 0.85rem;"></i>
+                </div>
+              </div>
             </div>
 
             <!-- Approved Sessions & Body Parts for Insurance Approval -->
@@ -1556,14 +1559,27 @@
                 <input type="hidden" id="p-approved-body-parts-count" value="1">
               </div>
 
-              <!-- 2. Approved Body Parts Chips (Exact Style from Sessions Screen) -->
+              <!-- 2. Approved Body Parts Picker -->
               <div class="form-group" id="form-group-approved-body-parts" style="margin-bottom: 12px;">
                 <label style="margin: 0 0 6px 0; font-weight: 800; font-size: 0.88rem; color: var(--text-main); display: block;">
                   الأعضاء المعالجة المعتمدة بالجواب *
                 </label>
-                <div class="body-parts-chips" id="p-approved-body-parts-container"></div>
+                <div class="picker-trigger-box" id="btn-open-p-approved-body-parts-picker">
+                  <div class="picker-trigger-info">
+                    <i class="fa-solid fa-bone" style="color: var(--primary); font-size: 1.1rem;"></i>
+                    <div style="flex: 1; min-width: 0;">
+                      <div class="picker-trigger-title" id="p-approved-parts-summary">اضغط لاختيار الأعضاء المعتمدة...</div>
+                      <div class="picker-trigger-sub" id="p-approved-parts-sub">حدد الأعضاء المذكورة بالخطاب</div>
+                    </div>
+                  </div>
+                  <div style="display: flex; align-items: center; gap: 6px;">
+                    <span class="badge badge-cash" id="p-approved-parts-count-badge" style="font-size: 0.78rem; padding: 3px 8px;">0</span>
+                    <i class="fa-solid fa-chevron-left" style="color: var(--text-muted); font-size: 0.85rem;"></i>
+                  </div>
+                </div>
+                <div class="selected-picker-tags" id="p-approved-parts-tags"></div>
                 <div style="font-size: 0.8rem; color: var(--primary); font-weight: bold; margin-top: 5px;">
-                  إجمالي الأعضاء المحددة: <span id="p-approved-parts-count-display">عضو واحد (1)</span>
+                  إجمالي الأعضاء المحددة: <span id="p-approved-parts-count-display">0</span>
                 </div>
                 <small style="color: var(--text-muted); font-size: 0.74rem; display: block; margin-top: 4px;">
                   حدد الأعضاء المذكورة في خطاب الموافقة (لتنزيلها تلقائياً عند تسجيل حضور الجلسات).
@@ -1715,9 +1731,22 @@
             <label style="margin: 0 0 6px 0; font-weight: 800; font-size: 0.88rem; color: var(--text-main); display: block;">
               الأعضاء المعتمدة بالدورة الجديدة *
             </label>
-            <div class="body-parts-chips" id="renew-approved-body-parts-container"></div>
+            <div class="picker-trigger-box" id="btn-open-renew-body-parts-picker">
+              <div class="picker-trigger-info">
+                <i class="fa-solid fa-bone" style="color: var(--primary); font-size: 1.1rem;"></i>
+                <div style="flex: 1; min-width: 0;">
+                  <div class="picker-trigger-title" id="renew-approved-parts-summary">اضغط لاختيار الأعضاء المعتمدة...</div>
+                  <div class="picker-trigger-sub" id="renew-approved-parts-sub">حدد الأعضاء للدورة الجديدة</div>
+                </div>
+              </div>
+              <div style="display: flex; align-items: center; gap: 6px;">
+                <span class="badge badge-cash" id="renew-approved-parts-count-badge" style="font-size: 0.78rem; padding: 3px 8px;">0</span>
+                <i class="fa-solid fa-chevron-left" style="color: var(--text-muted); font-size: 0.85rem;"></i>
+              </div>
+            </div>
+            <div class="selected-picker-tags" id="renew-approved-parts-tags"></div>
             <div style="font-size: 0.8rem; color: var(--primary); font-weight: bold; margin-top: 5px;">
-              إجمالي الأعضاء المحددة: <span id="renew-approved-parts-count-display">عضو واحد (1)</span>
+              إجمالي الأعضاء المحددة: <span id="renew-approved-parts-count-display">0</span>
             </div>
           </div>
 
@@ -2011,6 +2040,52 @@
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-outline btn-sm" data-close-modal="modal-custom-picker">إلغاء</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Universal Searchable Multi-Select Picker -->
+  <div class="modal-backdrop" id="modal-multi-select-picker" style="z-index: 360;">
+    <div class="modal-content" style="max-width: 480px; max-height: 85vh; display: flex; flex-direction: column;">
+      <div class="modal-header" style="flex-shrink: 0;">
+        <h3 id="multi-picker-title"><i class="fa-solid fa-list-check"></i> <span>اختر من القائمة</span></h3>
+        <button type="button" class="modal-close" data-close-modal="modal-multi-select-picker">&times;</button>
+      </div>
+      <div class="modal-body" style="padding: 14px 16px; flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 12px;">
+        <!-- Search Box -->
+        <div style="position: relative;">
+          <input type="text" id="multi-picker-search-input" class="form-control" placeholder="ابحث هنا..." autocomplete="off" style="padding-right: 36px;">
+          <i class="fa-solid fa-magnifying-glass" style="position: absolute; right: 12px; top: 50%; transform: translateY(-50%); color: var(--text-muted); font-size: 0.9rem;"></i>
+        </div>
+
+        <!-- Add New Item Form -->
+        <form id="multi-picker-add-form" style="display: flex; gap: 8px; align-items: center;" onsubmit="return false;">
+          <input type="text" id="multi-picker-add-input" class="form-control" placeholder="إضافة عنصر جديد للقائمة..." style="flex: 1; font-size: 0.85rem; height: 38px;">
+          <button type="button" class="btn btn-primary btn-sm" id="btn-multi-picker-add" style="height: 38px; padding: 0 14px; white-space: nowrap; font-weight: 700; display: inline-flex; align-items: center; gap: 6px;">
+            <i class="fa-solid fa-plus"></i> <span>إضافة</span>
+          </button>
+        </form>
+
+        <!-- Selected Count Badge & Quick Clear/Select All -->
+        <div style="display: flex; justify-content: space-between; align-items: center; font-size: 0.82rem; padding: 0 2px;">
+          <span style="font-weight: 700; color: var(--text-muted);">
+            المحدد: <strong id="multi-picker-selected-count" style="color: var(--primary);">0</strong>
+          </span>
+          <button type="button" class="btn-text-action" id="btn-multi-picker-clear-all" style="background: none; border: none; color: var(--danger); cursor: pointer; font-size: 0.78rem; font-weight: 700;">
+            إلغاء تحديد الكل
+          </button>
+        </div>
+
+        <!-- Scrollable Options List -->
+        <div class="multi-picker-list" id="multi-picker-items-list" style="flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 6px; min-height: 180px; max-height: 320px; border: 1px solid var(--border-color); border-radius: 8px; padding: 6px;">
+          <!-- Populated dynamically -->
+        </div>
+      </div>
+      <div class="modal-footer" style="flex-shrink: 0; justify-content: space-between;">
+        <button type="button" class="btn btn-primary" id="btn-multi-picker-confirm" style="font-weight: 800; min-width: 130px;">
+          <i class="fa-solid fa-check"></i> تأكيد الاختيار
+        </button>
+        <button type="button" class="btn btn-outline" data-close-modal="modal-multi-select-picker">إلغاء</button>
       </div>
     </div>
   </div>
@@ -2330,17 +2405,23 @@
           <input type="text" id="card-input-eval" class="form-control" placeholder="P.T. Initial functional evaluation">
         </div>
 
-        <!-- 3. Plan of P.T. Treatment (Interactive Chips) -->
+        <!-- 3. Plan of P.T. Treatment (Searchable Multi-Picker) -->
         <div class="form-group" style="margin-bottom: 12px;">
-          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
-            <label style="font-weight: 800; margin: 0;">Plan of P.T. Treatment (أزرار خطة العلاج الطبيعي):</label>
-            <button type="button" class="btn-edit-chips admin-only" id="btn-card-add-treatment" style="padding: 3px 10px; font-size: 0.75rem;">
-              <i class="fa-solid fa-pen-to-square"></i> <span class="edit-text">تعديل الوسائل</span>
-            </button>
+          <label style="font-weight: 800; margin: 0 0 6px 0; display: block;">Plan of P.T. Treatment (خطة العلاج الطبيعي):</label>
+          <div class="picker-trigger-box" id="btn-open-card-treatment-picker">
+            <div class="picker-trigger-info">
+              <i class="fa-solid fa-bolt-lightning" style="color: var(--primary); font-size: 1.1rem;"></i>
+              <div style="flex: 1; min-width: 0;">
+                <div class="picker-trigger-title" id="card-treatment-summary">اضغط لاختيار وسائل الخطة العلاجية...</div>
+                <div class="picker-trigger-sub" id="card-treatment-sub">اختر الوسائل المقررة في الكارت</div>
+              </div>
+            </div>
+            <div style="display: flex; align-items: center; gap: 6px;">
+              <span class="badge badge-cash" id="card-treatment-count-badge" style="font-size: 0.78rem; padding: 3px 8px;">0</span>
+              <i class="fa-solid fa-chevron-left" style="color: var(--text-muted); font-size: 0.85rem;"></i>
+            </div>
           </div>
-          <div class="body-parts-chips" id="card-treatment-chips-container" style="gap: 5px; margin-bottom: 8px;">
-            <!-- Populated dynamically -->
-          </div>
+          <div class="selected-picker-tags" id="card-treatment-tags"></div>
 
           <!-- Live Preview Box matching Image 2 -->
           <div style="background: var(--bg-subtle); border: 1px dashed var(--border-color); border-radius: 8px; padding: 10px; margin-top: 8px;">
