@@ -1,4 +1,4 @@
-import { escapeHTML, getLocalDateStr, updatePickerTriggerDisplay } from './utils.js';
+import { escapeHTML, getLocalDateStr } from './utils.js';
 // ========================================================
 // PhysioFlow - Daily Sessions & Check-in Module
 // ========================================================
@@ -21,7 +21,6 @@ export class SessionsManager {
     this.entryMode = 'session'; // 'session' | 'examination'
     this.examType = 'cash'; // 'cash' | 'contract'
     this.selectedPatient = null;
-    this.selectedBodyParts = [];
     window.sessionsManager = this;
   }
 
@@ -59,8 +58,34 @@ export class SessionsManager {
     document.getElementById('btn-exam-type-cash')?.addEventListener('click', () => this.setExamType('cash'));
     document.getElementById('btn-exam-type-contract')?.addEventListener('click', () => this.setExamType('contract'));
 
-    // 1. Dynamic Body Parts Picker
-    document.getElementById('btn-open-session-body-parts-picker')?.addEventListener('click', () => this.openBodyPartsPicker());
+    // 1. Dynamic Body Parts Management (Add, Delete & Select)
+    document.getElementById('btn-toggle-chips-body-parts')?.addEventListener('click', () => this.toggleBodyPartsEditMode());
+
+    const chipsContainer = document.getElementById('body-parts-container');
+    if (chipsContainer) {
+      chipsContainer.addEventListener('click', async (e) => {
+        const delTag = e.target.closest('[data-action="delete-body-part"]');
+        if (delTag) {
+          e.stopPropagation();
+          await this.deleteBodyPart(delTag.dataset.part);
+          return;
+        }
+
+        const addBtn = e.target.closest('[data-action="add-body-part"]');
+        if (addBtn) {
+          e.stopPropagation();
+          await this.promptAddBodyPart();
+          return;
+        }
+
+        const btn = e.target.closest('.chip-choice');
+        if (btn && !this.bodyPartsEditMode) {
+          e.preventDefault();
+          btn.classList.toggle('selected');
+          this.updateBodyPartsCount();
+        }
+      });
+    }
 
     // 2. Patient Picker Search Filter & Triggers
     document.getElementById('patient-picker-trigger')?.addEventListener('click', () => this.openPatientPicker());
@@ -170,15 +195,16 @@ export class SessionsManager {
   }
 
   updateBodyPartsCount() {
-    const count = this.getSelectedBodyParts().length;
+    const selected = document.querySelectorAll('#body-parts-container .chip-choice.selected');
     const countDisplay = document.getElementById('selected-parts-count');
     if (countDisplay) {
-      countDisplay.textContent = count;
+      countDisplay.textContent = selected.length;
     }
 
     const hintEl = document.getElementById('body-parts-cash-hint');
     if (hintEl) {
       const isCashPatient = Boolean(this.selectedPatient && this.selectedPatient.billing === 'cash');
+      const count = selected.length;
       if (this.entryMode === 'session' && isCashPatient && count >= 2) {
         hintEl.textContent = `💡 تم تحديد ${count} عضو (يُحاسب المريض على ${count} جلسة نقدياً)`;
         hintEl.style.display = 'block';
@@ -190,7 +216,8 @@ export class SessionsManager {
   }
 
   getSelectedBodyParts() {
-    return Array.isArray(this.selectedBodyParts) ? this.selectedBodyParts : [];
+    return Array.from(document.querySelectorAll('#body-parts-container .chip-choice.selected'))
+      .map(btn => btn.getAttribute('data-part'));
   }
 
   // Searchable Patient Picker
@@ -835,42 +862,84 @@ export class SessionsManager {
     await this.app.financeManager.loadDailyReport();
   }
 
-  // ================= Dynamic Body Parts Picker Integration =================
-  openBodyPartsPicker() {
-    this.app.multiSelectPicker.open({
-      title: 'اختيار الأعضاء المعالجة في الجلسة',
-      icon: 'fa-solid fa-bone',
-      category: 'body_parts',
-      selected: this.selectedBodyParts,
-      searchPlaceholder: 'ابحث في الأعضاء المعالجة...',
-      addPlaceholder: 'إضافة عضو معالج جديد...',
-      onConfirm: (newVals) => {
-        this.selectedBodyParts = newVals;
-        this.renderBodyPartsChips();
-      }
-    });
+  // ================= Dynamic Body Parts (Add & Delete like Modalities) =================
+  renderBodyPartsChips(selectedParts = []) {
+    const container = document.getElementById('body-parts-container');
+    if (!container) return;
+
+    const parts = db.getClinicalOptions('body_parts');
+    const isEdit = Boolean(this.bodyPartsEditMode);
+
+    let html = parts.map(part => {
+      const isSelected = selectedParts.includes(part);
+      const editClass = isEdit ? 'in-edit-mode' : '';
+      const safePart = part.replace(/'/g, "\\'");
+      const deleteIconHtml = isEdit
+        ? `<span class="chip-delete-tag" data-action="delete-body-part" data-part="${safePart}" title="حذف هذا العضو"><i class="fa-solid fa-circle-xmark"></i></span>`
+        : '';
+
+      return `
+        <button type="button" class="chip-choice ${isSelected ? 'selected' : ''} ${editClass}" data-part="${part}">
+          <i class="fa-solid fa-bone"></i> <span>${part}</span>
+          ${deleteIconHtml}
+        </button>
+      `;
+    }).join('');
+
+    if (isEdit) {
+      html += `
+        <button type="button" class="chip-add-new-btn" data-action="add-body-part">
+          <i class="fa-solid fa-plus"></i> <span>إضافة عضو جديد</span>
+        </button>
+      `;
+    }
+
+    container.innerHTML = html;
+    this.updateBodyPartsCount();
   }
 
-  renderBodyPartsChips(selectedParts = null) {
-    if (selectedParts !== null) {
-      this.selectedBodyParts = Array.isArray(selectedParts) ? [...selectedParts] : [];
-    }
-    updatePickerTriggerDisplay({
-      summaryId: 'session-body-parts-summary',
-      subId: 'session-body-parts-sub',
-      countBadgeId: 'selected-parts-count-badge',
-      tagsContainerId: 'session-selected-parts-tags',
-      selectedItems: this.selectedBodyParts,
-      placeholder: 'اضغط لاختيار الأعضاء المعالجة...',
-      emptySub: 'اختر عضواً أو أكثر من القائمة',
-      unitName: 'أعضاء',
-      icon: 'fa-solid fa-bone',
-      onRemove: (item) => {
-        this.selectedBodyParts = this.selectedBodyParts.filter(p => p !== item);
-        this.renderBodyPartsChips();
+  toggleBodyPartsEditMode() {
+    this.bodyPartsEditMode = !this.bodyPartsEditMode;
+    const isEdit = this.bodyPartsEditMode;
+
+    const btn = document.getElementById('btn-toggle-chips-body-parts');
+    if (btn) {
+      if (isEdit) {
+        btn.className = 'btn-edit-chips active';
+        btn.innerHTML = '<i class="fa-solid fa-check"></i> <span class="edit-text">تم الانتهاء</span>';
+      } else {
+        btn.className = 'btn-edit-chips';
+        btn.innerHTML = '<i class="fa-solid fa-pen-to-square"></i> <span class="edit-text">تعديل الأزرار</span>';
       }
-    });
-    this.updateBodyPartsCount();
+    }
+
+    const curSelected = this.getSelectedBodyParts();
+    this.renderBodyPartsChips(curSelected);
+  }
+
+  async deleteBodyPart(partName) {
+    const confirmed = await this.app.showConfirm(`هل أنت متأكد من حذف زر "${partName}" نهائياً؟`, 'حذف زر');
+    if (confirmed) {
+      await db.deleteClinicalOption('body_parts', partName);
+      const curSelected = this.getSelectedBodyParts().filter(p => p !== partName);
+      this.renderBodyPartsChips(curSelected);
+      this.app.showToast(`تم حذف زر "${partName}"`);
+    }
+  }
+
+  async promptAddBodyPart() {
+    const name = await this.app.showPrompt(
+      'اكتب اسم العضو المعالج الجديد لإضافته كزر دائم:',
+      'إضافة عضو معالج جديد',
+      'مثال: الفقرات الصدرية'
+    );
+    if (name && name.trim()) {
+      await db.addClinicalOption('body_parts', name.trim());
+      const curSelected = this.getSelectedBodyParts();
+      curSelected.push(name.trim());
+      this.renderBodyPartsChips(curSelected);
+      this.app.showToast(`تمت إضافة زر "${name.trim()}" بنجاح`);
+    }
   }
 
     // ================= Insurance Interactive Buttons =================
