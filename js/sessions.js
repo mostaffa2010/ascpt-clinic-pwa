@@ -663,11 +663,9 @@ export class SessionsManager {
 
     if (nameEl) nameEl.textContent = patient.name;
     if (subEl) {
-      let billingTxt = 'نقدي';
-      if (patient.billing === 'insurance') {
-        const partsText = (patient.approvedBodyPartsCount && patient.approvedBodyPartsCount > 1) ? ` • ${patient.approvedBodyPartsCount} أعضاء` : '';
-        billingTxt = `تأمين: ${patient.insuranceCompany || 'شركة'} (${patient.contractType === 'direct' ? 'مباشر' : 'غير مباشر'}) | رصيد الجواب: ${patient.approvedSessions || 12} زيارة${partsText}`;
-      }
+      const billingTxt = patient.billing === 'cash' 
+        ? 'نقدي' 
+        : `تأمين: ${patient.insuranceCompany || 'شركة'} (${patient.contractType === 'direct' ? 'مباشر' : 'غير مباشر'})`;
       subEl.textContent = `الهاتف: ${patient.phone} | الطبيب: ${patient.doctor} | ${billingTxt}`;
     }
 
@@ -682,10 +680,6 @@ export class SessionsManager {
       this.setExamType(isIns ? 'contract' : 'cash');
     } else {
       this.updateSessionPaymentUI(patient);
-      // Auto-select approved body parts if set on patient
-      if (patient.billing === 'insurance' && Array.isArray(patient.approvedBodyParts) && patient.approvedBodyParts.length > 0) {
-        this.renderBodyPartsChips(patient.approvedBodyParts);
-      }
     }
 
     this.updateBodyPartsCount();
@@ -1313,11 +1307,11 @@ export class SessionsManager {
 
         if (s.payType === 'insurance') {
           if (sessNum > approvedTotal) {
-            sessionNumBadge = `<span class="badge" style="background:#fee2e2; color:#b91c1c; border:1px solid #fecaca; font-weight:800; font-size:0.78rem;" title="تجاوز عدد زيارات الجواب المصرح بها (${approvedTotal})"><i class="fa-solid fa-triangle-exclamation"></i> الزيارة ${sessNum} من ${approvedTotal}</span>`;
+            sessionNumBadge = `<span class="badge" style="background:#fee2e2; color:#b91c1c; border:1px solid #fecaca; font-weight:800; font-size:0.78rem;" title="تجاوز عدد جلسات الجواب المصرح بها (${approvedTotal})"><i class="fa-solid fa-triangle-exclamation"></i> ${sessNum} من ${approvedTotal}</span>`;
           } else if (sessNum === approvedTotal) {
-            sessionNumBadge = `<span class="badge" style="background:#fef3c7; color:#b45309; border:1px solid #fde68a; font-weight:800; font-size:0.78rem;" title="اكتملت زيارات جواب الموافقة"><i class="fa-solid fa-flag-checkered"></i> الزيارة ${sessNum} من ${approvedTotal}</span>`;
+            sessionNumBadge = `<span class="badge" style="background:#fef3c7; color:#b45309; border:1px solid #fde68a; font-weight:800; font-size:0.78rem;" title="اكتملت جلسات جواب الموافقة"><i class="fa-solid fa-flag-checkered"></i> ${sessNum} من ${approvedTotal}</span>`;
           } else {
-            sessionNumBadge = `<span class="badge" style="background:var(--bg-subtle); color:var(--primary); border:1px solid var(--border-color); font-weight:800; font-size:0.8rem;"><i class="fa-solid fa-hashtag"></i> الزيارة ${sessNum} من ${approvedTotal}</span>`;
+            sessionNumBadge = `<span class="badge" style="background:var(--bg-subtle); color:var(--primary); border:1px solid var(--border-color); font-weight:800; font-size:0.8rem;"><i class="fa-solid fa-hashtag"></i> ${sessNum} من ${approvedTotal}</span>`;
           }
         } else {
           sessionNumBadge = `<span class="badge" style="background:var(--bg-subtle); color:var(--text-main); border:1px solid var(--border-color); font-weight:700; font-size:0.8rem;">الجلسة ${sessNum}</span>`;
@@ -1350,13 +1344,11 @@ export class SessionsManager {
           </span>
         `;
       } else {
-        const partsCount = s.bodyPartsCount || (Array.isArray(s.bodyParts) ? s.bodyParts.length : 1);
-        const docUnitsText = partsCount > 1 ? ` (${partsCount} جلسات للطبيب)` : '';
         const safeParts = Array.isArray(s.bodyParts) ? s.bodyParts.map(b => escapeHTML(b)).join('، ') : escapeHTML(s.bodyParts || '');
         const safePartsShort = Array.isArray(s.bodyParts) ? s.bodyParts.slice(0, 2).map(b => escapeHTML(b)).join('، ') : escapeHTML(s.bodyParts || '');
         partsCell = `
-          <span class="badge badge-role-doctor" title="${safeParts}${docUnitsText}">
-            ${escapeHTML(partsCount)} أعضاء${docUnitsText}
+          <span class="badge badge-role-doctor" title="${safeParts}">
+            ${escapeHTML(s.bodyPartsCount)} أعضاء (${safePartsShort}${s.bodyParts && s.bodyParts.length > 2 ? '...' : ''})
           </span>
         `;
       }

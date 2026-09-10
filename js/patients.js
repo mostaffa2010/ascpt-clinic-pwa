@@ -106,30 +106,6 @@ export class PatientsManager {
       }
     });
 
-    // Input listener on approved sessions in patient modal
-    document.getElementById('p-approved-sessions')?.addEventListener('input', () => this.updateApprovalSummary());
-
-    // Approved Body Parts Chips toggle (Pure Dynamic Selection: 1, 2, 3, 4, 5+ parts)
-    document.getElementById('p-approved-body-parts-container')?.addEventListener('click', (e) => {
-      const btn = e.target.closest('[data-action="toggle-approved-part"]');
-      if (btn) {
-        e.preventDefault();
-        btn.classList.toggle('selected');
-        this.updateApprovalSummary();
-      }
-    });
-
-    // Renew Modal input listener & dynamic chips toggle
-    document.getElementById('renew-sessions-count')?.addEventListener('input', () => this.updateRenewSummary());
-    document.getElementById('renew-approved-body-parts-container')?.addEventListener('click', (e) => {
-      const btn = e.target.closest('[data-action="toggle-renew-part"]');
-      if (btn) {
-        e.preventDefault();
-        btn.classList.toggle('selected');
-        this.updateRenewSummary();
-      }
-    });
-
     // Patient Sheet Navigation & Print Buttons
     document.getElementById('btn-back-to-patients-top')?.addEventListener('click', () => this.app.switchView('patients'));
     document.getElementById('btn-back-to-patients-bottom')?.addEventListener('click', () => this.app.switchView('patients'));
@@ -486,11 +462,9 @@ export class PatientsManager {
       if (p.billing === 'cash') {
         billingBadge = `<span class="badge badge-cash"><i class="fa-solid fa-money-bill"></i> نقدي</span>`;
       } else if (p.contractType === 'direct') {
-        const partsInfo = (p.approvedBodyPartsCount && p.approvedBodyPartsCount > 1) ? ` • ${p.approvedBodyPartsCount} أعضاء` : '';
-        billingBadge = `<span class="badge badge-direct"><i class="fa-solid fa-file-contract"></i> ${safeComp} (مباشر)</span> <span class="badge" style="background: var(--bg-subtle); color: var(--text-main); border: 1px solid var(--border-color); font-size: 0.74rem; font-weight: 700; margin-right: 4px;" title="رصيد زيارات الجواب">${p.approvedSessions || 12} زيارة${partsInfo}</span>`;
+        billingBadge = `<span class="badge badge-direct"><i class="fa-solid fa-file-contract"></i> ${safeComp} (مباشر)</span>`;
       } else {
-        const partsInfo = (p.approvedBodyPartsCount && p.approvedBodyPartsCount > 1) ? ` • ${p.approvedBodyPartsCount} أعضاء` : '';
-        billingBadge = `<span class="badge badge-indirect"><i class="fa-solid fa-handshake"></i> ${safeComp} (غير مباشر)</span> <span class="badge" style="background: var(--bg-subtle); color: var(--text-main); border: 1px solid var(--border-color); font-size: 0.74rem; font-weight: 700; margin-right: 4px;" title="رصيد زيارات الجواب">${p.approvedSessions || 12} زيارة${partsInfo}</span>`;
+        billingBadge = `<span class="badge badge-indirect"><i class="fa-solid fa-handshake"></i> ${safeComp} (غير مباشر)</span>`;
       }
 
       const safeId = escapeHTML(p.id);
@@ -551,108 +525,6 @@ export class PatientsManager {
         </tr>
       `;
     }).join('');
-  }
-
-
-  // ================= Approved Sessions & Dynamic Body Parts Live Calculation =================
-  formatPartsCountLabel(count) {
-    if (count <= 1) return 'عضو واحد';
-    if (count === 2) return 'عضوين';
-    if (count >= 3 && count <= 10) return `${count} أعضاء`;
-    return `${count} عضواً`;
-  }
-
-  updateApprovalSummary() {
-    const visits = parseInt(document.getElementById('p-approved-sessions')?.value) || 0;
-    const selected = this.getSelectedApprovedBodyParts();
-    const partsCount = selected.length > 0 ? selected.length : (parseInt(document.getElementById('p-approved-body-parts-count')?.value) || 1);
-    const hidden = document.getElementById('p-approved-body-parts-count');
-    if (hidden) hidden.value = partsCount;
-
-    // Update Counter Display below chips (Identical to sessions screen)
-    const countDisplay = document.getElementById('p-approved-parts-count-display');
-    if (countDisplay) {
-      if (selected.length === 0) {
-        countDisplay.textContent = 'عضو واحد (افتراضي)';
-      } else {
-        countDisplay.textContent = `${this.formatPartsCountLabel(selected.length)} (${selected.length})`;
-      }
-    }
-
-    const docSessions = visits * partsCount;
-    const visitsEl = document.getElementById('p-summary-visits');
-    const docEl = document.getElementById('p-summary-doctor-sessions');
-    if (visitsEl) visitsEl.textContent = `${visits} زيارة حضور فعلية`;
-    if (docEl) {
-      const partsLabel = this.formatPartsCountLabel(partsCount);
-      docEl.textContent = `${docSessions} جلسة عمل للطبيب (${visits} زيارة × ${partsLabel})`;
-    }
-  }
-
-  updateRenewSummary() {
-    const visits = parseInt(document.getElementById('renew-sessions-count')?.value) || 0;
-    const selected = this.getSelectedRenewApprovedBodyParts();
-    const partsCount = selected.length > 0 ? selected.length : (parseInt(document.getElementById('renew-body-parts-count')?.value) || 1);
-    const hidden = document.getElementById('renew-body-parts-count');
-    if (hidden) hidden.value = partsCount;
-
-    const countDisplay = document.getElementById('renew-approved-parts-count-display');
-    if (countDisplay) {
-      if (selected.length === 0) {
-        countDisplay.textContent = 'عضو واحد (افتراضي)';
-      } else {
-        countDisplay.textContent = `${this.formatPartsCountLabel(selected.length)} (${selected.length})`;
-      }
-    }
-
-    const docSessions = visits * partsCount;
-    const docEl = document.getElementById('renew-summary-doctor-sessions');
-    if (docEl) {
-      const partsLabel = this.formatPartsCountLabel(partsCount);
-      docEl.textContent = `${docSessions} جلسة للطبيب (${visits} زيارة × ${partsLabel})`;
-    }
-  }
-
-  renderApprovedBodyPartsChips(selectedParts = []) {
-    const container = document.getElementById('p-approved-body-parts-container');
-    if (!container) return;
-    const parts = db.getClinicalOptions('body_parts') || [];
-    container.innerHTML = parts.map(part => {
-      const isSelected = Array.isArray(selectedParts) && selectedParts.includes(part);
-      return `
-        <button type="button" class="chip-choice ${isSelected ? 'selected' : ''}" data-action="toggle-approved-part" data-part="${part}">
-          <i class="fa-solid fa-bone"></i> <span>${part}</span>
-        </button>
-      `;
-    }).join('');
-    this.updateApprovalSummary();
-  }
-
-  getSelectedApprovedBodyParts() {
-    const container = document.getElementById('p-approved-body-parts-container');
-    if (!container) return [];
-    return Array.from(container.querySelectorAll('.chip-choice.selected')).map(el => el.dataset.part);
-  }
-
-  renderRenewApprovedBodyPartsChips(selectedParts = []) {
-    const container = document.getElementById('renew-approved-body-parts-container');
-    if (!container) return;
-    const parts = db.getClinicalOptions('body_parts') || [];
-    container.innerHTML = parts.map(part => {
-      const isSelected = Array.isArray(selectedParts) && selectedParts.includes(part);
-      return `
-        <button type="button" class="chip-choice ${isSelected ? 'selected' : ''}" data-action="toggle-renew-part" data-part="${part}">
-          <i class="fa-solid fa-bone"></i> <span>${part}</span>
-        </button>
-      `;
-    }).join('');
-    this.updateRenewSummary();
-  }
-
-  getSelectedRenewApprovedBodyParts() {
-    const container = document.getElementById('renew-approved-body-parts-container');
-    if (!container) return [];
-    return Array.from(container.querySelectorAll('.chip-choice.selected')).map(el => el.dataset.part);
   }
 
   // ================= Insurance Interactive Buttons for Patient Registration =================
@@ -853,9 +725,6 @@ export class PatientsManager {
     document.getElementById('p-insurance-details').style.display = 'none';
     const appSessionsInp = document.getElementById('p-approved-sessions');
     if (appSessionsInp) appSessionsInp.value = '12';
-    const hiddenCount = document.getElementById('p-approved-body-parts-count');
-    if (hiddenCount) hiddenCount.value = '1';
-    this.renderApprovedBodyPartsChips([]);
     this.onContractTypeChanged('direct');
     const directRadio = document.querySelector('input[name="p-contract-type"][value="direct"]');
     if (directRadio) directRadio.checked = true;
@@ -912,9 +781,6 @@ export class PatientsManager {
       this.onContractTypeChanged(cType);
       const appSessionsInp = document.getElementById('p-approved-sessions');
       if (appSessionsInp) appSessionsInp.value = p.approvedSessions || 12;
-      const hiddenCount = document.getElementById('p-approved-body-parts-count');
-      if (hiddenCount) hiddenCount.value = p.approvedBodyPartsCount || 1;
-      this.renderApprovedBodyPartsChips(p.approvedBodyParts || []);
     } else {
       insBox.style.display = 'none';
     }
@@ -1043,12 +909,8 @@ export class PatientsManager {
     }
 
     let approvedSessions = 12;
-    let approvedBodyPartsCount = 1;
-    let approvedBodyParts = [];
     if (billing === 'insurance') {
       approvedSessions = parseInt(document.getElementById('p-approved-sessions')?.value) || 12;
-      approvedBodyPartsCount = parseInt(document.getElementById('p-approved-body-parts-count')?.value) || 1;
-      approvedBodyParts = this.getSelectedApprovedBodyParts();
     }
 
     const patientData = {
@@ -1063,9 +925,7 @@ export class PatientsManager {
       billing,
       insuranceCompany,
       contractType,
-      approvedSessions,
-      approvedBodyPartsCount,
-      approvedBodyParts
+      approvedSessions
     };
 
     if (!id && billing === 'insurance') {
@@ -1117,9 +977,6 @@ export class PatientsManager {
     const cTypeLabel = patient.contractType === 'indirect' ? 'تعاقد غير مباشر' : 'تعاقد مباشر';
     document.getElementById('renew-company-name').textContent = `${patient.insuranceCompany || 'شركة التأمين'} (${cTypeLabel})`;
     document.getElementById('renew-sessions-count').value = patient.approvedSessions || 12;
-    const renewHidden = document.getElementById('renew-body-parts-count');
-    if (renewHidden) renewHidden.value = patient.approvedBodyPartsCount || 1;
-    this.renderRenewApprovedBodyPartsChips(patient.approvedBodyParts || []);
     document.getElementById('renew-approval-date').value = getLocalDateStr();
     document.getElementById('renew-approval-no').value = patient.insuranceApprovalNo || '';
 
@@ -1130,8 +987,6 @@ export class PatientsManager {
     e.preventDefault();
     const pid = document.getElementById('renew-patient-id')?.value;
     const newSessions = parseInt(document.getElementById('renew-sessions-count')?.value) || 12;
-    const selectedRenewParts = this.getSelectedRenewApprovedBodyParts();
-    const newPartsCount = selectedRenewParts.length > 0 ? selectedRenewParts.length : (parseInt(document.getElementById('renew-body-parts-count')?.value) || 1);
     const renewDate = document.getElementById('renew-approval-date')?.value || getLocalDateStr();
     const newApprovalNo = document.getElementById('renew-approval-no')?.value?.trim() || '';
 
@@ -1142,8 +997,6 @@ export class PatientsManager {
       const currentUser = auth.getCurrentUser();
       const updates = {
         approvedSessions: newSessions,
-        approvedBodyPartsCount: newPartsCount,
-        approvedBodyParts: selectedRenewParts.length > 0 ? selectedRenewParts : (patient.approvedBodyParts || []),
         currentApprovalStartDate: renewDate,
         lastRenewalDate: renewDate,
         lastRenewedBy: currentUser?.name || 'الاستقبال'
