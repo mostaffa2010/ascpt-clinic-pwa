@@ -60,20 +60,7 @@ export class SessionsManager {
     document.getElementById('btn-exam-type-contract')?.addEventListener('click', () => this.setExamType('contract'));
 
     // 1. Dynamic Body Parts Picker
-    document.getElementById('btn-open-session-body-parts-picker')?.addEventListener('click', () => {
-      this.app.multiSelectPicker.open({
-        title: 'اختيار الأعضاء المعالجة في الجلسة',
-        icon: 'fa-solid fa-bone',
-        category: 'body_parts',
-        selected: this.selectedBodyParts,
-        searchPlaceholder: 'ابحث في الأعضاء المعالجة...',
-        addPlaceholder: 'إضافة عضو معالج جديد...',
-        onConfirm: (newVals) => {
-          this.selectedBodyParts = newVals;
-          this.renderBodyPartsChips();
-        }
-      });
-    });
+    document.getElementById('btn-open-session-body-parts-picker')?.addEventListener('click', () => this.openBodyPartsPicker());
 
     // 2. Patient Picker Search Filter & Triggers
     document.getElementById('patient-picker-trigger')?.addEventListener('click', () => this.openPatientPicker());
@@ -849,6 +836,21 @@ export class SessionsManager {
   }
 
   // ================= Dynamic Body Parts Picker Integration =================
+  openBodyPartsPicker() {
+    this.app.multiSelectPicker.open({
+      title: 'اختيار الأعضاء المعالجة في الجلسة',
+      icon: 'fa-solid fa-bone',
+      category: 'body_parts',
+      selected: this.selectedBodyParts,
+      searchPlaceholder: 'ابحث في الأعضاء المعالجة...',
+      addPlaceholder: 'إضافة عضو معالج جديد...',
+      onConfirm: (newVals) => {
+        this.selectedBodyParts = newVals;
+        this.renderBodyPartsChips();
+      }
+    });
+  }
+
   renderBodyPartsChips(selectedParts = null) {
     if (selectedParts !== null) {
       this.selectedBodyParts = Array.isArray(selectedParts) ? [...selectedParts] : [];

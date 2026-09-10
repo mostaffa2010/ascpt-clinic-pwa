@@ -677,6 +677,16 @@ class App {
       }
     });
 
+    // Universal Multi-Select Picker Trigger Delegation ([data-open-multi-picker])
+    document.addEventListener('click', (e) => {
+      const multiBtn = e.target.closest('[data-open-multi-picker]');
+      if (multiBtn) {
+        e.preventDefault();
+        const pickerType = multiBtn.getAttribute('data-open-multi-picker');
+        this.handleMultiPickerOpen(pickerType);
+      }
+    });
+
     // Universal Custom Picker Trigger Delegation ([data-open-picker])
     document.addEventListener('click', (e) => {
       const pickerBtn = e.target.closest('[data-open-picker]');
@@ -1216,6 +1226,38 @@ class App {
     if (this.patientsManager) this.patientsManager.openAddModal();
   }
 
+  // ================= Multi-Select Picker Dispatcher =================
+  handleMultiPickerOpen(pickerType) {
+    switch (pickerType) {
+      case 'session_body_parts':
+        if (this.sessionsManager) this.sessionsManager.openBodyPartsPicker();
+        break;
+      case 'sheet_modality':
+        if (this.patientsManager) this.patientsManager.openModalitiesPicker();
+        break;
+      case 'sheet_procedure':
+        if (this.patientsManager) this.patientsManager.openProceduresPicker();
+        break;
+      case 'sheet_exercise':
+        if (this.patientsManager) this.patientsManager.openExercisesPicker();
+        break;
+      case 'patient_approved_body_parts':
+        if (this.patientsManager) this.patientsManager.openApprovedBodyPartsPicker();
+        break;
+      case 'patient_insurance':
+        if (this.patientsManager) this.patientsManager.openInsuranceCompanyPicker();
+        break;
+      case 'renew_body_parts':
+        if (this.patientsManager) this.patientsManager.openRenewBodyPartsPicker();
+        break;
+      case 'card_treatment':
+        if (this.claimsManager) this.claimsManager.openCardTreatmentsPicker();
+        break;
+      default:
+        console.warn('Unknown multi picker type:', pickerType);
+    }
+  }
+
   // ================= Custom Picker Management =================
   openCustomPicker(selectId, modalTitle = 'اختر من القائمة') {
     const select = document.getElementById(selectId);
@@ -1385,6 +1427,7 @@ class App {
         'modal-auth',
         'modal-custom-dialog',
         'modal-custom-picker',
+        'modal-multi-select-picker',
         'modal-custom-calendar',
         'modal-custom-month-picker'
       ];

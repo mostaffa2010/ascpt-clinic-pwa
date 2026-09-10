@@ -2463,7 +2463,7 @@ body.not-authenticated #modal-auth #btn-cancel-login {
   color: #ef4444 !important;
 }
 
-/* ================= Universal Searchable Picker System (v1.3.22) ================= */
+/* ================= Universal Searchable Picker System (v1.3.23) ================= */
 .picker-trigger-box {
   background: var(--bg-surface);
   border: 1.5px solid var(--border-color);
@@ -2477,6 +2477,13 @@ body.not-authenticated #modal-auth #btn-cancel-login {
   transition: all 0.2s ease;
   user-select: none;
   width: 100%;
+  font-family: inherit;
+  text-align: right;
+  outline: none;
+}
+.picker-trigger-box:focus-visible {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 2px rgba(2, 132, 199, 0.25);
 }
 .picker-trigger-box:hover {
   border-color: var(--primary);

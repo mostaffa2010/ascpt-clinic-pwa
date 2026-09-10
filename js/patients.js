@@ -71,55 +71,10 @@ export class PatientsManager {
       r.addEventListener('change', (e) => this.onContractTypeChanged(e.target.value));
     });
 
-    // Toggle Insurance Edit Mode in Patient Form
     // Patient Modal: Insurance Company Picker & Approved Body Parts Picker
-    document.getElementById('btn-open-p-insurance-picker')?.addEventListener('click', () => {
-      const contractType = document.querySelector('input[name="p-contract-type"]:checked')?.value || 'direct';
-      const curComp = document.getElementById('p-insurance-company')?.value || '';
-      this.app.multiSelectPicker.open({
-        title: `اختر شركة التأمين (${contractType === 'direct' ? 'تعاقد مباشر' : 'تعاقد غير مباشر'})`,
-        icon: 'fa-solid fa-file-contract',
-        category: 'insurance_company',
-        contractType: contractType,
-        selected: curComp,
-        mode: 'single',
-        searchPlaceholder: 'ابحث في شركات التأمين...',
-        addPlaceholder: 'إضافة شركة تأمين جديدة...',
-        onConfirm: (val) => {
-          this.selectInsuranceCompany(contractType, val);
-        }
-      });
-    });
-
-    document.getElementById('btn-open-p-approved-body-parts-picker')?.addEventListener('click', () => {
-      this.app.multiSelectPicker.open({
-        title: 'الأعضاء المعالجة المعتمدة بالجواب',
-        icon: 'fa-solid fa-bone',
-        category: 'body_parts',
-        selected: this.selectedApprovedBodyParts,
-        searchPlaceholder: 'ابحث في الأعضاء المعتمدة...',
-        addPlaceholder: 'إضافة عضو جديد...',
-        onConfirm: (vals) => {
-          this.selectedApprovedBodyParts = vals;
-          this.renderApprovedBodyPartsChips();
-        }
-      });
-    });
-
-    document.getElementById('btn-open-renew-body-parts-picker')?.addEventListener('click', () => {
-      this.app.multiSelectPicker.open({
-        title: 'الأعضاء المعتمدة بالدورة الجديدة',
-        icon: 'fa-solid fa-bone',
-        category: 'body_parts',
-        selected: this.selectedRenewApprovedBodyParts,
-        searchPlaceholder: 'ابحث في الأعضاء المعتمدة...',
-        addPlaceholder: 'إضافة عضو جديد...',
-        onConfirm: (vals) => {
-          this.selectedRenewApprovedBodyParts = vals;
-          this.renderRenewApprovedBodyPartsChips();
-        }
-      });
-    });
+    document.getElementById('btn-open-p-insurance-picker')?.addEventListener('click', () => this.openInsuranceCompanyPicker());
+    document.getElementById('btn-open-p-approved-body-parts-picker')?.addEventListener('click', () => this.openApprovedBodyPartsPicker());
+    document.getElementById('btn-open-renew-body-parts-picker')?.addEventListener('click', () => this.openRenewBodyPartsPicker());
 
     // Input listener on approved sessions in patient modal
     document.getElementById('p-approved-sessions')?.addEventListener('input', () => this.updateApprovalSummary());
@@ -180,50 +135,9 @@ export class PatientsManager {
     }
 
     // Clinical Sheet Searchable Pickers
-    document.getElementById('btn-open-sheet-modalities-picker')?.addEventListener('click', () => {
-      this.app.multiSelectPicker.open({
-        title: 'الأجهزة والوسائل الفيزيائية',
-        icon: 'fa-solid fa-bolt-lightning',
-        category: 'modality',
-        selected: this.selectedModalities,
-        searchPlaceholder: 'ابحث في الأجهزة والوسائل...',
-        addPlaceholder: 'إضافة جهاز فيزيائي جديد...',
-        onConfirm: (vals) => {
-          this.selectedModalities = vals;
-          this.renderClinicalPickersUI();
-        }
-      });
-    });
-
-    document.getElementById('btn-open-sheet-procedures-picker')?.addEventListener('click', () => {
-      this.app.multiSelectPicker.open({
-        title: 'الإجراءات والعلاج اليدوي',
-        icon: 'fa-solid fa-hand-holding-hand',
-        category: 'procedure',
-        selected: this.selectedProcedures,
-        searchPlaceholder: 'ابحث في الإجراءات والعلاج اليدوي...',
-        addPlaceholder: 'إضافة إجراء يدوي جديد...',
-        onConfirm: (vals) => {
-          this.selectedProcedures = vals;
-          this.renderClinicalPickersUI();
-        }
-      });
-    });
-
-    document.getElementById('btn-open-sheet-exercises-picker')?.addEventListener('click', () => {
-      this.app.multiSelectPicker.open({
-        title: 'التمارين العلاجية الموصوفة',
-        icon: 'fa-solid fa-person-running',
-        category: 'exercise',
-        selected: this.selectedExercises,
-        searchPlaceholder: 'ابحث في التمارين العلاجية...',
-        addPlaceholder: 'إضافة تمرين علاجي جديد...',
-        onConfirm: (vals) => {
-          this.selectedExercises = vals;
-          this.renderClinicalPickersUI();
-        }
-      });
-    });
+    document.getElementById('btn-open-sheet-modalities-picker')?.addEventListener('click', () => this.openModalitiesPicker());
+    document.getElementById('btn-open-sheet-procedures-picker')?.addEventListener('click', () => this.openProceduresPicker());
+    document.getElementById('btn-open-sheet-exercises-picker')?.addEventListener('click', () => this.openExercisesPicker());
 
     // Real-time phone input digits filter
     const phoneInp = document.getElementById('p-phone');
@@ -1272,6 +1186,100 @@ export class PatientsManager {
     this.app.showToast('تم حفظ وتحديث الشيت الطبي للمريض بنجاح');
     this.renderAllInsuranceChips();
     await this.loadPatients();
+  }
+
+  // ================= Picker Launching Methods =================
+  openInsuranceCompanyPicker() {
+    const contractType = document.querySelector('input[name="p-contract-type"]:checked')?.value || 'direct';
+    const curComp = document.getElementById('p-insurance-company')?.value || '';
+    this.app.multiSelectPicker.open({
+      title: `اختر شركة التأمين (${contractType === 'direct' ? 'تعاقد مباشر' : 'تعاقد غير مباشر'})`,
+      icon: 'fa-solid fa-file-contract',
+      category: 'insurance_company',
+      contractType: contractType,
+      selected: curComp,
+      mode: 'single',
+      searchPlaceholder: 'ابحث في شركات التأمين...',
+      addPlaceholder: 'إضافة شركة تأمين جديدة...',
+      onConfirm: (val) => {
+        this.selectInsuranceCompany(contractType, val);
+      }
+    });
+  }
+
+  openApprovedBodyPartsPicker() {
+    this.app.multiSelectPicker.open({
+      title: 'الأعضاء المعالجة المعتمدة بالجواب',
+      icon: 'fa-solid fa-bone',
+      category: 'body_parts',
+      selected: this.selectedApprovedBodyParts,
+      searchPlaceholder: 'ابحث في الأعضاء المعتمدة...',
+      addPlaceholder: 'إضافة عضو جديد...',
+      onConfirm: (vals) => {
+        this.selectedApprovedBodyParts = vals;
+        this.renderApprovedBodyPartsChips();
+      }
+    });
+  }
+
+  openRenewBodyPartsPicker() {
+    this.app.multiSelectPicker.open({
+      title: 'الأعضاء المعتمدة بالدورة الجديدة',
+      icon: 'fa-solid fa-bone',
+      category: 'body_parts',
+      selected: this.selectedRenewApprovedBodyParts,
+      searchPlaceholder: 'ابحث في الأعضاء المعتمدة...',
+      addPlaceholder: 'إضافة عضو جديد...',
+      onConfirm: (vals) => {
+        this.selectedRenewApprovedBodyParts = vals;
+        this.renderRenewApprovedBodyPartsChips();
+      }
+    });
+  }
+
+  openModalitiesPicker() {
+    this.app.multiSelectPicker.open({
+      title: 'الأجهزة والوسائل الفيزيائية',
+      icon: 'fa-solid fa-bolt-lightning',
+      category: 'modality',
+      selected: this.selectedModalities,
+      searchPlaceholder: 'ابحث في الأجهزة والوسائل...',
+      addPlaceholder: 'إضافة جهاز فيزيائي جديد...',
+      onConfirm: (vals) => {
+        this.selectedModalities = vals;
+        this.renderClinicalPickersUI();
+      }
+    });
+  }
+
+  openProceduresPicker() {
+    this.app.multiSelectPicker.open({
+      title: 'الإجراءات والعلاج اليدوي',
+      icon: 'fa-solid fa-hand-holding-hand',
+      category: 'procedure',
+      selected: this.selectedProcedures,
+      searchPlaceholder: 'ابحث في الإجراءات والعلاج اليدوي...',
+      addPlaceholder: 'إضافة إجراء يدوي جديد...',
+      onConfirm: (vals) => {
+        this.selectedProcedures = vals;
+        this.renderClinicalPickersUI();
+      }
+    });
+  }
+
+  openExercisesPicker() {
+    this.app.multiSelectPicker.open({
+      title: 'التمارين العلاجية الموصوفة',
+      icon: 'fa-solid fa-person-running',
+      category: 'exercise',
+      selected: this.selectedExercises,
+      searchPlaceholder: 'ابحث في التمارين العلاجية...',
+      addPlaceholder: 'إضافة تمرين علاجي جديد...',
+      onConfirm: (vals) => {
+        this.selectedExercises = vals;
+        this.renderClinicalPickersUI();
+      }
+    });
   }
 
   // ================= Dynamic Clinical Pickers Integration =================

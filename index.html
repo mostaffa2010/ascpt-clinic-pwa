@@ -499,7 +499,7 @@
               <span class="card-title"><i class="fa-solid fa-bolt-lightning"></i> 2. الأجهزة والوسائل الفيزيائية (Physical Modalities)</span>
             </div>
             <p style="font-size: 0.82rem; color: var(--text-muted); margin-bottom: 8px;">اضغط لاختيار الأجهزة والوسائل المقررة في جلسة المريض:</p>
-            <div class="picker-trigger-box" id="btn-open-sheet-modalities-picker">
+            <button type="button" class="picker-trigger-box" id="btn-open-sheet-modalities-picker" data-open-multi-picker="sheet_modality">
               <div class="picker-trigger-info">
                 <i class="fa-solid fa-bolt-lightning" style="color: var(--primary); font-size: 1.1rem;"></i>
                 <div style="flex: 1; min-width: 0;">
@@ -511,7 +511,7 @@
                 <span class="badge badge-cash" id="sheet-modalities-count-badge" style="font-size: 0.78rem; padding: 3px 8px;">0 أجهزة</span>
                 <i class="fa-solid fa-chevron-left" style="color: var(--text-muted); font-size: 0.85rem;"></i>
               </div>
-            </div>
+            </button>
             <div class="selected-picker-tags" id="sheet-modalities-tags"></div>
           </div>
 
@@ -520,7 +520,7 @@
             <div class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
               <span class="card-title"><i class="fa-solid fa-hand-holding-hand"></i> 3. الإجراءات والعلاج اليدوي (Procedures & Manual Therapy)</span>
             </div>
-            <div class="picker-trigger-box" id="btn-open-sheet-procedures-picker">
+            <button type="button" class="picker-trigger-box" id="btn-open-sheet-procedures-picker" data-open-multi-picker="sheet_procedure">
               <div class="picker-trigger-info">
                 <i class="fa-solid fa-hand-holding-hand" style="color: var(--primary); font-size: 1.1rem;"></i>
                 <div style="flex: 1; min-width: 0;">
@@ -532,7 +532,7 @@
                 <span class="badge badge-cash" id="sheet-procedures-count-badge" style="font-size: 0.78rem; padding: 3px 8px;">0 إجراءات</span>
                 <i class="fa-solid fa-chevron-left" style="color: var(--text-muted); font-size: 0.85rem;"></i>
               </div>
-            </div>
+            </button>
             <div class="selected-picker-tags" id="sheet-procedures-tags"></div>
           </div>
 
@@ -541,7 +541,7 @@
             <div class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
               <span class="card-title"><i class="fa-solid fa-person-running"></i> 4. التمارين العلاجية الموصوفة (Therapeutic Exercises)</span>
             </div>
-            <div class="picker-trigger-box" id="btn-open-sheet-exercises-picker">
+            <button type="button" class="picker-trigger-box" id="btn-open-sheet-exercises-picker" data-open-multi-picker="sheet_exercise">
               <div class="picker-trigger-info">
                 <i class="fa-solid fa-person-running" style="color: var(--primary); font-size: 1.1rem;"></i>
                 <div style="flex: 1; min-width: 0;">
@@ -553,7 +553,7 @@
                 <span class="badge badge-cash" id="sheet-exercises-count-badge" style="font-size: 0.78rem; padding: 3px 8px;">0 تمارين</span>
                 <i class="fa-solid fa-chevron-left" style="color: var(--text-muted); font-size: 0.85rem;"></i>
               </div>
-            </div>
+            </button>
             <div class="selected-picker-tags" id="sheet-exercises-tags"></div>
             <div class="form-group" style="margin-top: 12px;">
               <label for="sheet-exercise-details">تفاصيل التمارين والمجموعات والتكرارات</label>
@@ -672,7 +672,7 @@
 
                 <div class="form-group" id="form-group-body-parts">
                   <label style="margin: 0 0 6px 0; font-weight: 800; font-size: 0.88rem; color: var(--text-main); display: block;">الأعضاء المعالجة في الجلسة *</label>
-                  <div class="picker-trigger-box" id="btn-open-session-body-parts-picker">
+                  <button type="button" class="picker-trigger-box" id="btn-open-session-body-parts-picker" data-open-multi-picker="session_body_parts">
                     <div class="picker-trigger-info">
                       <i class="fa-solid fa-bone" style="color: var(--primary); font-size: 1.1rem;"></i>
                       <div style="flex: 1; min-width: 0;">
@@ -684,7 +684,7 @@
                       <span class="badge badge-cash" id="selected-parts-count-badge" style="font-size: 0.78rem; padding: 3px 8px;">0 أعضاء</span>
                       <i class="fa-solid fa-chevron-left" style="color: var(--text-muted); font-size: 0.85rem;"></i>
                     </div>
-                  </div>
+                  </button>
                   <div class="selected-picker-tags" id="session-selected-parts-tags"></div>
                   <div style="font-size: 0.8rem; color: var(--primary); font-weight: bold; margin-top: 5px;">
                     إجمالي الأعضاء المحددة: <span id="selected-parts-count">0</span>
@@ -1531,7 +1531,7 @@
               <label style="font-weight: 800; font-size: 0.88rem; color: var(--text-main); margin-bottom: 6px; display: block;">اختر شركة التأمين *</label>
               <input type="hidden" id="p-insurance-company" value="">
               
-              <div class="picker-trigger-box" id="btn-open-p-insurance-picker">
+              <button type="button" class="picker-trigger-box" id="btn-open-p-insurance-picker" data-open-multi-picker="patient_insurance">
                 <div class="picker-trigger-info">
                   <i class="fa-solid fa-file-contract" style="color: var(--primary); font-size: 1.1rem;"></i>
                   <div style="flex: 1; min-width: 0;">
@@ -1542,7 +1542,7 @@
                 <div style="display: flex; align-items: center; gap: 6px;">
                   <i class="fa-solid fa-chevron-left" style="color: var(--text-muted); font-size: 0.85rem;"></i>
                 </div>
-              </div>
+              </button>
             </div>
 
             <!-- Approved Sessions & Body Parts for Insurance Approval -->
@@ -1564,7 +1564,7 @@
                 <label style="margin: 0 0 6px 0; font-weight: 800; font-size: 0.88rem; color: var(--text-main); display: block;">
                   الأعضاء المعالجة المعتمدة بالجواب *
                 </label>
-                <div class="picker-trigger-box" id="btn-open-p-approved-body-parts-picker">
+                <button type="button" class="picker-trigger-box" id="btn-open-p-approved-body-parts-picker" data-open-multi-picker="patient_approved_body_parts">
                   <div class="picker-trigger-info">
                     <i class="fa-solid fa-bone" style="color: var(--primary); font-size: 1.1rem;"></i>
                     <div style="flex: 1; min-width: 0;">
@@ -1576,7 +1576,7 @@
                     <span class="badge badge-cash" id="p-approved-parts-count-badge" style="font-size: 0.78rem; padding: 3px 8px;">0</span>
                     <i class="fa-solid fa-chevron-left" style="color: var(--text-muted); font-size: 0.85rem;"></i>
                   </div>
-                </div>
+                </button>
                 <div class="selected-picker-tags" id="p-approved-parts-tags"></div>
                 <div style="font-size: 0.8rem; color: var(--primary); font-weight: bold; margin-top: 5px;">
                   إجمالي الأعضاء المحددة: <span id="p-approved-parts-count-display">0</span>
@@ -1731,7 +1731,7 @@
             <label style="margin: 0 0 6px 0; font-weight: 800; font-size: 0.88rem; color: var(--text-main); display: block;">
               الأعضاء المعتمدة بالدورة الجديدة *
             </label>
-            <div class="picker-trigger-box" id="btn-open-renew-body-parts-picker">
+            <button type="button" class="picker-trigger-box" id="btn-open-renew-body-parts-picker" data-open-multi-picker="renew_body_parts">
               <div class="picker-trigger-info">
                 <i class="fa-solid fa-bone" style="color: var(--primary); font-size: 1.1rem;"></i>
                 <div style="flex: 1; min-width: 0;">
@@ -1743,7 +1743,7 @@
                 <span class="badge badge-cash" id="renew-approved-parts-count-badge" style="font-size: 0.78rem; padding: 3px 8px;">0</span>
                 <i class="fa-solid fa-chevron-left" style="color: var(--text-muted); font-size: 0.85rem;"></i>
               </div>
-            </div>
+            </button>
             <div class="selected-picker-tags" id="renew-approved-parts-tags"></div>
             <div style="font-size: 0.8rem; color: var(--primary); font-weight: bold; margin-top: 5px;">
               إجمالي الأعضاء المحددة: <span id="renew-approved-parts-count-display">0</span>
@@ -2408,7 +2408,7 @@
         <!-- 3. Plan of P.T. Treatment (Searchable Multi-Picker) -->
         <div class="form-group" style="margin-bottom: 12px;">
           <label style="font-weight: 800; margin: 0 0 6px 0; display: block;">Plan of P.T. Treatment (خطة العلاج الطبيعي):</label>
-          <div class="picker-trigger-box" id="btn-open-card-treatment-picker">
+          <button type="button" class="picker-trigger-box" id="btn-open-card-treatment-picker" data-open-multi-picker="card_treatment">
             <div class="picker-trigger-info">
               <i class="fa-solid fa-bolt-lightning" style="color: var(--primary); font-size: 1.1rem;"></i>
               <div style="flex: 1; min-width: 0;">
@@ -2420,7 +2420,7 @@
               <span class="badge badge-cash" id="card-treatment-count-badge" style="font-size: 0.78rem; padding: 3px 8px;">0</span>
               <i class="fa-solid fa-chevron-left" style="color: var(--text-muted); font-size: 0.85rem;"></i>
             </div>
-          </div>
+          </button>
           <div class="selected-picker-tags" id="card-treatment-tags"></div>
 
           <!-- Live Preview Box matching Image 2 -->
@@ -2543,7 +2543,7 @@
 
       
   <!-- Main Application Script (ES Module) -->
-  <script type="module" src="js/app.js"></script>
+  <script type="module" src="js/app.js?v=1.3.23"></script>
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {

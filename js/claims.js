@@ -1,4 +1,4 @@
-import { escapeHTML } from './utils.js';
+import { escapeHTML, updatePickerTriggerDisplay } from './utils.js';
 // ========================================================
 // PhysioFlow - Insurance Claims & Attendance Cards Module
 // نظام مطالبات شركات التأمين وبطاقات التردد
@@ -240,20 +240,7 @@ export class ClaimsManager {
     }
 
     // Attendance Card Treatments Picker
-    document.getElementById('btn-open-card-treatment-picker')?.addEventListener('click', () => {
-      this.app.multiSelectPicker.open({
-        title: 'Plan of P.T. Treatment (خطة العلاج الطبيعي)',
-        icon: 'fa-solid fa-bolt-lightning',
-        category: 'modality',
-        selected: this.selectedCardTreatments,
-        searchPlaceholder: 'ابحث في الوسائل العلاجية...',
-        addPlaceholder: 'إضافة وسيلة علاجية جديدة...',
-        onConfirm: (vals) => {
-          this.selectedCardTreatments = vals;
-          this.renderCardTreatmentChips();
-        }
-      });
-    });
+    document.getElementById('btn-open-card-treatment-picker')?.addEventListener('click', () => this.openCardTreatmentsPicker());
   }
 
   async loadCompanyPatients() {
@@ -499,6 +486,21 @@ export class ClaimsManager {
     }
     this.renderCardTreatmentChips(cardData.treatments || []);
     this.app.openModal('modal-attendance-card');
+  }
+
+  openCardTreatmentsPicker() {
+    this.app.multiSelectPicker.open({
+      title: 'Plan of P.T. Treatment (خطة العلاج الطبيعي)',
+      icon: 'fa-solid fa-bolt-lightning',
+      category: 'modality',
+      selected: this.selectedCardTreatments,
+      searchPlaceholder: 'ابحث في الوسائل العلاجية...',
+      addPlaceholder: 'إضافة وسيلة علاجية جديدة...',
+      onConfirm: (vals) => {
+        this.selectedCardTreatments = vals;
+        this.renderCardTreatmentChips();
+      }
+    });
   }
 
   renderCardTreatmentChips(selectedTreatments = null) {
