@@ -755,6 +755,7 @@ export class PatientsManager {
     if (appSessionsInp) appSessionsInp.value = '12';
     const appPartsSelect = document.getElementById('p-approved-body-parts');
     if (appPartsSelect) appPartsSelect.value = '2';
+    this.app.updateCustomSelectDisplay('p-approved-body-parts');
     this.updateApprovalUnitsSummary('patient');
     this.onContractTypeChanged('direct');
     const directRadio = document.querySelector('input[name="p-contract-type"][value="direct"]');
@@ -814,6 +815,7 @@ export class PatientsManager {
       if (appSessionsInp) appSessionsInp.value = p.approvedSessions || 12;
       const appPartsSelect = document.getElementById('p-approved-body-parts');
       if (appPartsSelect) appPartsSelect.value = String(p.approvedBodyParts || 2);
+      this.app.updateCustomSelectDisplay('p-approved-body-parts');
       this.updateApprovalUnitsSummary('patient');
     } else {
       insBox.style.display = 'none';
@@ -1016,6 +1018,7 @@ export class PatientsManager {
     document.getElementById('renew-sessions-count').value = patient.approvedSessions || 12;
     const renewPartsSelect = document.getElementById('renew-approved-body-parts');
     if (renewPartsSelect) renewPartsSelect.value = String(patient.approvedBodyParts || 2);
+    this.app.updateCustomSelectDisplay('renew-approved-body-parts');
     this.updateApprovalUnitsSummary('renew');
     document.getElementById('renew-approval-date').value = getLocalDateStr();
     document.getElementById('renew-approval-no').value = patient.insuranceApprovalNo || '';

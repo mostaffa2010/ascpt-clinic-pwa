@@ -156,7 +156,7 @@ class App {
     try { await this.appointmentsManager.init(); } catch (e) { console.warn('appointmentsManager init notice:', e); }
 
     // مزامنة أزرار القوائم المخصصة
-    ['claim-company-select', 'patient-filter-type', 'session-doctor-select', 'finance-doctor-filter', 'newuser-role', 'p-doctor'].forEach(id => {
+    ['claim-company-select', 'patient-filter-type', 'session-doctor-select', 'finance-doctor-filter', 'newuser-role', 'p-doctor', 'p-gender', 'p-approved-body-parts', 'renew-approved-body-parts'].forEach(id => {
       this.updateCustomSelectDisplay(id);
     });
 
