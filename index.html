@@ -2035,28 +2035,22 @@
       </div>
       
       <div class="modal-body" style="padding: 14px 16px; overflow-y: auto; flex: 1;">
-        <!-- Search bar & Add Button Header -->
-        <div style="display: flex; gap: 8px; margin-bottom: 12px; align-items: center;">
-          <div style="position: relative; flex: 1;">
-            <i class="fa-solid fa-magnifying-glass" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); color: var(--text-muted); font-size: 0.85rem;"></i>
-            <input type="text" id="multi-picker-search" class="form-control" placeholder="بحث سريع في الخيارات..." style="height: 38px; padding-right: 32px; font-size: 0.88rem;">
-          </div>
-          <button type="button" class="btn btn-outline btn-sm" id="btn-multi-picker-add-new" style="height: 38px; padding: 0 12px; font-weight: 800; font-size: 0.82rem; white-space: nowrap; border-radius: 8px;">
-            <i class="fa-solid fa-plus"></i> إضافة خيار
-          </button>
-        </div>
-
         <!-- Options Container -->
         <div id="multi-picker-options-list" class="custom-picker-options-list" style="display: flex; flex-direction: column; gap: 6px;">
           <!-- Populated dynamically -->
         </div>
       </div>
 
-      <div class="modal-footer" style="flex-shrink: 0; display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--border-color); padding: 10px 16px;">
-        <button type="button" class="btn btn-outline btn-sm" data-close-modal="modal-multi-picker">إلغاء</button>
-        <button type="button" class="btn btn-primary btn-sm" id="btn-multi-picker-confirm" style="display: inline-flex; padding: 6px 18px; font-weight: 800; font-size: 0.9rem;">
-          <i class="fa-solid fa-check" style="margin-left: 6px;"></i> <span id="multi-picker-confirm-text">تأكيد الاختيار</span>
-        </button>
+      <div class="modal-footer" style="flex-shrink: 0; display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--border-color); padding: 10px 16px; flex-wrap: wrap; gap: 8px;">
+        <button type="button" class="btn btn-outline btn-sm" data-close-modal="modal-multi-picker" style="padding: 6px 14px; font-weight: 700;">إلغاء</button>
+        <div style="display: flex; gap: 8px; align-items: center;">
+          <button type="button" class="btn btn-outline btn-sm" id="btn-multi-picker-add-new" style="padding: 6px 14px; font-weight: 800; font-size: 0.85rem; border-radius: 8px; color: var(--primary); border-color: var(--primary);">
+            <i class="fa-solid fa-plus" style="margin-left: 4px;"></i> إضافة خيار
+          </button>
+          <button type="button" class="btn btn-primary btn-sm" id="btn-multi-picker-confirm" style="display: inline-flex; padding: 6px 18px; font-weight: 800; font-size: 0.9rem;">
+            <i class="fa-solid fa-check" style="margin-left: 6px;"></i> <span id="multi-picker-confirm-text">تأكيد الاختيار</span>
+          </button>
+        </div>
       </div>
     </div>
   </div>

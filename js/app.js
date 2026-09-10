@@ -457,10 +457,7 @@ class App {
       });
     }
 
-    // Multi-Picker Search Input
-    document.getElementById('multi-picker-search')?.addEventListener('input', (e) => {
-      this.renderMultiPickerOptions(e.target.value);
-    });
+
 
     // Multi-Picker Add New Button
     document.getElementById('btn-multi-picker-add-new')?.addEventListener('click', () => {
@@ -1078,23 +1075,16 @@ class App {
     const titleEl = document.getElementById('multi-picker-title');
     if (titleEl) titleEl.innerHTML = `<i class="fa-solid fa-list-check" style="color: var(--primary);"></i> ${title}`;
 
-    const searchInput = document.getElementById('multi-picker-search');
-    if (searchInput) searchInput.value = '';
-
     const confirmBtn = document.getElementById('btn-multi-picker-confirm');
     if (confirmBtn) {
       confirmBtn.style.display = isSingleSelect ? 'none' : 'inline-flex';
     }
 
-    this.renderMultiPickerOptions('');
+    this.renderMultiPickerOptions();
     this.openModal('modal-multi-picker');
-
-    if (searchInput) {
-      setTimeout(() => searchInput.focus(), 250);
-    }
   }
 
-  renderMultiPickerOptions(searchQuery = '') {
+  renderMultiPickerOptions() {
     if (!this.activeMultiPicker) return;
     const { category, selected, isSingleSelect, contractType } = this.activeMultiPicker;
     const container = document.getElementById('multi-picker-options-list');
@@ -1117,17 +1107,13 @@ class App {
       options = db.getClinicalOptions(category);
     }
 
-    const q = (searchQuery || '').trim().toLowerCase();
-    const filtered = options.filter(opt => {
-      const name = typeof opt === 'object' ? opt.name : opt;
-      return !q || name.toLowerCase().includes(q);
-    });
+    const filtered = options;
 
     if (filtered.length === 0) {
       container.innerHTML = `
         <div style="text-align: center; color: var(--text-muted); padding: 24px; font-size: 0.88rem;">
-          <i class="fa-solid fa-filter-circle-xmark" style="font-size: 1.5rem; display: block; margin-bottom: 8px; color: var(--text-muted);"></i>
-          لا توجد عناصر مطابقة للبحث
+          <i class="fa-solid fa-folder-open" style="font-size: 1.5rem; display: block; margin-bottom: 8px; color: var(--text-muted);"></i>
+          لا توجد خيارات مضافة حالياً. اضغط على "إضافة خيار" بالأسفل لإضافة أول عنصر.
         </div>
       `;
       this.updateMultiPickerConfirmBtn();
@@ -1198,8 +1184,7 @@ class App {
       selected.push(val);
     }
 
-    const searchInput = document.getElementById('multi-picker-search');
-    this.renderMultiPickerOptions(searchInput ? searchInput.value : '');
+    this.renderMultiPickerOptions();
   }
 
   confirmMultiPickerSelection() {
@@ -1253,8 +1238,7 @@ class App {
         this.activeMultiPicker.selected.push(cleanVal);
       }
       this.showToast(`تمت إضافة: ${cleanVal}`);
-      const searchInput = document.getElementById('multi-picker-search');
-      this.renderMultiPickerOptions(searchInput ? searchInput.value : '');
+      this.renderMultiPickerOptions();
     }
   }
 
@@ -1278,8 +1262,7 @@ class App {
     }
 
     this.showToast(`تم حذف: ${val}`);
-    const searchInput = document.getElementById('multi-picker-search');
-    this.renderMultiPickerOptions(searchInput ? searchInput.value : '');
+    this.renderMultiPickerOptions();
   }
 
   showAlert(message, title = 'تنبيه المركز', type = 'info') {
