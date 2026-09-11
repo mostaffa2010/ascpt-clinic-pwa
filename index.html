@@ -47,7 +47,7 @@
   
 
     <!-- Stylesheets -->
-  <link rel="stylesheet" href="css/style.css?v=1.4.0-beta.24">
+  <link rel="stylesheet" href="css/style.css?v=1.4.0-beta.25">
   <link rel="stylesheet" href="css/print.css" media="print">
 </head>
 <body>
@@ -657,7 +657,7 @@
           <!-- Form: Log New Session or Examination -->
           <div class="card">
             <div class="card-header" style="padding: 0 0 12px 0; border-bottom: none; display: block; width: 100%;">
-              <!-- Interactive Dual Mode Action Cards (v1.4.0-beta.24) -->
+              <!-- Interactive Dual Mode Action Cards (v1.4.0-beta.25) -->
               <div class="session-mode-pills-wrap">
                 <button type="button" id="btn-mode-session" class="session-mode-pill-btn active">
                   <div class="smp-icon blue">
@@ -1549,29 +1549,22 @@
           <div id="audit-log-mobile-cards" class="mobile-only-cards-container"></div>
         </div>
 
-        <!-- Backup & Restore Card (Admin only) -->
-        <div class="card admin-only hero-styled-card" id="card-admin-backup-restore" style="margin-top: 20px;">
-          <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px;">
-            <div style="display: flex; align-items: flex-start; gap: 14px; flex: 1; min-width: 280px;">
-              <div class="hsc-avatar" style="background: rgba(2, 132, 199, 0.15); color: #0284c7; width: 48px; height: 48px; font-size: 1.3rem; border-radius: 14px;">
-                <i class="fa-solid fa-database"></i>
-              </div>
-              <div>
-                <div style="font-weight: 800; color: var(--text-main); font-size: 1.05rem;">
-                  النسخ الاحتياطي واستعادة البيانات (Backup & Restore)
-                </div>
-                <div style="font-size: 0.82rem; color: var(--text-muted); margin-top: 4px; line-height: 1.4;">
-                  تنزيل نسخة كاملة (ملف JSON غير مشفر) من سجلات المركز (مرضى، جلسات، حسابات) أو استعادتها بضغطة زر. احتفظ بالملف في مكان آمن فقط، لأنه يحتوي بيانات مرضى حساسة بدون تشفير.
-                </div>
-                <div id="backup-status-hint" style="font-size: 0.78rem; margin-top: 6px; font-weight: 700; color: var(--primary);"></div>
-              </div>
-            </div>
-            <div style="display: flex; gap: 10px; flex-wrap: wrap; align-items: center;">
-              <button type="button" class="btn btn-outline btn-sm" style="font-weight: 700; height: 40px; padding: 0 16px; border-radius: 10px;" id="btn-download-backup">
-                <i class="fa-solid fa-download"></i> تنزيل نسخة احتياطية
+        <!-- Backup & Restore Section (Admin only - Unwrapped on mobile) -->
+        <div class="card admin-only" id="card-admin-backup-restore" style="margin-top: 20px;">
+          <div class="card-header">
+            <span class="card-title"><i class="fa-solid fa-database"></i> النسخ الاحتياطي واستعادة البيانات</span>
+          </div>
+          <div class="backup-restore-body">
+            <p style="font-size: 0.82rem; color: var(--text-muted); margin-bottom: 8px; line-height: 1.5;">
+              تنزيل نسخة كاملة من سجلات المركز (مرضى، جلسات، حسابات) أو استعادتها بضغطة زر. احتفظ بالملف في مكان آمن.
+            </p>
+            <div id="backup-status-hint" style="font-size: 0.78rem; margin-bottom: 12px; font-weight: 700; color: var(--primary);"></div>
+            <div class="backup-buttons-row">
+              <button type="button" class="btn btn-outline btn-sm" id="btn-download-backup" style="font-weight: 800; height: 42px; border-radius: 12px; display: inline-flex; align-items: center; justify-content: center; gap: 6px;">
+                <i class="fa-solid fa-download"></i> <span>تنزيل نسخة احتياطية</span>
               </button>
-              <button type="button" class="btn btn-primary btn-sm" style="font-weight: 700; height: 40px; padding: 0 16px; border-radius: 10px;" id="btn-restore-backup">
-                <i class="fa-solid fa-upload"></i> استعادة من ملف
+              <button type="button" class="btn btn-primary btn-sm" id="btn-restore-backup" style="font-weight: 800; height: 42px; border-radius: 12px; display: inline-flex; align-items: center; justify-content: center; gap: 6px;">
+                <i class="fa-solid fa-upload"></i> <span>استعادة من ملف</span>
               </button>
               <input type="file" id="backup-file-input" accept=".json" style="display: none;">
             </div>
@@ -2697,7 +2690,7 @@
     </div>
   </div>
 
-  <!-- Toast Notification Capsule (v1.4.0-beta.24) -->
+  <!-- Toast Notification Capsule (v1.4.0-beta.25) -->
   <div class="toast-capsule" id="toast-notification">
     <div class="toast-icon-wrap" id="toast-icon-wrap">
       <i class="fa-solid fa-circle-check" id="toast-icon"></i>
@@ -2709,7 +2702,7 @@
 
       
   <!-- Main Application Script (ES Module) -->
-  <script type="module" src="js/app.js?v=1.4.0-beta.24"></script>
+  <script type="module" src="js/app.js?v=1.4.0-beta.25"></script>
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {

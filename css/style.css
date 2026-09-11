@@ -5721,7 +5721,8 @@ body::-webkit-scrollbar,
 /* 2. Doctor Stack Deck Desktop Responsiveness */
 @media (min-width: 768px) {
   #daily-doctors-mobile-deck .doc-stack-container,
-  #monthly-doctors-mobile-cards .doc-stack-container {
+  #monthly-doctors-mobile-cards .doc-stack-container,
+  #admin-users-mobile-cards .doc-stack-container {
     display: grid !important;
     grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)) !important;
     gap: 14px !important;
@@ -5729,7 +5730,8 @@ body::-webkit-scrollbar,
     perspective: none !important;
   }
   #daily-doctors-mobile-deck .doc-stack-card,
-  #monthly-doctors-mobile-cards .doc-stack-card {
+  #monthly-doctors-mobile-cards .doc-stack-card,
+  #admin-users-mobile-cards .doc-stack-card {
     position: relative !important;
     transform: none !important;
     opacity: 1 !important;
@@ -5738,6 +5740,7 @@ body::-webkit-scrollbar,
   }
   #daily-doctors-mobile-deck .doc-stack-nav-bar,
   #monthly-doctors-mobile-cards .doc-stack-nav-bar,
+  #admin-users-mobile-cards .doc-stack-nav-bar,
   #daily-doctors-mobile-deck #btn-toggle-daily-doc-stack,
   #monthly-doctors-mobile-cards #btn-toggle-monthly-doc-stack,
   #daily-doctors-mobile-deck #daily-doc-stack-counter,
@@ -5853,13 +5856,36 @@ body::-webkit-scrollbar,
 
 /* 1. Hero Admin Banner */
 .hero-admin-banner {
-  background: linear-gradient(135deg, rgba(147, 51, 234, 0.12) 0%, rgba(2, 132, 199, 0.10) 100%) !important;
-  border-color: rgba(147, 51, 234, 0.25) !important;
+  background: linear-gradient(135deg, #1e1b4b 0%, #6b21a8 55%, #0284c7 100%) !important;
+  border: 1px solid rgba(255, 255, 255, 0.18) !important;
+  box-shadow: 0 12px 28px -6px rgba(107, 33, 168, 0.35) !important;
+  color: #ffffff !important;
+}
+
+.hero-admin-banner .hero-banner-title {
+  color: #ffffff !important;
+}
+
+.hero-admin-banner .hero-banner-sub {
+  color: rgba(255, 255, 255, 0.88) !important;
+}
+
+.hero-admin-banner .hero-greeting-pill {
+  background: rgba(255, 255, 255, 0.18) !important;
+  color: #ffffff !important;
+  border: 1px solid rgba(255, 255, 255, 0.25) !important;
+}
+
+.hero-admin-banner .hero-date-chip {
+  background: rgba(255, 255, 255, 0.16) !important;
+  color: #ffffff !important;
+  border: 1px solid rgba(255, 255, 255, 0.22) !important;
 }
 
 [data-theme="dark"] .hero-admin-banner {
-  background: linear-gradient(135deg, rgba(88, 28, 135, 0.45) 0%, rgba(15, 23, 42, 0.88) 100%) !important;
+  background: linear-gradient(135deg, #090514 0%, #4c1d95 60%, #0c1527 100%) !important;
   border-color: rgba(168, 85, 247, 0.35) !important;
+  box-shadow: 0 14px 34px -6px rgba(0, 0, 0, 0.7) !important;
 }
 
 /* 2. Admin User Mobile Cards */
@@ -5930,5 +5956,33 @@ body::-webkit-scrollbar,
     border: 1.5px solid var(--border-color) !important;
     border-radius: 20px !important;
     padding: 16px 14px !important;
+  }
+}
+
+/* 5. Backup & Restore Unwrapped Component */
+.backup-restore-body {
+  background: var(--bg-surface);
+  border: 1.5px solid var(--border-color);
+  border-radius: 18px;
+  padding: 14px 16px;
+  box-shadow: 0 2px 10px rgba(15, 23, 42, 0.04);
+}
+
+[data-theme="dark"] .backup-restore-body {
+  background: rgba(15, 23, 42, 0.75);
+  border-color: rgba(255, 255, 255, 0.08);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+}
+
+.backup-buttons-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+@media (max-width: 480px) {
+  .backup-buttons-row {
+    grid-template-columns: 1fr;
+    gap: 8px;
   }
 }

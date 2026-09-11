@@ -300,12 +300,12 @@ export class AuditAndAdminManager {
       }
     }
 
-    // Mobile Cards
+    // Mobile Stack Deck
     if (mobContainer) {
       if (users.length === 0) {
         mobContainer.innerHTML = `<div class="hero-styled-card" style="text-align: center; color: var(--text-muted); padding: 25px;">لا يوجد أطباء أو موظفين مسجلين حالياً.</div>`;
       } else {
-        mobContainer.innerHTML = users.map(u => {
+        const cardsHTML = users.map((u, index) => {
           const isSelf = currentUser && (currentUser.uid === u.id || currentUser.id === u.id || currentUser.email === u.email);
           const safeName = escapeHTML(u.name || 'موظف');
           const safeEmail = escapeHTML(u.email || '-');
@@ -323,7 +323,7 @@ export class AuditAndAdminManager {
           }
 
           return `
-            <div class="hero-styled-card admin-user-mobile-card">
+            <div class="hero-styled-card doc-stack-card ${index === 0 ? 'is-active-card' : 'is-peeking-card'}" data-stack-index="${index}">
               <div style="display: flex; align-items: center; justify-content: space-between; gap: 10px;">
                 <div style="display: flex; align-items: center; gap: 10px; min-width: 0;">
                   <div class="stat-icon ${avatarColorClass}" style="width: 40px; height: 40px; border-radius: 12px; font-size: 1.1rem; flex-shrink: 0; display: flex; align-items: center; justify-content: center;">
@@ -364,6 +364,44 @@ export class AuditAndAdminManager {
             </div>
           `;
         }).join('');
+
+        const dotsHTML = users.map((_, i) => `<span class="doc-dot ${i === 0 ? 'active' : ''}" data-dot-index="${i}"></span>`).join('');
+
+        mobContainer.innerHTML = `
+          <div class="doc-stack-wrapper">
+            <div class="doc-stack-header-bar">
+              <span style="font-size: 0.86rem; font-weight: 800; color: var(--text-main);">
+                <i class="fa-solid fa-users" style="color: var(--primary); margin-left: 5px;"></i> ${users.length} موظفين بالفريق
+              </span>
+              <div style="display: flex; align-items: center; gap: 8px;">
+                ${users.length > 1 ? `
+                  <span id="admin-stack-counter" style="font-size: 0.78rem; font-weight: 800; color: var(--primary); background: rgba(2, 132, 199, 0.12); padding: 2px 10px; border-radius: 999px;">1 من ${users.length}</span>
+                  <button type="button" class="btn btn-outline btn-sm" id="btn-toggle-admin-stack" style="font-size: 0.75rem; padding: 3px 9px; border-radius: 8px; height: 28px;" title="تبديل بين التراكم والقائمة">
+                    <i class="fa-solid fa-list" id="icon-admin-stack-toggle"></i>
+                  </button>
+                ` : ''}
+              </div>
+            </div>
+            <div class="doc-stack-container" id="admin-stack-container">
+              ${cardsHTML}
+            </div>
+            ${users.length > 1 ? `
+              <div class="doc-stack-nav-bar" id="admin-stack-nav-bar">
+                <button type="button" class="doc-stack-nav-btn" id="btn-admin-stack-prev">
+                  <i class="fa-solid fa-chevron-right"></i> السابق
+                </button>
+                <div class="doc-stack-dots" id="admin-stack-dots">
+                  ${dotsHTML}
+                </div>
+                <button type="button" class="doc-stack-nav-btn" id="btn-admin-stack-next">
+                  التالي <i class="fa-solid fa-chevron-left"></i>
+                </button>
+              </div>
+            ` : ''}
+          </div>
+        `;
+
+        this.initStackDeck('admin-stack');
       }
     }
   }
@@ -453,5 +491,154 @@ export class AuditAndAdminManager {
         `;
       }
     }
+  }
+
+  // ================= 3D Stack Deck Handler (Admin Staff Members) =================
+  initStackDeck(prefix) {
+    const container = document.getElementById(`${prefix}-container`);
+    if (!container) return;
+    const cards = Array.from(container.querySelectorAll('.doc-stack-card'));
+    if (!cards.length) return;
+
+    let currentIndex = 0;
+    let isListMode = false;
+
+    const updatePositions = (newIndex = 0) => {
+      if (isListMode) return;
+      currentIndex = Math.max(0, Math.min(newIndex, cards.length - 1));
+
+      let activeHeight = 150;
+
+      cards.forEach((card, idx) => {
+        const diff = idx - currentIndex;
+
+        if (diff === 0) {
+          card.style.transform = 'translate3d(0, 0, 0) scale(1)';
+          card.style.zIndex = '12';
+          card.style.opacity = '1';
+          card.style.pointerEvents = 'auto';
+          card.classList.add('is-active-card');
+          card.classList.remove('is-peeking-card', 'is-passed-card');
+          activeHeight = Math.max(activeHeight, card.offsetHeight || 150);
+        } else if (diff === 1) {
+          card.style.transform = 'translate3d(0, 30px, 0) scale(0.96)';
+          card.style.zIndex = '10';
+          card.style.opacity = '0.88';
+          card.style.pointerEvents = 'auto';
+          card.classList.add('is-peeking-card');
+          card.classList.remove('is-active-card', 'is-passed-card');
+        } else if (diff === 2) {
+          card.style.transform = 'translate3d(0, 56px, 0) scale(0.92)';
+          card.style.zIndex = '8';
+          card.style.opacity = '0.70';
+          card.style.pointerEvents = 'auto';
+          card.classList.add('is-peeking-card');
+          card.classList.remove('is-active-card', 'is-passed-card');
+        } else if (diff > 2) {
+          card.style.transform = 'translate3d(0, 72px, 0) scale(0.88)';
+          card.style.zIndex = '6';
+          card.style.opacity = '0';
+          card.style.pointerEvents = 'none';
+          card.classList.remove('is-active-card', 'is-peeking-card');
+        } else {
+          card.style.transform = 'translate3d(0, -60px, 0) scale(0.92)';
+          card.style.zIndex = '4';
+          card.style.opacity = '0';
+          card.style.pointerEvents = 'none';
+          card.classList.add('is-passed-card');
+          card.classList.remove('is-active-card', 'is-peeking-card');
+        }
+      });
+
+      const peekExtra = cards.length > 2 ? 66 : (cards.length === 2 ? 38 : 10);
+      container.style.minHeight = `${activeHeight + peekExtra}px`;
+
+      // Dots update
+      const dots = document.querySelectorAll(`#${prefix}-dots .doc-dot`);
+      dots.forEach((d, i) => {
+        if (i === currentIndex) d.classList.add('active');
+        else d.classList.remove('active');
+      });
+
+      const counterEl = document.getElementById(`${prefix}-counter`);
+      if (counterEl) {
+        counterEl.textContent = `${currentIndex + 1} من ${cards.length}`;
+      }
+    };
+
+    // Tap peeking card to bring to front
+    cards.forEach((card, idx) => {
+      card.addEventListener('click', (e) => {
+        if (isListMode) return;
+        if (idx !== currentIndex) {
+          e.stopPropagation();
+          updatePositions(idx);
+        }
+      });
+    });
+
+    // Navigation buttons
+    document.getElementById(`btn-${prefix}-next`)?.addEventListener('click', () => {
+      updatePositions(currentIndex + 1);
+    });
+
+    document.getElementById(`btn-${prefix}-prev`)?.addEventListener('click', () => {
+      updatePositions(currentIndex - 1);
+    });
+
+    // Dots click
+    document.getElementById(`${prefix}-dots`)?.addEventListener('click', (e) => {
+      const dot = e.target.closest('.doc-dot');
+      if (!dot) return;
+      const idx = parseInt(dot.getAttribute('data-dot-index'), 10);
+      updatePositions(idx);
+    });
+
+    // Touch Swipe
+    let touchStartY = 0;
+    let touchStartX = 0;
+    container.addEventListener('touchstart', (e) => {
+      if (isListMode) return;
+      touchStartY = e.touches[0].clientY;
+      touchStartX = e.touches[0].clientX;
+    }, { passive: true });
+
+    container.addEventListener('touchend', (e) => {
+      if (isListMode) return;
+      const deltaY = e.changedTouches[0].clientY - touchStartY;
+      const deltaX = e.changedTouches[0].clientX - touchStartX;
+
+      if (Math.abs(deltaY) > Math.abs(deltaX)) {
+        if (deltaY < -40) updatePositions(currentIndex + 1);
+        else if (deltaY > 40) updatePositions(currentIndex - 1);
+      } else {
+        if (deltaX > 40) updatePositions(currentIndex + 1);
+        else if (deltaX < -40) updatePositions(currentIndex - 1);
+      }
+    }, { passive: true });
+
+    // Toggle Stack vs List Mode
+    document.getElementById(`btn-toggle-${prefix}`)?.addEventListener('click', () => {
+      isListMode = !isListMode;
+      const icon = document.getElementById(`icon-${prefix}-toggle`);
+      if (isListMode) {
+        container.classList.add('is-list-layout');
+        if (icon) icon.className = 'fa-solid fa-layer-group';
+        cards.forEach((card) => {
+          card.style.transform = '';
+          card.style.opacity = '1';
+          card.style.zIndex = '';
+          card.style.pointerEvents = 'auto';
+        });
+        container.style.minHeight = 'auto';
+      } else {
+        container.classList.remove('is-list-layout');
+        if (icon) icon.className = 'fa-solid fa-list';
+        updatePositions(currentIndex);
+      }
+    });
+
+    updatePositions(0);
+    requestAnimationFrame(() => updatePositions(0));
   }
 }
