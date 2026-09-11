@@ -6201,3 +6201,119 @@ body {
 h1, h2, h3, h4, h5, h6 {
   line-height: 1.35;
 }
+
+/* ==========================================================================
+   v1.4.0-beta.36: Unified Quick Date Toggle Buttons & Modern Clinical Chips
+   ========================================================================== */
+
+/* 1. Unified Quick Date Toggle Buttons (اليوم / أمس) Across All Views */
+.btn-quick-date,
+.date-strip-pill {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  min-height: 34px !important;
+  height: 34px !important;
+  padding: 0 16px !important;
+  border-radius: 999px !important;
+  border: 1.5px solid var(--border-color) !important;
+  background: var(--bg-surface) !important;
+  color: var(--text-main) !important;
+  font-size: 0.82rem !important;
+  font-weight: 700 !important;
+  cursor: pointer !important;
+  white-space: nowrap !important;
+  box-sizing: border-box !important;
+  flex-shrink: 0 !important;
+  transition: all 0.18s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04) !important;
+}
+
+.btn-quick-date:hover,
+.date-strip-pill:hover {
+  border-color: var(--primary) !important;
+  color: var(--primary) !important;
+}
+
+.btn-quick-date.active,
+.date-strip-pill.active {
+  background: var(--primary) !important;
+  color: #ffffff !important;
+  border-color: var(--primary) !important;
+  box-shadow: 0 2px 8px rgba(2, 132, 199, 0.3) !important;
+}
+
+[data-theme="dark"] .btn-quick-date,
+[data-theme="dark"] .date-strip-pill {
+  background: #1e293b !important;
+  border-color: #334155 !important;
+  color: #f1f5f9 !important;
+}
+
+[data-theme="dark"] .btn-quick-date.active,
+[data-theme="dark"] .date-strip-pill.active {
+  background: var(--primary) !important;
+  color: #0f172a !important;
+  border-color: var(--primary) !important;
+  box-shadow: 0 2px 8px rgba(56, 189, 248, 0.35) !important;
+}
+
+.horizontal-date-strip {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  overflow: visible !important;
+  padding: 2px 0 !important;
+}
+
+/* 2. Modern Clinical Selected Chips (Physical Modalities & Procedures) */
+.clinical-selected-chip {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+  padding: 5px 12px !important;
+  border-radius: 8px !important;
+  background: var(--primary-light) !important;
+  color: var(--primary) !important;
+  border: 1px solid rgba(2, 132, 199, 0.25) !important;
+  font-size: 0.82rem !important;
+  font-weight: 700 !important;
+  line-height: 1.4 !important;
+  box-shadow: 0 1px 3px rgba(2, 132, 199, 0.08) !important;
+  transition: all 0.15s ease !important;
+}
+
+.clinical-selected-chip i {
+  font-size: 0.8rem !important;
+}
+
+[data-theme="dark"] .clinical-selected-chip {
+  background: rgba(56, 189, 248, 0.15) !important;
+  color: #38bdf8 !important;
+  border-color: rgba(56, 189, 248, 0.3) !important;
+}
+
+.badge-primary {
+  background: var(--primary-light) !important;
+  color: var(--primary) !important;
+  border: 1px solid rgba(2, 132, 199, 0.25) !important;
+  font-weight: 700 !important;
+}
+
+[data-theme="dark"] .badge-primary {
+  background: rgba(56, 189, 248, 0.18) !important;
+  color: #38bdf8 !important;
+  border-color: rgba(56, 189, 248, 0.3) !important;
+}
+
+/* 3. Patient Card Name Row Alignment */
+.hsc-patient-billing-box {
+  display: inline-flex;
+  align-items: center;
+}
+
+.hsc-patient-billing-box .badge {
+  font-size: 0.76rem !important;
+  padding: 3px 9px !important;
+  border-radius: 6px !important;
+}

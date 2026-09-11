@@ -653,18 +653,16 @@ export class PatientsManager {
         return `
           <div class="hero-styled-card hero-patient-card">
             <div class="hsc-top">
-              <div class="hsc-patient-meta">
+              <div class="hsc-patient-meta" style="width: 100%;">
                 <div class="hsc-avatar patient-avatar"><i class="fa-solid fa-id-card-clip"></i></div>
-                <div class="hsc-name-box">
-                  <div class="hsc-name-row">
+                <div class="hsc-name-box" style="flex: 1;">
+                  <div class="hsc-name-row" style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
                     <span class="hsc-patient-name" style="cursor: pointer;" onclick="patientsManager.openPatientSheet('${safeId}')">${safeName}</span>
                     <span class="hsc-age-badge">${safeAge} سنة</span>
+                    <span class="hsc-patient-billing-box">${billingBadge}</span>
                   </div>
                   <span class="hsc-doc-sub"><i class="fa-solid fa-user-doctor"></i> ${safeDoctor}</span>
                 </div>
-              </div>
-              <div class="hsc-badge-amount">
-                ${billingBadge}
               </div>
             </div>
 
@@ -1508,8 +1506,8 @@ export class PatientsManager {
         previewEl.innerHTML = `<span style="color: var(--text-muted); font-size: 0.88rem;">${cfg.placeholder}</span>`;
       } else {
         previewEl.innerHTML = selectedList.map(item => `
-          <span class="badge badge-primary" style="font-size: 0.78rem; padding: 4px 10px; margin: 2px; border-radius: 6px; font-weight: 700;">
-            <i class="fa-solid ${cfg.icon}" style="margin-left: 4px;"></i> ${escapeHTML(item)}
+          <span class="clinical-selected-chip">
+            <i class="fa-solid ${cfg.icon}"></i> <span>${escapeHTML(item)}</span>
           </span>
         `).join('');
       }
