@@ -47,7 +47,7 @@
   
 
     <!-- Stylesheets -->
-  <link rel="stylesheet" href="css/style.css?v=1.4.0-beta.23">
+  <link rel="stylesheet" href="css/style.css?v=1.4.0-beta.24">
   <link rel="stylesheet" href="css/print.css" media="print">
 </head>
 <body>
@@ -657,7 +657,7 @@
           <!-- Form: Log New Session or Examination -->
           <div class="card">
             <div class="card-header" style="padding: 0 0 12px 0; border-bottom: none; display: block; width: 100%;">
-              <!-- Interactive Dual Mode Action Cards (v1.4.0-beta.23) -->
+              <!-- Interactive Dual Mode Action Cards (v1.4.0-beta.24) -->
               <div class="session-mode-pills-wrap">
                 <button type="button" id="btn-mode-session" class="session-mode-pill-btn active">
                   <div class="smp-icon blue">
@@ -1387,14 +1387,72 @@
 
       <!-- ================= View 5: Admin Panel & Permissions ================= -->
       <section id="view-admin" class="view-section">
-        <div style="margin-bottom: 20px;">
-          <h2 style="font-size: 1.35rem; font-weight: 800;">لوحة المدير ونظام الصلاحيات</h2>
-          <p style="font-size: 0.85rem; color: var(--text-muted);">إدارة فريق العمل، حسابات الدخول، ومراجعة سجل التعديلات (Audit Log)</p>
+        <!-- Hero Admin Banner -->
+        <div class="hero-dashboard-banner hero-admin-banner" style="margin-bottom: 20px;">
+          <div class="hero-banner-glass-bg"></div>
+          <div class="hero-banner-content">
+            <div class="hero-greeting-pill">
+              <span class="hero-greeting-icon"><i class="fa-solid fa-shield-halved"></i></span>
+              <span>لوحة التحكم والرقابة الإدارية</span>
+            </div>
+            <h2 class="hero-banner-title">إدارة الصلاحيات وفريق العمل والرقابة</h2>
+            <p class="hero-banner-sub">إدارة حسابات الموظفين، ضبط الأدوار والصلاحيات، ومتابعة سجل العمليات والنسخ الاحتياطي</p>
+            
+            <div class="hero-banner-footer">
+              <div class="hero-date-chip">
+                <i class="fa-solid fa-user-shield"></i>
+                <span>مدير المركز (Admin Access)</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Admin KPI Stats Grid -->
+        <div class="stats-grid" id="admin-kpi-stats-grid" style="margin-bottom: 20px;">
+          <div class="stat-box">
+            <div class="stat-icon purple" style="background-color: rgba(147, 51, 234, 0.15); color: #9333ea;">
+              <i class="fa-solid fa-users-gear"></i>
+            </div>
+            <div class="stat-info">
+              <div class="stat-value" id="stat-admin-total-users">0</div>
+              <div class="stat-label">إجمالي فريق العمل</div>
+            </div>
+          </div>
+
+          <div class="stat-box">
+            <div class="stat-icon blue">
+              <i class="fa-solid fa-user-doctor"></i>
+            </div>
+            <div class="stat-info">
+              <div class="stat-value" id="stat-admin-doctors-count">0</div>
+              <div class="stat-label">الأطباء المعالجون</div>
+            </div>
+          </div>
+
+          <div class="stat-box">
+            <div class="stat-icon amber">
+              <i class="fa-solid fa-user-tie"></i>
+            </div>
+            <div class="stat-info">
+              <div class="stat-value" id="stat-admin-staff-count">0</div>
+              <div class="stat-label">الاستقبال والإدارة</div>
+            </div>
+          </div>
+
+          <div class="stat-box">
+            <div class="stat-icon green">
+              <i class="fa-solid fa-shield-halved"></i>
+            </div>
+            <div class="stat-info">
+              <div class="stat-value" id="stat-admin-audit-count">0</div>
+              <div class="stat-label">حركات الرقابة المسجلة</div>
+            </div>
+          </div>
         </div>
 
         <div class="split-screen">
           <!-- Add User Form -->
-          <div class="card">
+          <div class="card" id="card-admin-add-user">
             <div class="card-header">
               <span class="card-title"><i class="fa-solid fa-user-plus"></i> إضافة مستخدم جديد للنظام</span>
             </div>
@@ -1402,15 +1460,24 @@
               <div class="form-grid">
                 <div class="form-group">
                   <label>الاسم بالكامل *</label>
-                  <input type="text" id="newuser-name" class="form-control" placeholder="د. محمد / أ. منار" required>
+                  <div style="position: relative;">
+                    <input type="text" id="newuser-name" class="form-control" placeholder="د. محمد / أ. منار" required style="padding-right: 38px;">
+                    <i class="fa-solid fa-user" style="position: absolute; right: 14px; top: 50%; transform: translateY(-50%); color: var(--text-muted); pointer-events: none;"></i>
+                  </div>
                 </div>
                 <div class="form-group">
                   <label>اسم المستخدم أو الإيميل *</label>
-                  <input type="email" id="newuser-email" class="form-control" placeholder="user@clinic.com" required>
+                  <div style="position: relative;">
+                    <input type="email" id="newuser-email" class="form-control" placeholder="user@clinic.com" required style="padding-right: 38px;">
+                    <i class="fa-solid fa-envelope" style="position: absolute; right: 14px; top: 50%; transform: translateY(-50%); color: var(--text-muted); pointer-events: none;"></i>
+                  </div>
                 </div>
                 <div class="form-group">
                   <label>كلمة المرور *</label>
-                  <input type="text" id="newuser-password" class="form-control" placeholder="6 أحرف على الأقل" required autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" style="-webkit-text-security: disc;">
+                  <div style="position: relative;">
+                    <input type="text" id="newuser-password" class="form-control" placeholder="6 أحرف على الأقل" required autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" style="padding-right: 38px; -webkit-text-security: disc;">
+                    <i class="fa-solid fa-lock" style="position: absolute; right: 14px; top: 50%; transform: translateY(-50%); color: var(--text-muted); pointer-events: none;"></i>
+                  </div>
                 </div>
                 <div class="form-group">
                   <label>الصلاحية (الدور) *</label>
@@ -1426,7 +1493,7 @@
                     </button>
                   </div>
                 </div>
-                <button type="submit" class="btn btn-primary" style="margin-top: 8px;">
+                <button type="submit" class="btn btn-primary" style="margin-top: 8px; width: 100%; height: 44px; font-size: 0.95rem; font-weight: 800;">
                   <i class="fa-solid fa-plus"></i> إنشاء الحساب
                 </button>
               </div>
@@ -1434,11 +1501,11 @@
           </div>
 
           <!-- Existing Staff & Roles List -->
-          <div class="card">
+          <div class="card" id="card-admin-staff-list">
             <div class="card-header">
               <span class="card-title"><i class="fa-solid fa-id-badge"></i> فريق العمل الحالي</span>
             </div>
-            <div class="table-responsive">
+            <div class="table-responsive desktop-only-table">
               <table class="data-table">
                 <thead>
                   <tr>
@@ -1453,16 +1520,17 @@
                 </tbody>
               </table>
             </div>
+            <div id="admin-users-mobile-cards" class="mobile-only-cards-container"></div>
           </div>
         </div>
 
         <!-- Audit Log (Who changed what) -->
-        <div class="card" style="margin-top: 20px;">
+        <div class="card" id="card-admin-audit-log" style="margin-top: 20px;">
           <div class="card-header" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
             <span class="card-title"><i class="fa-solid fa-shield-halved"></i> سجل التعديلات والرقابة (Audit Trail)</span>
-            <span class="badge badge-direct" style="font-size: 0.74rem; font-weight: 700; padding: 3px 8px;">آخر ٥٠ حركة • تنظيف تلقائي ٦٠ يوم</span>
+            <span class="badge badge-direct" style="font-size: 0.74rem; font-weight: 700; padding: 4px 10px; border-radius: 999px;">آخر ٥٠ حركة • تنظيف تلقائي ٦٠ يوم</span>
           </div>
-          <div class="table-responsive">
+          <div class="table-responsive desktop-only-table">
             <table class="data-table">
               <thead>
                 <tr>
@@ -1478,32 +1546,39 @@
               </tbody>
             </table>
           </div>
+          <div id="audit-log-mobile-cards" class="mobile-only-cards-container"></div>
         </div>
-                      <!-- Backup & Restore Card (Admin only) -->
-        <div class="card admin-only" style="margin-top: 20px; border-color: var(--border-color); background-color: var(--bg-subtle);">
-          <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
-            <div>
-              <div style="font-weight: 800; color: #0369a1; font-size: 1rem;">
-                <i class="fa-solid fa-database"></i> النسخ الاحتياطي واستعادة البيانات (Backup & Restore)
+
+        <!-- Backup & Restore Card (Admin only) -->
+        <div class="card admin-only hero-styled-card" id="card-admin-backup-restore" style="margin-top: 20px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px;">
+            <div style="display: flex; align-items: flex-start; gap: 14px; flex: 1; min-width: 280px;">
+              <div class="hsc-avatar" style="background: rgba(2, 132, 199, 0.15); color: #0284c7; width: 48px; height: 48px; font-size: 1.3rem; border-radius: 14px;">
+                <i class="fa-solid fa-database"></i>
               </div>
-              <div style="font-size: 0.8rem; color: #0284c7; margin-top: 3px;">
-                تنزيل نسخة كاملة (ملف JSON غير مشفر) من سجلات المركز (مرضى، جلسات، حسابات) أو استعادتها بضغطة زر. احتفظ بالملف في مكان آمن فقط، لأنه يحتوي بيانات مرضى حساسة بدون تشفير.
+              <div>
+                <div style="font-weight: 800; color: var(--text-main); font-size: 1.05rem;">
+                  النسخ الاحتياطي واستعادة البيانات (Backup & Restore)
+                </div>
+                <div style="font-size: 0.82rem; color: var(--text-muted); margin-top: 4px; line-height: 1.4;">
+                  تنزيل نسخة كاملة (ملف JSON غير مشفر) من سجلات المركز (مرضى، جلسات، حسابات) أو استعادتها بضغطة زر. احتفظ بالملف في مكان آمن فقط، لأنه يحتوي بيانات مرضى حساسة بدون تشفير.
+                </div>
+                <div id="backup-status-hint" style="font-size: 0.78rem; margin-top: 6px; font-weight: 700; color: var(--primary);"></div>
               </div>
-              <div id="backup-status-hint" style="font-size: 0.75rem; margin-top: 6px; font-weight: 700;"></div>
             </div>
-            <div style="display: flex; gap: 8px; flex-wrap: wrap;">
-              <button type="button" class="btn btn-outline btn-sm" style="border-color: #0284c7; color: #0369a1; font-weight: 700;" id="btn-download-backup">
+            <div style="display: flex; gap: 10px; flex-wrap: wrap; align-items: center;">
+              <button type="button" class="btn btn-outline btn-sm" style="font-weight: 700; height: 40px; padding: 0 16px; border-radius: 10px;" id="btn-download-backup">
                 <i class="fa-solid fa-download"></i> تنزيل نسخة احتياطية
               </button>
-              <button type="button" class="btn btn-primary btn-sm" id="btn-restore-backup">
+              <button type="button" class="btn btn-primary btn-sm" style="font-weight: 700; height: 40px; padding: 0 16px; border-radius: 10px;" id="btn-restore-backup">
                 <i class="fa-solid fa-upload"></i> استعادة من ملف
               </button>
-              <input type="file" id="backup-file-input" accept=".json" style="display: none;" >
+              <input type="file" id="backup-file-input" accept=".json" style="display: none;">
             </div>
           </div>
         </div>
 
-        </section>
+      </section>
 
     </main>
 
@@ -2622,7 +2697,7 @@
     </div>
   </div>
 
-  <!-- Toast Notification Capsule (v1.4.0-beta.23) -->
+  <!-- Toast Notification Capsule (v1.4.0-beta.24) -->
   <div class="toast-capsule" id="toast-notification">
     <div class="toast-icon-wrap" id="toast-icon-wrap">
       <i class="fa-solid fa-circle-check" id="toast-icon"></i>
@@ -2634,7 +2709,7 @@
 
       
   <!-- Main Application Script (ES Module) -->
-  <script type="module" src="js/app.js?v=1.4.0-beta.23"></script>
+  <script type="module" src="js/app.js?v=1.4.0-beta.24"></script>
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
