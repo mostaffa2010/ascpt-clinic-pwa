@@ -69,6 +69,21 @@ input, textarea, select, [contenteditable="true"] {
 
 html, body {
   overscroll-behavior-y: none;
+  scrollbar-width: none !important;
+  -ms-overflow-style: none !important;
+}
+
+/* 100% Native App Feel: Completely hide all visual scrollbars across all browsers & PWAs */
+::-webkit-scrollbar {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
+  background: transparent !important;
+}
+
+* {
+  scrollbar-width: none !important;
+  -ms-overflow-style: none !important;
 }
 
 body {
@@ -4884,4 +4899,21 @@ body {
   align-items: center !important;
   justify-content: center !important;
   gap: 8px !important;
+}
+
+/* ==========================================================================
+   v1.4.0-beta.16: Suppress Native Browser Scrollbars (100% Native App Feel)
+   ========================================================================== */
+html, body, div, section, main, article, aside, ul, ol, table, .table-responsive, .modal-content, .modal-body {
+  scrollbar-width: none !important;
+  -ms-overflow-style: none !important;
+}
+
+html::-webkit-scrollbar,
+body::-webkit-scrollbar,
+*::-webkit-scrollbar {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
+  background: transparent !important;
 }
