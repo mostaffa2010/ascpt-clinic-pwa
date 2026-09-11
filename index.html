@@ -47,7 +47,7 @@
   
 
     <!-- Stylesheets -->
-  <link rel="stylesheet" href="css/style.css?v=1.4.0-beta.18">
+  <link rel="stylesheet" href="css/style.css?v=1.4.0-beta.19">
   <link rel="stylesheet" href="css/print.css" media="print">
 </head>
 <body>
@@ -850,13 +850,13 @@
         <!-- Mode Toggle Tabs (Daily vs Monthly vs Claims) -->
         <div class="no-print finance-mode-segmented">
           <button type="button" class="btn btn-primary btn-sm" id="btn-mode-daily">
-            <i class="fa-solid fa-calendar-day"></i> <span>التقرير اليومي</span>
+            <i class="fa-solid fa-calendar-day"></i> <span class="tab-label-full">التقرير اليومي</span><span class="tab-label-short">اليومي</span>
           </button>
           <button type="button" class="btn btn-outline btn-sm" id="btn-mode-monthly">
-            <i class="fa-solid fa-calendar-days"></i> <span>التقرير الشهري</span>
+            <i class="fa-solid fa-calendar-days"></i> <span class="tab-label-full">التقرير الشهري</span><span class="tab-label-short">الشهري</span>
           </button>
           <button type="button" class="btn btn-outline btn-sm" id="btn-mode-claims">
-            <i class="fa-solid fa-file-invoice-dollar"></i> <span>مطالبات التأمين</span>
+            <i class="fa-solid fa-file-invoice-dollar"></i> <span class="tab-label-full">مطالبات التأمين</span><span class="tab-label-short">المطالبات</span>
           </button>
         </div>
 
@@ -973,11 +973,11 @@
           </div>
 
           <!-- Detailed Patients Sessions Table -->
-          <div class="card">
+          <div class="card" id="card-finance-report-sessions">
             <div class="card-header">
               <span class="card-title"><i class="fa-solid fa-table-list"></i> بيان تفصيلي بمرضى اليوم</span>
             </div>
-            <div class="table-responsive">
+            <div class="table-responsive desktop-only-table">
               <table class="data-table" id="finance-report-table">
                 <thead>
                   <tr>
@@ -997,15 +997,16 @@
                 </tbody>
               </table>
             </div>
+            <div id="finance-report-mobile-cards" class="mobile-only-cards-container"></div>
           </div>
 
           <!-- Daily Expenses Table -->
-          <div class="card" style="margin-top: 16px;">
+          <div class="card" id="card-finance-daily-expenses" style="margin-top: 16px;">
             <div class="card-header">
               <span class="card-title"><i class="fa-solid fa-receipt"></i> مصروفات اليوم</span>
             </div>
-            <div class="table-responsive">
-              <table class="data-table">
+            <div class="table-responsive desktop-only-table">
+              <table class="data-table" id="finance-expenses-table">
                 <thead>
                   <tr>
                     <th>بند المصروف</th>
@@ -1020,17 +1021,18 @@
                 </tbody>
               </table>
             </div>
+            <div id="finance-expenses-mobile-cards" class="mobile-only-cards-container"></div>
           </div>
         </div>
 
         <!-- ================= CONTENT B: MONTHLY REPORT ================= -->
         <div id="finance-monthly-content" style="display: none;">
           <!-- Doctors Performance Table -->
-          <div class="card" style="margin-bottom: 16px;">
+          <div class="card" id="card-monthly-doctors" style="margin-bottom: 16px;">
             <div class="card-header">
-              <span class="card-title"><i class="fa-solid fa-user-doctor"></i> إحصائية أطباء المركز للشهر (مصنفة نقدي وشركات)</span>
+              <span class="card-title"><i class="fa-solid fa-user-doctor"></i> إحصائية أطباء المركز للشهر</span>
             </div>
-            <div class="table-responsive">
+            <div class="table-responsive desktop-only-table">
               <table class="data-table">
                 <thead>
                   <tr>
@@ -1047,14 +1049,15 @@
                 </tbody>
               </table>
             </div>
+            <div id="monthly-doctors-mobile-cards" class="mobile-only-cards-container"></div>
           </div>
 
           <!-- Insurance and Cash Distribution Table -->
-          <div class="card" style="margin-bottom: 16px;">
+          <div class="card" id="card-monthly-insurance" style="margin-bottom: 16px;">
             <div class="card-header">
               <span class="card-title"><i class="fa-solid fa-shield-halved"></i> توزيع المرضى حسب جهات الدفع والتأمين</span>
             </div>
-            <div class="table-responsive">
+            <div class="table-responsive desktop-only-table">
               <table class="data-table">
                 <thead>
                   <tr>
@@ -1069,6 +1072,7 @@
                 </tbody>
               </table>
             </div>
+            <div id="monthly-insurance-mobile-cards" class="mobile-only-cards-container"></div>
           </div>
 
           
@@ -1101,11 +1105,11 @@
           </div>
 
           <!-- Monthly Expenses Table -->
-          <div class="card">
+          <div class="card" id="card-monthly-expenses">
             <div class="card-header">
               <span class="card-title"><i class="fa-solid fa-receipt"></i> بيان مصروفات الشهر</span>
             </div>
-            <div class="table-responsive">
+            <div class="table-responsive desktop-only-table">
               <table class="data-table">
                 <thead>
                   <tr>
@@ -1120,6 +1124,7 @@
                 </tbody>
               </table>
             </div>
+            <div id="monthly-expenses-mobile-cards" class="mobile-only-cards-container"></div>
           </div>
         </div>
 
@@ -1256,7 +1261,7 @@
               <div class="top-scrollbar-wrapper no-print" id="claim-top-scroll-wrap" style="display: none; overflow-x: auto; overflow-y: hidden; height: 12px; margin-bottom: 6px; border-radius: 4px; background: var(--bg-subtle);">
                 <div class="top-scrollbar-dummy" id="claim-top-scroll-dummy" style="height: 1px;"></div>
               </div>
-              <div class="table-responsive" id="claim-table-container">
+              <div class="table-responsive desktop-only-table" id="claim-table-container">
                 <table class="data-table" id="claim-patients-table">
                   <thead>
                     <tr>
@@ -1277,6 +1282,7 @@
                   </tbody>
                 </table>
               </div>
+              <div id="claim-patients-mobile-cards" class="mobile-only-cards-container" style="padding: 10px 12px;"></div>
             </div>
 
             <!-- ================= 4. Insurance Claims Ledger (سجل مطالبات التأمين الصادرة والتحصيلات) ================= -->
@@ -2612,7 +2618,7 @@
 
       
   <!-- Main Application Script (ES Module) -->
-  <script type="module" src="js/app.js?v=1.4.0-beta.18"></script>
+  <script type="module" src="js/app.js?v=1.4.0-beta.19"></script>
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {

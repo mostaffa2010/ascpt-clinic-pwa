@@ -241,6 +241,30 @@ export class ClaimsManager {
     const bCurCard = document.getElementById('btn-card-print-current'); if (bCurCard) bCurCard.onclick = (e) => { e.preventDefault(); e.stopPropagation(); this.printAttendanceCards(this.activeCardPatientId); };
     document.getElementById('btn-card-save')?.addEventListener('click', () => this.saveAttendanceCardData());
 
+    // Event Delegation: Mobile Container
+    const mobClaimList = document.getElementById('claim-patients-mobile-cards');
+    if (mobClaimList) {
+      mobClaimList.addEventListener('change', (e) => {
+        const target = e.target;
+        if (target.classList.contains('claim-patient-check')) {
+          const pid = target.getAttribute('data-patient-id');
+          this.togglePatientCheck(pid, target.checked);
+        } else if (target.classList.contains('claim-patient-input')) {
+          const pid = target.getAttribute('data-patient-id');
+          const field = target.getAttribute('data-field');
+          this.updatePatientNumber(pid, field, target.value);
+        }
+      });
+
+      mobClaimList.addEventListener('click', (e) => {
+        const btn = e.target.closest('.btn-open-card-modal');
+        if (btn) {
+          const pid = btn.getAttribute('data-patient-id');
+          if (pid) this.openAttendanceCardModal(pid);
+        }
+      });
+    }
+
     // Event Delegation: Claims Patient Table (checkboxes, inputs, open card)
     const tbody = document.getElementById('claim-patients-tbody');
     if (tbody) {
@@ -475,6 +499,60 @@ export class ClaimsManager {
           </td>
         </tr>
       `;    }).join('');
+
+    // Render Handcrafted Mobile Claim Cards
+    const mobContainer = document.getElementById('claim-patients-mobile-cards');
+    if (mobContainer) {
+      mobContainer.innerHTML = filtered.map((item, idx) => {
+        const p = item.patient;
+        const safeId = escapeHTML(p.id);
+        const safeName = escapeHTML(p.name);
+        const safePhone = escapeHTML(p.phone);
+        const safeDoc = escapeHTML(p.doctor);
+        const rowChecked = item.isChecked ? 'checked' : '';
+        const rowTotal = (item.sessionCount * item.sessionRate) + item.evalFee;
+
+        return `
+          <div class="hero-styled-card claim-patient-card-item ${!item.isChecked ? 'is-unchecked' : ''}" style="padding: 14px 16px; margin-bottom: 10px; border-radius: 18px; ${!item.isChecked ? 'opacity: 0.7;' : ''}">
+            <div style="display: flex; align-items: center; justify-content: space-between; gap: 10px;">
+              <div style="display: flex; align-items: center; gap: 10px;">
+                <input type="checkbox" class="claim-patient-check" data-patient-id="${safeId}" style="width: 22px; height: 22px; cursor: pointer; accent-color: var(--primary);" ${rowChecked}>
+                <div>
+                  <div style="font-weight: 800; font-size: 1rem; color: var(--text-main);">${safeName}</div>
+                  <div style="font-size: 0.78rem; color: var(--text-muted); margin-top: 2px;"><i class="fa-solid fa-phone"></i> ${safePhone} • ${safeDoc}</div>
+                </div>
+              </div>
+              <button type="button" class="btn btn-outline btn-sm btn-open-card-modal" data-patient-id="${safeId}" style="font-size: 0.75rem; padding: 5px 10px; border-radius: 10px; font-weight: 700; white-space: nowrap;">
+                <i class="fa-solid fa-id-card"></i> بطاقة التردد
+              </button>
+            </div>
+
+            <div class="hsc-divider" style="margin: 10px 0;"></div>
+
+            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; text-align: center;">
+              <div style="background: var(--bg-subtle); border-radius: 10px; padding: 6px 4px; border: 1px solid var(--border-color);">
+                <div style="font-size: 0.72rem; font-weight: 700; color: var(--text-muted); margin-bottom: 2px;">فحص (ج.م)</div>
+                <input type="number" class="form-control claim-patient-input" data-field="evalFee" data-patient-id="${safeId}" value="${item.evalFee}" style="width: 100%; text-align: center; font-weight: 800; font-size: 0.95rem; border: none; background: transparent; padding: 0;">
+              </div>
+              <div style="background: var(--bg-subtle); border-radius: 10px; padding: 6px 4px; border: 1px solid var(--border-color);">
+                <div style="font-size: 0.72rem; font-weight: 700; color: var(--text-muted); margin-bottom: 2px;">الجلسات</div>
+                <input type="number" class="form-control claim-patient-input" data-field="sessionCount" data-patient-id="${safeId}" value="${item.sessionCount}" style="width: 100%; text-align: center; font-weight: 800; font-size: 0.95rem; border: none; background: transparent; padding: 0;">
+              </div>
+              <div style="background: var(--bg-subtle); border-radius: 10px; padding: 6px 4px; border: 1px solid var(--border-color);">
+                <div style="font-size: 0.72rem; font-weight: 700; color: var(--text-muted); margin-bottom: 2px;">سعر الجلسة</div>
+                <input type="number" class="form-control claim-patient-input" data-field="sessionRate" data-patient-id="${safeId}" value="${item.sessionRate}" style="width: 100%; text-align: center; font-weight: 800; font-size: 0.95rem; border: none; background: transparent; padding: 0;">
+              </div>
+            </div>
+
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-top: 10px; padding-top: 8px; border-top: 1px dashed var(--border-color);">
+              <span style="font-size: 0.8rem; font-weight: 700; color: var(--text-muted);">إجمالي مستحقات المريض:</span>
+              <span style="font-size: 1.05rem; font-weight: 800; color: var(--success);">${rowTotal.toLocaleString('en-US')} ج.م</span>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
     setTimeout(() => this.setupScrollSync(), 50);
   }
 

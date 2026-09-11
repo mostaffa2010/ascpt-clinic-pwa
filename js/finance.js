@@ -155,6 +155,36 @@ export class FinanceManager {
         }
       });
     }
+
+    // Event Delegation: Mobile Containers
+    const reportMob = document.getElementById('finance-report-mobile-cards');
+    if (reportMob) {
+      reportMob.addEventListener('click', (e) => {
+        const editBtn = e.target.closest('.btn-edit-session');
+        if (editBtn) {
+          const sid = editBtn.getAttribute('data-session-id');
+          if (sid) this.app.sessionsManager.editSession(sid);
+          return;
+        }
+        const delBtn = e.target.closest('.btn-delete-session');
+        if (delBtn) {
+          const sid = delBtn.getAttribute('data-session-id');
+          if (sid) this.app.sessionsManager.deleteSession(sid);
+          return;
+        }
+      });
+    }
+
+    const expensesMob = document.getElementById('finance-expenses-mobile-cards');
+    if (expensesMob) {
+      expensesMob.addEventListener('click', (e) => {
+        const delBtn = e.target.closest('.btn-delete-expense');
+        if (delBtn) {
+          const eid = delBtn.getAttribute('data-expense-id');
+          if (eid) this.deleteExpense(eid);
+        }
+      });
+    }
   }
 
   setDateQuick(type) {
@@ -842,6 +872,69 @@ export class FinanceManager {
               </td>
             </tr>
           `;        }).join('');
+
+        const mobContainer = document.getElementById('finance-report-mobile-cards');
+        if (mobContainer) {
+          const canDelete = RolesManager.canDelete(auth.getCurrentUser());
+          mobContainer.innerHTML = filteredSessions.map(s => {
+            const safeId = escapeHTML(s.id);
+            const safePatient = escapeHTML(s.patientName);
+            const safeDoc = escapeHTML(s.doctor);
+            const safeIns = escapeHTML(s.insuranceName || 'شركة');
+            const safeAmount = escapeHTML(s.amountPaid);
+
+            let payBadge = '';
+            if (s.payType === 'cash') {
+              payBadge = '<span class="badge badge-cash"><i class="fa-solid fa-money-bill"></i> نقدي</span>';
+            } else if (s.contractType === 'direct') {
+              payBadge = `<span class="badge badge-direct"><i class="fa-solid fa-file-contract"></i> ${safeIns} (مباشر)</span>`;
+            } else {
+              payBadge = `<span class="badge badge-indirect"><i class="fa-solid fa-handshake"></i> ${safeIns} (غير مباشر)</span>`;
+            }
+
+            const isExam = (s.entryType === 'examination');
+            let partsBadge = '';
+            if (isExam) {
+              partsBadge = '<span class="badge" style="background: rgba(109, 40, 217, 0.15); color: #7c3aed; font-weight: 800; font-size: 0.78rem;"><i class="fa-solid fa-stethoscope"></i> كشف طبي</span>';
+            } else {
+              const rawParts = Array.isArray(s.bodyParts) ? s.bodyParts.join('، ') : (s.bodyParts || '');
+              const parts = escapeHTML(rawParts);
+              const count = escapeHTML(s.bodyPartsCount || (Array.isArray(s.bodyParts) ? s.bodyParts.length : 1));
+              partsBadge = `<span class="badge" style="background: rgba(2, 132, 199, 0.12); color: var(--primary); font-weight: 700; font-size: 0.78rem;"><i class="fa-solid fa-bone"></i> ${count} أعضاء (${parts})</span>`;
+            }
+
+            return `
+              <div class="hero-styled-card" style="margin-bottom: 0;">
+                <div class="hsc-top">
+                  <div>
+                    <div style="font-weight: 800; font-size: 1rem; color: var(--text-main);">${safePatient}</div>
+                    <div style="font-size: 0.82rem; color: var(--text-muted); margin-top: 3px;">
+                      <i class="fa-solid fa-user-doctor" style="color: var(--primary);"></i> ${safeDoc}
+                    </div>
+                  </div>
+                  <div>${payBadge}</div>
+                </div>
+                <div class="hsc-divider" style="margin: 10px 0;"></div>
+                <div class="hsc-bottom">
+                  <div>${partsBadge}</div>
+                  <div style="display: flex; align-items: center; gap: 10px;">
+                    <span style="font-weight: 800; font-size: 1.1rem; color: var(--success);">${safeAmount} ج.م</span>
+                    <div style="display: flex; gap: 4px;">
+                      <button type="button" class="btn btn-outline btn-sm btn-edit-session" data-session-id="${safeId}" style="width: 32px; height: 32px; border-radius: 50%; padding: 0; display: inline-flex; align-items: center; justify-content: center;" title="تعديل">
+                        <i class="fa-solid fa-pen-to-square"></i>
+                      </button>
+                      ${canDelete ? `
+                      <button type="button" class="btn btn-outline btn-sm btn-delete-record btn-delete-session" style="width: 32px; height: 32px; border-radius: 50%; padding: 0; color: var(--danger); display: inline-flex; align-items: center; justify-content: center;" data-session-id="${safeId}" title="حذف">
+                        <i class="fa-solid fa-trash"></i>
+                      </button>
+                      ` : ''}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            `;
+          }).join('');
+        }
       }
     }
 
@@ -1085,6 +1178,42 @@ export class FinanceManager {
             </tr>
           `;
         }).join('');
+
+        const docMob = document.getElementById('monthly-doctors-mobile-cards');
+        if (docMob) {
+          docMob.innerHTML = doctors.map(doc => {
+            const docSessions = allSessions.filter(s => s.doctor === doc);
+            const cashCount = docSessions.filter(s => s.payType === 'cash').length;
+            const insCount = docSessions.filter(s => s.payType === 'insurance').length;
+            const total = docSessions.length;
+            const pct = totalPatients > 0 ? ((total / totalPatients) * 100).toFixed(1) : 0;
+            const creditedSessions = docSessions.reduce((acc, s) => {
+              if (s.entryType === 'examination') return acc + 1;
+              return acc + (s.bodyPartsCount || 1);
+            }, 0);
+
+            return `
+              <div class="hero-styled-card" style="margin-bottom: 0;">
+                <div style="display: flex; align-items: center; justify-content: space-between;">
+                  <div style="font-weight: 800; font-size: 1rem; color: var(--text-main);">
+                    <i class="fa-solid fa-user-doctor" style="color: var(--primary); margin-left: 6px;"></i> د. ${(escapeHTML(doc)).replace(/^د\.\s*/, '')}
+                  </div>
+                  <span class="badge badge-primary" style="font-size: 0.82rem; font-weight: 800; padding: 4px 10px; border-radius: 999px;">${pct}%</span>
+                </div>
+                <div class="hsc-divider" style="margin: 10px 0;"></div>
+                <div style="display: flex; align-items: center; justify-content: space-between; font-size: 0.86rem;">
+                  <div>
+                    <span style="color: var(--success); font-weight: 700;">نقدي: ${cashCount}</span> • 
+                    <span style="color: var(--primary); font-weight: 700;">تأمين: ${insCount}</span>
+                  </div>
+                  <div style="font-weight: 800; color: var(--text-main);">
+                    ${total} مريض (${creditedSessions} جلسة)
+                  </div>
+                </div>
+              </div>
+            `;
+          }).join('');
+        }
       }
     }
 
@@ -1122,6 +1251,31 @@ export class FinanceManager {
             </tr>
           `;
         }).join('');
+
+        const insMob = document.getElementById('monthly-insurance-mobile-cards');
+        if (insMob) {
+          insMob.innerHTML = Object.values(categories).map(item => {
+            const pct = ((item.count / totalPatients) * 100).toFixed(1);
+            const safeName = escapeHTML(item.name);
+            const safeType = escapeHTML(item.type);
+            const badgeClass = item.type.includes('نقدي') ? 'badge-cash' : (item.type.includes('غير مباشر') ? 'badge-indirect' : 'badge-direct');
+            const iconClass = item.type.includes('نقدي') ? 'fa-money-bill' : (item.type.includes('غير مباشر') ? 'fa-handshake' : 'fa-file-contract');
+
+            return `
+              <div class="hero-styled-card" style="margin-bottom: 0;">
+                <div style="display: flex; align-items: center; justify-content: space-between;">
+                  <div style="font-weight: 800; font-size: 0.98rem; color: var(--text-main);">${safeName}</div>
+                  <span class="badge ${badgeClass}"><i class="fa-solid ${iconClass}"></i> ${safeType}</span>
+                </div>
+                <div class="hsc-divider" style="margin: 10px 0;"></div>
+                <div style="display: flex; align-items: center; justify-content: space-between; font-size: 0.88rem;">
+                  <span style="font-weight: 800; color: var(--primary);">${item.count} حالة مسجلة</span>
+                  <span style="font-weight: 800; color: var(--text-muted);">${pct}%</span>
+                </div>
+              </div>
+            `;
+          }).join('');
+        }
       }
     }
 
@@ -1145,6 +1299,23 @@ export class FinanceManager {
             </tr>
           `;
         }).join('');
+
+        const mExpMob = document.getElementById('monthly-expenses-mobile-cards');
+        if (mExpMob) {
+          mExpMob.innerHTML = allExpenses.map(e => `
+            <div class="hero-styled-card" style="margin-bottom: 0;">
+              <div style="display: flex; align-items: center; justify-content: space-between;">
+                <div>
+                  <div style="font-weight: 800; font-size: 0.98rem; color: var(--text-main);">${escapeHTML(e.title)}</div>
+                  <div style="font-size: 0.78rem; color: var(--text-muted); margin-top: 2px;">
+                    <i class="fa-regular fa-calendar"></i> ${escapeHTML(e.date || '')} • ${escapeHTML(e.recordedBy || '')}
+                  </div>
+                </div>
+                <span style="font-weight: 800; font-size: 1.05rem; color: var(--danger);">${(parseFloat(e.amount) || 0).toLocaleString('en-US')} ج.م</span>
+              </div>
+            </div>
+          `).join('');
+        }
       }
     }
   }
