@@ -908,6 +908,8 @@ export class FinanceManager {
 
     // Daily Sessions Table
     const tbody = document.getElementById('finance-report-tbody');
+    const mobContainer = document.getElementById('finance-report-mobile-cards');
+
     if (tbody) {
       if (filteredSessions.length === 0) {
         tbody.innerHTML = `<tr><td colspan="8" style="text-align: center; color: var(--text-muted); padding: 25px;">لا توجد حركات جلسات مسجلة في هذا التاريخ.</td></tr>`;
@@ -973,69 +975,78 @@ export class FinanceManager {
               </td>
             </tr>
           `;        }).join('');
+      }
+    }
 
-        const mobContainer = document.getElementById('finance-report-mobile-cards');
-        if (mobContainer) {
-          const canDelete = RolesManager.canDelete(auth.getCurrentUser());
-          mobContainer.innerHTML = filteredSessions.map(s => {
-            const safeId = escapeHTML(s.id);
-            const safePatient = escapeHTML(s.patientName);
-            const safeDoc = escapeHTML(s.doctor);
-            const safeIns = escapeHTML(s.insuranceName || 'شركة');
-            const safeAmount = escapeHTML(s.amountPaid);
+    if (mobContainer) {
+      if (filteredSessions.length === 0) {
+        mobContainer.innerHTML = `
+          <div style="background: var(--bg-surface); border: 1.5px dashed var(--border-color); border-radius: 12px; padding: 22px 14px; text-align: center; color: var(--text-muted);">
+            <i class="fa-solid fa-calendar-xmark" style="font-size: 1.8rem; color: var(--primary); opacity: 0.35; margin-bottom: 8px; display: block;"></i>
+            <div style="font-weight: 700; font-size: 0.88rem; color: var(--text-main); margin-bottom: 3px;">لا توجد جلسات مسجلة في هذا التاريخ</div>
+            <div style="font-size: 0.75rem;">اضغط على زر "أمس" أو اختر تاريخاً سابقاً لعرض الجلسات</div>
+          </div>
+        `;
+      } else {
+        const canDelete = RolesManager.canDelete(auth.getCurrentUser());
+        mobContainer.innerHTML = filteredSessions.map(s => {
+          const safeId = escapeHTML(s.id);
+          const safePatient = escapeHTML(s.patientName);
+          const safeDoc = escapeHTML(s.doctor);
+          const safeIns = escapeHTML(s.insuranceName || 'شركة');
+          const safeAmount = escapeHTML(s.amountPaid);
 
-            let payBadge = '';
-            if (s.payType === 'cash') {
-              payBadge = '<span class="badge badge-cash"><i class="fa-solid fa-money-bill"></i> نقدي</span>';
-            } else if (s.contractType === 'direct') {
-              payBadge = `<span class="badge badge-direct"><i class="fa-solid fa-file-contract"></i> ${safeIns} (مباشر)</span>`;
-            } else {
-              payBadge = `<span class="badge badge-indirect"><i class="fa-solid fa-handshake"></i> ${safeIns} (غير مباشر)</span>`;
-            }
+          let payBadge = '';
+          if (s.payType === 'cash') {
+            payBadge = '<span class="badge badge-cash"><i class="fa-solid fa-money-bill"></i> نقدي</span>';
+          } else if (s.contractType === 'direct') {
+            payBadge = `<span class="badge badge-direct"><i class="fa-solid fa-file-contract"></i> ${safeIns} (مباشر)</span>`;
+          } else {
+            payBadge = `<span class="badge badge-indirect"><i class="fa-solid fa-handshake"></i> ${safeIns} (غير مباشر)</span>`;
+          }
 
-            const isExam = (s.entryType === 'examination');
-            let partsBadge = '';
-            if (isExam) {
-              partsBadge = '<span class="badge" style="background: rgba(109, 40, 217, 0.15); color: #7c3aed; font-weight: 800; font-size: 0.78rem;"><i class="fa-solid fa-stethoscope"></i> كشف طبي</span>';
-            } else {
-              const rawParts = Array.isArray(s.bodyParts) ? s.bodyParts.join('، ') : (s.bodyParts || '');
-              const parts = escapeHTML(rawParts);
-              const count = escapeHTML(s.bodyPartsCount || (Array.isArray(s.bodyParts) ? s.bodyParts.length : 1));
-              partsBadge = `<span class="badge" style="background: rgba(2, 132, 199, 0.12); color: var(--primary); font-weight: 700; font-size: 0.78rem;"><i class="fa-solid fa-bone"></i> ${count} أعضاء (${parts})</span>`;
-            }
+          const isExam = (s.entryType === 'examination');
+          let partsBadge = '';
+          if (isExam) {
+            partsBadge = '<span class="badge" style="background: rgba(109, 40, 217, 0.15); color: #7c3aed; font-weight: 800; font-size: 0.78rem;"><i class="fa-solid fa-stethoscope"></i> كشف طبي</span>';
+          } else {
+            const rawParts = Array.isArray(s.bodyParts) ? s.bodyParts.join('، ') : (s.bodyParts || '');
+            const parts = escapeHTML(rawParts);
+            const count = escapeHTML(s.bodyPartsCount || (Array.isArray(s.bodyParts) ? s.bodyParts.length : 1));
+            partsBadge = `<span class="badge" style="background: rgba(2, 132, 199, 0.12); color: var(--primary); font-weight: 700; font-size: 0.78rem;"><i class="fa-solid fa-bone"></i> ${count} أعضاء (${parts})</span>`;
+          }
 
-            return `
-              <div class="hero-styled-card" style="margin-bottom: 0;">
-                <div class="hsc-top">
-                  <div>
-                    <div style="font-weight: 800; font-size: 1rem; color: var(--text-main);">${safePatient}</div>
-                    <div style="font-size: 0.82rem; color: var(--text-muted); margin-top: 3px;">
-                      <i class="fa-solid fa-user-doctor" style="color: var(--primary);"></i> ${safeDoc}
-                    </div>
+          return `
+            <div class="hero-styled-card" style="margin-bottom: 0;">
+              <div class="hsc-top">
+                <div>
+                  <div style="font-weight: 800; font-size: 1rem; color: var(--text-main);">${safePatient}</div>
+                  <div style="font-size: 0.82rem; color: var(--text-muted); margin-top: 3px;">
+                    <i class="fa-solid fa-user-doctor" style="color: var(--primary);"></i> ${safeDoc}
                   </div>
-                  <div>${payBadge}</div>
                 </div>
-                <div class="hsc-divider" style="margin: 10px 0;"></div>
-                <div class="hsc-bottom">
-                  <div>${partsBadge}</div>
-                  <div style="display: flex; align-items: center; gap: 10px;">
-                    <span style="font-weight: 800; font-size: 1.1rem; color: var(--success);">${safeAmount} ج.م</span>
-                    <div style="display: flex; gap: 4px;">
-                      <button type="button" class="btn btn-outline btn-sm btn-edit-session" data-session-id="${safeId}" style="width: 32px; height: 32px; border-radius: 50%; padding: 0; display: inline-flex; align-items: center; justify-content: center;" title="تعديل">
-                        <i class="fa-solid fa-pen-to-square"></i>
-                      </button>
-                      ${canDelete ? `
-                      <button type="button" class="btn btn-outline btn-sm btn-delete-record btn-delete-session" style="width: 32px; height: 32px; border-radius: 50%; padding: 0; color: var(--danger); display: inline-flex; align-items: center; justify-content: center;" data-session-id="${safeId}" title="حذف">
-                        <i class="fa-solid fa-trash"></i>
-                      </button>
-                      ` : ''}
-                    </div>
+                <div>${payBadge}</div>
+              </div>
+              <div class="hsc-divider" style="margin: 10px 0;"></div>
+              <div class="hsc-bottom">
+                <div>${partsBadge}</div>
+                <div style="display: flex; align-items: center; gap: 10px;">
+                  <span style="font-weight: 800; font-size: 1.1rem; color: var(--success);">${safeAmount} ج.م</span>
+                  <div style="display: flex; gap: 4px;">
+                    <button type="button" class="btn btn-outline btn-sm btn-edit-session" data-session-id="${safeId}" style="width: 32px; height: 32px; border-radius: 50%; padding: 0; display: inline-flex; align-items: center; justify-content: center;" title="تعديل">
+                      <i class="fa-solid fa-pen-to-square"></i>
+                    </button>
+                    ${canDelete ? `
+                    <button type="button" class="btn btn-outline btn-sm btn-delete-record btn-delete-session" style="width: 32px; height: 32px; border-radius: 50%; padding: 0; color: var(--danger); display: inline-flex; align-items: center; justify-content: center;" data-session-id="${safeId}" title="حذف">
+                      <i class="fa-solid fa-trash"></i>
+                    </button>
+                    ` : ''}
                   </div>
                 </div>
               </div>
-            `;
-          }).join('');
-        }
+            </div>
+          `;
+        }).join('');
       }
     }
 
