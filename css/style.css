@@ -6317,3 +6317,63 @@ h1, h2, h3, h4, h5, h6 {
   padding: 3px 9px !important;
   border-radius: 6px !important;
 }
+
+/* ==========================================================================
+   v1.4.0-beta.37: Comprehensive Final UI/UX Polish
+   ========================================================================== */
+
+/* 1. Perfect Circle Button Alignment */
+.btn-icon-action {
+  width: 38px !important;
+  min-width: 38px !important;
+  height: 38px !important;
+  min-height: 38px !important;
+  border-radius: 50% !important;
+  padding: 0 !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  flex-shrink: 0 !important;
+}
+
+/* 2. Quick Access Grid Mobile Safeguards */
+@media (max-width: 480px) {
+  .quick-access-items {
+    grid-template-columns: repeat(4, 1fr) !important;
+    gap: 6px !important;
+  }
+  .quick-action-btn {
+    padding: 10px 4px !important;
+    gap: 5px !important;
+  }
+  .quick-action-icon {
+    width: 38px !important;
+    height: 38px !important;
+    font-size: 0.95rem !important;
+  }
+  .quick-action-label {
+    font-size: 0.72rem !important;
+    white-space: nowrap !important;
+  }
+}
+
+/* 3. Offline Status Dot Pulse Animation */
+.status-dot.offline {
+  background-color: var(--danger) !important;
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.25) !important;
+  animation: pulseOffline 2s infinite !important;
+}
+
+@keyframes pulseOffline {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.25); opacity: 0.65; }
+}
+
+/* 4. Finance Segmented Tabs Elevation */
+.finance-mode-segmented {
+  min-height: 44px !important;
+}
+
+.finance-mode-segmented .btn {
+  min-height: 36px !important;
+}

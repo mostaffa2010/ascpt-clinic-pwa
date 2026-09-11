@@ -875,8 +875,8 @@ export class SessionsManager {
         previewEl.innerHTML = `<span style="color: var(--text-muted); font-size: 0.88rem;">-- اضغط لاختيار وتحديد الأعضاء المعالجة --</span>`;
       } else {
         previewEl.innerHTML = this.selectedBodyParts.map(part => `
-          <span class="badge badge-role-doctor" style="font-size: 0.8rem; padding: 4px 10px; margin: 2px; border-radius: 6px; font-weight: 700;">
-            <i class="fa-solid fa-bone" style="margin-left: 4px;"></i> ${escapeHTML(part)}
+          <span class="clinical-selected-chip">
+            <i class="fa-solid fa-bone"></i> <span>${escapeHTML(part)}</span>
           </span>
         `).join('');
       }

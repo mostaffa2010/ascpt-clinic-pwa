@@ -602,18 +602,29 @@ export class AppointmentsManager {
       return;
     }
 
-    container.innerHTML = filtered.map((p) => `
-      <div class="picker-item" data-patient-id="${escapeHTML(p.id)}">
-        <div>
-          <div style="font-weight: 700; color: var(--text-main); font-size: 0.95rem;">
-            <i class="fa-solid fa-user" style="color: var(--primary); margin-left: 6px;"></i> ${escapeHTML(p.name)}
+    container.innerHTML = filtered.map((p) => {
+      let badge = '';
+      if (p.billing === 'cash') {
+        badge = `<span class="badge badge-cash">نقدي</span>`;
+      } else {
+        const safeComp = escapeHTML(p.insuranceCompany || 'تأمين');
+        badge = `<span class="badge badge-direct">${safeComp}</span>`;
+      }
+
+      return `
+        <div class="picker-item" data-patient-id="${escapeHTML(p.id)}" style="display: flex; justify-content: space-between; align-items: center;">
+          <div>
+            <div style="font-weight: 700; color: var(--text-main); font-size: 0.95rem;">
+              <i class="fa-solid fa-user" style="color: var(--primary); margin-left: 6px;"></i> ${escapeHTML(p.name)}
+            </div>
+            <div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 3px;">
+              <i class="fa-solid fa-phone" style="font-size: 0.75rem;"></i> ${escapeHTML(p.phone)}
+            </div>
           </div>
-          <div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 3px;">
-            <i class="fa-solid fa-phone" style="font-size: 0.75rem;"></i> ${escapeHTML(p.phone)}
-          </div>
+          <div>${badge}</div>
         </div>
-      </div>
-    `).join('');
+      `;
+    }).join('');
   }
 
   selectPatientFromPicker(patientId) {
