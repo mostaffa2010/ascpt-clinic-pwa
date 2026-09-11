@@ -4804,15 +4804,20 @@ body {
   left: 0;
   right: 0;
   width: 100%;
-  border-radius: 22px !important;
+  border-radius: 20px !important;
   box-sizing: border-box !important;
   cursor: pointer;
-  transition: transform 0.38s cubic-bezier(0.34, 1.35, 0.64, 1),
-              opacity 0.3s ease,
-              box-shadow 0.3s ease,
-              border-color 0.3s ease !important;
+  /* 100% GPU-only transitions: transforms and opacity without paint or layout stalls */
+  transition: transform 0.26s cubic-bezier(0.25, 1, 0.5, 1),
+              opacity 0.22s ease !important;
   will-change: transform, opacity;
+  backface-visibility: hidden !important;
+  -webkit-backface-visibility: hidden !important;
+  transform: translate3d(0, 0, 0);
   overflow: hidden;
+  /* Disable heavy multi-pass blur on stacked cards to save mobile GPU compositing */
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
 }
 
 .doc-stack-card.is-active-card {
@@ -4820,24 +4825,25 @@ body {
   z-index: 12 !important;
   opacity: 1 !important;
   pointer-events: auto !important;
-  border-color: rgba(2, 132, 199, 0.4) !important;
-  box-shadow: 0 12px 36px -4px rgba(2, 132, 199, 0.22) !important;
+  border-color: rgba(2, 132, 199, 0.45) !important;
+  box-shadow: 0 10px 30px -4px rgba(2, 132, 199, 0.22) !important;
 }
 
 [data-theme="dark"] .doc-stack-card.is-active-card {
-  border-color: rgba(56, 189, 248, 0.45) !important;
-  box-shadow: 0 14px 40px -4px rgba(0, 0, 0, 0.6) !important;
+  border-color: rgba(56, 189, 248, 0.5) !important;
+  box-shadow: 0 12px 34px -4px rgba(0, 0, 0, 0.65) !important;
 }
 
 .doc-stack-card.is-peeking-card {
   cursor: pointer;
   pointer-events: auto !important;
   border-color: var(--border-color) !important;
-  filter: brightness(0.96);
+  /* Replaced GPU-heavy brightness filter with pure opacity handling */
+  opacity: 0.88;
 }
 
 [data-theme="dark"] .doc-stack-card.is-peeking-card {
-  filter: brightness(0.85);
+  opacity: 0.80;
 }
 
 .doc-stack-card.is-passed-card {

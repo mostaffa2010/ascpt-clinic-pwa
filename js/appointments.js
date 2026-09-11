@@ -320,13 +320,24 @@ export class AppointmentsManager {
     this.currentDocStackIndex = 0;
     this.isDocStackListMode = false;
 
+    let cachedHeight = 170;
+    const measureHeight = () => {
+      const activeCard = cards[this.currentDocStackIndex] || cards[0];
+      if (activeCard && activeCard.offsetHeight > 50) {
+        cachedHeight = activeCard.offsetHeight;
+      }
+    };
+
     const updatePositions = (newIndex = 0) => {
       if (this.isDocStackListMode) return;
       this.currentDocStackIndex = Math.max(0, Math.min(newIndex, cards.length - 1));
 
-      let activeHeight = 170;
+      // Batch height update once without layout thrashing inside the loop
+      const peekExtra = cards.length > 2 ? 64 : (cards.length === 2 ? 36 : 10);
+      container.style.minHeight = `${cachedHeight + peekExtra}px`;
 
-      cards.forEach((card, idx) => {
+      for (let idx = 0; idx < cards.length; idx++) {
+        const card = cards[idx];
         const diff = idx - this.currentDocStackIndex;
 
         if (diff === 0) {
@@ -336,39 +347,35 @@ export class AppointmentsManager {
           card.style.pointerEvents = 'auto';
           card.classList.add('is-active-card');
           card.classList.remove('is-peeking-card', 'is-passed-card');
-          activeHeight = Math.max(activeHeight, card.offsetHeight);
         } else if (diff === 1) {
-          card.style.transform = 'translate3d(0, 32px, 0) scale(0.96)';
+          card.style.transform = 'translate3d(0, 28px, 0) scale(0.96)';
           card.style.zIndex = '10';
-          card.style.opacity = '0.88';
+          card.style.opacity = '0.90';
           card.style.pointerEvents = 'auto';
           card.classList.add('is-peeking-card');
           card.classList.remove('is-active-card', 'is-passed-card');
         } else if (diff === 2) {
-          card.style.transform = 'translate3d(0, 60px, 0) scale(0.92)';
+          card.style.transform = 'translate3d(0, 52px, 0) scale(0.92)';
           card.style.zIndex = '8';
-          card.style.opacity = '0.70';
+          card.style.opacity = '0.72';
           card.style.pointerEvents = 'auto';
           card.classList.add('is-peeking-card');
           card.classList.remove('is-active-card', 'is-passed-card');
         } else if (diff > 2) {
-          card.style.transform = 'translate3d(0, 75px, 0) scale(0.88)';
+          card.style.transform = 'translate3d(0, 68px, 0) scale(0.88)';
           card.style.zIndex = '6';
           card.style.opacity = '0';
           card.style.pointerEvents = 'none';
           card.classList.remove('is-active-card', 'is-peeking-card');
         } else {
-          card.style.transform = 'translate3d(0, -65px, 0) scale(0.92)';
+          card.style.transform = 'translate3d(0, -50px, 0) scale(0.92)';
           card.style.zIndex = '4';
           card.style.opacity = '0';
           card.style.pointerEvents = 'none';
           card.classList.add('is-passed-card');
           card.classList.remove('is-active-card', 'is-peeking-card');
         }
-      });
-
-      const peekExtra = cards.length > 2 ? 72 : (cards.length === 2 ? 42 : 10);
-      container.style.minHeight = `${activeHeight + peekExtra}px`;
+      }
 
       // Update dots & counter
       const dots = document.querySelectorAll('#doc-stack-dots .doc-dot');

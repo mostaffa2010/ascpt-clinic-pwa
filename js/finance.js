@@ -1557,13 +1557,23 @@ export class FinanceManager {
     let currentIndex = 0;
     let isListMode = false;
 
+    let cachedHeight = 160;
+    const measureHeight = () => {
+      const activeCard = cards[currentIndex] || cards[0];
+      if (activeCard && activeCard.offsetHeight > 50) {
+        cachedHeight = activeCard.offsetHeight;
+      }
+    };
+
     const updatePositions = (newIndex = 0) => {
       if (isListMode) return;
       currentIndex = Math.max(0, Math.min(newIndex, cards.length - 1));
 
-      let activeHeight = 160;
+      const peekExtra = cards.length > 2 ? 62 : (cards.length === 2 ? 36 : 10);
+      container.style.minHeight = `${cachedHeight + peekExtra}px`;
 
-      cards.forEach((card, idx) => {
+      for (let idx = 0; idx < cards.length; idx++) {
+        const card = cards[idx];
         const diff = idx - currentIndex;
 
         if (diff === 0) {
@@ -1573,39 +1583,35 @@ export class FinanceManager {
           card.style.pointerEvents = 'auto';
           card.classList.add('is-active-card');
           card.classList.remove('is-peeking-card', 'is-passed-card');
-          activeHeight = Math.max(activeHeight, card.offsetHeight || 160);
         } else if (diff === 1) {
-          card.style.transform = 'translate3d(0, 30px, 0) scale(0.96)';
+          card.style.transform = 'translate3d(0, 28px, 0) scale(0.96)';
           card.style.zIndex = '10';
-          card.style.opacity = '0.88';
+          card.style.opacity = '0.90';
           card.style.pointerEvents = 'auto';
           card.classList.add('is-peeking-card');
           card.classList.remove('is-active-card', 'is-passed-card');
         } else if (diff === 2) {
-          card.style.transform = 'translate3d(0, 56px, 0) scale(0.92)';
+          card.style.transform = 'translate3d(0, 52px, 0) scale(0.92)';
           card.style.zIndex = '8';
-          card.style.opacity = '0.70';
+          card.style.opacity = '0.72';
           card.style.pointerEvents = 'auto';
           card.classList.add('is-peeking-card');
           card.classList.remove('is-active-card', 'is-passed-card');
         } else if (diff > 2) {
-          card.style.transform = 'translate3d(0, 72px, 0) scale(0.88)';
+          card.style.transform = 'translate3d(0, 68px, 0) scale(0.88)';
           card.style.zIndex = '6';
           card.style.opacity = '0';
           card.style.pointerEvents = 'none';
           card.classList.remove('is-active-card', 'is-peeking-card');
         } else {
-          card.style.transform = 'translate3d(0, -60px, 0) scale(0.92)';
+          card.style.transform = 'translate3d(0, -50px, 0) scale(0.92)';
           card.style.zIndex = '4';
           card.style.opacity = '0';
           card.style.pointerEvents = 'none';
           card.classList.add('is-passed-card');
           card.classList.remove('is-active-card', 'is-peeking-card');
         }
-      });
-
-      const peekExtra = cards.length > 2 ? 66 : (cards.length === 2 ? 38 : 10);
-      container.style.minHeight = `${activeHeight + peekExtra}px`;
+      }
 
       // Dots update
       const dots = document.querySelectorAll(`#${prefix}-dots .doc-dot`);
