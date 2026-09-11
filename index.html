@@ -47,7 +47,7 @@
   
 
     <!-- Stylesheets -->
-  <link rel="stylesheet" href="css/style.css?v=1.4.0-beta.16">
+  <link rel="stylesheet" href="css/style.css?v=1.4.0-beta.17">
   <link rel="stylesheet" href="css/print.css" media="print">
 </head>
 <body>
@@ -658,11 +658,11 @@
           <div class="card">
             <div class="card-header" style="padding: 10px 14px 6px 14px; border-bottom: none;">
               <!-- 2 Panels Switcher: تسجيل جلسة جديدة / تسجيل كشف جديد -->
-              <div class="session-mode-switcher" style="display: flex; background: var(--bg-subtle, #f1f5f9); border-radius: 12px; padding: 4px; gap: 4px; width: 100%; border: 1px solid var(--border-color, #e2e8f0);">
-                <button type="button" id="btn-mode-session" class="session-mode-btn active" style="flex: 1; padding: 9px 12px; border: none; border-radius: 9px; font-weight: 800; font-size: 0.92rem; cursor: pointer; transition: all 0.2s ease; background: var(--primary, #0284c7); color: #ffffff; display: flex; align-items: center; justify-content: center; gap: 6px; box-shadow: 0 2px 4px rgba(0,0,0,0.06);">
+              <div class="session-mode-switcher">
+                <button type="button" id="btn-mode-session" class="session-mode-btn active">
                   <i class="fa-solid fa-user-clock"></i> <span id="label-mode-session">تسجيل جلسة جديدة</span>
                 </button>
-                <button type="button" id="btn-mode-exam" class="session-mode-btn" style="flex: 1; padding: 9px 12px; border: none; border-radius: 9px; font-weight: 800; font-size: 0.92rem; cursor: pointer; transition: all 0.2s ease; background: transparent; color: var(--text-muted, #64748b); display: flex; align-items: center; justify-content: center; gap: 6px;">
+                <button type="button" id="btn-mode-exam" class="session-mode-btn">
                   <i class="fa-solid fa-stethoscope"></i> <span id="label-mode-exam">تسجيل كشف جديد</span>
                 </button>
               </div>
@@ -848,15 +848,15 @@
         </div>
 
         <!-- Mode Toggle Tabs (Daily vs Monthly vs Claims) -->
-        <div class="no-print" style="display: flex; gap: 8px; margin-bottom: 14px; flex-wrap: wrap;">
+        <div class="no-print finance-mode-segmented">
           <button type="button" class="btn btn-primary btn-sm" id="btn-mode-daily">
-            <i class="fa-solid fa-calendar-day"></i> التقرير اليومي
+            <i class="fa-solid fa-calendar-day"></i> <span>التقرير اليومي</span>
           </button>
           <button type="button" class="btn btn-outline btn-sm" id="btn-mode-monthly">
-            <i class="fa-solid fa-calendar-days"></i> التقرير الشهري الإحصائي
+            <i class="fa-solid fa-calendar-days"></i> <span>التقرير الشهري</span>
           </button>
           <button type="button" class="btn btn-outline btn-sm" id="btn-mode-claims">
-            <i class="fa-solid fa-file-invoice-dollar"></i> مطالبات التأمين وبطاقات التردد
+            <i class="fa-solid fa-file-invoice-dollar"></i> <span>مطالبات التأمين</span>
           </button>
         </div>
 

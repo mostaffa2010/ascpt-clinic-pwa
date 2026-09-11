@@ -380,21 +380,14 @@ export class SessionsManager {
     const btnSubmitIcon = document.getElementById('icon-submit-session');
 
     if (btnSession && btnExam) {
-      if (isExam) {
-        btnExam.style.background = 'var(--primary, #0284c7)';
-        btnExam.style.color = '#ffffff';
-        btnExam.style.boxShadow = '0 2px 4px rgba(0,0,0,0.06)';
-        btnSession.style.background = 'transparent';
-        btnSession.style.color = 'var(--text-muted, #64748b)';
-        btnSession.style.boxShadow = 'none';
-      } else {
-        btnSession.style.background = 'var(--primary, #0284c7)';
-        btnSession.style.color = '#ffffff';
-        btnSession.style.boxShadow = '0 2px 4px rgba(0,0,0,0.06)';
-        btnExam.style.background = 'transparent';
-        btnExam.style.color = 'var(--text-muted, #64748b)';
-        btnExam.style.boxShadow = 'none';
-      }
+      btnExam.classList.toggle('active', isExam);
+      btnSession.classList.toggle('active', !isExam);
+      btnExam.style.background = '';
+      btnExam.style.color = '';
+      btnExam.style.boxShadow = '';
+      btnSession.style.background = '';
+      btnSession.style.color = '';
+      btnSession.style.boxShadow = '';
     }
 
     if (bodyPartsGroup) bodyPartsGroup.style.display = isExam ? 'none' : 'block';
@@ -460,21 +453,14 @@ export class SessionsManager {
     const isContract = (this.examType === 'contract');
 
     if (btnCash && btnContract) {
-      if (isContract) {
-        btnContract.style.borderColor = 'var(--primary)';
-        btnContract.style.background = 'var(--primary)';
-        btnContract.style.color = '#ffffff';
-        btnCash.style.borderColor = 'var(--border-color)';
-        btnCash.style.background = 'var(--bg-surface)';
-        btnCash.style.color = 'var(--text-muted)';
-      } else {
-        btnCash.style.borderColor = 'var(--primary)';
-        btnCash.style.background = 'var(--primary)';
-        btnCash.style.color = '#ffffff';
-        btnContract.style.borderColor = 'var(--border-color)';
-        btnContract.style.background = 'var(--bg-surface)';
-        btnContract.style.color = 'var(--text-muted)';
-      }
+      btnContract.classList.toggle('active', isContract);
+      btnCash.classList.toggle('active', !isContract);
+      btnContract.style.borderColor = '';
+      btnContract.style.background = '';
+      btnContract.style.color = '';
+      btnCash.style.borderColor = '';
+      btnCash.style.background = '';
+      btnCash.style.color = '';
     }
 
     if (payTypeInput) payTypeInput.value = isContract ? 'insurance' : 'cash';

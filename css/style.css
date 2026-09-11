@@ -4917,3 +4917,324 @@ body::-webkit-scrollbar,
   height: 0 !important;
   background: transparent !important;
 }
+
+/* ==========================================================================
+   v1.4.0-beta.17: Complete Modernization for Sessions & Finance Screens
+   ========================================================================== */
+
+/* --- 1. SESSIONS VIEW: Mode Switcher --- */
+.session-mode-switcher {
+  display: flex !important;
+  background: var(--bg-subtle) !important;
+  border-radius: 16px !important;
+  padding: 5px !important;
+  gap: 6px !important;
+  width: 100% !important;
+  border: 1.5px solid var(--border-color) !important;
+  box-sizing: border-box !important;
+}
+
+.session-mode-btn {
+  flex: 1 !important;
+  padding: 10px 14px !important;
+  border: none !important;
+  border-radius: 12px !important;
+  font-weight: 800 !important;
+  font-size: 0.92rem !important;
+  cursor: pointer !important;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 8px !important;
+}
+
+:root:not([data-theme="dark"]) .session-mode-btn.active {
+  background: #ffffff !important;
+  color: #0284c7 !important;
+  box-shadow: 0 3px 12px rgba(15, 23, 42, 0.08) !important;
+}
+
+:root:not([data-theme="dark"]) .session-mode-btn:not(.active) {
+  background: transparent !important;
+  color: #64748b !important;
+}
+
+[data-theme="dark"] .session-mode-btn.active {
+  background: #1e293b !important;
+  color: #38bdf8 !important;
+  border: 1px solid rgba(56, 189, 248, 0.3) !important;
+  box-shadow: 0 3px 12px rgba(0, 0, 0, 0.4) !important;
+}
+
+[data-theme="dark"] .session-mode-btn:not(.active) {
+  background: transparent !important;
+  color: #94a3b8 !important;
+}
+
+/* --- 2. SESSIONS VIEW: Patient Picker Interactive Card --- */
+.patient-picker-trigger {
+  border: 1.5px solid var(--border-color) !important;
+  background: var(--bg-subtle) !important;
+  border-radius: 16px !important;
+  padding: 13px 18px !important;
+  cursor: pointer !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.03) !important;
+}
+
+.patient-picker-trigger:hover, .patient-picker-trigger:active {
+  background: #ffffff !important;
+  border-color: var(--primary) !important;
+  box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.12) !important;
+  transform: scale(0.995);
+}
+
+[data-theme="dark"] .patient-picker-trigger:hover, [data-theme="dark"] .patient-picker-trigger:active {
+  background: #1e293b !important;
+  border-color: #38bdf8 !important;
+  box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.18) !important;
+}
+
+.selected-patient-card {
+  background-color: var(--bg-surface) !important;
+  border: 1.5px solid var(--primary) !important;
+  border-radius: 16px !important;
+  padding: 12px 18px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  box-shadow: 0 4px 14px -2px rgba(2, 132, 199, 0.18) !important;
+}
+
+/* --- 3. SESSIONS VIEW: Examination Mode Segmented Controls --- */
+.exam-type-segmented {
+  display: flex !important;
+  gap: 8px !important;
+}
+
+.exam-type-btn {
+  flex: 1 !important;
+  padding: 11px 14px !important;
+  font-weight: 800 !important;
+  font-size: 0.92rem !important;
+  border-radius: 12px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 8px !important;
+  cursor: pointer !important;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  border: 1.5px solid var(--border-color) !important;
+}
+
+:root:not([data-theme="dark"]) .exam-type-btn.active {
+  background: #ffffff !important;
+  color: #0284c7 !important;
+  border-color: #0284c7 !important;
+  box-shadow: 0 4px 14px -2px rgba(2, 132, 199, 0.2) !important;
+}
+
+:root:not([data-theme="dark"]) .exam-type-btn:not(.active) {
+  background: transparent !important;
+  color: #64748b !important;
+}
+
+[data-theme="dark"] .exam-type-btn.active {
+  background: #1e293b !important;
+  color: #38bdf8 !important;
+  border-color: #38bdf8 !important;
+  box-shadow: 0 4px 14px -2px rgba(0, 0, 0, 0.5) !important;
+}
+
+[data-theme="dark"] .exam-type-btn:not(.active) {
+  background: transparent !important;
+  color: #94a3b8 !important;
+}
+
+.payment-info-box-contract, .payment-info-box-cash {
+  border-radius: 16px !important;
+  padding: 13px 16px !important;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.03) !important;
+}
+
+/* --- 4. SESSIONS VIEW: Submit Session Hero Button --- */
+#btn-submit-session {
+  width: 100% !important;
+  border-radius: 16px !important;
+  padding: 14px !important;
+  font-size: 1.05rem !important;
+  font-weight: 800 !important;
+  background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%) !important;
+  border: none !important;
+  box-shadow: 0 4px 16px -2px rgba(2, 132, 199, 0.35) !important;
+  color: #ffffff !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 8px !important;
+  margin-top: 14px !important;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  cursor: pointer !important;
+}
+
+#btn-submit-session:hover, #btn-submit-session:active {
+  box-shadow: 0 6px 22px -2px rgba(2, 132, 199, 0.5) !important;
+  transform: translateY(-1px);
+}
+
+/* --- 5. FINANCE VIEW: Top Actions Mobile Grid & Pills --- */
+@media (max-width: 767px) {
+  #finance-top-actions {
+    display: grid !important;
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 8px !important;
+    width: 100% !important;
+    margin-top: 10px !important;
+  }
+
+  #finance-top-actions .btn {
+    height: 42px !important;
+    padding: 0 10px !important;
+    font-size: 0.82rem !important;
+    border-radius: 12px !important;
+    justify-content: center !important;
+    white-space: nowrap !important;
+  }
+}
+
+#btn-add-expense {
+  background: rgba(239, 68, 68, 0.08) !important;
+  border-color: rgba(239, 68, 68, 0.3) !important;
+  color: #ef4444 !important;
+}
+
+#btn-add-expense:hover, #btn-add-expense:active {
+  background: #ef4444 !important;
+  color: #ffffff !important;
+}
+
+#btn-add-settlement {
+  background: rgba(2, 132, 199, 0.08) !important;
+  border-color: rgba(2, 132, 199, 0.3) !important;
+  color: #0284c7 !important;
+}
+
+#btn-add-settlement:hover, #btn-add-settlement:active {
+  background: #0284c7 !important;
+  color: #ffffff !important;
+}
+
+/* --- 6. FINANCE VIEW: Mode Segmented Control --- */
+.finance-mode-segmented {
+  display: flex !important;
+  background: var(--bg-subtle) !important;
+  border-radius: 16px !important;
+  padding: 4px !important;
+  gap: 4px !important;
+  border: 1.5px solid var(--border-color) !important;
+  margin-bottom: 14px !important;
+  width: 100% !important;
+  box-sizing: border-box !important;
+}
+
+.finance-mode-segmented .btn {
+  flex: 1 !important;
+  border: none !important;
+  border-radius: 12px !important;
+  padding: 9px 12px !important;
+  font-weight: 800 !important;
+  font-size: 0.86rem !important;
+  text-align: center !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 6px !important;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  cursor: pointer !important;
+  white-space: nowrap !important;
+}
+
+:root:not([data-theme="dark"]) .finance-mode-segmented .btn.btn-outline {
+  background: transparent !important;
+  color: #64748b !important;
+  box-shadow: none !important;
+}
+
+:root:not([data-theme="dark"]) .finance-mode-segmented .btn.btn-primary {
+  background: #ffffff !important;
+  color: #0284c7 !important;
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.08) !important;
+}
+
+[data-theme="dark"] .finance-mode-segmented .btn.btn-outline {
+  background: transparent !important;
+  color: #94a3b8 !important;
+  box-shadow: none !important;
+}
+
+[data-theme="dark"] .finance-mode-segmented .btn.btn-primary {
+  background: #1e293b !important;
+  color: #38bdf8 !important;
+  border: 1px solid rgba(56, 189, 248, 0.3) !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4) !important;
+}
+
+/* --- 7. FINANCE VIEW: Filter Bar Card --- */
+#finance-filter-bar-card {
+  border-radius: 18px !important;
+  padding: 14px 16px !important;
+  margin-bottom: 16px !important;
+  box-shadow: var(--shadow-sm) !important;
+}
+
+/* --- 8. FINANCE VIEW: Modern KPI Metric Cards --- */
+#finance-kpi-stats-grid .stat-box {
+  border-radius: 18px !important;
+  padding: 14px 16px !important;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+:root:not([data-theme="dark"]) #finance-kpi-stats-grid .stat-box {
+  background: #ffffff !important;
+  border: 1.5px solid #e2e8f0 !important;
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.04) !important;
+}
+
+:root:not([data-theme="dark"]) #finance-kpi-stats-grid .stat-box.highlight {
+  border-color: rgba(245, 158, 11, 0.4) !important;
+  background: linear-gradient(135deg, #ffffff 0%, #fffbeb 100%) !important;
+}
+
+[data-theme="dark"] #finance-kpi-stats-grid .stat-box {
+  background: rgba(30, 41, 59, 0.7) !important;
+  border: 1.5px solid rgba(56, 189, 248, 0.2) !important;
+}
+
+[data-theme="dark"] #finance-kpi-stats-grid .stat-box.highlight {
+  border-color: rgba(251, 191, 36, 0.4) !important;
+  background: linear-gradient(135deg, rgba(30, 41, 59, 0.8) 0%, rgba(45, 33, 15, 0.3) 100%) !important;
+}
+
+#finance-kpi-stats-grid .stat-value {
+  font-size: 1.28rem !important;
+  font-weight: 800 !important;
+  color: var(--text-main) !important;
+}
+
+#finance-kpi-stats-grid .stat-label {
+  font-size: 0.8rem !important;
+  font-weight: 700 !important;
+  color: var(--text-muted) !important;
+  margin-top: 2px !important;
+}
+
+#finance-kpi-stats-grid .stat-icon {
+  width: 44px !important;
+  height: 44px !important;
+  border-radius: 14px !important;
+  font-size: 1.2rem !important;
+}
