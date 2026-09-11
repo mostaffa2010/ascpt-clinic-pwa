@@ -660,15 +660,18 @@ export class PatientsManager {
                 <div class="hsc-avatar patient-avatar" style="width: 36px; height: 36px; font-size: 0.98rem; flex-shrink: 0; border-radius: 9px;">
                   <i class="fa-solid fa-id-card-clip"></i>
                 </div>
-                <div style="display: flex; flex-direction: column; gap: 2px; min-width: 0;">
+                <div style="display: flex; flex-direction: column; gap: 3px; min-width: 0;">
                   <div style="display: flex; align-items: center; gap: 5px; flex-wrap: wrap;">
                     <span class="hsc-patient-name" style="cursor: pointer; font-size: 0.92rem; font-weight: 800; line-height: 1.25;" onclick="patientsManager.openPatientSheet('${safeId}')" title="اضغط لفتح الشيت الطبي">${safeName}</span>
                     <span class="hsc-age-badge" style="font-size: 0.70rem; padding: 1px 5px; border-radius: 999px;">${safeAge} سنة</span>
                   </div>
-                  <div style="display: flex; align-items: center; gap: 5px; margin-top: 1px;">
+                  <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-top: 1px;">
                     <span style="display: inline-flex; align-items: center; gap: 3px; font-size: 0.73rem; font-weight: 700; color: ${docColor.color}; background: ${docColor.bg}; border: 1px solid ${docColor.border}; padding: 1px 6px; border-radius: 999px; white-space: nowrap;">
                       <i class="fa-solid fa-user-doctor"></i> د. ${escapeHTML(cleanDocName)}
                     </span>
+                    <a href="tel:${safePhone}" class="hsc-meta-link" style="font-size: 0.75rem; gap: 3px; white-space: nowrap; font-weight: 700;" title="اتصال هاتفي">
+                      <i class="fa-solid fa-phone" style="font-size: 0.70rem;"></i> <bdi dir="ltr">${safePhone}</bdi>
+                    </a>
                   </div>
                 </div>
               </div>
@@ -689,16 +692,13 @@ export class PatientsManager {
               </div>
             </div>
 
-            <!-- Row 2: Contact Info (Right) & Utility Icons (Left) -->
+            <!-- Row 2: Location/Address (Right) & Utility Icons (Left) -->
             <div style="display: flex; align-items: center; justify-content: space-between; gap: 6px; margin-top: 7px; padding-top: 6px; border-top: 1px solid var(--border-color);">
-              <!-- Right: Phone & Address -->
-              <div style="display: flex; align-items: center; gap: 8px; font-size: 0.76rem; min-width: 0; flex: 1;">
-                <a href="tel:${safePhone}" class="hsc-meta-link" style="font-size: 0.76rem; gap: 4px; white-space: nowrap;">
-                  <i class="fa-solid fa-phone"></i> <bdi dir="ltr">${safePhone}</bdi>
-                </a>
-                ${safeAddress && safeAddress !== '-' ? `
-                  <span class="hsc-meta-text" style="font-size: 0.73rem; gap: 3px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;"><i class="fa-solid fa-location-dot"></i> ${safeAddress}</span>
-                ` : ''}
+              <!-- Right: Address -->
+              <div style="display: flex; align-items: center; gap: 5px; font-size: 0.76rem; min-width: 0; flex: 1;">
+                <span class="hsc-meta-text" style="font-size: 0.74rem; gap: 4px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                  <i class="fa-solid fa-location-dot" style="color: var(--primary);"></i> ${safeAddress && safeAddress !== '-' ? safeAddress : 'الإسكندرية'}
+                </span>
               </div>
 
               <!-- Left: Utility Tool Icons (WhatsApp, Docs, Edit, Delete) -->
