@@ -5269,40 +5269,42 @@ body::-webkit-scrollbar,
    ========================================================================== */
 
 /* 1. Doctor Breakdown Grid in Daily Report (Screenshot 20) */
-#doctors-breakdown-container {
-  display: grid !important;
-  grid-template-columns: repeat(2, 1fr) !important;
-  gap: 10px !important;
-  width: 100% !important;
-}
+@media screen {
+  #doctors-breakdown-container {
+    display: grid !important;
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 10px !important;
+    width: 100% !important;
+  }
 
-#doctors-breakdown-container > div {
-  background: var(--bg-surface) !important;
-  border: 1.5px solid var(--border-color) !important;
-  border-radius: 16px !important;
-  padding: 12px 14px !important;
-  display: flex !important;
-  align-items: center !important;
-  gap: 10px !important;
-  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.03) !important;
-  min-width: 0 !important;
-  box-sizing: border-box !important;
-}
+  #doctors-breakdown-container > div {
+    background: var(--bg-surface) !important;
+    border: 1.5px solid var(--border-color) !important;
+    border-radius: 16px !important;
+    padding: 12px 14px !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 10px !important;
+    box-shadow: 0 1px 3px rgba(15, 23, 42, 0.03) !important;
+    min-width: 0 !important;
+    box-sizing: border-box !important;
+  }
 
-#doctors-breakdown-container > div i {
-  font-size: 1.15rem !important;
-  flex-shrink: 0 !important;
-}
+  #doctors-breakdown-container > div i {
+    font-size: 1.15rem !important;
+    flex-shrink: 0 !important;
+  }
 
-#doctors-breakdown-container > div > div {
-  min-width: 0 !important;
-  overflow: hidden !important;
-}
+  #doctors-breakdown-container > div > div {
+    min-width: 0 !important;
+    overflow: hidden !important;
+  }
 
-#doctors-breakdown-container > div > div > div:first-child {
-  white-space: nowrap !important;
-  overflow: hidden !important;
-  text-overflow: ellipsis !important;
+  #doctors-breakdown-container > div > div > div:first-child {
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+  }
 }
 
 /* 2. Claims Action Toolbar in Insurance Claims (Screenshot 21) */

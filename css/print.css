@@ -80,33 +80,9 @@
   .sandbox-banner,
   #pwa-install-banner,
   .toast-box,
-  .card-header button {
-    display: none !important;
-  }
-
-  /* Force formal report tables to show and hide mobile-only interactive cards */
-  .desktop-only-table,
-  .table-responsive.desktop-only-table {
-    display: block !important;
-    width: 100% !important;
-    overflow: visible !important;
-  }
-
+  .card-header button,
   .mobile-only-cards-container,
-  #finance-report-mobile-cards,
-  #finance-expenses-mobile-cards,
-  #daily-doctors-mobile-deck,
-  #sessions-today-mobile-cards,
-  #patients-mobile-cards,
-  #doctor-personal-mobile-cards,
-  #dashboard-recent-mobile-cards,
-  .btn-quick-attend,
-  .btn-edit-session,
-  .btn-delete-session,
-  .btn-delete-expense,
-  .btn-delete-record,
-  .btn-icon-action,
-  .hsc-actions {
+  #daily-doctors-mobile-deck {
     display: none !important;
   }
 
@@ -436,6 +412,7 @@
   }
 
   body:not(.printing-sheet) .table-responsive {
+    display: block !important;
     overflow: visible !important;
     border: none !important;
   }
