@@ -6488,3 +6488,14 @@ h1, h2, h3, h4, h5, h6 {
 [data-theme="dark"] .btn-quick-attend:hover {
   background: rgba(245, 158, 11, 0.25) !important;
 }
+
+/* Guarantee ample mobile bottom padding so fixed navigation bar never covers bottom content */
+@media (max-width: 767px) {
+  #view-finance,
+  #view-sessions,
+  #view-patients,
+  #finance-daily-content,
+  #finance-monthly-content {
+    padding-bottom: 120px !important;
+  }
+}

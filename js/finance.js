@@ -819,9 +819,11 @@ export class FinanceManager {
     // Doctors Breakdown Stack Deck (Mobile)
     const dailyDocDeck = document.getElementById('daily-doctors-mobile-deck');
     if (dailyDocDeck) {
-      if (doctors.length === 0) {
-        dailyDocDeck.innerHTML = `<div style="text-align: center; color: var(--text-muted); padding: 20px; font-size: 0.88rem;">لا توجد بيانات أطباء مسجلة لهذا اليوم.</div>`;
+      if (doctors.length === 0 || totalPatients === 0) {
+        dailyDocDeck.style.display = 'none';
+        dailyDocDeck.innerHTML = '';
       } else {
+        dailyDocDeck.style.display = 'block';
         const cardsHTML = doctors.map((doc, index) => {
           const docSessions = allSessions.filter(s => s.doctor === doc);
           const patientCount = docSessions.length;
@@ -1079,9 +1081,10 @@ export class FinanceManager {
     if (expensesMob) {
       if (allExpenses.length === 0) {
         expensesMob.innerHTML = `
-          <div class="expenses-compact-list" style="padding: 24px 16px; text-align: center; color: var(--text-muted); font-size: 0.88rem;">
-            <i class="fa-solid fa-receipt" style="font-size: 1.5rem; opacity: 0.4; margin-bottom: 8px; display: block;"></i>
-            لا توجد مصروفات مسجلة لهذا اليوم.
+          <div style="background: var(--bg-surface); border: 1.5px dashed var(--border-color); border-radius: 12px; padding: 22px 14px; text-align: center; color: var(--text-muted); margin-bottom: 12px;">
+            <i class="fa-solid fa-receipt" style="font-size: 1.8rem; opacity: 0.35; margin-bottom: 8px; display: block;"></i>
+            <div style="font-weight: 700; font-size: 0.88rem; color: var(--text-main); margin-bottom: 3px;">لا توجد مصروفات مسجلة لهذا اليوم</div>
+            <div style="font-size: 0.75rem;">يمكنك تسجيل مصروف جديد بالضغط على زر "تسجيل مصروف" بالأعلى</div>
           </div>
         `;
       } else {
@@ -1330,6 +1333,8 @@ export class FinanceManager {
 
     // A. Doctors Breakdown Table (Monthly)
     const docTbody = document.getElementById('monthly-doctors-tbody');
+    const docMob = document.getElementById('monthly-doctors-mobile-cards');
+
     if (docTbody) {
       if (doctors.length === 0 || totalPatients === 0) {
         docTbody.innerHTML = `<tr><td colspan="6" style="text-align: center; color: var(--text-muted); padding: 20px;">لا توجد بيانات جلسات مسجلة لهذا الشهر.</td></tr>`;
@@ -1341,9 +1346,6 @@ export class FinanceManager {
           const total = docSessions.length;
           const pct = totalPatients > 0 ? ((total / totalPatients) * 100).toFixed(1) : 0;
 
-          // Credited sessions rule:
-          // If session: s.bodyPartsCount || 1 (minimum 1)
-          // If examination: exactly 1 always
           const creditedSessions = docSessions.reduce((acc, s) => {
             if (s.entryType === 'examination') return acc + 1;
             return acc + (s.bodyPartsCount || 1);
@@ -1368,101 +1370,108 @@ export class FinanceManager {
             </tr>
           `;
         }).join('');
+      }
+    }
 
-        const docMob = document.getElementById('monthly-doctors-mobile-cards');
-        if (docMob) {
-          if (doctors.length === 0) {
-            docMob.innerHTML = `<div style="text-align: center; color: var(--text-muted); padding: 20px; font-size: 0.88rem;">لا توجد بيانات أطباء مسجلة لهذا الشهر.</div>`;
-          } else {
-            const cardsHTML = doctors.map((doc, index) => {
-              const docSessions = allSessions.filter(s => s.doctor === doc);
-              const cashCount = docSessions.filter(s => s.payType === 'cash').length;
-              const insCount = docSessions.filter(s => s.payType === 'insurance').length;
-              const total = docSessions.length;
-              const pct = totalPatients > 0 ? ((total / totalPatients) * 100).toFixed(1) : 0;
-              const creditedSessions = docSessions.reduce((acc, s) => {
-                if (s.entryType === 'examination') return acc + 1;
-                return acc + (s.bodyPartsCount || 1);
-              }, 0);
-              const cleanDoc = (escapeHTML(doc)).replace(/^د\.\s*/, '');
+    if (docMob) {
+      if (doctors.length === 0 || totalPatients === 0) {
+        docMob.innerHTML = `
+          <div style="background: var(--bg-surface); border: 1.5px dashed var(--border-color); border-radius: 12px; padding: 22px 14px; text-align: center; color: var(--text-muted); margin-bottom: 12px;">
+            <i class="fa-solid fa-user-doctor" style="font-size: 1.8rem; color: var(--primary); opacity: 0.35; margin-bottom: 8px; display: block;"></i>
+            <div style="font-weight: 700; font-size: 0.88rem; color: var(--text-main); margin-bottom: 3px;">لا توجد جلسات مسجلة للأطباء في هذا الشهر حتى الآن</div>
+            <div style="font-size: 0.75rem;">ستظهر إحصائية ونسب كل طبيب فور تسجيل أول جلسة بالشهر</div>
+          </div>
+        `;
+      } else {
+        const cardsHTML = doctors.map((doc, index) => {
+          const docSessions = allSessions.filter(s => s.doctor === doc);
+          const cashCount = docSessions.filter(s => s.payType === 'cash').length;
+          const insCount = docSessions.filter(s => s.payType === 'insurance').length;
+          const total = docSessions.length;
+          const pct = totalPatients > 0 ? ((total / totalPatients) * 100).toFixed(1) : 0;
+          const creditedSessions = docSessions.reduce((acc, s) => {
+            if (s.entryType === 'examination') return acc + 1;
+            return acc + (s.bodyPartsCount || 1);
+          }, 0);
+          const cleanDoc = (escapeHTML(doc)).replace(/^د\.\s*/, '');
 
-              return `
-                <div class="hero-styled-card doc-stack-card ${index === 0 ? 'is-active-card' : 'is-peeking-card'}" data-stack-index="${index}">
-                  <div style="display: flex; align-items: center; justify-content: space-between;">
-                    <div style="display: flex; align-items: center; gap: 10px;">
-                      <div class="hsc-avatar" style="width: 40px; height: 40px; font-size: 1.1rem;">
-                        <i class="fa-solid fa-user-doctor"></i>
-                      </div>
-                      <div>
-                        <div style="font-weight: 800; font-size: 1.02rem; color: var(--text-main);">د. ${cleanDoc}</div>
-                        <div style="font-size: 0.78rem; color: var(--text-muted);">إحصائية الشهر الحالي</div>
-                      </div>
-                    </div>
-                    <span class="badge badge-primary" style="font-size: 0.82rem; font-weight: 800; padding: 4px 10px; border-radius: 999px;">
-                      ${pct}% من المركز
-                    </span>
+          return `
+            <div class="hero-styled-card doc-stack-card ${index === 0 ? 'is-active-card' : 'is-peeking-card'}" data-stack-index="${index}">
+              <div style="display: flex; align-items: center; justify-content: space-between;">
+                <div style="display: flex; align-items: center; gap: 10px;">
+                  <div class="hsc-avatar" style="width: 40px; height: 40px; font-size: 1.1rem;">
+                    <i class="fa-solid fa-user-doctor"></i>
                   </div>
-                  <div class="hsc-divider" style="margin: 12px 0;"></div>
-                  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
-                    <div style="background: var(--bg-subtle); padding: 8px 12px; border-radius: 12px; text-align: center;">
-                      <div style="font-size: 0.74rem; color: var(--text-muted); font-weight: 700;">إجمالي الحالات</div>
-                      <div style="font-weight: 800; font-size: 1.05rem; color: var(--text-main); margin-top: 2px;">${total} مريض (${creditedSessions} جلسة)</div>
-                    </div>
-                    <div style="background: var(--bg-subtle); padding: 8px 12px; border-radius: 12px; text-align: center;">
-                      <div style="font-size: 0.74rem; color: var(--text-muted); font-weight: 700;">طبيعة السداد</div>
-                      <div style="font-weight: 800; font-size: 0.92rem; margin-top: 2px;">
-                        <span style="color: var(--success);">نقدي: ${cashCount}</span> • <span style="color: var(--primary);">تأمين: ${insCount}</span>
-                      </div>
-                    </div>
+                  <div>
+                    <div style="font-weight: 800; font-size: 1.02rem; color: var(--text-main);">د. ${cleanDoc}</div>
+                    <div style="font-size: 0.78rem; color: var(--text-muted);">إحصائية الشهر الحالي</div>
                   </div>
                 </div>
-              `;
-            }).join('');
-
-            const dotsHTML = doctors.map((_, i) => `<span class="doc-dot ${i === 0 ? 'active' : ''}" data-dot-index="${i}"></span>`).join('');
-
-            docMob.innerHTML = `
-              <div class="doc-stack-wrapper">
-                <div class="doc-stack-header-bar">
-                  <span style="font-size: 0.86rem; font-weight: 800; color: var(--text-main);">
-                    <i class="fa-solid fa-chart-pie" style="color: var(--primary); margin-left: 5px;"></i> ${doctors.length} أطباء بالمركز
-                  </span>
-                  <div style="display: flex; align-items: center; gap: 8px;">
-                    ${doctors.length > 1 ? `
-                      <span id="monthly-doc-stack-counter" style="font-size: 0.78rem; font-weight: 800; color: var(--primary); background: rgba(2, 132, 199, 0.12); padding: 2px 10px; border-radius: 999px;">1 من ${doctors.length}</span>
-                      <button type="button" class="btn btn-outline btn-sm" id="btn-toggle-monthly-doc-stack" style="font-size: 0.75rem; padding: 3px 9px; border-radius: 8px; height: 28px;" title="تبديل بين التراكم والقائمة">
-                        <i class="fa-solid fa-list" id="icon-monthly-doc-stack-toggle"></i>
-                      </button>
-                    ` : ''}
+                <span class="badge badge-primary" style="font-size: 0.82rem; font-weight: 800; padding: 4px 10px; border-radius: 999px;">
+                  ${pct}% من المركز
+                </span>
+              </div>
+              <div class="hsc-divider" style="margin: 12px 0;"></div>
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+                <div style="background: var(--bg-subtle); padding: 8px 12px; border-radius: 12px; text-align: center;">
+                  <div style="font-size: 0.74rem; color: var(--text-muted); font-weight: 700;">إجمالي الحالات</div>
+                  <div style="font-weight: 800; font-size: 1.05rem; color: var(--text-main); margin-top: 2px;">${total} مريض (${creditedSessions} جلسة)</div>
+                </div>
+                <div style="background: var(--bg-subtle); padding: 8px 12px; border-radius: 12px; text-align: center;">
+                  <div style="font-size: 0.74rem; color: var(--text-muted); font-weight: 700;">طبيعة السداد</div>
+                  <div style="font-weight: 800; font-size: 0.92rem; margin-top: 2px;">
+                    <span style="color: var(--success);">نقدي: ${cashCount}</span> • <span style="color: var(--primary);">تأمين: ${insCount}</span>
                   </div>
                 </div>
-                <div class="doc-stack-container" id="monthly-doc-stack-container">
-                  ${cardsHTML}
-                </div>
+              </div>
+            </div>
+          `;
+        }).join('');
+
+        const dotsHTML = doctors.map((_, i) => `<span class="doc-dot ${i === 0 ? 'active' : ''}" data-dot-index="${i}"></span>`).join('');
+
+        docMob.innerHTML = `
+          <div class="doc-stack-wrapper">
+            <div class="doc-stack-header-bar">
+              <span style="font-size: 0.86rem; font-weight: 800; color: var(--text-main);">
+                <i class="fa-solid fa-chart-pie" style="color: var(--primary); margin-left: 5px;"></i> ${doctors.length} أطباء بالمركز
+              </span>
+              <div style="display: flex; align-items: center; gap: 8px;">
                 ${doctors.length > 1 ? `
-                  <div class="doc-stack-nav-bar" id="monthly-doc-stack-nav-bar">
-                    <button type="button" class="doc-stack-nav-btn" id="btn-monthly-doc-stack-prev">
-                      <i class="fa-solid fa-chevron-right"></i> السابق
-                    </button>
-                    <div class="doc-stack-dots" id="monthly-doc-stack-dots">
-                      ${dotsHTML}
-                    </div>
-                    <button type="button" class="doc-stack-nav-btn" id="btn-monthly-doc-stack-next">
-                      التالي <i class="fa-solid fa-chevron-left"></i>
-                    </button>
-                  </div>
+                  <span id="monthly-doc-stack-counter" style="font-size: 0.78rem; font-weight: 800; color: var(--primary); background: rgba(2, 132, 199, 0.12); padding: 2px 10px; border-radius: 999px;">1 من ${doctors.length}</span>
+                  <button type="button" class="btn btn-outline btn-sm" id="btn-toggle-monthly-doc-stack" style="font-size: 0.75rem; padding: 3px 9px; border-radius: 8px; height: 28px;" title="تبديل بين التراكم والقائمة">
+                    <i class="fa-solid fa-list" id="icon-monthly-doc-stack-toggle"></i>
+                  </button>
                 ` : ''}
               </div>
-            `;
+            </div>
+            <div class="doc-stack-container" id="monthly-doc-stack-container">
+              ${cardsHTML}
+            </div>
+            ${doctors.length > 1 ? `
+              <div class="doc-stack-nav-bar" id="monthly-doc-stack-nav-bar">
+                <button type="button" class="doc-stack-nav-btn" id="btn-monthly-doc-stack-prev">
+                  <i class="fa-solid fa-chevron-right"></i> السابق
+                </button>
+                <div class="doc-stack-dots" id="monthly-doc-stack-dots">
+                  ${dotsHTML}
+                </div>
+                <button type="button" class="doc-stack-nav-btn" id="btn-monthly-doc-stack-next">
+                  التالي <i class="fa-solid fa-chevron-left"></i>
+                </button>
+              </div>
+            ` : ''}
+          </div>
+        `;
 
-            this.initStackDeck('monthly-doc-stack');
-          }
-        }
+        this.initStackDeck('monthly-doc-stack');
       }
     }
 
     // B. Insurance & Cash Distribution Table
     const insTbody = document.getElementById('monthly-insurance-tbody');
+    const insMob = document.getElementById('monthly-insurance-mobile-cards');
+
     if (insTbody) {
       if (totalPatients === 0) {
         insTbody.innerHTML = `<tr><td colspan="4" style="text-align: center; color: var(--text-muted); padding: 20px;">لا توجد حركات مسجلة لهذا الشهر.</td></tr>`;
@@ -1495,31 +1504,55 @@ export class FinanceManager {
             </tr>
           `;
         }).join('');
+      }
+    }
 
-        const insMob = document.getElementById('monthly-insurance-mobile-cards');
-        if (insMob) {
-          insMob.innerHTML = Object.values(categories).map(item => {
-            const pct = ((item.count / totalPatients) * 100).toFixed(1);
-            const safeName = escapeHTML(item.name);
-            const safeType = escapeHTML(item.type);
-            const badgeClass = item.type.includes('نقدي') ? 'badge-cash' : (item.type.includes('غير مباشر') ? 'badge-indirect' : 'badge-direct');
-            const iconClass = item.type.includes('نقدي') ? 'fa-money-bill' : (item.type.includes('غير مباشر') ? 'fa-handshake' : 'fa-file-contract');
+    if (insMob) {
+      if (totalPatients === 0) {
+        insMob.innerHTML = `
+          <div style="background: var(--bg-surface); border: 1.5px dashed var(--border-color); border-radius: 12px; padding: 22px 14px; text-align: center; color: var(--text-muted); margin-bottom: 12px;">
+            <i class="fa-solid fa-shield-halved" style="font-size: 1.8rem; color: var(--primary); opacity: 0.35; margin-bottom: 8px; display: block;"></i>
+            <div style="font-weight: 700; font-size: 0.88rem; color: var(--text-main); margin-bottom: 3px;">لا توجد بيانات توزيع تأميني أو نقدي لهذا الشهر حتى الآن</div>
+            <div style="font-size: 0.75rem;">ستظهر نسب الشركات والتعاقدات والنقدي فور تسجيل الجلسات</div>
+          </div>
+        `;
+      } else {
+        const categories = {};
+        allSessions.forEach(s => {
+          if (s.payType === 'cash') {
+            const key = 'نقدي (Cash)';
+            if (!categories[key]) categories[key] = { name: key, type: 'سداد نقدي مباشر', count: 0 };
+            categories[key].count++;
+          } else {
+            const compName = s.insuranceName || 'شركة غير محددة';
+            const contract = s.contractType === 'direct' ? 'تعاقد مباشر' : 'تعاقد غير مباشر';
+            const key = `${compName} (${contract})`;
+            if (!categories[key]) categories[key] = { name: compName, type: contract, count: 0 };
+            categories[key].count++;
+          }
+        });
 
-            return `
-              <div class="hero-styled-card" style="margin-bottom: 0;">
-                <div style="display: flex; align-items: center; justify-content: space-between;">
-                  <div style="font-weight: 800; font-size: 0.98rem; color: var(--text-main);">${safeName}</div>
-                  <span class="badge ${badgeClass}"><i class="fa-solid ${iconClass}"></i> ${safeType}</span>
-                </div>
-                <div class="hsc-divider" style="margin: 10px 0;"></div>
-                <div style="display: flex; align-items: center; justify-content: space-between; font-size: 0.88rem;">
-                  <span style="font-weight: 800; color: var(--primary);">${item.count} حالة مسجلة</span>
-                  <span style="font-weight: 800; color: var(--text-muted);">${pct}%</span>
-                </div>
+        insMob.innerHTML = Object.values(categories).map(item => {
+          const pct = ((item.count / totalPatients) * 100).toFixed(1);
+          const safeName = escapeHTML(item.name);
+          const safeType = escapeHTML(item.type);
+          const badgeClass = item.type.includes('نقدي') ? 'badge-cash' : (item.type.includes('غير مباشر') ? 'badge-indirect' : 'badge-direct');
+          const iconClass = item.type.includes('نقدي') ? 'fa-money-bill' : (item.type.includes('غير مباشر') ? 'fa-handshake' : 'fa-file-contract');
+
+          return `
+            <div class="hero-styled-card" style="margin-bottom: 0;">
+              <div style="display: flex; align-items: center; justify-content: space-between;">
+                <div style="font-weight: 800; font-size: 0.98rem; color: var(--text-main);">${safeName}</div>
+                <span class="badge ${badgeClass}"><i class="fa-solid ${iconClass}"></i> ${safeType}</span>
               </div>
-            `;
-          }).join('');
-        }
+              <div class="hsc-divider" style="margin: 10px 0;"></div>
+              <div style="display: flex; align-items: center; justify-content: space-between; font-size: 0.88rem;">
+                <span style="font-weight: 800; color: var(--primary);">${item.count} حالة مسجلة</span>
+                <span style="font-weight: 800; color: var(--text-muted);">${pct}%</span>
+              </div>
+            </div>
+          `;
+        }).join('');
       }
     }
 
