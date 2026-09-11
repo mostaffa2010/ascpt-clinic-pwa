@@ -779,7 +779,7 @@ export class FinanceManager {
       drawerCashEl.style.color = netCash >= 0 ? 'var(--success)' : 'var(--danger)';
     }
     if (drawerBreakdownEl) {
-      drawerBreakdownEl.textContent = `المقبوضات النقدية (${totalCash.toLocaleString('en-US')} ج.م) - المصروفات (${totalExpenses.toLocaleString('en-US')} ج.م)`;
+      drawerBreakdownEl.textContent = `المقبوضات النقدية (${totalDrawerCash.toLocaleString('en-US')} ج.م) - المصروفات (${totalExpenses.toLocaleString('en-US')} ج.م)`;
     }
 
     // Dynamic Doctor Filter
@@ -819,10 +819,10 @@ export class FinanceManager {
     // Doctors Breakdown Stack Deck (Mobile)
     const dailyDocDeck = document.getElementById('daily-doctors-mobile-deck');
     if (dailyDocDeck) {
-      if (doctors.length === 0 || totalPatients === 0) {
-        dailyDocDeck.style.display = 'none';
-        dailyDocDeck.innerHTML = '';
+      if (doctors.length === 0) {
+        dailyDocDeck.innerHTML = `<div style="text-align: center; color: var(--text-muted); padding: 20px; font-size: 0.88rem;">لا توجد بيانات أطباء مسجلة لهذا اليوم.</div>`;
       } else {
+        dailyDocDeck.style.display = 'block';
         dailyDocDeck.style.display = 'block';
         const cardsHTML = doctors.map((doc, index) => {
           const docSessions = allSessions.filter(s => s.doctor === doc);
