@@ -3036,11 +3036,15 @@ body.not-authenticated #modal-auth #btn-cancel-login {
 }
 
 .modal-content {
-  background: var(--bg-glass-card) !important;
-  backdrop-filter: blur(28px) saturate(190%) !important;
-  -webkit-backdrop-filter: blur(28px) saturate(190%) !important;
-  border: 1px solid var(--glass-border) !important;
-  box-shadow: 0 16px 40px 0 rgba(0, 0, 0, 0.35) !important;
+  background: #ffffff !important;
+  border: 1px solid rgba(226, 232, 240, 0.8) !important;
+  box-shadow: 0 20px 45px -10px rgba(15, 23, 42, 0.18), 0 0 1px 1px rgba(15, 23, 42, 0.05) !important;
+}
+
+[data-theme="dark"] .modal-content {
+  background: #1e293b !important;
+  border: 1px solid rgba(51, 65, 85, 0.8) !important;
+  box-shadow: 0 20px 45px -10px rgba(0, 0, 0, 0.6) !important;
 }
 
 .quick-action-btn {
@@ -3743,13 +3747,21 @@ body {
   backdrop-filter: var(--glass-blur) !important;
   -webkit-backdrop-filter: var(--glass-blur) !important;
   border: 1.5px solid var(--glass-border) !important;
-  box-shadow: 0 8px 24px -4px rgba(0, 0, 0, 0.35) !important;
+  box-shadow: 0 4px 16px -2px rgba(15, 23, 42, 0.05), 0 2px 6px -1px rgba(15, 23, 42, 0.03) !important;
   transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.2s ease !important;
 }
 
 .appt-slot-card:hover {
   transform: translateY(-2px) !important;
   border-color: rgba(56, 189, 248, 0.4) !important;
+  box-shadow: 0 8px 24px -3px rgba(2, 132, 199, 0.15) !important;
+}
+
+[data-theme="dark"] .appt-slot-card {
+  box-shadow: 0 8px 24px -4px rgba(0, 0, 0, 0.4) !important;
+}
+
+[data-theme="dark"] .appt-slot-card:hover {
   box-shadow: 0 12px 30px -4px rgba(2, 132, 199, 0.3) !important;
 }
 
@@ -3978,4 +3990,454 @@ body {
   transform: translateY(-2px) !important;
   box-shadow: var(--shadow-md) !important;
   border-color: var(--primary) !important;
+}
+
+/* ==========================================================================
+   v1.4.0-beta.10: Light Mode & Universal Modals / Pickers Overhaul
+   ========================================================================== */
+
+/* 1. Backdrop & Mobile Bottom Sheets (Clean White, No Murky Transparency) */
+@media (max-width: 767px) {
+  .modal-backdrop {
+    padding: 0 !important;
+    align-items: flex-end !important;
+    background-color: rgba(15, 23, 42, 0.45) !important;
+    backdrop-filter: blur(5px) !important;
+    -webkit-backdrop-filter: blur(5px) !important;
+  }
+
+  .modal-content {
+    max-width: 100% !important;
+    width: 100% !important;
+    border-radius: 26px 26px 0 0 !important;
+    max-height: 88vh !important;
+    margin-bottom: 0 !important;
+    animation: modalSlideUp 0.26s cubic-bezier(0.32, 0.72, 0, 1) !important;
+    padding-bottom: max(22px, env(safe-area-inset-bottom, 22px)) !important;
+    box-shadow: 0 -12px 40px -8px rgba(15, 23, 42, 0.15) !important;
+    position: relative !important;
+    border-bottom: none !important;
+    border-left: none !important;
+    border-right: none !important;
+    background-color: #ffffff !important;
+  }
+
+  .modal-content::before {
+    content: '' !important;
+    display: block !important;
+    width: 44px !important;
+    height: 5px !important;
+    border-radius: 9999px !important;
+    background-color: #cbd5e1 !important;
+    margin: 12px auto 6px auto !important;
+  }
+
+  [data-theme="dark"] .modal-content::before {
+    background-color: #475569 !important;
+  }
+}
+
+/* 2. Modal Header & Close Button (Tactile Circular Button) */
+.modal-header {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  padding: 16px 22px !important;
+  border-bottom: 1px solid #f1f5f9 !important;
+}
+
+[data-theme="dark"] .modal-header {
+  border-bottom: 1px solid #334155 !important;
+}
+
+.modal-header h3 {
+  font-size: 1.15rem !important;
+  font-weight: 800 !important;
+  color: #0f172a !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 10px !important;
+}
+
+[data-theme="dark"] .modal-header h3 {
+  color: #f8fafc !important;
+}
+
+.modal-header h3 i {
+  color: var(--primary) !important;
+  font-size: 1.1rem !important;
+}
+
+.modal-close {
+  width: 34px !important;
+  height: 34px !important;
+  border-radius: 50% !important;
+  background-color: #f1f5f9 !important;
+  border: 1px solid #e2e8f0 !important;
+  color: #64748b !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  font-size: 1.25rem !important;
+  line-height: 1 !important;
+  cursor: pointer !important;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  flex-shrink: 0 !important;
+}
+
+.modal-close:hover, .modal-close:active {
+  background-color: #e2e8f0 !important;
+  color: #0f172a !important;
+  transform: scale(0.95);
+}
+
+[data-theme="dark"] .modal-close {
+  background-color: #334155 !important;
+  border-color: #475569 !important;
+  color: #cbd5e1 !important;
+}
+
+[data-theme="dark"] .modal-close:hover, [data-theme="dark"] .modal-close:active {
+  background-color: #475569 !important;
+  color: #ffffff !important;
+}
+
+/* 3. Custom Picker Rows (Dropdown Replacement Modal) */
+.custom-picker-options-list {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 10px !important;
+  max-height: 400px !important;
+  overflow-y: auto !important;
+  padding: 8px 2px !important;
+}
+
+.custom-picker-row {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  padding: 13px 18px !important;
+  border-radius: 16px !important;
+  border: 1.5px solid #e2e8f0 !important;
+  background-color: #ffffff !important;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.03) !important;
+  cursor: pointer !important;
+  font-weight: 700 !important;
+  font-size: 0.96rem !important;
+  color: #1e293b !important;
+  transition: all 0.18s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+.custom-picker-row:hover, .custom-picker-row:active {
+  background-color: #f8fafc !important;
+  border-color: #cbd5e1 !important;
+  transform: scale(0.99);
+}
+
+.custom-picker-row.active-choice {
+  background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%) !important;
+  border: 1.5px solid #0284c7 !important;
+  color: #0369a1 !important;
+  box-shadow: 0 4px 14px -2px rgba(2, 132, 199, 0.18) !important;
+  font-weight: 800 !important;
+}
+
+.custom-picker-row .check-icon {
+  width: 24px !important;
+  height: 24px !important;
+  border-radius: 50% !important;
+  background: #0284c7 !important;
+  color: #ffffff !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  font-size: 0.75rem !important;
+}
+
+[data-theme="dark"] .custom-picker-row {
+  background-color: #1e293b !important;
+  border-color: #334155 !important;
+  color: #f8fafc !important;
+}
+
+[data-theme="dark"] .custom-picker-row:hover {
+  background-color: #334155 !important;
+  border-color: #475569 !important;
+}
+
+[data-theme="dark"] .custom-picker-row.active-choice {
+  background: rgba(2, 132, 199, 0.25) !important;
+  border-color: #38bdf8 !important;
+  color: #38bdf8 !important;
+}
+
+/* 4. Patient Picker Modal (Search Bar, Patient Cards, Aligned Footer) */
+#picker-search-input {
+  background-color: #f8fafc !important;
+  border: 1.5px solid #e2e8f0 !important;
+  border-radius: 14px !important;
+  padding: 12px 18px !important;
+  font-size: 0.95rem !important;
+  font-weight: 600 !important;
+  color: #0f172a !important;
+  transition: all 0.2s ease !important;
+  width: 100% !important;
+  box-sizing: border-box !important;
+}
+
+#picker-search-input:focus {
+  background-color: #ffffff !important;
+  border-color: #0284c7 !important;
+  box-shadow: 0 0 0 4px rgba(2, 132, 199, 0.14) !important;
+  outline: none !important;
+}
+
+[data-theme="dark"] #picker-search-input {
+  background-color: #0f172a !important;
+  border-color: #334155 !important;
+  color: #f8fafc !important;
+}
+
+[data-theme="dark"] #picker-search-input:focus {
+  background-color: #1e293b !important;
+  border-color: #38bdf8 !important;
+  box-shadow: 0 0 0 4px rgba(56, 189, 248, 0.18) !important;
+}
+
+.patient-picker-list {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 10px !important;
+  margin-top: 14px !important;
+  max-height: 48vh !important;
+  overflow-y: auto !important;
+}
+
+.picker-item {
+  border: 1.5px solid #e2e8f0 !important;
+  background-color: #ffffff !important;
+  border-radius: 16px !important;
+  padding: 13px 16px !important;
+  cursor: pointer !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.03) !important;
+  transition: all 0.18s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+.picker-item:hover, .picker-item:active {
+  background-color: #f0f9ff !important;
+  border-color: #0284c7 !important;
+  box-shadow: 0 4px 12px -2px rgba(2, 132, 199, 0.12) !important;
+  transform: scale(0.995);
+}
+
+[data-theme="dark"] .picker-item {
+  background-color: #1e293b !important;
+  border-color: #334155 !important;
+}
+
+[data-theme="dark"] .picker-item:hover, [data-theme="dark"] .picker-item:active {
+  background-color: rgba(56, 189, 248, 0.12) !important;
+  border-color: #38bdf8 !important;
+}
+
+/* 5. Modal Footer (Aligned Buttons, Elegant Outline & Primary) */
+.modal-footer {
+  display: flex !important;
+  align-items: center !important;
+  padding: 16px 20px !important;
+  border-top: 1px solid #f1f5f9 !important;
+  gap: 12px !important;
+}
+
+[data-theme="dark"] .modal-footer {
+  border-top: 1px solid #334155 !important;
+}
+
+.modal-footer .btn {
+  border-radius: 14px !important;
+  padding: 11px 20px !important;
+  font-weight: 700 !important;
+  font-size: 0.92rem !important;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+.modal-footer .btn-outline {
+  background-color: #f1f5f9 !important;
+  border: 1px solid #e2e8f0 !important;
+  color: #475569 !important;
+}
+
+.modal-footer .btn-outline:hover, .modal-footer .btn-outline:active {
+  background-color: #e2e8f0 !important;
+  color: #0f172a !important;
+}
+
+[data-theme="dark"] .modal-footer .btn-outline {
+  background-color: #334155 !important;
+  border-color: #475569 !important;
+  color: #e2e8f0 !important;
+}
+
+[data-theme="dark"] .modal-footer .btn-outline:hover {
+  background-color: #475569 !important;
+  color: #ffffff !important;
+}
+
+.modal-footer .btn-primary {
+  background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%) !important;
+  color: #ffffff !important;
+  border: none !important;
+  box-shadow: 0 4px 14px -2px rgba(2, 132, 199, 0.3) !important;
+}
+
+.modal-footer .btn-primary:hover, .modal-footer .btn-primary:active {
+  box-shadow: 0 6px 20px -2px rgba(2, 132, 199, 0.45) !important;
+  transform: translateY(-1px);
+}
+
+/* 6. Form Controls, Labels & Segmented Radio Pills inside Modals */
+.modal-body label {
+  display: inline-block !important;
+  font-size: 0.88rem !important;
+  font-weight: 700 !important;
+  color: #334155 !important;
+  margin-bottom: 6px !important;
+}
+
+[data-theme="dark"] .modal-body label {
+  color: #cbd5e1 !important;
+}
+
+.modal-body .form-control,
+.modal-body input[type="text"],
+.modal-body input[type="tel"],
+.modal-body input[type="number"],
+.modal-body input[type="date"],
+.modal-body select,
+.modal-body textarea {
+  background-color: #f8fafc !important;
+  border: 1.5px solid #e2e8f0 !important;
+  border-radius: 14px !important;
+  padding: 12px 14px !important;
+  font-weight: 600 !important;
+  font-size: 0.94rem !important;
+  color: #0f172a !important;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  box-sizing: border-box !important;
+}
+
+.modal-body .form-control:focus,
+.modal-body input[type="text"]:focus,
+.modal-body input[type="tel"]:focus,
+.modal-body input[type="number"]:focus,
+.modal-body input[type="date"]:focus,
+.modal-body select:focus,
+.modal-body textarea:focus {
+  background-color: #ffffff !important;
+  border-color: #0284c7 !important;
+  box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.14) !important;
+  outline: none !important;
+}
+
+[data-theme="dark"] .modal-body .form-control,
+[data-theme="dark"] .modal-body input[type="text"],
+[data-theme="dark"] .modal-body input[type="tel"],
+[data-theme="dark"] .modal-body input[type="number"],
+[data-theme="dark"] .modal-body input[type="date"],
+[data-theme="dark"] .modal-body select,
+[data-theme="dark"] .modal-body textarea {
+  background-color: #0f172a !important;
+  border-color: #334155 !important;
+  color: #f8fafc !important;
+}
+
+[data-theme="dark"] .modal-body .form-control:focus,
+[data-theme="dark"] .modal-body input[type="text"]:focus,
+[data-theme="dark"] .modal-body input[type="tel"]:focus,
+[data-theme="dark"] .modal-body input[type="number"]:focus,
+[data-theme="dark"] .modal-body input[type="date"]:focus,
+[data-theme="dark"] .modal-body select:focus,
+[data-theme="dark"] .modal-body textarea:focus {
+  background-color: #1e293b !important;
+  border-color: #38bdf8 !important;
+  box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.18) !important;
+}
+
+.modal-body .custom-select-btn {
+  background-color: #f8fafc !important;
+  border: 1.5px solid #e2e8f0 !important;
+  border-radius: 14px !important;
+  padding: 12px 14px !important;
+  color: #0f172a !important;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+.modal-body .custom-select-btn:hover, .modal-body .custom-select-btn:focus {
+  background-color: #ffffff !important;
+  border-color: #0284c7 !important;
+  box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.14) !important;
+}
+
+[data-theme="dark"] .modal-body .custom-select-btn {
+  background-color: #0f172a !important;
+  border-color: #334155 !important;
+  color: #f8fafc !important;
+}
+
+.custom-radio-card {
+  border-radius: 14px !important;
+  padding: 11px 18px !important;
+  border: 1.5px solid #e2e8f0 !important;
+  background-color: #ffffff !important;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.03) !important;
+  cursor: pointer !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 10px !important;
+  font-weight: 700 !important;
+  font-size: 0.9rem !important;
+  color: #1e293b !important;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+.custom-radio-card:hover {
+  background-color: #f8fafc !important;
+  border-color: #cbd5e1 !important;
+}
+
+.custom-radio-card:has(input:checked) {
+  background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%) !important;
+  border-color: #0284c7 !important;
+  color: #0369a1 !important;
+  box-shadow: 0 4px 14px -2px rgba(2, 132, 199, 0.18) !important;
+}
+
+[data-theme="dark"] .custom-radio-card {
+  background-color: #1e293b !important;
+  border-color: #334155 !important;
+  color: #f8fafc !important;
+}
+
+[data-theme="dark"] .custom-radio-card:has(input:checked) {
+  background: rgba(2, 132, 199, 0.25) !important;
+  border-color: #38bdf8 !important;
+  color: #38bdf8 !important;
+}
+
+/* 7. Custom Alert & Confirm Box */
+.custom-dialog-box {
+  background-color: #ffffff !important;
+  border-radius: 22px !important;
+  box-shadow: 0 24px 48px -12px rgba(15, 23, 42, 0.25) !important;
+  border: 1px solid rgba(226, 232, 240, 0.8) !important;
+  padding: 26px 22px !important;
+}
+
+[data-theme="dark"] .custom-dialog-box {
+  background-color: #1e293b !important;
+  border-color: #334155 !important;
+  box-shadow: 0 24px 48px -12px rgba(0, 0, 0, 0.6) !important;
 }

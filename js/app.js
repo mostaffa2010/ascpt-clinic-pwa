@@ -1066,7 +1066,11 @@ class App {
     if (!select) return;
 
     const titleEl = document.getElementById('custom-picker-title');
-    if (titleEl) titleEl.innerHTML = `<i class="fa-solid fa-list-check"></i> ${modalTitle}`;
+    if (titleEl) {
+      const isFilter = (modalTitle || '').includes('تصفية');
+      const iconClass = isFilter ? 'fa-solid fa-filter' : 'fa-solid fa-list-check';
+      titleEl.innerHTML = `<i class="${iconClass}" style="color: var(--primary);"></i> <span>${escapeHTML(modalTitle)}</span>`;
+    }
 
     const container = document.getElementById('custom-picker-list');
     if (!container) return;
