@@ -6031,15 +6031,27 @@ body::-webkit-scrollbar,
   #doctor-personal-mobile-cards,
   #finance-report-mobile-cards,
   #dashboard-recent-mobile-cards {
-    max-height: 440px !important;
+    max-height: 500px !important;
     overflow-y: auto !important;
     overflow-x: hidden !important;
     -webkit-overflow-scrolling: touch !important;
     overscroll-behavior: contain !important;
-    padding: 2px 4px 10px 4px !important;
+    padding: 2px 4px 12px 4px !important;
     box-sizing: border-box !important;
     scrollbar-width: thin !important;
     scrollbar-color: rgba(2, 132, 199, 0.35) transparent !important;
+  }
+
+  /* CRITICAL: Never shrink cards! Keep full normal card dimensions, padding, and all details */
+  #sessions-today-mobile-cards > *,
+  #patients-mobile-cards > *,
+  #doctor-personal-mobile-cards > *,
+  #finance-report-mobile-cards > *,
+  #dashboard-recent-mobile-cards > * {
+    flex-shrink: 0 !important;
+    flex-grow: 0 !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
   }
 
   [data-theme="dark"] #sessions-today-mobile-cards,
