@@ -5575,16 +5575,58 @@ body::-webkit-scrollbar,
   transform: scale(0.98) !important;
 }
 
+.session-mode-pill-btn {
+  display: flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+  padding: 7px 9px !important;
+  border-radius: 14px !important;
+  border: 1.5px solid var(--border-color) !important;
+  background: var(--bg-surface) !important;
+  cursor: pointer !important;
+  min-width: 0 !important;
+  width: 100% !important;
+  box-sizing: border-box !important;
+  text-align: right !important;
+  position: relative !important;
+  overflow: hidden !important;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
 .session-mode-pill-btn .smp-icon {
-  width: 36px !important;
-  height: 36px !important;
-  border-radius: 10px !important;
+  width: 32px !important;
+  height: 32px !important;
+  border-radius: 9px !important;
   display: flex !important;
   align-items: center !important;
   justify-content: center !important;
-  font-size: 1rem !important;
+  font-size: 0.95rem !important;
   flex-shrink: 0 !important;
   transition: all 0.2s ease !important;
+}
+
+.session-mode-pill-btn .smp-text {
+  display: flex !important;
+  flex-direction: column !important;
+  min-width: 0 !important;
+  flex: 1 !important;
+  gap: 1px !important;
+}
+
+.session-mode-pill-btn .smp-title {
+  font-size: 0.85rem !important;
+  font-weight: 800 !important;
+  color: var(--text-main) !important;
+  white-space: nowrap !important;
+  line-height: 1.2 !important;
+}
+
+.session-mode-pill-btn .smp-sub {
+  font-size: 0.67rem !important;
+  color: var(--text-muted) !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
 }
 
 .session-mode-pill-btn .smp-icon.blue {
@@ -5702,4 +5744,104 @@ body::-webkit-scrollbar,
   #monthly-doctors-mobile-cards #monthly-doc-stack-counter {
     display: none !important;
   }
+}
+
+/* ==========================================================================
+   v1.4.0-beta.23: Premium Glassmorphism Toast Notification Capsule
+   ========================================================================== */
+.toast-capsule {
+  position: fixed !important;
+  bottom: 84px !important;
+  left: 50% !important;
+  transform: translate(-50%, 20px) scale(0.92) !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 10px !important;
+  padding: 10px 18px !important;
+  border-radius: 999px !important;
+  font-size: 0.88rem !important;
+  font-weight: 700 !important;
+  z-index: 1050 !important;
+  pointer-events: none !important;
+  opacity: 0 !important;
+  visibility: hidden !important;
+  max-width: calc(100vw - 32px) !important;
+  width: max-content !important;
+  box-sizing: border-box !important;
+  backdrop-filter: blur(24px) saturate(190%) !important;
+  -webkit-backdrop-filter: blur(24px) saturate(190%) !important;
+  transition: transform 0.35s cubic-bezier(0.34, 1.35, 0.64, 1),
+              opacity 0.25s ease,
+              visibility 0.25s ease !important;
+  direction: rtl !important;
+}
+
+.toast-capsule.show {
+  opacity: 1 !important;
+  visibility: visible !important;
+  transform: translate(-50%, 0) scale(1) !important;
+  pointer-events: auto !important;
+}
+
+/* Light Theme Toast */
+:root:not([data-theme="dark"]) .toast-capsule {
+  background: rgba(255, 255, 255, 0.95) !important;
+  color: #0f172a !important;
+  border: 1.5px solid rgba(2, 132, 199, 0.22) !important;
+  box-shadow: 0 14px 34px -4px rgba(2, 132, 199, 0.22), 0 4px 14px rgba(15, 23, 42, 0.08) !important;
+}
+
+/* Dark Theme Toast */
+[data-theme="dark"] .toast-capsule {
+  background: rgba(15, 23, 42, 0.92) !important;
+  color: #f8fafc !important;
+  border: 1.5px solid rgba(56, 189, 248, 0.35) !important;
+  box-shadow: 0 16px 40px -4px rgba(0, 0, 0, 0.65), 0 0 24px rgba(56, 189, 248, 0.15) !important;
+}
+
+.toast-capsule .toast-icon-wrap {
+  width: 30px !important;
+  height: 30px !important;
+  border-radius: 50% !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  font-size: 1rem !important;
+  flex-shrink: 0 !important;
+}
+
+/* Success Toast */
+.toast-capsule.is-success .toast-icon-wrap {
+  background: rgba(16, 185, 129, 0.16) !important;
+  color: #10b981 !important;
+}
+:root:not([data-theme="dark"]) .toast-capsule.is-success {
+  border-color: rgba(16, 185, 129, 0.35) !important;
+}
+[data-theme="dark"] .toast-capsule.is-success {
+  border-color: rgba(16, 185, 129, 0.45) !important;
+}
+
+/* Error Toast */
+.toast-capsule.is-error .toast-icon-wrap {
+  background: rgba(239, 68, 68, 0.16) !important;
+  color: #ef4444 !important;
+}
+.toast-capsule.is-error {
+  border-color: rgba(239, 68, 68, 0.45) !important;
+}
+
+/* Warning Toast */
+.toast-capsule.is-warning .toast-icon-wrap {
+  background: rgba(245, 158, 11, 0.16) !important;
+  color: #f59e0b !important;
+}
+.toast-capsule.is-warning {
+  border-color: rgba(245, 158, 11, 0.45) !important;
+}
+
+.toast-capsule .toast-content {
+  line-height: 1.35 !important;
+  white-space: normal !important;
+  word-break: break-word !important;
 }

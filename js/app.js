@@ -1453,15 +1453,32 @@ class App {
     }
   }
 
-  showToast(message) {
+  showToast(message, type = 'success') {
     const toast = document.getElementById('toast-notification');
     const msgEl = document.getElementById('toast-message');
+    const iconEl = document.getElementById('toast-icon');
     if (toast && msgEl) {
       msgEl.textContent = message;
+
+      toast.className = 'toast-capsule';
+      if (type === 'error' || message.includes('خطأ') || message.includes('فشل') || message.includes('غير مسموح')) {
+        toast.classList.add('is-error');
+        if (iconEl) iconEl.className = 'fa-solid fa-circle-xmark';
+      } else if (type === 'warning' || message.includes('تنبيه') || message.includes('يرجى') || message.includes('برجاء')) {
+        toast.classList.add('is-warning');
+        if (iconEl) iconEl.className = 'fa-solid fa-triangle-exclamation';
+      } else {
+        toast.classList.add('is-success');
+        if (iconEl) iconEl.className = 'fa-solid fa-circle-check';
+      }
+
+      if (this._toastTimer) clearTimeout(this._toastTimer);
+      // Force reflow for smooth re-trigger
+      void toast.offsetWidth;
       toast.classList.add('show');
-      setTimeout(() => {
+      this._toastTimer = setTimeout(() => {
         toast.classList.remove('show');
-      }, 3000);
+      }, 3200);
     }
   }
 
