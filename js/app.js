@@ -113,7 +113,7 @@ class App {
     PWAManager.init();
     this.initTheme();
 
-    // 2. ضبط عرض التاريخ
+    // 2. ضبط عرض التاريخ والترحيب الذكي الديناميكي
     const dateDisplay = document.getElementById('dashboard-date-display');
     if (dateDisplay) {
       const today = new Date();
@@ -124,6 +124,12 @@ class App {
         day: 'numeric'
       });
     }
+    const hour = new Date().getHours();
+    const greetingText = (hour >= 5 && hour < 12) ? 'صباح الخير' : (hour >= 12 && hour < 17 ? 'مساء الخير' : 'مساء النور');
+    const heroGreetEl = document.getElementById('hero-greeting-text');
+    if (heroGreetEl) heroGreetEl.textContent = greetingText;
+    const docGreetEl = document.getElementById('doc-hero-greeting');
+    if (docGreetEl) docGreetEl.textContent = greetingText + " يا دكتور";
 
     // 3. ربط أحداث التنقل والحوارات وتأمين الواجهة
     this.bindNavigation();
@@ -139,6 +145,8 @@ class App {
     try {
       await auth.init(async (user) => {
         if (user) {
+          const heroName = document.getElementById('hero-greeting-name');
+          if (heroName) heroName.textContent = user.name || 'دكتور';
           try { await db.syncAndSeedCloudOptions(); } catch (_) {}
           this.updateBackupStatusHint();
           this.checkBackupReminderToast(user);

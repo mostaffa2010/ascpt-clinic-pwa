@@ -168,14 +168,63 @@
       <section id="view-dashboard" class="view-section active">
         <!-- 1. Clinic Operations & Finance Dashboard (Admin & Receptionist) -->
         <div id="dashboard-admin-view">
-          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-            <div>
-              <h2 style="font-size: 1.35rem; font-weight: 800;">لوحة المتابعة اليومية</h2>
-              <p style="font-size: 0.85rem; color: var(--text-muted);" id="dashboard-date-display"></p>
+          <!-- Hero Dashboard Banner (v1.4.0-beta.2) -->
+          <div class="hero-dashboard-banner">
+            <div class="hero-banner-glass-bg"></div>
+            <div class="hero-banner-content">
+              <div class="hero-greeting-pill">
+                <span class="hero-greeting-icon"><i class="fa-solid fa-sparkles"></i></span>
+                <span id="hero-greeting-text">صباح الخير</span>، <span id="hero-greeting-name">دكتور</span>
+              </div>
+              <h2 class="hero-banner-title">مركز اسكندرية التخصصي</h2>
+              <p class="hero-banner-sub">Alexandria Specialized Center for Physical Therapy</p>
+              
+              <div class="hero-banner-footer">
+                <div class="hero-date-chip">
+                  <i class="fa-regular fa-calendar-check"></i>
+                  <span id="dashboard-date-display">اليوم</span>
+                </div>
+                <button type="button" class="btn btn-hero-action" data-view-target="sessions">
+                  <i class="fa-solid fa-circle-plus"></i> تسجيل جلسة
+                </button>
+              </div>
             </div>
-            <button type="button" class="btn btn-primary btn-sm" data-view-target="sessions">
-              <i class="fa-solid fa-plus"></i> تسجيل جلسة سريعة
-            </button>
+          </div>
+
+          <!-- Quick Access Actions Grid (Inspired by Reference 2) -->
+          <div class="quick-access-bar">
+            <div class="quick-access-header">
+              <span class="quick-access-title"><i class="fa-solid fa-bolt" style="color: var(--warning);"></i> وصول سريع</span>
+            </div>
+            <div class="quick-access-items">
+              <button type="button" class="quick-action-btn" data-view-target="sessions">
+                <div class="quick-action-icon qa-blue">
+                  <i class="fa-solid fa-hand-holding-medical"></i>
+                </div>
+                <span class="quick-action-label">جلسة جديدة</span>
+              </button>
+              
+              <button type="button" class="quick-action-btn" data-view-target="patients" id="btn-quick-new-patient">
+                <div class="quick-action-icon qa-emerald">
+                  <i class="fa-solid fa-user-plus"></i>
+                </div>
+                <span class="quick-action-label">مريض جديد</span>
+              </button>
+              
+              <button type="button" class="quick-action-btn" data-view-target="appointments">
+                <div class="quick-action-icon qa-indigo">
+                  <i class="fa-solid fa-calendar-day"></i>
+                </div>
+                <span class="quick-action-label">جدول المواعيد</span>
+              </button>
+              
+              <button type="button" class="quick-action-btn" data-view-target="finance">
+                <div class="quick-action-icon qa-amber">
+                  <i class="fa-solid fa-receipt"></i>
+                </div>
+                <span class="quick-action-label">المصروفات</span>
+              </button>
+            </div>
           </div>
 
           <div class="stats-grid">
@@ -236,18 +285,27 @@
 
         <!-- 2. Doctor Personal Clinical Dashboard (Exclusively for Treating Doctors) -->
         <div id="dashboard-doctor-view" style="display: none;">
-          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 10px;">
-            <div>
-              <h2 style="font-size: 1.35rem; font-weight: 800; color: var(--text-main);">
-                <i class="fa-solid fa-stethoscope" style="color: var(--primary);"></i> لوحة متابعة الطبيب المعالج
-              </h2>
-              <p style="font-size: 0.85rem; color: var(--text-muted);" id="doctor-dashboard-sub">
-                متابعة الحالات الطبية وسجل الجلسات الخاص بك
-              </p>
+          <!-- Hero Doctor Banner (v1.4.0-beta.2) -->
+          <div class="hero-dashboard-banner hero-doctor-banner">
+            <div class="hero-banner-glass-bg"></div>
+            <div class="hero-banner-content">
+              <div class="hero-greeting-pill">
+                <span class="hero-greeting-icon"><i class="fa-solid fa-stethoscope"></i></span>
+                <span id="doc-hero-greeting">طاب يومك يا دكتور</span>
+              </div>
+              <h2 class="hero-banner-title">لوحة متابعة الطبيب المعالج</h2>
+              <p class="hero-banner-sub">متابعة الحالات الطبية وسجل جلساتك السريرية</p>
+              
+              <div class="hero-banner-footer">
+                <div class="hero-date-chip">
+                  <i class="fa-regular fa-clock"></i>
+                  <span>العيادة تعمل اليوم</span>
+                </div>
+                <button type="button" class="btn btn-hero-action" data-view-target="patients">
+                  <i class="fa-solid fa-users"></i> سجل المرضى العام
+                </button>
+              </div>
             </div>
-            <button type="button" class="btn btn-outline btn-sm" data-view-target="patients" style="font-weight: 700;">
-              <i class="fa-solid fa-users"></i> سجل المرضى العام
-            </button>
           </div>
 
           <!-- Doctor Personal KPI Stats Grid (Clinical & Patient Counts Only, NO Financials) -->
@@ -607,14 +665,14 @@
               <input type="hidden" id="session-edit-id" value="">
               <div class="form-grid">
                 <!-- Session Date Selection with Quick Today / Yesterday buttons -->
-                <div class="form-group" style="background-color: var(--bg-subtle); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 10px;">
-                  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
-                    <label for="session-date" id="session-date-label" style="font-weight: 800; color: var(--primary); font-size: 0.85rem;">
+                <div class="form-group" style="background-color: var(--bg-subtle); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 12px;">
+                  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; flex-wrap: wrap; gap: 6px;">
+                    <label for="session-date" id="session-date-label" style="font-weight: 800; color: var(--primary); font-size: 0.88rem;">
                       <i class="fa-solid fa-calendar-day"></i> تاريخ الجلسة *
                     </label>
-                    <div style="display: flex; gap: 6px;">
-                      <button type="button" id="btn-quick-sess-today" class="btn-quick-date active" >اليوم</button>
-                      <button type="button" id="btn-quick-sess-yesterday" class="btn-quick-date" >أمس</button>
+                    <div class="horizontal-date-strip">
+                      <button type="button" id="btn-quick-sess-today" class="date-strip-pill active">اليوم</button>
+                      <button type="button" id="btn-quick-sess-yesterday" class="date-strip-pill">أمس</button>
                     </div>
                   </div>
                   <div style="position: relative;">

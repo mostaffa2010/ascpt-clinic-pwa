@@ -2602,3 +2602,389 @@ body.not-authenticated #modal-auth #btn-cancel-login {
   from { transform: translateY(100%); opacity: 0.8; }
   to { transform: translateY(0); opacity: 1; }
 }
+
+/* ================= Next-Level UI Polish (v1.4.0-beta.2) ================= */
+
+/* 1. Hero Dashboard Banner */
+.hero-dashboard-banner {
+  background: linear-gradient(135deg, #072032 0%, #0284c7 100%);
+  border-radius: var(--radius-lg);
+  padding: 22px 24px;
+  color: #ffffff;
+  position: relative;
+  overflow: hidden;
+  margin-bottom: 20px;
+  box-shadow: 0 12px 28px -6px rgba(2, 132, 199, 0.35);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  transition: all 0.3s ease;
+}
+
+.hero-banner-glass-bg {
+  position: absolute;
+  top: -40px;
+  left: -40px;
+  width: 180px;
+  height: 180px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.2) 0%, rgba(255, 255, 255, 0) 70%);
+  pointer-events: none;
+}
+
+.hero-banner-content {
+  position: relative;
+  z-index: 2;
+}
+
+.hero-greeting-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(255, 255, 255, 0.16);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  border-radius: var(--radius-pill);
+  padding: 4px 12px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  margin-bottom: 12px;
+  color: #e0f2fe;
+}
+
+.hero-greeting-icon {
+  color: #fde047;
+}
+
+.hero-banner-title {
+  font-size: 1.45rem;
+  font-weight: 800;
+  color: #ffffff;
+  margin-bottom: 4px;
+  letter-spacing: -0.3px;
+  line-height: 1.25;
+}
+
+.hero-banner-sub {
+  font-size: 0.82rem;
+  color: rgba(224, 242, 254, 0.85);
+  font-weight: 600;
+  margin-bottom: 18px;
+}
+
+.hero-banner-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  padding-top: 10px;
+  border-top: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+.hero-date-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.82rem;
+  color: #e0f2fe;
+  font-weight: 700;
+}
+
+.btn-hero-action {
+  background: #ffffff !important;
+  color: #0369a1 !important;
+  border: none !important;
+  padding: 8px 18px !important;
+  border-radius: var(--radius-pill) !important;
+  font-weight: 800 !important;
+  font-size: 0.86rem !important;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.16);
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+}
+
+.btn-hero-action:hover {
+  background: #f0f9ff !important;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.22);
+}
+
+.btn-hero-action:active {
+  transform: scale(0.96);
+}
+
+/* Doctor Hero Banner Theme */
+.hero-doctor-banner {
+  background: linear-gradient(135deg, #0f172a 0%, #4338ca 100%);
+  box-shadow: 0 12px 28px -6px rgba(67, 56, 202, 0.35);
+}
+
+.hero-doctor-banner .btn-hero-action {
+  color: #4338ca !important;
+}
+
+/* 2. Quick Access Bar (Inspired by Pinterest Ref 2) */
+.quick-access-bar {
+  margin-bottom: 22px;
+}
+
+.quick-access-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+  padding: 0 4px;
+}
+
+.quick-access-title {
+  font-size: 0.88rem;
+  font-weight: 800;
+  color: var(--text-main);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.quick-access-items {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+}
+
+.quick-action-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 14px 6px;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: var(--shadow-sm);
+  text-decoration: none;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.quick-action-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+  border-color: rgba(2, 132, 199, 0.3);
+}
+
+.quick-action-btn:active {
+  transform: scale(0.95);
+}
+
+.quick-action-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.18rem;
+  transition: transform 0.2s ease;
+}
+
+.quick-action-btn:hover .quick-action-icon {
+  transform: scale(1.08);
+}
+
+.qa-blue { background: #e0f2fe; color: #0284c7; }
+.qa-emerald { background: #d1fae5; color: #059669; }
+.qa-indigo { background: #e0e7ff; color: #4f46e5; }
+.qa-amber { background: #fef3c7; color: #d97706; }
+
+.quick-action-label {
+  font-size: 0.76rem;
+  font-weight: 700;
+  color: var(--text-main);
+  text-align: center;
+  white-space: nowrap;
+}
+
+/* 3. Horizontal Date Strip (Capsule Carousel) */
+.horizontal-date-strip {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  overflow-x: auto;
+  padding: 4px 0;
+  -webkit-overflow-scrolling: touch;
+}
+
+.horizontal-date-strip::-webkit-scrollbar {
+  display: none;
+}
+
+.date-strip-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 6px 14px;
+  border-radius: var(--radius-pill);
+  background: var(--bg-surface);
+  border: 1.5px solid var(--border-color);
+  color: var(--text-main);
+  font-size: 0.8rem;
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: var(--shadow-xs);
+}
+
+.date-strip-pill:hover {
+  border-color: var(--primary);
+  color: var(--primary);
+  transform: translateY(-1px);
+}
+
+.date-strip-pill.active {
+  background: var(--primary-gradient) !important;
+  color: #ffffff !important;
+  border-color: var(--primary) !important;
+  box-shadow: 0 4px 12px rgba(2, 132, 199, 0.3) !important;
+}
+
+/* 4. Mobile Native Card Transformation for Recent Sessions */
+@media (max-width: 767px) {
+  #dashboard-recent-table,
+  #dashboard-recent-table thead,
+  #dashboard-recent-table tbody,
+  #dashboard-recent-table th,
+  #dashboard-recent-table td,
+  #dashboard-recent-table tr {
+    display: block;
+  }
+  
+  #dashboard-recent-table thead tr {
+    position: absolute;
+    top: -9999px;
+    left: -9999px;
+  }
+  
+  #dashboard-recent-table tbody tr {
+    background: var(--bg-surface);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    padding: 14px 16px;
+    margin-bottom: 12px;
+    box-shadow: var(--shadow-sm);
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 6px;
+    position: relative;
+    transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.2s ease;
+  }
+  
+  #dashboard-recent-table tbody tr:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+    border-color: rgba(2, 132, 199, 0.25);
+  }
+  
+  #dashboard-recent-table td {
+    padding: 2px 0 !important;
+    border-bottom: none !important;
+    white-space: normal;
+  }
+  
+  #dashboard-recent-table td:nth-child(1) {
+    font-size: 1.02rem;
+    font-weight: 800;
+    color: var(--text-main);
+    width: 100%;
+    margin-bottom: 4px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  #dashboard-recent-table td:nth-child(1)::before {
+    content: '007';
+    font-family: 'Font Awesome 6 Free';
+    font-weight: 900;
+    font-size: 0.85rem;
+    color: var(--primary);
+  }
+  
+  #dashboard-recent-table td:nth-child(2) {
+    font-size: 0.82rem;
+    color: var(--text-muted);
+    font-weight: 600;
+  }
+  #dashboard-recent-table td:nth-child(2)::before {
+    content: 'طبيب: ';
+    color: var(--text-muted);
+    font-weight: 500;
+  }
+  
+  #dashboard-recent-table td:nth-child(3) {
+    margin-right: auto;
+  }
+  
+  #dashboard-recent-table td:nth-child(4) {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    font-weight: 600;
+  }
+  
+  #dashboard-recent-table td:nth-child(5) {
+    font-size: 1.05rem;
+    font-weight: 800;
+    color: var(--success);
+    margin-right: auto;
+  }
+  
+  #dashboard-recent-table td:nth-child(6) {
+    font-size: 0.78rem;
+    color: var(--text-muted);
+    width: 100%;
+    text-align: left;
+    border-top: 1px dashed var(--border-color) !important;
+    padding-top: 6px !important;
+    margin-top: 4px;
+  }
+}
+
+/* 5. Refined Dark Mode Overrides for New Components */
+[data-theme="dark"] .hero-dashboard-banner {
+  background: linear-gradient(135deg, #090d16 0%, #0369a1 100%);
+  border-color: rgba(56, 189, 248, 0.25);
+  box-shadow: 0 12px 30px -6px rgba(0, 0, 0, 0.6);
+}
+
+[data-theme="dark"] .hero-doctor-banner {
+  background: linear-gradient(135deg, #090d16 0%, #3730a3 100%);
+}
+
+[data-theme="dark"] .btn-hero-action {
+  background: #f8fafc !important;
+  color: #0284c7 !important;
+}
+
+[data-theme="dark"] .qa-blue { background: rgba(56, 189, 248, 0.18); color: #38bdf8; }
+[data-theme="dark"] .qa-emerald { background: rgba(52, 211, 153, 0.18); color: #34d399; }
+[data-theme="dark"] .qa-indigo { background: rgba(129, 140, 248, 0.18); color: #818cf8; }
+[data-theme="dark"] .qa-amber { background: rgba(251, 191, 36, 0.18); color: #fbbf24; }
+
+[data-theme="dark"] .quick-action-btn {
+  background: var(--bg-surface);
+  border-color: var(--border-color);
+}
+
+[data-theme="dark"] .date-strip-pill {
+  background: var(--bg-surface);
+  border-color: var(--border-color);
+  color: var(--text-main);
+}
