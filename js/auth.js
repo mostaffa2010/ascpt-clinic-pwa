@@ -310,14 +310,19 @@ class AuthService {
     const code = err?.code || '';
     const errorMap = {
       'auth/invalid-credential': 'البريد الإلكتروني أو كلمة السر غير صحيحة. يرجى التأكد من البيانات.',
-      'auth/user-not-found': 'لا يوجد حساب مسجل بهذا البريد الإلكتروني.',
+      'auth/user-not-found': 'لا يوجد حساب مسجل بهذا البريد الإلكتروني. يرجى التأكد من كتابة الإيميل بشكل صحيح (مثال: admin@ascpt.clinic).',
       'auth/wrong-password': 'كلمة السر غير صحيحة.',
       'auth/invalid-email': 'صيغة البريد الإلكتروني غير صالحة.',
       'auth/user-disabled': 'تم تعطيل هذا الحساب من قبل إدارة المركز.',
       'auth/too-many-requests': 'تم حظر المحاولات مؤقتاً لكثرة المحاولات الخاطئة. يرجى الانتظار والمحاولة لاحقاً.',
-      'auth/network-request-failed': 'تعذر الاتصال بخوادم Firebase. يرجى التحقق من اتصال الإنترنت.'
+      'auth/network-request-failed': 'تعذر الاتصال بخوادم Firebase. يرجى التحقق من اتصال الإنترنت.',
+      'auth/unauthorized-domain': 'النطاق الحالي غير مصرح به في Firebase Authentication. يرجى إضافة نطاق vercel.app في Firebase Console -> Authentication -> Settings -> Authorized Domains.',
+      'auth/operation-not-allowed': 'تسجيل الدخول بالبريد الإلكتروني غير مفعّل في Firebase Console.',
+      'auth/api-key-service-blocked': 'مفتاح API محظور لهذا النطاق في إعدادات Google Cloud Console.'
     };
-    return errorMap[code] || 'حدث خطأ أثناء تسجيل الدخول. يرجى التأكد من البيانات والمحاولة مجدداً.';
+    if (errorMap[code]) return errorMap[code];
+    if (code) return `حدث خطأ أثناء تسجيل الدخول (${code}). يرجى التأكد من البيانات أو مراجعة إعدادات النطاق.`;
+    return err?.message || 'حدث خطأ أثناء تسجيل الدخول. يرجى التأكد من البيانات والمحاولة مجدداً.';
   }
 
   showLoginModal() {
