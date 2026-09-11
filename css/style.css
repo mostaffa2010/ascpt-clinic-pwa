@@ -3449,7 +3449,7 @@ body {
   }
 }
 
-@media (max-width: 991px) {
+@media screen and (max-width: 991px) {
   .desktop-only-table {
     display: none !important;
   }
@@ -5367,7 +5367,7 @@ body::-webkit-scrollbar,
 }
 
 /* 2. Unwrap all financial table parent cards on mobile (Eliminates side border lines!) */
-@media (max-width: 767px) {
+@media screen and (max-width: 767px) {
   #card-finance-report-sessions,
   #card-finance-daily-expenses,
   #card-finance-daily-doctors,
