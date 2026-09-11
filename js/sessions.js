@@ -1433,16 +1433,18 @@ export class SessionsManager {
                   <span class="hsc-doc-sub"><i class="fa-solid fa-user-doctor"></i> ${safeDoc}</span>
                 </div>
               </div>
-              <div class="hsc-badge-amount">
+              <div class="hsc-amount-box">
                 <span class="hsc-amount-val">${safeAmount} <small>ج.م</small></span>
-                <div class="hsc-pill-wrap">
-                  ${sessionNumBadge}
-                  ${payBadge}
-                </div>
               </div>
             </div>
 
-            <div class="hsc-divider"></div>
+            <!-- Full-width Badges Row (Prevents vertical text wrapping for insurance names) -->
+            <div class="hsc-badges-row">
+              ${sessionNumBadge}
+              ${payBadge}
+            </div>
+
+            <div class="hsc-divider" style="margin: 10px 0 12px 0;"></div>
 
             <div class="hsc-bottom">
               <div class="hsc-tags">

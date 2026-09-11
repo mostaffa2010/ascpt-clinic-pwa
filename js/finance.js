@@ -1191,12 +1191,14 @@ export class FinanceManager {
                       <span class="hsc-doc-sub"><i class="fa-solid fa-user-doctor"></i> ${safeDoc}</span>
                     </div>
                   </div>
-                  <div class="hsc-badge-amount">
+                  <div class="hsc-amount-box">
                     <span class="hsc-amount-val">${safeAmount} <small>ج.م</small></span>
-                    ${payBadge}
                   </div>
                 </div>
-                <div class="hsc-divider"></div>
+                <div class="hsc-badges-row">
+                  ${payBadge}
+                </div>
+                <div class="hsc-divider" style="margin: 10px 0 12px 0;"></div>
                 <div class="hsc-bottom">
                   <div class="hsc-tags">
                     <span class="hsc-tag-pill"><i class="fa-solid fa-bone"></i> ${safeCount}</span>

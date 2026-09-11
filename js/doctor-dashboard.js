@@ -230,8 +230,7 @@ export class DoctorDashboardManager {
                   <span class="hsc-doc-sub"><i class="fa-solid fa-calendar-day"></i> ${s.date || ''}</span>
                 </div>
               </div>
-              <div class="hsc-badge-amount">
-                ${billingBadge}
+              <div class="hsc-amount-box">
                 ${isExam 
                   ? `<span class="badge" style="background: rgba(109, 40, 217, 0.18); color: #c4b5fd; font-weight: 800; font-size: 0.76rem;"><i class="fa-solid fa-stethoscope"></i> كشف</span>`
                   : `<span class="badge" style="background: rgba(56, 189, 248, 0.15); color: #38bdf8; font-weight: 800; font-size: 0.76rem;">${unitCount} ${unitWord}</span>`
@@ -239,7 +238,11 @@ export class DoctorDashboardManager {
               </div>
             </div>
 
-            <div class="hsc-divider"></div>
+            <div class="hsc-badges-row">
+              ${billingBadge}
+            </div>
+
+            <div class="hsc-divider" style="margin: 10px 0 12px 0;"></div>
 
             <div class="hsc-bottom">
               <div class="hsc-tags">

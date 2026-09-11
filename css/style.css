@@ -3569,11 +3569,13 @@ body {
 }
 
 .hsc-patient-name {
-  font-size: 1.08rem;
+  font-size: 1.05rem;
   font-weight: 800;
   color: var(--text-main);
-  line-height: 1.25;
-  word-break: break-word;
+  line-height: 1.3;
+  word-break: normal !important;
+  overflow-wrap: break-word !important;
+  white-space: normal !important;
 }
 
 .hsc-name-row {
@@ -5991,4 +5993,28 @@ body::-webkit-scrollbar,
     grid-template-columns: 1fr;
     gap: 8px;
   }
+}
+
+/* Dedicated full-width Badges Row & Amount Box (Protects long insurance names) */
+.hsc-amount-box {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: flex-end !important;
+  justify-content: flex-start !important;
+  flex-shrink: 0 !important;
+}
+
+.hsc-badges-row {
+  display: flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+  flex-wrap: wrap !important;
+  margin-top: 8px !important;
+  width: 100% !important;
+}
+
+.hsc-badges-row .badge {
+  white-space: normal !important;
+  line-height: 1.4 !important;
+  max-width: 100% !important;
 }
