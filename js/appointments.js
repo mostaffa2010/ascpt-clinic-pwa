@@ -170,7 +170,9 @@ export class AppointmentsManager {
     if (!grid) return;
     try {
       await this.loadAll();
-      grid.innerHTML = this.buildGridHTML(this.doctors);
+      const currentUser = auth.getCurrentUser();
+      const isDoctor = currentUser && currentUser.role === 'doctor';
+      grid.innerHTML = this.buildGridHTML(this.doctors, isDoctor);
     } catch (err) {
       console.error('Appointments render error:', err);
       grid.innerHTML = this.buildErrorHTML(err);
@@ -184,7 +186,7 @@ export class AppointmentsManager {
     try {
       await this.loadAll();
       const me = this.doctors.find((d) => d.uid === doctorUid);
-      grid.innerHTML = this.buildGridHTML(me ? [me] : []);
+      grid.innerHTML = this.buildGridHTML(me ? [me] : [], true);
     } catch (err) {
       console.error('Appointments (doctor) render error:', err);
       grid.innerHTML = this.buildErrorHTML(err);
@@ -198,7 +200,7 @@ export class AppointmentsManager {
     </div>`;
   }
 
-  buildGridHTML(doctorsToShow) {
+  buildGridHTML(doctorsToShow, isDoctorReadOnly = false) {
     if (!doctorsToShow || doctorsToShow.length === 0) {
       return `<div style="padding: 20px; text-align: center; color: var(--text-muted);">لا يوجد دكاترة مسجلين حالياً في طاقم العمل.</div>`;
     }
@@ -219,31 +221,33 @@ export class AppointmentsManager {
         const cellAppts = this.getCellAppointments(doc.uid, slot.key);
         const chips = cellAppts.map((a) => `
           <div class="appt-chip" data-appt-id="${escapeHTML(a.id)}">
-            <span class="appt-chip-patient" data-move-appt="${escapeHTML(a.id)}" title="اضغط لنقل الموعد أو تعديله">${escapeHTML(a.patientName)}</span>
+            <span class="appt-chip-patient" ${!isDoctorReadOnly ? `data-move-appt="${escapeHTML(a.id)}"` : ''} title="${!isDoctorReadOnly ? 'اضغط لنقل الموعد أو تعديله' : ''}">${escapeHTML(a.patientName)}</span>
+            ${!isDoctorReadOnly ? `
             <div class="appt-chip-actions">
               <button type="button" class="appt-chip-move" data-move-appt="${escapeHTML(a.id)}" title="نقل الموعد لطبيب أو ساعة أخرى">
                 <i class="fa-solid fa-arrow-right-arrow-left"></i>
               </button>
               <button type="button" class="appt-chip-remove" data-remove-appt="${escapeHTML(a.id)}" title="حذف">&times;</button>
-            </div>
+            </div>` : ''}
           </div>
         `).join('');
 
         return `
           <td class="appt-cell ${overCapacity ? 'appt-cell-over' : ''}">
             ${chips}
+            ${!isDoctorReadOnly ? `
             <button type="button" class="btn-add-appt" data-add-doctor="${escapeHTML(doc.uid)}" data-add-doctor-name="${escapeHTML(doc.name)}" data-add-slot="${escapeHTML(slot.key)}">
               <i class="fa-solid fa-plus"></i> حجز
-            </button>
+            </button>` : ''}
           </td>
         `;
       }).join('');
 
       return `<tr>
         <td class="appt-time-label">
-          <div class="appt-time-box" data-edit-slot="${escapeHTML(slot.key)}" data-slot-label="${escapeHTML(slot.label)}" title="اضغط لتعديل وقت هذا الموعد">
+          <div class="appt-time-box" ${!isDoctorReadOnly ? `data-edit-slot="${escapeHTML(slot.key)}" data-slot-label="${escapeHTML(slot.label)}"` : 'style="cursor: default;"'} title="${!isDoctorReadOnly ? 'اضغط لتعديل وقت هذا الموعد' : ''}">
             <span class="appt-time-text">${escapeHTML(slot.label)}</span>
-            <i class="fa-solid fa-pen-to-square appt-time-edit-icon"></i>
+            ${!isDoctorReadOnly ? '<i class="fa-solid fa-pen-to-square appt-time-edit-icon"></i>' : ''}
           </div>
           ${overCapacity ? `<div class="appt-over-badge" title="عدد الحالات تجاوز عدد الأسرة"><i class="fa-solid fa-triangle-exclamation"></i> ${totalInSlot}/${MAX_BEDS_PER_SLOT}</div>` : ''}
         </td>
@@ -287,10 +291,10 @@ export class AppointmentsManager {
           return `
             <div class="hero-styled-card appt-slot-card">
               <div class="appt-slot-header">
-                <div class="appt-slot-time-pill" data-edit-slot="${escapeHTML(slot.key)}" data-slot-label="${escapeHTML(slot.label)}" title="اضغط لتعديل وقت الموعد">
+                <div class="appt-slot-time-pill" ${!isDoctorReadOnly ? `data-edit-slot="${escapeHTML(slot.key)}" data-slot-label="${escapeHTML(slot.label)}"` : 'style="cursor: default;"'} title="${!isDoctorReadOnly ? 'اضغط لتعديل وقت الموعد' : ''}">
                   <i class="fa-regular fa-clock" style="color: var(--primary);"></i>
                   <span style="font-weight: 800; font-size: 0.95rem;">${escapeHTML(slot.label)}</span>
-                  <i class="fa-solid fa-pen-to-square" style="font-size: 0.72rem; color: var(--text-muted); margin-right: 4px;"></i>
+                  ${!isDoctorReadOnly ? '<i class="fa-solid fa-pen-to-square" style="font-size: 0.72rem; color: var(--text-muted); margin-right: 4px;"></i>' : ''}
                 </div>
                 ${occupancyBadge}
               </div>
@@ -305,13 +309,14 @@ export class AppointmentsManager {
                         ${!isSingleDoc ? `<div class="appt-slot-doc-name"><i class="fa-solid fa-user-doctor"></i> د. ${escapeHTML(cleanDoc)}:</div>` : ''}
                         ${cellAppts.map((a) => `
                           <div class="appt-chip" data-appt-id="${escapeHTML(a.id)}">
-                            <span class="appt-chip-patient" data-move-appt="${escapeHTML(a.id)}" title="اضغط لنقل الموعد">${escapeHTML(a.patientName)}</span>
+                            <span class="appt-chip-patient" ${!isDoctorReadOnly ? `data-move-appt="${escapeHTML(a.id)}"` : ''} title="${!isDoctorReadOnly ? 'اضغط لنقل الموعد' : ''}">${escapeHTML(a.patientName)}</span>
+                            ${!isDoctorReadOnly ? `
                             <div class="appt-chip-actions">
                               <button type="button" class="appt-chip-move" data-move-appt="${escapeHTML(a.id)}" title="نقل الموعد">
                                 <i class="fa-solid fa-arrow-right-arrow-left"></i>
                               </button>
                               <button type="button" class="appt-chip-remove" data-remove-appt="${escapeHTML(a.id)}" title="حذف">&times;</button>
-                            </div>
+                            </div>` : ''}
                           </div>
                         `).join('')}
                       </div>
@@ -319,12 +324,13 @@ export class AppointmentsManager {
                   </div>
                 ` : `
                   <div class="appt-slot-empty-clean">
-                    <i class="fa-regular fa-calendar-check"></i>
-                    <span>لا توجد حجوزات مسجلة (الأسرة الـ ${MAX_BEDS_PER_SLOT} شاغرة)</span>
+                    <i class="fa-regular fa-calendar-check" style="opacity: 0.4;"></i>
+                    <span>${isDoctorReadOnly ? 'لا توجد مواعيد محجوزة لك' : `لا توجد حجوزات مسجلة (الأسرة الـ ${MAX_BEDS_PER_SLOT} شاغرة)`}</span>
                   </div>
                 `}
 
-                <!-- Compact Quick Booking Pills Row -->
+                ${!isDoctorReadOnly ? `
+                <!-- Compact Quick Booking Pills Row (Receptionist & Admin only) -->
                 <div class="appt-quick-booking-container">
                   <span class="appt-book-title"><i class="fa-solid fa-plus-circle"></i> حجز سرير:</span>
                   <div class="appt-doc-pills-row">
@@ -337,7 +343,7 @@ export class AppointmentsManager {
                       `;
                     }).join('')}
                   </div>
-                </div>
+                </div>` : ''}
               </div>
             </div>
           `;
@@ -349,6 +355,10 @@ export class AppointmentsManager {
   }
 
     handleGridClick(e) {
+    const currentUser = auth.getCurrentUser();
+    if (currentUser && currentUser.role === 'doctor') {
+      return; // Strict read-only for doctors
+    }
     // 1. Edit slot row time
     const editSlotTrigger = e.target.closest('[data-edit-slot]');
     if (editSlotTrigger) {
