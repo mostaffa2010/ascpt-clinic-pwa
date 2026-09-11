@@ -47,7 +47,7 @@
   
 
     <!-- Stylesheets -->
-  <link rel="stylesheet" href="css/style.css?v=1.4.0-beta.38">
+  <link rel="stylesheet" href="css/style.css?v=1.4.0-beta.39">
   <link rel="stylesheet" href="css/print.css" media="print">
 </head>
 <body>
@@ -758,15 +758,6 @@
                     </div>
                     <i class="fa-solid fa-chevron-down custom-select-arrow" style="margin-right: 6px;"></i>
                   </button>
-                  <!-- Quick Common Body Parts Shortcuts (1-Tap Selection) -->
-                  <div class="body-parts-quick-shortcuts" style="display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px;">
-                    <button type="button" class="btn-quick-body-part" data-part="فقرات قطنية"><i class="fa-solid fa-bolt"></i> فقرات قطنية</button>
-                    <button type="button" class="btn-quick-body-part" data-part="فقرات عنقية"><i class="fa-solid fa-bolt"></i> فقرات عنقية</button>
-                    <button type="button" class="btn-quick-body-part" data-part="مفصل الركبة"><i class="fa-solid fa-bolt"></i> مفصل الركبة</button>
-                    <button type="button" class="btn-quick-body-part" data-part="مفصل الكتف"><i class="fa-solid fa-bolt"></i> مفصل الكتف</button>
-                    <button type="button" class="btn-quick-body-part" data-part="مفصل الكاحل"><i class="fa-solid fa-bolt"></i> مفصل الكاحل</button>
-                    <button type="button" class="btn-quick-body-part" data-part="تأهيل شلل نصفي"><i class="fa-solid fa-bolt"></i> تأهيل شلل نصفي</button>
-                  </div>
                   <div class="body-parts-chips" id="body-parts-container" style="display: none;"></div>
                   <div style="font-size: 0.8rem; color: var(--primary); font-weight: bold; margin-top: 5px;">
                     إجمالي الأعضاء المحددة: <span id="selected-parts-count">0</span>
@@ -896,25 +887,27 @@
         <!-- Filter Bar -->
         <div class="card no-print" id="finance-filter-bar-card" style="padding: 12px; margin-bottom: 16px;">
           <!-- Daily Filter Controls -->
-          <div id="filter-group-daily" style="display: flex; gap: 12px; flex-wrap: wrap; align-items: center;">
-            <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
-              <label style="font-size: 0.85rem; font-weight: bold;">تاريخ التقرير:</label>
-              <div style="position: relative; display: inline-block;">
-                <input type="text" id="finance-date-picker" readonly class="form-control date-picker-clickable" style="width: 145px; font-weight: 700;" data-open-calendar="finance-date-picker" placeholder="اختر التاريخ...">
-                <i class="fa-solid fa-calendar-days" style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--primary); pointer-events: none;"></i>
+          <div id="filter-group-daily" style="display: flex; flex-direction: column; gap: 10px; width: 100%;">
+            <div style="display: flex; align-items: center; justify-content: space-between; gap: 8px; width: 100%;">
+              <div style="display: flex; align-items: center; gap: 6px;">
+                <label style="font-size: 0.85rem; font-weight: bold; white-space: nowrap; margin: 0;">تاريخ التقرير:</label>
+                <div style="position: relative; display: inline-block;">
+                  <input type="text" id="finance-date-picker" readonly class="form-control date-picker-clickable" style="width: 120px; font-weight: 700; padding-left: 28px; padding-right: 8px; font-size: 0.85rem;" data-open-calendar="finance-date-picker" placeholder="اختر التاريخ...">
+                  <i class="fa-solid fa-calendar-days" style="position: absolute; left: 8px; top: 50%; transform: translateY(-50%); color: var(--primary); pointer-events: none; font-size: 0.85rem;"></i>
+                </div>
               </div>
-              <div class="horizontal-date-strip">
+              <div class="horizontal-date-strip" style="margin: 0; display: inline-flex; flex-shrink: 0; gap: 6px;">
                 <button type="button" id="btn-quick-fin-today" class="btn-quick-date active">اليوم</button>
                 <button type="button" id="btn-quick-fin-yesterday" class="btn-quick-date">أمس</button>
               </div>
             </div>
-            <div style="display: flex; align-items: center; gap: 8px;">
-              <label style="font-size: 0.85rem; font-weight: bold;">تصفية بالطبيب:</label>
-              <div class="custom-select-wrapper" style="min-width: 150px;">
+            <div style="display: flex; align-items: center; gap: 8px; width: 100%;">
+              <label style="font-size: 0.85rem; font-weight: bold; white-space: nowrap; margin: 0;">تصفية بالطبيب:</label>
+              <div class="custom-select-wrapper" style="flex: 1; min-width: 0;">
                 <select id="finance-doctor-filter" class="form-control" style="display: none;">
                   <option value="all">كل الأطباء</option>
                 </select>
-                <button type="button" class="custom-select-btn" id="btn-select-finance-doctor-filter" data-open-picker="finance-doctor-filter" data-picker-title="تصفية التقرير بالطبيب">
+                <button type="button" class="custom-select-btn" id="btn-select-finance-doctor-filter" data-open-picker="finance-doctor-filter" data-picker-title="تصفية التقرير بالطبيب" style="width: 100%; justify-content: space-between;">
                   <span class="btn-text">كل الأطباء</span>
                   <i class="fa-solid fa-chevron-down"></i>
                 </button>
@@ -2790,7 +2783,7 @@
   </div>
 
 <!-- Main Application Script (ES Module) -->
-  <script type="module" src="js/app.js?v=1.4.0-beta.38"></script>
+  <script type="module" src="js/app.js?v=1.4.0-beta.39"></script>
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {

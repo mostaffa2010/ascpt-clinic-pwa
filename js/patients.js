@@ -677,19 +677,15 @@ export class PatientsManager {
 
             <div class="hsc-divider"></div>
 
-            <div class="hsc-bottom">
-              <div class="hsc-tags">
-                ${safeEditor ? `<span class="hsc-time-tag"><i class="fa-solid fa-user-pen"></i> ${safeEditor}</span>` : ''}
-              </div>
-              <div class="hsc-actions">
+            <div class="hsc-bottom" style="display: flex; align-items: center; justify-content: space-between; gap: 8px; width: 100%;">
+              <div>
                 ${canAccessSheet ? `
                   <button type="button" class="btn btn-primary btn-sm btn-hero-sheet btn-patient-sheet-action" onclick="patientsManager.openPatientSheet('${safeId}')" title="فتح الشيت الطبي">
                     <i class="fa-solid fa-file-waveform"></i> الشيت الطبي
                   </button>
                 ` : ''}
-                <button type="button" class="btn btn-outline btn-sm btn-quick-attend" onclick="patientsManager.quickLogSession('${safeId}')" style="color: var(--primary); border-color: var(--primary); font-weight: 700; gap: 4px; display: inline-flex; align-items: center; border-radius: 999px; padding: 4px 12px; font-size: 0.78rem;" title="تسجيل جلسة سريعة لهذا المريض">
-                  <i class="fa-solid fa-bolt" style="color: var(--warning);"></i> <span>جلسة</span>
-                </button>
+              </div>
+              <div class="hsc-actions" style="display: flex; align-items: center; gap: 6px; flex-wrap: nowrap;">
                 <button type="button" class="btn btn-outline btn-sm btn-icon-action btn-whatsapp-action" onclick="patientsManager.openWhatsAppTemplates('${cleanWaPhone}', '${safeName}', '${safeDoctor}')" style="color: #10b981; border-color: rgba(16, 185, 129, 0.4);" title="خيارات واتساب الذكية">
                   <i class="fa-brands fa-whatsapp"></i>
                 </button>
