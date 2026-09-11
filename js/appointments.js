@@ -185,12 +185,153 @@ export class AppointmentsManager {
     if (!grid) return;
     try {
       await this.loadAll();
-      const me = this.doctors.find((d) => d.uid === doctorUid);
-      grid.innerHTML = this.buildGridHTML(me ? [me] : [], true);
+      grid.innerHTML = this.buildDoctorSwipeScheduleHTML(doctorUid);
+      this.initCarouselDotsSync();
     } catch (err) {
       console.error('Appointments (doctor) render error:', err);
       grid.innerHTML = this.buildErrorHTML(err);
     }
+  }
+
+  buildDoctorSwipeScheduleHTML(doctorUid) {
+    const slotsToRender = (this.slots && this.slots.length > 0) ? this.slots : DEFAULT_APPT_SLOTS;
+
+    // Filter only slots where THIS doctor has booked appointments
+    const activeSlots = slotsToRender.map((slot) => {
+      const cellAppts = this.getCellAppointments(doctorUid, slot.key);
+      if (cellAppts.length === 0) return null;
+      return { slot, cellAppts };
+    }).filter(Boolean);
+
+    // If no appointments at all for this doctor:
+    if (activeSlots.length === 0) {
+      return `
+        <div class="hero-styled-card doc-empty-schedule-card" style="text-align: center; padding: 36px 20px; margin: 4px 0;">
+          <div style="width: 54px; height: 54px; border-radius: 50%; background: rgba(2, 132, 199, 0.12); color: var(--primary); display: inline-flex; align-items: center; justify-content: center; font-size: 1.4rem; margin-bottom: 12px;">
+            <i class="fa-solid fa-mug-hot"></i>
+          </div>
+          <div style="font-weight: 800; font-size: 1.05rem; color: var(--text-main);">لا توجد مواعيد محجوزة لك اليوم</div>
+          <div style="font-size: 0.82rem; color: var(--text-muted); margin-top: 5px;">ستظهر مواعيدك وحالاتك هنا فور قيام الاستقبال بالحجز لك.</div>
+        </div>
+      `;
+    }
+
+    const totalPatients = activeSlots.reduce((acc, curr) => acc + curr.cellAppts.length, 0);
+
+    return `
+      <div class="doc-swipe-carousel-wrapper">
+        <div style="display: flex; align-items: center; justify-content: space-between; padding: 2px 6px 10px 6px;">
+          <span style="font-size: 0.84rem; font-weight: 800; color: var(--text-main);">
+            <i class="fa-solid fa-calendar-check" style="color: var(--primary); margin-left: 5px;"></i> ${activeSlots.length} مواعيد مسجلة (${totalPatients} حالات)
+          </span>
+          <span style="font-size: 0.76rem; font-weight: 700; color: var(--primary); display: inline-flex; align-items: center; gap: 4px;">
+            <i class="fa-solid fa-arrow-right-arrow-left"></i> اسحب للتنقل
+          </span>
+        </div>
+
+        <div class="doc-swipe-carousel" id="doc-schedule-carousel">
+          ${activeSlots.map(({ slot, cellAppts }, index) => {
+            const countLabel = cellAppts.length === 1 ? 'حالة واحدة' : (cellAppts.length === 2 ? 'حالتان' : `${cellAppts.length} حالات`);
+
+            return `
+              <div class="hero-styled-card doc-carousel-card" data-card-index="${index}">
+                <div class="doc-card-header">
+                  <div class="doc-card-time-badge">
+                    <i class="fa-regular fa-clock" style="color: var(--primary); font-size: 1.15rem;"></i>
+                    <span style="font-weight: 800; font-size: 1.05rem; color: var(--text-main);">${escapeHTML(slot.label)}</span>
+                  </div>
+                  <span class="badge badge-primary" style="font-size: 0.78rem; padding: 4px 10px; border-radius: 999px; font-weight: 800;">${countLabel}</span>
+                </div>
+
+                <div class="hsc-divider" style="margin: 12px 0 14px 0;"></div>
+
+                <div class="doc-card-patients-list">
+                  ${cellAppts.map((a, pIdx) => {
+                    const patientObj = (this.patients || []).find(p => p.id === a.patientId);
+                    const phone = patientObj?.phone || '';
+                    const billing = patientObj?.billing || '';
+                    let billingBadge = '';
+                    if (billing === 'cash') {
+                      billingBadge = '<span class="badge badge-cash" style="font-size: 0.7rem; padding: 2px 7px;">نقدي</span>';
+                    } else if (billing === 'insurance') {
+                      const comp = patientObj?.insuranceCompany || 'تأمين';
+                      billingBadge = `<span class="badge badge-direct" style="font-size: 0.7rem; padding: 2px 7px;">${escapeHTML(comp)}</span>`;
+                    }
+
+                    return `
+                      <div class="doc-patient-item">
+                        <div class="doc-patient-avatar">
+                          <i class="fa-solid fa-user"></i>
+                        </div>
+                        <div class="doc-patient-info">
+                          <div class="doc-patient-name">${escapeHTML(a.patientName)}</div>
+                          ${phone ? `<div class="doc-patient-phone"><i class="fa-solid fa-phone" style="font-size: 0.7rem;"></i> ${escapeHTML(phone)}</div>` : ''}
+                        </div>
+                        <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 4px;">
+                          ${billingBadge}
+                          <span class="doc-patient-order">#${pIdx + 1}</span>
+                        </div>
+                      </div>
+                    `;
+                  }).join('')}
+                </div>
+              </div>
+            `;
+          }).join('')}
+        </div>
+
+        <!-- Carousel Pagination Dots -->
+        ${activeSlots.length > 1 ? `
+        <div class="doc-carousel-dots" id="doc-carousel-dots">
+          ${activeSlots.map((_, i) => `
+            <span class="doc-dot ${i === 0 ? 'active' : ''}" data-dot-index="${i}"></span>
+          `).join('')}
+        </div>
+        ` : ''}
+      </div>
+    `;
+  }
+
+  initCarouselDotsSync() {
+    const carousel = document.getElementById('doc-schedule-carousel');
+    const dotsContainer = document.getElementById('doc-carousel-dots');
+    if (!carousel || !dotsContainer) return;
+
+    carousel.addEventListener('scroll', () => {
+      const cards = carousel.querySelectorAll('.doc-carousel-card');
+      const dots = dotsContainer.querySelectorAll('.doc-dot');
+      if (!cards.length || !dots.length) return;
+
+      const carouselRect = carousel.getBoundingClientRect();
+      const carouselCenter = carouselRect.left + carouselRect.width / 2;
+      let minDistance = Infinity;
+      let activeIndex = 0;
+
+      cards.forEach((card, idx) => {
+        const cardRect = card.getBoundingClientRect();
+        const cardCenter = cardRect.left + cardRect.width / 2;
+        const dist = Math.abs(cardCenter - carouselCenter);
+        if (dist < minDistance) {
+          minDistance = dist;
+          activeIndex = idx;
+        }
+      });
+
+      dots.forEach((dot, idx) => {
+        if (idx === activeIndex) dot.classList.add('active');
+        else dot.classList.remove('active');
+      });
+    }, { passive: true });
+
+    dotsContainer.addEventListener('click', (e) => {
+      const dot = e.target.closest('.doc-dot');
+      if (!dot) return;
+      const idx = parseInt(dot.getAttribute('data-dot-index'), 10);
+      const targetCard = carousel.querySelector(`[data-card-index="${idx}"]`);
+      if (targetCard) {
+        targetCard.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+      }
+    });
   }
 
   buildErrorHTML(err) {
