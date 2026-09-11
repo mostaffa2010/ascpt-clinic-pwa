@@ -128,7 +128,11 @@ class App {
 
     const hour = new Date().getHours();
     const greetingText = (hour >= 5 && hour < 12) ? 'صباح الخير' : (hour >= 12 && hour < 17 ? 'مساء الخير' : 'مساء النور');
-    this.updateHeroGreetings(greetingText, auth.getCurrentUser());
+    try {
+      this.updateHeroGreetings(greetingText, auth.getCurrentUser());
+    } catch (e) {
+      console.warn('Greeting init notice:', e);
+    }
 
     // 3. ربط أحداث التنقل والحوارات وتأمين الواجهة
     this.bindNavigation();
@@ -179,6 +183,36 @@ class App {
   }
 
   // ================= Dark / Light Theme Manager =================
+  updateHeroGreetings(gText, user) {
+    try {
+      const heroFull = document.getElementById('hero-greeting-full');
+      if (heroFull) {
+        if (user) {
+          if (user.role === 'receptionist') {
+            heroFull.textContent = `${gText}، ${user.name} (الاستقبال)`;
+          } else if (user.role === 'admin') {
+            heroFull.textContent = `${gText}، ${user.name} (إدارة المركز)`;
+          } else {
+            const cleanName = (user.name || '').replace(/^د\.\s*/, '');
+            heroFull.textContent = `${gText}، د. ${cleanName}`;
+          }
+        } else {
+          heroFull.textContent = `${gText}، مرحباً بك`;
+        }
+      }
+
+      const docGreetEl = document.getElementById('doc-hero-greeting');
+      if (docGreetEl) {
+        if (user) {
+          const cleanName = (user.name || '').replace(/^د\.\s*/, '');
+          docGreetEl.textContent = `${gText}، د. ${cleanName}`;
+        } else {
+          docGreetEl.textContent = `${gText}، يا دكتور`;
+        }
+      }
+    } catch (_) {}
+  }
+
   initTheme() {
     const saved = localStorage.getItem('ascpt_theme');
     const isDark = saved === 'dark' || (!saved && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches);
