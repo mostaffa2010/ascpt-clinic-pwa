@@ -3727,3 +3727,96 @@ body {
   border-radius: var(--radius-md);
   border: 1px solid var(--glass-border);
 }
+
+/* ================= Mobile Appointments Timeline (v1.4.0-beta.7) ================= */
+.appt-timeline-container {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+}
+
+.appt-slot-card {
+  padding: 16px 18px !important;
+  border-radius: var(--radius-lg) !important;
+  background: var(--bg-glass-card) !important;
+  backdrop-filter: var(--glass-blur) !important;
+  -webkit-backdrop-filter: var(--glass-blur) !important;
+  border: 1.5px solid var(--glass-border) !important;
+  box-shadow: 0 8px 24px -4px rgba(0, 0, 0, 0.35) !important;
+  transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.2s ease !important;
+}
+
+.appt-slot-card:hover {
+  transform: translateY(-2px) !important;
+  border-color: rgba(56, 189, 248, 0.4) !important;
+  box-shadow: 0 12px 30px -4px rgba(2, 132, 199, 0.3) !important;
+}
+
+.appt-slot-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.appt-slot-time-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(2, 132, 199, 0.12);
+  border: 1px solid rgba(2, 132, 199, 0.3);
+  padding: 6px 14px;
+  border-radius: var(--radius-pill);
+  color: var(--text-main);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.appt-slot-time-pill:hover {
+  background: rgba(2, 132, 199, 0.22);
+  border-color: var(--primary);
+  transform: translateY(-1px);
+}
+
+.appt-slot-doc-group {
+  margin-top: 8px;
+}
+
+.appt-slot-doc-title {
+  font-size: 0.85rem;
+  font-weight: 800;
+  color: var(--primary);
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.appt-chips-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.appt-chips-wrap .appt-chip {
+  margin-bottom: 0 !important;
+  border-radius: 12px !important;
+  padding: 8px 12px !important;
+  background: rgba(15, 23, 42, 0.5) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+}
+
+[data-theme="dark"] .appt-chips-wrap .appt-chip {
+  background: rgba(15, 23, 42, 0.7) !important;
+  border-color: rgba(56, 189, 248, 0.2) !important;
+}
+
+.appt-slot-empty-hint {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  font-style: italic;
+  padding: 4px 0;
+  display: block;
+}

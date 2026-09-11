@@ -1464,11 +1464,6 @@ export class SessionsManager {
                 <span class="hsc-time-tag"><i class="fa-regular fa-clock"></i> ${safeRecAt}</span>
               </div>
               <div class="hsc-actions">
-                ${s.patientId ? `
-                  <button type="button" class="btn btn-primary btn-sm btn-hero-sheet" onclick="patientsManager.openPatientSheet('${escapeHTML(s.patientId)}')" title="الشيت الطبي">
-                    <i class="fa-solid fa-file-waveform"></i> الشيت الطبي
-                  </button>
-                ` : ''}
                 <button type="button" class="btn btn-outline btn-sm btn-icon-action btn-edit-session" data-session-id="${safeId}" onclick="sessionsManager.editSession('${safeId}')" title="${isExam ? 'تعديل بيانات الكشف' : 'تعديل بيانات الجلسة'}">
                   <i class="fa-solid fa-pen-to-square"></i>
                 </button>

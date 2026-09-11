@@ -967,11 +967,7 @@ export class FinanceManager {
                     <span class="hsc-tag-pill"><i class="fa-solid fa-bone"></i> ${safeCount}</span>
                     <span class="hsc-time-tag"><i class="fa-regular fa-clock"></i> ${safeRecAt}</span>
                   </div>
-                  ${s.patientId ? `
-                    <button type="button" class="btn btn-primary btn-sm btn-hero-sheet" onclick="patientsManager.openPatientSheet('${escapeHTML(s.patientId)}')" title="فتح الشيت الطبي">
-                      <i class="fa-solid fa-file-waveform"></i> الشيت الطبي
-                    </button>
-                  ` : ''}
+
                 </div>
               </div>
             `;

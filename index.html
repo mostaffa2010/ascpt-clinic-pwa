@@ -47,7 +47,7 @@
   
 
     <!-- Stylesheets -->
-  <link rel="stylesheet" href="css/style.css?v=1.4.0-beta.6">
+  <link rel="stylesheet" href="css/style.css?v=1.4.0-beta.7">
   <link rel="stylesheet" href="css/print.css" media="print">
 </head>
 <body>
@@ -300,8 +300,8 @@
               
               <div class="hero-banner-footer">
                 <div class="hero-date-chip">
-                  <i class="fa-regular fa-clock"></i>
-                  <span>العيادة تعمل اليوم</span>
+                  <i class="fa-regular fa-calendar-check"></i>
+                  <span id="doc-dashboard-date-display">اليوم</span>
                 </div>
                 <button type="button" class="btn btn-hero-action" data-view-target="patients">
                   <i class="fa-solid fa-users"></i> سجل المرضى العام
@@ -365,7 +365,7 @@
                 <button type="button" class="btn-quick-date" id="btn-doc-filter-lifetime">كل مرضاي (Lifetime)</button>
               </div>
             </div>
-            <div class="table-responsive">
+            <div class="table-responsive desktop-only-table">
               <table class="data-table" id="doctor-personal-table">
                 <thead>
                   <tr>
@@ -382,6 +382,8 @@
                 </tbody>
               </table>
             </div>
+            <!-- Handcrafted Dedicated Mobile Cards for Doctor's Sessions -->
+            <div id="doctor-personal-mobile-cards" class="mobile-only-cards-container"></div>
           </div>
         </div>
       </section>

@@ -652,7 +652,7 @@ export class PatientsManager {
               </div>
               <div class="hsc-actions">
                 ${canAccessSheet ? `
-                  <button type="button" class="btn btn-primary btn-sm btn-hero-sheet btn-patient-sheet-action" data-patient-id="${safeId}">
+                  <button type="button" class="btn btn-primary btn-sm btn-hero-sheet btn-patient-sheet-action" onclick="patientsManager.openPatientSheet('${safeId}')" title="فتح الشيت الطبي">
                     <i class="fa-solid fa-file-waveform"></i> الشيت الطبي
                   </button>
                 ` : ''}
@@ -660,15 +660,15 @@ export class PatientsManager {
                   <i class="fa-brands fa-whatsapp"></i>
                 </a>
                 ${!isDoctor ? `
-                  <button type="button" class="btn btn-outline btn-sm btn-icon-action btn-patient-docs" data-patient-id="${safeId}" title="المستندات">
+                  <button type="button" class="btn btn-outline btn-sm btn-icon-action btn-patient-docs" onclick="patientsManager.openPatientDocsModal('${safeId}')" title="المستندات">
                     <i class="fa-solid fa-file-invoice"></i>
                   </button>
-                  <button type="button" class="btn btn-outline btn-sm btn-icon-action btn-edit-patient" data-patient-id="${safeId}" title="تعديل">
+                  <button type="button" class="btn btn-outline btn-sm btn-icon-action btn-edit-patient" onclick="patientsManager.openEditModal('${safeId}')" title="تعديل">
                     <i class="fa-solid fa-pen-to-square"></i>
                   </button>
                 ` : ''}
                 ${!isDoctor && canDeletePatient ? `
-                  <button type="button" class="btn btn-outline btn-sm btn-icon-action btn-delete-patient" style="color: var(--danger); border-color: rgba(239, 68, 68, 0.35);" data-patient-id="${safeId}" title="حذف">
+                  <button type="button" class="btn btn-outline btn-sm btn-icon-action btn-delete-patient" style="color: var(--danger); border-color: rgba(239, 68, 68, 0.35);" onclick="patientsManager.confirmDelete('${safeId}')" title="حذف">
                     <i class="fa-solid fa-trash"></i>
                   </button>
                 ` : ''}

@@ -209,7 +209,8 @@ export class AppointmentsManager {
 
     const slotsToRender = (this.slots && this.slots.length > 0) ? this.slots : DEFAULT_APPT_SLOTS;
 
-    const rows = slotsToRender.map((slot) => {
+    // 1. Desktop Matrix Table
+    const desktopRows = slotsToRender.map((slot) => {
       const totalInSlot = this.getSlotTotalCount(slot.key);
       const overCapacity = totalInSlot > MAX_BEDS_PER_SLOT;
 
@@ -243,21 +244,100 @@ export class AppointmentsManager {
             <span class="appt-time-text">${escapeHTML(slot.label)}</span>
             <i class="fa-solid fa-pen-to-square appt-time-edit-icon"></i>
           </div>
-          ${overCapacity ? `<div class="appt-over-badge" title="عدد الحالات في هذا الموعد (${totalInSlot}) تجاوز عدد الأسرة (${MAX_BEDS_PER_SLOT})"><i class="fa-solid fa-triangle-exclamation"></i> ${totalInSlot}/${MAX_BEDS_PER_SLOT}</div>` : ''}
+          ${overCapacity ? `<div class="appt-over-badge" title="عدد الحالات تجاوز عدد الأسرة"><i class="fa-solid fa-triangle-exclamation"></i> ${totalInSlot}/${MAX_BEDS_PER_SLOT}</div>` : ''}
         </td>
         ${cells}
       </tr>`;
     }).join('');
 
-    return `
-      <table class="data-table appt-table">
-        <thead><tr><th style="min-width: 100px; text-align: center;"><i class="fa-regular fa-clock" style="color: var(--primary);"></i> الميعاد</th>${doctorsHeader}</tr></thead>
-        <tbody>${rows}</tbody>
-      </table>
+    const desktopHTML = `
+      <div class="desktop-only-table">
+        <table class="data-table appt-table">
+          <thead><tr><th style="min-width: 100px; text-align: center;"><i class="fa-regular fa-clock" style="color: var(--primary);"></i> الميعاد</th>${doctorsHeader}</tr></thead>
+          <tbody>${desktopRows}</tbody>
+        </table>
+      </div>
     `;
+
+    // 2. Mobile Timeline Slot Cards
+    const mobileTimelineHTML = `
+      <div class="mobile-only-cards-container appt-timeline-container">
+        ${slotsToRender.map((slot) => {
+          const totalInSlot = this.getSlotTotalCount(slot.key);
+          const isFull = totalInSlot >= MAX_BEDS_PER_SLOT;
+          const overCapacity = totalInSlot > MAX_BEDS_PER_SLOT;
+
+          const occupancyBadge = overCapacity
+            ? `<span class="badge" style="background: rgba(239, 68, 68, 0.2); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.4);"><i class="fa-solid fa-triangle-exclamation"></i> ممتلئ (${totalInSlot}/${MAX_BEDS_PER_SLOT})</span>`
+            : (isFull
+              ? `<span class="badge badge-cash"><i class="fa-solid fa-bed"></i> مكتمل (${totalInSlot}/${MAX_BEDS_PER_SLOT})</span>`
+              : `<span class="badge badge-direct"><i class="fa-solid fa-bed"></i> ${totalInSlot} من ${MAX_BEDS_PER_SLOT} أسرة</span>`);
+
+          const doctorsContent = doctorsToShow.map((doc) => {
+            const cellAppts = this.getCellAppointments(doc.uid, slot.key);
+            const isSingleDoc = doctorsToShow.length === 1;
+
+            return `
+              <div class="appt-slot-doc-group">
+                ${!isSingleDoc ? `
+                  <div class="appt-slot-doc-title">
+                    <i class="fa-solid fa-user-doctor" style="color: var(--primary);"></i> د. ${escapeHTML(doc.name)}
+                  </div>
+                ` : ''}
+
+                <div class="appt-chips-wrap">
+                  ${cellAppts.map((a) => `
+                    <div class="appt-chip" data-appt-id="${escapeHTML(a.id)}">
+                      <span class="appt-chip-patient" data-move-appt="${escapeHTML(a.id)}" title="اضغط لنقل الموعد">${escapeHTML(a.patientName)}</span>
+                      <div class="appt-chip-actions">
+                        <button type="button" class="appt-chip-move" data-move-appt="${escapeHTML(a.id)}" title="نقل الموعد">
+                          <i class="fa-solid fa-arrow-right-arrow-left"></i>
+                        </button>
+                        <button type="button" class="appt-chip-remove" data-remove-appt="${escapeHTML(a.id)}" title="حذف">&times;</button>
+                      </div>
+                    </div>
+                  `).join('')}
+
+                  ${cellAppts.length === 0 ? `
+                    <span class="appt-slot-empty-hint">لا توجد حالات مسجلة</span>
+                  ` : ''}
+                </div>
+
+                <div style="margin-top: 8px;">
+                  <button type="button" class="btn btn-outline btn-sm btn-add-appt" data-add-doctor="${escapeHTML(doc.uid)}" data-add-doctor-name="${escapeHTML(doc.name)}" data-add-slot="${escapeHTML(slot.key)}" style="width: 100%; border-radius: var(--radius-pill); font-size: 0.8rem; padding: 6px 12px; gap: 6px;">
+                    <i class="fa-solid fa-plus"></i> حجز سرير ${!isSingleDoc ? `مع د. ${escapeHTML(doc.name)}` : ''}
+                  </button>
+                </div>
+              </div>
+            `;
+          }).join('');
+
+          return `
+            <div class="hero-styled-card appt-slot-card">
+              <div class="appt-slot-header">
+                <div class="appt-slot-time-pill" data-edit-slot="${escapeHTML(slot.key)}" data-slot-label="${escapeHTML(slot.label)}" title="اضغط لتعديل وقت الموعد">
+                  <i class="fa-regular fa-clock" style="color: var(--primary);"></i>
+                  <span style="font-weight: 800; font-size: 0.95rem;">${escapeHTML(slot.label)}</span>
+                  <i class="fa-solid fa-pen-to-square" style="font-size: 0.72rem; color: var(--text-muted); margin-right: 4px;"></i>
+                </div>
+                ${occupancyBadge}
+              </div>
+
+              <div class="hsc-divider" style="margin: 8px 0 12px 0;"></div>
+
+              <div class="appt-slot-body">
+                ${doctorsContent}
+              </div>
+            </div>
+          `;
+        }).join('')}
+      </div>
+    `;
+
+    return desktopHTML + mobileTimelineHTML;
   }
 
-  handleGridClick(e) {
+    handleGridClick(e) {
     // 1. Edit slot row time
     const editSlotTrigger = e.target.closest('[data-edit-slot]');
     if (editSlotTrigger) {

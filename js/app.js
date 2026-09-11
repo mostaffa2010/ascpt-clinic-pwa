@@ -114,22 +114,24 @@ class App {
     this.initTheme();
 
     // 2. ضبط عرض التاريخ والترحيب الذكي الديناميكي
+    const today = new Date();
+    const formattedDate = today.toLocaleDateString('ar-EG-u-nu-latn', {
+      weekday: 'long',
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    });
     const dateDisplay = document.getElementById('dashboard-date-display');
-    if (dateDisplay) {
-      const today = new Date();
-      dateDisplay.textContent = today.toLocaleDateString('ar-EG-u-nu-latn', {
-        weekday: 'long',
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric'
-      });
-    }
+    if (dateDisplay) dateDisplay.textContent = formattedDate;
+    const docDateDisplay = document.getElementById('doc-dashboard-date-display');
+    if (docDateDisplay) docDateDisplay.textContent = formattedDate;
+
     const hour = new Date().getHours();
     const greetingText = (hour >= 5 && hour < 12) ? 'صباح الخير' : (hour >= 12 && hour < 17 ? 'مساء الخير' : 'مساء النور');
     const heroGreetEl = document.getElementById('hero-greeting-text');
     if (heroGreetEl) heroGreetEl.textContent = greetingText;
     const docGreetEl = document.getElementById('doc-hero-greeting');
-    if (docGreetEl) docGreetEl.textContent = greetingText + " يا دكتور";
+    if (docGreetEl) docGreetEl.textContent = greetingText + "، يا دكتور";
 
     // 3. ربط أحداث التنقل والحوارات وتأمين الواجهة
     this.bindNavigation();
@@ -145,8 +147,17 @@ class App {
     try {
       await auth.init(async (user) => {
         if (user) {
+          const roleLabel = RolesManager.getRoleLabel(user.role);
           const heroName = document.getElementById('hero-greeting-name');
-          if (heroName) heroName.textContent = user.name || 'دكتور';
+          if (heroName) {
+            heroName.textContent = `${user.name} (${roleLabel})`;
+          }
+          const docGreetEl = document.getElementById('doc-hero-greeting');
+          if (docGreetEl) {
+            const h = new Date().getHours();
+            const gText = (h >= 5 && h < 12) ? 'صباح الخير' : (h >= 12 && h < 17 ? 'مساء الخير' : 'مساء النور');
+            docGreetEl.textContent = `${gText}، د. ${user.name}`;
+          }
           try { await db.syncAndSeedCloudOptions(); } catch (_) {}
           this.updateBackupStatusHint();
           this.checkBackupReminderToast(user);
