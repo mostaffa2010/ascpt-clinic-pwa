@@ -1237,6 +1237,7 @@ export class SessionsManager {
     const sessions = await db.getSessions(this.currentSessionDate);
     this.sessions = sessions;
     const tbody = document.getElementById('sessions-today-tbody');
+    const mobileCardsContainer = document.getElementById('sessions-today-mobile-cards');
     const badge = document.getElementById('sessions-today-count-badge');
     
     const examsCount = sessions.filter(s => s.entryType === 'examination').length;
@@ -1298,8 +1299,6 @@ export class SessionsManager {
         return da.localeCompare(db);
       });
     });
-
-    const mobileCardsContainer = document.getElementById('sessions-today-mobile-cards');
 
     // 1. Render Desktop Table
     tbody.innerHTML = sessions.map(s => {

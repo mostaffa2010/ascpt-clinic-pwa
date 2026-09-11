@@ -432,6 +432,7 @@ export class PatientsManager {
 
   renderPatients() {
     const tbody = document.getElementById('patients-tbody');
+    const mobileContainer = document.getElementById('patients-mobile-cards');
     if (!tbody) return;
 
     const rawSearch = document.getElementById('patient-search-input')?.value.trim() || '';
@@ -547,7 +548,6 @@ export class PatientsManager {
     const isDoctor = currentUser?.role === 'doctor';
 
     setTimeout(() => this.setupScrollSync(), 50);
-    const mobileContainer = document.getElementById('patients-mobile-cards');
 
     // 1. Render Desktop Table
     tbody.innerHTML = filtered.map(p => {
