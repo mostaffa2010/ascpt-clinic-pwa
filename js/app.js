@@ -11,6 +11,12 @@ if (typeof window !== 'undefined' && !window.__print_lock_installed) {
     }
     _isPrintingNow = true;
 
+    // 0. Temporarily force light theme on root so print engine renders pure white paper
+    const prevHtmlTheme = document.documentElement.getAttribute('data-theme') || '';
+    const prevBodyTheme = document.body.getAttribute('data-theme') || '';
+    document.documentElement.setAttribute('data-theme', 'light');
+    document.body.setAttribute('data-theme', 'light');
+
     // 1. Remove focus immediately so Android Chrome cannot replay click event on return
     if (document.activeElement && typeof document.activeElement.blur === 'function') {
       try { document.activeElement.blur(); } catch (e) {}
@@ -31,10 +37,20 @@ if (typeof window !== 'undefined' && !window.__print_lock_installed) {
       console.error('Print trigger notice:', e);
     }
 
-    // 3. Unlock ONLY 1 second AFTER the user returns to the app from print activity
+    // 3. Restore theme and unlock 1 second AFTER user returns
     const unlock = () => {
       setTimeout(() => {
         _isPrintingNow = false;
+        if (prevHtmlTheme) {
+          document.documentElement.setAttribute('data-theme', prevHtmlTheme);
+        } else {
+          document.documentElement.removeAttribute('data-theme');
+        }
+        if (prevBodyTheme) {
+          document.body.setAttribute('data-theme', prevBodyTheme);
+        } else {
+          document.body.removeAttribute('data-theme');
+        }
         printBtns.forEach(btn => {
           btn.removeAttribute('disabled');
           btn.style.pointerEvents = '';

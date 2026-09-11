@@ -11,7 +11,10 @@
 
 @media print {
   /* ================= 0. DUAL-FRIENDLY HIGH-CONTRAST PALETTE ================= */
-  :root, html, body, [data-theme="dark"] {
+  :root, html, body, [data-theme="dark"], [data-theme="dark"] body {
+    background-color: #ffffff !important;
+    background: #ffffff !important;
+    color: #000000 !important;
     /* Primary / Headings: Deep Medical Sapphire / Navy */
     --primary: #0369a1 !important;
     --primary-dark: #075985 !important;
@@ -82,7 +85,34 @@
   .toast-box,
   .card-header button,
   .mobile-only-cards-container,
-  #daily-doctors-mobile-deck {
+  #finance-report-mobile-cards,
+  #finance-expenses-mobile-cards,
+  #daily-doctors-mobile-deck,
+  #monthly-doctors-mobile-deck,
+  #monthly-doctors-mobile-cards,
+  #monthly-insurance-mobile-cards,
+  #monthly-expenses-mobile-cards,
+  #sessions-today-mobile-cards,
+  #patients-mobile-cards,
+  #doctor-personal-mobile-cards,
+  #claim-patients-mobile-cards,
+  #admin-users-mobile-cards,
+  #audit-log-mobile-cards,
+  #dashboard-recent-mobile-cards,
+  .hero-styled-card,
+  .doc-stack-wrapper,
+  .doc-stack-container,
+  .doc-stack-card,
+  .doc-stack-dots,
+  .doc-dot,
+  .doc-stack-nav-bar,
+  .btn-edit-session,
+  .btn-delete-session,
+  .btn-delete-expense,
+  .btn-delete-record,
+  .btn-quick-attend,
+  .btn-icon-action,
+  .hsc-actions {
     display: none !important;
   }
 
@@ -411,10 +441,49 @@
     font-weight: 700 !important;
   }
 
+  /* Desktop & Mobile Responsive Table Visibility during Print */
+  .desktop-only-table,
+  .table-responsive.desktop-only-table,
   body:not(.printing-sheet) .table-responsive {
     display: block !important;
     overflow: visible !important;
     border: none !important;
+    width: 100% !important;
+  }
+
+  [data-theme="dark"] .app-container,
+  [data-theme="dark"] .main-content,
+  [data-theme="dark"] #view-finance,
+  [data-theme="dark"] .card {
+    background: transparent !important;
+    background-color: transparent !important;
+    color: #000000 !important;
+  }
+
+  [data-theme="dark"] .data-table th {
+    background-color: #e2e8f0 !important;
+    color: #000000 !important;
+    border-color: #475569 !important;
+  }
+
+  [data-theme="dark"] .data-table td {
+    background-color: #ffffff !important;
+    color: #000000 !important;
+    border-color: #64748b !important;
+  }
+
+  [data-theme="dark"] .stat-box,
+  [data-theme="dark"] .stat-card {
+    background-color: #ffffff !important;
+    border-color: #64748b !important;
+  }
+
+  [data-theme="dark"] .stat-info .stat-value {
+    color: #000000 !important;
+  }
+
+  [data-theme="dark"] .stat-info .stat-label {
+    color: #334155 !important;
   }
 
   body:not(.printing-sheet) table.data-table {
