@@ -3828,15 +3828,95 @@ body {
 
 .appt-chips-wrap .appt-chip {
   margin-bottom: 0 !important;
-  border-radius: 12px !important;
-  padding: 8px 12px !important;
-  background: rgba(15, 23, 42, 0.5) !important;
-  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  border-radius: 14px !important;
+  padding: 10px 14px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 10px !important;
+  transition: all 0.2s ease !important;
 }
 
+/* Light Mode: Crisp, clean light card for booked patient */
+:root:not([data-theme="dark"]) .appt-chips-wrap .appt-chip {
+  background: #f8fafc !important;
+  border: 1.5px solid #e2e8f0 !important;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04) !important;
+}
+
+:root:not([data-theme="dark"]) .appt-chips-wrap .appt-chip:hover {
+  background: #f0f9ff !important;
+  border-color: #0284c7 !important;
+}
+
+:root:not([data-theme="dark"]) .appt-chip-patient {
+  color: #0f172a !important;
+  font-weight: 800 !important;
+  font-size: 0.95rem !important;
+}
+
+:root:not([data-theme="dark"]) .appt-chip-move {
+  background: #e0f2fe !important;
+  color: #0284c7 !important;
+  border: 1px solid #bae6fd !important;
+  width: 28px !important;
+  height: 28px !important;
+  border-radius: 50% !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+:root:not([data-theme="dark"]) .appt-chip-remove {
+  background: #fee2e2 !important;
+  color: #ef4444 !important;
+  border: 1px solid #fecaca !important;
+  width: 28px !important;
+  height: 28px !important;
+  border-radius: 50% !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  font-size: 1.1rem !important;
+  line-height: 1 !important;
+}
+
+/* Dark Mode: Sleek glass card for booked patient */
 [data-theme="dark"] .appt-chips-wrap .appt-chip {
-  background: rgba(15, 23, 42, 0.7) !important;
-  border-color: rgba(56, 189, 248, 0.2) !important;
+  background: rgba(15, 23, 42, 0.75) !important;
+  border: 1.5px solid rgba(56, 189, 248, 0.25) !important;
+}
+
+[data-theme="dark"] .appt-chip-patient {
+  color: #f8fafc !important;
+  font-weight: 800 !important;
+  font-size: 0.95rem !important;
+}
+
+[data-theme="dark"] .appt-chip-move {
+  background: rgba(56, 189, 248, 0.15) !important;
+  color: #38bdf8 !important;
+  border: 1px solid rgba(56, 189, 248, 0.3) !important;
+  width: 28px !important;
+  height: 28px !important;
+  border-radius: 50% !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+[data-theme="dark"] .appt-chip-remove {
+  background: rgba(239, 68, 68, 0.15) !important;
+  color: #f87171 !important;
+  border: 1px solid rgba(239, 68, 68, 0.3) !important;
+  width: 28px !important;
+  height: 28px !important;
+  border-radius: 50% !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  font-size: 1.1rem !important;
+  line-height: 1 !important;
 }
 
 .appt-slot-empty-hint {
