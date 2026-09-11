@@ -913,6 +913,13 @@ export class FinanceManager {
               <td>${safeCount}</td>
               <td style="font-weight: 700; color: var(--success);">${safeAmount} ج.م</td>
               <td style="font-size: 0.8rem; color: var(--text-muted);">${safeRecAt}</td>
+              <td class="cell-action">
+                ${s.patientId ? `
+                  <button type="button" class="btn btn-outline btn-sm btn-session-sheet-action" onclick="patientsManager.openPatientSheet('${escapeHTML(s.patientId)}')" style="border-radius: var(--radius-pill); font-size: 0.78rem; padding: 4px 12px;" title="فتح الشيت الطبي">
+                    <i class="fa-solid fa-file-waveform"></i> الشيت الطبي
+                  </button>
+                ` : ''}
+              </td>
             </tr>
           `;
         }).join('');

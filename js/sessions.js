@@ -1385,14 +1385,19 @@ export class SessionsManager {
           <td>${partsCell}</td>
           <td style="font-weight: 700; color: var(--success);">${safeAmount} ج.م</td>
           <td style="font-size: 0.8rem; color: var(--text-muted);">${safeRecBy} (${safeRecAt})</td>
-          <td>
-            <div style="display: flex; gap: 4px;">
-              <button type="button" class="btn btn-outline btn-sm btn-edit-session" data-session-id="${safeId}" onclick="sessionsManager.editSession('${safeId}')" title="${isExam ? 'تعديل بيانات الكشف' : 'تعديل بيانات الجلسة'}">
-                <i class="fa-solid fa-pen-to-square"></i>
+          <td class="cell-action">
+            <div class="session-card-actions-row" style="display: flex; gap: 6px; align-items: center; flex-wrap: wrap;">
+              ${s.patientId ? `
+                <button type="button" class="btn btn-primary btn-sm btn-session-sheet-action" onclick="patientsManager.openPatientSheet('${escapeHTML(s.patientId)}')" style="border-radius: var(--radius-pill); font-size: 0.78rem; padding: 5px 12px;" title="الشيت الطبي">
+                  <i class="fa-solid fa-file-waveform"></i> الشيت الطبي
+                </button>
+              ` : ''}
+              <button type="button" class="btn btn-outline btn-sm btn-edit-session" data-session-id="${safeId}" onclick="sessionsManager.editSession('${safeId}')" style="border-radius: var(--radius-pill); font-size: 0.78rem; padding: 5px 10px;" title="${isExam ? 'تعديل بيانات الكشف' : 'تعديل بيانات الجلسة'}">
+                <i class="fa-solid fa-pen-to-square"></i> تعديل
               </button>
               ${canDelete ? `
-                <button type="button" class="btn btn-outline btn-sm btn-delete-record btn-delete-session" style="color: var(--danger);" data-session-id="${safeId}" onclick="sessionsManager.deleteSession('${safeId}')" title="${isExam ? 'حذف الكشف' : 'حذف الجلسة'}">
-                  <i class="fa-solid fa-trash"></i>
+                <button type="button" class="btn btn-outline btn-sm btn-delete-record btn-delete-session" style="color: var(--danger); border-color: rgba(239, 68, 68, 0.35); border-radius: var(--radius-pill); font-size: 0.78rem; padding: 5px 10px;" data-session-id="${safeId}" onclick="sessionsManager.deleteSession('${safeId}')" title="${isExam ? 'حذف الكشف' : 'حذف الجلسة'}">
+                  <i class="fa-solid fa-trash"></i> حذف
                 </button>
               ` : ''}
             </div>

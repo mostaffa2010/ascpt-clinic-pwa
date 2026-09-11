@@ -2988,3 +2988,264 @@ body.not-authenticated #modal-auth #btn-cancel-login {
   border-color: var(--border-color);
   color: var(--text-main);
 }
+
+/* ================= Comprehensive Mobile Standalone Cards & Glassmorphism (v1.4.0-beta.3) ================= */
+
+/* Glassmorphism Enhancements for Modals & Surfaces */
+.modal-content {
+  background-color: rgba(255, 255, 255, 0.94) !important;
+  backdrop-filter: blur(28px) !important;
+  -webkit-backdrop-filter: blur(28px) !important;
+}
+
+[data-theme="dark"] .modal-content {
+  background-color: rgba(30, 41, 59, 0.92) !important;
+  backdrop-filter: blur(28px) !important;
+  -webkit-backdrop-filter: blur(28px) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+}
+
+.stat-box, .stat-card {
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+}
+
+[data-theme="dark"] .stat-box,
+[data-theme="dark"] .stat-card {
+  background: rgba(30, 41, 59, 0.75) !important;
+  border-color: rgba(255, 255, 255, 0.08) !important;
+  backdrop-filter: blur(18px) !important;
+  -webkit-backdrop-filter: blur(18px) !important;
+}
+
+@media (max-width: 767px) {
+  /* 1. Dissolve outer container borders and shadows to completely remove the 'grouped box' look */
+  #card-dashboard-recent,
+  #card-sessions-today,
+  #card-patients-directory,
+  .card:has(#dashboard-recent-table),
+  .card:has(#doctor-personal-table),
+  .card:has(#sessions-today-tbody),
+  .card:has(#patients-tbody) {
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+    margin-bottom: 14px !important;
+  }
+
+  #card-dashboard-recent .card-header,
+  #card-sessions-today .card-header,
+  #card-patients-directory .card-header {
+    padding: 4px 2px 12px 2px !important;
+    border-bottom: none !important;
+  }
+
+  #card-dashboard-recent .table-responsive,
+  #card-sessions-today .table-responsive,
+  #card-patients-directory .table-responsive,
+  .table-responsive:has(#dashboard-recent-table),
+  .table-responsive:has(#sessions-today-tbody),
+  .table-responsive:has(#patients-tbody) {
+    border: none !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    overflow: visible !important;
+    padding: 0 !important;
+  }
+
+  /* 2. Block Display for Tables on Mobile */
+  #dashboard-recent-table,
+  #dashboard-recent-table thead,
+  #dashboard-recent-table tbody,
+  #dashboard-recent-table th,
+  #dashboard-recent-table td,
+  #dashboard-recent-table tr,
+  #sessions-today-tbody,
+  #sessions-today-tbody tr,
+  #sessions-today-tbody td,
+  #sessions-today-tbody th,
+  #patients-tbody,
+  #patients-tbody tr,
+  #patients-tbody td,
+  #patients-tbody th {
+    display: block !important;
+  }
+
+  /* Hide table header rows on mobile */
+  #dashboard-recent-table thead tr,
+  #card-sessions-today table thead tr,
+  #patients-data-table thead tr {
+    display: none !important;
+  }
+
+  /* 3. Each Table Row Becomes an Elevated Standalone Card */
+  #dashboard-recent-table tbody tr,
+  #sessions-today-tbody tr,
+  #patients-tbody tr {
+    background: var(--bg-surface) !important;
+    border: 1.5px solid var(--border-color) !important;
+    border-radius: var(--radius-lg) !important;
+    padding: 16px 18px !important;
+    margin-bottom: 14px !important;
+    box-shadow: 0 4px 18px -2px rgba(15, 23, 42, 0.06) !important;
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 8px !important;
+    position: relative !important;
+    transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.2s ease, border-color 0.2s ease !important;
+  }
+
+  #dashboard-recent-table tbody tr:hover,
+  #sessions-today-tbody tr:hover,
+  #patients-tbody tr:hover {
+    transform: translateY(-2px) !important;
+    box-shadow: 0 8px 24px -4px rgba(15, 23, 42, 0.1) !important;
+    border-color: rgba(2, 132, 199, 0.3) !important;
+  }
+
+  [data-theme="dark"] #dashboard-recent-table tbody tr,
+  [data-theme="dark"] #sessions-today-tbody tr,
+  [data-theme="dark"] #patients-tbody tr {
+    background: var(--bg-surface) !important;
+    border-color: rgba(51, 65, 85, 0.75) !important;
+    box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.45) !important;
+  }
+
+  [data-theme="dark"] #dashboard-recent-table tbody tr:hover,
+  [data-theme="dark"] #sessions-today-tbody tr:hover,
+  [data-theme="dark"] #patients-tbody tr:hover {
+    border-color: rgba(56, 189, 248, 0.35) !important;
+    box-shadow: 0 8px 26px -2px rgba(0, 0, 0, 0.6) !important;
+  }
+
+  /* Specific Layout for Sessions Today Card Items */
+  #sessions-today-tbody td {
+    padding: 0 !important;
+    border-bottom: none !important;
+    white-space: normal !important;
+  }
+
+  #sessions-today-tbody td:nth-child(1) {
+    font-size: 1.05rem !important;
+    font-weight: 800 !important;
+    color: var(--text-main) !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 6px !important;
+  }
+  #sessions-today-tbody td:nth-child(1)::before {
+    content: '\f007';
+    font-family: 'Font Awesome 6 Free';
+    font-weight: 900;
+    font-size: 0.85rem;
+    color: var(--primary);
+  }
+
+  #sessions-today-tbody td:nth-child(2) {
+    display: inline-flex !important;
+  }
+
+  #sessions-today-tbody td:nth-child(3) {
+    font-size: 0.85rem !important;
+    color: var(--text-muted) !important;
+    font-weight: 600 !important;
+  }
+  #sessions-today-tbody td:nth-child(3)::before {
+    content: 'طبيب: ';
+    font-weight: 500;
+  }
+
+  #sessions-today-tbody td:nth-child(4) {
+    display: inline-flex !important;
+  }
+
+  #sessions-today-tbody td:nth-child(5) {
+    display: inline-flex !important;
+  }
+
+  #sessions-today-tbody td:nth-child(6) {
+    font-size: 1.1rem !important;
+    font-weight: 800 !important;
+    color: var(--success) !important;
+  }
+
+  #sessions-today-tbody td:nth-child(7) {
+    font-size: 0.78rem !important;
+    color: var(--text-muted) !important;
+    border-top: 1px dashed var(--border-color) !important;
+    padding-top: 6px !important;
+    margin-top: 2px !important;
+  }
+
+  #sessions-today-tbody td.cell-action {
+    margin-top: 6px !important;
+    padding-top: 8px !important;
+    border-top: 1px solid var(--border-color) !important;
+  }
+
+  /* Specific Layout for Patients Directory Card Items */
+  #patients-tbody td {
+    padding: 0 !important;
+    border-bottom: none !important;
+    white-space: normal !important;
+  }
+
+  #patients-tbody td:nth-child(1) {
+    font-size: 1.08rem !important;
+    font-weight: 800 !important;
+    color: var(--primary) !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 6px !important;
+  }
+
+  #patients-tbody td:nth-child(2) {
+    font-size: 0.84rem !important;
+    color: var(--text-muted) !important;
+    font-weight: 600 !important;
+  }
+
+  #patients-tbody td:nth-child(3) {
+    margin-top: 2px !important;
+  }
+
+  #patients-tbody td:nth-child(4) {
+    font-size: 0.82rem !important;
+    color: var(--text-muted) !important;
+  }
+  #patients-tbody td:nth-child(4)::before {
+    content: 'العنوان: ';
+  }
+
+  #patients-tbody td:nth-child(5) {
+    font-size: 0.84rem !important;
+    color: var(--text-main) !important;
+    font-weight: 600 !important;
+  }
+  #patients-tbody td:nth-child(5)::before {
+    content: 'طبيب: ';
+    color: var(--text-muted);
+  }
+
+  #patients-tbody td:nth-child(6) {
+    display: inline-flex !important;
+  }
+
+  #patients-tbody td:nth-child(7) {
+    font-size: 0.76rem !important;
+    color: var(--text-muted) !important;
+  }
+
+  #patients-tbody td:nth-child(8) {
+    margin-top: 8px !important;
+    padding-top: 8px !important;
+    border-top: 1px solid var(--border-color) !important;
+  }
+
+  #patients-tbody td:nth-child(8) > div {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    gap: 6px !important;
+  }
+}
