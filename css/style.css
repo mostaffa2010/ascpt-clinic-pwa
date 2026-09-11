@@ -4780,7 +4780,7 @@ body {
   border-color: #0284c7 !important;
 }
 
-/* 2. Doctor 3D Overlapping Stack Deck */
+/* 2. Doctor 3D Overlapping Stack Deck (High-Performance Left-Peeking Deck) */
 .doc-stack-wrapper {
   position: relative;
   width: 100%;
@@ -4791,46 +4791,50 @@ body {
   display: flex !important;
   align-items: center !important;
   justify-content: space-between !important;
-  padding: 4px 6px 14px 6px !important;
+  padding: 4px 6px 12px 6px !important;
 }
 
 .doc-stack-container {
   position: relative;
   width: 100%;
   min-height: 240px;
-  perspective: 1000px;
-  transition: min-height 0.3s ease;
+  perspective: 1200px;
+  touch-action: pan-y !important;
+  user-select: none;
+  -webkit-user-select: none;
+  box-sizing: border-box;
+  padding-left: 38px;
 }
 
 .doc-stack-card {
   position: absolute;
   top: 0;
-  left: 0;
+  left: 38px;
   right: 0;
-  width: 100%;
   border-radius: 20px !important;
   box-sizing: border-box !important;
   cursor: pointer;
-  /* 100% GPU-only transitions: transforms and opacity without paint or layout stalls */
-  transition: transform 0.26s cubic-bezier(0.25, 1, 0.5, 1),
-              opacity 0.22s ease !important;
+  /* 100% GPU-only transitions: transforms and opacity */
+  transition: transform 0.28s cubic-bezier(0.22, 1, 0.36, 1),
+              opacity 0.24s ease,
+              box-shadow 0.24s ease;
   will-change: transform, opacity;
   backface-visibility: hidden !important;
   -webkit-backface-visibility: hidden !important;
   transform: translate3d(0, 0, 0);
   overflow: hidden;
-  /* Disable heavy multi-pass blur on stacked cards to save mobile GPU compositing */
   backdrop-filter: none !important;
   -webkit-backdrop-filter: none !important;
+  touch-action: pan-y !important;
 }
 
 .doc-stack-card.is-active-card {
-  transform: translate3d(0, 0, 0) scale(1) !important;
   z-index: 12 !important;
   opacity: 1 !important;
+  visibility: visible !important;
   pointer-events: auto !important;
   border-color: rgba(2, 132, 199, 0.45) !important;
-  box-shadow: 0 10px 30px -4px rgba(2, 132, 199, 0.22) !important;
+  box-shadow: 0 10px 28px -4px rgba(2, 132, 199, 0.22) !important;
 }
 
 [data-theme="dark"] .doc-stack-card.is-active-card {
@@ -4842,7 +4846,7 @@ body {
   cursor: pointer;
   pointer-events: auto !important;
   border-color: var(--border-color) !important;
-  /* Replaced GPU-heavy brightness filter with pure opacity handling */
+  visibility: visible !important;
   opacity: 0.88;
 }
 
@@ -4850,9 +4854,12 @@ body {
   opacity: 0.80;
 }
 
-.doc-stack-card.is-passed-card {
+.doc-stack-card.is-passed-card,
+.doc-stack-card.is-hidden-card {
   pointer-events: none !important;
   opacity: 0 !important;
+  visibility: hidden !important;
+  will-change: auto !important;
 }
 
 /* List Layout Toggle Override */
@@ -4861,14 +4868,19 @@ body {
   flex-direction: column !important;
   gap: 14px !important;
   min-height: auto !important;
+  padding-left: 0 !important;
 }
 
 .doc-stack-container.is-list-layout .doc-stack-card {
   position: relative !important;
+  left: auto !important;
+  right: auto !important;
   transform: none !important;
   opacity: 1 !important;
+  visibility: visible !important;
   z-index: 1 !important;
   pointer-events: auto !important;
+  will-change: auto !important;
 }
 
 .doc-stack-nav-bar {
@@ -5732,29 +5744,39 @@ body::-webkit-scrollbar,
 @media (min-width: 768px) {
   #daily-doctors-mobile-deck .doc-stack-container,
   #monthly-doctors-mobile-cards .doc-stack-container,
-  #admin-users-mobile-cards .doc-stack-container {
+  #admin-users-mobile-cards .doc-stack-container,
+  #my-appointments-grid .doc-stack-container {
     display: grid !important;
     grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)) !important;
     gap: 14px !important;
     min-height: auto !important;
     perspective: none !important;
+    padding-left: 0 !important;
   }
   #daily-doctors-mobile-deck .doc-stack-card,
   #monthly-doctors-mobile-cards .doc-stack-card,
-  #admin-users-mobile-cards .doc-stack-card {
+  #admin-users-mobile-cards .doc-stack-card,
+  #my-appointments-grid .doc-stack-card {
     position: relative !important;
+    left: auto !important;
+    right: auto !important;
     transform: none !important;
     opacity: 1 !important;
+    visibility: visible !important;
     z-index: 1 !important;
     pointer-events: auto !important;
+    will-change: auto !important;
   }
   #daily-doctors-mobile-deck .doc-stack-nav-bar,
   #monthly-doctors-mobile-cards .doc-stack-nav-bar,
   #admin-users-mobile-cards .doc-stack-nav-bar,
+  #my-appointments-grid .doc-stack-nav-bar,
   #daily-doctors-mobile-deck #btn-toggle-daily-doc-stack,
   #monthly-doctors-mobile-cards #btn-toggle-monthly-doc-stack,
   #daily-doctors-mobile-deck #daily-doc-stack-counter,
-  #monthly-doctors-mobile-cards #monthly-doc-stack-counter {
+  #monthly-doctors-mobile-cards #monthly-doc-stack-counter,
+  #my-appointments-grid #btn-toggle-doc-stack-layout,
+  #my-appointments-grid #doc-stack-counter {
     display: none !important;
   }
 }
