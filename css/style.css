@@ -3465,6 +3465,7 @@ body {
   #card-dashboard-recent,
   #card-sessions-today,
   #card-patients-directory,
+  #card-doctor-personal-sessions,
   #card-doctor-appointments-schedule,
   #card-main-appointments-schedule {
     background: transparent !important;
@@ -3477,6 +3478,7 @@ body {
   #card-dashboard-recent .card-header,
   #card-sessions-today .card-header,
   #card-patients-directory .card-header,
+  #card-doctor-personal-sessions .card-header,
   #card-doctor-appointments-schedule .card-header,
   #card-main-appointments-schedule .card-header {
     padding: 4px 2px 12px 2px !important;
@@ -6017,4 +6019,61 @@ body::-webkit-scrollbar,
   white-space: normal !important;
   line-height: 1.4 !important;
   max-width: 100% !important;
+}
+
+
+/* ==========================================================================
+   v1.4.0-beta.28: Bounded Mobile Scrollable Containers (~3 Cards Height)
+   ========================================================================== */
+@media (max-width: 991px) {
+  #sessions-today-mobile-cards,
+  #patients-mobile-cards,
+  #doctor-personal-mobile-cards,
+  #finance-report-mobile-cards,
+  #dashboard-recent-mobile-cards {
+    max-height: 440px !important;
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+    -webkit-overflow-scrolling: touch !important;
+    overscroll-behavior: contain !important;
+    padding: 2px 4px 10px 4px !important;
+    box-sizing: border-box !important;
+    scrollbar-width: thin !important;
+    scrollbar-color: rgba(2, 132, 199, 0.35) transparent !important;
+  }
+
+  [data-theme="dark"] #sessions-today-mobile-cards,
+  [data-theme="dark"] #patients-mobile-cards,
+  [data-theme="dark"] #doctor-personal-mobile-cards,
+  [data-theme="dark"] #finance-report-mobile-cards,
+  [data-theme="dark"] #dashboard-recent-mobile-cards {
+    scrollbar-color: rgba(56, 189, 248, 0.4) transparent !important;
+  }
+
+  /* Custom Slim WebKit Scrollbar for Mobile Touch Feedback */
+  #sessions-today-mobile-cards::-webkit-scrollbar,
+  #patients-mobile-cards::-webkit-scrollbar,
+  #doctor-personal-mobile-cards::-webkit-scrollbar,
+  #finance-report-mobile-cards::-webkit-scrollbar,
+  #dashboard-recent-mobile-cards::-webkit-scrollbar {
+    width: 4px !important;
+    display: block !important;
+  }
+
+  #sessions-today-mobile-cards::-webkit-scrollbar-thumb,
+  #patients-mobile-cards::-webkit-scrollbar-thumb,
+  #doctor-personal-mobile-cards::-webkit-scrollbar-thumb,
+  #finance-report-mobile-cards::-webkit-scrollbar-thumb,
+  #dashboard-recent-mobile-cards::-webkit-scrollbar-thumb {
+    background-color: rgba(2, 132, 199, 0.35) !important;
+    border-radius: 999px !important;
+  }
+
+  [data-theme="dark"] #sessions-today-mobile-cards::-webkit-scrollbar-thumb,
+  [data-theme="dark"] #patients-mobile-cards::-webkit-scrollbar-thumb,
+  [data-theme="dark"] #doctor-personal-mobile-cards::-webkit-scrollbar-thumb,
+  [data-theme="dark"] #finance-report-mobile-cards::-webkit-scrollbar-thumb,
+  [data-theme="dark"] #dashboard-recent-mobile-cards::-webkit-scrollbar-thumb {
+    background-color: rgba(56, 189, 248, 0.4) !important;
+  }
 }
