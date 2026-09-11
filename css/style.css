@@ -5538,3 +5538,154 @@ body::-webkit-scrollbar,
   font-weight: 800;
   color: var(--text-muted);
 }
+
+/* ==========================================================================
+   v1.4.0-beta.21: Interactive Session Mode Cards & Doctor Deck Responsive Grid
+   ========================================================================== */
+
+/* 1. Interactive Dual Mode Action Cards (Sessions View) */
+.session-action-selector {
+  display: grid !important;
+  grid-template-columns: 1fr 1fr !important;
+  gap: 10px !important;
+  width: 100% !important;
+  margin-bottom: 8px !important;
+  box-sizing: border-box !important;
+}
+
+.session-action-card {
+  display: flex !important;
+  align-items: center !important;
+  gap: 10px !important;
+  padding: 10px 14px !important;
+  border-radius: 16px !important;
+  border: 1.5px solid var(--border-color) !important;
+  background: var(--bg-surface) !important;
+  cursor: pointer !important;
+  text-align: right !important;
+  position: relative !important;
+  transition: all 0.22s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  box-sizing: border-box !important;
+}
+
+.session-action-card:active {
+  transform: scale(0.98) !important;
+}
+
+.session-action-card .action-card-icon {
+  width: 40px !important;
+  height: 40px !important;
+  border-radius: 12px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  font-size: 1.1rem !important;
+  flex-shrink: 0 !important;
+  transition: all 0.2s ease !important;
+}
+
+.session-action-card .action-card-icon.blue {
+  background: rgba(2, 132, 199, 0.12) !important;
+  color: #0284c7 !important;
+}
+
+.session-action-card .action-card-icon.teal {
+  background: rgba(13, 148, 136, 0.12) !important;
+  color: #0d9488 !important;
+}
+
+.session-action-card .action-card-body {
+  flex: 1 !important;
+  min-width: 0 !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 2px !important;
+}
+
+.session-action-card .action-card-title {
+  font-size: 0.94rem !important;
+  font-weight: 800 !important;
+  color: var(--text-main) !important;
+  line-height: 1.2 !important;
+}
+
+.session-action-card .action-card-sub {
+  font-size: 0.75rem !important;
+  color: var(--text-muted) !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+}
+
+.session-action-card .action-card-check {
+  font-size: 1.1rem !important;
+  flex-shrink: 0 !important;
+}
+
+.session-action-card .check-on {
+  display: none !important;
+  color: var(--primary) !important;
+}
+
+.session-action-card .check-off {
+  display: inline-block !important;
+  color: var(--text-muted) !important;
+  opacity: 0.5 !important;
+}
+
+/* Active State Styles */
+:root:not([data-theme="dark"]) .session-action-card.active {
+  background: linear-gradient(135deg, rgba(2, 132, 199, 0.06) 0%, rgba(2, 132, 199, 0.12) 100%) !important;
+  border-color: #0284c7 !important;
+  box-shadow: 0 4px 14px -2px rgba(2, 132, 199, 0.2) !important;
+}
+
+:root:not([data-theme="dark"]) .session-action-card.active .action-card-title {
+  color: #0284c7 !important;
+}
+
+[data-theme="dark"] .session-action-card.active {
+  background: linear-gradient(135deg, rgba(56, 189, 248, 0.08) 0%, rgba(56, 189, 248, 0.18) 100%) !important;
+  border-color: #38bdf8 !important;
+  box-shadow: 0 4px 18px -2px rgba(0, 0, 0, 0.5) !important;
+}
+
+[data-theme="dark"] .session-action-card.active .action-card-title {
+  color: #38bdf8 !important;
+}
+
+.session-action-card.active .check-on {
+  display: inline-block !important;
+}
+
+.session-action-card.active .check-off {
+  display: none !important;
+}
+
+/* 2. Doctor Stack Deck Desktop Responsiveness */
+@media (min-width: 768px) {
+  #daily-doctors-mobile-deck .doc-stack-container,
+  #monthly-doctors-mobile-cards .doc-stack-container {
+    display: grid !important;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)) !important;
+    gap: 14px !important;
+    min-height: auto !important;
+    perspective: none !important;
+  }
+  #daily-doctors-mobile-deck .doc-stack-card,
+  #monthly-doctors-mobile-cards .doc-stack-card {
+    position: relative !important;
+    transform: none !important;
+    opacity: 1 !important;
+    z-index: 1 !important;
+    pointer-events: auto !important;
+  }
+  #daily-doctors-mobile-deck .doc-stack-nav-bar,
+  #monthly-doctors-mobile-cards .doc-stack-nav-bar,
+  #daily-doctors-mobile-deck #btn-toggle-daily-doc-stack,
+  #monthly-doctors-mobile-cards #btn-toggle-monthly-doc-stack,
+  #daily-doctors-mobile-deck #daily-doc-stack-counter,
+  #monthly-doctors-mobile-cards #monthly-doc-stack-counter {
+    display: none !important;
+  }
+}
