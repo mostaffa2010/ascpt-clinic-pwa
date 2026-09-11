@@ -6118,10 +6118,7 @@ body::-webkit-scrollbar,
 /* ==========================================================================
    v1.4.0-beta.31: Body Scroll Lock & Modal Scroll Isolation
    ========================================================================== */
-body.modal-open {
-  overflow: hidden !important;
-  touch-action: none !important;
-}
+/* body.modal-open removed to prevent touch freezes */
 
 .modal-backdrop {
   overscroll-behavior: contain !important;
