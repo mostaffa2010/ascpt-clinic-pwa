@@ -499,17 +499,45 @@ export class PatientsManager {
 
     if (filtered.length === 0) {
       if (this.filterTodayOnly) {
-        tbody.innerHTML = `<tr><td colspan="8" style="text-align: center; color: var(--text-muted); padding: 30px;">
+        tbody.innerHTML = `<tr><td colspan="8" style="text-align: center; color: var(--text-muted); padding: 36px 20px;">
           <i class="fa-solid fa-calendar-xmark" style="font-size: 1.8rem; color: var(--text-muted); margin-bottom: 8px; display: block;"></i>
           لا توجد حالات مسجلة في مواعيد أو جلسات اليوم.<br>
           <button type="button" class="btn btn-outline btn-sm" id="btn-reset-today-filter" style="margin-top: 10px;">
             عرض كافة المرضى
           </button>
         </td></tr>`;
+        if (mobileContainer) {
+          mobileContainer.innerHTML = `
+            <div class="hero-styled-card" style="text-align: center; padding: 36px 20px;">
+              <div style="width: 56px; height: 56px; border-radius: 50%; background: var(--primary-light); color: var(--primary); display: inline-flex; align-items: center; justify-content: center; font-size: 1.4rem; margin-bottom: 12px;">
+                <i class="fa-solid fa-calendar-xmark"></i>
+              </div>
+              <div style="font-weight: 800; font-size: 1.05rem; color: var(--text-main);">لا توجد حالات مسجلة اليوم</div>
+              <div style="font-size: 0.84rem; color: var(--text-muted); margin-top: 5px; margin-bottom: 16px;">لا توجد مواعيد أو جلسات مسجلة للمرضى لهذا اليوم.</div>
+              <button type="button" class="btn btn-outline btn-sm" id="btn-reset-today-filter-mob" style="border-radius: 999px; padding: 8px 20px; font-weight: 700; color: var(--primary); border-color: var(--primary);">
+                عرض كافة المرضى
+              </button>
+            </div>
+          `;
+          document.getElementById('btn-reset-today-filter-mob')?.addEventListener('click', () => this.toggleTodayFilter());
+        }
         document.getElementById('btn-reset-today-filter')?.addEventListener('click', () => this.toggleTodayFilter());
         return;
       }
+      const emptySearchCard = `
+        <div class="hero-styled-card" style="text-align: center; padding: 36px 20px;">
+          <div style="width: 56px; height: 56px; border-radius: 50%; background: rgba(2, 132, 199, 0.12); color: var(--primary); display: inline-flex; align-items: center; justify-content: center; font-size: 1.4rem; margin-bottom: 12px;">
+            <i class="fa-solid fa-magnifying-glass"></i>
+          </div>
+          <div style="font-weight: 800; font-size: 1.05rem; color: var(--text-main);">لا توجد نتائج مطابقة</div>
+          <div style="font-size: 0.84rem; color: var(--text-muted); margin-top: 5px; margin-bottom: 16px;">لم يتم العثور على مريض مطابق لكلمة: <strong>"${escapeHTML(rawSearch)}"</strong></div>
+          <button type="button" class="btn btn-primary btn-sm" onclick="patientsManager.openAddModal()" style="display: inline-flex; align-items: center; gap: 8px; border-radius: 999px; padding: 8px 20px; font-weight: 700;">
+            <i class="fa-solid fa-user-plus"></i> <span>تسجيل مريض جديد الآن</span>
+          </button>
+        </div>
+      `;
       tbody.innerHTML = `<tr><td colspan="8" style="text-align: center; color: var(--text-muted); padding: 30px;">لا يوجد مرضى مطابقين لكلمة البحث: <strong>"${escapeHTML(rawSearch)}"</strong></td></tr>`;
+      if (mobileContainer) mobileContainer.innerHTML = emptySearchCard;
       return;
     }
 

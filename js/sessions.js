@@ -1254,7 +1254,24 @@ export class SessionsManager {
     if (!tbody) return;
 
     if (sessions.length === 0) {
-      tbody.innerHTML = `<tr><td colspan="8" style="text-align: center; color: var(--text-muted); padding: 25px;">لا توجد حركات أو جلسات مسجلة اليوم حتى الآن.</td></tr>`;
+      tbody.innerHTML = `<tr><td colspan="8" style="text-align: center; color: var(--text-muted); padding: 36px 20px;">
+        <i class="fa-solid fa-calendar-check" style="font-size: 1.8rem; color: var(--text-muted); margin-bottom: 8px; display: block;"></i>
+        لا توجد حركات أو جلسات مسجلة لهذا التاريخ حتى الآن.
+      </td></tr>`;
+      if (mobileCardsContainer) {
+        mobileCardsContainer.innerHTML = `
+          <div class="hero-styled-card" style="text-align: center; padding: 36px 20px;">
+            <div style="width: 56px; height: 56px; border-radius: 50%; background: var(--primary-light); color: var(--primary); display: inline-flex; align-items: center; justify-content: center; font-size: 1.4rem; margin-bottom: 12px;">
+              <i class="fa-solid fa-calendar-check"></i>
+            </div>
+            <div style="font-weight: 800; font-size: 1.05rem; color: var(--text-main);">لا توجد جلسات مسجلة اليوم</div>
+            <div style="font-size: 0.84rem; color: var(--text-muted); margin-top: 5px; margin-bottom: 16px;">لم يتم تسجيل أي حضور لجلسات أو كشوفات في هذا التاريخ حتى الآن.</div>
+            <button type="button" class="btn btn-primary btn-sm" onclick="app.switchView('patients')" style="display: inline-flex; align-items: center; gap: 8px; border-radius: 999px; padding: 8px 20px; font-weight: 700;">
+              <i class="fa-solid fa-user-check"></i> <span>تسجيل جلسة من قائمة المرضى</span>
+            </button>
+          </div>
+        `;
+      }
       return;
     }
 

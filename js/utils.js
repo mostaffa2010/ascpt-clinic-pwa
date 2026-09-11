@@ -399,3 +399,18 @@ export function initStackDeck(config) {
     refreshHeight: updateContainerMinHeight
   };
 }
+
+/**
+ * Triggers subtle native haptic vibration feedback on supported mobile devices.
+ * @param {'light'|'medium'|'success'|'warning'} type
+ */
+export function triggerHaptic(type = 'light') {
+  if (typeof navigator !== 'undefined' && 'vibrate' in navigator) {
+    try {
+      if (type === 'light') navigator.vibrate(12);
+      else if (type === 'medium') navigator.vibrate(22);
+      else if (type === 'success') navigator.vibrate([15, 30, 20]);
+      else if (type === 'warning') navigator.vibrate([30, 40, 30]);
+    } catch (_) {}
+  }
+}

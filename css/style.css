@@ -3498,16 +3498,16 @@ body {
 
 /* --- THE HERO-STYLED CARD COMPONENT --- */
 .hero-styled-card {
-  background: linear-gradient(135deg, rgba(15, 23, 42, 0.9) 0%, rgba(30, 41, 59, 0.88) 100%);
-  border: 1.5px solid rgba(56, 189, 248, 0.22);
+  background: var(--bg-surface);
+  border: 1.5px solid var(--border-color);
   border-radius: var(--radius-lg);
   padding: 16px 18px;
-  box-shadow: 0 10px 28px -4px rgba(0, 0, 0, 0.45);
-  backdrop-filter: blur(20px) saturate(180%);
-  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  box-shadow: 0 4px 16px -2px rgba(15, 23, 42, 0.05);
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
   position: relative;
   overflow: hidden;
-  transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.2s ease, border-color 0.2s ease;
+  transition: transform 0.16s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.16s ease, border-color 0.16s ease;
 }
 
 .hero-styled-card:hover {
@@ -6127,4 +6127,77 @@ body::-webkit-scrollbar,
 .modal-content {
   overscroll-behavior: contain !important;
   -webkit-overflow-scrolling: touch !important;
+}
+
+/* ==========================================================================
+   v1.4.0-beta.33: 2026 Modern Design & Touch Ergonomics Polish
+   ========================================================================== */
+
+/* 1. Mobile Input Touch Standards & iOS Auto-Zoom Prevention */
+@media (max-width: 767px) {
+  .form-control,
+  input[type="text"],
+  input[type="tel"],
+  input[type="number"],
+  input[type="email"],
+  input[type="password"],
+  input[type="date"],
+  select,
+  .custom-select-btn {
+    font-size: 16px !important;
+    min-height: 46px !important;
+  }
+  .btn {
+    min-height: 42px;
+  }
+  .btn-icon-action {
+    min-width: 38px;
+    min-height: 38px;
+  }
+}
+
+/* 2. Tabular Numbers for Financial & Clinical Data */
+.data-table td,
+.data-table th,
+.expense-amount-badge,
+.hsc-badge-amount,
+.stat-value,
+.badge-cash,
+.badge-direct,
+.badge-indirect,
+.doc-stack-counter,
+[id*="stat-"],
+[id*="total-"],
+[id*="amount-"],
+.expense-sub-text span {
+  font-variant-numeric: tabular-nums !important;
+  -webkit-font-feature-settings: "tnum" 1 !important;
+  font-feature-settings: "tnum" 1 !important;
+}
+
+/* 3. Spring Micro-Interactions on Interactive Elements */
+.btn,
+.custom-select-btn,
+.segmented-btn,
+.b-nav-item i {
+  transition: transform 0.14s cubic-bezier(0.34, 1.56, 0.64, 1),
+              background-color 0.15s ease,
+              border-color 0.15s ease !important;
+}
+
+.btn:active,
+.custom-select-btn:active,
+.segmented-btn:active {
+  transform: scale(0.96) !important;
+}
+
+/* 4. Arabic Typography Line-Height & Smoothing */
+body {
+  line-height: 1.58;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  line-height: 1.35;
 }

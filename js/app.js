@@ -64,7 +64,7 @@ if (typeof window !== 'undefined' && !window.__print_lock_installed) {
   };
 }
 
-import { escapeHTML, getLocalDateStr } from './utils.js';
+import { escapeHTML, getLocalDateStr, triggerHaptic } from './utils.js';
 import { ClaimsManager } from './claims.js';
 // ========================================================
 // ASCPT - Main Application Coordinator
@@ -1459,6 +1459,7 @@ class App {
     const msgEl = document.getElementById('toast-message');
     const iconEl = document.getElementById('toast-icon');
     if (toast && msgEl) {
+      triggerHaptic(type === 'error' ? 'warning' : 'success');
       msgEl.textContent = message;
 
       toast.className = 'toast-capsule';

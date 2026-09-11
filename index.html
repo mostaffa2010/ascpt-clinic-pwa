@@ -47,7 +47,7 @@
   
 
     <!-- Stylesheets -->
-  <link rel="stylesheet" href="css/style.css?v=1.4.0-beta.32">
+  <link rel="stylesheet" href="css/style.css?v=1.4.0-beta.33">
   <link rel="stylesheet" href="css/print.css" media="print">
 </head>
 <body>
@@ -81,6 +81,11 @@
         <i class="fa-solid fa-user-doctor" style="color: var(--primary); font-size: 0.9rem;"></i>
         <span id="header-user-display" style="white-space: nowrap;">تسجيل الدخول</span>
       </div>
+
+      <!-- Admin Quick Button (Header) -->
+      <button type="button" class="btn btn-outline btn-sm admin-only" id="btn-admin-header" data-view-target="admin" style="border-radius: 10px; padding: 6px 10px; font-weight: 700; width: 36px; height: 34px; display: none; align-items: center; justify-content: center; color: #f59e0b; border-color: rgba(245, 158, 11, 0.4);" title="لوحة المدير والصلاحيات">
+        <i class="fa-solid fa-user-shield"></i>
+      </button>
 
       <!-- Theme Toggle Button (Mobile) -->
       <button type="button" class="btn btn-outline btn-sm" id="btn-toggle-theme" style="border-radius: 10px; padding: 6px 10px; font-weight: 700; width: 36px; height: 34px; display: inline-flex; align-items: center; justify-content: center;" title="التبديل بين الوضع الليلي والنهاري">
@@ -791,7 +796,7 @@
 
                 <div class="form-group">
                   <label for="session-amount-paid" id="session-amount-label">المبلغ المدفوع بالدرج (ج.م) *</label>
-                  <input type="number" id="session-amount-paid" class="form-control" value="0" min="0" required>
+                  <input type="number" id="session-amount-paid" class="form-control" value="0" min="0" required inputmode="numeric">
                   <small id="session-amount-help" style="font-size: 0.75rem; color: var(--text-muted);">في حالة التأمين، ضع مبلغ نسبة التحمل النقدي إن وُجد، أو 0.</small>
                 </div>
 
@@ -1597,10 +1602,6 @@
         <i class="fa-solid fa-calendar-week"></i>
         <span>المواعيد</span>
       </button>
-      <button class="b-nav-item admin-only" data-view="admin">
-        <i class="fa-solid fa-user-shield"></i>
-        <span>المدير</span>
-      </button>
     </nav>
   </div>
 
@@ -1623,7 +1624,7 @@
             </div>
             <div class="form-group">
               <label for="p-age">السن *</label>
-              <input type="number" id="p-age" class="form-control" required min="1" max="120" placeholder="مثال: 35">
+              <input type="number" id="p-age" class="form-control" required min="1" max="120" inputmode="numeric" placeholder="مثال: 35">
             </div>
             <div class="form-group">
               <label for="p-gender">النوع *</label>
@@ -1801,7 +1802,7 @@
           </div>
           <div class="form-group" style="margin-bottom: 12px;">
             <label for="receipt-amount" style="font-weight: 800; font-size: 0.85rem;">المبلغ المسدد (ج.م) *</label>
-            <input type="number" id="receipt-amount" class="form-control" required min="1" step="any" value="400" style="height: 40px; font-weight: 800; font-size: 1rem; color: var(--primary);">
+            <input type="number" id="receipt-amount" class="form-control" required min="1" inputmode="numeric" step="any" value="400" style="height: 40px; font-weight: 800; font-size: 1rem; color: var(--primary);">
           </div>
           <div class="form-group" style="margin-bottom: 12px;">
             <label for="receipt-item-desc" style="font-weight: 800; font-size: 0.85rem;">وذلك عن (البيان) *</label>
@@ -1968,7 +1969,7 @@
             <label for="exp-amount" style="font-weight: 700; font-size: 0.85rem; margin-bottom: 6px; display: block; color: var(--text-main);">
               <i class="fa-solid fa-money-bill-wave" style="color: var(--danger);"></i> المبلغ المنصرف (ج.م) *
             </label>
-            <input type="number" id="exp-amount" class="form-control" min="1" step="any" required placeholder="0" style="height: 42px; font-size: 1.05rem; font-weight: 800;">
+            <input type="number" id="exp-amount" class="form-control" min="1" inputmode="numeric" step="any" required placeholder="0" style="height: 42px; font-size: 1.05rem; font-weight: 800;">
           </div>
         </div>
         <div class="modal-footer" style="padding: 12px 16px; background: var(--bg-subtle); display: flex; justify-content: flex-end; gap: 8px;">
@@ -2702,7 +2703,7 @@
 
       
   <!-- Main Application Script (ES Module) -->
-  <script type="module" src="js/app.js?v=1.4.0-beta.32"></script>
+  <script type="module" src="js/app.js?v=1.4.0-beta.33"></script>
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
