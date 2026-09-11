@@ -82,7 +82,7 @@ export class DoctorDashboardManager {
         if (s.entryType === 'examination') return acc + 1;
         return acc + (s.bodyPartsCount || 1);
       }, 0);
-      todayCountEl.textContent = `${todaySessions.length} زيارة • ${todayCredited} جلسة/وحدة عمل`;
+      todayCountEl.textContent = `${todaySessions.length} زيارة • ${todayCredited} جلسة`;
     }
 
     // 2. This month's sessions
@@ -93,7 +93,7 @@ export class DoctorDashboardManager {
         if (s.entryType === 'examination') return acc + 1;
         return acc + (s.bodyPartsCount || 1);
       }, 0);
-      monthCountEl.textContent = `${monthSessions.length} زيارة • ${monthCredited} جلسة/وحدة عمل`;
+      monthCountEl.textContent = `${monthSessions.length} زيارة • ${monthCredited} جلسة`;
     }
 
     // 3. Lifetime patients treated by this doctor
@@ -149,8 +149,10 @@ export class DoctorDashboardManager {
       return;
     }
 
+    const mobileContainer = document.getElementById('doctor-personal-mobile-cards');
+
+    // 1. Render Desktop Table
     tbody.innerHTML = displayList.map(s => {
-      // 3-Color Badge System
       let billingBadge = '';
       if (s.payType === 'cash') {
         billingBadge = `<span class="badge badge-cash"><i class="fa-solid fa-money-bill"></i> نقدي</span>`;
@@ -197,5 +199,65 @@ export class DoctorDashboardManager {
         </tr>
       `;
     }).join('');
+
+    // 2. Render Handcrafted Mobile Cards
+    if (mobileContainer) {
+      mobileContainer.innerHTML = displayList.map(s => {
+        let billingBadge = '';
+        if (s.payType === 'cash') {
+          billingBadge = `<span class="badge badge-cash"><i class="fa-solid fa-money-bill"></i> نقدي</span>`;
+        } else if (s.contractType === 'direct') {
+          billingBadge = `<span class="badge badge-direct"><i class="fa-solid fa-file-contract"></i> ${escapeHTML(s.insuranceName || 'شركة')}</span>`;
+        } else {
+          billingBadge = `<span class="badge badge-indirect"><i class="fa-solid fa-handshake"></i> ${escapeHTML(s.insuranceName || 'شركة')}</span>`;
+        }
+
+        const isExam = (s.entryType === 'examination');
+        const safePatientId = escapeHTML(s.patientId || '');
+        const safeName = escapeHTML(s.patientName || '');
+        const timeDisplay = s.recordedAt || '';
+        const safeParts = Array.isArray(s.bodyParts) ? s.bodyParts.join('، ') : (s.bodyParts || '');
+        const unitCount = s.bodyPartsCount || 1;
+        const unitWord = unitCount === 1 ? 'جلسة' : unitCount === 2 ? 'جلستان' : 'جلسات';
+
+        return `
+          <div class="hero-styled-card">
+            <div class="hsc-top">
+              <div class="hsc-patient-meta">
+                <div class="hsc-avatar"><i class="fa-solid fa-user-injured"></i></div>
+                <div class="hsc-name-box">
+                  <span class="hsc-patient-name" style="cursor: pointer;" onclick="patientsManager.openPatientSheet('${safePatientId}')">${safeName}</span>
+                  <span class="hsc-doc-sub"><i class="fa-solid fa-calendar-day"></i> ${s.date || ''}</span>
+                </div>
+              </div>
+              <div class="hsc-amount-box">
+                ${isExam 
+                  ? `<span class="badge" style="background: rgba(109, 40, 217, 0.18); color: #c4b5fd; font-weight: 800; font-size: 0.76rem;"><i class="fa-solid fa-stethoscope"></i> كشف</span>`
+                  : `<span class="badge" style="background: rgba(56, 189, 248, 0.15); color: #38bdf8; font-weight: 800; font-size: 0.76rem;">${unitCount} ${unitWord}</span>`
+                }
+              </div>
+            </div>
+
+            <div class="hsc-badges-row">
+              ${billingBadge}
+            </div>
+
+            <div class="hsc-divider" style="margin: 10px 0 12px 0;"></div>
+
+            <div class="hsc-bottom">
+              <div class="hsc-tags">
+                ${safeParts ? `<span class="hsc-tag-pill"><i class="fa-solid fa-bone"></i> ${safeParts}</span>` : ''}
+                ${timeDisplay ? `<span class="hsc-time-tag"><i class="fa-regular fa-clock"></i> ${timeDisplay}</span>` : ''}
+              </div>
+              <div class="hsc-actions">
+                <button type="button" class="btn btn-primary btn-sm btn-hero-sheet" onclick="patientsManager.openPatientSheet('${safePatientId}')" title="فتح الشيت الطبي">
+                  <i class="fa-solid fa-file-waveform"></i> الشيت الطبي
+                </button>
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
   }
 }

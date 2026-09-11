@@ -54,6 +54,27 @@ export class AuditAndAdminManager {
         }
       });
     }
+
+    const usersMob = document.getElementById('admin-users-mobile-cards');
+    if (usersMob) {
+      usersMob.addEventListener('click', async (e) => {
+        const btnDelete = e.target.closest('.btn-delete-user');
+        if (btnDelete) {
+          const userId = btnDelete.getAttribute('data-user-id');
+          const userName = btnDelete.getAttribute('data-user-name');
+          await this.deleteUser(userId, userName);
+          return;
+        }
+
+        const btnPass = e.target.closest('.btn-reset-password');
+        if (btnPass) {
+          const userId = btnPass.getAttribute('data-user-id');
+          const userName = btnPass.getAttribute('data-user-name');
+          await this.resetUserPassword(userId, userName);
+          return;
+        }
+      });
+    }
   }
 
   async handleAddUser(e) {
@@ -221,7 +242,8 @@ export class AuditAndAdminManager {
 
   async loadUsers() {
     const tbody = document.getElementById('admin-users-tbody');
-    if (!tbody) return;
+    const mobContainer = document.getElementById('admin-users-mobile-cards');
+    if (!tbody && !mobContainer) return;
 
     let users = [];
     if (firestoreDb) {
@@ -235,43 +257,159 @@ export class AuditAndAdminManager {
 
     const currentUser = auth.getCurrentUser();
 
-    if (users.length === 0) {
-      tbody.innerHTML = `<tr><td colspan="4" style="text-align: center; color: var(--text-muted); padding: 20px;">لا يوجد أطباء أو موظفين مسجلين حالياً. استخدم النموذج أعلاه لإنشاء حساب جديد.</td></tr>`;
-      return;
+    // Update KPI Stats
+    const totalUsersEl = document.getElementById('stat-admin-total-users');
+    const doctorsCountEl = document.getElementById('stat-admin-doctors-count');
+    const staffCountEl = document.getElementById('stat-admin-staff-count');
+    if (totalUsersEl) totalUsersEl.textContent = users.length;
+    if (doctorsCountEl) doctorsCountEl.textContent = users.filter(u => u.role === 'doctor').length;
+    if (staffCountEl) staffCountEl.textContent = users.filter(u => u.role === 'receptionist' || u.role === 'admin').length;
+
+    // Desktop Table
+    if (tbody) {
+      if (users.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="4" style="text-align: center; color: var(--text-muted); padding: 20px;">لا يوجد أطباء أو موظفين مسجلين حالياً. استخدم النموذج أعلاه لإنشاء حساب جديد.</td></tr>`;
+      } else {
+        tbody.innerHTML = users.map(u => {
+          const isSelf = currentUser && (currentUser.uid === u.id || currentUser.id === u.id || currentUser.email === u.email);
+          const safeName = escapeHTML(u.name || 'موظف');
+          const safeEmail = escapeHTML(u.email || '-');
+          const safeRole = escapeHTML(u.role || 'doctor');
+          const roleLabel = escapeHTML(RolesManager.getRoleLabel(u.role));
+
+          return `
+            <tr>
+              <td style="font-weight: 700;">${safeName}</td>
+              <td dir="ltr" style="text-align: right;">${safeEmail}</td>
+              <td><span class="badge badge-role-${safeRole}">${roleLabel}</span></td>
+              <td>
+                ${!isSelf ? `
+                  <div style="display: flex; gap: 6px; align-items: center;">
+                    <button type="button" class="btn btn-outline btn-sm btn-reset-password" style="color: var(--primary); border-radius: 6px; padding: 4px 8px;" data-user-id="${escapeHTML(u.id)}" data-user-name="${safeName}" title="إعادة تعيين كلمة المرور">
+                      <i class="fa-solid fa-key"></i>
+                    </button>
+                    <button type="button" class="btn btn-outline btn-sm btn-delete-user" style="color: var(--danger); border-radius: 6px; padding: 4px 8px;" data-user-id="${escapeHTML(u.id)}" data-user-name="${safeName}" title="حذف المستخدم نهائياً">
+                      <i class="fa-solid fa-trash"></i>
+                    </button>
+                  </div>
+                ` : '<span style="font-size: 0.8rem; color: var(--text-muted); font-weight: 700;">حسابك الحالي</span>'}
+              </td>
+            </tr>
+          `;
+        }).join('');
+      }
     }
 
-    tbody.innerHTML = users.map(u => {
-      const isSelf = currentUser && (currentUser.uid === u.id || currentUser.id === u.id || currentUser.email === u.email);
-      const safeName = escapeHTML(u.name || 'موظف');
-      const safeEmail = escapeHTML(u.email || '-');
-      const safeRole = escapeHTML(u.role || 'doctor');
-      const roleLabel = escapeHTML(RolesManager.getRoleLabel(u.role));
+    // Mobile Stack Deck
+    if (mobContainer) {
+      if (users.length === 0) {
+        mobContainer.innerHTML = `<div class="hero-styled-card" style="text-align: center; color: var(--text-muted); padding: 25px;">لا يوجد أطباء أو موظفين مسجلين حالياً.</div>`;
+      } else {
+        const cardsHTML = users.map((u, index) => {
+          const isSelf = currentUser && (currentUser.uid === u.id || currentUser.id === u.id || currentUser.email === u.email);
+          const safeName = escapeHTML(u.name || 'موظف');
+          const safeEmail = escapeHTML(u.email || '-');
+          const safeRole = escapeHTML(u.role || 'doctor');
+          const roleLabel = escapeHTML(RolesManager.getRoleLabel(u.role));
 
-      return `
-        <tr>
-          <td style="font-weight: 700;">${safeName}</td>
-          <td dir="ltr" style="text-align: right;">${safeEmail}</td>
-          <td><span class="badge badge-role-${safeRole}">${roleLabel}</span></td>
-          <td>
-            ${!isSelf ? `
-              <div style="display: flex; gap: 6px; align-items: center;">
-                <button type="button" class="btn btn-outline btn-sm btn-reset-password" style="color: var(--primary); border-radius: 6px; padding: 4px 8px;" data-user-id="${escapeHTML(u.id)}" data-user-name="${safeName}" title="إعادة تعيين كلمة المرور">
-                  <i class="fa-solid fa-key"></i>
+          let avatarIcon = 'fa-user-doctor';
+          let avatarColorClass = 'blue';
+          if (safeRole === 'admin') {
+            avatarIcon = 'fa-user-shield';
+            avatarColorClass = 'purple';
+          } else if (safeRole === 'receptionist') {
+            avatarIcon = 'fa-user-tie';
+            avatarColorClass = 'amber';
+          }
+
+          return `
+            <div class="hero-styled-card doc-stack-card ${index === 0 ? 'is-active-card' : 'is-peeking-card'}" data-stack-index="${index}">
+              <div style="display: flex; align-items: center; justify-content: space-between; gap: 10px;">
+                <div style="display: flex; align-items: center; gap: 10px; min-width: 0;">
+                  <div class="stat-icon ${avatarColorClass}" style="width: 40px; height: 40px; border-radius: 12px; font-size: 1.1rem; flex-shrink: 0; display: flex; align-items: center; justify-content: center;">
+                    <i class="fa-solid ${avatarIcon}"></i>
+                  </div>
+                  <div style="min-width: 0;">
+                    <div style="font-weight: 800; font-size: 0.98rem; color: var(--text-main); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                      ${safeName}
+                    </div>
+                    <div dir="ltr" style="font-size: 0.78rem; color: var(--text-muted); text-align: right; margin-top: 1px;">
+                      <i class="fa-regular fa-envelope" style="font-size: 0.72rem;"></i> ${safeEmail}
+                    </div>
+                  </div>
+                </div>
+                <span class="badge badge-role-${safeRole}" style="font-size: 0.76rem; padding: 4px 10px; border-radius: 999px; flex-shrink: 0;">
+                  ${roleLabel}
+                </span>
+              </div>
+
+              <div class="hsc-divider" style="margin: 12px 0 10px 0;"></div>
+
+              <div style="display: flex; align-items: center; justify-content: space-between; gap: 8px;">
+                ${!isSelf ? `
+                  <div style="display: flex; gap: 8px; width: 100%;">
+                    <button type="button" class="btn btn-outline btn-sm btn-reset-password" style="flex: 1; border-radius: 10px; height: 36px; font-size: 0.82rem; font-weight: 700; color: var(--primary);" data-user-id="${escapeHTML(u.id)}" data-user-name="${safeName}">
+                      <i class="fa-solid fa-key"></i> كلمة المرور
+                    </button>
+                    <button type="button" class="btn btn-outline btn-sm btn-delete-user" style="border-radius: 10px; height: 36px; padding: 0 14px; font-size: 0.82rem; font-weight: 700; color: var(--danger); border-color: rgba(239, 68, 68, 0.3);" data-user-id="${escapeHTML(u.id)}" data-user-name="${safeName}">
+                      <i class="fa-solid fa-trash"></i> حذف
+                    </button>
+                  </div>
+                ` : `
+                  <div style="width: 100%; text-align: center; font-size: 0.82rem; font-weight: 800; color: var(--success); background: rgba(16, 185, 129, 0.1); padding: 7px 12px; border-radius: 10px;">
+                    <i class="fa-solid fa-circle-check"></i> حسابك الحالي المسجل
+                  </div>
+                `}
+              </div>
+            </div>
+          `;
+        }).join('');
+
+        const dotsHTML = users.map((_, i) => `<span class="doc-dot ${i === 0 ? 'active' : ''}" data-dot-index="${i}"></span>`).join('');
+
+        mobContainer.innerHTML = `
+          <div class="doc-stack-wrapper">
+            <div class="doc-stack-header-bar">
+              <span style="font-size: 0.86rem; font-weight: 800; color: var(--text-main);">
+                <i class="fa-solid fa-users" style="color: var(--primary); margin-left: 5px;"></i> ${users.length} موظفين بالفريق
+              </span>
+              <div style="display: flex; align-items: center; gap: 8px;">
+                ${users.length > 1 ? `
+                  <span id="admin-stack-counter" style="font-size: 0.78rem; font-weight: 800; color: var(--primary); background: rgba(2, 132, 199, 0.12); padding: 2px 10px; border-radius: 999px;">1 من ${users.length}</span>
+                  <button type="button" class="btn btn-outline btn-sm" id="btn-toggle-admin-stack" style="font-size: 0.75rem; padding: 3px 9px; border-radius: 8px; height: 28px;" title="تبديل بين التراكم والقائمة">
+                    <i class="fa-solid fa-list" id="icon-admin-stack-toggle"></i>
+                  </button>
+                ` : ''}
+              </div>
+            </div>
+            <div class="doc-stack-container" id="admin-stack-container">
+              ${cardsHTML}
+            </div>
+            ${users.length > 1 ? `
+              <div class="doc-stack-nav-bar" id="admin-stack-nav-bar">
+                <button type="button" class="doc-stack-nav-btn" id="btn-admin-stack-prev">
+                  <i class="fa-solid fa-chevron-right"></i> السابق
                 </button>
-                <button type="button" class="btn btn-outline btn-sm btn-delete-user" style="color: var(--danger); border-radius: 6px; padding: 4px 8px;" data-user-id="${escapeHTML(u.id)}" data-user-name="${safeName}" title="حذف المستخدم نهائياً">
-                  <i class="fa-solid fa-trash"></i>
+                <div class="doc-stack-dots" id="admin-stack-dots">
+                  ${dotsHTML}
+                </div>
+                <button type="button" class="doc-stack-nav-btn" id="btn-admin-stack-next">
+                  التالي <i class="fa-solid fa-chevron-left"></i>
                 </button>
               </div>
-            ` : '<span style="font-size: 0.8rem; color: var(--text-muted); font-weight: 700;">حسابك الحالي</span>'}
-          </td>
-        </tr>
-      `;
-    }).join('');
+            ` : ''}
+          </div>
+        `;
+
+        this.initStackDeck('admin-stack');
+      }
+    }
   }
 
   async loadAuditLogs() {
     const tbody = document.getElementById('audit-log-tbody');
-    if (!tbody) return;
+    const mobLogs = document.getElementById('audit-log-mobile-cards');
+    if (!tbody && !mobLogs) return;
 
     // Automatic 60-day audit log purge in background
     try { await db.purgeOldAuditLogs(); } catch (_) {}
@@ -291,19 +429,222 @@ export class AuditAndAdminManager {
       }
     }
 
-    if (logs.length === 0) {
-      tbody.innerHTML = `<tr><td colspan="5" style="text-align: center; color: var(--text-muted); padding: 20px;">لا توجد سجلات تدقيق مسجلة حتى الآن.</td></tr>`;
-      return;
+    // Update KPI Stat
+    const auditCountEl = document.getElementById('stat-admin-audit-count');
+    if (auditCountEl) auditCountEl.textContent = logs.length;
+
+    // Desktop Table
+    if (tbody) {
+      if (logs.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="5" style="text-align: center; color: var(--text-muted); padding: 20px;">لا توجد سجلات تدقيق مسجلة حتى الآن.</td></tr>`;
+      } else {
+        tbody.innerHTML = logs.map(l => `
+          <tr>
+            <td style="font-weight: 700;">${escapeHTML(l.userName)}</td>
+            <td><span class="badge badge-role-${escapeHTML(l.userRole)}">${escapeHTML(RolesManager.getRoleLabel(l.userRole))}</span></td>
+            <td><span class="badge badge-direct">${escapeHTML(l.actionType)}</span></td>
+            <td>${escapeHTML(l.description)}</td>
+            <td style="font-size: 0.8rem; color: var(--text-muted);">${escapeHTML(l.timestamp)}</td>
+          </tr>
+        `).join('');
+      }
     }
 
-    tbody.innerHTML = logs.map(l => `
-      <tr>
-        <td style="font-weight: 700;">${escapeHTML(l.userName)}</td>
-        <td><span class="badge badge-role-${escapeHTML(l.userRole)}">${escapeHTML(RolesManager.getRoleLabel(l.userRole))}</span></td>
-        <td><span class="badge badge-direct">${escapeHTML(l.actionType)}</span></td>
-        <td>${escapeHTML(l.description)}</td>
-        <td style="font-size: 0.8rem; color: var(--text-muted);">${escapeHTML(l.timestamp)}</td>
-      </tr>
-    `).join('');
+    // Mobile Timeline
+    if (mobLogs) {
+      if (logs.length === 0) {
+        mobLogs.innerHTML = `<div class="hero-styled-card" style="text-align: center; color: var(--text-muted); padding: 25px;">لا توجد حركات رقابة مسجلة حتى الآن.</div>`;
+      } else {
+        mobLogs.innerHTML = `
+          <div class="audit-mobile-timeline">
+            ${logs.map(l => {
+              const safeName = escapeHTML(l.userName);
+              const safeRole = escapeHTML(l.userRole);
+              const roleLabel = escapeHTML(RolesManager.getRoleLabel(l.userRole));
+              const safeAction = escapeHTML(l.actionType);
+              const safeDesc = escapeHTML(l.description);
+              const safeTime = escapeHTML(l.timestamp);
+
+              return `
+                <div class="audit-mobile-item">
+                  <div style="display: flex; align-items: center; justify-content: space-between; gap: 8px;">
+                    <span class="badge badge-direct" style="font-size: 0.76rem; font-weight: 800; padding: 3px 8px; border-radius: 6px;">
+                      ${safeAction}
+                    </span>
+                    <span style="font-size: 0.74rem; color: var(--text-muted); font-weight: 600;">
+                      <i class="fa-regular fa-clock" style="font-size: 0.7rem;"></i> ${safeTime}
+                    </span>
+                  </div>
+                  <div style="font-weight: 700; font-size: 0.88rem; color: var(--text-main); margin: 6px 0;">
+                    ${safeDesc}
+                  </div>
+                  <div style="display: flex; align-items: center; gap: 6px; font-size: 0.78rem; color: var(--text-muted);">
+                    <i class="fa-solid fa-user-pen" style="color: var(--primary);"></i>
+                    <span style="font-weight: 700; color: var(--text-main);">${safeName}</span>
+                    <span>•</span>
+                    <span class="badge badge-role-${safeRole}" style="font-size: 0.68rem; padding: 2px 6px;">${roleLabel}</span>
+                  </div>
+                </div>
+              `;
+            }).join('')}
+          </div>
+        `;
+      }
+    }
+  }
+
+  // ================= 3D Stack Deck Handler (Admin Staff Members) =================
+  initStackDeck(prefix) {
+    const container = document.getElementById(`${prefix}-container`);
+    if (!container) return;
+    const cards = Array.from(container.querySelectorAll('.doc-stack-card'));
+    if (!cards.length) return;
+
+    let currentIndex = 0;
+    let isListMode = false;
+
+    let cachedHeight = 150;
+    const measureHeight = () => {
+      const activeCard = cards[currentIndex] || cards[0];
+      if (activeCard && activeCard.offsetHeight > 50) {
+        cachedHeight = activeCard.offsetHeight;
+      }
+    };
+
+    const updatePositions = (newIndex = 0) => {
+      if (isListMode) return;
+      currentIndex = Math.max(0, Math.min(newIndex, cards.length - 1));
+
+      const peekExtra = cards.length > 2 ? 62 : (cards.length === 2 ? 36 : 10);
+      container.style.minHeight = `${cachedHeight + peekExtra}px`;
+
+      for (let idx = 0; idx < cards.length; idx++) {
+        const card = cards[idx];
+        const diff = idx - currentIndex;
+
+        if (diff === 0) {
+          card.style.transform = 'translate3d(0, 0, 0) scale(1)';
+          card.style.zIndex = '12';
+          card.style.opacity = '1';
+          card.style.pointerEvents = 'auto';
+          card.classList.add('is-active-card');
+          card.classList.remove('is-peeking-card', 'is-passed-card');
+        } else if (diff === 1) {
+          card.style.transform = 'translate3d(0, 28px, 0) scale(0.96)';
+          card.style.zIndex = '10';
+          card.style.opacity = '0.90';
+          card.style.pointerEvents = 'auto';
+          card.classList.add('is-peeking-card');
+          card.classList.remove('is-active-card', 'is-passed-card');
+        } else if (diff === 2) {
+          card.style.transform = 'translate3d(0, 52px, 0) scale(0.92)';
+          card.style.zIndex = '8';
+          card.style.opacity = '0.72';
+          card.style.pointerEvents = 'auto';
+          card.classList.add('is-peeking-card');
+          card.classList.remove('is-active-card', 'is-passed-card');
+        } else if (diff > 2) {
+          card.style.transform = 'translate3d(0, 68px, 0) scale(0.88)';
+          card.style.zIndex = '6';
+          card.style.opacity = '0';
+          card.style.pointerEvents = 'none';
+          card.classList.remove('is-active-card', 'is-peeking-card');
+        } else {
+          card.style.transform = 'translate3d(0, -50px, 0) scale(0.92)';
+          card.style.zIndex = '4';
+          card.style.opacity = '0';
+          card.style.pointerEvents = 'none';
+          card.classList.add('is-passed-card');
+          card.classList.remove('is-active-card', 'is-peeking-card');
+        }
+      }
+
+      // Dots update
+      const dots = document.querySelectorAll(`#${prefix}-dots .doc-dot`);
+      dots.forEach((d, i) => {
+        if (i === currentIndex) d.classList.add('active');
+        else d.classList.remove('active');
+      });
+
+      const counterEl = document.getElementById(`${prefix}-counter`);
+      if (counterEl) {
+        counterEl.textContent = `${currentIndex + 1} من ${cards.length}`;
+      }
+    };
+
+    // Tap peeking card to bring to front
+    cards.forEach((card, idx) => {
+      card.addEventListener('click', (e) => {
+        if (isListMode) return;
+        if (idx !== currentIndex) {
+          e.stopPropagation();
+          updatePositions(idx);
+        }
+      });
+    });
+
+    // Navigation buttons
+    document.getElementById(`btn-${prefix}-next`)?.addEventListener('click', () => {
+      updatePositions(currentIndex + 1);
+    });
+
+    document.getElementById(`btn-${prefix}-prev`)?.addEventListener('click', () => {
+      updatePositions(currentIndex - 1);
+    });
+
+    // Dots click
+    document.getElementById(`${prefix}-dots`)?.addEventListener('click', (e) => {
+      const dot = e.target.closest('.doc-dot');
+      if (!dot) return;
+      const idx = parseInt(dot.getAttribute('data-dot-index'), 10);
+      updatePositions(idx);
+    });
+
+    // Touch Swipe
+    let touchStartY = 0;
+    let touchStartX = 0;
+    container.addEventListener('touchstart', (e) => {
+      if (isListMode) return;
+      touchStartY = e.touches[0].clientY;
+      touchStartX = e.touches[0].clientX;
+    }, { passive: true });
+
+    container.addEventListener('touchend', (e) => {
+      if (isListMode) return;
+      const deltaY = e.changedTouches[0].clientY - touchStartY;
+      const deltaX = e.changedTouches[0].clientX - touchStartX;
+
+      if (Math.abs(deltaY) > Math.abs(deltaX)) {
+        if (deltaY < -40) updatePositions(currentIndex + 1);
+        else if (deltaY > 40) updatePositions(currentIndex - 1);
+      } else {
+        if (deltaX > 40) updatePositions(currentIndex + 1);
+        else if (deltaX < -40) updatePositions(currentIndex - 1);
+      }
+    }, { passive: true });
+
+    // Toggle Stack vs List Mode
+    document.getElementById(`btn-toggle-${prefix}`)?.addEventListener('click', () => {
+      isListMode = !isListMode;
+      const icon = document.getElementById(`icon-${prefix}-toggle`);
+      if (isListMode) {
+        container.classList.add('is-list-layout');
+        if (icon) icon.className = 'fa-solid fa-layer-group';
+        cards.forEach((card) => {
+          card.style.transform = '';
+          card.style.opacity = '1';
+          card.style.zIndex = '';
+          card.style.pointerEvents = 'auto';
+        });
+        container.style.minHeight = 'auto';
+      } else {
+        container.classList.remove('is-list-layout');
+        if (icon) icon.className = 'fa-solid fa-list';
+        updatePositions(currentIndex);
+      }
+    });
+
+    updatePositions(0);
+    requestAnimationFrame(() => updatePositions(0));
   }
 }

@@ -380,21 +380,14 @@ export class SessionsManager {
     const btnSubmitIcon = document.getElementById('icon-submit-session');
 
     if (btnSession && btnExam) {
-      if (isExam) {
-        btnExam.style.background = 'var(--primary, #0284c7)';
-        btnExam.style.color = '#ffffff';
-        btnExam.style.boxShadow = '0 2px 4px rgba(0,0,0,0.06)';
-        btnSession.style.background = 'transparent';
-        btnSession.style.color = 'var(--text-muted, #64748b)';
-        btnSession.style.boxShadow = 'none';
-      } else {
-        btnSession.style.background = 'var(--primary, #0284c7)';
-        btnSession.style.color = '#ffffff';
-        btnSession.style.boxShadow = '0 2px 4px rgba(0,0,0,0.06)';
-        btnExam.style.background = 'transparent';
-        btnExam.style.color = 'var(--text-muted, #64748b)';
-        btnExam.style.boxShadow = 'none';
-      }
+      btnExam.classList.toggle('active', isExam);
+      btnSession.classList.toggle('active', !isExam);
+      btnExam.style.background = '';
+      btnExam.style.color = '';
+      btnExam.style.boxShadow = '';
+      btnSession.style.background = '';
+      btnSession.style.color = '';
+      btnSession.style.boxShadow = '';
     }
 
     if (bodyPartsGroup) bodyPartsGroup.style.display = isExam ? 'none' : 'block';
@@ -460,21 +453,14 @@ export class SessionsManager {
     const isContract = (this.examType === 'contract');
 
     if (btnCash && btnContract) {
-      if (isContract) {
-        btnContract.style.borderColor = 'var(--primary)';
-        btnContract.style.background = 'var(--primary)';
-        btnContract.style.color = '#ffffff';
-        btnCash.style.borderColor = 'var(--border-color)';
-        btnCash.style.background = 'var(--bg-surface)';
-        btnCash.style.color = 'var(--text-muted)';
-      } else {
-        btnCash.style.borderColor = 'var(--primary)';
-        btnCash.style.background = 'var(--primary)';
-        btnCash.style.color = '#ffffff';
-        btnContract.style.borderColor = 'var(--border-color)';
-        btnContract.style.background = 'var(--bg-surface)';
-        btnContract.style.color = 'var(--text-muted)';
-      }
+      btnContract.classList.toggle('active', isContract);
+      btnCash.classList.toggle('active', !isContract);
+      btnContract.style.borderColor = '';
+      btnContract.style.background = '';
+      btnContract.style.color = '';
+      btnCash.style.borderColor = '';
+      btnCash.style.background = '';
+      btnCash.style.color = '';
     }
 
     if (payTypeInput) payTypeInput.value = isContract ? 'insurance' : 'cash';
@@ -1296,6 +1282,9 @@ export class SessionsManager {
       });
     });
 
+    const mobileCardsContainer = document.getElementById('sessions-today-mobile-cards');
+
+    // 1. Render Desktop Table
     tbody.innerHTML = sessions.map(s => {
       const safeId = escapeHTML(s.id);
       const safePatient = escapeHTML(s.patientName);
@@ -1304,10 +1293,8 @@ export class SessionsManager {
       const safeAmount = escapeHTML(s.amountPaid);
       const safeRecBy = escapeHTML(s.recordedBy);
       const safeRecAt = escapeHTML(s.recordedAt);
-
       const isExam = (s.entryType === 'examination');
 
-      // Calculate Session Number Badge
       let sessionNumBadge = '';
       if (isExam) {
         sessionNumBadge = `<span class="badge" style="background: #ede9fe; color: #6d28d9; font-weight: 800; font-size: 0.76rem;"><i class="fa-solid fa-stethoscope"></i> كشف</span>`;
@@ -1315,22 +1302,20 @@ export class SessionsManager {
         const pObj = patientsMap.get(s.patientId);
         const cycleStart = pObj?.currentApprovalStartDate || '';
         const approvedTotal = parseInt(pObj?.approvedSessions) || parseInt(s.approvedSessionsTotal) || 12;
-
         const hist = patientSessionsHistory[s.patientId] || [];
         const cycleSessions = (s.payType === 'insurance' && cycleStart)
           ? hist.filter(h => (h.date || '').localeCompare(cycleStart) >= 0)
           : hist;
-
         let idx = cycleSessions.findIndex(h => h.id === s.id);
         const sessNum = idx >= 0 ? (idx + 1) : (s.sessionNumber || cycleSessions.length || 1);
 
         if (s.payType === 'insurance') {
           if (sessNum > approvedTotal) {
-            sessionNumBadge = `<span class="badge" style="background:#fee2e2; color:#b91c1c; border:1px solid #fecaca; font-weight:800; font-size:0.78rem;" title="تجاوز عدد زيارات الجواب المصرح بها (${approvedTotal} زيارة)"><i class="fa-solid fa-triangle-exclamation"></i> زيارة ${sessNum} من ${approvedTotal}</span>`;
+            sessionNumBadge = `<span class="badge" style="background:#fee2e2; color:#b91c1c; border:1px solid #fecaca; font-weight:800; font-size:0.78rem;"><i class="fa-solid fa-triangle-exclamation"></i> زيارة ${sessNum} من ${approvedTotal}</span>`;
           } else if (sessNum === approvedTotal) {
-            sessionNumBadge = `<span class="badge" style="background:#fef3c7; color:#b45309; border:1px solid #fde68a; font-weight:800; font-size:0.78rem;" title="اكتملت زيارات جواب الموافقة (${approvedTotal} زيارة)"><i class="fa-solid fa-flag-checkered"></i> زيارة ${sessNum} من ${approvedTotal}</span>`;
+            sessionNumBadge = `<span class="badge" style="background:#fef3c7; color:#b45309; border:1px solid #fde68a; font-weight:800; font-size:0.78rem;"><i class="fa-solid fa-flag-checkered"></i> زيارة ${sessNum} من ${approvedTotal}</span>`;
           } else {
-            sessionNumBadge = `<span class="badge" style="background:var(--bg-subtle); color:var(--primary); border:1px solid var(--border-color); font-weight:800; font-size:0.8rem;" title="حضور المريض بالمركز: زيارة ${sessNum} من ${approvedTotal}"><i class="fa-solid fa-calendar-check"></i> زيارة ${sessNum} من ${approvedTotal}</span>`;
+            sessionNumBadge = `<span class="badge" style="background:var(--bg-subtle); color:var(--primary); border:1px solid var(--border-color); font-weight:800; font-size:0.8rem;"><i class="fa-solid fa-calendar-check"></i> زيارة ${sessNum} من ${approvedTotal}</span>`;
           }
         } else {
           sessionNumBadge = `<span class="badge" style="background:var(--bg-subtle); color:var(--text-main); border:1px solid var(--border-color); font-weight:700; font-size:0.8rem;">الجلسة ${sessNum}</span>`;
@@ -1357,24 +1342,14 @@ export class SessionsManager {
 
       let partsCell = '';
       if (isExam) {
-        partsCell = `
-          <span class="badge" style="background: var(--bg-subtle); color: var(--primary); border: 1px solid var(--border-color); font-weight: 800; font-size: 0.76rem; padding: 3px 8px;">
-            <i class="fa-solid fa-stethoscope"></i> فحص سريري / كشف
-          </span>
-        `;
+        partsCell = `<span class="badge" style="background: var(--bg-subtle); color: var(--primary); border: 1px solid var(--border-color); font-weight: 800; font-size: 0.76rem; padding: 3px 8px;"><i class="fa-solid fa-stethoscope"></i> فحص سريري / كشف</span>`;
       } else {
         const safeParts = Array.isArray(s.bodyParts) ? s.bodyParts.map(b => escapeHTML(b)).join('، ') : escapeHTML(s.bodyParts || '');
         const safePartsShort = Array.isArray(s.bodyParts) ? s.bodyParts.slice(0, 2).map(b => escapeHTML(b)).join('، ') : escapeHTML(s.bodyParts || '');
-        partsCell = `
-          <span class="badge badge-role-doctor" title="${safeParts} (${s.bodyPartsCount || 1} وحدات علاجية للطبيب)">
-            ${escapeHTML(s.bodyPartsCount)} أعضاء (${safePartsShort}${s.bodyParts && s.bodyParts.length > 2 ? '...' : ''})
-          </span>
-        `;
+        partsCell = `<span class="badge badge-role-doctor" title="${safeParts}">${escapeHTML(s.bodyPartsCount)} أعضاء (${safePartsShort}${s.bodyParts && s.bodyParts.length > 2 ? '...' : ''})</span>`;
       }
 
-      const examTag = isExam
-        ? `<span class="badge" style="background: #ede9fe; color: #6d28d9; font-size: 0.72rem; padding: 1px 6px; margin-right: 6px; border-radius: 4px; font-weight: 800;"><i class="fa-solid fa-stethoscope"></i> كشف</span>`
-        : '';
+      const examTag = isExam ? `<span class="badge" style="background: #ede9fe; color: #6d28d9; font-size: 0.72rem; padding: 1px 6px; margin-right: 6px; border-radius: 4px; font-weight: 800;"><i class="fa-solid fa-stethoscope"></i> كشف</span>` : '';
 
       return `
         <tr>
@@ -1400,6 +1375,97 @@ export class SessionsManager {
         </tr>
       `;
     }).join('');
+
+    // 2. Render Handcrafted Mobile Cards
+    if (mobileCardsContainer) {
+      mobileCardsContainer.innerHTML = sessions.map(s => {
+        const safeId = escapeHTML(s.id);
+        const safePatient = escapeHTML(s.patientName);
+        const safeDoc = escapeHTML(s.doctor);
+        const safeIns = escapeHTML(s.insuranceName || 'تعاقد');
+        const safeAmount = escapeHTML(s.amountPaid);
+        const safeRecAt = escapeHTML(s.recordedAt);
+        const isExam = (s.entryType === 'examination');
+
+        let sessionNumBadge = '';
+        if (isExam) {
+          sessionNumBadge = `<span class="badge" style="background: rgba(109, 40, 217, 0.18); color: #c4b5fd; font-weight: 800; font-size: 0.78rem; border: 1px solid rgba(109, 40, 217, 0.3);"><i class="fa-solid fa-stethoscope"></i> كشف</span>`;
+        } else {
+          const pObj = patientsMap.get(s.patientId);
+          const cycleStart = pObj?.currentApprovalStartDate || '';
+          const approvedTotal = parseInt(pObj?.approvedSessions) || parseInt(s.approvedSessionsTotal) || 12;
+          const hist = patientSessionsHistory[s.patientId] || [];
+          const cycleSessions = (s.payType === 'insurance' && cycleStart)
+            ? hist.filter(h => (h.date || '').localeCompare(cycleStart) >= 0)
+            : hist;
+          let idx = cycleSessions.findIndex(h => h.id === s.id);
+          const sessNum = idx >= 0 ? (idx + 1) : (s.sessionNumber || cycleSessions.length || 1);
+
+          if (s.payType === 'insurance') {
+            sessionNumBadge = `<span class="badge" style="background: rgba(56, 189, 248, 0.15); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.3); font-weight: 800; font-size: 0.78rem;"><i class="fa-solid fa-calendar-check"></i> زيارة ${sessNum} من ${approvedTotal}</span>`;
+          } else {
+            sessionNumBadge = `<span class="badge" style="background: rgba(255, 255, 255, 0.08); color: var(--text-main); border: 1px solid var(--border-color); font-weight: 800; font-size: 0.78rem;">الجلسة ${sessNum}</span>`;
+          }
+        }
+
+        let payBadge = '';
+        if (isExam) {
+          payBadge = (s.examType === 'cash' || s.payType === 'cash')
+            ? `<span class="badge badge-cash"><i class="fa-solid fa-money-bill"></i> نقدي</span>`
+            : `<span class="badge badge-direct"><i class="fa-solid fa-file-contract"></i> كشف ${safeIns}</span>`;
+        } else {
+          payBadge = s.payType === 'cash'
+            ? `<span class="badge badge-cash"><i class="fa-solid fa-money-bill"></i> نقدي</span>`
+            : (s.contractType === 'direct'
+              ? `<span class="badge badge-direct"><i class="fa-solid fa-file-contract"></i> ${safeIns}</span>`
+              : `<span class="badge badge-indirect"><i class="fa-solid fa-handshake"></i> ${safeIns}</span>`);
+        }
+
+        const safeParts = Array.isArray(s.bodyParts) ? s.bodyParts.map(b => escapeHTML(b)).join('، ') : escapeHTML(s.bodyParts || '');
+
+        return `
+          <div class="hero-styled-card">
+            <div class="hsc-top">
+              <div class="hsc-patient-meta">
+                <div class="hsc-avatar"><i class="fa-solid fa-user-injured"></i></div>
+                <div class="hsc-name-box">
+                  <span class="hsc-patient-name">${safePatient}</span>
+                  <span class="hsc-doc-sub"><i class="fa-solid fa-user-doctor"></i> ${safeDoc}</span>
+                </div>
+              </div>
+              <div class="hsc-amount-box">
+                <span class="hsc-amount-val">${safeAmount} <small>ج.م</small></span>
+              </div>
+            </div>
+
+            <!-- Full-width Badges Row (Prevents vertical text wrapping for insurance names) -->
+            <div class="hsc-badges-row">
+              ${sessionNumBadge}
+              ${payBadge}
+            </div>
+
+            <div class="hsc-divider" style="margin: 10px 0 12px 0;"></div>
+
+            <div class="hsc-bottom">
+              <div class="hsc-tags">
+                ${safeParts ? `<span class="hsc-tag-pill"><i class="fa-solid fa-bone"></i> ${safeParts}</span>` : ''}
+                <span class="hsc-time-tag"><i class="fa-regular fa-clock"></i> ${safeRecAt}</span>
+              </div>
+              <div class="hsc-actions">
+                <button type="button" class="btn btn-outline btn-sm btn-icon-action btn-edit-session" data-session-id="${safeId}" onclick="sessionsManager.editSession('${safeId}')" title="${isExam ? 'تعديل بيانات الكشف' : 'تعديل بيانات الجلسة'}">
+                  <i class="fa-solid fa-pen-to-square"></i>
+                </button>
+                ${canDelete ? `
+                  <button type="button" class="btn btn-outline btn-sm btn-icon-action btn-delete-session" style="color: var(--danger); border-color: rgba(239, 68, 68, 0.35);" data-session-id="${safeId}" onclick="sessionsManager.deleteSession('${safeId}')" title="${isExam ? 'حذف الكشف' : 'حذف الجلسة'}">
+                    <i class="fa-solid fa-trash"></i>
+                  </button>
+                ` : ''}
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
   }
 
   async deleteSession(sessionId) {

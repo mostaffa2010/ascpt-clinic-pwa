@@ -113,16 +113,25 @@ class App {
     PWAManager.init();
     this.initTheme();
 
-    // 2. ضبط عرض التاريخ
+    // 2. ضبط عرض التاريخ والترحيب الذكي الديناميكي
+    const today = new Date();
+    const formattedDate = today.toLocaleDateString('ar-EG-u-nu-latn', {
+      weekday: 'long',
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    });
     const dateDisplay = document.getElementById('dashboard-date-display');
-    if (dateDisplay) {
-      const today = new Date();
-      dateDisplay.textContent = today.toLocaleDateString('ar-EG-u-nu-latn', {
-        weekday: 'long',
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric'
-      });
+    if (dateDisplay) dateDisplay.textContent = formattedDate;
+    const docDateDisplay = document.getElementById('doc-dashboard-date-display');
+    if (docDateDisplay) docDateDisplay.textContent = formattedDate;
+
+    const hour = new Date().getHours();
+    const greetingText = (hour >= 5 && hour < 12) ? 'صباح الخير' : (hour >= 12 && hour < 17 ? 'مساء الخير' : 'مساء النور');
+    try {
+      this.updateHeroGreetings(greetingText, auth.getCurrentUser());
+    } catch (e) {
+      console.warn('Greeting init notice:', e);
     }
 
     // 3. ربط أحداث التنقل والحوارات وتأمين الواجهة
@@ -139,6 +148,9 @@ class App {
     try {
       await auth.init(async (user) => {
         if (user) {
+          const h = new Date().getHours();
+          const gText = (h >= 5 && h < 12) ? 'صباح الخير' : (h >= 12 && h < 17 ? 'مساء الخير' : 'مساء النور');
+          this.updateHeroGreetings(gText, user);
           try { await db.syncAndSeedCloudOptions(); } catch (_) {}
           this.updateBackupStatusHint();
           this.checkBackupReminderToast(user);
@@ -157,7 +169,7 @@ class App {
     try { await this.appointmentsManager.init(); } catch (e) { console.warn('appointmentsManager init notice:', e); }
 
     // مزامنة أزرار القوائم المخصصة
-    ['claim-company-select', 'patient-filter-type', 'session-doctor-select', 'finance-doctor-filter', 'newuser-role', 'p-doctor', 'p-gender', 'p-approved-body-parts', 'renew-approved-body-parts'].forEach(id => {
+    ['claim-company-select', 'patient-filter-type', 'session-doctor-select', 'finance-doctor-filter', 'newuser-role', 'p-doctor', 'p-gender', 'p-approved-body-parts', 'renew-approved-body-parts', 'appt-doctor-select'].forEach(id => {
       this.updateCustomSelectDisplay(id);
     });
 
@@ -171,6 +183,36 @@ class App {
   }
 
   // ================= Dark / Light Theme Manager =================
+  updateHeroGreetings(gText, user) {
+    try {
+      const heroFull = document.getElementById('hero-greeting-full');
+      if (heroFull) {
+        if (user) {
+          if (user.role === 'receptionist') {
+            heroFull.textContent = `${gText}، ${user.name} (الاستقبال)`;
+          } else if (user.role === 'admin') {
+            heroFull.textContent = `${gText}، ${user.name} (إدارة المركز)`;
+          } else {
+            const cleanName = (user.name || '').replace(/^د\.\s*/, '');
+            heroFull.textContent = `${gText}، د. ${cleanName}`;
+          }
+        } else {
+          heroFull.textContent = `${gText}، مرحباً بك`;
+        }
+      }
+
+      const docGreetEl = document.getElementById('doc-hero-greeting');
+      if (docGreetEl) {
+        if (user) {
+          const cleanName = (user.name || '').replace(/^د\.\s*/, '');
+          docGreetEl.textContent = `${gText}، د. ${cleanName}`;
+        } else {
+          docGreetEl.textContent = `${gText}، يا دكتور`;
+        }
+      }
+    } catch (_) {}
+  }
+
   initTheme() {
     const saved = localStorage.getItem('ascpt_theme');
     const isDark = saved === 'dark' || (!saved && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches);
@@ -1024,7 +1066,11 @@ class App {
     if (!select) return;
 
     const titleEl = document.getElementById('custom-picker-title');
-    if (titleEl) titleEl.innerHTML = `<i class="fa-solid fa-list-check"></i> ${modalTitle}`;
+    if (titleEl) {
+      const isFilter = (modalTitle || '').includes('تصفية');
+      const iconClass = isFilter ? 'fa-solid fa-filter' : 'fa-solid fa-list-check';
+      titleEl.innerHTML = `<i class="${iconClass}" style="color: var(--primary);"></i> <span>${escapeHTML(modalTitle)}</span>`;
+    }
 
     const container = document.getElementById('custom-picker-list');
     if (!container) return;
@@ -1407,15 +1453,32 @@ class App {
     }
   }
 
-  showToast(message) {
+  showToast(message, type = 'success') {
     const toast = document.getElementById('toast-notification');
     const msgEl = document.getElementById('toast-message');
+    const iconEl = document.getElementById('toast-icon');
     if (toast && msgEl) {
       msgEl.textContent = message;
+
+      toast.className = 'toast-capsule';
+      if (type === 'error' || message.includes('خطأ') || message.includes('فشل') || message.includes('غير مسموح')) {
+        toast.classList.add('is-error');
+        if (iconEl) iconEl.className = 'fa-solid fa-circle-xmark';
+      } else if (type === 'warning' || message.includes('تنبيه') || message.includes('يرجى') || message.includes('برجاء')) {
+        toast.classList.add('is-warning');
+        if (iconEl) iconEl.className = 'fa-solid fa-triangle-exclamation';
+      } else {
+        toast.classList.add('is-success');
+        if (iconEl) iconEl.className = 'fa-solid fa-circle-check';
+      }
+
+      if (this._toastTimer) clearTimeout(this._toastTimer);
+      // Force reflow for smooth re-trigger
+      void toast.offsetWidth;
       toast.classList.add('show');
-      setTimeout(() => {
+      this._toastTimer = setTimeout(() => {
         toast.classList.remove('show');
-      }, 3000);
+      }, 3200);
     }
   }
 

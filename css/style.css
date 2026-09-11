@@ -2,6 +2,9 @@
   --primary: #0284c7;
   --primary-hover: #0369a1;
   --primary-light: #e0f2fe;
+  --primary-subtle: #f0f9ff;
+  --primary-dark: #072032;
+  --primary-gradient: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
   --secondary: #64748b;
   --success: #10b981;
   --success-light: #d1fae5;
@@ -18,17 +21,28 @@
   --text-muted: #64748b;
   --border-color: #e2e8f0;
   
-  --radius-sm: 8px;
-  --radius-md: 10px;
-  --radius-lg: 10px;
-  --radius-full: 10px;
+  --radius-xs: 6px;
+  --radius-sm: 10px;
+  --radius-md: 16px;
+  --radius-lg: 22px;
+  --radius-xl: 28px;
+  --radius-full: 9999px;
+  --radius-pill: 9999px;
   
-  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
-  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.07), 0 2px 4px -2px rgb(0 0 0 / 0.05);
-  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.08), 0 4px 6px -4px rgb(0 0 0 / 0.04);
+  --shadow-xs: 0 1px 2px rgba(15, 23, 42, 0.04);
+  --shadow-sm: 0 2px 6px -1px rgba(15, 23, 42, 0.05), 0 1px 3px -1px rgba(15, 23, 42, 0.03);
+  --shadow-md: 0 6px 18px -3px rgba(15, 23, 42, 0.07), 0 3px 8px -2px rgba(15, 23, 42, 0.04);
+  --shadow-lg: 0 16px 32px -4px rgba(15, 23, 42, 0.09), 0 6px 12px -4px rgba(15, 23, 42, 0.04);
+  --shadow-glow: 0 8px 22px -4px rgba(2, 132, 199, 0.3);
   
+  --bg-glass: rgba(255, 255, 255, 0.78);
+  --bg-glass-card: rgba(255, 255, 255, 0.82);
+  --bg-glass-subtle: rgba(241, 245, 249, 0.65);
+  --glass-border: rgba(255, 255, 255, 0.7);
+  --glass-blur: blur(20px) saturate(180%);
+  --glass-shadow: 0 8px 32px 0 rgba(2, 132, 199, 0.08);
   --sidebar-width: 260px;
-  --bottom-nav-height: 65px;
+  --bottom-nav-height: 68px;
   --topbar-height: 60px;
 }
 
@@ -55,6 +69,21 @@ input, textarea, select, [contenteditable="true"] {
 
 html, body {
   overscroll-behavior-y: none;
+  scrollbar-width: none !important;
+  -ms-overflow-style: none !important;
+}
+
+/* 100% Native App Feel: Completely hide all visual scrollbars across all browsers & PWAs */
+::-webkit-scrollbar {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
+  background: transparent !important;
+}
+
+* {
+  scrollbar-width: none !important;
+  -ms-overflow-style: none !important;
 }
 
 body {
@@ -69,17 +98,20 @@ body {
 
 /* ================= Top Bar (Mobile) ================= */
 .top-header {
-  height: 56px;
-  background-color: var(--bg-surface);
-  border-bottom: 1px solid var(--border-color);
+  height: var(--topbar-height);
+  background-color: rgba(255, 255, 255, 0.88);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-bottom: 1px solid rgba(226, 232, 240, 0.85);
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 14px;
+  padding: 0 16px;
   position: sticky;
   top: 0;
   z-index: 40;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.02);
+  transition: all 0.25s ease;
 }
 
 .brand-logo {
@@ -106,18 +138,20 @@ body {
 .user-status-pill {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
   background-color: var(--bg-subtle);
-  padding: 4px 10px;
-  border-radius: 10px;
-  font-size: 0.78rem;
+  padding: 5px 12px;
+  border-radius: var(--radius-pill);
+  font-size: 0.8rem;
   font-weight: 700;
   color: var(--text-main);
   border: 1px solid var(--border-color);
-  max-width: 145px;
+  max-width: 160px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  box-shadow: var(--shadow-xs);
+  transition: all 0.2s ease;
 }
 
 .btn-icon-round {
@@ -254,14 +288,18 @@ body {
   bottom: 0;
   left: 0;
   right: 0;
-  height: var(--bottom-nav-height);
-  background-color: var(--bg-surface);
-  border-top: 1px solid var(--border-color);
+  height: calc(var(--bottom-nav-height) + env(safe-area-inset-bottom, 0px));
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+  background-color: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-top: 1px solid rgba(226, 232, 240, 0.85);
   display: flex;
   justify-content: space-around;
   align-items: center;
   z-index: 45;
-  box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.04);
+  box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.04);
+  transition: all 0.3s ease;
 }
 
 .b-nav-item {
@@ -272,21 +310,37 @@ body {
   gap: 4px;
   color: var(--text-muted);
   text-decoration: none;
-  font-size: 0.72rem;
-  font-weight: 600;
+  font-size: 0.74rem;
+  font-weight: 700;
   background: none;
   border: none;
   cursor: pointer;
   flex: 1;
   height: 100%;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
 }
 
 .b-nav-item i {
   font-size: 1.15rem;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .b-nav-item.active {
   color: var(--primary);
+}
+
+.b-nav-item.active i {
+  transform: translateY(-2px);
+  background: var(--primary-light);
+  color: var(--primary);
+  width: 44px;
+  height: 28px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-pill);
+  box-shadow: 0 2px 8px rgba(2, 132, 199, 0.18);
 }
 
 /* ================= View Sections ================= */
@@ -311,14 +365,20 @@ body {
 /* ================= Cards & Stats ================= */
 .card {
   background-color: var(--bg-surface);
-  border-radius: 10px;
+  border-radius: var(--radius-md);
   border: 1px solid var(--border-color);
-  padding: 18px;
+  padding: 20px;
   box-shadow: var(--shadow-sm);
-  margin-bottom: 18px;
+  margin-bottom: 20px;
   min-width: 0;
   max-width: 100%;
   box-sizing: border-box;
+  transition: box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.card:hover {
+  border-color: rgba(2, 132, 199, 0.2);
+  box-shadow: var(--shadow-md);
 }
 
 .card-header {
@@ -342,8 +402,8 @@ body {
 .stats-grid, .stat-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 12px;
-  margin-bottom: 18px;
+  gap: 14px;
+  margin-bottom: 20px;
   width: 100%;
 }
 
@@ -351,7 +411,7 @@ body {
   background-color: var(--bg-surface);
   border: 1px solid var(--border-color);
   border-radius: var(--radius-md);
-  padding: 14px 16px;
+  padding: 16px 18px;
   display: flex;
   align-items: center;
   justify-content: flex-start;
@@ -359,17 +419,31 @@ body {
   box-shadow: var(--shadow-sm);
   width: 100%;
   box-sizing: border-box;
-  transition: all 0.2s ease;
+  transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.2s ease, border-color 0.2s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.stat-box:hover, .stat-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+  border-color: rgba(2, 132, 199, 0.3);
 }
 
 .stat-icon {
-  width: 44px;
-  height: 44px;
+  width: 48px;
+  height: 48px;
   border-radius: var(--radius-md);
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1.25rem;
+  font-size: 1.3rem;
+  flex-shrink: 0;
+  transition: transform 0.2s ease;
+}
+
+.stat-box:hover .stat-icon, .stat-card:hover .stat-icon {
+  transform: scale(1.06);
 }
 
 .stat-icon.blue { background-color: var(--primary-light); color: var(--primary); }
@@ -407,22 +481,30 @@ body {
   align-items: center;
   justify-content: center;
   gap: 8px;
-  padding: 9px 16px;
-  font-size: 0.9rem;
-  font-weight: 600;
-  border-radius: var(--radius-md);
+  padding: 10px 18px;
+  font-size: 0.92rem;
+  font-weight: 700;
+  border-radius: var(--radius-sm);
   border: 1px solid transparent;
   cursor: pointer;
-  transition: all 0.2s;
+  transition: all 0.18s cubic-bezier(0.4, 0, 0.2, 1);
   text-decoration: none;
+  user-select: none;
+}
+
+.btn:active {
+  transform: scale(0.97);
 }
 
 .btn-primary {
-  background-color: var(--primary);
+  background: var(--primary-gradient);
   color: #ffffff;
+  box-shadow: 0 4px 12px rgba(2, 132, 199, 0.25);
 }
 .btn-primary:hover {
   background-color: var(--primary-hover);
+  box-shadow: 0 6px 16px rgba(2, 132, 199, 0.35);
+  transform: translateY(-1px);
 }
 
 .btn-success {
@@ -499,15 +581,16 @@ body {
 .chip-choice {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
   background-color: var(--bg-subtle);
   border: 1px solid var(--border-color);
-  padding: 6px 12px;
-  border-radius: 10px;
-  font-size: 0.82rem;
+  padding: 8px 16px;
+  border-radius: var(--radius-pill);
+  font-size: 0.85rem;
+  font-weight: 700;
   cursor: pointer;
   user-select: none;
-  transition: all 0.2s;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   color: var(--text-main);
 }
 .chip-choice i {
@@ -518,10 +601,18 @@ body {
   display: none;
 }
 
+.chip-choice:hover {
+  background-color: var(--primary-light);
+  border-color: rgba(2, 132, 199, 0.3);
+  color: var(--primary);
+  transform: translateY(-1px);
+}
+
 .chip-choice.selected {
-  background-color: var(--primary);
-  color: #ffffff;
-  border-color: var(--primary);
+  background-color: var(--primary) !important;
+  color: #ffffff !important;
+  border-color: var(--primary) !important;
+  box-shadow: 0 4px 12px rgba(2, 132, 199, 0.3);
 }
 
 /* ================= Tables ================= */
@@ -1920,6 +2011,12 @@ body.not-authenticated #modal-auth #btn-cancel-login {
 
 /* ================= Modern Dark Theme Tokens ================= */
 [data-theme="dark"] {
+  --bg-glass: rgba(15, 23, 42, 0.75);
+  --bg-glass-card: rgba(30, 41, 59, 0.72);
+  --bg-glass-subtle: rgba(15, 23, 42, 0.65);
+  --glass-border: rgba(255, 255, 255, 0.1);
+  --glass-blur: blur(20px) saturate(180%);
+  --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.45);
   --primary: #38bdf8;
   --primary-hover: #0ea5e9;
   --primary-light: rgba(56, 189, 248, 0.15);
@@ -2494,4 +2591,3501 @@ body.not-authenticated #modal-auth #btn-cancel-login {
   font-size: 0.78rem;
   padding: 3px 8px;
   border-radius: 6px;
+}
+
+/* ================= Mobile Bottom Sheet Enhancement for Modals (v1.4.0) ================= */
+@media (max-width: 767px) {
+  .modal-backdrop {
+    padding: 0;
+    align-items: flex-end;
+    background-color: rgba(15, 23, 42, 0.6);
+  }
+  
+  .modal-content {
+    max-width: 100%;
+    width: 100%;
+    border-radius: 28px 28px 0 0 !important;
+    max-height: 88vh;
+    margin-bottom: 0;
+    animation: modalSlideUp 0.28s cubic-bezier(0.32, 0.72, 0, 1) !important;
+    padding-bottom: max(20px, env(safe-area-inset-bottom, 20px));
+    box-shadow: 0 -10px 30px rgba(0, 0, 0, 0.15);
+    position: relative;
+    border-bottom: none !important;
+  }
+  
+  .modal-content::before {
+    content: '';
+    display: block;
+    width: 44px;
+    height: 5px;
+    border-radius: 9999px;
+    background-color: var(--border-color);
+    margin: 10px auto 4px auto;
+  }
+}
+
+@keyframes modalSlideUp {
+  from { transform: translateY(100%); opacity: 0.8; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+/* ================= Next-Level UI Polish (v1.4.0-beta.2) ================= */
+
+/* 1. Hero Dashboard Banner */
+.hero-dashboard-banner {
+  background: linear-gradient(135deg, #072032 0%, #0284c7 100%);
+  border-radius: var(--radius-lg);
+  padding: 22px 24px;
+  color: #ffffff;
+  position: relative;
+  overflow: hidden;
+  margin-bottom: 20px;
+  box-shadow: 0 12px 28px -6px rgba(2, 132, 199, 0.35);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  transition: all 0.3s ease;
+}
+
+.hero-banner-glass-bg {
+  position: absolute;
+  top: -40px;
+  left: -40px;
+  width: 180px;
+  height: 180px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.2) 0%, rgba(255, 255, 255, 0) 70%);
+  pointer-events: none;
+}
+
+.hero-banner-content {
+  position: relative;
+  z-index: 2;
+}
+
+.hero-greeting-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(255, 255, 255, 0.16);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  border-radius: var(--radius-pill);
+  padding: 4px 12px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  margin-bottom: 12px;
+  color: #e0f2fe;
+}
+
+.hero-greeting-icon {
+  color: #fde047;
+}
+
+.hero-banner-title {
+  font-size: 1.45rem;
+  font-weight: 800;
+  color: #ffffff;
+  margin-bottom: 4px;
+  letter-spacing: -0.3px;
+  line-height: 1.25;
+}
+
+.hero-banner-sub {
+  font-size: 0.82rem;
+  color: rgba(224, 242, 254, 0.85);
+  font-weight: 600;
+  margin-bottom: 18px;
+}
+
+.hero-banner-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  padding-top: 10px;
+  border-top: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+.hero-date-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.82rem;
+  color: #e0f2fe;
+  font-weight: 700;
+}
+
+.btn-hero-action {
+  background: #ffffff !important;
+  color: #0369a1 !important;
+  border: none !important;
+  padding: 8px 18px !important;
+  border-radius: var(--radius-pill) !important;
+  font-weight: 800 !important;
+  font-size: 0.86rem !important;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.16);
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+}
+
+.btn-hero-action:hover {
+  background: #f0f9ff !important;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.22);
+}
+
+.btn-hero-action:active {
+  transform: scale(0.96);
+}
+
+/* Doctor Hero Banner Theme */
+.hero-doctor-banner {
+  background: linear-gradient(135deg, #0f172a 0%, #4338ca 100%);
+  box-shadow: 0 12px 28px -6px rgba(67, 56, 202, 0.35);
+}
+
+.hero-doctor-banner .btn-hero-action {
+  color: #4338ca !important;
+}
+
+/* 2. Quick Access Bar (Inspired by Pinterest Ref 2) */
+.quick-access-bar {
+  margin-bottom: 22px;
+}
+
+.quick-access-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+  padding: 0 4px;
+}
+
+.quick-access-title {
+  font-size: 0.88rem;
+  font-weight: 800;
+  color: var(--text-main);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.quick-access-items {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+}
+
+.quick-action-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 14px 6px;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: var(--shadow-sm);
+  text-decoration: none;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.quick-action-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+  border-color: rgba(2, 132, 199, 0.3);
+}
+
+.quick-action-btn:active {
+  transform: scale(0.95);
+}
+
+.quick-action-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.18rem;
+  transition: transform 0.2s ease;
+}
+
+.quick-action-btn:hover .quick-action-icon {
+  transform: scale(1.08);
+}
+
+.qa-blue { background: #e0f2fe; color: #0284c7; }
+.qa-emerald { background: #d1fae5; color: #059669; }
+.qa-indigo { background: #e0e7ff; color: #4f46e5; }
+.qa-amber { background: #fef3c7; color: #d97706; }
+
+.quick-action-label {
+  font-size: 0.76rem;
+  font-weight: 700;
+  color: var(--text-main);
+  text-align: center;
+  white-space: nowrap;
+}
+
+/* 3. Horizontal Date Strip (Capsule Carousel) */
+.horizontal-date-strip {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  overflow-x: auto;
+  padding: 4px 0;
+  -webkit-overflow-scrolling: touch;
+}
+
+.horizontal-date-strip::-webkit-scrollbar {
+  display: none;
+}
+
+.date-strip-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 6px 14px;
+  border-radius: var(--radius-pill);
+  background: var(--bg-surface);
+  border: 1.5px solid var(--border-color);
+  color: var(--text-main);
+  font-size: 0.8rem;
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: var(--shadow-xs);
+}
+
+.date-strip-pill:hover {
+  border-color: var(--primary);
+  color: var(--primary);
+  transform: translateY(-1px);
+}
+
+.date-strip-pill.active {
+  background: var(--primary-gradient) !important;
+  color: #ffffff !important;
+  border-color: var(--primary) !important;
+  box-shadow: 0 4px 12px rgba(2, 132, 199, 0.3) !important;
+}
+
+/* 4. Mobile Native Card Transformation for Recent Sessions */
+@media (max-width: 767px) {
+  #dashboard-recent-table,
+  #dashboard-recent-table thead,
+  #dashboard-recent-table tbody,
+  #dashboard-recent-table th,
+  #dashboard-recent-table td,
+  #dashboard-recent-table tr {
+    display: block;
+  }
+  
+  #dashboard-recent-table thead tr {
+    position: absolute;
+    top: -9999px;
+    left: -9999px;
+  }
+  
+  #dashboard-recent-table tbody tr {
+    background: var(--bg-surface);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    padding: 14px 16px;
+    margin-bottom: 12px;
+    box-shadow: var(--shadow-sm);
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 6px;
+    position: relative;
+    transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.2s ease;
+  }
+  
+  #dashboard-recent-table tbody tr:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+    border-color: rgba(2, 132, 199, 0.25);
+  }
+  
+  #dashboard-recent-table td {
+    padding: 2px 0 !important;
+    border-bottom: none !important;
+    white-space: normal;
+  }
+  
+  #dashboard-recent-table td:nth-child(1) {
+    font-size: 1.02rem;
+    font-weight: 800;
+    color: var(--text-main);
+    width: 100%;
+    margin-bottom: 4px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  #dashboard-recent-table td:nth-child(1)::before {
+    content: '007';
+    font-family: 'Font Awesome 6 Free';
+    font-weight: 900;
+    font-size: 0.85rem;
+    color: var(--primary);
+  }
+  
+  #dashboard-recent-table td:nth-child(2) {
+    font-size: 0.82rem;
+    color: var(--text-muted);
+    font-weight: 600;
+  }
+  #dashboard-recent-table td:nth-child(2)::before {
+    content: 'طبيب: ';
+    color: var(--text-muted);
+    font-weight: 500;
+  }
+  
+  #dashboard-recent-table td:nth-child(3) {
+    margin-right: auto;
+  }
+  
+  #dashboard-recent-table td:nth-child(4) {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    font-weight: 600;
+  }
+  
+  #dashboard-recent-table td:nth-child(5) {
+    font-size: 1.05rem;
+    font-weight: 800;
+    color: var(--success);
+    margin-right: auto;
+  }
+  
+  #dashboard-recent-table td:nth-child(6) {
+    font-size: 0.78rem;
+    color: var(--text-muted);
+    width: 100%;
+    text-align: left;
+    border-top: 1px dashed var(--border-color) !important;
+    padding-top: 6px !important;
+    margin-top: 4px;
+  }
+}
+
+/* 5. Refined Dark Mode Overrides for New Components */
+[data-theme="dark"] .hero-dashboard-banner {
+  background: linear-gradient(135deg, #090d16 0%, #0369a1 100%);
+  border-color: rgba(56, 189, 248, 0.25);
+  box-shadow: 0 12px 30px -6px rgba(0, 0, 0, 0.6);
+}
+
+[data-theme="dark"] .hero-doctor-banner {
+  background: linear-gradient(135deg, #090d16 0%, #3730a3 100%);
+}
+
+[data-theme="dark"] .btn-hero-action {
+  background: #f8fafc !important;
+  color: #0284c7 !important;
+}
+
+[data-theme="dark"] .qa-blue { background: rgba(56, 189, 248, 0.18); color: #38bdf8; }
+[data-theme="dark"] .qa-emerald { background: rgba(52, 211, 153, 0.18); color: #34d399; }
+[data-theme="dark"] .qa-indigo { background: rgba(129, 140, 248, 0.18); color: #818cf8; }
+[data-theme="dark"] .qa-amber { background: rgba(251, 191, 36, 0.18); color: #fbbf24; }
+
+[data-theme="dark"] .quick-action-btn {
+  background: var(--bg-surface);
+  border-color: var(--border-color);
+}
+
+[data-theme="dark"] .date-strip-pill {
+  background: var(--bg-surface);
+  border-color: var(--border-color);
+  color: var(--text-main);
+}
+
+
+/* ================= Clean Authoritative Deep Glassmorphism & Compact 3-Row Cards (v1.4.0-beta.5) ================= */
+
+/* Global Glassmorphic Card Upgrades */
+.card {
+  background: var(--bg-glass-card) !important;
+  backdrop-filter: var(--glass-blur) !important;
+  -webkit-backdrop-filter: var(--glass-blur) !important;
+  border: 1px solid var(--glass-border) !important;
+  box-shadow: var(--glass-shadow) !important;
+}
+
+.stat-box, .stat-card {
+  background: var(--bg-glass-card) !important;
+  backdrop-filter: var(--glass-blur) !important;
+  -webkit-backdrop-filter: var(--glass-blur) !important;
+  border: 1px solid var(--glass-border) !important;
+  box-shadow: var(--glass-shadow) !important;
+}
+
+.top-header {
+  background: var(--bg-glass) !important;
+  backdrop-filter: var(--glass-blur) !important;
+  -webkit-backdrop-filter: var(--glass-blur) !important;
+  border-bottom: 1px solid var(--glass-border) !important;
+}
+
+.bottom-nav {
+  background: var(--bg-glass) !important;
+  backdrop-filter: var(--glass-blur) !important;
+  -webkit-backdrop-filter: var(--glass-blur) !important;
+  border-top: 1px solid var(--glass-border) !important;
+}
+
+.modal-content {
+  background: #ffffff !important;
+  border: 1px solid rgba(226, 232, 240, 0.8) !important;
+  box-shadow: 0 20px 45px -10px rgba(15, 23, 42, 0.18), 0 0 1px 1px rgba(15, 23, 42, 0.05) !important;
+}
+
+[data-theme="dark"] .modal-content {
+  background: #1e293b !important;
+  border: 1px solid rgba(51, 65, 85, 0.8) !important;
+  box-shadow: 0 20px 45px -10px rgba(0, 0, 0, 0.6) !important;
+}
+
+.quick-action-btn {
+  background: var(--bg-glass-card) !important;
+  backdrop-filter: var(--glass-blur) !important;
+  -webkit-backdrop-filter: var(--glass-blur) !important;
+  border: 1px solid var(--glass-border) !important;
+}
+
+/* Subtle background gradient for body to give depth to frosted glass */
+[data-theme="dark"] body {
+  background: radial-gradient(circle at 10% 15%, rgba(2, 132, 199, 0.12) 0%, transparent 45%),
+              radial-gradient(circle at 90% 85%, rgba(67, 56, 202, 0.12) 0%, transparent 45%),
+              #090d16 !important;
+  background-attachment: fixed !important;
+}
+
+body {
+  background: radial-gradient(circle at 10% 15%, rgba(2, 132, 199, 0.05) 0%, transparent 45%),
+              radial-gradient(circle at 90% 85%, rgba(14, 165, 233, 0.05) 0%, transparent 45%),
+              #f8fafc;
+  background-attachment: fixed;
+}
+
+/* ========================================================
+   MOBILE SCREEN ENGINE (max-width: 767px)
+   Compact 3-Row Grid Architecture
+   ======================================================== */
+@media (max-width: 767px) {
+  /* 1. Dissolve outer container borders and shadows to completely remove the 'grouped box' look */
+  #card-dashboard-recent,
+  #card-sessions-today,
+  #card-patients-directory,
+  .card:has(#dashboard-recent-table),
+  .card:has(#doctor-personal-table),
+  .card:has(#sessions-today-tbody),
+  .card:has(#patients-tbody) {
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+    margin-bottom: 12px !important;
+  }
+
+  #card-dashboard-recent .card-header,
+  #card-sessions-today .card-header,
+  #card-patients-directory .card-header {
+    padding: 4px 2px 10px 2px !important;
+    border-bottom: none !important;
+  }
+
+  #card-dashboard-recent .table-responsive,
+  #card-sessions-today .table-responsive,
+  #card-patients-directory .table-responsive,
+  .table-responsive:has(#dashboard-recent-table),
+  .table-responsive:has(#sessions-today-tbody),
+  .table-responsive:has(#patients-tbody) {
+    border: none !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    overflow: visible !important;
+    padding: 0 !important;
+  }
+
+  .data-table thead {
+    display: none !important;
+  }
+
+  /* 2. SESSIONS TODAY: COMPACT 3-ROW CARD ARCHITECTURE */
+  #sessions-today-tbody tr {
+    display: grid !important;
+    grid-template-columns: 1fr auto auto !important;
+    grid-template-rows: auto auto auto !important;
+    column-gap: 8px !important;
+    row-gap: 5px !important;
+    padding: 12px 14px !important;
+    margin-bottom: 10px !important;
+    border-radius: var(--radius-lg) !important;
+    background: var(--bg-glass-card) !important;
+    backdrop-filter: var(--glass-blur) !important;
+    -webkit-backdrop-filter: var(--glass-blur) !important;
+    border: 1px solid var(--glass-border) !important;
+    box-shadow: 0 4px 16px 0 rgba(0, 0, 0, 0.1) !important;
+    position: relative !important;
+    transition: transform 0.18s ease, box-shadow 0.18s ease !important;
+  }
+
+  #sessions-today-tbody tr:active {
+    transform: scale(0.98) !important;
+  }
+
+  /* Row 1: Patient Name (Right) vs Session Num Badge (Left) */
+  #sessions-today-tbody tr td:nth-child(1) {
+    grid-column: 1 / 2 !important;
+    grid-row: 1 / 2 !important;
+    font-size: 1.02rem !important;
+    font-weight: 800 !important;
+    color: var(--text-main) !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 6px !important;
+    padding: 0 !important;
+    border: none !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+  }
+
+  #sessions-today-tbody tr td:nth-child(2) {
+    grid-column: 2 / 4 !important;
+    grid-row: 1 / 2 !important;
+    justify-self: end !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 4px !important;
+    padding: 0 !important;
+    border: none !important;
+  }
+
+  /* Row 2: Doctor (Col 1) + Parts Badge (Col 2) + Amount (Col 3) */
+  #sessions-today-tbody tr td:nth-child(3) {
+    grid-column: 1 / 2 !important;
+    grid-row: 2 / 3 !important;
+    font-size: 0.8rem !important;
+    color: var(--text-muted) !important;
+    font-weight: 600 !important;
+    display: flex !important;
+    align-items: center !important;
+    padding: 0 !important;
+    border: none !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+  }
+  #sessions-today-tbody tr td:nth-child(3)::before {
+    content: 'طبيب: ' !important;
+    font-weight: 500 !important;
+  }
+
+  #sessions-today-tbody tr td:nth-child(4) {
+    display: none !important;
+  }
+
+  #sessions-today-tbody tr td:nth-child(5) {
+    grid-column: 2 / 3 !important;
+    grid-row: 2 / 3 !important;
+    justify-self: end !important;
+    display: flex !important;
+    align-items: center !important;
+    padding: 0 !important;
+    border: none !important;
+  }
+
+  #sessions-today-tbody tr td:nth-child(6) {
+    grid-column: 3 / 4 !important;
+    grid-row: 2 / 3 !important;
+    justify-self: end !important;
+    font-size: 1.15rem !important;
+    font-weight: 800 !important;
+    color: var(--success) !important;
+    padding: 0 !important;
+    border: none !important;
+    line-height: 1 !important;
+  }
+
+  /* Row 3: Recorded Time (Right) vs Action Buttons (Left) */
+  #sessions-today-tbody tr td:nth-child(7) {
+    grid-column: 1 / 2 !important;
+    grid-row: 3 / 4 !important;
+    font-size: 0.74rem !important;
+    color: var(--text-muted) !important;
+    display: flex !important;
+    align-items: center !important;
+    padding: 6px 0 0 0 !important;
+    border: none !important;
+    border-top: 1px dashed var(--border-color) !important;
+  }
+
+  #sessions-today-tbody tr td:nth-child(8) {
+    grid-column: 2 / 4 !important;
+    grid-row: 3 / 4 !important;
+    justify-self: end !important;
+    display: flex !important;
+    align-items: center !important;
+    padding: 6px 0 0 0 !important;
+    border: none !important;
+    border-top: 1px dashed var(--border-color) !important;
+  }
+
+  /* 3. RECENT SESSIONS ON DASHBOARD: COMPACT 3-ROW CARD */
+  #dashboard-recent-table tbody tr {
+    display: grid !important;
+    grid-template-columns: 1fr auto auto !important;
+    grid-template-rows: auto auto auto !important;
+    column-gap: 8px !important;
+    row-gap: 5px !important;
+    padding: 12px 14px !important;
+    margin-bottom: 10px !important;
+    border-radius: var(--radius-lg) !important;
+    background: var(--bg-glass-card) !important;
+    backdrop-filter: var(--glass-blur) !important;
+    -webkit-backdrop-filter: var(--glass-blur) !important;
+    border: 1px solid var(--glass-border) !important;
+    box-shadow: 0 4px 16px 0 rgba(0, 0, 0, 0.1) !important;
+    transition: transform 0.18s ease, box-shadow 0.18s ease !important;
+  }
+
+  #dashboard-recent-table tbody tr td:nth-child(1) {
+    grid-column: 1 / 2 !important;
+    grid-row: 1 / 2 !important;
+    font-size: 1.02rem !important;
+    font-weight: 800 !important;
+    color: var(--text-main) !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 6px !important;
+    padding: 0 !important;
+    border: none !important;
+  }
+
+  #dashboard-recent-table tbody tr td:nth-child(3) {
+    grid-column: 2 / 4 !important;
+    grid-row: 1 / 2 !important;
+    justify-self: end !important;
+    display: flex !important;
+    align-items: center !important;
+    padding: 0 !important;
+    border: none !important;
+  }
+
+  #dashboard-recent-table tbody tr td:nth-child(2) {
+    grid-column: 1 / 2 !important;
+    grid-row: 2 / 3 !important;
+    font-size: 0.8rem !important;
+    color: var(--text-muted) !important;
+    font-weight: 600 !important;
+    display: flex !important;
+    align-items: center !important;
+    padding: 0 !important;
+    border: none !important;
+  }
+  #dashboard-recent-table tbody tr td:nth-child(2)::before {
+    content: 'طبيب: ' !important;
+    font-weight: 500 !important;
+  }
+
+  #dashboard-recent-table tbody tr td:nth-child(4) {
+    grid-column: 2 / 3 !important;
+    grid-row: 2 / 3 !important;
+    justify-self: end !important;
+    display: flex !important;
+    align-items: center !important;
+    padding: 0 !important;
+    border: none !important;
+    font-size: 0.78rem !important;
+    color: var(--text-muted) !important;
+  }
+
+  #dashboard-recent-table tbody tr td:nth-child(5) {
+    grid-column: 3 / 4 !important;
+    grid-row: 2 / 3 !important;
+    justify-self: end !important;
+    font-size: 1.15rem !important;
+    font-weight: 800 !important;
+    color: var(--success) !important;
+    padding: 0 !important;
+    border: none !important;
+    line-height: 1 !important;
+  }
+
+  #dashboard-recent-table tbody tr td:nth-child(6) {
+    grid-column: 1 / 2 !important;
+    grid-row: 3 / 4 !important;
+    font-size: 0.74rem !important;
+    color: var(--text-muted) !important;
+    display: flex !important;
+    align-items: center !important;
+    padding: 6px 0 0 0 !important;
+    border: none !important;
+    border-top: 1px dashed var(--border-color) !important;
+  }
+
+  #dashboard-recent-table tbody tr td:nth-child(7) {
+    grid-column: 2 / 4 !important;
+    grid-row: 3 / 4 !important;
+    justify-self: end !important;
+    display: flex !important;
+    align-items: center !important;
+    padding: 6px 0 0 0 !important;
+    border: none !important;
+    border-top: 1px dashed var(--border-color) !important;
+  }
+
+  /* 4. PATIENT DIRECTORY: COMPACT 3-ROW CARD */
+  #patients-tbody tr {
+    display: grid !important;
+    grid-template-columns: 1fr auto !important;
+    grid-template-rows: auto auto auto !important;
+    column-gap: 8px !important;
+    row-gap: 6px !important;
+    padding: 12px 14px !important;
+    margin-bottom: 10px !important;
+    border-radius: var(--radius-lg) !important;
+    background: var(--bg-glass-card) !important;
+    backdrop-filter: var(--glass-blur) !important;
+    -webkit-backdrop-filter: var(--glass-blur) !important;
+    border: 1px solid var(--glass-border) !important;
+    box-shadow: 0 4px 16px 0 rgba(0, 0, 0, 0.1) !important;
+    transition: transform 0.18s ease, box-shadow 0.18s ease !important;
+  }
+
+  #patients-tbody tr td:nth-child(1) {
+    grid-column: 1 / 2 !important;
+    grid-row: 1 / 2 !important;
+    font-size: 1.02rem !important;
+    font-weight: 800 !important;
+    color: var(--primary) !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 6px !important;
+    padding: 0 !important;
+    border: none !important;
+  }
+
+  #patients-tbody tr td:nth-child(6) {
+    grid-column: 2 / 3 !important;
+    grid-row: 1 / 2 !important;
+    justify-self: end !important;
+    display: flex !important;
+    align-items: center !important;
+    padding: 0 !important;
+    border: none !important;
+  }
+
+  #patients-tbody tr td:nth-child(3) {
+    grid-column: 1 / 2 !important;
+    grid-row: 2 / 3 !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 6px !important;
+    padding: 0 !important;
+    border: none !important;
+    font-size: 0.86rem !important;
+  }
+
+  #patients-tbody tr td:nth-child(2) {
+    grid-column: 2 / 3 !important;
+    grid-row: 2 / 3 !important;
+    justify-self: end !important;
+    font-size: 0.82rem !important;
+    color: var(--text-muted) !important;
+    font-weight: 700 !important;
+    padding: 0 !important;
+    border: none !important;
+  }
+
+  #patients-tbody tr td:nth-child(4),
+  #patients-tbody tr td:nth-child(5),
+  #patients-tbody tr td:nth-child(7) {
+    display: none !important;
+  }
+
+  #patients-tbody tr td:nth-child(8) {
+    grid-column: 1 / 3 !important;
+    grid-row: 3 / 4 !important;
+    border-top: 1px dashed var(--border-color) !important;
+    padding: 8px 0 0 0 !important;
+    border-bottom: none !important;
+  }
+
+  #patients-tbody tr td:nth-child(8) > div {
+    display: flex !important;
+    gap: 6px !important;
+    align-items: center !important;
+    flex-wrap: wrap !important;
+    justify-content: flex-end !important;
+  }
+}
+
+/* ========================================================
+   PREMIUM HERO-STYLED MOBILE CARDS (v1.4.0-beta.6)
+   Handcrafted Mobile Cards matching the Hero Banner aesthetic
+   ======================================================== */
+@media (min-width: 992px) {
+  .mobile-only-cards-container {
+    display: none !important;
+  }
+}
+
+@media (max-width: 991px) {
+  .desktop-only-table {
+    display: none !important;
+  }
+
+  .mobile-only-cards-container {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 12px !important;
+    width: 100% !important;
+  }
+
+  /* Reset outer box styling on mobile */
+  #card-dashboard-recent,
+  #card-sessions-today,
+  #card-patients-directory,
+  #card-doctor-personal-sessions,
+  #card-doctor-appointments-schedule,
+  #card-main-appointments-schedule {
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+    margin-bottom: 14px !important;
+  }
+
+  #card-dashboard-recent .card-header,
+  #card-sessions-today .card-header,
+  #card-patients-directory .card-header,
+  #card-doctor-personal-sessions .card-header,
+  #card-doctor-appointments-schedule .card-header,
+  #card-main-appointments-schedule .card-header {
+    padding: 4px 2px 12px 2px !important;
+    border-bottom: none !important;
+    background: transparent !important;
+  }
+
+  #card-doctor-appointments-schedule .table-responsive,
+  #card-main-appointments-schedule .table-responsive {
+    border: none !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    overflow: visible !important;
+    padding: 0 !important;
+  }
+}
+
+/* --- THE HERO-STYLED CARD COMPONENT --- */
+.hero-styled-card {
+  background: linear-gradient(135deg, rgba(15, 23, 42, 0.9) 0%, rgba(30, 41, 59, 0.88) 100%);
+  border: 1.5px solid rgba(56, 189, 248, 0.22);
+  border-radius: var(--radius-lg);
+  padding: 16px 18px;
+  box-shadow: 0 10px 28px -4px rgba(0, 0, 0, 0.45);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.hero-styled-card:hover {
+  transform: translateY(-2px);
+  border-color: rgba(56, 189, 248, 0.45);
+  box-shadow: 0 14px 34px -4px rgba(2, 132, 199, 0.35);
+}
+
+.hero-styled-card:active {
+  transform: scale(0.98);
+}
+
+/* Light Theme Support */
+:root:not([data-theme="dark"]) .hero-styled-card {
+  background: linear-gradient(135deg, #ffffff 0%, #f0f9ff 100%);
+  border: 1.5px solid rgba(2, 132, 199, 0.2);
+  box-shadow: 0 8px 24px -4px rgba(2, 132, 199, 0.12);
+}
+
+/* 1. Top Section */
+.hsc-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.hsc-patient-meta {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+  flex: 1;
+}
+
+.hsc-avatar {
+  width: 44px;
+  height: 44px;
+  border-radius: var(--radius-md);
+  background: rgba(56, 189, 248, 0.15);
+  color: #38bdf8;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+  flex-shrink: 0;
+  border: 1px solid rgba(56, 189, 248, 0.25);
+}
+
+.hsc-avatar.patient-avatar {
+  background: rgba(129, 140, 248, 0.15);
+  color: #818cf8;
+  border-color: rgba(129, 140, 248, 0.25);
+}
+
+.hsc-name-box {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+}
+
+.hsc-patient-name {
+  font-size: 1.05rem;
+  font-weight: 800;
+  color: var(--text-main);
+  line-height: 1.3;
+  word-break: normal !important;
+  overflow-wrap: break-word !important;
+  white-space: normal !important;
+}
+
+.hsc-name-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.hsc-age-badge {
+  font-size: 0.76rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  background: var(--bg-subtle);
+  padding: 2px 7px;
+  border-radius: var(--radius-pill);
+}
+
+.hsc-doc-sub {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.hsc-badge-amount {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.hsc-amount-val {
+  font-size: 1.25rem;
+  font-weight: 900;
+  color: var(--success);
+  line-height: 1;
+  letter-spacing: -0.3px;
+}
+
+.hsc-amount-val small {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--text-muted);
+}
+
+.hsc-pill-wrap {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+/* 2. Patient Meta Row (Phone & Address) */
+.hsc-patient-meta-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-top: 10px;
+  flex-wrap: wrap;
+  font-size: 0.82rem;
+}
+
+.hsc-meta-link {
+  color: #38bdf8;
+  text-decoration: none;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.hsc-meta-text {
+  color: var(--text-muted);
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+/* 3. Divider */
+.hsc-divider {
+  height: 1px;
+  background: linear-gradient(90deg, transparent 0%, var(--border-color) 20%, var(--border-color) 80%, transparent 100%);
+  margin: 12px 0 10px 0;
+}
+
+/* 4. Bottom Row */
+.hsc-bottom {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.hsc-tags {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.hsc-tag-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.76rem;
+  font-weight: 700;
+  color: #bae6fd;
+  background: rgba(2, 132, 199, 0.16);
+  border: 1px solid rgba(2, 132, 199, 0.3);
+  padding: 3px 9px;
+  border-radius: var(--radius-pill);
+}
+
+.hsc-time-tag {
+  font-size: 0.76rem;
+  color: var(--text-muted);
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.hsc-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.btn-hero-sheet {
+  background: var(--primary-gradient) !important;
+  color: #ffffff !important;
+  border: none !important;
+  padding: 6px 14px !important;
+  border-radius: var(--radius-pill) !important;
+  font-weight: 800 !important;
+  font-size: 0.8rem !important;
+  box-shadow: 0 4px 12px rgba(2, 132, 199, 0.3) !important;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+}
+
+.btn-hero-sheet:hover {
+  box-shadow: 0 6px 16px rgba(2, 132, 199, 0.45) !important;
+  transform: translateY(-1px);
+}
+
+.btn-icon-action {
+  width: 34px !important;
+  height: 34px !important;
+  padding: 0 !important;
+  border-radius: var(--radius-pill) !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  font-size: 0.85rem !important;
+}
+
+.btn-psc-whatsapp {
+  width: 34px !important;
+  height: 34px !important;
+  padding: 0 !important;
+  border-radius: var(--radius-pill) !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  font-size: 0.95rem !important;
+}
+
+.empty-state-card {
+  padding: 24px;
+  text-align: center;
+  color: var(--text-muted);
+  font-weight: 600;
+  font-size: 0.9rem;
+  background: var(--bg-glass-card);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--glass-border);
+}
+
+/* ================= Mobile Appointments Timeline (v1.4.0-beta.7) ================= */
+.appt-timeline-container {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+}
+
+.appt-slot-card {
+  padding: 16px 18px !important;
+  border-radius: var(--radius-lg) !important;
+  background: var(--bg-glass-card) !important;
+  backdrop-filter: var(--glass-blur) !important;
+  -webkit-backdrop-filter: var(--glass-blur) !important;
+  border: 1.5px solid var(--glass-border) !important;
+  box-shadow: 0 4px 16px -2px rgba(15, 23, 42, 0.05), 0 2px 6px -1px rgba(15, 23, 42, 0.03) !important;
+  transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.2s ease !important;
+}
+
+.appt-slot-card:hover {
+  transform: translateY(-2px) !important;
+  border-color: rgba(56, 189, 248, 0.4) !important;
+  box-shadow: 0 8px 24px -3px rgba(2, 132, 199, 0.15) !important;
+}
+
+[data-theme="dark"] .appt-slot-card {
+  box-shadow: 0 8px 24px -4px rgba(0, 0, 0, 0.4) !important;
+}
+
+[data-theme="dark"] .appt-slot-card:hover {
+  box-shadow: 0 12px 30px -4px rgba(2, 132, 199, 0.3) !important;
+}
+
+.appt-slot-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.appt-slot-time-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(2, 132, 199, 0.12);
+  border: 1px solid rgba(2, 132, 199, 0.3);
+  padding: 6px 14px;
+  border-radius: var(--radius-pill);
+  color: var(--text-main);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.appt-slot-time-pill:hover {
+  background: rgba(2, 132, 199, 0.22);
+  border-color: var(--primary);
+  transform: translateY(-1px);
+}
+
+.appt-slot-doc-group {
+  margin-top: 8px;
+}
+
+.appt-slot-doc-title {
+  font-size: 0.85rem;
+  font-weight: 800;
+  color: var(--primary);
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.appt-chips-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.appt-chips-wrap .appt-chip {
+  margin-bottom: 0 !important;
+  border-radius: 14px !important;
+  padding: 10px 14px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 10px !important;
+  transition: all 0.2s ease !important;
+}
+
+/* Light Mode: Crisp, clean light card for booked patient */
+:root:not([data-theme="dark"]) .appt-chips-wrap .appt-chip {
+  background: #f8fafc !important;
+  border: 1.5px solid #e2e8f0 !important;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04) !important;
+}
+
+:root:not([data-theme="dark"]) .appt-chips-wrap .appt-chip:hover {
+  background: #f0f9ff !important;
+  border-color: #0284c7 !important;
+}
+
+:root:not([data-theme="dark"]) .appt-chip-patient {
+  color: #0f172a !important;
+  font-weight: 800 !important;
+  font-size: 0.95rem !important;
+}
+
+:root:not([data-theme="dark"]) .appt-chip-move {
+  background: #e0f2fe !important;
+  color: #0284c7 !important;
+  border: 1px solid #bae6fd !important;
+  width: 28px !important;
+  height: 28px !important;
+  border-radius: 50% !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+:root:not([data-theme="dark"]) .appt-chip-remove {
+  background: #fee2e2 !important;
+  color: #ef4444 !important;
+  border: 1px solid #fecaca !important;
+  width: 28px !important;
+  height: 28px !important;
+  border-radius: 50% !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  font-size: 1.1rem !important;
+  line-height: 1 !important;
+}
+
+/* Dark Mode: Sleek glass card for booked patient */
+[data-theme="dark"] .appt-chips-wrap .appt-chip {
+  background: rgba(15, 23, 42, 0.75) !important;
+  border: 1.5px solid rgba(56, 189, 248, 0.25) !important;
+}
+
+[data-theme="dark"] .appt-chip-patient {
+  color: #f8fafc !important;
+  font-weight: 800 !important;
+  font-size: 0.95rem !important;
+}
+
+[data-theme="dark"] .appt-chip-move {
+  background: rgba(56, 189, 248, 0.15) !important;
+  color: #38bdf8 !important;
+  border: 1px solid rgba(56, 189, 248, 0.3) !important;
+  width: 28px !important;
+  height: 28px !important;
+  border-radius: 50% !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+[data-theme="dark"] .appt-chip-remove {
+  background: rgba(239, 68, 68, 0.15) !important;
+  color: #f87171 !important;
+  border: 1px solid rgba(239, 68, 68, 0.3) !important;
+  width: 28px !important;
+  height: 28px !important;
+  border-radius: 50% !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  font-size: 1.1rem !important;
+  line-height: 1 !important;
+}
+
+.appt-slot-empty-hint {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  font-style: italic;
+  padding: 4px 0;
+  display: block;
+}
+
+/* ================= Polish & Contrast Enhancements (v1.4.0-beta.8) ================= */
+
+/* 1. High Contrast Body Parts Pill (.hsc-tag-pill) for both Light and Dark Modes */
+.hsc-tag-pill {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+  font-size: 0.78rem !important;
+  font-weight: 800 !important;
+  color: #0369a1 !important; /* Crystal clear readable navy-blue in Light Mode */
+  background: #e0f2fe !important;
+  border: 1.5px solid #bae6fd !important;
+  padding: 4px 10px !important;
+  border-radius: var(--radius-pill) !important;
+  box-shadow: 0 1px 2px rgba(2, 132, 199, 0.1) !important;
+  line-height: 1.2 !important;
+}
+
+.hsc-tag-pill i {
+  color: #0284c7 !important;
+  font-size: 0.8rem !important;
+}
+
+[data-theme="dark"] .hsc-tag-pill {
+  color: #7dd3fc !important; /* Luminous sky cyan in Dark Mode */
+  background: rgba(56, 189, 248, 0.16) !important;
+  border-color: rgba(56, 189, 248, 0.35) !important;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3) !important;
+}
+
+[data-theme="dark"] .hsc-tag-pill i {
+  color: #38bdf8 !important;
+}
+
+/* 2. Compact Appointments Timeline Components */
+.appt-slot-empty-clean {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  padding: 8px 4px;
+}
+
+.appt-quick-booking-container {
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px dashed var(--border-color);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.appt-book-title {
+  font-size: 0.78rem;
+  font-weight: 800;
+  color: var(--primary);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.appt-doc-pills-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.appt-doc-booking-pill {
+  border-radius: var(--radius-pill) !important;
+  padding: 5px 12px !important;
+  font-size: 0.78rem !important;
+  font-weight: 700 !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 4px !important;
+  background: var(--bg-surface) !important;
+  border: 1.5px solid var(--border-color) !important;
+  color: var(--text-main) !important;
+  transition: all 0.18s ease !important;
+}
+
+.appt-doc-booking-pill:hover {
+  background: var(--primary-light) !important;
+  border-color: var(--primary) !important;
+  color: var(--primary) !important;
+  transform: translateY(-1px) !important;
+}
+
+.appt-active-doc-group {
+  margin-bottom: 8px;
+}
+
+.appt-slot-doc-name {
+  font-size: 0.82rem;
+  font-weight: 800;
+  color: var(--primary);
+  margin-bottom: 4px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* 3. Slot Quick Buttons in Edit Slot Modal */
+.slot-quick-btn {
+  padding: 6px 12px !important;
+  font-size: 0.82rem !important;
+  font-weight: 700 !important;
+  border-radius: var(--radius-pill) !important;
+  background: var(--bg-subtle) !important;
+  border: 1.5px solid var(--border-color) !important;
+  color: var(--text-main) !important;
+  transition: all 0.18s ease !important;
+}
+
+.slot-quick-btn:hover {
+  background: var(--primary-light) !important;
+  border-color: var(--primary) !important;
+  color: var(--primary) !important;
+  transform: translateY(-1px) !important;
+}
+
+/* 4. Glassmorphic Modal Input Fields & Form Controls */
+.modal-body .form-control {
+  background-color: var(--bg-subtle) !important;
+  border: 1.5px solid var(--border-color) !important;
+  border-radius: 12px !important;
+  padding: 10px 14px !important;
+  font-weight: 600 !important;
+  color: var(--text-main) !important;
+  transition: all 0.2s ease !important;
+}
+
+.modal-body .form-control:focus {
+  background-color: var(--bg-surface) !important;
+  border-color: var(--primary) !important;
+  box-shadow: 0 0 0 4px var(--primary-light) !important;
+}
+
+/* 5. Document Hub Action Cards in Patient Docs Modal */
+#p-docs-actions-container .btn-outline {
+  border-radius: 16px !important;
+  background: var(--bg-glass-card) !important;
+  backdrop-filter: blur(14px) !important;
+  -webkit-backdrop-filter: blur(14px) !important;
+  border: 1.5px solid var(--glass-border) !important;
+  box-shadow: var(--shadow-sm) !important;
+  padding: 14px 16px !important;
+  transition: all 0.2s ease !important;
+}
+
+#p-docs-actions-container .btn-outline:hover {
+  transform: translateY(-2px) !important;
+  box-shadow: var(--shadow-md) !important;
+  border-color: var(--primary) !important;
+}
+
+/* ==========================================================================
+   v1.4.0-beta.10: Light Mode & Universal Modals / Pickers Overhaul
+   ========================================================================== */
+
+/* 1. Backdrop & Mobile Bottom Sheets (Clean White, No Murky Transparency) */
+@media (max-width: 767px) {
+  .modal-backdrop {
+    padding: 0 !important;
+    align-items: flex-end !important;
+    background-color: rgba(15, 23, 42, 0.45) !important;
+    backdrop-filter: blur(5px) !important;
+    -webkit-backdrop-filter: blur(5px) !important;
+  }
+
+  .modal-content {
+    max-width: 100% !important;
+    width: 100% !important;
+    border-radius: 26px 26px 0 0 !important;
+    max-height: 88vh !important;
+    margin-bottom: 0 !important;
+    animation: modalSlideUp 0.26s cubic-bezier(0.32, 0.72, 0, 1) !important;
+    padding-bottom: max(22px, env(safe-area-inset-bottom, 22px)) !important;
+    box-shadow: 0 -12px 40px -8px rgba(15, 23, 42, 0.15) !important;
+    position: relative !important;
+    border-bottom: none !important;
+    border-left: none !important;
+    border-right: none !important;
+    background-color: #ffffff !important;
+  }
+
+  .modal-content::before {
+    content: '' !important;
+    display: block !important;
+    width: 44px !important;
+    height: 5px !important;
+    border-radius: 9999px !important;
+    background-color: #cbd5e1 !important;
+    margin: 12px auto 6px auto !important;
+  }
+
+  [data-theme="dark"] .modal-content::before {
+    background-color: #475569 !important;
+  }
+}
+
+/* 2. Modal Header & Close Button (Tactile Circular Button) */
+.modal-header {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  padding: 16px 22px !important;
+  border-bottom: 1px solid #f1f5f9 !important;
+}
+
+[data-theme="dark"] .modal-header {
+  border-bottom: 1px solid #334155 !important;
+}
+
+.modal-header h3 {
+  font-size: 1.15rem !important;
+  font-weight: 800 !important;
+  color: #0f172a !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 10px !important;
+}
+
+[data-theme="dark"] .modal-header h3 {
+  color: #f8fafc !important;
+}
+
+.modal-header h3 i {
+  color: var(--primary) !important;
+  font-size: 1.1rem !important;
+}
+
+.modal-close {
+  width: 34px !important;
+  height: 34px !important;
+  border-radius: 50% !important;
+  background-color: #f1f5f9 !important;
+  border: 1px solid #e2e8f0 !important;
+  color: #64748b !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  font-size: 1.25rem !important;
+  line-height: 1 !important;
+  cursor: pointer !important;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  flex-shrink: 0 !important;
+}
+
+.modal-close:hover, .modal-close:active {
+  background-color: #e2e8f0 !important;
+  color: #0f172a !important;
+  transform: scale(0.95);
+}
+
+[data-theme="dark"] .modal-close {
+  background-color: #334155 !important;
+  border-color: #475569 !important;
+  color: #cbd5e1 !important;
+}
+
+[data-theme="dark"] .modal-close:hover, [data-theme="dark"] .modal-close:active {
+  background-color: #475569 !important;
+  color: #ffffff !important;
+}
+
+/* 3. Custom Picker Rows (Dropdown Replacement Modal) */
+.custom-picker-options-list {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 10px !important;
+  max-height: 400px !important;
+  overflow-y: auto !important;
+  padding: 8px 2px !important;
+}
+
+.custom-picker-row {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  padding: 13px 18px !important;
+  border-radius: 16px !important;
+  border: 1.5px solid #e2e8f0 !important;
+  background-color: #ffffff !important;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.03) !important;
+  cursor: pointer !important;
+  font-weight: 700 !important;
+  font-size: 0.96rem !important;
+  color: #1e293b !important;
+  transition: all 0.18s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+.custom-picker-row:hover, .custom-picker-row:active {
+  background-color: #f8fafc !important;
+  border-color: #cbd5e1 !important;
+  transform: scale(0.99);
+}
+
+.custom-picker-row.active-choice {
+  background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%) !important;
+  border: 1.5px solid #0284c7 !important;
+  color: #0369a1 !important;
+  box-shadow: 0 4px 14px -2px rgba(2, 132, 199, 0.18) !important;
+  font-weight: 800 !important;
+}
+
+.custom-picker-row .check-icon {
+  width: 24px !important;
+  height: 24px !important;
+  border-radius: 50% !important;
+  background: #0284c7 !important;
+  color: #ffffff !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  font-size: 0.75rem !important;
+}
+
+[data-theme="dark"] .custom-picker-row {
+  background-color: #1e293b !important;
+  border-color: #334155 !important;
+  color: #f8fafc !important;
+}
+
+[data-theme="dark"] .custom-picker-row:hover {
+  background-color: #334155 !important;
+  border-color: #475569 !important;
+}
+
+[data-theme="dark"] .custom-picker-row.active-choice {
+  background: rgba(2, 132, 199, 0.25) !important;
+  border-color: #38bdf8 !important;
+  color: #38bdf8 !important;
+}
+
+/* 4. Patient Picker Modal (Search Bar, Patient Cards, Aligned Footer) */
+#picker-search-input {
+  background-color: #f8fafc !important;
+  border: 1.5px solid #e2e8f0 !important;
+  border-radius: 14px !important;
+  padding: 12px 18px !important;
+  font-size: 0.95rem !important;
+  font-weight: 600 !important;
+  color: #0f172a !important;
+  transition: all 0.2s ease !important;
+  width: 100% !important;
+  box-sizing: border-box !important;
+}
+
+#picker-search-input:focus {
+  background-color: #ffffff !important;
+  border-color: #0284c7 !important;
+  box-shadow: 0 0 0 4px rgba(2, 132, 199, 0.14) !important;
+  outline: none !important;
+}
+
+[data-theme="dark"] #picker-search-input {
+  background-color: #0f172a !important;
+  border-color: #334155 !important;
+  color: #f8fafc !important;
+}
+
+[data-theme="dark"] #picker-search-input:focus {
+  background-color: #1e293b !important;
+  border-color: #38bdf8 !important;
+  box-shadow: 0 0 0 4px rgba(56, 189, 248, 0.18) !important;
+}
+
+.patient-picker-list {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 10px !important;
+  margin-top: 14px !important;
+  max-height: 48vh !important;
+  overflow-y: auto !important;
+}
+
+.picker-item {
+  border: 1.5px solid #e2e8f0 !important;
+  background-color: #ffffff !important;
+  border-radius: 16px !important;
+  padding: 13px 16px !important;
+  cursor: pointer !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.03) !important;
+  transition: all 0.18s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+.picker-item:hover, .picker-item:active {
+  background-color: #f0f9ff !important;
+  border-color: #0284c7 !important;
+  box-shadow: 0 4px 12px -2px rgba(2, 132, 199, 0.12) !important;
+  transform: scale(0.995);
+}
+
+[data-theme="dark"] .picker-item {
+  background-color: #1e293b !important;
+  border-color: #334155 !important;
+}
+
+[data-theme="dark"] .picker-item:hover, [data-theme="dark"] .picker-item:active {
+  background-color: rgba(56, 189, 248, 0.12) !important;
+  border-color: #38bdf8 !important;
+}
+
+/* 5. Modal Footer (Aligned Buttons, Elegant Outline & Primary) */
+.modal-footer {
+  display: flex !important;
+  align-items: center !important;
+  padding: 16px 20px !important;
+  border-top: 1px solid #f1f5f9 !important;
+  gap: 12px !important;
+}
+
+[data-theme="dark"] .modal-footer {
+  border-top: 1px solid #334155 !important;
+}
+
+.modal-footer .btn {
+  border-radius: 14px !important;
+  padding: 11px 20px !important;
+  font-weight: 700 !important;
+  font-size: 0.92rem !important;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+.modal-footer .btn-outline {
+  background-color: #f1f5f9 !important;
+  border: 1px solid #e2e8f0 !important;
+  color: #475569 !important;
+}
+
+.modal-footer .btn-outline:hover, .modal-footer .btn-outline:active {
+  background-color: #e2e8f0 !important;
+  color: #0f172a !important;
+}
+
+[data-theme="dark"] .modal-footer .btn-outline {
+  background-color: #334155 !important;
+  border-color: #475569 !important;
+  color: #e2e8f0 !important;
+}
+
+[data-theme="dark"] .modal-footer .btn-outline:hover {
+  background-color: #475569 !important;
+  color: #ffffff !important;
+}
+
+.modal-footer .btn-primary {
+  background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%) !important;
+  color: #ffffff !important;
+  border: none !important;
+  box-shadow: 0 4px 14px -2px rgba(2, 132, 199, 0.3) !important;
+}
+
+.modal-footer .btn-primary:hover, .modal-footer .btn-primary:active {
+  box-shadow: 0 6px 20px -2px rgba(2, 132, 199, 0.45) !important;
+  transform: translateY(-1px);
+}
+
+/* 6. Form Controls, Labels & Segmented Radio Pills inside Modals */
+.modal-body label {
+  display: inline-block !important;
+  font-size: 0.88rem !important;
+  font-weight: 700 !important;
+  color: #334155 !important;
+  margin-bottom: 6px !important;
+}
+
+[data-theme="dark"] .modal-body label {
+  color: #cbd5e1 !important;
+}
+
+.modal-body .form-control,
+.modal-body input[type="text"],
+.modal-body input[type="tel"],
+.modal-body input[type="number"],
+.modal-body input[type="date"],
+.modal-body select,
+.modal-body textarea {
+  background-color: #f8fafc !important;
+  border: 1.5px solid #e2e8f0 !important;
+  border-radius: 14px !important;
+  padding: 12px 14px !important;
+  font-weight: 600 !important;
+  font-size: 0.94rem !important;
+  color: #0f172a !important;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  box-sizing: border-box !important;
+}
+
+.modal-body .form-control:focus,
+.modal-body input[type="text"]:focus,
+.modal-body input[type="tel"]:focus,
+.modal-body input[type="number"]:focus,
+.modal-body input[type="date"]:focus,
+.modal-body select:focus,
+.modal-body textarea:focus {
+  background-color: #ffffff !important;
+  border-color: #0284c7 !important;
+  box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.14) !important;
+  outline: none !important;
+}
+
+[data-theme="dark"] .modal-body .form-control,
+[data-theme="dark"] .modal-body input[type="text"],
+[data-theme="dark"] .modal-body input[type="tel"],
+[data-theme="dark"] .modal-body input[type="number"],
+[data-theme="dark"] .modal-body input[type="date"],
+[data-theme="dark"] .modal-body select,
+[data-theme="dark"] .modal-body textarea {
+  background-color: #0f172a !important;
+  border-color: #334155 !important;
+  color: #f8fafc !important;
+}
+
+[data-theme="dark"] .modal-body .form-control:focus,
+[data-theme="dark"] .modal-body input[type="text"]:focus,
+[data-theme="dark"] .modal-body input[type="tel"]:focus,
+[data-theme="dark"] .modal-body input[type="number"]:focus,
+[data-theme="dark"] .modal-body input[type="date"]:focus,
+[data-theme="dark"] .modal-body select:focus,
+[data-theme="dark"] .modal-body textarea:focus {
+  background-color: #1e293b !important;
+  border-color: #38bdf8 !important;
+  box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.18) !important;
+}
+
+.modal-body .custom-select-btn {
+  background-color: #f8fafc !important;
+  border: 1.5px solid #e2e8f0 !important;
+  border-radius: 14px !important;
+  padding: 12px 14px !important;
+  color: #0f172a !important;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+.modal-body .custom-select-btn:hover, .modal-body .custom-select-btn:focus {
+  background-color: #ffffff !important;
+  border-color: #0284c7 !important;
+  box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.14) !important;
+}
+
+[data-theme="dark"] .modal-body .custom-select-btn {
+  background-color: #0f172a !important;
+  border-color: #334155 !important;
+  color: #f8fafc !important;
+}
+
+.custom-radio-card {
+  border-radius: 14px !important;
+  padding: 11px 18px !important;
+  border: 1.5px solid #e2e8f0 !important;
+  background-color: #ffffff !important;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.03) !important;
+  cursor: pointer !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 10px !important;
+  font-weight: 700 !important;
+  font-size: 0.9rem !important;
+  color: #1e293b !important;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+.custom-radio-card:hover {
+  background-color: #f8fafc !important;
+  border-color: #cbd5e1 !important;
+}
+
+.custom-radio-card:has(input:checked) {
+  background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%) !important;
+  border-color: #0284c7 !important;
+  color: #0369a1 !important;
+  box-shadow: 0 4px 14px -2px rgba(2, 132, 199, 0.18) !important;
+}
+
+[data-theme="dark"] .custom-radio-card {
+  background-color: #1e293b !important;
+  border-color: #334155 !important;
+  color: #f8fafc !important;
+}
+
+[data-theme="dark"] .custom-radio-card:has(input:checked) {
+  background: rgba(2, 132, 199, 0.25) !important;
+  border-color: #38bdf8 !important;
+  color: #38bdf8 !important;
+}
+
+/* 7. Custom Alert & Confirm Box */
+.custom-dialog-box {
+  background-color: #ffffff !important;
+  border-radius: 22px !important;
+  box-shadow: 0 24px 48px -12px rgba(15, 23, 42, 0.25) !important;
+  border: 1px solid rgba(226, 232, 240, 0.8) !important;
+  padding: 26px 22px !important;
+}
+
+[data-theme="dark"] .custom-dialog-box {
+  background-color: #1e293b !important;
+  border-color: #334155 !important;
+  box-shadow: 0 24px 48px -12px rgba(0, 0, 0, 0.6) !important;
+}
+
+/* Mobile Unwrap for Appointments Schedules (v1.4.0-beta.12) */
+@media (max-width: 767px) {
+  #card-doctor-appointments-schedule,
+  #card-main-appointments-schedule,
+  .card:has(#my-appointments-grid),
+  .card:has(#appointments-grid) {
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+    margin-top: 10px !important;
+    margin-bottom: 14px !important;
+  }
+
+  #card-doctor-appointments-schedule > .card-header,
+  #card-main-appointments-schedule > .card-header,
+  .card:has(#my-appointments-grid) > .card-header,
+  .card:has(#appointments-grid) > .card-header {
+    background: transparent !important;
+    border: none !important;
+    padding: 6px 4px 12px 4px !important;
+  }
+
+  #card-doctor-appointments-schedule .table-responsive,
+  #card-main-appointments-schedule .table-responsive,
+  .table-responsive:has(#my-appointments-grid),
+  .table-responsive:has(#appointments-grid) {
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    overflow: visible !important;
+    padding: 0 !important;
+  }
+
+  .appt-timeline-container {
+    gap: 14px !important;
+    width: 100% !important;
+  }
+
+  .appt-slot-card {
+    margin: 0 0 14px 0 !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+  }
+}
+
+/* ==========================================================================
+   v1.4.0-beta.13: Doctor Schedule Horizontal Swipe Carousel
+   ========================================================================== */
+.doc-swipe-carousel-wrapper {
+  position: relative;
+  width: 100%;
+  margin: 4px 0 16px 0;
+}
+
+.doc-swipe-carousel {
+  display: flex !important;
+  flex-direction: row !important;
+  gap: 14px !important;
+  overflow-x: auto !important;
+  overflow-y: hidden !important;
+  scroll-snap-type: x mandatory !important;
+  -webkit-overflow-scrolling: touch !important;
+  padding: 4px 4px 14px 4px !important;
+  scrollbar-width: none !important;
+}
+
+.doc-swipe-carousel::-webkit-scrollbar {
+  display: none !important;
+}
+
+.doc-carousel-card {
+  flex: 0 0 88% !important;
+  max-width: 88% !important;
+  scroll-snap-align: center !important;
+  box-sizing: border-box !important;
+  margin: 0 !important;
+}
+
+@media (min-width: 768px) {
+  .doc-carousel-card {
+    flex: 0 0 320px !important;
+    max-width: 320px !important;
+  }
+}
+
+.doc-card-header {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 10px !important;
+}
+
+.doc-card-time-badge {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+}
+
+.doc-card-patients-list {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 8px !important;
+}
+
+.doc-patient-item {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 10px !important;
+  padding: 10px 12px !important;
+  border-radius: 14px !important;
+  background: var(--bg-surface) !important;
+  border: 1px solid var(--border-color) !important;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.03) !important;
+}
+
+[data-theme="dark"] .doc-patient-item {
+  background: rgba(15, 23, 42, 0.6) !important;
+  border-color: rgba(51, 65, 85, 0.7) !important;
+}
+
+.doc-patient-avatar {
+  width: 34px !important;
+  height: 34px !important;
+  border-radius: 50% !important;
+  background: rgba(2, 132, 199, 0.12) !important;
+  color: var(--primary) !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  font-size: 0.85rem !important;
+  flex-shrink: 0 !important;
+}
+
+.doc-patient-info {
+  flex: 1 !important;
+}
+
+.doc-patient-name {
+  font-weight: 800 !important;
+  font-size: 0.95rem !important;
+  color: var(--text-main) !important;
+}
+
+.doc-patient-phone {
+  font-size: 0.76rem !important;
+  color: var(--text-muted) !important;
+  margin-top: 2px !important;
+}
+
+.doc-patient-order {
+  font-size: 0.72rem !important;
+  font-weight: 800 !important;
+  color: var(--text-muted) !important;
+  background: var(--bg-subtle) !important;
+  padding: 2px 7px !important;
+  border-radius: 999px !important;
+}
+
+.doc-carousel-dots {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 8px !important;
+  margin-top: 4px !important;
+}
+
+.doc-dot {
+  width: 8px !important;
+  height: 8px !important;
+  border-radius: 999px !important;
+  background: var(--border-color) !important;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  cursor: pointer !important;
+}
+
+.doc-dot.active {
+  width: 24px !important;
+  background: var(--primary) !important;
+  box-shadow: 0 2px 8px rgba(2, 132, 199, 0.4) !important;
+}
+
+/* ==========================================================================
+   v1.4.0-beta.14: Receptionist Single Booking Button & Doctor Stacked Cards
+   ========================================================================== */
+
+/* 1. Receptionist Single Booking Button in Time Slot Card */
+.appt-single-book-btn {
+  width: 100% !important;
+  border-radius: 14px !important;
+  padding: 11px 16px !important;
+  font-weight: 700 !important;
+  font-size: 0.92rem !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 8px !important;
+  border: 1.5px dashed var(--primary) !important;
+  color: var(--primary) !important;
+  background: rgba(2, 132, 199, 0.05) !important;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  cursor: pointer !important;
+}
+
+.appt-single-book-btn:hover, .appt-single-book-btn:active {
+  background: var(--primary) !important;
+  color: #ffffff !important;
+  border-style: solid !important;
+  box-shadow: 0 4px 14px -2px rgba(2, 132, 199, 0.35) !important;
+  transform: translateY(-1px);
+}
+
+[data-theme="dark"] .appt-single-book-btn {
+  background: rgba(56, 189, 248, 0.08) !important;
+  border-color: rgba(56, 189, 248, 0.4) !important;
+  color: #38bdf8 !important;
+}
+
+[data-theme="dark"] .appt-single-book-btn:hover, [data-theme="dark"] .appt-single-book-btn:active {
+  background: #0284c7 !important;
+  color: #ffffff !important;
+  border-color: #0284c7 !important;
+}
+
+/* 2. Doctor 3D Overlapping Stack Deck */
+.doc-stack-wrapper {
+  position: relative;
+  width: 100%;
+  margin: 6px 0 16px 0;
+}
+
+.doc-stack-header-bar {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  padding: 4px 6px 14px 6px !important;
+}
+
+.doc-stack-container {
+  position: relative;
+  width: 100%;
+  min-height: 240px;
+  perspective: 1000px;
+  transition: min-height 0.3s ease;
+}
+
+.doc-stack-card {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  width: 100%;
+  border-radius: 20px !important;
+  box-sizing: border-box !important;
+  cursor: pointer;
+  /* 100% GPU-only transitions: transforms and opacity without paint or layout stalls */
+  transition: transform 0.26s cubic-bezier(0.25, 1, 0.5, 1),
+              opacity 0.22s ease !important;
+  will-change: transform, opacity;
+  backface-visibility: hidden !important;
+  -webkit-backface-visibility: hidden !important;
+  transform: translate3d(0, 0, 0);
+  overflow: hidden;
+  /* Disable heavy multi-pass blur on stacked cards to save mobile GPU compositing */
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+.doc-stack-card.is-active-card {
+  transform: translate3d(0, 0, 0) scale(1) !important;
+  z-index: 12 !important;
+  opacity: 1 !important;
+  pointer-events: auto !important;
+  border-color: rgba(2, 132, 199, 0.45) !important;
+  box-shadow: 0 10px 30px -4px rgba(2, 132, 199, 0.22) !important;
+}
+
+[data-theme="dark"] .doc-stack-card.is-active-card {
+  border-color: rgba(56, 189, 248, 0.5) !important;
+  box-shadow: 0 12px 34px -4px rgba(0, 0, 0, 0.65) !important;
+}
+
+.doc-stack-card.is-peeking-card {
+  cursor: pointer;
+  pointer-events: auto !important;
+  border-color: var(--border-color) !important;
+  /* Replaced GPU-heavy brightness filter with pure opacity handling */
+  opacity: 0.88;
+}
+
+[data-theme="dark"] .doc-stack-card.is-peeking-card {
+  opacity: 0.80;
+}
+
+.doc-stack-card.is-passed-card {
+  pointer-events: none !important;
+  opacity: 0 !important;
+}
+
+/* List Layout Toggle Override */
+.doc-stack-container.is-list-layout {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 14px !important;
+  min-height: auto !important;
+}
+
+.doc-stack-container.is-list-layout .doc-stack-card {
+  position: relative !important;
+  transform: none !important;
+  opacity: 1 !important;
+  z-index: 1 !important;
+  pointer-events: auto !important;
+}
+
+.doc-stack-nav-bar {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  padding: 12px 10px 4px 10px !important;
+  margin-top: 8px !important;
+}
+
+.doc-stack-container.is-list-layout + .doc-stack-nav-bar {
+  display: none !important;
+}
+
+.doc-stack-nav-btn {
+  background: var(--bg-surface) !important;
+  border: 1px solid var(--border-color) !important;
+  color: var(--text-main) !important;
+  font-size: 0.8rem !important;
+  font-weight: 700 !important;
+  padding: 6px 14px !important;
+  border-radius: 999px !important;
+  cursor: pointer !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+  transition: all 0.2s ease !important;
+}
+
+.doc-stack-nav-btn:hover, .doc-stack-nav-btn:active {
+  background: var(--primary-light) !important;
+  border-color: var(--primary) !important;
+  color: var(--primary) !important;
+}
+
+.doc-stack-dots {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 8px !important;
+}
+
+/* ==========================================================================
+   v1.4.0-beta.16: Suppress Native Browser Scrollbars (100% Native App Feel)
+   ========================================================================== */
+html, body, div, section, main, article, aside, ul, ol, table, .table-responsive, .modal-content, .modal-body {
+  scrollbar-width: none !important;
+  -ms-overflow-style: none !important;
+}
+
+html::-webkit-scrollbar,
+body::-webkit-scrollbar,
+*::-webkit-scrollbar {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
+  background: transparent !important;
+}
+
+/* ==========================================================================
+   v1.4.0-beta.17: Complete Modernization for Sessions & Finance Screens
+   ========================================================================== */
+
+/* --- 1. SESSIONS VIEW: Mode Switcher --- */
+.session-mode-switcher {
+  display: flex !important;
+  background: var(--bg-subtle) !important;
+  border-radius: 16px !important;
+  padding: 5px !important;
+  gap: 6px !important;
+  width: 100% !important;
+  border: 1.5px solid var(--border-color) !important;
+  box-sizing: border-box !important;
+}
+
+.session-mode-btn {
+  flex: 1 !important;
+  padding: 10px 14px !important;
+  border: none !important;
+  border-radius: 12px !important;
+  font-weight: 800 !important;
+  font-size: 0.92rem !important;
+  cursor: pointer !important;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 8px !important;
+}
+
+:root:not([data-theme="dark"]) .session-mode-btn.active {
+  background: #ffffff !important;
+  color: #0284c7 !important;
+  box-shadow: 0 3px 12px rgba(15, 23, 42, 0.08) !important;
+}
+
+:root:not([data-theme="dark"]) .session-mode-btn:not(.active) {
+  background: transparent !important;
+  color: #64748b !important;
+}
+
+[data-theme="dark"] .session-mode-btn.active {
+  background: #1e293b !important;
+  color: #38bdf8 !important;
+  border: 1px solid rgba(56, 189, 248, 0.3) !important;
+  box-shadow: 0 3px 12px rgba(0, 0, 0, 0.4) !important;
+}
+
+[data-theme="dark"] .session-mode-btn:not(.active) {
+  background: transparent !important;
+  color: #94a3b8 !important;
+}
+
+/* --- 2. SESSIONS VIEW: Patient Picker Interactive Card --- */
+.patient-picker-trigger {
+  border: 1.5px solid var(--border-color) !important;
+  background: var(--bg-subtle) !important;
+  border-radius: 16px !important;
+  padding: 13px 18px !important;
+  cursor: pointer !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.03) !important;
+}
+
+.patient-picker-trigger:hover, .patient-picker-trigger:active {
+  background: #ffffff !important;
+  border-color: var(--primary) !important;
+  box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.12) !important;
+  transform: scale(0.995);
+}
+
+[data-theme="dark"] .patient-picker-trigger:hover, [data-theme="dark"] .patient-picker-trigger:active {
+  background: #1e293b !important;
+  border-color: #38bdf8 !important;
+  box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.18) !important;
+}
+
+.selected-patient-card {
+  background-color: var(--bg-surface) !important;
+  border: 1.5px solid var(--primary) !important;
+  border-radius: 16px !important;
+  padding: 12px 18px !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  box-shadow: 0 4px 14px -2px rgba(2, 132, 199, 0.18) !important;
+}
+
+.selected-patient-card[style*="display: none"] {
+  display: none !important;
+}
+
+/* --- 3. SESSIONS VIEW: Examination Mode Segmented Controls --- */
+.exam-type-segmented {
+  display: flex !important;
+  gap: 8px !important;
+}
+
+.exam-type-btn {
+  flex: 1 !important;
+  padding: 11px 14px !important;
+  font-weight: 800 !important;
+  font-size: 0.92rem !important;
+  border-radius: 12px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 8px !important;
+  cursor: pointer !important;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  border: 1.5px solid var(--border-color) !important;
+}
+
+:root:not([data-theme="dark"]) .exam-type-btn.active {
+  background: #ffffff !important;
+  color: #0284c7 !important;
+  border-color: #0284c7 !important;
+  box-shadow: 0 4px 14px -2px rgba(2, 132, 199, 0.2) !important;
+}
+
+:root:not([data-theme="dark"]) .exam-type-btn:not(.active) {
+  background: transparent !important;
+  color: #64748b !important;
+}
+
+[data-theme="dark"] .exam-type-btn.active {
+  background: #1e293b !important;
+  color: #38bdf8 !important;
+  border-color: #38bdf8 !important;
+  box-shadow: 0 4px 14px -2px rgba(0, 0, 0, 0.5) !important;
+}
+
+[data-theme="dark"] .exam-type-btn:not(.active) {
+  background: transparent !important;
+  color: #94a3b8 !important;
+}
+
+.payment-info-box-contract, .payment-info-box-cash {
+  border-radius: 16px !important;
+  padding: 13px 16px !important;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.03) !important;
+}
+
+/* --- 4. SESSIONS VIEW: Submit Session Hero Button --- */
+#btn-submit-session {
+  width: 100% !important;
+  border-radius: 16px !important;
+  padding: 14px !important;
+  font-size: 1.05rem !important;
+  font-weight: 800 !important;
+  background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%) !important;
+  border: none !important;
+  box-shadow: 0 4px 16px -2px rgba(2, 132, 199, 0.35) !important;
+  color: #ffffff !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 8px !important;
+  margin-top: 14px !important;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  cursor: pointer !important;
+}
+
+#btn-submit-session:hover, #btn-submit-session:active {
+  box-shadow: 0 6px 22px -2px rgba(2, 132, 199, 0.5) !important;
+  transform: translateY(-1px);
+}
+
+/* --- 5. FINANCE VIEW: Top Actions Mobile Grid & Pills --- */
+@media (max-width: 767px) {
+  #finance-top-actions {
+    display: grid !important;
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 8px !important;
+    width: 100% !important;
+    margin-top: 10px !important;
+  }
+
+  #finance-top-actions .btn {
+    height: 42px !important;
+    padding: 0 10px !important;
+    font-size: 0.82rem !important;
+    border-radius: 12px !important;
+    justify-content: center !important;
+    white-space: nowrap !important;
+  }
+}
+
+#btn-add-expense {
+  background: rgba(239, 68, 68, 0.08) !important;
+  border-color: rgba(239, 68, 68, 0.3) !important;
+  color: #ef4444 !important;
+}
+
+#btn-add-expense:hover, #btn-add-expense:active {
+  background: #ef4444 !important;
+  color: #ffffff !important;
+}
+
+#btn-add-settlement {
+  background: rgba(2, 132, 199, 0.08) !important;
+  border-color: rgba(2, 132, 199, 0.3) !important;
+  color: #0284c7 !important;
+}
+
+#btn-add-settlement:hover, #btn-add-settlement:active {
+  background: #0284c7 !important;
+  color: #ffffff !important;
+}
+
+/* --- 6. FINANCE VIEW: Mode Segmented Control --- */
+.finance-mode-segmented {
+  display: flex !important;
+  background: var(--bg-subtle) !important;
+  border-radius: 16px !important;
+  padding: 4px !important;
+  gap: 4px !important;
+  border: 1.5px solid var(--border-color) !important;
+  margin-bottom: 14px !important;
+  width: 100% !important;
+  box-sizing: border-box !important;
+}
+
+.finance-mode-segmented .btn {
+  flex: 1 !important;
+  border: none !important;
+  border-radius: 12px !important;
+  padding: 9px 12px !important;
+  font-weight: 800 !important;
+  font-size: 0.86rem !important;
+  text-align: center !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 6px !important;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  cursor: pointer !important;
+  white-space: nowrap !important;
+}
+
+:root:not([data-theme="dark"]) .finance-mode-segmented .btn.btn-outline {
+  background: transparent !important;
+  color: #64748b !important;
+  box-shadow: none !important;
+}
+
+:root:not([data-theme="dark"]) .finance-mode-segmented .btn.btn-primary {
+  background: #ffffff !important;
+  color: #0284c7 !important;
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.08) !important;
+}
+
+[data-theme="dark"] .finance-mode-segmented .btn.btn-outline {
+  background: transparent !important;
+  color: #94a3b8 !important;
+  box-shadow: none !important;
+}
+
+[data-theme="dark"] .finance-mode-segmented .btn.btn-primary {
+  background: #1e293b !important;
+  color: #38bdf8 !important;
+  border: 1px solid rgba(56, 189, 248, 0.3) !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4) !important;
+}
+
+/* --- 7. FINANCE VIEW: Filter Bar Card --- */
+#finance-filter-bar-card {
+  border-radius: 18px !important;
+  padding: 14px 16px !important;
+  margin-bottom: 16px !important;
+  box-shadow: var(--shadow-sm) !important;
+}
+
+/* --- 8. FINANCE VIEW: Modern KPI Metric Cards --- */
+#finance-kpi-stats-grid .stat-box {
+  border-radius: 18px !important;
+  padding: 14px 16px !important;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+:root:not([data-theme="dark"]) #finance-kpi-stats-grid .stat-box {
+  background: #ffffff !important;
+  border: 1.5px solid #e2e8f0 !important;
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.04) !important;
+}
+
+:root:not([data-theme="dark"]) #finance-kpi-stats-grid .stat-box.highlight {
+  border-color: rgba(245, 158, 11, 0.4) !important;
+  background: linear-gradient(135deg, #ffffff 0%, #fffbeb 100%) !important;
+}
+
+[data-theme="dark"] #finance-kpi-stats-grid .stat-box {
+  background: rgba(30, 41, 59, 0.7) !important;
+  border: 1.5px solid rgba(56, 189, 248, 0.2) !important;
+}
+
+[data-theme="dark"] #finance-kpi-stats-grid .stat-box.highlight {
+  border-color: rgba(251, 191, 36, 0.4) !important;
+  background: linear-gradient(135deg, rgba(30, 41, 59, 0.8) 0%, rgba(45, 33, 15, 0.3) 100%) !important;
+}
+
+#finance-kpi-stats-grid .stat-value {
+  font-size: 1.28rem !important;
+  font-weight: 800 !important;
+  color: var(--text-main) !important;
+}
+
+#finance-kpi-stats-grid .stat-label {
+  font-size: 0.8rem !important;
+  font-weight: 700 !important;
+  color: var(--text-muted) !important;
+  margin-top: 2px !important;
+}
+
+#finance-kpi-stats-grid .stat-icon {
+  width: 44px !important;
+  height: 44px !important;
+  border-radius: 14px !important;
+  font-size: 1.2rem !important;
+}
+
+/* ==========================================================================
+   v1.4.0-beta.18: Mobile Financial Tables to Cards & Visual Polish
+   ========================================================================== */
+
+/* 1. Doctor Breakdown Grid in Daily Report (Screenshot 20) */
+#doctors-breakdown-container {
+  display: grid !important;
+  grid-template-columns: repeat(2, 1fr) !important;
+  gap: 10px !important;
+  width: 100% !important;
+}
+
+#doctors-breakdown-container > div {
+  background: var(--bg-surface) !important;
+  border: 1.5px solid var(--border-color) !important;
+  border-radius: 16px !important;
+  padding: 12px 14px !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 10px !important;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.03) !important;
+  min-width: 0 !important;
+  box-sizing: border-box !important;
+}
+
+#doctors-breakdown-container > div i {
+  font-size: 1.15rem !important;
+  flex-shrink: 0 !important;
+}
+
+#doctors-breakdown-container > div > div {
+  min-width: 0 !important;
+  overflow: hidden !important;
+}
+
+#doctors-breakdown-container > div > div > div:first-child {
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+}
+
+/* 2. Claims Action Toolbar in Insurance Claims (Screenshot 21) */
+@media (max-width: 767px) {
+  .claim-actions-toolbar {
+    display: grid !important;
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 8px !important;
+    width: 100% !important;
+    margin-top: 10px !important;
+  }
+
+  .claim-actions-toolbar .btn {
+    height: 38px !important;
+    padding: 0 8px !important;
+    font-size: 0.78rem !important;
+    border-radius: 12px !important;
+    justify-content: center !important;
+    white-space: nowrap !important;
+  }
+
+  .claim-actions-toolbar #btn-print-claim-statement {
+    grid-column: span 2 !important;
+    height: 42px !important;
+    font-size: 0.85rem !important;
+  }
+}
+
+/* ==========================================================================
+   v1.4.0-beta.19: Complete Financial Mobile Cards & Outer Box Unwrap
+   ========================================================================== */
+
+/* 1. Responsive Segmented Switcher Labels */
+@media (max-width: 767px) {
+  .finance-mode-segmented .tab-label-full {
+    display: none !important;
+  }
+  .finance-mode-segmented .tab-label-short {
+    display: inline !important;
+  }
+  .finance-mode-segmented {
+    padding: 4px !important;
+    gap: 4px !important;
+  }
+  .finance-mode-segmented .btn {
+    padding: 8px 6px !important;
+    font-size: 0.82rem !important;
+    gap: 4px !important;
+  }
+  .finance-mode-segmented .btn i {
+    font-size: 0.82rem !important;
+  }
+}
+
+@media (min-width: 768px) {
+  .finance-mode-segmented .tab-label-full {
+    display: inline !important;
+  }
+  .finance-mode-segmented .tab-label-short {
+    display: none !important;
+  }
+}
+
+/* 2. Unwrap all financial table parent cards on mobile (Eliminates side border lines!) */
+@media (max-width: 767px) {
+  #card-finance-report-sessions,
+  #card-finance-daily-expenses,
+  #card-finance-daily-doctors,
+  #card-monthly-doctors,
+  #card-monthly-insurance,
+  #card-monthly-expenses,
+  #card-monthly-settlements,
+  #claims-ledger-card {
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+    margin-bottom: 16px !important;
+  }
+
+  #card-finance-report-sessions .card-header,
+  #card-finance-daily-expenses .card-header,
+  #card-finance-daily-doctors .card-header,
+  #card-monthly-doctors .card-header,
+  #card-monthly-insurance .card-header,
+  #card-monthly-expenses .card-header,
+  #card-monthly-settlements .card-header,
+  #claims-ledger-card .card-header {
+    padding: 4px 2px 10px 2px !important;
+    border-bottom: none !important;
+    background: transparent !important;
+  }
+}
+
+
+/* ==========================================================================
+   v1.4.0-beta.20: Enhanced Search Boxes & Ultra-Compact Mobile Expenses & Stack Decks
+   ========================================================================== */
+
+/* 1. Global Search Box with Integrated Icon */
+.search-box {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+
+.search-box i.fa-magnifying-glass,
+.search-box i.bi-search {
+  position: absolute;
+  right: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-muted);
+  pointer-events: none;
+  font-size: 0.92rem;
+  z-index: 2;
+}
+
+.search-box input.form-control {
+  padding-right: 38px !important;
+  width: 100%;
+}
+
+/* 2. Compact Transaction Rows for Mobile Expenses */
+.expenses-compact-list {
+  display: flex;
+  flex-direction: column;
+  background: var(--bg-surface);
+  border: 1.5px solid var(--border-color);
+  border-radius: 18px;
+  overflow: hidden;
+  box-shadow: 0 4px 16px -2px rgba(15, 23, 42, 0.05);
+  margin-bottom: 8px;
+}
+
+[data-theme="dark"] .expenses-compact-list {
+  background: rgba(15, 23, 42, 0.75);
+  border-color: rgba(255, 255, 255, 0.08);
+  box-shadow: 0 8px 24px -4px rgba(0, 0, 0, 0.4);
+}
+
+.expenses-scroll-wrapper {
+  max-height: 360px;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.expense-row-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 11px 14px;
+  border-bottom: 1px solid var(--border-color);
+  gap: 10px;
+  transition: background 0.15s ease;
+}
+
+.expense-row-item:last-child {
+  border-bottom: none;
+}
+
+.expense-row-item:active {
+  background: var(--bg-subtle);
+}
+
+.expense-row-right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+  flex: 1;
+}
+
+.expense-avatar-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  background: rgba(239, 68, 68, 0.12);
+  color: #ef4444;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.95rem;
+  flex-shrink: 0;
+}
+
+.expense-text-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.expense-title-text {
+  font-size: 0.92rem;
+  font-weight: 800;
+  color: var(--text-main);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.expense-sub-text {
+  font-size: 0.76rem;
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.expense-row-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.expense-amount-badge {
+  font-size: 0.95rem;
+  font-weight: 800;
+  color: var(--danger);
+  direction: ltr;
+}
+
+.btn-delete-expense-compact {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  border: 1px solid rgba(239, 68, 68, 0.25);
+  background: rgba(239, 68, 68, 0.08);
+  color: var(--danger);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.78rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-delete-expense-compact:active {
+  transform: scale(0.92);
+  background: var(--danger);
+  color: #ffffff;
+}
+
+.expenses-header-summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 14px;
+  background: var(--bg-subtle);
+  border-bottom: 1px solid var(--border-color);
+  font-size: 0.8rem;
+  font-weight: 800;
+  color: var(--text-muted);
+}
+
+/* ==========================================================================
+   v1.4.0-beta.21: Interactive Session Mode Cards & Doctor Deck Responsive Grid
+   ========================================================================== */
+
+/* 1. Interactive Dual Mode Action Cards (Sessions View - v1.4.0-beta.22) */
+.session-mode-pills-wrap {
+  display: grid !important;
+  grid-template-columns: 1fr 1fr !important;
+  gap: 8px !important;
+  width: 100% !important;
+  box-sizing: border-box !important;
+  margin: 0 !important;
+}
+
+.session-mode-pill-btn {
+  display: flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  padding: 8px 10px !important;
+  border-radius: 14px !important;
+  border: 1.5px solid var(--border-color) !important;
+  background: var(--bg-surface) !important;
+  cursor: pointer !important;
+  min-width: 0 !important;
+  width: 100% !important;
+  box-sizing: border-box !important;
+  text-align: right !important;
+  position: relative !important;
+  overflow: hidden !important;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+.session-mode-pill-btn:active {
+  transform: scale(0.98) !important;
+}
+
+.session-mode-pill-btn {
+  display: flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+  padding: 7px 9px !important;
+  border-radius: 14px !important;
+  border: 1.5px solid var(--border-color) !important;
+  background: var(--bg-surface) !important;
+  cursor: pointer !important;
+  min-width: 0 !important;
+  width: 100% !important;
+  box-sizing: border-box !important;
+  text-align: right !important;
+  position: relative !important;
+  overflow: hidden !important;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+.session-mode-pill-btn .smp-icon {
+  width: 32px !important;
+  height: 32px !important;
+  border-radius: 9px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  font-size: 0.95rem !important;
+  flex-shrink: 0 !important;
+  transition: all 0.2s ease !important;
+}
+
+.session-mode-pill-btn .smp-text {
+  display: flex !important;
+  flex-direction: column !important;
+  min-width: 0 !important;
+  flex: 1 !important;
+  gap: 1px !important;
+}
+
+.session-mode-pill-btn .smp-title {
+  font-size: 0.85rem !important;
+  font-weight: 800 !important;
+  color: var(--text-main) !important;
+  white-space: nowrap !important;
+  line-height: 1.2 !important;
+}
+
+.session-mode-pill-btn .smp-sub {
+  font-size: 0.67rem !important;
+  color: var(--text-muted) !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+}
+
+.session-mode-pill-btn .smp-icon.blue {
+  background: rgba(2, 132, 199, 0.12) !important;
+  color: #0284c7 !important;
+}
+
+.session-mode-pill-btn .smp-icon.teal {
+  background: rgba(13, 148, 136, 0.12) !important;
+  color: #0d9488 !important;
+}
+
+.session-mode-pill-btn .smp-text {
+  display: flex !important;
+  flex-direction: column !important;
+  min-width: 0 !important;
+  flex: 1 !important;
+  gap: 1px !important;
+}
+
+.session-mode-pill-btn .smp-title {
+  font-size: 0.88rem !important;
+  font-weight: 800 !important;
+  color: var(--text-main) !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  line-height: 1.2 !important;
+}
+
+.session-mode-pill-btn .smp-sub {
+  font-size: 0.70rem !important;
+  color: var(--text-muted) !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+}
+
+.session-mode-pill-btn .smp-badge {
+  font-size: 0.95rem !important;
+  color: var(--text-muted) !important;
+  flex-shrink: 0 !important;
+  opacity: 0.3 !important;
+  transition: all 0.2s ease !important;
+}
+
+/* Active State Styles */
+:root:not([data-theme="dark"]) .session-mode-pill-btn.active {
+  background: linear-gradient(135deg, rgba(2, 132, 199, 0.06) 0%, rgba(2, 132, 199, 0.12) 100%) !important;
+  border-color: #0284c7 !important;
+  box-shadow: 0 4px 12px -2px rgba(2, 132, 199, 0.2) !important;
+}
+
+:root:not([data-theme="dark"]) .session-mode-pill-btn.active .smp-title {
+  color: #0284c7 !important;
+}
+
+[data-theme="dark"] .session-mode-pill-btn.active {
+  background: linear-gradient(135deg, rgba(56, 189, 248, 0.08) 0%, rgba(56, 189, 248, 0.18) 100%) !important;
+  border-color: #38bdf8 !important;
+  box-shadow: 0 4px 16px -2px rgba(0, 0, 0, 0.45) !important;
+}
+
+[data-theme="dark"] .session-mode-pill-btn.active .smp-title {
+  color: #38bdf8 !important;
+}
+
+.session-mode-pill-btn.active .smp-badge {
+  color: var(--primary) !important;
+  opacity: 1 !important;
+}
+
+
+@media (max-width: 380px) {
+  .session-mode-pill-btn {
+    padding: 8px 6px !important;
+    gap: 6px !important;
+  }
+  .session-mode-pill-btn .smp-icon {
+    width: 32px !important;
+    height: 32px !important;
+    font-size: 0.9rem !important;
+  }
+  .session-mode-pill-btn .smp-title {
+    font-size: 0.82rem !important;
+  }
+  .session-mode-pill-btn .smp-badge {
+    display: none !important;
+  }
+}
+
+/* 2. Doctor Stack Deck Desktop Responsiveness */
+@media (min-width: 768px) {
+  #daily-doctors-mobile-deck .doc-stack-container,
+  #monthly-doctors-mobile-cards .doc-stack-container,
+  #admin-users-mobile-cards .doc-stack-container {
+    display: grid !important;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)) !important;
+    gap: 14px !important;
+    min-height: auto !important;
+    perspective: none !important;
+  }
+  #daily-doctors-mobile-deck .doc-stack-card,
+  #monthly-doctors-mobile-cards .doc-stack-card,
+  #admin-users-mobile-cards .doc-stack-card {
+    position: relative !important;
+    transform: none !important;
+    opacity: 1 !important;
+    z-index: 1 !important;
+    pointer-events: auto !important;
+  }
+  #daily-doctors-mobile-deck .doc-stack-nav-bar,
+  #monthly-doctors-mobile-cards .doc-stack-nav-bar,
+  #admin-users-mobile-cards .doc-stack-nav-bar,
+  #daily-doctors-mobile-deck #btn-toggle-daily-doc-stack,
+  #monthly-doctors-mobile-cards #btn-toggle-monthly-doc-stack,
+  #daily-doctors-mobile-deck #daily-doc-stack-counter,
+  #monthly-doctors-mobile-cards #monthly-doc-stack-counter {
+    display: none !important;
+  }
+}
+
+/* ==========================================================================
+   v1.4.0-beta.23: Premium Glassmorphism Toast Notification Capsule
+   ========================================================================== */
+.toast-capsule {
+  position: fixed !important;
+  bottom: 84px !important;
+  left: 50% !important;
+  transform: translate(-50%, 20px) scale(0.92) !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 10px !important;
+  padding: 10px 18px !important;
+  border-radius: 999px !important;
+  font-size: 0.88rem !important;
+  font-weight: 700 !important;
+  z-index: 1050 !important;
+  pointer-events: none !important;
+  opacity: 0 !important;
+  visibility: hidden !important;
+  max-width: calc(100vw - 32px) !important;
+  width: max-content !important;
+  box-sizing: border-box !important;
+  backdrop-filter: blur(24px) saturate(190%) !important;
+  -webkit-backdrop-filter: blur(24px) saturate(190%) !important;
+  transition: transform 0.35s cubic-bezier(0.34, 1.35, 0.64, 1),
+              opacity 0.25s ease,
+              visibility 0.25s ease !important;
+  direction: rtl !important;
+}
+
+.toast-capsule.show {
+  opacity: 1 !important;
+  visibility: visible !important;
+  transform: translate(-50%, 0) scale(1) !important;
+  pointer-events: auto !important;
+}
+
+/* Light Theme Toast */
+:root:not([data-theme="dark"]) .toast-capsule {
+  background: rgba(255, 255, 255, 0.95) !important;
+  color: #0f172a !important;
+  border: 1.5px solid rgba(2, 132, 199, 0.22) !important;
+  box-shadow: 0 14px 34px -4px rgba(2, 132, 199, 0.22), 0 4px 14px rgba(15, 23, 42, 0.08) !important;
+}
+
+/* Dark Theme Toast */
+[data-theme="dark"] .toast-capsule {
+  background: rgba(15, 23, 42, 0.92) !important;
+  color: #f8fafc !important;
+  border: 1.5px solid rgba(56, 189, 248, 0.35) !important;
+  box-shadow: 0 16px 40px -4px rgba(0, 0, 0, 0.65), 0 0 24px rgba(56, 189, 248, 0.15) !important;
+}
+
+.toast-capsule .toast-icon-wrap {
+  width: 30px !important;
+  height: 30px !important;
+  border-radius: 50% !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  font-size: 1rem !important;
+  flex-shrink: 0 !important;
+}
+
+/* Success Toast */
+.toast-capsule.is-success .toast-icon-wrap {
+  background: rgba(16, 185, 129, 0.16) !important;
+  color: #10b981 !important;
+}
+:root:not([data-theme="dark"]) .toast-capsule.is-success {
+  border-color: rgba(16, 185, 129, 0.35) !important;
+}
+[data-theme="dark"] .toast-capsule.is-success {
+  border-color: rgba(16, 185, 129, 0.45) !important;
+}
+
+/* Error Toast */
+.toast-capsule.is-error .toast-icon-wrap {
+  background: rgba(239, 68, 68, 0.16) !important;
+  color: #ef4444 !important;
+}
+.toast-capsule.is-error {
+  border-color: rgba(239, 68, 68, 0.45) !important;
+}
+
+/* Warning Toast */
+.toast-capsule.is-warning .toast-icon-wrap {
+  background: rgba(245, 158, 11, 0.16) !important;
+  color: #f59e0b !important;
+}
+.toast-capsule.is-warning {
+  border-color: rgba(245, 158, 11, 0.45) !important;
+}
+
+.toast-capsule .toast-content {
+  line-height: 1.35 !important;
+  white-space: normal !important;
+  word-break: break-word !important;
+}
+
+
+/* ==========================================================================
+   v1.4.0-beta.24: Complete Modernization for Admin Panel (لوحة المدير)
+   ========================================================================== */
+
+/* 1. Hero Admin Banner */
+.hero-admin-banner {
+  background: linear-gradient(135deg, #1e1b4b 0%, #6b21a8 55%, #0284c7 100%) !important;
+  border: 1px solid rgba(255, 255, 255, 0.18) !important;
+  box-shadow: 0 12px 28px -6px rgba(107, 33, 168, 0.35) !important;
+  color: #ffffff !important;
+}
+
+.hero-admin-banner .hero-banner-title {
+  color: #ffffff !important;
+}
+
+.hero-admin-banner .hero-banner-sub {
+  color: rgba(255, 255, 255, 0.88) !important;
+}
+
+.hero-admin-banner .hero-greeting-pill {
+  background: rgba(255, 255, 255, 0.18) !important;
+  color: #ffffff !important;
+  border: 1px solid rgba(255, 255, 255, 0.25) !important;
+}
+
+.hero-admin-banner .hero-date-chip {
+  background: rgba(255, 255, 255, 0.16) !important;
+  color: #ffffff !important;
+  border: 1px solid rgba(255, 255, 255, 0.22) !important;
+}
+
+[data-theme="dark"] .hero-admin-banner {
+  background: linear-gradient(135deg, #090514 0%, #4c1d95 60%, #0c1527 100%) !important;
+  border-color: rgba(168, 85, 247, 0.35) !important;
+  box-shadow: 0 14px 34px -6px rgba(0, 0, 0, 0.7) !important;
+}
+
+/* 2. Admin User Mobile Cards */
+.admin-user-mobile-card {
+  margin-bottom: 10px !important;
+  border-radius: 18px !important;
+  padding: 14px 16px !important;
+}
+
+/* 3. Audit Log Mobile Timeline */
+.audit-mobile-timeline {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 8px !important;
+  max-height: 420px !important;
+  overflow-y: auto !important;
+  -webkit-overflow-scrolling: touch !important;
+  padding-right: 2px !important;
+}
+
+.audit-mobile-item {
+  background: var(--bg-surface) !important;
+  border: 1.5px solid var(--border-color) !important;
+  border-radius: 16px !important;
+  padding: 12px 14px !important;
+  transition: all 0.2s ease !important;
+  box-shadow: 0 2px 8px -2px rgba(15, 23, 42, 0.04) !important;
+}
+
+[data-theme="dark"] .audit-mobile-item {
+  background: rgba(15, 23, 42, 0.7) !important;
+  border-color: rgba(255, 255, 255, 0.08) !important;
+  box-shadow: 0 4px 14px -2px rgba(0, 0, 0, 0.4) !important;
+}
+
+/* 4. Unwrapped Mobile Cards for Admin View (Eliminates side border lines) */
+@media (max-width: 767px) {
+  #view-admin .card {
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+    margin-bottom: 16px !important;
+  }
+
+  #view-admin .card > .card-header {
+    padding: 4px 2px 10px 2px !important;
+    border-bottom: none !important;
+    background: transparent !important;
+  }
+
+  #card-admin-add-user form {
+    background: var(--bg-surface) !important;
+    border: 1.5px solid var(--border-color) !important;
+    border-radius: 20px !important;
+    padding: 16px 14px !important;
+    box-shadow: 0 4px 18px -2px rgba(15, 23, 42, 0.05) !important;
+  }
+
+  [data-theme="dark"] #card-admin-add-user form {
+    background: rgba(15, 23, 42, 0.75) !important;
+    border-color: rgba(255, 255, 255, 0.08) !important;
+    box-shadow: 0 8px 24px -4px rgba(0, 0, 0, 0.4) !important;
+  }
+
+  #card-admin-backup-restore {
+    background: var(--bg-surface) !important;
+    border: 1.5px solid var(--border-color) !important;
+    border-radius: 20px !important;
+    padding: 16px 14px !important;
+  }
+}
+
+/* 5. Backup & Restore Unwrapped Component */
+.backup-restore-body {
+  background: var(--bg-surface);
+  border: 1.5px solid var(--border-color);
+  border-radius: 18px;
+  padding: 14px 16px;
+  box-shadow: 0 2px 10px rgba(15, 23, 42, 0.04);
+}
+
+[data-theme="dark"] .backup-restore-body {
+  background: rgba(15, 23, 42, 0.75);
+  border-color: rgba(255, 255, 255, 0.08);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+}
+
+.backup-buttons-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+@media (max-width: 480px) {
+  .backup-buttons-row {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+}
+
+/* Dedicated full-width Badges Row & Amount Box (Protects long insurance names) */
+.hsc-amount-box {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: flex-end !important;
+  justify-content: flex-start !important;
+  flex-shrink: 0 !important;
+}
+
+.hsc-badges-row {
+  display: flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+  flex-wrap: wrap !important;
+  margin-top: 8px !important;
+  width: 100% !important;
+}
+
+.hsc-badges-row .badge {
+  white-space: normal !important;
+  line-height: 1.4 !important;
+  max-width: 100% !important;
+}
+
+
+/* ==========================================================================
+   v1.4.0-beta.28: Bounded Mobile Scrollable Containers (~3 Cards Height)
+   ========================================================================== */
+@media (max-width: 991px) {
+  #sessions-today-mobile-cards,
+  #patients-mobile-cards,
+  #doctor-personal-mobile-cards,
+  #finance-report-mobile-cards,
+  #dashboard-recent-mobile-cards {
+    max-height: 500px !important;
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+    -webkit-overflow-scrolling: touch !important;
+    overscroll-behavior: contain !important;
+    padding: 2px 4px 12px 4px !important;
+    box-sizing: border-box !important;
+    scrollbar-width: thin !important;
+    scrollbar-color: rgba(2, 132, 199, 0.35) transparent !important;
+  }
+
+  /* CRITICAL: Never shrink cards! Keep full normal card dimensions, padding, and all details */
+  #sessions-today-mobile-cards > *,
+  #patients-mobile-cards > *,
+  #doctor-personal-mobile-cards > *,
+  #finance-report-mobile-cards > *,
+  #dashboard-recent-mobile-cards > * {
+    flex-shrink: 0 !important;
+    flex-grow: 0 !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+  }
+
+  [data-theme="dark"] #sessions-today-mobile-cards,
+  [data-theme="dark"] #patients-mobile-cards,
+  [data-theme="dark"] #doctor-personal-mobile-cards,
+  [data-theme="dark"] #finance-report-mobile-cards,
+  [data-theme="dark"] #dashboard-recent-mobile-cards {
+    scrollbar-color: rgba(56, 189, 248, 0.4) transparent !important;
+  }
+
+  /* Custom Slim WebKit Scrollbar for Mobile Touch Feedback */
+  #sessions-today-mobile-cards::-webkit-scrollbar,
+  #patients-mobile-cards::-webkit-scrollbar,
+  #doctor-personal-mobile-cards::-webkit-scrollbar,
+  #finance-report-mobile-cards::-webkit-scrollbar,
+  #dashboard-recent-mobile-cards::-webkit-scrollbar {
+    width: 4px !important;
+    display: block !important;
+  }
+
+  #sessions-today-mobile-cards::-webkit-scrollbar-thumb,
+  #patients-mobile-cards::-webkit-scrollbar-thumb,
+  #doctor-personal-mobile-cards::-webkit-scrollbar-thumb,
+  #finance-report-mobile-cards::-webkit-scrollbar-thumb,
+  #dashboard-recent-mobile-cards::-webkit-scrollbar-thumb {
+    background-color: rgba(2, 132, 199, 0.35) !important;
+    border-radius: 999px !important;
+  }
+
+  [data-theme="dark"] #sessions-today-mobile-cards::-webkit-scrollbar-thumb,
+  [data-theme="dark"] #patients-mobile-cards::-webkit-scrollbar-thumb,
+  [data-theme="dark"] #doctor-personal-mobile-cards::-webkit-scrollbar-thumb,
+  [data-theme="dark"] #finance-report-mobile-cards::-webkit-scrollbar-thumb,
+  [data-theme="dark"] #dashboard-recent-mobile-cards::-webkit-scrollbar-thumb {
+    background-color: rgba(56, 189, 248, 0.4) !important;
+  }
 }

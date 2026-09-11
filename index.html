@@ -47,7 +47,7 @@
   
 
     <!-- Stylesheets -->
-  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/style.css?v=1.4.0-beta.29">
   <link rel="stylesheet" href="css/print.css" media="print">
 </head>
 <body>
@@ -168,14 +168,63 @@
       <section id="view-dashboard" class="view-section active">
         <!-- 1. Clinic Operations & Finance Dashboard (Admin & Receptionist) -->
         <div id="dashboard-admin-view">
-          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-            <div>
-              <h2 style="font-size: 1.35rem; font-weight: 800;">لوحة المتابعة اليومية</h2>
-              <p style="font-size: 0.85rem; color: var(--text-muted);" id="dashboard-date-display"></p>
+          <!-- Hero Dashboard Banner (v1.4.0-beta.2) -->
+          <div class="hero-dashboard-banner">
+            <div class="hero-banner-glass-bg"></div>
+            <div class="hero-banner-content">
+              <div class="hero-greeting-pill">
+                <span class="hero-greeting-icon"><i class="fa-solid fa-sparkles"></i></span>
+                <span id="hero-greeting-full">مرحباً بك</span>
+              </div>
+              <h2 class="hero-banner-title">مركز اسكندرية التخصصي</h2>
+              <p class="hero-banner-sub">Alexandria Specialized Center for Physical Therapy</p>
+              
+              <div class="hero-banner-footer">
+                <div class="hero-date-chip">
+                  <i class="fa-regular fa-calendar-check"></i>
+                  <span id="dashboard-date-display">اليوم</span>
+                </div>
+                <button type="button" class="btn btn-hero-action" data-view-target="sessions">
+                  <i class="fa-solid fa-circle-plus"></i> تسجيل جلسة
+                </button>
+              </div>
             </div>
-            <button type="button" class="btn btn-primary btn-sm" data-view-target="sessions">
-              <i class="fa-solid fa-plus"></i> تسجيل جلسة سريعة
-            </button>
+          </div>
+
+          <!-- Quick Access Actions Grid (Inspired by Reference 2) -->
+          <div class="quick-access-bar">
+            <div class="quick-access-header">
+              <span class="quick-access-title"><i class="fa-solid fa-bolt" style="color: var(--warning);"></i> وصول سريع</span>
+            </div>
+            <div class="quick-access-items">
+              <button type="button" class="quick-action-btn" data-view-target="sessions">
+                <div class="quick-action-icon qa-blue">
+                  <i class="fa-solid fa-hand-holding-medical"></i>
+                </div>
+                <span class="quick-action-label">جلسة جديدة</span>
+              </button>
+              
+              <button type="button" class="quick-action-btn" data-view-target="patients" id="btn-quick-new-patient">
+                <div class="quick-action-icon qa-emerald">
+                  <i class="fa-solid fa-user-plus"></i>
+                </div>
+                <span class="quick-action-label">مريض جديد</span>
+              </button>
+              
+              <button type="button" class="quick-action-btn" data-view-target="appointments">
+                <div class="quick-action-icon qa-indigo">
+                  <i class="fa-solid fa-calendar-day"></i>
+                </div>
+                <span class="quick-action-label">جدول المواعيد</span>
+              </button>
+              
+              <button type="button" class="quick-action-btn" data-view-target="finance">
+                <div class="quick-action-icon qa-amber">
+                  <i class="fa-solid fa-receipt"></i>
+                </div>
+                <span class="quick-action-label">المصروفات</span>
+              </button>
+            </div>
           </div>
 
           <div class="stats-grid">
@@ -209,12 +258,12 @@
             </div>
           </div>
 
-          <div class="card">
+          <div class="card" id="card-dashboard-recent">
             <div class="card-header">
               <span class="card-title"><i class="fa-solid fa-clock-rotate-left"></i> آخر الجلسات المسجلة اليوم</span>
               <button type="button" class="btn btn-outline btn-sm" data-view-target="sessions">عرض الكل</button>
             </div>
-            <div class="table-responsive">
+            <div class="table-responsive desktop-only-table">
               <table class="data-table" id="dashboard-recent-table">
                 <thead>
                   <tr>
@@ -231,23 +280,34 @@
                 </tbody>
               </table>
             </div>
+            <!-- Handcrafted Dedicated Mobile Cards for Recent Sessions -->
+            <div id="dashboard-recent-mobile-cards" class="mobile-only-cards-container"></div>
           </div>
         </div>
 
         <!-- 2. Doctor Personal Clinical Dashboard (Exclusively for Treating Doctors) -->
         <div id="dashboard-doctor-view" style="display: none;">
-          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 10px;">
-            <div>
-              <h2 style="font-size: 1.35rem; font-weight: 800; color: var(--text-main);">
-                <i class="fa-solid fa-stethoscope" style="color: var(--primary);"></i> لوحة متابعة الطبيب المعالج
-              </h2>
-              <p style="font-size: 0.85rem; color: var(--text-muted);" id="doctor-dashboard-sub">
-                متابعة الحالات الطبية وسجل الجلسات الخاص بك
-              </p>
+          <!-- Hero Doctor Banner (v1.4.0-beta.2) -->
+          <div class="hero-dashboard-banner hero-doctor-banner">
+            <div class="hero-banner-glass-bg"></div>
+            <div class="hero-banner-content">
+              <div class="hero-greeting-pill">
+                <span class="hero-greeting-icon"><i class="fa-solid fa-stethoscope"></i></span>
+                <span id="doc-hero-greeting">طاب يومك يا دكتور</span>
+              </div>
+              <h2 class="hero-banner-title">لوحة متابعة الطبيب المعالج</h2>
+              <p class="hero-banner-sub">متابعة الحالات الطبية وسجل جلساتك السريرية</p>
+              
+              <div class="hero-banner-footer">
+                <div class="hero-date-chip">
+                  <i class="fa-regular fa-calendar-check"></i>
+                  <span id="doc-dashboard-date-display">اليوم</span>
+                </div>
+                <button type="button" class="btn btn-hero-action" data-view-target="patients">
+                  <i class="fa-solid fa-users"></i> سجل المرضى العام
+                </button>
+              </div>
             </div>
-            <button type="button" class="btn btn-outline btn-sm" data-view-target="patients" style="font-weight: 700;">
-              <i class="fa-solid fa-users"></i> سجل المرضى العام
-            </button>
           </div>
 
           <!-- Doctor Personal KPI Stats Grid (Clinical & Patient Counts Only, NO Financials) -->
@@ -283,7 +343,7 @@
           </div>
 
           <!-- Doctor's Own Weekly Appointments Schedule -->
-          <div class="card" style="margin-top: 20px;">
+          <div class="card" id="card-doctor-appointments-schedule" style="margin-top: 20px;">
             <div class="card-header">
               <span class="card-title"><i class="fa-solid fa-calendar-week"></i> جدولي الأسبوعي</span>
             </div>
@@ -293,7 +353,7 @@
           </div>
 
           <!-- Doctor's Personal Patients Register Card -->
-          <div class="card" style="margin-top: 20px;">
+          <div class="card" id="card-doctor-personal-sessions" style="margin-top: 20px;">
             <div class="card-header" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
               <div class="card-title" style="margin: 0; display: flex; align-items: center; gap: 8px; font-size: 1rem;">
                 <i class="fa-solid fa-book-medical" style="color: var(--primary);"></i>
@@ -305,7 +365,7 @@
                 <button type="button" class="btn-quick-date" id="btn-doc-filter-lifetime">كل مرضاي (Lifetime)</button>
               </div>
             </div>
-            <div class="table-responsive">
+            <div class="table-responsive desktop-only-table">
               <table class="data-table" id="doctor-personal-table">
                 <thead>
                   <tr>
@@ -322,6 +382,8 @@
                 </tbody>
               </table>
             </div>
+            <!-- Handcrafted Dedicated Mobile Cards for Doctor's Sessions -->
+            <div id="doctor-personal-mobile-cards" class="mobile-only-cards-container"></div>
           </div>
         </div>
       </section>
@@ -373,12 +435,12 @@
         </div>
 
         <!-- Patients List / Table with Top & Bottom Scrollbars -->
-        <div class="card">
+        <div class="card" id="card-patients-directory">
           <!-- Top Horizontal Scrollbar (Synchronized for instant scrolling on desktop) -->
           <div class="top-scrollbar-wrapper no-print" id="patients-top-scroll-wrap" style="display: none; overflow-x: auto; overflow-y: hidden; height: 12px; margin-bottom: 6px; border-radius: 4px; background: var(--bg-subtle);">
             <div class="top-scrollbar-dummy" id="patients-top-scroll-dummy" style="height: 1px;"></div>
           </div>
-          <div class="table-responsive" id="patients-table-container">
+          <div class="table-responsive desktop-only-table" id="patients-table-container">
             <table class="data-table" id="patients-data-table">
               <thead>
                 <tr>
@@ -397,6 +459,8 @@
               </tbody>
             </table>
           </div>
+          <!-- Handcrafted Dedicated Mobile Cards for Patients -->
+          <div id="patients-mobile-cards" class="mobile-only-cards-container"></div>
         </div>
       </section>
 
@@ -592,14 +656,33 @@
         <div class="split-screen">
           <!-- Form: Log New Session or Examination -->
           <div class="card">
-            <div class="card-header" style="padding: 10px 14px 6px 14px; border-bottom: none;">
-              <!-- 2 Panels Switcher: تسجيل جلسة جديدة / تسجيل كشف جديد -->
-              <div class="session-mode-switcher" style="display: flex; background: var(--bg-subtle, #f1f5f9); border-radius: 12px; padding: 4px; gap: 4px; width: 100%; border: 1px solid var(--border-color, #e2e8f0);">
-                <button type="button" id="btn-mode-session" class="session-mode-btn active" style="flex: 1; padding: 9px 12px; border: none; border-radius: 9px; font-weight: 800; font-size: 0.92rem; cursor: pointer; transition: all 0.2s ease; background: var(--primary, #0284c7); color: #ffffff; display: flex; align-items: center; justify-content: center; gap: 6px; box-shadow: 0 2px 4px rgba(0,0,0,0.06);">
-                  <i class="fa-solid fa-user-clock"></i> <span id="label-mode-session">تسجيل جلسة جديدة</span>
+            <div class="card-header" style="padding: 0 0 12px 0; border-bottom: none; display: block; width: 100%;">
+              <!-- Interactive Dual Mode Action Cards (v1.4.0-beta.29) -->
+              <div class="session-mode-pills-wrap">
+                <button type="button" id="btn-mode-session" class="session-mode-pill-btn active">
+                  <div class="smp-icon blue">
+                    <i class="fa-solid fa-user-clock"></i>
+                  </div>
+                  <div class="smp-text">
+                    <span class="smp-title" id="label-mode-session">تسجيل جلسة</span>
+                    <span class="smp-sub">جلسة علاج طبيعي</span>
+                  </div>
+                  <div class="smp-badge">
+                    <i class="fa-solid fa-circle-check"></i>
+                  </div>
                 </button>
-                <button type="button" id="btn-mode-exam" class="session-mode-btn" style="flex: 1; padding: 9px 12px; border: none; border-radius: 9px; font-weight: 800; font-size: 0.92rem; cursor: pointer; transition: all 0.2s ease; background: transparent; color: var(--text-muted, #64748b); display: flex; align-items: center; justify-content: center; gap: 6px;">
-                  <i class="fa-solid fa-stethoscope"></i> <span id="label-mode-exam">تسجيل كشف جديد</span>
+
+                <button type="button" id="btn-mode-exam" class="session-mode-pill-btn">
+                  <div class="smp-icon teal">
+                    <i class="fa-solid fa-stethoscope"></i>
+                  </div>
+                  <div class="smp-text">
+                    <span class="smp-title" id="label-mode-exam">تسجيل كشف</span>
+                    <span class="smp-sub">فحص وتقييم أولي</span>
+                  </div>
+                  <div class="smp-badge">
+                    <i class="fa-solid fa-circle-check"></i>
+                  </div>
                 </button>
               </div>
             </div>
@@ -607,14 +690,14 @@
               <input type="hidden" id="session-edit-id" value="">
               <div class="form-grid">
                 <!-- Session Date Selection with Quick Today / Yesterday buttons -->
-                <div class="form-group" style="background-color: var(--bg-subtle); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 10px;">
-                  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
-                    <label for="session-date" id="session-date-label" style="font-weight: 800; color: var(--primary); font-size: 0.85rem;">
+                <div class="form-group" style="background-color: var(--bg-subtle); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 12px;">
+                  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; flex-wrap: wrap; gap: 6px;">
+                    <label for="session-date" id="session-date-label" style="font-weight: 800; color: var(--primary); font-size: 0.88rem;">
                       <i class="fa-solid fa-calendar-day"></i> تاريخ الجلسة *
                     </label>
-                    <div style="display: flex; gap: 6px;">
-                      <button type="button" id="btn-quick-sess-today" class="btn-quick-date active" >اليوم</button>
-                      <button type="button" id="btn-quick-sess-yesterday" class="btn-quick-date" >أمس</button>
+                    <div class="horizontal-date-strip">
+                      <button type="button" id="btn-quick-sess-today" class="date-strip-pill active">اليوم</button>
+                      <button type="button" id="btn-quick-sess-yesterday" class="date-strip-pill">أمس</button>
                     </div>
                   </div>
                   <div style="position: relative;">
@@ -725,7 +808,7 @@
           </div>
 
           <!-- Table of Today's Sessions -->
-          <div class="card">
+          <div class="card" id="card-sessions-today">
             <div class="card-header" style="display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-wrap: nowrap;">
               <div class="card-title" style="margin: 0; display: flex; align-items: center; gap: 6px; font-size: 0.95rem; white-space: nowrap;">
                 <i class="fa-solid fa-list-check" style="color: var(--primary);"></i>
@@ -734,7 +817,7 @@
               </div>
               <span class="badge badge-cash" id="sessions-today-count-badge" style="flex-shrink: 0; white-space: nowrap; font-size: 0.82rem; padding: 4px 10px; font-weight: 800;">0 جلسة</span>
             </div>
-            <div class="table-responsive">
+            <div class="table-responsive desktop-only-table">
               <table class="data-table">
                 <thead>
                   <tr>
@@ -753,6 +836,8 @@
                 </tbody>
               </table>
             </div>
+            <!-- Handcrafted Dedicated Mobile Cards for Sessions -->
+            <div id="sessions-today-mobile-cards" class="mobile-only-cards-container"></div>
           </div>
         </div>
       </section>
@@ -782,15 +867,15 @@
         </div>
 
         <!-- Mode Toggle Tabs (Daily vs Monthly vs Claims) -->
-        <div class="no-print" style="display: flex; gap: 8px; margin-bottom: 14px; flex-wrap: wrap;">
+        <div class="no-print finance-mode-segmented">
           <button type="button" class="btn btn-primary btn-sm" id="btn-mode-daily">
-            <i class="fa-solid fa-calendar-day"></i> التقرير اليومي
+            <i class="fa-solid fa-calendar-day"></i> <span class="tab-label-full">التقرير اليومي</span><span class="tab-label-short">اليومي</span>
           </button>
           <button type="button" class="btn btn-outline btn-sm" id="btn-mode-monthly">
-            <i class="fa-solid fa-calendar-days"></i> التقرير الشهري الإحصائي
+            <i class="fa-solid fa-calendar-days"></i> <span class="tab-label-full">التقرير الشهري</span><span class="tab-label-short">الشهري</span>
           </button>
           <button type="button" class="btn btn-outline btn-sm" id="btn-mode-claims">
-            <i class="fa-solid fa-file-invoice-dollar"></i> مطالبات التأمين وبطاقات التردد
+            <i class="fa-solid fa-file-invoice-dollar"></i> <span class="tab-label-full">مطالبات التأمين</span><span class="tab-label-short">المطالبات</span>
           </button>
         </div>
 
@@ -896,22 +981,15 @@
               </table>
             </div>
           </div>
-          <!-- Doctors Breakdown Box -->
-          <div class="card" style="margin-bottom: 16px;">
-            <div class="card-header">
-              <span class="card-title"><i class="fa-solid fa-user-doctor"></i> إحصائية مرضى كل دكتور (اليوم)</span>
-            </div>
-            <div id="doctors-breakdown-container" style="display: flex; gap: 15px; flex-wrap: wrap;">
-              <!-- Rendered dynamically -->
-            </div>
-          </div>
+          <!-- Doctors Breakdown (Daily Stack Deck) -->
+          <div id="daily-doctors-mobile-deck" style="margin-bottom: 16px;"></div>
 
           <!-- Detailed Patients Sessions Table -->
-          <div class="card">
+          <div class="card" id="card-finance-report-sessions">
             <div class="card-header">
               <span class="card-title"><i class="fa-solid fa-table-list"></i> بيان تفصيلي بمرضى اليوم</span>
             </div>
-            <div class="table-responsive">
+            <div class="table-responsive desktop-only-table">
               <table class="data-table" id="finance-report-table">
                 <thead>
                   <tr>
@@ -931,15 +1009,16 @@
                 </tbody>
               </table>
             </div>
+            <div id="finance-report-mobile-cards" class="mobile-only-cards-container"></div>
           </div>
 
           <!-- Daily Expenses Table -->
-          <div class="card" style="margin-top: 16px;">
+          <div class="card" id="card-finance-daily-expenses" style="margin-top: 16px;">
             <div class="card-header">
               <span class="card-title"><i class="fa-solid fa-receipt"></i> مصروفات اليوم</span>
             </div>
-            <div class="table-responsive">
-              <table class="data-table">
+            <div class="table-responsive desktop-only-table">
+              <table class="data-table" id="finance-expenses-table">
                 <thead>
                   <tr>
                     <th>بند المصروف</th>
@@ -954,17 +1033,18 @@
                 </tbody>
               </table>
             </div>
+            <div id="finance-expenses-mobile-cards" class="mobile-only-cards-container"></div>
           </div>
         </div>
 
         <!-- ================= CONTENT B: MONTHLY REPORT ================= -->
         <div id="finance-monthly-content" style="display: none;">
           <!-- Doctors Performance Table -->
-          <div class="card" style="margin-bottom: 16px;">
+          <div class="card" id="card-monthly-doctors" style="margin-bottom: 16px;">
             <div class="card-header">
-              <span class="card-title"><i class="fa-solid fa-user-doctor"></i> إحصائية أطباء المركز للشهر (مصنفة نقدي وشركات)</span>
+              <span class="card-title"><i class="fa-solid fa-user-doctor"></i> إحصائية أطباء المركز للشهر</span>
             </div>
-            <div class="table-responsive">
+            <div class="table-responsive desktop-only-table">
               <table class="data-table">
                 <thead>
                   <tr>
@@ -981,14 +1061,15 @@
                 </tbody>
               </table>
             </div>
+            <div id="monthly-doctors-mobile-cards" class="mobile-only-cards-container"></div>
           </div>
 
           <!-- Insurance and Cash Distribution Table -->
-          <div class="card" style="margin-bottom: 16px;">
+          <div class="card" id="card-monthly-insurance" style="margin-bottom: 16px;">
             <div class="card-header">
               <span class="card-title"><i class="fa-solid fa-shield-halved"></i> توزيع المرضى حسب جهات الدفع والتأمين</span>
             </div>
-            <div class="table-responsive">
+            <div class="table-responsive desktop-only-table">
               <table class="data-table">
                 <thead>
                   <tr>
@@ -1003,6 +1084,7 @@
                 </tbody>
               </table>
             </div>
+            <div id="monthly-insurance-mobile-cards" class="mobile-only-cards-container"></div>
           </div>
 
           
@@ -1035,11 +1117,11 @@
           </div>
 
           <!-- Monthly Expenses Table -->
-          <div class="card">
+          <div class="card" id="card-monthly-expenses">
             <div class="card-header">
               <span class="card-title"><i class="fa-solid fa-receipt"></i> بيان مصروفات الشهر</span>
             </div>
-            <div class="table-responsive">
+            <div class="table-responsive desktop-only-table">
               <table class="data-table">
                 <thead>
                   <tr>
@@ -1054,6 +1136,7 @@
                 </tbody>
               </table>
             </div>
+            <div id="monthly-expenses-mobile-cards" class="mobile-only-cards-container"></div>
           </div>
         </div>
 
@@ -1154,7 +1237,7 @@
                 <span class="card-title" style="font-size: 1rem; font-weight: 800;">
                   <i class="fa-solid fa-table-list"></i> بيان السادة المحولين (المرضى المشمولين بالمطالبة)
                 </span>
-                <div style="display: flex; gap: 6px; flex-wrap: wrap;">
+                <div class="claim-actions-toolbar" style="display: flex; gap: 8px; flex-wrap: wrap;">
                   <button type="button" class="btn btn-primary btn-sm" id="btn-print-claim-statement" style="font-weight: 800; padding: 6px 12px;">
                     <i class="fa-solid fa-print"></i> طباعة المطالبة الرسمية A4
                   </button>
@@ -1174,11 +1257,11 @@
               </div>
 
                             <!-- Search Bar for Claim Patients -->
-              <div style="padding: 12px 14px 10px 14px; border-bottom: 1px solid var(--border-color); background: var(--bg-subtle);">
+              <div style="padding: 10px 4px 12px 4px;">
                 <div style="display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap;">
-                  <div class="search-box" style="flex: 1; min-width: 260px;">
-                    <i class="fa-solid fa-magnifying-glass"></i>
-                    <input type="text" id="claim-patient-search-input" class="form-control" placeholder="ابحث بالاسم، الهاتف، أو الطبيب في مرضى المطالبة..." >
+                  <div class="search-box" style="flex: 1; min-width: 240px; position: relative;">
+                    <input type="text" id="claim-patient-search-input" class="form-control" placeholder="ابحث بالاسم، الهاتف، أو الطبيب في مرضى المطالبة..." style="padding-right: 38px; height: 42px; font-size: 0.88rem;">
+                    <i class="fa-solid fa-magnifying-glass" style="position: absolute; right: 14px; top: 50%; transform: translateY(-50%); color: var(--text-muted); pointer-events: none;"></i>
                   </div>
                   <div id="claim-search-stats" style="font-size: 0.82rem; font-weight: 700; color: var(--text-muted);">
                     <!-- Dynamic search stats -->
@@ -1190,7 +1273,7 @@
               <div class="top-scrollbar-wrapper no-print" id="claim-top-scroll-wrap" style="display: none; overflow-x: auto; overflow-y: hidden; height: 12px; margin-bottom: 6px; border-radius: 4px; background: var(--bg-subtle);">
                 <div class="top-scrollbar-dummy" id="claim-top-scroll-dummy" style="height: 1px;"></div>
               </div>
-              <div class="table-responsive" id="claim-table-container">
+              <div class="table-responsive desktop-only-table" id="claim-table-container">
                 <table class="data-table" id="claim-patients-table">
                   <thead>
                     <tr>
@@ -1211,6 +1294,7 @@
                   </tbody>
                 </table>
               </div>
+              <div id="claim-patients-mobile-cards" class="mobile-only-cards-container" style="padding: 10px 12px;"></div>
             </div>
 
             <!-- ================= 4. Insurance Claims Ledger (سجل مطالبات التأمين الصادرة والتحصيلات) ================= -->
@@ -1220,7 +1304,7 @@
                   <span class="card-title" style="font-size: 1.05rem; color: var(--primary); font-weight: 800; display: inline-flex; align-items: center; gap: 8px;">
                     <i class="fa-solid fa-folder-open"></i> سجل مطالبات التأمين الصادرة والتحصيلات
                   </span>
-                  <span class="badge badge-cash" id="claims-ledger-count-badge" style="font-size: 0.8rem; font-weight: 700;">0 مطالبة</span>
+                  <span class="badge badge-cash" id="claims-ledger-count-badge" style="font-size: 0.8rem; font-weight: 800; white-space: nowrap; flex-shrink: 0; padding: 4px 10px; border-radius: 999px;">0 مطالبة</span>
                 </div>
                 <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
                   <!-- Status Filter Pills -->
@@ -1233,10 +1317,10 @@
               </div>
 
               <!-- Search & Company Filter Controls for Claims Ledger -->
-              <div style="padding: 10px 14px; background: var(--bg-subtle); border-radius: var(--radius-md); margin-bottom: 14px; display: flex; gap: 12px; flex-wrap: wrap; align-items: center;">
-                <div class="search-box" style="flex: 1; min-width: 240px;">
-                  <i class="fa-solid fa-magnifying-glass"></i>
-                  <input type="text" id="claims-ledger-search" class="form-control" placeholder="ابحث بكود المطالبة، اسم الشركة، أو الفترة..." style="height: 38px; font-size: 0.84rem;">
+              <div style="padding: 8px 4px 12px 4px; display: flex; gap: 12px; flex-wrap: wrap; align-items: center;">
+                <div class="search-box" style="flex: 1; min-width: 240px; position: relative;">
+                  <input type="text" id="claims-ledger-search" class="form-control" placeholder="ابحث بكود المطالبة، اسم الشركة، أو الفترة..." style="padding-right: 38px; height: 40px; font-size: 0.86rem;">
+                  <i class="fa-solid fa-magnifying-glass" style="position: absolute; right: 14px; top: 50%; transform: translateY(-50%); color: var(--text-muted); pointer-events: none;"></i>
                 </div>
                 <div style="display: flex; align-items: center; gap: 6px; min-width: 210px;">
                   <label for="claims-ledger-company-filter" style="font-size: 0.82rem; font-weight: 800; white-space: nowrap; color: var(--text-main);">
@@ -1285,7 +1369,7 @@
           <h2 style="font-size: 1.35rem; font-weight: 800;"><i class="fa-solid fa-calendar-week" style="color: var(--primary);"></i> جدول المواعيد الأسبوعي</h2>
           <p style="font-size: 0.85rem; color: var(--text-muted);">قالب أسبوعي ثابت لكل الدكاترة — يفضل الموعد كما هو كل أسبوع حتى تحذفه وتحجز مكانه مريضاً آخر.</p>
         </div>
-        <div class="card">
+        <div class="card" id="card-main-appointments-schedule">
           <div class="card-header" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; padding: 12px 16px;">
             <div style="display: flex; align-items: center; gap: 10px;">
               <span class="card-title" style="margin: 0;"><i class="fa-solid fa-table-cells" style="color: var(--primary);"></i> مواعيد أطباء المركز</span>
@@ -1303,14 +1387,72 @@
 
       <!-- ================= View 5: Admin Panel & Permissions ================= -->
       <section id="view-admin" class="view-section">
-        <div style="margin-bottom: 20px;">
-          <h2 style="font-size: 1.35rem; font-weight: 800;">لوحة المدير ونظام الصلاحيات</h2>
-          <p style="font-size: 0.85rem; color: var(--text-muted);">إدارة فريق العمل، حسابات الدخول، ومراجعة سجل التعديلات (Audit Log)</p>
+        <!-- Hero Admin Banner -->
+        <div class="hero-dashboard-banner hero-admin-banner" style="margin-bottom: 20px;">
+          <div class="hero-banner-glass-bg"></div>
+          <div class="hero-banner-content">
+            <div class="hero-greeting-pill">
+              <span class="hero-greeting-icon"><i class="fa-solid fa-shield-halved"></i></span>
+              <span>لوحة التحكم والرقابة الإدارية</span>
+            </div>
+            <h2 class="hero-banner-title">إدارة الصلاحيات وفريق العمل والرقابة</h2>
+            <p class="hero-banner-sub">إدارة حسابات الموظفين، ضبط الأدوار والصلاحيات، ومتابعة سجل العمليات والنسخ الاحتياطي</p>
+            
+            <div class="hero-banner-footer">
+              <div class="hero-date-chip">
+                <i class="fa-solid fa-user-shield"></i>
+                <span>مدير المركز (Admin Access)</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Admin KPI Stats Grid -->
+        <div class="stats-grid" id="admin-kpi-stats-grid" style="margin-bottom: 20px;">
+          <div class="stat-box">
+            <div class="stat-icon purple" style="background-color: rgba(147, 51, 234, 0.15); color: #9333ea;">
+              <i class="fa-solid fa-users-gear"></i>
+            </div>
+            <div class="stat-info">
+              <div class="stat-value" id="stat-admin-total-users">0</div>
+              <div class="stat-label">إجمالي فريق العمل</div>
+            </div>
+          </div>
+
+          <div class="stat-box">
+            <div class="stat-icon blue">
+              <i class="fa-solid fa-user-doctor"></i>
+            </div>
+            <div class="stat-info">
+              <div class="stat-value" id="stat-admin-doctors-count">0</div>
+              <div class="stat-label">الأطباء المعالجون</div>
+            </div>
+          </div>
+
+          <div class="stat-box">
+            <div class="stat-icon amber">
+              <i class="fa-solid fa-user-tie"></i>
+            </div>
+            <div class="stat-info">
+              <div class="stat-value" id="stat-admin-staff-count">0</div>
+              <div class="stat-label">الاستقبال والإدارة</div>
+            </div>
+          </div>
+
+          <div class="stat-box">
+            <div class="stat-icon green">
+              <i class="fa-solid fa-shield-halved"></i>
+            </div>
+            <div class="stat-info">
+              <div class="stat-value" id="stat-admin-audit-count">0</div>
+              <div class="stat-label">حركات الرقابة المسجلة</div>
+            </div>
+          </div>
         </div>
 
         <div class="split-screen">
           <!-- Add User Form -->
-          <div class="card">
+          <div class="card" id="card-admin-add-user">
             <div class="card-header">
               <span class="card-title"><i class="fa-solid fa-user-plus"></i> إضافة مستخدم جديد للنظام</span>
             </div>
@@ -1318,15 +1460,24 @@
               <div class="form-grid">
                 <div class="form-group">
                   <label>الاسم بالكامل *</label>
-                  <input type="text" id="newuser-name" class="form-control" placeholder="د. محمد / أ. منار" required>
+                  <div style="position: relative;">
+                    <input type="text" id="newuser-name" class="form-control" placeholder="د. محمد / أ. منار" required style="padding-right: 38px;">
+                    <i class="fa-solid fa-user" style="position: absolute; right: 14px; top: 50%; transform: translateY(-50%); color: var(--text-muted); pointer-events: none;"></i>
+                  </div>
                 </div>
                 <div class="form-group">
                   <label>اسم المستخدم أو الإيميل *</label>
-                  <input type="email" id="newuser-email" class="form-control" placeholder="user@clinic.com" required>
+                  <div style="position: relative;">
+                    <input type="email" id="newuser-email" class="form-control" placeholder="user@clinic.com" required style="padding-right: 38px;">
+                    <i class="fa-solid fa-envelope" style="position: absolute; right: 14px; top: 50%; transform: translateY(-50%); color: var(--text-muted); pointer-events: none;"></i>
+                  </div>
                 </div>
                 <div class="form-group">
                   <label>كلمة المرور *</label>
-                  <input type="text" id="newuser-password" class="form-control" placeholder="6 أحرف على الأقل" required autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" style="-webkit-text-security: disc;">
+                  <div style="position: relative;">
+                    <input type="text" id="newuser-password" class="form-control" placeholder="6 أحرف على الأقل" required autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" style="padding-right: 38px; -webkit-text-security: disc;">
+                    <i class="fa-solid fa-lock" style="position: absolute; right: 14px; top: 50%; transform: translateY(-50%); color: var(--text-muted); pointer-events: none;"></i>
+                  </div>
                 </div>
                 <div class="form-group">
                   <label>الصلاحية (الدور) *</label>
@@ -1342,7 +1493,7 @@
                     </button>
                   </div>
                 </div>
-                <button type="submit" class="btn btn-primary" style="margin-top: 8px;">
+                <button type="submit" class="btn btn-primary" style="margin-top: 8px; width: 100%; height: 44px; font-size: 0.95rem; font-weight: 800;">
                   <i class="fa-solid fa-plus"></i> إنشاء الحساب
                 </button>
               </div>
@@ -1350,11 +1501,11 @@
           </div>
 
           <!-- Existing Staff & Roles List -->
-          <div class="card">
+          <div class="card" id="card-admin-staff-list">
             <div class="card-header">
               <span class="card-title"><i class="fa-solid fa-id-badge"></i> فريق العمل الحالي</span>
             </div>
-            <div class="table-responsive">
+            <div class="table-responsive desktop-only-table">
               <table class="data-table">
                 <thead>
                   <tr>
@@ -1369,16 +1520,17 @@
                 </tbody>
               </table>
             </div>
+            <div id="admin-users-mobile-cards" class="mobile-only-cards-container"></div>
           </div>
         </div>
 
         <!-- Audit Log (Who changed what) -->
-        <div class="card" style="margin-top: 20px;">
+        <div class="card" id="card-admin-audit-log" style="margin-top: 20px;">
           <div class="card-header" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
             <span class="card-title"><i class="fa-solid fa-shield-halved"></i> سجل التعديلات والرقابة (Audit Trail)</span>
-            <span class="badge badge-direct" style="font-size: 0.74rem; font-weight: 700; padding: 3px 8px;">آخر ٥٠ حركة • تنظيف تلقائي ٦٠ يوم</span>
+            <span class="badge badge-direct" style="font-size: 0.74rem; font-weight: 700; padding: 4px 10px; border-radius: 999px;">آخر ٥٠ حركة • تنظيف تلقائي ٦٠ يوم</span>
           </div>
-          <div class="table-responsive">
+          <div class="table-responsive desktop-only-table">
             <table class="data-table">
               <thead>
                 <tr>
@@ -1394,32 +1546,32 @@
               </tbody>
             </table>
           </div>
+          <div id="audit-log-mobile-cards" class="mobile-only-cards-container"></div>
         </div>
-                      <!-- Backup & Restore Card (Admin only) -->
-        <div class="card admin-only" style="margin-top: 20px; border-color: var(--border-color); background-color: var(--bg-subtle);">
-          <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
-            <div>
-              <div style="font-weight: 800; color: #0369a1; font-size: 1rem;">
-                <i class="fa-solid fa-database"></i> النسخ الاحتياطي واستعادة البيانات (Backup & Restore)
-              </div>
-              <div style="font-size: 0.8rem; color: #0284c7; margin-top: 3px;">
-                تنزيل نسخة كاملة (ملف JSON غير مشفر) من سجلات المركز (مرضى، جلسات، حسابات) أو استعادتها بضغطة زر. احتفظ بالملف في مكان آمن فقط، لأنه يحتوي بيانات مرضى حساسة بدون تشفير.
-              </div>
-              <div id="backup-status-hint" style="font-size: 0.75rem; margin-top: 6px; font-weight: 700;"></div>
-            </div>
-            <div style="display: flex; gap: 8px; flex-wrap: wrap;">
-              <button type="button" class="btn btn-outline btn-sm" style="border-color: #0284c7; color: #0369a1; font-weight: 700;" id="btn-download-backup">
-                <i class="fa-solid fa-download"></i> تنزيل نسخة احتياطية
+
+        <!-- Backup & Restore Section (Admin only - Unwrapped on mobile) -->
+        <div class="card admin-only" id="card-admin-backup-restore" style="margin-top: 20px;">
+          <div class="card-header">
+            <span class="card-title"><i class="fa-solid fa-database"></i> النسخ الاحتياطي واستعادة البيانات</span>
+          </div>
+          <div class="backup-restore-body">
+            <p style="font-size: 0.82rem; color: var(--text-muted); margin-bottom: 8px; line-height: 1.5;">
+              تنزيل نسخة كاملة من سجلات المركز (مرضى، جلسات، حسابات) أو استعادتها بضغطة زر. احتفظ بالملف في مكان آمن.
+            </p>
+            <div id="backup-status-hint" style="font-size: 0.78rem; margin-bottom: 12px; font-weight: 700; color: var(--primary);"></div>
+            <div class="backup-buttons-row">
+              <button type="button" class="btn btn-outline btn-sm" id="btn-download-backup" style="font-weight: 800; height: 42px; border-radius: 12px; display: inline-flex; align-items: center; justify-content: center; gap: 6px;">
+                <i class="fa-solid fa-download"></i> <span>تنزيل نسخة احتياطية</span>
               </button>
-              <button type="button" class="btn btn-primary btn-sm" id="btn-restore-backup">
-                <i class="fa-solid fa-upload"></i> استعادة من ملف
+              <button type="button" class="btn btn-primary btn-sm" id="btn-restore-backup" style="font-weight: 800; height: 42px; border-radius: 12px; display: inline-flex; align-items: center; justify-content: center; gap: 6px;">
+                <i class="fa-solid fa-upload"></i> <span>استعادة من ملف</span>
               </button>
-              <input type="file" id="backup-file-input" accept=".json" style="display: none;" >
+              <input type="file" id="backup-file-input" accept=".json" style="display: none;">
             </div>
           </div>
         </div>
 
-        </section>
+      </section>
 
     </main>
 
@@ -1869,8 +2021,19 @@
       </div>
       <form id="modal-appointment-form" novalidate>
         <div class="modal-body">
+          <div class="form-group" style="margin-bottom: 14px;" id="form-group-appt-doctor">
+            <label style="display: inline-block; font-size: 0.88rem; font-weight: 700; color: var(--text-main); margin-bottom: 6px;">الطبيب المعالج *</label>
+            <div class="custom-select-wrapper">
+              <select id="appt-doctor-select" class="form-control" style="display: none;" required></select>
+              <button type="button" class="custom-select-btn" id="btn-select-appt-doctor-select" data-open-picker="appt-doctor-select" data-picker-title="اختر الطبيب المعالج للموعد" style="width: 100%;">
+                <span class="btn-text">-- اختر الطبيب المعالج --</span>
+                <i class="fa-solid fa-chevron-down"></i>
+              </button>
+            </div>
+          </div>
+
           <div class="form-group">
-            <label>المريض (من السجل) *</label>
+            <label style="display: inline-block; font-size: 0.88rem; font-weight: 700; color: var(--text-main); margin-bottom: 6px;">المريض (من السجل) *</label>
             <button type="button" class="custom-select-btn" id="appt-patient-picker-trigger" style="width: 100%;">
               <span class="btn-text">-- اختر مريض من السجل --</span>
               <i class="fa-solid fa-magnifying-glass"></i>
@@ -2527,19 +2690,33 @@
     </div>
   </div>
 
-  <!-- Toast Notification -->
-  <div class="toast-box" id="toast-notification">
-    <i class="fa-solid fa-circle-check" style="color: var(--success);"></i>
-    <span id="toast-message">تمت العملية بنجاح</span>
+  <!-- Toast Notification Capsule (v1.4.0-beta.29) -->
+  <div class="toast-capsule" id="toast-notification">
+    <div class="toast-icon-wrap" id="toast-icon-wrap">
+      <i class="fa-solid fa-circle-check" id="toast-icon"></i>
+    </div>
+    <div class="toast-content">
+      <span id="toast-message">تمت العملية بنجاح</span>
+    </div>
   </div>
 
       
   <!-- Main Application Script (ES Module) -->
-  <script type="module" src="js/app.js"></script>
+  <script type="module" src="js/app.js?v=1.4.0-beta.29"></script>
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
-        navigator.serviceWorker.register('./sw.js').catch(err => console.log('SW registration skipped:', err));
+        navigator.serviceWorker.register('./sw.js').then((reg) => {
+          reg.update();
+        }).catch(err => console.log('SW registration skipped:', err));
+
+        let refreshing = false;
+        navigator.serviceWorker.addEventListener('controllerchange', () => {
+          if (!refreshing) {
+            refreshing = true;
+            window.location.reload();
+          }
+        });
       });
     }
   </script>
@@ -2569,14 +2746,14 @@
           </div>
 
           <!-- Time Input Row: Hour, Minute, Period -->
-          <div style="background: var(--bg-subtle); border: 1.5px solid var(--border-color); border-radius: 10px; padding: 12px; margin-bottom: 14px;">
-            <label style="font-weight: 800; font-size: 0.88rem; color: var(--primary); margin-bottom: 8px; display: block;">
+          <div style="background: var(--bg-subtle); border: 1.5px solid var(--border-color); border-radius: var(--radius-md); padding: 14px; margin-bottom: 14px;">
+            <label style="font-weight: 800; font-size: 0.88rem; color: var(--primary); margin-bottom: 10px; display: block;">
               <i class="fa-regular fa-clock"></i> تحديد الموعد بدقة:
             </label>
-            <div style="display: flex; gap: 8px; align-items: center;">
-              <div style="flex: 1;">
-                <label style="font-size: 0.75rem; color: var(--text-muted); font-weight: 700;">الساعة</label>
-                <select id="slot-input-hour" class="form-control" style="font-weight: 800; text-align: center; font-size: 1.05rem;">
+            <div style="display: grid; grid-template-columns: 1fr auto 1fr 1.2fr; gap: 8px; align-items: end;">
+              <div>
+                <label style="font-size: 0.75rem; color: var(--text-muted); font-weight: 700; margin-bottom: 4px; display: block; text-align: center;">الساعة</label>
+                <select id="slot-input-hour" class="form-control" style="font-weight: 800; text-align: center; font-size: 1.05rem; height: 44px; border-radius: 12px;">
                   <option value="1">1</option>
                   <option value="2">2</option>
                   <option value="3" selected>3</option>
@@ -2591,19 +2768,19 @@
                   <option value="12">12</option>
                 </select>
               </div>
-              <div style="font-size: 1.2rem; font-weight: 800; color: var(--primary); padding-top: 16px;">:</div>
-              <div style="flex: 1;">
-                <label style="font-size: 0.75rem; color: var(--text-muted); font-weight: 700;">الدقيقة</label>
-                <select id="slot-input-minute" class="form-control" style="font-weight: 800; text-align: center; font-size: 1.05rem;">
+              <div style="font-size: 1.4rem; font-weight: 900; color: var(--primary); padding-bottom: 8px; text-align: center;">:</div>
+              <div>
+                <label style="font-size: 0.75rem; color: var(--text-muted); font-weight: 700; margin-bottom: 4px; display: block; text-align: center;">الدقيقة</label>
+                <select id="slot-input-minute" class="form-control" style="font-weight: 800; text-align: center; font-size: 1.05rem; height: 44px; border-radius: 12px;">
                   <option value="00">00</option>
                   <option value="15">15</option>
                   <option value="30" selected>30</option>
                   <option value="45">45</option>
                 </select>
               </div>
-              <div style="flex: 1.2;">
-                <label style="font-size: 0.75rem; color: var(--text-muted); font-weight: 700;">الفترة</label>
-                <select id="slot-input-period" class="form-control" style="font-weight: 800; text-align: center; font-size: 1rem;">
+              <div>
+                <label style="font-size: 0.75rem; color: var(--text-muted); font-weight: 700; margin-bottom: 4px; display: block; text-align: center;">الفترة</label>
+                <select id="slot-input-period" class="form-control" style="font-weight: 800; text-align: center; font-size: 1rem; height: 44px; border-radius: 12px;">
                   <option value="PM" selected>مساءً (م)</option>
                   <option value="AM">صباحاً (ص)</option>
                 </select>
