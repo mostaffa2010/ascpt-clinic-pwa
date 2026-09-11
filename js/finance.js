@@ -881,12 +881,16 @@ export class FinanceManager {
     if (dashExpenses) dashExpenses.textContent = `${totalExpenses.toLocaleString('en-US')} ج.م`;
 
     const dashTbody = document.querySelector('#dashboard-recent-table tbody');
+    const dashMobileCards = document.getElementById('dashboard-recent-mobile-cards');
     if (dashTbody) {
       // Sort newest recorded sessions first
       const sortedSessions = [...allSessions].sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
       const recent = sortedSessions.slice(0, 5);
       if (recent.length === 0) {
-        dashTbody.innerHTML = `<tr><td colspan="6" style="text-align: center; color: var(--text-muted); padding: 15px;">لا توجد جلسات مسجلة اليوم.</td></tr>`;
+        dashTbody.innerHTML = `<tr><td colspan="7" style="text-align: center; color: var(--text-muted); padding: 15px;">لا توجد جلسات مسجلة اليوم.</td></tr>`;
+        if (dashMobileCards) {
+          dashMobileCards.innerHTML = `<div class="empty-state-card"><i class="fa-regular fa-calendar-xmark"></i> لا توجد جلسات مسجلة اليوم.</div>`;
+        }
       } else {
         dashTbody.innerHTML = recent.map(s => {
           const safePatient = escapeHTML(s.patientName);
@@ -900,22 +904,22 @@ export class FinanceManager {
             : `${escapeHTML(s.bodyPartsCount || 1)} أعضاء`;
 
           return `
-            <tr class="recent-session-card-row">
-              <td class="col-patient" style="font-weight: 700;">${safePatient}</td>
-              <td class="col-doc">${safeDoc}</td>
-              <td class="col-pay">
+            <tr>
+              <td style="font-weight: 700;">${safePatient}</td>
+              <td>${safeDoc}</td>
+              <td>
                 ${s.payType === 'cash' 
                   ? '<span class="badge badge-cash"><i class="fa-solid fa-money-bill"></i> نقدي</span>' 
                   : (s.contractType === 'direct' 
                     ? `<span class="badge badge-direct"><i class="fa-solid fa-file-contract"></i> ${safeIns}</span>` 
                     : `<span class="badge badge-indirect"><i class="fa-solid fa-handshake"></i> ${safeIns}</span>`)}
               </td>
-              <td class="col-parts">${safeCount}</td>
-              <td class="col-amount" style="font-weight: 700; color: var(--success);">${safeAmount} ج.م</td>
-              <td class="col-time" style="font-size: 0.8rem; color: var(--text-muted);">${safeRecAt}</td>
-              <td class="col-action cell-action">
+              <td>${safeCount}</td>
+              <td style="font-weight: 700; color: var(--success);">${safeAmount} ج.م</td>
+              <td style="font-size: 0.8rem; color: var(--text-muted);">${safeRecAt}</td>
+              <td class="cell-action">
                 ${s.patientId ? `
-                  <button type="button" class="btn btn-primary btn-sm btn-session-sheet-action" onclick="patientsManager.openPatientSheet('${escapeHTML(s.patientId)}')" style="border-radius: var(--radius-pill); font-size: 0.78rem; padding: 5px 14px;" title="فتح الشيت الطبي">
+                  <button type="button" class="btn btn-outline btn-sm btn-session-sheet-action" onclick="patientsManager.openPatientSheet('${escapeHTML(s.patientId)}')" style="border-radius: var(--radius-pill); font-size: 0.78rem; padding: 4px 12px;" title="فتح الشيت الطبي">
                     <i class="fa-solid fa-file-waveform"></i> الشيت الطبي
                   </button>
                 ` : ''}
@@ -923,6 +927,56 @@ export class FinanceManager {
             </tr>
           `;
         }).join('');
+
+        if (dashMobileCards) {
+          dashMobileCards.innerHTML = recent.map(s => {
+            const safePatient = escapeHTML(s.patientName);
+            const safeDoc = escapeHTML(s.doctor);
+            const safeIns = escapeHTML(s.insuranceName || 'تأمين');
+            const safeAmount = escapeHTML(s.amountPaid);
+            const safeRecAt = escapeHTML(s.recordedAt || '');
+            const isExam = (s.entryType === 'examination');
+            const safeCount = isExam
+              ? '<span class="badge" style="background: rgba(56, 189, 248, 0.15); color: var(--primary); font-weight: 700; font-size: 0.75rem;"><i class="fa-solid fa-stethoscope"></i> كشف</span>'
+              : `${escapeHTML(s.bodyPartsCount || 1)} أعضاء`;
+
+            const payBadge = s.payType === 'cash' 
+              ? '<span class="badge badge-cash"><i class="fa-solid fa-money-bill"></i> نقدي</span>' 
+              : (s.contractType === 'direct' 
+                ? `<span class="badge badge-direct"><i class="fa-solid fa-file-contract"></i> ${safeIns}</span>` 
+                : `<span class="badge badge-indirect"><i class="fa-solid fa-handshake"></i> ${safeIns}</span>`);
+
+            return `
+              <div class="hero-styled-card">
+                <div class="hsc-top">
+                  <div class="hsc-patient-meta">
+                    <div class="hsc-avatar"><i class="fa-solid fa-user-injured"></i></div>
+                    <div class="hsc-name-box">
+                      <span class="hsc-patient-name">${safePatient}</span>
+                      <span class="hsc-doc-sub"><i class="fa-solid fa-user-doctor"></i> ${safeDoc}</span>
+                    </div>
+                  </div>
+                  <div class="hsc-badge-amount">
+                    <span class="hsc-amount-val">${safeAmount} <small>ج.م</small></span>
+                    ${payBadge}
+                  </div>
+                </div>
+                <div class="hsc-divider"></div>
+                <div class="hsc-bottom">
+                  <div class="hsc-tags">
+                    <span class="hsc-tag-pill"><i class="fa-solid fa-bone"></i> ${safeCount}</span>
+                    <span class="hsc-time-tag"><i class="fa-regular fa-clock"></i> ${safeRecAt}</span>
+                  </div>
+                  ${s.patientId ? `
+                    <button type="button" class="btn btn-primary btn-sm btn-hero-sheet" onclick="patientsManager.openPatientSheet('${escapeHTML(s.patientId)}')" title="فتح الشيت الطبي">
+                      <i class="fa-solid fa-file-waveform"></i> الشيت الطبي
+                    </button>
+                  ` : ''}
+                </div>
+              </div>
+            `;
+          }).join('');
+        }
       }
     }
   }

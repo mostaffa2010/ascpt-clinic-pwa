@@ -519,6 +519,9 @@ export class PatientsManager {
     const isDoctor = currentUser?.role === 'doctor';
 
     setTimeout(() => this.setupScrollSync(), 50);
+    const mobileContainer = document.getElementById('patients-mobile-cards');
+
+    // 1. Render Desktop Table
     tbody.innerHTML = filtered.map(p => {
       let billingBadge = '';
       const safeComp = escapeHTML(p.insuranceCompany || 'تأمين');
@@ -542,25 +545,25 @@ export class PatientsManager {
       const cleanWaPhone = (p.phone || '').replace(/[^0-9]/g, '').replace(/^0/, '20');
 
       return `
-        <tr class="patient-card-row">
-          <td class="col-pat-name" style="font-weight: 800; color: var(--primary); cursor: ${canAccessSheet ? 'pointer' : 'default'}; white-space: nowrap;"
+        <tr>
+          <td style="font-weight: 800; color: var(--primary); cursor: ${canAccessSheet ? 'pointer' : 'default'}; white-space: nowrap;"
               class="${canAccessSheet ? 'patient-sheet-link' : 'btn-edit-patient'}"
               data-patient-id="${safeId}"
               onclick="patientsManager.openPatientSheet('${safeId}')"
               title="${canAccessSheet ? 'اضغط لفتح الشيت الطبي' : 'تعديل بيانات المريض'}">
             <i class="fa-solid ${canAccessSheet ? 'fa-file-waveform' : 'fa-user'}" style="margin-left: 6px;"></i> ${safeName}
           </td>
-          <td class="col-pat-age" style="white-space: nowrap;">${safeAge} سنة</td>
-          <td class="col-pat-phone" style="white-space: nowrap;">
+          <td style="white-space: nowrap;">${safeAge} سنة</td>
+          <td style="white-space: nowrap;">
             <a href="tel:${safePhone}" style="color: var(--primary); text-decoration: none; white-space: nowrap; direction: ltr; display: inline-flex; align-items: center; gap: 4px;">
               <i class="fa-solid fa-phone" style="font-size: 0.75rem;"></i> <bdi dir="ltr">${safePhone}</bdi>
             </a>
           </td>
-          <td class="col-pat-address" style="white-space: nowrap;">${safeAddress}</td>
-          <td class="col-pat-doc" style="white-space: nowrap;"><span style="font-weight: 600; color: var(--text-main);">${safeDoctor}</span></td>
-          <td class="col-pat-billing" style="white-space: nowrap;">${billingBadge}</td>
-          <td class="col-pat-editor" style="font-size: 0.8rem; color: var(--text-muted); white-space: nowrap;">${safeEditor}</td>
-          <td class="col-pat-actions" style="white-space: nowrap;">
+          <td style="white-space: nowrap;">${safeAddress}</td>
+          <td style="white-space: nowrap;"><span style="font-weight: 600; color: var(--text-main);">${safeDoctor}</span></td>
+          <td style="white-space: nowrap;">${billingBadge}</td>
+          <td style="font-size: 0.8rem; color: var(--text-muted); white-space: nowrap;">${safeEditor}</td>
+          <td style="white-space: nowrap;">
             <div style="display: flex; gap: 6px; align-items: center; flex-wrap: nowrap;">
               ${canAccessSheet ? `
                 <button type="button" class="btn btn-primary btn-sm btn-patient-sheet-action" data-patient-id="${safeId}" title="شيت العلاج الطبيعي">
@@ -568,7 +571,7 @@ export class PatientsManager {
                 </button>
               ` : ''}
               ${!isDoctor ? `
-                <button type="button" class="btn btn-outline btn-sm btn-patient-docs" data-patient-id="${safeId}" style="color: #0284c7; border-color: #0284c7; font-weight: 700; gap: 4px; display: inline-flex; align-items: center;" title="المستندات والطباعة (إيصال، إفادة، موافقات)">
+                <button type="button" class="btn btn-outline btn-sm btn-patient-docs" data-patient-id="${safeId}" style="color: #0284c7; border-color: #0284c7; font-weight: 700; gap: 4px; display: inline-flex; align-items: center;" title="المستندات والطباعة">
                   <i class="fa-solid fa-file-invoice"></i> <span style="font-size: 0.76rem;">مستندات</span>
                 </button>
               ` : ''}
@@ -590,6 +593,91 @@ export class PatientsManager {
         </tr>
       `;
     }).join('');
+
+    // 2. Render Handcrafted Mobile Cards
+    if (mobileContainer) {
+      mobileContainer.innerHTML = filtered.map(p => {
+        let billingBadge = '';
+        const safeComp = escapeHTML(p.insuranceCompany || 'تأمين');
+        const approvedVisits = p.approvedSessions || 12;
+        if (p.billing === 'cash') {
+          billingBadge = `<span class="badge badge-cash"><i class="fa-solid fa-money-bill"></i> نقدي</span>`;
+        } else if (p.contractType === 'direct') {
+          billingBadge = `<span class="badge badge-direct" title="${approvedVisits} زيارة معتمدة"><i class="fa-solid fa-file-contract"></i> ${safeComp}</span>`;
+        } else {
+          billingBadge = `<span class="badge badge-indirect" title="${approvedVisits} زيارة معتمدة"><i class="fa-solid fa-handshake"></i> ${safeComp}</span>`;
+        }
+
+        const safeId = escapeHTML(p.id);
+        const safeName = escapeHTML(p.name);
+        const safeAge = escapeHTML(p.age);
+        const safePhone = escapeHTML(p.phone);
+        const safeAddress = escapeHTML(p.address || '');
+        const safeDoctor = escapeHTML(p.doctor);
+        const safeEditor = escapeHTML(p.lastUpdatedBy || p.createdBy || '');
+        const cleanWaPhone = (p.phone || '').replace(/[^0-9]/g, '').replace(/^0/, '20');
+
+        return `
+          <div class="hero-styled-card hero-patient-card">
+            <div class="hsc-top">
+              <div class="hsc-patient-meta">
+                <div class="hsc-avatar patient-avatar"><i class="fa-solid fa-id-card-clip"></i></div>
+                <div class="hsc-name-box">
+                  <div class="hsc-name-row">
+                    <span class="hsc-patient-name" style="cursor: pointer;" onclick="patientsManager.openPatientSheet('${safeId}')">${safeName}</span>
+                    <span class="hsc-age-badge">${safeAge} سنة</span>
+                  </div>
+                  <span class="hsc-doc-sub"><i class="fa-solid fa-user-doctor"></i> ${safeDoctor}</span>
+                </div>
+              </div>
+              <div class="hsc-badge-amount">
+                ${billingBadge}
+              </div>
+            </div>
+
+            <div class="hsc-patient-meta-row">
+              <a href="tel:${safePhone}" class="hsc-meta-link">
+                <i class="fa-solid fa-phone"></i> <bdi dir="ltr">${safePhone}</bdi>
+              </a>
+              ${safeAddress && safeAddress !== '-' ? `
+                <span class="hsc-meta-text"><i class="fa-solid fa-location-dot"></i> ${safeAddress}</span>
+              ` : ''}
+            </div>
+
+            <div class="hsc-divider"></div>
+
+            <div class="hsc-bottom">
+              <div class="hsc-tags">
+                ${safeEditor ? `<span class="hsc-time-tag"><i class="fa-solid fa-user-pen"></i> ${safeEditor}</span>` : ''}
+              </div>
+              <div class="hsc-actions">
+                ${canAccessSheet ? `
+                  <button type="button" class="btn btn-primary btn-sm btn-hero-sheet btn-patient-sheet-action" data-patient-id="${safeId}">
+                    <i class="fa-solid fa-file-waveform"></i> الشيت الطبي
+                  </button>
+                ` : ''}
+                <a href="https://wa.me/${cleanWaPhone}" target="_blank" class="btn btn-outline btn-sm btn-icon-action" style="color: #10b981; border-color: rgba(16, 185, 129, 0.4);" title="واتساب">
+                  <i class="fa-brands fa-whatsapp"></i>
+                </a>
+                ${!isDoctor ? `
+                  <button type="button" class="btn btn-outline btn-sm btn-icon-action btn-patient-docs" data-patient-id="${safeId}" title="المستندات">
+                    <i class="fa-solid fa-file-invoice"></i>
+                  </button>
+                  <button type="button" class="btn btn-outline btn-sm btn-icon-action btn-edit-patient" data-patient-id="${safeId}" title="تعديل">
+                    <i class="fa-solid fa-pen-to-square"></i>
+                  </button>
+                ` : ''}
+                ${!isDoctor && canDeletePatient ? `
+                  <button type="button" class="btn btn-outline btn-sm btn-icon-action btn-delete-patient" style="color: var(--danger); border-color: rgba(239, 68, 68, 0.35);" data-patient-id="${safeId}" title="حذف">
+                    <i class="fa-solid fa-trash"></i>
+                  </button>
+                ` : ''}
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
   }
 
   // ================= Insurance Interactive Buttons for Patient Registration =================

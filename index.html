@@ -47,7 +47,7 @@
   
 
     <!-- Stylesheets -->
-  <link rel="stylesheet" href="css/style.css?v=1.4.0-beta.5">
+  <link rel="stylesheet" href="css/style.css?v=1.4.0-beta.6">
   <link rel="stylesheet" href="css/print.css" media="print">
 </head>
 <body>
@@ -263,7 +263,7 @@
               <span class="card-title"><i class="fa-solid fa-clock-rotate-left"></i> آخر الجلسات المسجلة اليوم</span>
               <button type="button" class="btn btn-outline btn-sm" data-view-target="sessions">عرض الكل</button>
             </div>
-            <div class="table-responsive">
+            <div class="table-responsive desktop-only-table">
               <table class="data-table" id="dashboard-recent-table">
                 <thead>
                   <tr>
@@ -280,6 +280,8 @@
                 </tbody>
               </table>
             </div>
+            <!-- Handcrafted Dedicated Mobile Cards for Recent Sessions -->
+            <div id="dashboard-recent-mobile-cards" class="mobile-only-cards-container"></div>
           </div>
         </div>
 
@@ -436,7 +438,7 @@
           <div class="top-scrollbar-wrapper no-print" id="patients-top-scroll-wrap" style="display: none; overflow-x: auto; overflow-y: hidden; height: 12px; margin-bottom: 6px; border-radius: 4px; background: var(--bg-subtle);">
             <div class="top-scrollbar-dummy" id="patients-top-scroll-dummy" style="height: 1px;"></div>
           </div>
-          <div class="table-responsive" id="patients-table-container">
+          <div class="table-responsive desktop-only-table" id="patients-table-container">
             <table class="data-table" id="patients-data-table">
               <thead>
                 <tr>
@@ -455,6 +457,8 @@
               </tbody>
             </table>
           </div>
+          <!-- Handcrafted Dedicated Mobile Cards for Patients -->
+          <div id="patients-mobile-cards" class="mobile-only-cards-container"></div>
         </div>
       </section>
 
@@ -792,7 +796,7 @@
               </div>
               <span class="badge badge-cash" id="sessions-today-count-badge" style="flex-shrink: 0; white-space: nowrap; font-size: 0.82rem; padding: 4px 10px; font-weight: 800;">0 جلسة</span>
             </div>
-            <div class="table-responsive">
+            <div class="table-responsive desktop-only-table">
               <table class="data-table">
                 <thead>
                   <tr>
@@ -811,6 +815,8 @@
                 </tbody>
               </table>
             </div>
+            <!-- Handcrafted Dedicated Mobile Cards for Sessions -->
+            <div id="sessions-today-mobile-cards" class="mobile-only-cards-container"></div>
           </div>
         </div>
       </section>

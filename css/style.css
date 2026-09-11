@@ -3419,3 +3419,311 @@ body {
     justify-content: flex-end !important;
   }
 }
+
+/* ========================================================
+   PREMIUM HERO-STYLED MOBILE CARDS (v1.4.0-beta.6)
+   Handcrafted Mobile Cards matching the Hero Banner aesthetic
+   ======================================================== */
+@media (min-width: 992px) {
+  .mobile-only-cards-container {
+    display: none !important;
+  }
+}
+
+@media (max-width: 991px) {
+  .desktop-only-table {
+    display: none !important;
+  }
+
+  .mobile-only-cards-container {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 12px !important;
+    width: 100% !important;
+  }
+
+  /* Reset outer box styling on mobile */
+  #card-dashboard-recent,
+  #card-sessions-today,
+  #card-patients-directory {
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+    margin-bottom: 14px !important;
+  }
+
+  #card-dashboard-recent .card-header,
+  #card-sessions-today .card-header,
+  #card-patients-directory .card-header {
+    padding: 4px 2px 12px 2px !important;
+    border-bottom: none !important;
+  }
+}
+
+/* --- THE HERO-STYLED CARD COMPONENT --- */
+.hero-styled-card {
+  background: linear-gradient(135deg, rgba(15, 23, 42, 0.9) 0%, rgba(30, 41, 59, 0.88) 100%);
+  border: 1.5px solid rgba(56, 189, 248, 0.22);
+  border-radius: var(--radius-lg);
+  padding: 16px 18px;
+  box-shadow: 0 10px 28px -4px rgba(0, 0, 0, 0.45);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.hero-styled-card:hover {
+  transform: translateY(-2px);
+  border-color: rgba(56, 189, 248, 0.45);
+  box-shadow: 0 14px 34px -4px rgba(2, 132, 199, 0.35);
+}
+
+.hero-styled-card:active {
+  transform: scale(0.98);
+}
+
+/* Light Theme Support */
+:root:not([data-theme="dark"]) .hero-styled-card {
+  background: linear-gradient(135deg, #ffffff 0%, #f0f9ff 100%);
+  border: 1.5px solid rgba(2, 132, 199, 0.2);
+  box-shadow: 0 8px 24px -4px rgba(2, 132, 199, 0.12);
+}
+
+/* 1. Top Section */
+.hsc-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.hsc-patient-meta {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+  flex: 1;
+}
+
+.hsc-avatar {
+  width: 44px;
+  height: 44px;
+  border-radius: var(--radius-md);
+  background: rgba(56, 189, 248, 0.15);
+  color: #38bdf8;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+  flex-shrink: 0;
+  border: 1px solid rgba(56, 189, 248, 0.25);
+}
+
+.hsc-avatar.patient-avatar {
+  background: rgba(129, 140, 248, 0.15);
+  color: #818cf8;
+  border-color: rgba(129, 140, 248, 0.25);
+}
+
+.hsc-name-box {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+}
+
+.hsc-patient-name {
+  font-size: 1.08rem;
+  font-weight: 800;
+  color: var(--text-main);
+  line-height: 1.25;
+  word-break: break-word;
+}
+
+.hsc-name-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.hsc-age-badge {
+  font-size: 0.76rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  background: var(--bg-subtle);
+  padding: 2px 7px;
+  border-radius: var(--radius-pill);
+}
+
+.hsc-doc-sub {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.hsc-badge-amount {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.hsc-amount-val {
+  font-size: 1.25rem;
+  font-weight: 900;
+  color: var(--success);
+  line-height: 1;
+  letter-spacing: -0.3px;
+}
+
+.hsc-amount-val small {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--text-muted);
+}
+
+.hsc-pill-wrap {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+/* 2. Patient Meta Row (Phone & Address) */
+.hsc-patient-meta-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-top: 10px;
+  flex-wrap: wrap;
+  font-size: 0.82rem;
+}
+
+.hsc-meta-link {
+  color: #38bdf8;
+  text-decoration: none;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.hsc-meta-text {
+  color: var(--text-muted);
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+/* 3. Divider */
+.hsc-divider {
+  height: 1px;
+  background: linear-gradient(90deg, transparent 0%, var(--border-color) 20%, var(--border-color) 80%, transparent 100%);
+  margin: 12px 0 10px 0;
+}
+
+/* 4. Bottom Row */
+.hsc-bottom {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.hsc-tags {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.hsc-tag-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.76rem;
+  font-weight: 700;
+  color: #bae6fd;
+  background: rgba(2, 132, 199, 0.16);
+  border: 1px solid rgba(2, 132, 199, 0.3);
+  padding: 3px 9px;
+  border-radius: var(--radius-pill);
+}
+
+.hsc-time-tag {
+  font-size: 0.76rem;
+  color: var(--text-muted);
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.hsc-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.btn-hero-sheet {
+  background: var(--primary-gradient) !important;
+  color: #ffffff !important;
+  border: none !important;
+  padding: 6px 14px !important;
+  border-radius: var(--radius-pill) !important;
+  font-weight: 800 !important;
+  font-size: 0.8rem !important;
+  box-shadow: 0 4px 12px rgba(2, 132, 199, 0.3) !important;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+}
+
+.btn-hero-sheet:hover {
+  box-shadow: 0 6px 16px rgba(2, 132, 199, 0.45) !important;
+  transform: translateY(-1px);
+}
+
+.btn-icon-action {
+  width: 34px !important;
+  height: 34px !important;
+  padding: 0 !important;
+  border-radius: var(--radius-pill) !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  font-size: 0.85rem !important;
+}
+
+.btn-psc-whatsapp {
+  width: 34px !important;
+  height: 34px !important;
+  padding: 0 !important;
+  border-radius: var(--radius-pill) !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  font-size: 0.95rem !important;
+}
+
+.empty-state-card {
+  padding: 24px;
+  text-align: center;
+  color: var(--text-muted);
+  font-weight: 600;
+  font-size: 0.9rem;
+  background: var(--bg-glass-card);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--glass-border);
+}
