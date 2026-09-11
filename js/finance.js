@@ -900,22 +900,22 @@ export class FinanceManager {
             : `${escapeHTML(s.bodyPartsCount || 1)} أعضاء`;
 
           return `
-            <tr>
-              <td style="font-weight: 700;">${safePatient}</td>
-              <td>${safeDoc}</td>
-              <td>
+            <tr class="recent-session-card-row">
+              <td class="col-patient" style="font-weight: 700;">${safePatient}</td>
+              <td class="col-doc">${safeDoc}</td>
+              <td class="col-pay">
                 ${s.payType === 'cash' 
                   ? '<span class="badge badge-cash"><i class="fa-solid fa-money-bill"></i> نقدي</span>' 
                   : (s.contractType === 'direct' 
                     ? `<span class="badge badge-direct"><i class="fa-solid fa-file-contract"></i> ${safeIns}</span>` 
                     : `<span class="badge badge-indirect"><i class="fa-solid fa-handshake"></i> ${safeIns}</span>`)}
               </td>
-              <td>${safeCount}</td>
-              <td style="font-weight: 700; color: var(--success);">${safeAmount} ج.م</td>
-              <td style="font-size: 0.8rem; color: var(--text-muted);">${safeRecAt}</td>
-              <td class="cell-action">
+              <td class="col-parts">${safeCount}</td>
+              <td class="col-amount" style="font-weight: 700; color: var(--success);">${safeAmount} ج.م</td>
+              <td class="col-time" style="font-size: 0.8rem; color: var(--text-muted);">${safeRecAt}</td>
+              <td class="col-action cell-action">
                 ${s.patientId ? `
-                  <button type="button" class="btn btn-outline btn-sm btn-session-sheet-action" onclick="patientsManager.openPatientSheet('${escapeHTML(s.patientId)}')" style="border-radius: var(--radius-pill); font-size: 0.78rem; padding: 4px 12px;" title="فتح الشيت الطبي">
+                  <button type="button" class="btn btn-primary btn-sm btn-session-sheet-action" onclick="patientsManager.openPatientSheet('${escapeHTML(s.patientId)}')" style="border-radius: var(--radius-pill); font-size: 0.78rem; padding: 5px 14px;" title="فتح الشيت الطبي">
                     <i class="fa-solid fa-file-waveform"></i> الشيت الطبي
                   </button>
                 ` : ''}

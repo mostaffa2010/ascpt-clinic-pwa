@@ -542,25 +542,25 @@ export class PatientsManager {
       const cleanWaPhone = (p.phone || '').replace(/[^0-9]/g, '').replace(/^0/, '20');
 
       return `
-        <tr>
-          <td style="font-weight: 800; color: var(--primary); cursor: ${canAccessSheet ? 'pointer' : 'default'}; white-space: nowrap;"
+        <tr class="patient-card-row">
+          <td class="col-pat-name" style="font-weight: 800; color: var(--primary); cursor: ${canAccessSheet ? 'pointer' : 'default'}; white-space: nowrap;"
               class="${canAccessSheet ? 'patient-sheet-link' : 'btn-edit-patient'}"
               data-patient-id="${safeId}"
               onclick="patientsManager.openPatientSheet('${safeId}')"
               title="${canAccessSheet ? 'اضغط لفتح الشيت الطبي' : 'تعديل بيانات المريض'}">
             <i class="fa-solid ${canAccessSheet ? 'fa-file-waveform' : 'fa-user'}" style="margin-left: 6px;"></i> ${safeName}
           </td>
-          <td style="white-space: nowrap;">${safeAge} سنة</td>
-          <td style="white-space: nowrap;">
+          <td class="col-pat-age" style="white-space: nowrap;">${safeAge} سنة</td>
+          <td class="col-pat-phone" style="white-space: nowrap;">
             <a href="tel:${safePhone}" style="color: var(--primary); text-decoration: none; white-space: nowrap; direction: ltr; display: inline-flex; align-items: center; gap: 4px;">
               <i class="fa-solid fa-phone" style="font-size: 0.75rem;"></i> <bdi dir="ltr">${safePhone}</bdi>
             </a>
           </td>
-          <td style="white-space: nowrap;">${safeAddress}</td>
-          <td style="white-space: nowrap;"><span style="font-weight: 600; color: var(--text-main);">${safeDoctor}</span></td>
-          <td style="white-space: nowrap;">${billingBadge}</td>
-          <td style="font-size: 0.8rem; color: var(--text-muted); white-space: nowrap;">${safeEditor}</td>
-          <td style="white-space: nowrap;">
+          <td class="col-pat-address" style="white-space: nowrap;">${safeAddress}</td>
+          <td class="col-pat-doc" style="white-space: nowrap;"><span style="font-weight: 600; color: var(--text-main);">${safeDoctor}</span></td>
+          <td class="col-pat-billing" style="white-space: nowrap;">${billingBadge}</td>
+          <td class="col-pat-editor" style="font-size: 0.8rem; color: var(--text-muted); white-space: nowrap;">${safeEditor}</td>
+          <td class="col-pat-actions" style="white-space: nowrap;">
             <div style="display: flex; gap: 6px; align-items: center; flex-wrap: nowrap;">
               ${canAccessSheet ? `
                 <button type="button" class="btn btn-primary btn-sm btn-patient-sheet-action" data-patient-id="${safeId}" title="شيت العلاج الطبيعي">

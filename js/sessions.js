@@ -1377,14 +1377,14 @@ export class SessionsManager {
         : '';
 
       return `
-        <tr>
-          <td style="font-weight: 700;">${safePatient} ${examTag}</td>
-          <td style="text-align: center; white-space: nowrap;">${sessionNumBadge}</td>
-          <td>${safeDoc}</td>
-          <td>${payBadge}</td>
-          <td>${partsCell}</td>
-          <td style="font-weight: 700; color: var(--success);">${safeAmount} ج.م</td>
-          <td style="font-size: 0.8rem; color: var(--text-muted);">${safeRecBy} (${safeRecAt})</td>
+        <tr class="session-card-row">
+          <td class="col-patient" style="font-weight: 700;">${safePatient} ${examTag}</td>
+          <td class="col-session-num" style="text-align: center; white-space: nowrap;">${sessionNumBadge}</td>
+          <td class="col-doc">${safeDoc}</td>
+          <td class="col-pay">${payBadge}</td>
+          <td class="col-parts">${partsCell}</td>
+          <td class="col-amount" style="font-weight: 700; color: var(--success);">${safeAmount} ج.م</td>
+          <td class="col-time" style="font-size: 0.8rem; color: var(--text-muted);">${safeRecAt}</td>
           <td class="cell-action">
             <div class="session-card-actions-row" style="display: flex; gap: 6px; align-items: center; flex-wrap: wrap;">
               ${s.patientId ? `

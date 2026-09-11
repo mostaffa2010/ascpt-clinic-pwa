@@ -35,6 +35,12 @@
   --shadow-lg: 0 16px 32px -4px rgba(15, 23, 42, 0.09), 0 6px 12px -4px rgba(15, 23, 42, 0.04);
   --shadow-glow: 0 8px 22px -4px rgba(2, 132, 199, 0.3);
   
+  --bg-glass: rgba(255, 255, 255, 0.78);
+  --bg-glass-card: rgba(255, 255, 255, 0.82);
+  --bg-glass-subtle: rgba(241, 245, 249, 0.65);
+  --glass-border: rgba(255, 255, 255, 0.7);
+  --glass-blur: blur(20px) saturate(180%);
+  --glass-shadow: 0 8px 32px 0 rgba(2, 132, 199, 0.08);
   --sidebar-width: 260px;
   --bottom-nav-height: 68px;
   --topbar-height: 60px;
@@ -1990,6 +1996,12 @@ body.not-authenticated #modal-auth #btn-cancel-login {
 
 /* ================= Modern Dark Theme Tokens ================= */
 [data-theme="dark"] {
+  --bg-glass: rgba(15, 23, 42, 0.75);
+  --bg-glass-card: rgba(30, 41, 59, 0.72);
+  --bg-glass-subtle: rgba(15, 23, 42, 0.65);
+  --glass-border: rgba(255, 255, 255, 0.1);
+  --glass-blur: blur(20px) saturate(180%);
+  --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.45);
   --primary: #38bdf8;
   --primary-hover: #0ea5e9;
   --primary-light: rgba(56, 189, 248, 0.15);
@@ -3247,5 +3259,429 @@ body.not-authenticated #modal-auth #btn-cancel-login {
     display: flex !important;
     flex-wrap: wrap !important;
     gap: 6px !important;
+  }
+}
+
+/* ================= Deep Glassmorphism & Compact 3-Row Card Architecture (v1.4.0-beta.4) ================= */
+
+/* Global Glassmorphic Card Upgrades */
+.card {
+  background: var(--bg-glass-card) !important;
+  backdrop-filter: var(--glass-blur) !important;
+  -webkit-backdrop-filter: var(--glass-blur) !important;
+  border: 1px solid var(--glass-border) !important;
+  box-shadow: var(--glass-shadow) !important;
+}
+
+.stat-box, .stat-card {
+  background: var(--bg-glass-card) !important;
+  backdrop-filter: var(--glass-blur) !important;
+  -webkit-backdrop-filter: var(--glass-blur) !important;
+  border: 1px solid var(--glass-border) !important;
+  box-shadow: var(--glass-shadow) !important;
+}
+
+.top-header {
+  background: var(--bg-glass) !important;
+  backdrop-filter: var(--glass-blur) !important;
+  -webkit-backdrop-filter: var(--glass-blur) !important;
+  border-bottom: 1px solid var(--glass-border) !important;
+}
+
+.bottom-nav {
+  background: var(--bg-glass) !important;
+  backdrop-filter: var(--glass-blur) !important;
+  -webkit-backdrop-filter: var(--glass-blur) !important;
+  border-top: 1px solid var(--glass-border) !important;
+}
+
+.modal-content {
+  background: var(--bg-glass-card) !important;
+  backdrop-filter: blur(28px) saturate(190%) !important;
+  -webkit-backdrop-filter: blur(28px) saturate(190%) !important;
+  border: 1px solid var(--glass-border) !important;
+  box-shadow: 0 16px 40px 0 rgba(0, 0, 0, 0.35) !important;
+}
+
+.quick-action-btn {
+  background: var(--bg-glass-card) !important;
+  backdrop-filter: var(--glass-blur) !important;
+  -webkit-backdrop-filter: var(--glass-blur) !important;
+  border: 1px solid var(--glass-border) !important;
+}
+
+/* Subtle background gradient for body to give depth to frosted glass */
+[data-theme="dark"] body {
+  background: radial-gradient(circle at 10% 15%, rgba(2, 132, 199, 0.09) 0%, transparent 45%),
+              radial-gradient(circle at 90% 85%, rgba(67, 56, 202, 0.09) 0%, transparent 45%),
+              #090d16 !important;
+  background-attachment: fixed !important;
+}
+
+body {
+  background: radial-gradient(circle at 10% 15%, rgba(2, 132, 199, 0.05) 0%, transparent 45%),
+              radial-gradient(circle at 90% 85%, rgba(14, 165, 233, 0.05) 0%, transparent 45%),
+              #f8fafc;
+  background-attachment: fixed;
+}
+
+/* --- MOBILE SPECIFIC: COMPACT 3-ROW CARDS & ZERO CONTAINER BLOAT --- */
+@media (max-width: 767px) {
+  /* 1. Complete dissolution of outer card borders and padding on mobile */
+  #card-dashboard-recent,
+  #card-sessions-today,
+  #card-patients-directory,
+  .card:has(#dashboard-recent-table),
+  .card:has(#doctor-personal-table),
+  .card:has(#sessions-today-tbody),
+  .card:has(#patients-tbody) {
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+    margin-bottom: 12px !important;
+  }
+
+  #card-dashboard-recent .card-header,
+  #card-sessions-today .card-header,
+  #card-patients-directory .card-header {
+    padding: 4px 2px 10px 2px !important;
+    border-bottom: none !important;
+  }
+
+  #card-dashboard-recent .table-responsive,
+  #card-sessions-today .table-responsive,
+  #card-patients-directory .table-responsive,
+  .table-responsive:has(#dashboard-recent-table),
+  .table-responsive:has(#sessions-today-tbody),
+  .table-responsive:has(#patients-tbody) {
+    border: none !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    overflow: visible !important;
+    padding: 0 !important;
+  }
+
+  .data-table thead {
+    display: none !important;
+  }
+
+  /* 2. SESSIONS TODAY: COMPACT 3-ROW CARD ARCHITECTURE */
+  .session-card-row {
+    display: grid !important;
+    grid-template-columns: 1fr auto auto !important;
+    grid-template-rows: auto auto auto !important;
+    column-gap: 8px !important;
+    row-gap: 5px !important;
+    padding: 12px 14px !important;
+    margin-bottom: 10px !important;
+    border-radius: var(--radius-lg) !important;
+    background: var(--bg-glass-card) !important;
+    backdrop-filter: var(--glass-blur) !important;
+    -webkit-backdrop-filter: var(--glass-blur) !important;
+    border: 1px solid var(--glass-border) !important;
+    box-shadow: 0 4px 16px 0 rgba(0, 0, 0, 0.1) !important;
+    position: relative !important;
+    transition: transform 0.18s ease, box-shadow 0.18s ease !important;
+  }
+
+  .session-card-row:active {
+    transform: scale(0.98) !important;
+  }
+
+  /* Row 1: Patient Name (Right) vs Session Num Badge (Left) */
+  .session-card-row .col-patient {
+    grid-column: 1 / 2 !important;
+    grid-row: 1 / 2 !important;
+    font-size: 1.02rem !important;
+    font-weight: 800 !important;
+    color: var(--text-main) !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 6px !important;
+    padding: 0 !important;
+    border: none !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+  }
+
+  .session-card-row .col-session-num {
+    grid-column: 2 / 4 !important;
+    grid-row: 1 / 2 !important;
+    justify-self: end !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 4px !important;
+    padding: 0 !important;
+    border: none !important;
+  }
+
+  /* Row 2: Doctor (Col 1) + Parts Badge (Col 2) + Amount (Col 3) */
+  .session-card-row .col-doc {
+    grid-column: 1 / 2 !important;
+    grid-row: 2 / 3 !important;
+    font-size: 0.8rem !important;
+    color: var(--text-muted) !important;
+    font-weight: 600 !important;
+    display: flex !important;
+    align-items: center !important;
+    padding: 0 !important;
+    border: none !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+  }
+  .session-card-row .col-doc::before {
+    content: 'طبيب: ';
+    font-weight: 500;
+  }
+
+  .session-card-row .col-pay {
+    display: none !important;
+  }
+
+  .session-card-row .col-parts {
+    grid-column: 2 / 3 !important;
+    grid-row: 2 / 3 !important;
+    justify-self: end !important;
+    display: flex !important;
+    align-items: center !important;
+    padding: 0 !important;
+    border: none !important;
+  }
+
+  .session-card-row .col-amount {
+    grid-column: 3 / 4 !important;
+    grid-row: 2 / 3 !important;
+    justify-self: end !important;
+    font-size: 1.12rem !important;
+    font-weight: 800 !important;
+    color: var(--success) !important;
+    padding: 0 !important;
+    border: none !important;
+    line-height: 1 !important;
+  }
+
+  /* Row 3: Recorded Time (Right) vs Action Buttons (Left) */
+  .session-card-row .col-time {
+    grid-column: 1 / 2 !important;
+    grid-row: 3 / 4 !important;
+    font-size: 0.74rem !important;
+    color: var(--text-muted) !important;
+    display: flex !important;
+    align-items: center !important;
+    padding: 6px 0 0 0 !important;
+    border: none !important;
+    border-top: 1px dashed var(--border-color) !important;
+  }
+
+  .session-card-row .cell-action {
+    grid-column: 2 / 4 !important;
+    grid-row: 3 / 4 !important;
+    justify-self: end !important;
+    display: flex !important;
+    align-items: center !important;
+    padding: 6px 0 0 0 !important;
+    border: none !important;
+    border-top: 1px dashed var(--border-color) !important;
+  }
+
+  /* 3. RECENT SESSIONS ON DASHBOARD: COMPACT 3-ROW CARD */
+  .recent-session-card-row {
+    display: grid !important;
+    grid-template-columns: 1fr auto auto !important;
+    grid-template-rows: auto auto auto !important;
+    column-gap: 8px !important;
+    row-gap: 5px !important;
+    padding: 12px 14px !important;
+    margin-bottom: 10px !important;
+    border-radius: var(--radius-lg) !important;
+    background: var(--bg-glass-card) !important;
+    backdrop-filter: var(--glass-blur) !important;
+    -webkit-backdrop-filter: var(--glass-blur) !important;
+    border: 1px solid var(--glass-border) !important;
+    box-shadow: 0 4px 16px 0 rgba(0, 0, 0, 0.1) !important;
+    transition: transform 0.18s ease, box-shadow 0.18s ease !important;
+  }
+
+  .recent-session-card-row .col-patient {
+    grid-column: 1 / 2 !important;
+    grid-row: 1 / 2 !important;
+    font-size: 1.02rem !important;
+    font-weight: 800 !important;
+    color: var(--text-main) !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 6px !important;
+    padding: 0 !important;
+    border: none !important;
+  }
+
+  .recent-session-card-row .col-pay {
+    grid-column: 2 / 4 !important;
+    grid-row: 1 / 2 !important;
+    justify-self: end !important;
+    display: flex !important;
+    align-items: center !important;
+    padding: 0 !important;
+    border: none !important;
+  }
+
+  .recent-session-card-row .col-doc {
+    grid-column: 1 / 2 !important;
+    grid-row: 2 / 3 !important;
+    font-size: 0.8rem !important;
+    color: var(--text-muted) !important;
+    font-weight: 600 !important;
+    display: flex !important;
+    align-items: center !important;
+    padding: 0 !important;
+    border: none !important;
+  }
+  .recent-session-card-row .col-doc::before {
+    content: 'طبيب: ';
+    font-weight: 500;
+  }
+
+  .recent-session-card-row .col-parts {
+    grid-column: 2 / 3 !important;
+    grid-row: 2 / 3 !important;
+    justify-self: end !important;
+    display: flex !important;
+    align-items: center !important;
+    padding: 0 !important;
+    border: none !important;
+    font-size: 0.78rem !important;
+    color: var(--text-muted) !important;
+  }
+
+  .recent-session-card-row .col-amount {
+    grid-column: 3 / 4 !important;
+    grid-row: 2 / 3 !important;
+    justify-self: end !important;
+    font-size: 1.12rem !important;
+    font-weight: 800 !important;
+    color: var(--success) !important;
+    padding: 0 !important;
+    border: none !important;
+    line-height: 1 !important;
+  }
+
+  .recent-session-card-row .col-time {
+    grid-column: 1 / 2 !important;
+    grid-row: 3 / 4 !important;
+    font-size: 0.74rem !important;
+    color: var(--text-muted) !important;
+    display: flex !important;
+    align-items: center !important;
+    padding: 6px 0 0 0 !important;
+    border: none !important;
+    border-top: 1px dashed var(--border-color) !important;
+  }
+
+  .recent-session-card-row .col-action {
+    grid-column: 2 / 4 !important;
+    grid-row: 3 / 4 !important;
+    justify-self: end !important;
+    display: flex !important;
+    align-items: center !important;
+    padding: 6px 0 0 0 !important;
+    border: none !important;
+    border-top: 1px dashed var(--border-color) !important;
+  }
+
+  /* 4. PATIENT DIRECTORY: COMPACT 3-ROW CARD */
+  .patient-card-row {
+    display: grid !important;
+    grid-template-columns: 1fr auto !important;
+    grid-template-rows: auto auto auto !important;
+    column-gap: 8px !important;
+    row-gap: 6px !important;
+    padding: 14px 16px !important;
+    margin-bottom: 12px !important;
+    border-radius: var(--radius-lg) !important;
+    background: var(--bg-glass-card) !important;
+    backdrop-filter: var(--glass-blur) !important;
+    -webkit-backdrop-filter: var(--glass-blur) !important;
+    border: 1px solid var(--glass-border) !important;
+    box-shadow: 0 4px 16px 0 rgba(0, 0, 0, 0.1) !important;
+    transition: transform 0.18s ease, box-shadow 0.18s ease !important;
+  }
+
+  /* Row 1: Patient Name (Right) vs Billing Badge (Left) */
+  .patient-card-row .col-pat-name {
+    grid-column: 1 / 2 !important;
+    grid-row: 1 / 2 !important;
+    font-size: 1.05rem !important;
+    font-weight: 800 !important;
+    color: var(--primary) !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 6px !important;
+    padding: 0 !important;
+    border: none !important;
+  }
+
+  .patient-card-row .col-pat-billing {
+    grid-column: 2 / 3 !important;
+    grid-row: 1 / 2 !important;
+    justify-self: end !important;
+    display: flex !important;
+    align-items: center !important;
+    padding: 0 !important;
+    border: none !important;
+  }
+
+  /* Row 2: Phone with Phone Icon (Right) vs Age & Doctor (Left) */
+  .patient-card-row .col-pat-phone {
+    grid-column: 1 / 2 !important;
+    grid-row: 2 / 3 !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 6px !important;
+    padding: 0 !important;
+    border: none !important;
+    font-size: 0.88rem !important;
+  }
+
+  .patient-card-row .col-pat-doc {
+    display: none !important;
+  }
+
+  .patient-card-row .col-pat-address {
+    display: none !important;
+  }
+
+  .patient-card-row .col-pat-editor {
+    display: none !important;
+  }
+
+  .patient-card-row .col-pat-age {
+    grid-column: 2 / 3 !important;
+    grid-row: 2 / 3 !important;
+    justify-self: end !important;
+    font-size: 0.82rem !important;
+    color: var(--text-muted) !important;
+    font-weight: 700 !important;
+    padding: 0 !important;
+    border: none !important;
+  }
+
+  /* Row 3: Action Buttons across bottom */
+  .patient-card-row .col-pat-actions {
+    grid-column: 1 / 3 !important;
+    grid-row: 3 / 4 !important;
+    border-top: 1px dashed var(--border-color) !important;
+    padding: 8px 0 0 0 !important;
+    border-bottom: none !important;
+  }
+
+  .patient-card-row .col-pat-actions > div {
+    display: flex !important;
+    gap: 6px !important;
+    align-items: center !important;
+    flex-wrap: wrap !important;
+    justify-content: flex-end !important;
   }
 }
