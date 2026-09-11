@@ -1,4 +1,4 @@
-import { escapeHTML, getLocalDateStr } from './utils.js';
+import { escapeHTML, getLocalDateStr, getDoctorColor } from './utils.js';
 // ========================================================
 // PhysioFlow - Patients Management Module
 // ========================================================
@@ -634,11 +634,11 @@ export class PatientsManager {
         const approvedVisits = p.approvedSessions || 12;
         const approvedParts = p.approvedBodyParts || 1;
         if (p.billing === 'cash') {
-          billingBadge = `<span class="badge badge-cash"><i class="fa-solid fa-money-bill"></i> نقدي</span>`;
+          billingBadge = `<span class="badge badge-cash" style="font-size: 0.72rem; padding: 2px 7px; font-weight: 700; white-space: nowrap;"><i class="fa-solid fa-money-bill"></i> نقدي</span>`;
         } else if (p.contractType === 'direct') {
-          billingBadge = `<span class="badge badge-direct" title="${approvedVisits} زيارة معتمدة (${approvedParts} أعضاء)"><i class="fa-solid fa-file-contract"></i> ${safeComp}</span>`;
+          billingBadge = `<span class="badge badge-direct" style="font-size: 0.72rem; padding: 2px 7px; font-weight: 700; max-width: 135px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; display: inline-flex; align-items: center; gap: 3px;" title="${safeComp} - ${approvedVisits} زيارة (${approvedParts} أعضاء)"><i class="fa-solid fa-file-contract"></i> ${safeComp}</span>`;
         } else {
-          billingBadge = `<span class="badge badge-indirect" title="${approvedVisits} زيارة معتمدة (${approvedParts} أعضاء)"><i class="fa-solid fa-handshake"></i> ${safeComp}</span>`;
+          billingBadge = `<span class="badge badge-indirect" style="font-size: 0.72rem; padding: 2px 7px; font-weight: 700; max-width: 135px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; display: inline-flex; align-items: center; gap: 3px;" title="${safeComp} - ${approvedVisits} زيارة (${approvedParts} أعضاء)"><i class="fa-solid fa-handshake"></i> ${safeComp}</span>`;
         }
 
         const safeId = escapeHTML(p.id);
@@ -646,59 +646,76 @@ export class PatientsManager {
         const safeAge = escapeHTML(p.age);
         const safePhone = escapeHTML(p.phone);
         const safeAddress = escapeHTML(p.address || '');
-        const safeDoctor = escapeHTML(p.doctor);
-        const safeEditor = escapeHTML(p.lastUpdatedBy || p.createdBy || '');
+        const safeDoctor = escapeHTML(p.doctor || 'طبيب المركز');
+        const cleanDocName = (p.doctor || 'طبيب المركز').replace(/^د\.\s*/, '');
+        const docColor = getDoctorColor(p.doctorId || p.doctor || 'default');
         const cleanWaPhone = (p.phone || '').replace(/[^0-9]/g, '').replace(/^0/, '20');
 
         return `
-          <div class="hero-styled-card hero-patient-card">
-            <div class="hsc-top">
-              <div class="hsc-patient-meta" style="width: 100%;">
-                <div class="hsc-avatar patient-avatar"><i class="fa-solid fa-id-card-clip"></i></div>
-                <div class="hsc-name-box" style="flex: 1;">
-                  <div class="hsc-name-row" style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
-                    <span class="hsc-patient-name" style="cursor: pointer;" onclick="patientsManager.openPatientSheet('${safeId}')">${safeName}</span>
-                    <span class="hsc-age-badge">${safeAge} سنة</span>
-                    <span class="hsc-patient-billing-box">${billingBadge}</span>
+          <div class="hero-styled-card hero-patient-card" style="padding: 10px 12px; margin-bottom: 9px; border-radius: 13px;">
+            <!-- Row 1: Identity (Right) & Action Hub (Left - Formerly Empty Space) -->
+            <div style="display: flex; align-items: flex-start; justify-content: space-between; gap: 8px;">
+              <!-- Right Info: Avatar, Name, Age, Doctor Badge -->
+              <div style="display: flex; align-items: center; gap: 8px; min-width: 0; flex: 1;">
+                <div class="hsc-avatar patient-avatar" style="width: 36px; height: 36px; font-size: 0.98rem; flex-shrink: 0; border-radius: 9px;">
+                  <i class="fa-solid fa-id-card-clip"></i>
+                </div>
+                <div style="display: flex; flex-direction: column; gap: 2px; min-width: 0;">
+                  <div style="display: flex; align-items: center; gap: 5px; flex-wrap: wrap;">
+                    <span class="hsc-patient-name" style="cursor: pointer; font-size: 0.92rem; font-weight: 800; line-height: 1.25;" onclick="patientsManager.openPatientSheet('${safeId}')" title="اضغط لفتح الشيت الطبي">${safeName}</span>
+                    <span class="hsc-age-badge" style="font-size: 0.70rem; padding: 1px 5px; border-radius: 999px;">${safeAge} سنة</span>
                   </div>
-                  <span class="hsc-doc-sub"><i class="fa-solid fa-user-doctor"></i> ${safeDoctor}</span>
+                  <div style="display: flex; align-items: center; gap: 5px; margin-top: 1px;">
+                    <span style="display: inline-flex; align-items: center; gap: 3px; font-size: 0.73rem; font-weight: 700; color: ${docColor.color}; background: ${docColor.bg}; border: 1px solid ${docColor.border}; padding: 1px 6px; border-radius: 999px; white-space: nowrap;">
+                      <i class="fa-solid fa-user-doctor"></i> د. ${escapeHTML(cleanDocName)}
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Left Action Hub: Insurance Badge on Top, Quick Actions Below -->
+              <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 5px; flex-shrink: 0;">
+                <div>${billingBadge}</div>
+                <div style="display: flex; align-items: center; gap: 4px;">
+                  <button type="button" class="btn btn-outline btn-sm btn-quick-attend" onclick="patientsManager.quickLogSession('${safeId}')" style="color: #d97706; background: rgba(245, 158, 11, 0.12); border: 1.2px solid rgba(245, 158, 11, 0.4); font-weight: 800; gap: 3px; display: inline-flex; align-items: center; border-radius: 999px; padding: 3px 8px; font-size: 0.74rem;" title="تسجيل جلسة سريعة لهذا المريض">
+                    <i class="fa-solid fa-bolt" style="color: #f59e0b;"></i> <span>جلسة</span>
+                  </button>
+                  ${canAccessSheet ? `
+                    <button type="button" class="btn btn-primary btn-sm btn-hero-sheet btn-patient-sheet-action" onclick="patientsManager.openPatientSheet('${safeId}')" style="padding: 3px 10px; font-size: 0.74rem; border-radius: 999px; gap: 3px;" title="فتح الشيت الطبي">
+                      <i class="fa-solid fa-file-waveform"></i> <span>الشيت</span>
+                    </button>
+                  ` : ''}
                 </div>
               </div>
             </div>
 
-            <div class="hsc-patient-meta-row">
-              <a href="tel:${safePhone}" class="hsc-meta-link">
-                <i class="fa-solid fa-phone"></i> <bdi dir="ltr">${safePhone}</bdi>
-              </a>
-              ${safeAddress && safeAddress !== '-' ? `
-                <span class="hsc-meta-text"><i class="fa-solid fa-location-dot"></i> ${safeAddress}</span>
-              ` : ''}
-            </div>
-
-            <div class="hsc-divider"></div>
-
-            <div class="hsc-bottom" style="display: flex; align-items: center; justify-content: space-between; gap: 8px; width: 100%;">
-              <div>
-                ${canAccessSheet ? `
-                  <button type="button" class="btn btn-primary btn-sm btn-hero-sheet btn-patient-sheet-action" onclick="patientsManager.openPatientSheet('${safeId}')" title="فتح الشيت الطبي">
-                    <i class="fa-solid fa-file-waveform"></i> الشيت الطبي
-                  </button>
+            <!-- Row 2: Contact Info (Right) & Utility Icons (Left) -->
+            <div style="display: flex; align-items: center; justify-content: space-between; gap: 6px; margin-top: 7px; padding-top: 6px; border-top: 1px solid var(--border-color);">
+              <!-- Right: Phone & Address -->
+              <div style="display: flex; align-items: center; gap: 8px; font-size: 0.76rem; min-width: 0; flex: 1;">
+                <a href="tel:${safePhone}" class="hsc-meta-link" style="font-size: 0.76rem; gap: 4px; white-space: nowrap;">
+                  <i class="fa-solid fa-phone"></i> <bdi dir="ltr">${safePhone}</bdi>
+                </a>
+                ${safeAddress && safeAddress !== '-' ? `
+                  <span class="hsc-meta-text" style="font-size: 0.73rem; gap: 3px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;"><i class="fa-solid fa-location-dot"></i> ${safeAddress}</span>
                 ` : ''}
               </div>
-              <div class="hsc-actions" style="display: flex; align-items: center; gap: 6px; flex-wrap: nowrap;">
-                <button type="button" class="btn btn-outline btn-sm btn-icon-action btn-whatsapp-action" onclick="patientsManager.openWhatsAppTemplates('${cleanWaPhone}', '${safeName}', '${safeDoctor}')" style="color: #10b981; border-color: rgba(16, 185, 129, 0.4);" title="خيارات واتساب الذكية">
-                  <i class="fa-brands fa-whatsapp"></i>
+
+              <!-- Left: Utility Tool Icons (WhatsApp, Docs, Edit, Delete) -->
+              <div style="display: flex; align-items: center; gap: 4px; flex-shrink: 0;">
+                <button type="button" class="btn btn-outline btn-sm btn-icon-action btn-whatsapp-action" onclick="patientsManager.openWhatsAppTemplates('${cleanWaPhone}', '${safeName}', '${safeDoctor}')" style="color: #10b981; border-color: rgba(16, 185, 129, 0.35); width: 28px; height: 28px; padding: 0; display: inline-flex; align-items: center; justify-content: center; border-radius: 50%;" title="خيارات واتساب الذكية">
+                  <i class="fa-brands fa-whatsapp" style="font-size: 0.90rem;"></i>
                 </button>
                 ${!isDoctor ? `
-                  <button type="button" class="btn btn-outline btn-sm btn-icon-action btn-patient-docs" onclick="patientsManager.openPatientDocsModal('${safeId}')" title="المستندات">
+                  <button type="button" class="btn btn-outline btn-sm btn-icon-action btn-patient-docs" onclick="patientsManager.openPatientDocsModal('${safeId}')" style="width: 28px; height: 28px; padding: 0; display: inline-flex; align-items: center; justify-content: center; border-radius: 50%; font-size: 0.76rem;" title="المستندات">
                     <i class="fa-solid fa-file-invoice"></i>
                   </button>
-                  <button type="button" class="btn btn-outline btn-sm btn-icon-action btn-edit-patient" onclick="patientsManager.openEditModal('${safeId}')" title="تعديل">
+                  <button type="button" class="btn btn-outline btn-sm btn-icon-action btn-edit-patient" onclick="patientsManager.openEditModal('${safeId}')" style="width: 28px; height: 28px; padding: 0; display: inline-flex; align-items: center; justify-content: center; border-radius: 50%; font-size: 0.76rem;" title="تعديل">
                     <i class="fa-solid fa-pen-to-square"></i>
                   </button>
                 ` : ''}
                 ${!isDoctor && canDeletePatient ? `
-                  <button type="button" class="btn btn-outline btn-sm btn-icon-action btn-delete-patient" style="color: var(--danger); border-color: rgba(239, 68, 68, 0.35);" onclick="patientsManager.confirmDelete('${safeId}')" title="حذف">
+                  <button type="button" class="btn btn-outline btn-sm btn-icon-action btn-delete-patient" style="color: var(--danger); border-color: rgba(239, 68, 68, 0.35); width: 28px; height: 28px; padding: 0; display: inline-flex; align-items: center; justify-content: center; border-radius: 50%; font-size: 0.76rem;" onclick="patientsManager.confirmDelete('${safeId}')" title="حذف">
                     <i class="fa-solid fa-trash"></i>
                   </button>
                 ` : ''}
