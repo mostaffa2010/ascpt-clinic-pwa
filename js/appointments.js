@@ -179,21 +179,21 @@ export class AppointmentsManager {
     }
   }
 
-  // ================= Doctor's Own Single Column (Doctor Dashboard) =================
+  // ================= Doctor's Own Schedule (Stacked Cards Deck) =================
   async renderForDoctor(doctorUid) {
     const grid = document.getElementById('my-appointments-grid');
     if (!grid) return;
     try {
       await this.loadAll();
-      grid.innerHTML = this.buildDoctorSwipeScheduleHTML(doctorUid);
-      this.initCarouselDotsSync();
+      grid.innerHTML = this.buildDoctorStackedScheduleHTML(doctorUid);
+      this.initDocStackDeck();
     } catch (err) {
       console.error('Appointments (doctor) render error:', err);
       grid.innerHTML = this.buildErrorHTML(err);
     }
   }
 
-  buildDoctorSwipeScheduleHTML(doctorUid) {
+  buildDoctorStackedScheduleHTML(doctorUid) {
     const slotsToRender = (this.slots && this.slots.length > 0) ? this.slots : DEFAULT_APPT_SLOTS;
 
     // Filter only slots where THIS doctor has booked appointments
@@ -219,28 +219,37 @@ export class AppointmentsManager {
     const totalPatients = activeSlots.reduce((acc, curr) => acc + curr.cellAppts.length, 0);
 
     return `
-      <div class="doc-swipe-carousel-wrapper">
-        <div style="display: flex; align-items: center; justify-content: space-between; padding: 2px 6px 10px 6px;">
-          <span style="font-size: 0.84rem; font-weight: 800; color: var(--text-main);">
-            <i class="fa-solid fa-calendar-check" style="color: var(--primary); margin-left: 5px;"></i> ${activeSlots.length} مواعيد مسجلة (${totalPatients} حالات)
+      <div class="doc-stack-wrapper">
+        <div class="doc-stack-header-bar">
+          <span style="font-size: 0.86rem; font-weight: 800; color: var(--text-main);">
+            <i class="fa-solid fa-layer-group" style="color: var(--primary); margin-left: 5px;"></i> ${activeSlots.length} مواعيد (${totalPatients} حالات)
           </span>
-          <span style="font-size: 0.76rem; font-weight: 700; color: var(--primary); display: inline-flex; align-items: center; gap: 4px;">
-            <i class="fa-solid fa-arrow-right-arrow-left"></i> اسحب للتنقل
-          </span>
+          <div style="display: flex; align-items: center; gap: 8px;">
+            ${activeSlots.length > 1 ? `
+            <span id="doc-stack-counter" style="font-size: 0.78rem; font-weight: 800; color: var(--primary); background: rgba(2, 132, 199, 0.12); padding: 2px 10px; border-radius: 999px;">1 من ${activeSlots.length}</span>
+            <button type="button" class="btn btn-outline btn-sm" id="btn-toggle-doc-stack-layout" style="font-size: 0.75rem; padding: 3px 9px; border-radius: 8px; height: 28px;" title="تبديل بين التراكم والقائمة">
+              <i class="fa-solid fa-list" id="icon-stack-toggle"></i>
+            </button>
+            ` : ''}
+          </div>
         </div>
 
-        <div class="doc-swipe-carousel" id="doc-schedule-carousel">
+        <!-- The 3D Overlapping Stack Deck -->
+        <div class="doc-stack-container" id="doc-stack-container">
           ${activeSlots.map(({ slot, cellAppts }, index) => {
             const countLabel = cellAppts.length === 1 ? 'حالة واحدة' : (cellAppts.length === 2 ? 'حالتان' : `${cellAppts.length} حالات`);
 
             return `
-              <div class="hero-styled-card doc-carousel-card" data-card-index="${index}">
+              <div class="hero-styled-card doc-stack-card ${index === 0 ? 'is-active-card' : 'is-peeking-card'}" data-stack-index="${index}">
                 <div class="doc-card-header">
                   <div class="doc-card-time-badge">
                     <i class="fa-regular fa-clock" style="color: var(--primary); font-size: 1.15rem;"></i>
                     <span style="font-weight: 800; font-size: 1.05rem; color: var(--text-main);">${escapeHTML(slot.label)}</span>
                   </div>
-                  <span class="badge badge-primary" style="font-size: 0.78rem; padding: 4px 10px; border-radius: 999px; font-weight: 800;">${countLabel}</span>
+                  <div style="display: flex; align-items: center; gap: 6px;">
+                    <span class="badge badge-primary" style="font-size: 0.78rem; padding: 4px 10px; border-radius: 999px; font-weight: 800;">${countLabel}</span>
+                    <i class="fa-solid fa-chevron-down doc-card-peek-indicator" style="font-size: 0.75rem; color: var(--text-muted);"></i>
+                  </div>
                 </div>
 
                 <div class="hsc-divider" style="margin: 12px 0 14px 0;"></div>
@@ -280,58 +289,176 @@ export class AppointmentsManager {
           }).join('')}
         </div>
 
-        <!-- Carousel Pagination Dots -->
+        <!-- Stack Navigation Controls -->
         ${activeSlots.length > 1 ? `
-        <div class="doc-carousel-dots" id="doc-carousel-dots">
-          ${activeSlots.map((_, i) => `
-            <span class="doc-dot ${i === 0 ? 'active' : ''}" data-dot-index="${i}"></span>
-          `).join('')}
+        <div class="doc-stack-nav-bar" id="doc-stack-nav-bar">
+          <button type="button" class="doc-stack-nav-btn" id="btn-doc-stack-prev">
+            <i class="fa-solid fa-chevron-right"></i> السابق
+          </button>
+
+          <div class="doc-stack-dots" id="doc-stack-dots">
+            ${activeSlots.map((_, i) => `
+              <span class="doc-dot ${i === 0 ? 'active' : ''}" data-dot-index="${i}"></span>
+            `).join('')}
+          </div>
+
+          <button type="button" class="doc-stack-nav-btn" id="btn-doc-stack-next">
+            التالي <i class="fa-solid fa-chevron-left"></i>
+          </button>
         </div>
         ` : ''}
       </div>
     `;
   }
 
-  initCarouselDotsSync() {
-    const carousel = document.getElementById('doc-schedule-carousel');
-    const dotsContainer = document.getElementById('doc-carousel-dots');
-    if (!carousel || !dotsContainer) return;
+  initDocStackDeck() {
+    const container = document.getElementById('doc-stack-container');
+    if (!container) return;
+    const cards = Array.from(container.querySelectorAll('.doc-stack-card'));
+    if (!cards.length) return;
 
-    carousel.addEventListener('scroll', () => {
-      const cards = carousel.querySelectorAll('.doc-carousel-card');
-      const dots = dotsContainer.querySelectorAll('.doc-dot');
-      if (!cards.length || !dots.length) return;
+    this.currentDocStackIndex = 0;
+    this.isDocStackListMode = false;
 
-      const carouselRect = carousel.getBoundingClientRect();
-      const carouselCenter = carouselRect.left + carouselRect.width / 2;
-      let minDistance = Infinity;
-      let activeIndex = 0;
+    const updatePositions = (newIndex = 0) => {
+      if (this.isDocStackListMode) return;
+      this.currentDocStackIndex = Math.max(0, Math.min(newIndex, cards.length - 1));
+
+      let activeHeight = 170;
 
       cards.forEach((card, idx) => {
-        const cardRect = card.getBoundingClientRect();
-        const cardCenter = cardRect.left + cardRect.width / 2;
-        const dist = Math.abs(cardCenter - carouselCenter);
-        if (dist < minDistance) {
-          minDistance = dist;
-          activeIndex = idx;
+        const diff = idx - this.currentDocStackIndex;
+
+        if (diff === 0) {
+          card.style.transform = 'translate3d(0, 0, 0) scale(1)';
+          card.style.zIndex = '12';
+          card.style.opacity = '1';
+          card.style.pointerEvents = 'auto';
+          card.classList.add('is-active-card');
+          card.classList.remove('is-peeking-card', 'is-passed-card');
+          activeHeight = Math.max(activeHeight, card.offsetHeight);
+        } else if (diff === 1) {
+          card.style.transform = 'translate3d(0, 32px, 0) scale(0.96)';
+          card.style.zIndex = '10';
+          card.style.opacity = '0.88';
+          card.style.pointerEvents = 'auto';
+          card.classList.add('is-peeking-card');
+          card.classList.remove('is-active-card', 'is-passed-card');
+        } else if (diff === 2) {
+          card.style.transform = 'translate3d(0, 60px, 0) scale(0.92)';
+          card.style.zIndex = '8';
+          card.style.opacity = '0.70';
+          card.style.pointerEvents = 'auto';
+          card.classList.add('is-peeking-card');
+          card.classList.remove('is-active-card', 'is-passed-card');
+        } else if (diff > 2) {
+          card.style.transform = 'translate3d(0, 75px, 0) scale(0.88)';
+          card.style.zIndex = '6';
+          card.style.opacity = '0';
+          card.style.pointerEvents = 'none';
+          card.classList.remove('is-active-card', 'is-peeking-card');
+        } else {
+          card.style.transform = 'translate3d(0, -65px, 0) scale(0.92)';
+          card.style.zIndex = '4';
+          card.style.opacity = '0';
+          card.style.pointerEvents = 'none';
+          card.classList.add('is-passed-card');
+          card.classList.remove('is-active-card', 'is-peeking-card');
         }
       });
 
-      dots.forEach((dot, idx) => {
-        if (idx === activeIndex) dot.classList.add('active');
-        else dot.classList.remove('active');
-      });
-    }, { passive: true });
+      const peekExtra = cards.length > 2 ? 72 : (cards.length === 2 ? 42 : 10);
+      container.style.minHeight = `${activeHeight + peekExtra}px`;
 
-    dotsContainer.addEventListener('click', (e) => {
+      // Update dots & counter
+      const dots = document.querySelectorAll('#doc-stack-dots .doc-dot');
+      dots.forEach((d, i) => {
+        if (i === this.currentDocStackIndex) d.classList.add('active');
+        else d.classList.remove('active');
+      });
+
+      const counterEl = document.getElementById('doc-stack-counter');
+      if (counterEl) {
+        counterEl.textContent = `${this.currentDocStackIndex + 1} من ${cards.length}`;
+      }
+    };
+
+    // Card tap to bring to front
+    cards.forEach((card, idx) => {
+      card.addEventListener('click', (e) => {
+        if (this.isDocStackListMode) return;
+        if (idx !== this.currentDocStackIndex) {
+          e.stopPropagation();
+          updatePositions(idx);
+        }
+      });
+    });
+
+    // Navigation buttons
+    document.getElementById('btn-doc-stack-next')?.addEventListener('click', () => {
+      updatePositions(this.currentDocStackIndex + 1);
+    });
+
+    document.getElementById('btn-doc-stack-prev')?.addEventListener('click', () => {
+      updatePositions(this.currentDocStackIndex - 1);
+    });
+
+    // Dots click
+    document.getElementById('doc-stack-dots')?.addEventListener('click', (e) => {
       const dot = e.target.closest('.doc-dot');
       if (!dot) return;
       const idx = parseInt(dot.getAttribute('data-dot-index'), 10);
-      const targetCard = carousel.querySelector(`[data-card-index="${idx}"]`);
-      if (targetCard) {
-        targetCard.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+      updatePositions(idx);
+    });
+
+    // Touch Swipe on container
+    let touchStartY = 0;
+    let touchStartX = 0;
+    container.addEventListener('touchstart', (e) => {
+      if (this.isDocStackListMode) return;
+      touchStartY = e.touches[0].clientY;
+      touchStartX = e.touches[0].clientX;
+    }, { passive: true });
+
+    container.addEventListener('touchend', (e) => {
+      if (this.isDocStackListMode) return;
+      const deltaY = e.changedTouches[0].clientY - touchStartY;
+      const deltaX = e.changedTouches[0].clientX - touchStartX;
+
+      if (Math.abs(deltaY) > Math.abs(deltaX)) {
+        // Vertical swipe
+        if (deltaY < -40) updatePositions(this.currentDocStackIndex + 1);
+        else if (deltaY > 40) updatePositions(this.currentDocStackIndex - 1);
+      } else {
+        // Horizontal swipe (RTL: deltaX > 40 is next, deltaX < -40 is prev)
+        if (deltaX > 40) updatePositions(this.currentDocStackIndex + 1);
+        else if (deltaX < -40) updatePositions(this.currentDocStackIndex - 1);
+      }
+    }, { passive: true });
+
+    // Toggle Stack vs List Mode
+    document.getElementById('btn-toggle-doc-stack-layout')?.addEventListener('click', () => {
+      this.isDocStackListMode = !this.isDocStackListMode;
+      const icon = document.getElementById('icon-stack-toggle');
+      if (this.isDocStackListMode) {
+        container.classList.add('is-list-layout');
+        if (icon) icon.className = 'fa-solid fa-layer-group';
+        cards.forEach((card) => {
+          card.style.transform = '';
+          card.style.opacity = '1';
+          card.style.zIndex = '';
+          card.style.pointerEvents = 'auto';
+        });
+        container.style.minHeight = 'auto';
+      } else {
+        container.classList.remove('is-list-layout');
+        if (icon) icon.className = 'fa-solid fa-list';
+        updatePositions(this.currentDocStackIndex);
       }
     });
+
+    // Initial positioning
+    setTimeout(() => updatePositions(0), 40);
   }
 
   buildErrorHTML(err) {
@@ -471,19 +598,11 @@ export class AppointmentsManager {
                 `}
 
                 ${!isDoctorReadOnly ? `
-                <!-- Compact Quick Booking Pills Row (Receptionist & Admin only) -->
-                <div class="appt-quick-booking-container">
-                  <span class="appt-book-title"><i class="fa-solid fa-plus-circle"></i> حجز سرير:</span>
-                  <div class="appt-doc-pills-row">
-                    ${doctorsToShow.map((doc) => {
-                      const cleanDoc = (doc.name || '').replace(/^د\.\s*/, '');
-                      return `
-                        <button type="button" class="btn btn-outline btn-sm appt-doc-booking-pill btn-add-appt" data-add-doctor="${escapeHTML(doc.uid)}" data-add-doctor-name="د. ${escapeHTML(cleanDoc)}" data-add-slot="${escapeHTML(slot.key)}">
-                          د. ${escapeHTML(cleanDoc)}
-                        </button>
-                      `;
-                    }).join('')}
-                  </div>
+                <!-- Single Compact Booking Button (Receptionist & Admin only) -->
+                <div class="appt-quick-booking-container" style="margin-top: 10px;">
+                  <button type="button" class="btn btn-outline btn-sm appt-single-book-btn btn-add-appt" data-add-slot="${escapeHTML(slot.key)}">
+                    <i class="fa-solid fa-plus-circle"></i> حجز سرير في هذه الساعة
+                  </button>
                 </div>` : ''}
               </div>
             </div>
@@ -536,14 +655,36 @@ export class AppointmentsManager {
 
   // ================= Add Appointment Modal =================
   openAddModal(doctorUid, doctorName, timeSlot) {
-    this.pendingDoctorUid = doctorUid;
-    this.pendingDoctorName = doctorName;
+    this.pendingDoctorUid = doctorUid || null;
+    this.pendingDoctorName = doctorName || null;
     this.pendingTimeSlot = timeSlot;
     this.selectedPatientId = null;
     this.selectedPatientName = null;
 
     const slotLabel = (this.slots || []).find((s) => s.key === timeSlot)?.label || timeSlot;
-    document.getElementById('appt-modal-title').textContent = `حجز موعد - د. ${doctorName} - الساعة ${slotLabel}`;
+    const titleEl = document.getElementById('appt-modal-title');
+    if (titleEl) {
+      titleEl.innerHTML = `<i class="fa-solid fa-calendar-plus" style="color: var(--primary);"></i> حجز سرير - الساعة ${escapeHTML(slotLabel)}`;
+    }
+
+    // Populate and sync Doctor Dropdown in modal
+    const docSelect = document.getElementById('appt-doctor-select');
+    if (docSelect) {
+      docSelect.innerHTML = (this.doctors || []).map((d) => {
+        const clean = (d.name || '').replace(/^د\.\s*/, '');
+        const isSel = (doctorUid && d.uid === doctorUid) ? 'selected' : '';
+        return `<option value="${escapeHTML(d.uid)}" ${isSel}>د. ${escapeHTML(clean)}</option>`;
+      }).join('');
+
+      if (!doctorUid && this.doctors && this.doctors.length > 0) {
+        docSelect.value = this.doctors[0].uid;
+        this.pendingDoctorUid = this.doctors[0].uid;
+        this.pendingDoctorName = this.doctors[0].name;
+      }
+      if (this.app?.updateCustomSelectDisplay) {
+        this.app.updateCustomSelectDisplay('appt-doctor-select');
+      }
+    }
 
     const trigger = document.getElementById('appt-patient-picker-trigger');
     if (trigger) trigger.querySelector('.btn-text').textContent = '-- اختر مريض من السجل --';
@@ -632,6 +773,16 @@ export class AppointmentsManager {
   }
 
   async submitAppointment() {
+    const docSelect = document.getElementById('appt-doctor-select');
+    const chosenUid = docSelect ? docSelect.value : this.pendingDoctorUid;
+    const docObj = (this.doctors || []).find((d) => d.uid === chosenUid);
+    const chosenName = docObj ? docObj.name : (this.pendingDoctorName || 'طبيب المركز');
+
+    if (!chosenUid) {
+      this.app.showAlert('من فضلك اختر الطبيب المعالج.', 'بيانات ناقصة', 'warning');
+      return;
+    }
+
     if (!this.selectedPatientId) {
       this.app.showAlert('من فضلك اختر المريض من السجل.', 'بيانات ناقصة', 'warning');
       return;
@@ -639,8 +790,8 @@ export class AppointmentsManager {
 
     try {
       await db.addAppointment({
-        doctorUid: this.pendingDoctorUid,
-        doctorName: this.pendingDoctorName,
+        doctorUid: chosenUid,
+        doctorName: chosenName,
         timeSlot: this.pendingTimeSlot,
         patientId: this.selectedPatientId,
         patientName: this.selectedPatientName,

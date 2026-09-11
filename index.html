@@ -47,7 +47,7 @@
   
 
     <!-- Stylesheets -->
-  <link rel="stylesheet" href="css/style.css?v=1.4.0-beta.13">
+  <link rel="stylesheet" href="css/style.css?v=1.4.0-beta.14">
   <link rel="stylesheet" href="css/print.css" media="print">
 </head>
 <body>
@@ -1935,8 +1935,19 @@
       </div>
       <form id="modal-appointment-form" novalidate>
         <div class="modal-body">
+          <div class="form-group" style="margin-bottom: 14px;" id="form-group-appt-doctor">
+            <label style="display: inline-block; font-size: 0.88rem; font-weight: 700; color: var(--text-main); margin-bottom: 6px;">الطبيب المعالج *</label>
+            <div class="custom-select-wrapper">
+              <select id="appt-doctor-select" class="form-control" style="display: none;" required></select>
+              <button type="button" class="custom-select-btn" id="btn-select-appt-doctor-select" data-open-picker="appt-doctor-select" data-picker-title="اختر الطبيب المعالج للموعد" style="width: 100%;">
+                <span class="btn-text">-- اختر الطبيب المعالج --</span>
+                <i class="fa-solid fa-chevron-down"></i>
+              </button>
+            </div>
+          </div>
+
           <div class="form-group">
-            <label>المريض (من السجل) *</label>
+            <label style="display: inline-block; font-size: 0.88rem; font-weight: 700; color: var(--text-main); margin-bottom: 6px;">المريض (من السجل) *</label>
             <button type="button" class="custom-select-btn" id="appt-patient-picker-trigger" style="width: 100%;">
               <span class="btn-text">-- اختر مريض من السجل --</span>
               <i class="fa-solid fa-magnifying-glass"></i>
