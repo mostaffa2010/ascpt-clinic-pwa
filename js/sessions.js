@@ -860,6 +860,31 @@ export class SessionsManager {
     await this.app.financeManager.loadDailyReport();
   }
 
+
+  toggleQuickBodyPart(partName) {
+    if (!this.selectedBodyParts) this.selectedBodyParts = [];
+    const idx = this.selectedBodyParts.indexOf(partName);
+    if (idx !== -1) {
+      this.selectedBodyParts.splice(idx, 1);
+    } else {
+      this.selectedBodyParts.push(partName);
+    }
+    this.updateBodyPartsPickerButtonPreview(this.selectedBodyParts);
+    this.syncQuickBodyPartButtons();
+  }
+
+  syncQuickBodyPartButtons() {
+    const btns = document.querySelectorAll('.btn-quick-body-part');
+    btns.forEach(b => {
+      const part = b.getAttribute('data-part');
+      if (this.selectedBodyParts && this.selectedBodyParts.includes(part)) {
+        b.classList.add('active');
+      } else {
+        b.classList.remove('active');
+      }
+    });
+  }
+
   // ================= Dynamic Body Parts Custom Multi-Picker =================
   updateBodyPartsPickerButtonPreview(selectedParts = []) {
     this.selectedBodyParts = Array.isArray(selectedParts) ? [...selectedParts] : [];
@@ -869,6 +894,7 @@ export class SessionsManager {
 
     if (badgeEl) badgeEl.textContent = `${this.selectedBodyParts.length} أعضاء`;
     if (countEl) countEl.textContent = this.selectedBodyParts.length;
+    this.syncQuickBodyPartButtons();
 
     if (previewEl) {
       if (this.selectedBodyParts.length === 0) {

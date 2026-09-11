@@ -5,8 +5,8 @@
 
 export const CLINIC_CONFIG = {
  id: 'ascpt-clinic-pwa',
- brandName: 'مركز اسكندرية التخصصي للعلاج الطبيعي',
- shortName: 'مركز اسكندرية التخصصي',
+ brandName: 'مركز الإسكندرية التخصصي للعلاج الطبيعي',
+ shortName: 'مركز الإسكندرية التخصصي',
  englishName: 'Alexandria Specialized Center for Physical Therapy',
  abbreviation: 'ASCPT',
  tagline: 'نظام إدارة مراكز وعيادات العلاج الطبيعي',

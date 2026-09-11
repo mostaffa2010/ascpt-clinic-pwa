@@ -19,7 +19,7 @@
       })();
     </script>
     
-    <title>مركز اسكندرية التخصصي للعلاج الطبيعي (ASCPT)</title>
+    <title>مركز الإسكندرية التخصصي للعلاج الطبيعي (ASCPT)</title>
 
     <!-- PWA Icons & Manifest Configuration -->
     <link rel="manifest" href="./manifest.json">
@@ -47,7 +47,7 @@
   
 
     <!-- Stylesheets -->
-  <link rel="stylesheet" href="css/style.css?v=1.4.0-beta.37">
+  <link rel="stylesheet" href="css/style.css?v=1.4.0-beta.38">
   <link rel="stylesheet" href="css/print.css" media="print">
 </head>
 <body>
@@ -59,7 +59,7 @@
 
   <!-- Printable Clinic Report Header (Visible only when printing) -->
   <div class="print-header">
-    <h1 style="margin: 0 0 2px 0;">مركز اسكندرية التخصصي للعلاج الطبيعي (ASCPT)</h1>
+    <h1 style="margin: 0 0 2px 0;">مركز الإسكندرية التخصصي للعلاج الطبيعي (ASCPT)</h1>
     <p style="font-size: 10pt; color: #0284c7; font-weight: 800; margin: 2px 0;" id="print-report-doctor">د. حسني أحمد الجويلي — إستشاري العلاج الطبيعي والتقويم الحركي للعمود الفقري</p>
     <p style="font-size: 8.5pt; color: #475569; font-weight: 600; margin: 2px 0;" id="print-report-contact">١٧ شارع حسين شيرين - لوران - الإسكندرية | تليفون: 03-5702356 | البريد: algewelyspinecare@yahoo.com</p>
     <p style="font-weight: 700; margin-top: 4px;" id="print-report-subtitle">تقرير إيرادات وحركات الجلسات اليومية</p>
@@ -108,7 +108,7 @@
         <img src="./icons/icon-192.png" alt="ASCPT Logo" style="width: 38px; height: 38px; border-radius: 8px; object-fit: contain; flex-shrink: 0; box-shadow: var(--shadow-sm);">
         <div>
           <h2 style="font-size: 1.15rem; color: var(--primary); font-weight: 800; line-height: 1.2;">ASCPT Clinic</h2>
-          <p style="font-size: 0.72rem; color: var(--text-muted); font-weight: 600;">مركز اسكندرية التخصصي</p>
+          <p style="font-size: 0.72rem; color: var(--text-muted); font-weight: 600;">مركز الإسكندرية التخصصي</p>
         </div>
       </div>
 
@@ -181,7 +181,7 @@
                 <span class="hero-greeting-icon"><i class="fa-solid fa-sparkles"></i></span>
                 <span id="hero-greeting-full">مرحباً بك</span>
               </div>
-              <h2 class="hero-banner-title">مركز اسكندرية التخصصي</h2>
+              <h2 class="hero-banner-title">مركز الإسكندرية التخصصي</h2>
               <p class="hero-banner-sub">Alexandria Specialized Center for Physical Therapy</p>
               
               <div class="hero-banner-footer">
@@ -758,6 +758,15 @@
                     </div>
                     <i class="fa-solid fa-chevron-down custom-select-arrow" style="margin-right: 6px;"></i>
                   </button>
+                  <!-- Quick Common Body Parts Shortcuts (1-Tap Selection) -->
+                  <div class="body-parts-quick-shortcuts" style="display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px;">
+                    <button type="button" class="btn-quick-body-part" data-part="فقرات قطنية"><i class="fa-solid fa-bolt"></i> فقرات قطنية</button>
+                    <button type="button" class="btn-quick-body-part" data-part="فقرات عنقية"><i class="fa-solid fa-bolt"></i> فقرات عنقية</button>
+                    <button type="button" class="btn-quick-body-part" data-part="مفصل الركبة"><i class="fa-solid fa-bolt"></i> مفصل الركبة</button>
+                    <button type="button" class="btn-quick-body-part" data-part="مفصل الكتف"><i class="fa-solid fa-bolt"></i> مفصل الكتف</button>
+                    <button type="button" class="btn-quick-body-part" data-part="مفصل الكاحل"><i class="fa-solid fa-bolt"></i> مفصل الكاحل</button>
+                    <button type="button" class="btn-quick-body-part" data-part="تأهيل شلل نصفي"><i class="fa-solid fa-bolt"></i> تأهيل شلل نصفي</button>
+                  </div>
                   <div class="body-parts-chips" id="body-parts-container" style="display: none;"></div>
                   <div style="font-size: 0.8rem; color: var(--primary); font-weight: bold; margin-top: 5px;">
                     إجمالي الأعضاء المحددة: <span id="selected-parts-count">0</span>
@@ -925,6 +934,25 @@
             <span style="font-size: 0.8rem; color: var(--text-muted);">
               (تقرير شامل لإحصائيات الشهر، أداء الأطباء، وجهات التأمين بدون أسماء تفصيلية)
             </span>
+          </div>
+        </div>
+
+        <!-- Financial Safe Cash Drawer Glance Card (Reconciliation Hub) -->
+        <div class="card no-print" id="card-cash-drawer-glance" style="background: linear-gradient(135deg, rgba(16, 185, 129, 0.08) 0%, rgba(2, 132, 199, 0.08) 100%); border: 1.5px solid rgba(16, 185, 129, 0.35); border-radius: 18px; padding: 14px 18px; margin-bottom: 16px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+            <div style="display: flex; align-items: center; gap: 10px;">
+              <div style="width: 44px; height: 44px; border-radius: 50%; background: var(--success-light); color: var(--success); display: flex; align-items: center; justify-content: center; font-size: 1.25rem;">
+                <i class="fa-solid fa-vault"></i>
+              </div>
+              <div>
+                <div style="font-weight: 800; font-size: 0.98rem; color: var(--text-main);">العهدة النقدية الفعلية بالدرج</div>
+                <div style="font-size: 0.78rem; color: var(--text-muted);" id="drawer-calc-breakdown">المقبوضات النقدية بالدرج - المصروفات النقدية</div>
+              </div>
+            </div>
+            <div style="text-align: left;">
+              <div id="drawer-net-cash-display" style="font-size: 1.4rem; font-weight: 800; color: var(--success); font-variant-numeric: tabular-nums;">0 ج.م</div>
+              <div style="font-size: 0.74rem; color: var(--text-muted);">صافي النقدية للتسليم بالوردية</div>
+            </div>
           </div>
         </div>
 
@@ -2111,7 +2139,7 @@
             <h3 style="margin: 0; font-size: 1.15rem; color: #ffffff; font-weight: 800; display: flex; align-items: center; gap: 8px;">
               تسجيل الدخول
             </h3>
-            <p style="margin: 3px 0 0 0; font-size: 0.78rem; opacity: 0.9; color: #e0f2fe;">مركز اسكندرية التخصصي للعلاج الطبيعي</p>
+            <p style="margin: 3px 0 0 0; font-size: 0.78rem; opacity: 0.9; color: #e0f2fe;">مركز الإسكندرية التخصصي للعلاج الطبيعي</p>
           </div>
         </div>
         <button type="button" class="modal-close" id="btn-close-auth-modal" style="font-size: 1.3rem; background: none; border: none; cursor: pointer; color: #ffffff;">&times;</button>
@@ -2256,7 +2284,7 @@
     <!-- Top Header -->
     <div style="display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 2px solid #000; padding-bottom: 6px; margin-bottom: 12px;">
       <div style="text-align: right; line-height: 1.35;">
-        <h2 style="font-size: 13pt; margin: 0; font-weight: 800; color: #0284c7;">مركز اسكندرية التخصصي للعلاج الطبيعي (ASCPT)</h2>
+        <h2 style="font-size: 13pt; margin: 0; font-weight: 800; color: #0284c7;">مركز الإسكندرية التخصصي للعلاج الطبيعي (ASCPT)</h2>
         <div style="font-size: 10pt; font-weight: 700; color: #0f172a;">د. حسني أحمد الجويلي</div>
         <div style="font-size: 8.5pt; color: #475569;">إستشاري العلاج الطبيعي والتقويم الحركي للعمود الفقري</div>
         <div style="font-size: 8pt; color: #64748b;">١٧ شارع حسين شيرين - لوران - الإسكندرية | تليفون: 03-5702356 | البريد: algewelyspinecare@yahoo.com</div>
@@ -2311,7 +2339,7 @@
 
     <!-- Official Clinic Footer -->
     <div style="margin-top: 40px; border-top: 1px solid #777; padding-top: 6px; text-align: center; font-size: 8.5pt; color: #444; line-height: 1.4;">
-      <div style="font-weight: 700;">مركز اسكندرية التخصصي للعلاج الطبيعي (ASCPT)</div>
+      <div style="font-weight: 700;">مركز الإسكندرية التخصصي للعلاج الطبيعي (ASCPT)</div>
       <div>١٧ شارع حسين شيرين - لوران - الإسكندرية | تليفون: 03-5702356 | البريد: algewelyspinecare@yahoo.com</div>
     </div>
   </div>
@@ -2324,7 +2352,7 @@
   <!-- ================= Printable Insurance Renewal Letter (A5) ================= -->
   <div id="printable-insurance-letter" style="display: none;">
     <div class="ins-letter-header">
-      <h1 style="margin: 0 0 4px 0;">مركز اسكندرية التخصصي للعلاج الطبيعي (ASCPT)</h1>
+      <h1 style="margin: 0 0 4px 0;">مركز الإسكندرية التخصصي للعلاج الطبيعي (ASCPT)</h1>
       <p id="ins-print-director">د. حسني أحمد الجويلي — إستشاري العلاج الطبيعي والتقويم الحركي للعمود الفقري</p>
     </div>
 
@@ -2353,7 +2381,7 @@
   <!-- Printable Patient Clinical Sheet (Visible only when printing sheet) -->
   <div id="printable-patient-sheet" style="display: none;">
     <div class="sheet-print-header" style="text-align: center; border-bottom: 2px solid #0284c7; padding-bottom: 5px; margin-bottom: 8px;">
-      <h1 style="font-size: 14pt; margin: 0 0 2px 0; color: #0284c7;">مركز اسكندرية التخصصي للعلاج الطبيعي - الشيت الطبي (Clinical Record)</h1>
+      <h1 style="font-size: 14pt; margin: 0 0 2px 0; color: #0284c7;">مركز الإسكندرية التخصصي للعلاج الطبيعي - الشيت الطبي (Clinical Record)</h1>
       <p class="sheet-sub">استمارة تقييم وخطة العلاج الطبيعي للمريض - Physical Therapy Clinical Record</p>
       <p class="sheet-meta" id="print-sheet-meta">تاريخ الطباعة: 2026-09-02</p>
     </div>
@@ -2704,8 +2732,65 @@
   </div>
 
       
-  <!-- Main Application Script (ES Module) -->
-  <script type="module" src="js/app.js?v=1.4.0-beta.37"></script>
+  
+  <!-- Modal: Smart WhatsApp Quick Action Sheet -->
+  <div class="modal-backdrop" id="modal-whatsapp-templates" style="z-index: 225;">
+    <div class="modal-content" style="max-width: 460px;">
+      <div class="modal-header">
+        <h3 style="color: #10b981;"><i class="fa-brands fa-whatsapp"></i> قوالب رسائل واتساب الذكية</h3>
+        <button type="button" class="modal-close" data-close-modal="modal-whatsapp-templates">&times;</button>
+      </div>
+      <div class="modal-body" style="padding: 16px;">
+        <div style="background: var(--bg-subtle); border-radius: 12px; padding: 12px; margin-bottom: 14px; border: 1px solid var(--border-color); display: flex; align-items: center; gap: 10px;">
+          <div style="width: 40px; height: 40px; border-radius: 50%; background: rgba(16, 185, 129, 0.15); color: #10b981; display: flex; align-items: center; justify-content: center; font-size: 1.15rem;">
+            <i class="fa-solid fa-user-check"></i>
+          </div>
+          <div>
+            <div style="font-weight: 800; font-size: 0.98rem; color: var(--text-main);" id="wa-modal-patient-name">المريض</div>
+            <div style="font-size: 0.8rem; color: var(--text-muted);" id="wa-modal-patient-phone">01xxxxxxxxx</div>
+          </div>
+        </div>
+
+        <div style="display: flex; flex-direction: column; gap: 10px;">
+          <!-- Template 1: Appointment Reminder -->
+          <button type="button" class="wa-template-btn" id="btn-wa-tpl-appt">
+            <div class="wa-tpl-icon"><i class="fa-regular fa-clock"></i></div>
+            <div class="wa-tpl-text">
+              <div class="wa-tpl-title">تذكير بموعد الجلسة اليوم</div>
+              <div class="wa-tpl-desc">رسالة تذكيرية رسمية بموعد الجلسة مع الطبيب المعالج اليوم</div>
+            </div>
+            <i class="fa-solid fa-chevron-left wa-tpl-arrow"></i>
+          </button>
+
+          <!-- Template 2: Insurance Renewal Reminder -->
+          <button type="button" class="wa-template-btn" id="btn-wa-tpl-renew">
+            <div class="wa-tpl-icon"><i class="fa-solid fa-file-shield"></i></div>
+            <div class="wa-tpl-text">
+              <div class="wa-tpl-title">تذكير بتجديد موافقة التأمين</div>
+              <div class="wa-tpl-desc">إشعار المريض بضرورة إحضار أصل تجديد الموافقة لمواصلة العلاج</div>
+            </div>
+            <i class="fa-solid fa-chevron-left wa-tpl-arrow"></i>
+          </button>
+
+          <!-- Template 3: Direct Chat -->
+          <button type="button" class="wa-template-btn" id="btn-wa-tpl-direct">
+            <div class="wa-tpl-icon"><i class="fa-regular fa-comment-dots"></i></div>
+            <div class="wa-tpl-text">
+              <div class="wa-tpl-title">محادثة مباشرة بدون رسالة مسبقة</div>
+              <div class="wa-tpl-desc">فتح شات واتساب مباشرة مع المريض لكتابة رسالة مخصصة</div>
+            </div>
+            <i class="fa-solid fa-chevron-left wa-tpl-arrow"></i>
+          </button>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline" data-close-modal="modal-whatsapp-templates">إلغاء</button>
+      </div>
+    </div>
+  </div>
+
+<!-- Main Application Script (ES Module) -->
+  <script type="module" src="js/app.js?v=1.4.0-beta.38"></script>
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
@@ -3021,7 +3106,7 @@
       <!-- Header -->
       <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #0284c7; padding-bottom: 10px; margin-bottom: 16px;">
         <div style="text-align: right;">
-          <h2 style="font-size: 13pt; margin: 0; font-weight: 800; color: #0284c7;">مركز اسكندرية التخصصي للعلاج الطبيعي (ASCPT)</h2>
+          <h2 style="font-size: 13pt; margin: 0; font-weight: 800; color: #0284c7;">مركز الإسكندرية التخصصي للعلاج الطبيعي (ASCPT)</h2>
           <div style="font-size: 9.5pt; font-weight: 700; color: #0f172a; margin-top: 2px;">د. حسني أحمد الجويلي — إستشاري العلاج الطبيعي والتقويم الحركي للعمود الفقري</div>
         </div>
         <div style="text-align: left; font-size: 9pt; font-weight: 700;" id="receipt-print-date">
@@ -3065,7 +3150,7 @@
     <div style="border: 2px solid #0284c7; border-radius: 8px; padding: 18px 22px; position: relative; display: flex; flex-direction: column; justify-content: space-between; min-height: 186mm; box-sizing: border-box;">
       <!-- Header: Clean centered branding without colliding date -->
       <div style="border-bottom: 2px solid #0284c7; padding-bottom: 8px; margin-bottom: 14px; text-align: center;">
-        <h2 style="font-size: 13pt; margin: 0; font-weight: 800; color: #0284c7; white-space: nowrap;">مركز اسكندرية التخصصي للعلاج الطبيعي (ASCPT)</h2>
+        <h2 style="font-size: 13pt; margin: 0; font-weight: 800; color: #0284c7; white-space: nowrap;">مركز الإسكندرية التخصصي للعلاج الطبيعي (ASCPT)</h2>
         <div style="font-size: 9pt; font-weight: 700; color: #0f172a; margin-top: 2px; white-space: nowrap;">د. حسني أحمد الجويلي — إستشاري العلاج الطبيعي والتقويم الحركي للعمود الفقري</div>
       </div>
 

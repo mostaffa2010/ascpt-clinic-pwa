@@ -687,9 +687,12 @@ export class PatientsManager {
                     <i class="fa-solid fa-file-waveform"></i> الشيت الطبي
                   </button>
                 ` : ''}
-                <a href="https://wa.me/${cleanWaPhone}" target="_blank" class="btn btn-outline btn-sm btn-icon-action" style="color: #10b981; border-color: rgba(16, 185, 129, 0.4);" title="واتساب">
+                <button type="button" class="btn btn-outline btn-sm btn-quick-attend" onclick="patientsManager.quickLogSession('${safeId}')" style="color: var(--primary); border-color: var(--primary); font-weight: 700; gap: 4px; display: inline-flex; align-items: center; border-radius: 999px; padding: 4px 12px; font-size: 0.78rem;" title="تسجيل جلسة سريعة لهذا المريض">
+                  <i class="fa-solid fa-bolt" style="color: var(--warning);"></i> <span>جلسة</span>
+                </button>
+                <button type="button" class="btn btn-outline btn-sm btn-icon-action btn-whatsapp-action" onclick="patientsManager.openWhatsAppTemplates('${cleanWaPhone}', '${safeName}', '${safeDoctor}')" style="color: #10b981; border-color: rgba(16, 185, 129, 0.4);" title="خيارات واتساب الذكية">
                   <i class="fa-brands fa-whatsapp"></i>
-                </a>
+                </button>
                 ${!isDoctor ? `
                   <button type="button" class="btn btn-outline btn-sm btn-icon-action btn-patient-docs" onclick="patientsManager.openPatientDocsModal('${safeId}')" title="المستندات">
                     <i class="fa-solid fa-file-invoice"></i>
@@ -723,6 +726,58 @@ export class PatientsManager {
         });
       }
     }
+  }
+
+
+  // ================= 1-Tap Quick Attendance & Smart WhatsApp Action Sheet =================
+  quickLogSession(patientId) {
+    if (!patientId) return;
+    this.app.switchView('sessions');
+    setTimeout(() => {
+      if (this.app.sessionsManager) {
+        this.app.sessionsManager.selectPatient(patientId);
+      }
+    }, 150);
+  }
+
+  openWhatsAppTemplates(phone, name, doctor) {
+    if (!phone || phone.length < 5) {
+      this.app.showToast('لا يوجد رقم هاتف صالح مسجل لهذا المريض', 'warning');
+      return;
+    }
+    const cleanPhone = phone.replace(/[^0-9]/g, '').replace(/^0/, '20');
+    const nameEl = document.getElementById('wa-modal-patient-name');
+    const phoneEl = document.getElementById('wa-modal-patient-phone');
+    if (nameEl) nameEl.textContent = name || 'المريض';
+    if (phoneEl) phoneEl.textContent = phone;
+
+    const btnAppt = document.getElementById('btn-wa-tpl-appt');
+    const btnRenew = document.getElementById('btn-wa-tpl-renew');
+    const btnDirect = document.getElementById('btn-wa-tpl-direct');
+
+    const apptMsg = `السلام عليكم ورحمة الله وبركاته أستاذ/ة ${name}،\nنذكركم بموعد جلستكم القادمة مع ${doctor || 'الطبيب المعالج'} بمركز الإسكندرية التخصصي للعلاج الطبيعي.\nنتمنى لكم دوام الصحة والعافية.`;
+    const renewMsg = `السلام عليكم ورحمة الله وبركاته أستاذ/ة ${name}،\nنود إعلامكم باقتراب انتهاء الجلسات المعتمدة من شركة التأمين بمركز الإسكندرية التخصصي، يرجى إحضار أصل تجديد الموافقة لمواصلة الخطة العلاجية دون انقطاع.\nشكراً لتعاونكم معنا.`;
+
+    if (btnAppt) {
+      btnAppt.onclick = () => {
+        window.open(`https://wa.me/${cleanPhone}?text=${encodeURIComponent(apptMsg)}`, '_blank');
+        this.app.closeModal('modal-whatsapp-templates');
+      };
+    }
+    if (btnRenew) {
+      btnRenew.onclick = () => {
+        window.open(`https://wa.me/${cleanPhone}?text=${encodeURIComponent(renewMsg)}`, '_blank');
+        this.app.closeModal('modal-whatsapp-templates');
+      };
+    }
+    if (btnDirect) {
+      btnDirect.onclick = () => {
+        window.open(`https://wa.me/${cleanPhone}`, '_blank');
+        this.app.closeModal('modal-whatsapp-templates');
+      };
+    }
+
+    this.app.openModal('modal-whatsapp-templates');
   }
 
   // ================= Insurance Interactive Buttons for Patient Registration =================
@@ -1333,10 +1388,39 @@ export class PatientsManager {
     if (badgeEl) {
       if (p.billing === 'cash') {
         badgeEl.innerHTML = '<span class="badge badge-cash" style="font-size: 0.82rem; padding: 4px 12px; font-weight: 700; white-space: nowrap; display: inline-flex; align-items: center; gap: 5px;"><i class="fa-solid fa-money-bill-wave"></i> نقدي</span>';
-      } else if (p.contractType === 'direct') {
-        badgeEl.innerHTML = `<span class="badge badge-direct" style="font-size: 0.82rem; padding: 4px 12px; font-weight: 700; white-space: nowrap; display: inline-flex; align-items: center; gap: 5px;"><i class="fa-solid fa-file-contract"></i> ${escapeHTML(p.insuranceCompany || 'تأمين')} (مباشر)</span>`;
       } else {
-        badgeEl.innerHTML = `<span class="badge badge-indirect" style="font-size: 0.82rem; padding: 4px 12px; font-weight: 700; white-space: nowrap; display: inline-flex; align-items: center; gap: 5px;"><i class="fa-solid fa-handshake"></i> ${escapeHTML(p.insuranceCompany || 'تأمين')} (غير مباشر)</span>`;
+        const cType = p.contractType === 'direct' ? 'مباشر' : 'غير مباشر';
+        const badgeClass = p.contractType === 'direct' ? 'badge-direct' : 'badge-indirect';
+        const iconClass = p.contractType === 'direct' ? 'fa-file-contract' : 'fa-handshake';
+        const approvedTotal = p.approvedSessions || 12;
+        const cycleStart = p.currentApprovalStartDate || '';
+        const cycleSessions = this.currentPatientSessions.filter(s => s.entryType !== 'examination' && (!cycleStart || (s.date || '').localeCompare(cycleStart) >= 0));
+        const currentCount = cycleSessions.length;
+        const isNearLimit = currentCount >= approvedTotal - 2;
+        const isCompleted = currentCount >= approvedTotal;
+
+        const dotsHTML = Array.from({ length: Math.min(24, approvedTotal) }, (_, i) => {
+          const isDone = i < currentCount;
+          return `<span class="cycle-dot ${isDone ? 'done' : ''}" title="جلسة ${i+1}"></span>`;
+        }).join('');
+
+        badgeEl.innerHTML = `
+          <div style="display: flex; flex-direction: column; gap: 8px; width: 100%;">
+            <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+              <span class="badge ${badgeClass}" style="font-size: 0.82rem; padding: 4px 12px; font-weight: 700; display: inline-flex; align-items: center; gap: 5px;">
+                <i class="fa-solid ${iconClass}"></i> ${escapeHTML(p.insuranceCompany || 'تأمين')} (${cType})
+              </span>
+              <span style="font-size: 0.82rem; font-weight: 800; color: ${isCompleted ? 'var(--danger)' : (isNearLimit ? 'var(--warning)' : 'var(--primary)')};">
+                الجلسة ${currentCount} من ${approvedTotal}
+              </span>
+              ${isNearLimit && !isCompleted ? '<span class="badge badge-warning" style="font-size: 0.72rem; padding: 2px 8px;"><i class="fa-solid fa-triangle-exclamation"></i> اقتراب انتهاء الموافقة</span>' : ''}
+              ${isCompleted ? '<span class="badge badge-danger" style="font-size: 0.72rem; padding: 2px 8px;"><i class="fa-solid fa-circle-exclamation"></i> اكتملت الموافقة</span>' : ''}
+            </div>
+            <div class="cycle-dots-container" style="display: flex; gap: 4px; align-items: center; flex-wrap: wrap;">
+              ${dotsHTML}
+            </div>
+          </div>
+        `;
       }
     }
 

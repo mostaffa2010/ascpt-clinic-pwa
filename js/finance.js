@@ -771,6 +771,17 @@ export class FinanceManager {
       netCashEl.style.color = netCash >= 0 ? 'var(--success)' : 'var(--danger)';
     }
 
+    // Cash Safe Drawer Glance Card Update
+    const drawerCashEl = document.getElementById('drawer-net-cash-display');
+    const drawerBreakdownEl = document.getElementById('drawer-calc-breakdown');
+    if (drawerCashEl) {
+      drawerCashEl.textContent = `${netCash.toLocaleString('en-US')} ج.م`;
+      drawerCashEl.style.color = netCash >= 0 ? 'var(--success)' : 'var(--danger)';
+    }
+    if (drawerBreakdownEl) {
+      drawerBreakdownEl.textContent = `المقبوضات النقدية (${totalCash.toLocaleString('en-US')} ج.م) - المصروفات (${totalExpenses.toLocaleString('en-US')} ج.م)`;
+    }
+
     // Dynamic Doctor Filter
     const docFilter = document.getElementById('finance-doctor-filter');
     if (docFilter) {

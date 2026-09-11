@@ -5,7 +5,7 @@
 // Time slots represent horizontal rows across all doctors.
 // Slots can now be customized, added, or deleted directly from the UI.
 
-import { escapeHTML, initStackDeck } from './utils.js';
+import { escapeHTML, initStackDeck, getDoctorColor } from './utils.js';
 import { db } from './db.js';
 import { auth } from './auth.js';
 
@@ -329,7 +329,12 @@ export class AppointmentsManager {
 
     const doctorsHeader = doctorsToShow.map((doc) => {
       const cleanDoc = (doc.name || '').replace(/^د\.\s*/, '');
-      return `<th style="text-align:center; min-width: 150px;"><i class="fa-solid fa-user-doctor" style="color: var(--primary);"></i> د. ${escapeHTML(cleanDoc)}</th>`;
+      const docColor = getDoctorColor(doc.uid || doc.name);
+      return `<th style="text-align:center; min-width: 150px; border-bottom: 2.5px solid ${docColor.color};">
+        <span style="display: inline-flex; align-items: center; gap: 6px; background: ${docColor.bg}; color: ${docColor.color}; padding: 4px 12px; border-radius: 999px; font-weight: 800; font-size: 0.86rem; border: 1px solid ${docColor.border};">
+          <i class="fa-solid fa-user-doctor"></i> د. ${escapeHTML(cleanDoc)}
+        </span>
+      </th>`;
     }).join('');
 
     const slotsToRender = (this.slots && this.slots.length > 0) ? this.slots : DEFAULT_APPT_SLOTS;
@@ -405,7 +410,8 @@ export class AppointmentsManager {
             const cellAppts = this.getCellAppointments(doc.uid, slot.key);
             if (cellAppts.length === 0) return null;
             const cleanDoc = (doc.name || '').replace(/^د\.\s*/, '');
-            return { doc, cleanDoc, cellAppts };
+            const docColor = getDoctorColor(doc.uid || doc.name);
+            return { doc, cleanDoc, cellAppts, docColor };
           }).filter(Boolean);
 
           const isSingleDoc = doctorsToShow.length === 1;
