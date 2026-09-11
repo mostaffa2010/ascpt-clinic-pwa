@@ -47,7 +47,7 @@
   
 
     <!-- Stylesheets -->
-  <link rel="stylesheet" href="css/style.css?v=1.4.0-beta.17">
+  <link rel="stylesheet" href="css/style.css?v=1.4.0-beta.18">
   <link rel="stylesheet" href="css/print.css" media="print">
 </head>
 <body>
@@ -1220,7 +1220,7 @@
                 <span class="card-title" style="font-size: 1rem; font-weight: 800;">
                   <i class="fa-solid fa-table-list"></i> بيان السادة المحولين (المرضى المشمولين بالمطالبة)
                 </span>
-                <div style="display: flex; gap: 6px; flex-wrap: wrap;">
+                <div class="claim-actions-toolbar" style="display: flex; gap: 8px; flex-wrap: wrap;">
                   <button type="button" class="btn btn-primary btn-sm" id="btn-print-claim-statement" style="font-weight: 800; padding: 6px 12px;">
                     <i class="fa-solid fa-print"></i> طباعة المطالبة الرسمية A4
                   </button>
@@ -1286,7 +1286,7 @@
                   <span class="card-title" style="font-size: 1.05rem; color: var(--primary); font-weight: 800; display: inline-flex; align-items: center; gap: 8px;">
                     <i class="fa-solid fa-folder-open"></i> سجل مطالبات التأمين الصادرة والتحصيلات
                   </span>
-                  <span class="badge badge-cash" id="claims-ledger-count-badge" style="font-size: 0.8rem; font-weight: 700;">0 مطالبة</span>
+                  <span class="badge badge-cash" id="claims-ledger-count-badge" style="font-size: 0.8rem; font-weight: 800; white-space: nowrap; flex-shrink: 0; padding: 4px 10px; border-radius: 999px;">0 مطالبة</span>
                 </div>
                 <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
                   <!-- Status Filter Pills -->
@@ -2612,7 +2612,7 @@
 
       
   <!-- Main Application Script (ES Module) -->
-  <script type="module" src="js/app.js?v=1.4.0-beta.17"></script>
+  <script type="module" src="js/app.js?v=1.4.0-beta.18"></script>
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {

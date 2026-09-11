@@ -5004,10 +5004,13 @@ body::-webkit-scrollbar,
   border: 1.5px solid var(--primary) !important;
   border-radius: 16px !important;
   padding: 12px 18px !important;
-  display: flex !important;
   align-items: center !important;
   justify-content: space-between !important;
   box-shadow: 0 4px 14px -2px rgba(2, 132, 199, 0.18) !important;
+}
+
+.selected-patient-card[style*="display: none"] {
+  display: none !important;
 }
 
 /* --- 3. SESSIONS VIEW: Examination Mode Segmented Controls --- */
@@ -5237,4 +5240,198 @@ body::-webkit-scrollbar,
   height: 44px !important;
   border-radius: 14px !important;
   font-size: 1.2rem !important;
+}
+
+/* ==========================================================================
+   v1.4.0-beta.18: Mobile Financial Tables to Cards & Visual Polish
+   ========================================================================== */
+
+/* 1. Doctor Breakdown Grid in Daily Report (Screenshot 20) */
+#doctors-breakdown-container {
+  display: grid !important;
+  grid-template-columns: repeat(2, 1fr) !important;
+  gap: 10px !important;
+  width: 100% !important;
+}
+
+#doctors-breakdown-container > div {
+  background: var(--bg-surface) !important;
+  border: 1.5px solid var(--border-color) !important;
+  border-radius: 16px !important;
+  padding: 12px 14px !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 10px !important;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.03) !important;
+  min-width: 0 !important;
+  box-sizing: border-box !important;
+}
+
+#doctors-breakdown-container > div i {
+  font-size: 1.15rem !important;
+  flex-shrink: 0 !important;
+}
+
+#doctors-breakdown-container > div > div {
+  min-width: 0 !important;
+  overflow: hidden !important;
+}
+
+#doctors-breakdown-container > div > div > div:first-child {
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+}
+
+/* 2. Claims Action Toolbar in Insurance Claims (Screenshot 21) */
+@media (max-width: 767px) {
+  .claim-actions-toolbar {
+    display: grid !important;
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 8px !important;
+    width: 100% !important;
+    margin-top: 10px !important;
+  }
+
+  .claim-actions-toolbar .btn {
+    height: 38px !important;
+    padding: 0 8px !important;
+    font-size: 0.78rem !important;
+    border-radius: 12px !important;
+    justify-content: center !important;
+    white-space: nowrap !important;
+  }
+
+  .claim-actions-toolbar #btn-print-claim-statement {
+    grid-column: span 2 !important;
+    height: 42px !important;
+    font-size: 0.85rem !important;
+  }
+}
+
+/* 3. Mobile Financial Tables to Cards Transformation (Screenshots 15, 16, 17, 18, 19) */
+@media (max-width: 767px) {
+  /* Detailed Patients Sessions in Daily Finance (Screenshot 19) */
+  #finance-report-table thead {
+    display: none !important;
+  }
+
+  #finance-report-table,
+  #finance-report-table tbody {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 8px !important;
+    width: 100% !important;
+  }
+
+  #finance-report-table tr {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    background: var(--bg-surface) !important;
+    border: 1.5px solid var(--border-color) !important;
+    border-radius: 16px !important;
+    padding: 12px 14px !important;
+    box-shadow: 0 1px 3px rgba(15, 23, 42, 0.03) !important;
+    gap: 6px !important;
+  }
+
+  #finance-report-table td {
+    border: none !important;
+    padding: 2px 4px !important;
+  }
+
+  /* Daily Expenses & Monthly Expenses (Screenshots 15 & 18) */
+  #finance-expenses-tbody,
+  #monthly-expenses-tbody {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 8px !important;
+    width: 100% !important;
+  }
+
+  .table-responsive:has(#finance-expenses-tbody) thead,
+  .table-responsive:has(#monthly-expenses-tbody) thead {
+    display: none !important;
+  }
+
+  #finance-expenses-tbody tr,
+  #monthly-expenses-tbody tr {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    background: var(--bg-surface) !important;
+    border: 1.5px solid var(--border-color) !important;
+    border-radius: 16px !important;
+    padding: 12px 16px !important;
+    box-shadow: 0 1px 3px rgba(15, 23, 42, 0.03) !important;
+    margin: 0 !important;
+  }
+
+  #finance-expenses-tbody td,
+  #monthly-expenses-tbody td {
+    border: none !important;
+    padding: 2px 4px !important;
+  }
+
+  /* Monthly Performance (Screenshot 17) */
+  .table-responsive:has(#monthly-performance-tbody) thead {
+    display: none !important;
+  }
+
+  #monthly-performance-tbody {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 8px !important;
+    width: 100% !important;
+  }
+
+  #monthly-performance-tbody tr {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    background: var(--bg-surface) !important;
+    border: 1.5px solid var(--border-color) !important;
+    border-radius: 16px !important;
+    padding: 12px 16px !important;
+    box-shadow: 0 1px 3px rgba(15, 23, 42, 0.03) !important;
+    margin: 0 !important;
+  }
+
+  #monthly-performance-tbody td {
+    border: none !important;
+    padding: 2px 4px !important;
+    font-size: 0.88rem !important;
+  }
+
+  /* Monthly Insurance Distribution (Screenshot 16) */
+  .table-responsive:has(#monthly-insurance-tbody) thead {
+    display: none !important;
+  }
+
+  #monthly-insurance-tbody {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 8px !important;
+    width: 100% !important;
+  }
+
+  #monthly-insurance-tbody tr {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    background: var(--bg-surface) !important;
+    border: 1.5px solid var(--border-color) !important;
+    border-radius: 16px !important;
+    padding: 12px 16px !important;
+    box-shadow: 0 1px 3px rgba(15, 23, 42, 0.03) !important;
+    margin: 0 !important;
+  }
+
+  #monthly-insurance-tbody td {
+    border: none !important;
+    padding: 2px 4px !important;
+    font-size: 0.88rem !important;
+  }
 }
