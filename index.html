@@ -47,7 +47,7 @@
   
 
     <!-- Stylesheets -->
-  <link rel="stylesheet" href="css/style.css?v=1.4.0-beta.7">
+  <link rel="stylesheet" href="css/style.css?v=1.4.0-beta.8">
   <link rel="stylesheet" href="css/print.css" media="print">
 </head>
 <body>
@@ -174,7 +174,7 @@
             <div class="hero-banner-content">
               <div class="hero-greeting-pill">
                 <span class="hero-greeting-icon"><i class="fa-solid fa-sparkles"></i></span>
-                <span id="hero-greeting-text">صباح الخير</span>، <span id="hero-greeting-name">دكتور</span>
+                <span id="hero-greeting-full">مرحباً بك</span>
               </div>
               <h2 class="hero-banner-title">مركز اسكندرية التخصصي</h2>
               <p class="hero-banner-sub">Alexandria Specialized Center for Physical Therapy</p>
@@ -2635,14 +2635,14 @@
           </div>
 
           <!-- Time Input Row: Hour, Minute, Period -->
-          <div style="background: var(--bg-subtle); border: 1.5px solid var(--border-color); border-radius: 10px; padding: 12px; margin-bottom: 14px;">
-            <label style="font-weight: 800; font-size: 0.88rem; color: var(--primary); margin-bottom: 8px; display: block;">
+          <div style="background: var(--bg-subtle); border: 1.5px solid var(--border-color); border-radius: var(--radius-md); padding: 14px; margin-bottom: 14px;">
+            <label style="font-weight: 800; font-size: 0.88rem; color: var(--primary); margin-bottom: 10px; display: block;">
               <i class="fa-regular fa-clock"></i> تحديد الموعد بدقة:
             </label>
-            <div style="display: flex; gap: 8px; align-items: center;">
-              <div style="flex: 1;">
-                <label style="font-size: 0.75rem; color: var(--text-muted); font-weight: 700;">الساعة</label>
-                <select id="slot-input-hour" class="form-control" style="font-weight: 800; text-align: center; font-size: 1.05rem;">
+            <div style="display: grid; grid-template-columns: 1fr auto 1fr 1.2fr; gap: 8px; align-items: end;">
+              <div>
+                <label style="font-size: 0.75rem; color: var(--text-muted); font-weight: 700; margin-bottom: 4px; display: block; text-align: center;">الساعة</label>
+                <select id="slot-input-hour" class="form-control" style="font-weight: 800; text-align: center; font-size: 1.05rem; height: 44px; border-radius: 12px;">
                   <option value="1">1</option>
                   <option value="2">2</option>
                   <option value="3" selected>3</option>
@@ -2657,19 +2657,19 @@
                   <option value="12">12</option>
                 </select>
               </div>
-              <div style="font-size: 1.2rem; font-weight: 800; color: var(--primary); padding-top: 16px;">:</div>
-              <div style="flex: 1;">
-                <label style="font-size: 0.75rem; color: var(--text-muted); font-weight: 700;">الدقيقة</label>
-                <select id="slot-input-minute" class="form-control" style="font-weight: 800; text-align: center; font-size: 1.05rem;">
+              <div style="font-size: 1.4rem; font-weight: 900; color: var(--primary); padding-bottom: 8px; text-align: center;">:</div>
+              <div>
+                <label style="font-size: 0.75rem; color: var(--text-muted); font-weight: 700; margin-bottom: 4px; display: block; text-align: center;">الدقيقة</label>
+                <select id="slot-input-minute" class="form-control" style="font-weight: 800; text-align: center; font-size: 1.05rem; height: 44px; border-radius: 12px;">
                   <option value="00">00</option>
                   <option value="15">15</option>
                   <option value="30" selected>30</option>
                   <option value="45">45</option>
                 </select>
               </div>
-              <div style="flex: 1.2;">
-                <label style="font-size: 0.75rem; color: var(--text-muted); font-weight: 700;">الفترة</label>
-                <select id="slot-input-period" class="form-control" style="font-weight: 800; text-align: center; font-size: 1rem;">
+              <div>
+                <label style="font-size: 0.75rem; color: var(--text-muted); font-weight: 700; margin-bottom: 4px; display: block; text-align: center;">الفترة</label>
+                <select id="slot-input-period" class="form-control" style="font-weight: 800; text-align: center; font-size: 1rem; height: 44px; border-radius: 12px;">
                   <option value="PM" selected>مساءً (م)</option>
                   <option value="AM">صباحاً (ص)</option>
                 </select>

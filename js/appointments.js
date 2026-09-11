@@ -203,9 +203,10 @@ export class AppointmentsManager {
       return `<div style="padding: 20px; text-align: center; color: var(--text-muted);">لا يوجد دكاترة مسجلين حالياً في طاقم العمل.</div>`;
     }
 
-    const doctorsHeader = doctorsToShow.map((doc) =>
-      `<th style="text-align:center; min-width: 150px;"><i class="fa-solid fa-user-doctor" style="color: var(--primary);"></i> ${escapeHTML(doc.name)}</th>`
-    ).join('');
+    const doctorsHeader = doctorsToShow.map((doc) => {
+      const cleanDoc = (doc.name || '').replace(/^د\.\s*/, '');
+      return `<th style="text-align:center; min-width: 150px;"><i class="fa-solid fa-user-doctor" style="color: var(--primary);"></i> د. ${escapeHTML(cleanDoc)}</th>`;
+    }).join('');
 
     const slotsToRender = (this.slots && this.slots.length > 0) ? this.slots : DEFAULT_APPT_SLOTS;
 
@@ -273,44 +274,15 @@ export class AppointmentsManager {
               ? `<span class="badge badge-cash"><i class="fa-solid fa-bed"></i> مكتمل (${totalInSlot}/${MAX_BEDS_PER_SLOT})</span>`
               : `<span class="badge badge-direct"><i class="fa-solid fa-bed"></i> ${totalInSlot} من ${MAX_BEDS_PER_SLOT} أسرة</span>`);
 
-          const doctorsContent = doctorsToShow.map((doc) => {
+          // Only list doctors who actually have appointments in this slot
+          const activeDocAppts = doctorsToShow.map((doc) => {
             const cellAppts = this.getCellAppointments(doc.uid, slot.key);
-            const isSingleDoc = doctorsToShow.length === 1;
+            if (cellAppts.length === 0) return null;
+            const cleanDoc = (doc.name || '').replace(/^د\.\s*/, '');
+            return { doc, cleanDoc, cellAppts };
+          }).filter(Boolean);
 
-            return `
-              <div class="appt-slot-doc-group">
-                ${!isSingleDoc ? `
-                  <div class="appt-slot-doc-title">
-                    <i class="fa-solid fa-user-doctor" style="color: var(--primary);"></i> د. ${escapeHTML(doc.name)}
-                  </div>
-                ` : ''}
-
-                <div class="appt-chips-wrap">
-                  ${cellAppts.map((a) => `
-                    <div class="appt-chip" data-appt-id="${escapeHTML(a.id)}">
-                      <span class="appt-chip-patient" data-move-appt="${escapeHTML(a.id)}" title="اضغط لنقل الموعد">${escapeHTML(a.patientName)}</span>
-                      <div class="appt-chip-actions">
-                        <button type="button" class="appt-chip-move" data-move-appt="${escapeHTML(a.id)}" title="نقل الموعد">
-                          <i class="fa-solid fa-arrow-right-arrow-left"></i>
-                        </button>
-                        <button type="button" class="appt-chip-remove" data-remove-appt="${escapeHTML(a.id)}" title="حذف">&times;</button>
-                      </div>
-                    </div>
-                  `).join('')}
-
-                  ${cellAppts.length === 0 ? `
-                    <span class="appt-slot-empty-hint">لا توجد حالات مسجلة</span>
-                  ` : ''}
-                </div>
-
-                <div style="margin-top: 8px;">
-                  <button type="button" class="btn btn-outline btn-sm btn-add-appt" data-add-doctor="${escapeHTML(doc.uid)}" data-add-doctor-name="${escapeHTML(doc.name)}" data-add-slot="${escapeHTML(slot.key)}" style="width: 100%; border-radius: var(--radius-pill); font-size: 0.8rem; padding: 6px 12px; gap: 6px;">
-                    <i class="fa-solid fa-plus"></i> حجز سرير ${!isSingleDoc ? `مع د. ${escapeHTML(doc.name)}` : ''}
-                  </button>
-                </div>
-              </div>
-            `;
-          }).join('');
+          const isSingleDoc = doctorsToShow.length === 1;
 
           return `
             <div class="hero-styled-card appt-slot-card">
@@ -323,10 +295,49 @@ export class AppointmentsManager {
                 ${occupancyBadge}
               </div>
 
-              <div class="hsc-divider" style="margin: 8px 0 12px 0;"></div>
+              <div class="hsc-divider" style="margin: 8px 0 10px 0;"></div>
 
               <div class="appt-slot-body">
-                ${doctorsContent}
+                ${activeDocAppts.length > 0 ? `
+                  <div class="appt-chips-wrap">
+                    ${activeDocAppts.map(({ cleanDoc, cellAppts }) => `
+                      <div class="appt-active-doc-group">
+                        ${!isSingleDoc ? `<div class="appt-slot-doc-name"><i class="fa-solid fa-user-doctor"></i> د. ${escapeHTML(cleanDoc)}:</div>` : ''}
+                        ${cellAppts.map((a) => `
+                          <div class="appt-chip" data-appt-id="${escapeHTML(a.id)}">
+                            <span class="appt-chip-patient" data-move-appt="${escapeHTML(a.id)}" title="اضغط لنقل الموعد">${escapeHTML(a.patientName)}</span>
+                            <div class="appt-chip-actions">
+                              <button type="button" class="appt-chip-move" data-move-appt="${escapeHTML(a.id)}" title="نقل الموعد">
+                                <i class="fa-solid fa-arrow-right-arrow-left"></i>
+                              </button>
+                              <button type="button" class="appt-chip-remove" data-remove-appt="${escapeHTML(a.id)}" title="حذف">&times;</button>
+                            </div>
+                          </div>
+                        `).join('')}
+                      </div>
+                    `).join('')}
+                  </div>
+                ` : `
+                  <div class="appt-slot-empty-clean">
+                    <i class="fa-regular fa-calendar-check"></i>
+                    <span>لا توجد حجوزات مسجلة (الأسرة الـ ${MAX_BEDS_PER_SLOT} شاغرة)</span>
+                  </div>
+                `}
+
+                <!-- Compact Quick Booking Pills Row -->
+                <div class="appt-quick-booking-container">
+                  <span class="appt-book-title"><i class="fa-solid fa-plus-circle"></i> حجز سرير:</span>
+                  <div class="appt-doc-pills-row">
+                    ${doctorsToShow.map((doc) => {
+                      const cleanDoc = (doc.name || '').replace(/^د\.\s*/, '');
+                      return `
+                        <button type="button" class="btn btn-outline btn-sm appt-doc-booking-pill btn-add-appt" data-add-doctor="${escapeHTML(doc.uid)}" data-add-doctor-name="د. ${escapeHTML(cleanDoc)}" data-add-slot="${escapeHTML(slot.key)}">
+                          د. ${escapeHTML(cleanDoc)}
+                        </button>
+                      `;
+                    }).join('')}
+                  </div>
+                </div>
               </div>
             </div>
           `;
@@ -526,7 +537,7 @@ export class AppointmentsManager {
       { h: '8', m: '00', p: 'PM', label: '٨:٠٠ م' }
     ];
     container.innerHTML = chips.map(c => `
-      <button type="button" class="btn btn-outline btn-sm slot-quick-btn" data-h="${c.h}" data-m="${c.m}" data-p="${c.p}" style="padding: 3px 8px; font-size: 0.78rem; font-weight: 700; border-radius: 6px;">
+      <button type="button" class="btn btn-outline btn-sm slot-quick-btn" data-h="${c.h}" data-m="${c.m}" data-p="${c.p}">
         ${c.label}
       </button>
     `).join('');

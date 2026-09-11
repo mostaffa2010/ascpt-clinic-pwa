@@ -3820,3 +3820,162 @@ body {
   padding: 4px 0;
   display: block;
 }
+
+/* ================= Polish & Contrast Enhancements (v1.4.0-beta.8) ================= */
+
+/* 1. High Contrast Body Parts Pill (.hsc-tag-pill) for both Light and Dark Modes */
+.hsc-tag-pill {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+  font-size: 0.78rem !important;
+  font-weight: 800 !important;
+  color: #0369a1 !important; /* Crystal clear readable navy-blue in Light Mode */
+  background: #e0f2fe !important;
+  border: 1.5px solid #bae6fd !important;
+  padding: 4px 10px !important;
+  border-radius: var(--radius-pill) !important;
+  box-shadow: 0 1px 2px rgba(2, 132, 199, 0.1) !important;
+  line-height: 1.2 !important;
+}
+
+.hsc-tag-pill i {
+  color: #0284c7 !important;
+  font-size: 0.8rem !important;
+}
+
+[data-theme="dark"] .hsc-tag-pill {
+  color: #7dd3fc !important; /* Luminous sky cyan in Dark Mode */
+  background: rgba(56, 189, 248, 0.16) !important;
+  border-color: rgba(56, 189, 248, 0.35) !important;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3) !important;
+}
+
+[data-theme="dark"] .hsc-tag-pill i {
+  color: #38bdf8 !important;
+}
+
+/* 2. Compact Appointments Timeline Components */
+.appt-slot-empty-clean {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  padding: 8px 4px;
+}
+
+.appt-quick-booking-container {
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px dashed var(--border-color);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.appt-book-title {
+  font-size: 0.78rem;
+  font-weight: 800;
+  color: var(--primary);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.appt-doc-pills-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.appt-doc-booking-pill {
+  border-radius: var(--radius-pill) !important;
+  padding: 5px 12px !important;
+  font-size: 0.78rem !important;
+  font-weight: 700 !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 4px !important;
+  background: var(--bg-surface) !important;
+  border: 1.5px solid var(--border-color) !important;
+  color: var(--text-main) !important;
+  transition: all 0.18s ease !important;
+}
+
+.appt-doc-booking-pill:hover {
+  background: var(--primary-light) !important;
+  border-color: var(--primary) !important;
+  color: var(--primary) !important;
+  transform: translateY(-1px) !important;
+}
+
+.appt-active-doc-group {
+  margin-bottom: 8px;
+}
+
+.appt-slot-doc-name {
+  font-size: 0.82rem;
+  font-weight: 800;
+  color: var(--primary);
+  margin-bottom: 4px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* 3. Slot Quick Buttons in Edit Slot Modal */
+.slot-quick-btn {
+  padding: 6px 12px !important;
+  font-size: 0.82rem !important;
+  font-weight: 700 !important;
+  border-radius: var(--radius-pill) !important;
+  background: var(--bg-subtle) !important;
+  border: 1.5px solid var(--border-color) !important;
+  color: var(--text-main) !important;
+  transition: all 0.18s ease !important;
+}
+
+.slot-quick-btn:hover {
+  background: var(--primary-light) !important;
+  border-color: var(--primary) !important;
+  color: var(--primary) !important;
+  transform: translateY(-1px) !important;
+}
+
+/* 4. Glassmorphic Modal Input Fields & Form Controls */
+.modal-body .form-control {
+  background-color: var(--bg-subtle) !important;
+  border: 1.5px solid var(--border-color) !important;
+  border-radius: 12px !important;
+  padding: 10px 14px !important;
+  font-weight: 600 !important;
+  color: var(--text-main) !important;
+  transition: all 0.2s ease !important;
+}
+
+.modal-body .form-control:focus {
+  background-color: var(--bg-surface) !important;
+  border-color: var(--primary) !important;
+  box-shadow: 0 0 0 4px var(--primary-light) !important;
+}
+
+/* 5. Document Hub Action Cards in Patient Docs Modal */
+#p-docs-actions-container .btn-outline {
+  border-radius: 16px !important;
+  background: var(--bg-glass-card) !important;
+  backdrop-filter: blur(14px) !important;
+  -webkit-backdrop-filter: blur(14px) !important;
+  border: 1.5px solid var(--glass-border) !important;
+  box-shadow: var(--shadow-sm) !important;
+  padding: 14px 16px !important;
+  transition: all 0.2s ease !important;
+}
+
+#p-docs-actions-container .btn-outline:hover {
+  transform: translateY(-2px) !important;
+  box-shadow: var(--shadow-md) !important;
+  border-color: var(--primary) !important;
+}

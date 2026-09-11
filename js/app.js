@@ -128,10 +128,7 @@ class App {
 
     const hour = new Date().getHours();
     const greetingText = (hour >= 5 && hour < 12) ? 'صباح الخير' : (hour >= 12 && hour < 17 ? 'مساء الخير' : 'مساء النور');
-    const heroGreetEl = document.getElementById('hero-greeting-text');
-    if (heroGreetEl) heroGreetEl.textContent = greetingText;
-    const docGreetEl = document.getElementById('doc-hero-greeting');
-    if (docGreetEl) docGreetEl.textContent = greetingText + "، يا دكتور";
+    this.updateHeroGreetings(greetingText, auth.getCurrentUser());
 
     // 3. ربط أحداث التنقل والحوارات وتأمين الواجهة
     this.bindNavigation();
@@ -147,17 +144,9 @@ class App {
     try {
       await auth.init(async (user) => {
         if (user) {
-          const roleLabel = RolesManager.getRoleLabel(user.role);
-          const heroName = document.getElementById('hero-greeting-name');
-          if (heroName) {
-            heroName.textContent = `${user.name} (${roleLabel})`;
-          }
-          const docGreetEl = document.getElementById('doc-hero-greeting');
-          if (docGreetEl) {
-            const h = new Date().getHours();
-            const gText = (h >= 5 && h < 12) ? 'صباح الخير' : (h >= 12 && h < 17 ? 'مساء الخير' : 'مساء النور');
-            docGreetEl.textContent = `${gText}، د. ${user.name}`;
-          }
+          const h = new Date().getHours();
+          const gText = (h >= 5 && h < 12) ? 'صباح الخير' : (h >= 12 && h < 17 ? 'مساء الخير' : 'مساء النور');
+          this.updateHeroGreetings(gText, user);
           try { await db.syncAndSeedCloudOptions(); } catch (_) {}
           this.updateBackupStatusHint();
           this.checkBackupReminderToast(user);
