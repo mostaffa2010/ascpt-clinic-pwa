@@ -3449,7 +3449,9 @@ body {
   /* Reset outer box styling on mobile */
   #card-dashboard-recent,
   #card-sessions-today,
-  #card-patients-directory {
+  #card-patients-directory,
+  #card-doctor-appointments-schedule,
+  #card-main-appointments-schedule {
     background: transparent !important;
     border: none !important;
     box-shadow: none !important;
@@ -3459,9 +3461,21 @@ body {
 
   #card-dashboard-recent .card-header,
   #card-sessions-today .card-header,
-  #card-patients-directory .card-header {
+  #card-patients-directory .card-header,
+  #card-doctor-appointments-schedule .card-header,
+  #card-main-appointments-schedule .card-header {
     padding: 4px 2px 12px 2px !important;
     border-bottom: none !important;
+    background: transparent !important;
+  }
+
+  #card-doctor-appointments-schedule .table-responsive,
+  #card-main-appointments-schedule .table-responsive {
+    border: none !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    overflow: visible !important;
+    padding: 0 !important;
   }
 }
 
@@ -4440,4 +4454,50 @@ body {
   background-color: #1e293b !important;
   border-color: #334155 !important;
   box-shadow: 0 24px 48px -12px rgba(0, 0, 0, 0.6) !important;
+}
+
+/* Mobile Unwrap for Appointments Schedules (v1.4.0-beta.12) */
+@media (max-width: 767px) {
+  #card-doctor-appointments-schedule,
+  #card-main-appointments-schedule,
+  .card:has(#my-appointments-grid),
+  .card:has(#appointments-grid) {
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+    margin-top: 10px !important;
+    margin-bottom: 14px !important;
+  }
+
+  #card-doctor-appointments-schedule > .card-header,
+  #card-main-appointments-schedule > .card-header,
+  .card:has(#my-appointments-grid) > .card-header,
+  .card:has(#appointments-grid) > .card-header {
+    background: transparent !important;
+    border: none !important;
+    padding: 6px 4px 12px 4px !important;
+  }
+
+  #card-doctor-appointments-schedule .table-responsive,
+  #card-main-appointments-schedule .table-responsive,
+  .table-responsive:has(#my-appointments-grid),
+  .table-responsive:has(#appointments-grid) {
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    overflow: visible !important;
+    padding: 0 !important;
+  }
+
+  .appt-timeline-container {
+    gap: 14px !important;
+    width: 100% !important;
+  }
+
+  .appt-slot-card {
+    margin: 0 0 14px 0 !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+  }
 }
