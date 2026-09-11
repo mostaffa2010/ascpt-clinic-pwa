@@ -5348,6 +5348,7 @@ body::-webkit-scrollbar,
 @media (max-width: 767px) {
   #card-finance-report-sessions,
   #card-finance-daily-expenses,
+  #card-finance-daily-doctors,
   #card-monthly-doctors,
   #card-monthly-insurance,
   #card-monthly-expenses,
@@ -5362,6 +5363,7 @@ body::-webkit-scrollbar,
 
   #card-finance-report-sessions .card-header,
   #card-finance-daily-expenses .card-header,
+  #card-finance-daily-doctors .card-header,
   #card-monthly-doctors .card-header,
   #card-monthly-insurance .card-header,
   #card-monthly-expenses .card-header,
@@ -5371,4 +5373,168 @@ body::-webkit-scrollbar,
     border-bottom: none !important;
     background: transparent !important;
   }
+}
+
+
+/* ==========================================================================
+   v1.4.0-beta.20: Enhanced Search Boxes & Ultra-Compact Mobile Expenses & Stack Decks
+   ========================================================================== */
+
+/* 1. Global Search Box with Integrated Icon */
+.search-box {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+
+.search-box i.fa-magnifying-glass,
+.search-box i.bi-search {
+  position: absolute;
+  right: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-muted);
+  pointer-events: none;
+  font-size: 0.92rem;
+  z-index: 2;
+}
+
+.search-box input.form-control {
+  padding-right: 38px !important;
+  width: 100%;
+}
+
+/* 2. Compact Transaction Rows for Mobile Expenses */
+.expenses-compact-list {
+  display: flex;
+  flex-direction: column;
+  background: var(--bg-surface);
+  border: 1.5px solid var(--border-color);
+  border-radius: 18px;
+  overflow: hidden;
+  box-shadow: 0 4px 16px -2px rgba(15, 23, 42, 0.05);
+  margin-bottom: 8px;
+}
+
+[data-theme="dark"] .expenses-compact-list {
+  background: rgba(15, 23, 42, 0.75);
+  border-color: rgba(255, 255, 255, 0.08);
+  box-shadow: 0 8px 24px -4px rgba(0, 0, 0, 0.4);
+}
+
+.expenses-scroll-wrapper {
+  max-height: 360px;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.expense-row-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 11px 14px;
+  border-bottom: 1px solid var(--border-color);
+  gap: 10px;
+  transition: background 0.15s ease;
+}
+
+.expense-row-item:last-child {
+  border-bottom: none;
+}
+
+.expense-row-item:active {
+  background: var(--bg-subtle);
+}
+
+.expense-row-right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+  flex: 1;
+}
+
+.expense-avatar-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  background: rgba(239, 68, 68, 0.12);
+  color: #ef4444;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.95rem;
+  flex-shrink: 0;
+}
+
+.expense-text-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.expense-title-text {
+  font-size: 0.92rem;
+  font-weight: 800;
+  color: var(--text-main);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.expense-sub-text {
+  font-size: 0.76rem;
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.expense-row-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.expense-amount-badge {
+  font-size: 0.95rem;
+  font-weight: 800;
+  color: var(--danger);
+  direction: ltr;
+}
+
+.btn-delete-expense-compact {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  border: 1px solid rgba(239, 68, 68, 0.25);
+  background: rgba(239, 68, 68, 0.08);
+  color: var(--danger);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.78rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-delete-expense-compact:active {
+  transform: scale(0.92);
+  background: var(--danger);
+  color: #ffffff;
+}
+
+.expenses-header-summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 14px;
+  background: var(--bg-subtle);
+  border-bottom: 1px solid var(--border-color);
+  font-size: 0.8rem;
+  font-weight: 800;
+  color: var(--text-muted);
 }
