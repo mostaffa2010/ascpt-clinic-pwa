@@ -455,9 +455,10 @@ export class AuditAndAdminManager {
       if (logs.length === 0) {
         mobLogs.innerHTML = `<div class="hero-styled-card" style="text-align: center; color: var(--text-muted); padding: 25px;">لا توجد حركات رقابة مسجلة حتى الآن.</div>`;
       } else {
+        const hasMoreAudit = logs.length > 6;
         mobLogs.innerHTML = `
           <div class="audit-mobile-timeline">
-            ${logs.map(l => {
+            ${logs.map((l, idx) => {
               const safeName = escapeHTML(l.userName);
               const safeRole = escapeHTML(l.userRole);
               const roleLabel = escapeHTML(RolesManager.getRoleLabel(l.userRole));
@@ -466,7 +467,7 @@ export class AuditAndAdminManager {
               const safeTime = escapeHTML(l.timestamp);
 
               return `
-                <div class="audit-mobile-item">
+                <div class="audit-mobile-item ${idx >= 6 ? 'audit-item-collapsed' : ''}" style="${idx >= 6 ? 'display: none;' : ''}">
                   <div style="display: flex; align-items: center; justify-content: space-between; gap: 8px;">
                     <span class="badge badge-direct" style="font-size: 0.76rem; font-weight: 800; padding: 3px 8px; border-radius: 6px;">
                       ${safeAction}
@@ -487,8 +488,31 @@ export class AuditAndAdminManager {
                 </div>
               `;
             }).join('')}
+            ${hasMoreAudit ? `
+              <button type="button" class="btn-toggle-audit-more btn btn-outline btn-sm" data-expanded="false" style="width: 100%; border-radius: 12px; margin-top: 6px; padding: 8px; font-size: 0.82rem; font-weight: 700; color: var(--primary); border-color: var(--primary); display: flex; align-items: center; justify-content: center; gap: 6px;">
+                <span>عرض باقي الحركات (${logs.length - 6}+)</span>
+                <i class="fa-solid fa-chevron-down"></i>
+              </button>
+            ` : ''}
           </div>
         `;
+
+        if (hasMoreAudit) {
+          mobLogs.querySelector('.btn-toggle-audit-more')?.addEventListener('click', (ev) => {
+            const btn = ev.currentTarget;
+            const isExp = btn.getAttribute('data-expanded') === 'true';
+            const hiddenLogs = mobLogs.querySelectorAll('.audit-item-collapsed');
+            if (isExp) {
+              hiddenLogs.forEach(r => r.style.display = 'none');
+              btn.setAttribute('data-expanded', 'false');
+              btn.innerHTML = `<span>عرض باقي الحركات (${logs.length - 6}+)</span> <i class="fa-solid fa-chevron-down"></i>`;
+            } else {
+              hiddenLogs.forEach(r => r.style.display = 'block');
+              btn.setAttribute('data-expanded', 'true');
+              btn.innerHTML = `<span>عرض أقل</span> <i class="fa-solid fa-chevron-up"></i>`;
+            }
+          });
+        }
       }
     }
   }

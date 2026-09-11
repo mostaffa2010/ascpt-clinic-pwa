@@ -445,7 +445,7 @@ class App {
     document.querySelectorAll('.modal-backdrop').forEach(modal => {
       modal.addEventListener('click', (e) => {
         if (e.target === modal && modal.id !== 'modal-auth' && modal.id !== 'modal-custom-dialog') {
-          modal.classList.remove('active');
+          this.closeModal(modal.id);
         }
       });
     });
@@ -1433,6 +1433,7 @@ class App {
     const modal = document.getElementById(modalId);
     if (modal) {
       modal.classList.add('active');
+      document.body.classList.add('modal-open');
       const transientModals = [
         'modal-auth',
         'modal-custom-dialog',
@@ -1450,6 +1451,10 @@ class App {
     const modal = document.getElementById(modalId);
     if (modal) {
       modal.classList.remove('active');
+      const remainingModals = document.querySelectorAll('.modal-backdrop.active');
+      if (!remainingModals.length) {
+        document.body.classList.remove('modal-open');
+      }
     }
   }
 

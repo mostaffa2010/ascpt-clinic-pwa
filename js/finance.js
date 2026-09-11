@@ -1064,6 +1064,7 @@ export class FinanceManager {
         `;
       } else {
         const canDel = RolesManager.canDeleteFinance(auth.getCurrentUser());
+        const hasMoreExp = allExpenses.length > 5;
         expensesMob.innerHTML = `
           <div class="expenses-compact-list">
             <div class="expenses-header-summary">
@@ -1071,8 +1072,8 @@ export class FinanceManager {
               <span style="color: var(--danger); font-size: 0.88rem; font-weight: 800;">${totalExpenses.toLocaleString('en-US')} ج.م</span>
             </div>
             <div class="expenses-scroll-wrapper">
-              ${allExpenses.map(e => `
-                <div class="expense-row-item">
+              ${allExpenses.map((e, idx) => `
+                <div class="expense-row-item ${idx >= 5 ? 'expense-item-collapsed' : ''}" style="${idx >= 5 ? 'display: none;' : ''}">
                   <div class="expense-row-right">
                     <div class="expense-avatar-icon">
                       <i class="fa-solid fa-receipt"></i>
@@ -1099,8 +1100,31 @@ export class FinanceManager {
                 </div>
               `).join('')}
             </div>
+            ${hasMoreExp ? `
+              <button type="button" class="btn-toggle-expenses-more" data-expanded="false" style="width: 100%; padding: 10px; background: none; border: none; border-top: 1px solid var(--border-color); color: var(--primary); font-size: 0.84rem; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px;">
+                <span>عرض باقي المصروفات (${allExpenses.length - 5}+)</span>
+                <i class="fa-solid fa-chevron-down"></i>
+              </button>
+            ` : ''}
           </div>
         `;
+
+        if (hasMoreExp) {
+          expensesMob.querySelector('.btn-toggle-expenses-more')?.addEventListener('click', (ev) => {
+            const btn = ev.currentTarget;
+            const isExp = btn.getAttribute('data-expanded') === 'true';
+            const hiddenRows = expensesMob.querySelectorAll('.expense-item-collapsed');
+            if (isExp) {
+              hiddenRows.forEach(r => r.style.display = 'none');
+              btn.setAttribute('data-expanded', 'false');
+              btn.innerHTML = `<span>عرض باقي المصروفات (${allExpenses.length - 5}+)</span> <i class="fa-solid fa-chevron-down"></i>`;
+            } else {
+              hiddenRows.forEach(r => r.style.display = 'flex');
+              btn.setAttribute('data-expanded', 'true');
+              btn.innerHTML = `<span>عرض أقل</span> <i class="fa-solid fa-chevron-up"></i>`;
+            }
+          });
+        }
       }
     }
 
@@ -1512,6 +1536,7 @@ export class FinanceManager {
         `;
       } else {
         const totalMExp = allExpenses.reduce((acc, curr) => acc + (parseFloat(curr.amount) || 0), 0);
+        const hasMoreMExp = allExpenses.length > 5;
         mExpMob.innerHTML = `
           <div class="expenses-compact-list">
             <div class="expenses-header-summary">
@@ -1519,8 +1544,8 @@ export class FinanceManager {
               <span style="color: var(--danger); font-size: 0.88rem; font-weight: 800;">إجمالي: ${totalMExp.toLocaleString('en-US')} ج.م</span>
             </div>
             <div class="expenses-scroll-wrapper">
-              ${allExpenses.map(e => `
-                <div class="expense-row-item">
+              ${allExpenses.map((e, idx) => `
+                <div class="expense-row-item ${idx >= 5 ? 'expense-item-collapsed' : ''}" style="${idx >= 5 ? 'display: none;' : ''}">
                   <div class="expense-row-right">
                     <div class="expense-avatar-icon">
                       <i class="fa-solid fa-receipt"></i>
@@ -1542,8 +1567,31 @@ export class FinanceManager {
                 </div>
               `).join('')}
             </div>
+            ${hasMoreMExp ? `
+              <button type="button" class="btn-toggle-monthly-expenses-more" data-expanded="false" style="width: 100%; padding: 10px; background: none; border: none; border-top: 1px solid var(--border-color); color: var(--primary); font-size: 0.84rem; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px;">
+                <span>عرض باقي المصروفات (${allExpenses.length - 5}+)</span>
+                <i class="fa-solid fa-chevron-down"></i>
+              </button>
+            ` : ''}
           </div>
         `;
+
+        if (hasMoreMExp) {
+          mExpMob.querySelector('.btn-toggle-monthly-expenses-more')?.addEventListener('click', (ev) => {
+            const btn = ev.currentTarget;
+            const isExp = btn.getAttribute('data-expanded') === 'true';
+            const hiddenRows = mExpMob.querySelectorAll('.expense-item-collapsed');
+            if (isExp) {
+              hiddenRows.forEach(r => r.style.display = 'none');
+              btn.setAttribute('data-expanded', 'false');
+              btn.innerHTML = `<span>عرض باقي المصروفات (${allExpenses.length - 5}+)</span> <i class="fa-solid fa-chevron-down"></i>`;
+            } else {
+              hiddenRows.forEach(r => r.style.display = 'flex');
+              btn.setAttribute('data-expanded', 'true');
+              btn.innerHTML = `<span>عرض أقل</span> <i class="fa-solid fa-chevron-up"></i>`;
+            }
+          });
+        }
       }
     }
   }

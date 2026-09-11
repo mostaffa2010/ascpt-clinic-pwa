@@ -5446,9 +5446,10 @@ body::-webkit-scrollbar,
 }
 
 .expenses-scroll-wrapper {
-  max-height: 360px;
-  overflow-y: auto;
-  -webkit-overflow-scrolling: touch;
+  max-height: none !important;
+  overflow-y: visible !important;
+  display: flex !important;
+  flex-direction: column !important;
 }
 
 .expense-row-item {
@@ -5932,9 +5933,8 @@ body::-webkit-scrollbar,
   display: flex !important;
   flex-direction: column !important;
   gap: 8px !important;
-  max-height: 420px !important;
-  overflow-y: auto !important;
-  -webkit-overflow-scrolling: touch !important;
+  max-height: none !important;
+  overflow-y: visible !important;
   padding-right: 2px !important;
 }
 
@@ -6048,20 +6048,23 @@ body::-webkit-scrollbar,
    v1.4.0-beta.28: Bounded Mobile Scrollable Containers (~3 Cards Height)
    ========================================================================== */
 @media (max-width: 991px) {
+  /* v1.4.0-beta.31: Eliminate Inner Scroll Traps - Natural Viewport Flow */
   #sessions-today-mobile-cards,
   #patients-mobile-cards,
   #doctor-personal-mobile-cards,
   #finance-report-mobile-cards,
-  #dashboard-recent-mobile-cards {
-    max-height: 500px !important;
-    overflow-y: auto !important;
-    overflow-x: hidden !important;
-    -webkit-overflow-scrolling: touch !important;
-    overscroll-behavior: contain !important;
-    padding: 2px 4px 12px 4px !important;
+  #dashboard-recent-mobile-cards,
+  #claim-patients-mobile-cards {
+    max-height: none !important;
+    overflow-y: visible !important;
+    overflow-x: visible !important;
+    -webkit-overflow-scrolling: auto !important;
+    overscroll-behavior: auto !important;
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 12px !important;
+    padding: 4px 2px 14px 2px !important;
     box-sizing: border-box !important;
-    scrollbar-width: thin !important;
-    scrollbar-color: rgba(2, 132, 199, 0.35) transparent !important;
   }
 
   /* CRITICAL: Never shrink cards! Keep full normal card dimensions, padding, and all details */
@@ -6110,4 +6113,21 @@ body::-webkit-scrollbar,
   [data-theme="dark"] #dashboard-recent-mobile-cards::-webkit-scrollbar-thumb {
     background-color: rgba(56, 189, 248, 0.4) !important;
   }
+}
+
+/* ==========================================================================
+   v1.4.0-beta.31: Body Scroll Lock & Modal Scroll Isolation
+   ========================================================================== */
+body.modal-open {
+  overflow: hidden !important;
+  touch-action: none !important;
+}
+
+.modal-backdrop {
+  overscroll-behavior: contain !important;
+}
+
+.modal-content {
+  overscroll-behavior: contain !important;
+  -webkit-overflow-scrolling: touch !important;
 }

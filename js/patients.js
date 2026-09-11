@@ -32,12 +32,12 @@ export class PatientsManager {
   bindEvents() {
     const searchInput = document.getElementById('patient-search-input');
     if (searchInput) {
-      searchInput.addEventListener('input', () => this.renderPatients());
+      searchInput.addEventListener('input', () => { this.mobileVisibleLimit = 15; this.renderPatients(); });
     }
 
     const filterType = document.getElementById('patient-filter-type');
     if (filterType) {
-      filterType.addEventListener('change', () => this.renderPatients());
+      filterType.addEventListener('change', () => { this.mobileVisibleLimit = 15; this.renderPatients(); });
     }
 
     const btnToday = document.getElementById('btn-filter-today-patients');
@@ -594,18 +594,23 @@ export class PatientsManager {
       `;
     }).join('');
 
-    // 2. Render Handcrafted Mobile Cards
+    // 2. Render Handcrafted Mobile Cards (Progressive Batch Loading)
     if (mobileContainer) {
-      mobileContainer.innerHTML = filtered.map(p => {
+      const pageLimit = this.mobileVisibleLimit || 15;
+      const visiblePatients = filtered.slice(0, pageLimit);
+      const hasMorePatients = filtered.length > pageLimit;
+
+      mobileContainer.innerHTML = visiblePatients.map(p => {
         let billingBadge = '';
         const safeComp = escapeHTML(p.insuranceCompany || 'تأمين');
         const approvedVisits = p.approvedSessions || 12;
+        const approvedParts = p.approvedBodyParts || 1;
         if (p.billing === 'cash') {
           billingBadge = `<span class="badge badge-cash"><i class="fa-solid fa-money-bill"></i> نقدي</span>`;
         } else if (p.contractType === 'direct') {
-          billingBadge = `<span class="badge badge-direct" title="${approvedVisits} زيارة معتمدة"><i class="fa-solid fa-file-contract"></i> ${safeComp}</span>`;
+          billingBadge = `<span class="badge badge-direct" title="${approvedVisits} زيارة معتمدة (${approvedParts} أعضاء)"><i class="fa-solid fa-file-contract"></i> ${safeComp}</span>`;
         } else {
-          billingBadge = `<span class="badge badge-indirect" title="${approvedVisits} زيارة معتمدة"><i class="fa-solid fa-handshake"></i> ${safeComp}</span>`;
+          billingBadge = `<span class="badge badge-indirect" title="${approvedVisits} زيارة معتمدة (${approvedParts} أعضاء)"><i class="fa-solid fa-handshake"></i> ${safeComp}</span>`;
         }
 
         const safeId = escapeHTML(p.id);
@@ -676,7 +681,21 @@ export class PatientsManager {
             </div>
           </div>
         `;
-      }).join('');
+      }).join('') + (hasMorePatients ? `
+        <div id="btn-patients-load-more-box" style="text-align: center; padding: 14px 4px 6px 4px;">
+          <button type="button" class="btn btn-outline btn-sm" id="btn-patients-load-more" style="border-radius: 999px; padding: 8px 24px; font-weight: 700; color: var(--primary); border-color: var(--primary); display: inline-flex; align-items: center; gap: 8px;">
+            <i class="fa-solid fa-angles-down"></i>
+            <span>عرض المزيد (معروض ${visiblePatients.length} من ${filtered.length})</span>
+          </button>
+        </div>
+      ` : '');
+
+      if (hasMorePatients) {
+        mobileContainer.querySelector('#btn-patients-load-more')?.addEventListener('click', () => {
+          this.mobileVisibleLimit = (this.mobileVisibleLimit || 15) + 15;
+          this.renderPatients();
+        });
+      }
     }
   }
 
