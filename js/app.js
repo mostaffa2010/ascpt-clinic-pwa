@@ -1,38 +1,8 @@
 // ================= Global Bulletproof Event-Driven Lock on window.print =================
-// Guaranteed 100% Light-Mode Print: Completely strips dark theme from DOM during printing
 if (typeof window !== 'undefined' && !window.__print_lock_installed) {
   window.__print_lock_installed = true;
   const _origPrint = window.print.bind(window);
   let _isPrintingNow = false;
-
-  const neutralizeDarkThemeForPrint = () => {
-    window.__prePrintHtmlTheme = document.documentElement.getAttribute('data-theme') || '';
-    window.__prePrintBodyTheme = document.body.getAttribute('data-theme') || '';
-    document.documentElement.setAttribute('data-theme', 'light');
-    document.body.setAttribute('data-theme', 'light');
-    document.documentElement.classList.remove('dark');
-    document.body.classList.remove('dark');
-    document.documentElement.classList.add('force-print-light');
-    document.body.classList.add('force-print-light');
-  };
-
-  const restoreThemeAfterPrint = () => {
-    document.documentElement.classList.remove('force-print-light');
-    document.body.classList.remove('force-print-light');
-    if (window.__prePrintHtmlTheme) {
-      document.documentElement.setAttribute('data-theme', window.__prePrintHtmlTheme);
-    } else {
-      document.documentElement.removeAttribute('data-theme');
-    }
-    if (window.__prePrintBodyTheme) {
-      document.body.setAttribute('data-theme', window.__prePrintBodyTheme);
-    } else {
-      document.body.removeAttribute('data-theme');
-    }
-  };
-
-  window.addEventListener('beforeprint', neutralizeDarkThemeForPrint);
-  window.addEventListener('afterprint', restoreThemeAfterPrint);
 
   window.print = function() {
     if (_isPrintingNow) {
@@ -40,9 +10,6 @@ if (typeof window !== 'undefined' && !window.__print_lock_installed) {
       return;
     }
     _isPrintingNow = true;
-
-    // 0. Neutralize dark mode immediately before printing
-    neutralizeDarkThemeForPrint();
 
     // 1. Remove focus immediately so Android Chrome cannot replay click event on return
     if (document.activeElement && typeof document.activeElement.blur === 'function') {
@@ -68,7 +35,6 @@ if (typeof window !== 'undefined' && !window.__print_lock_installed) {
     const unlock = () => {
       setTimeout(() => {
         _isPrintingNow = false;
-        restoreThemeAfterPrint();
         printBtns.forEach(btn => {
           btn.removeAttribute('disabled');
           btn.style.pointerEvents = '';
