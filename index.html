@@ -47,8 +47,8 @@
   
 
     <!-- Stylesheets -->
-  <link rel="stylesheet" href="css/style.css?v=1.4.25" media="screen">
-  <link rel="stylesheet" href="css/print.css?v=1.4.25" media="print">
+  <link rel="stylesheet" href="css/style.css?v=1.4.26" media="screen">
+  <link rel="stylesheet" href="css/print.css?v=1.4.26" media="print">
 </head>
 <body>
   <script>
@@ -359,16 +359,24 @@
 
           <!-- Doctor's Personal Patients Register Card -->
           <div class="card" id="card-doctor-personal-sessions" style="margin-top: 20px;">
-            <div class="card-header" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
-              <div class="card-title" style="margin: 0; display: flex; align-items: center; gap: 8px; font-size: 1rem;">
+            <div class="card-header" style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 8px;">
+              <div class="card-title" style="margin: 0; display: flex; align-items: center; gap: 8px; font-size: 1.05rem; font-weight: 800;">
                 <i class="fa-solid fa-book-medical text-primary"></i>
                 <span id="doc-table-title">جلسات مرضاك اليوم</span>
               </div>
-              <div style="display: flex; gap: 6px; flex-wrap: wrap;">
-                <button type="button" class="btn-quick-date active" id="btn-doc-filter-today">جلسات اليوم</button>
-                <button type="button" class="btn-quick-date" id="btn-doc-filter-month">حالات هذا الشهر</button>
-                <button type="button" class="btn-quick-date" id="btn-doc-filter-lifetime">كل مرضاي (Lifetime)</button>
-              </div>
+            </div>
+
+            <!-- Full-Width Sleek Segmented Control (Point 2) -->
+            <div class="doc-filter-segmented-bar no-print">
+              <button type="button" class="doc-seg-btn active" id="btn-doc-filter-today">
+                <i class="fa-solid fa-calendar-day"></i> <span>جلسات اليوم</span>
+              </button>
+              <button type="button" class="doc-seg-btn" id="btn-doc-filter-month">
+                <i class="fa-solid fa-calendar-days"></i> <span>حالات الشهر</span>
+              </button>
+              <button type="button" class="doc-seg-btn" id="btn-doc-filter-lifetime">
+                <i class="fa-solid fa-users"></i> <span>كل المرضى</span>
+              </button>
             </div>
             <div class="table-responsive desktop-only-table">
               <table class="data-table" id="doctor-personal-table">
@@ -1634,7 +1642,7 @@
         <div class="admin-system-footer no-print" style="margin-top: 32px; margin-bottom: 35px; text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px;">
           <div style="display: inline-flex; align-items: center; gap: 8px; background: var(--bg-surface); border: 1.5px solid var(--border-color); padding: 7px 18px; border-radius: 999px; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);">
             <span style="width: 8px; height: 8px; border-radius: 50%; background-color: var(--success); display: inline-block; box-shadow: 0 0 6px var(--success);"></span>
-            <span style="font-weight: 800; font-size: 0.88rem; color: var(--text-main);">نظام ASCPT — الإصدار 1.4.25</span>
+            <span style="font-weight: 800; font-size: 0.88rem; color: var(--text-main);">نظام ASCPT — الإصدار 1.4.26</span>
             <span class="badge badge-primary" style="font-size: 0.72rem; padding: 2px 10px; border-radius: 999px; font-weight: 800;">إصدار معتمد</span>
           </div>
           <div style="font-size: 0.76rem; color: var(--text-muted); font-weight: 700;">
@@ -2105,6 +2113,11 @@
               <span class="btn-text">-- اختر مريض من السجل --</span>
               <i class="fa-solid fa-magnifying-glass"></i>
             </button>
+          </div>
+
+          <div class="form-group" style="margin-top: 14px;">
+            <label style="display: inline-block; font-size: 0.88rem; font-weight: 700; color: var(--text-main); margin-bottom: 6px;">المنطقة أو العضو المعالج (اختياري)</label>
+            <input type="text" id="appt-body-part" class="form-control" placeholder="مثال: ركبة، رقبة، فقرات قطنية...">
           </div>
         </div>
         <div class="modal-footer">
@@ -2826,7 +2839,7 @@
   </div>
 
 <!-- Main Application Script (ES Module) -->
-  <script type="module" src="js/app.js?v=1.4.25"></script>
+  <script type="module" src="js/app.js?v=1.4.26"></script>
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {

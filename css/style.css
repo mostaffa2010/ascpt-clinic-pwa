@@ -7040,3 +7040,47 @@ h1, h2, h3, h4, h5, h6 {
 .sheet-bottom-bar-fixed .btn-save-sheet-hero:active {
   transform: scale(0.98);
 }
+
+/* Doctor Personal Sessions Segmented Filter Bar */
+.doc-filter-segmented-bar {
+  display: flex;
+  align-items: center;
+  background: var(--bg-subtle);
+  border: 1.5px solid var(--border-color);
+  border-radius: 14px;
+  padding: 4px;
+  gap: 4px;
+  margin: 4px 14px 14px 14px;
+  box-sizing: border-box;
+}
+
+.doc-seg-btn {
+  flex: 1;
+  border: none;
+  border-radius: 10px;
+  padding: 8px 10px;
+  font-size: 0.82rem;
+  font-weight: 800;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  color: var(--text-muted);
+  background: transparent;
+}
+
+:root:not([data-theme="dark"]) .doc-seg-btn.active {
+  background: #ffffff;
+  color: #0284c7;
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.08);
+}
+
+[data-theme="dark"] .doc-seg-btn.active {
+  background: #1e293b;
+  color: #38bdf8;
+  border: 1px solid rgba(56, 189, 248, 0.3);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.4);
+}

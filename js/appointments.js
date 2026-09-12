@@ -166,16 +166,18 @@ export class AppointmentsManager {
   }
 
   async loadAll() {
-    const [appointments, doctors, patients, slots] = await Promise.all([
+    const [appointments, doctors, patients, slots, sessions] = await Promise.all([
       db.getAppointments(),
       db.getDoctorsList(),
       db.getPatients(),
-      db.getAppointmentSlots ? db.getAppointmentSlots() : DEFAULT_APPT_SLOTS
+      db.getAppointmentSlots ? db.getAppointmentSlots() : DEFAULT_APPT_SLOTS,
+      db.getSessions ? db.getSessions() : []
     ]);
     this.appointments = appointments;
     this.doctors = doctors;
     this.patients = patients;
     this.slots = (Array.isArray(slots) && slots.length > 0) ? slots : DEFAULT_APPT_SLOTS;
+    this.sessions = sessions || [];
   }
 
   getSlotTotalCount(timeSlot) {
@@ -426,13 +428,27 @@ export class AppointmentsManager {
                     const isDone = completedApptIds.includes(a.id);
                     const patientObj = (this.patients || []).find(p => p.id === a.patientId);
                     const phone = patientObj?.phone || '';
-                    const billing = patientObj?.billing || '';
-                    let billingBadge = '';
-                    if (billing === 'cash') {
-                      billingBadge = '<span class="badge badge-cash" style="font-size: 0.68rem; padding: 1.5px 6px;">نقدي</span>';
-                    } else if (billing === 'insurance') {
-                      const comp = patientObj?.insuranceCompany || 'تأمين';
-                      billingBadge = `<span class="badge badge-direct" style="font-size: 0.68rem; padding: 1.5px 6px;">${escapeHTML(comp)}</span>`;
+
+                    // Clinical Fallback Chain: Body Part / Area being treated
+                    let treatedArea = a.bodyPart || patientObj?.clinicalSheet?.affectedArea || '';
+                    if (!treatedArea) {
+                      const pSessions = (this.sessions || []).filter(s => s.patientId === a.patientId || s.patientName === a.patientName);
+                      pSessions.sort((x, y) => new Date(y.date || y.createdAt || 0) - new Date(x.date || x.createdAt || 0));
+                      if (pSessions.length > 0) {
+                        const latestSess = pSessions[0];
+                        if (Array.isArray(latestSess.bodyParts) && latestSess.bodyParts.length > 0) {
+                          treatedArea = latestSess.bodyParts.join('، ');
+                        } else if (typeof latestSess.bodyParts === 'string') {
+                          treatedArea = latestSess.bodyParts;
+                        }
+                      }
+                    }
+
+                    let bodyPartBadge = '';
+                    if (treatedArea) {
+                      bodyPartBadge = `<span class="badge" style="font-size: 0.70rem; padding: 2px 8px; border-radius: 999px; font-weight: 800; display: inline-flex; align-items: center; gap: 4px; background: rgba(2, 132, 199, 0.1); color: var(--primary); border: 1px solid rgba(2, 132, 199, 0.28);"><i class="fa-solid fa-bone"></i> ${escapeHTML(treatedArea)}</span>`;
+                    } else {
+                      bodyPartBadge = `<span class="badge" style="font-size: 0.70rem; padding: 2px 8px; border-radius: 999px; font-weight: 800; display: inline-flex; align-items: center; gap: 4px; background: rgba(245, 158, 11, 0.1); color: var(--warning); border: 1px solid rgba(245, 158, 11, 0.28);"><i class="fa-solid fa-stethoscope"></i> كشف / تقييم جديد</span>`;
                     }
 
                     return `
@@ -444,7 +460,7 @@ export class AppointmentsManager {
                           <div class="doc-patient-info" style="min-width: 0;">
                             <div class="doc-patient-name" style="font-weight: 800; font-size: 0.88rem; color: var(--text-main); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; ${isDone ? 'text-decoration: line-through;' : ''}">${escapeHTML(a.patientName)}</div>
                             <div style="display: flex; align-items: center; gap: 6px; margin-top: 2px;">
-                              ${billingBadge}
+                              ${bodyPartBadge}
                               ${phone ? `<a href="tel:${escapeHTML(phone)}" style="font-size: 0.72rem; color: var(--text-muted); text-decoration: none; display: inline-flex; align-items: center; gap: 3px;" title="اتصال"><i class="fa-solid fa-phone" style="font-size: 0.65rem;"></i> <bdi dir="ltr">${escapeHTML(phone)}</bdi></a>` : ''}
                             </div>
                           </div>
@@ -764,6 +780,8 @@ export class AppointmentsManager {
       }
     }
 
+    const bodyPartInput = document.getElementById('appt-body-part');
+    if (bodyPartInput) bodyPartInput.value = '';
     const trigger = document.getElementById('appt-patient-picker-trigger');
     if (trigger) trigger.querySelector('.btn-text').textContent = '-- اختر مريض من السجل --';
 
@@ -878,12 +896,14 @@ export class AppointmentsManager {
     }
 
     try {
+      const bodyPartVal = document.getElementById('appt-body-part')?.value.trim() || '';
       await db.addAppointment({
         doctorUid: chosenUid,
         doctorName: chosenName,
         timeSlot: this.pendingTimeSlot,
         patientId: this.selectedPatientId,
         patientName: this.selectedPatientName,
+        bodyPart: bodyPartVal,
         createdBy: auth.getCurrentUser()?.name || ''
       });
       this.app.closeModal('modal-appointment');
