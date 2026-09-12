@@ -21,6 +21,9 @@ export class SessionsManager {
     this.entryMode = 'session'; // 'session' | 'examination'
     this.examType = 'cash'; // 'cash' | 'contract'
     this.selectedPatient = null;
+    this.currentPage = 1;
+    this.pageSize = 10;
+    this.newlyAddedSessionId = null;
     window.sessionsManager = this;
   }
 
@@ -40,6 +43,7 @@ export class SessionsManager {
     if (dateInput) {
       dateInput.addEventListener('change', (e) => {
         this.currentSessionDate = e.target.value;
+        this.currentPage = 1;
         this.syncQuickDateButtons(this.currentSessionDate);
         this.updateDateLabel();
         this.loadTodaySessions();
@@ -831,7 +835,9 @@ export class SessionsManager {
       approvedBodyPartsTotal: patient?.approvedBodyParts || 1
     };
 
-    await db.saveSession(sessionData, currentUser);
+    const saveRes = await db.saveSession(sessionData, currentUser);
+    this.newlyAddedSessionId = (saveRes && saveRes.id) ? saveRes.id : (sessionData.id || this.editingSessionId);
+    this.currentPage = 1;
     
     let auditAction = isEdit ? 'تعديل جلسة' : 'تسجيل جلسة';
     let auditDesc = '';
@@ -1236,6 +1242,11 @@ export class SessionsManager {
 
   async loadTodaySessions() {
     const sessions = await db.getSessions(this.currentSessionDate);
+    sessions.sort((a, b) => {
+      const timeA = a.createdAt || a.recordedAt || '';
+      const timeB = b.createdAt || b.recordedAt || '';
+      return timeB.localeCompare(timeA);
+    });
     this.sessions = sessions;
     const tbody = document.getElementById('sessions-today-tbody');
     const mobileCardsContainer = document.getElementById('sessions-today-mobile-cards');
@@ -1303,6 +1314,8 @@ export class SessionsManager {
 
     // 1. Render Desktop Table
     tbody.innerHTML = sessions.map(s => {
+      const isNewlyAdded = Boolean(s.id && s.id === this.newlyAddedSessionId);
+      const rowHighlightClass = isNewlyAdded ? 'session-row-newly-added' : '';
       const safeId = escapeHTML(s.id);
       const safePatient = escapeHTML(s.patientName);
       const safeDoc = escapeHTML(s.doctor);
@@ -1393,9 +1406,19 @@ export class SessionsManager {
       `;
     }).join('');
 
-    // 2. Render Handcrafted Mobile Cards
+    // 2. Render Handcrafted Mobile Cards (10 per page pagination)
     if (mobileCardsContainer) {
-      mobileCardsContainer.innerHTML = sessions.map(s => {
+      const pageLimit = this.pageSize || 10;
+      const totalPages = Math.ceil(sessions.length / pageLimit) || 1;
+      if (this.currentPage > totalPages) this.currentPage = totalPages;
+      if (this.currentPage < 1) this.currentPage = 1;
+
+      const startIdx = (this.currentPage - 1) * pageLimit;
+      const visibleSessions = sessions.slice(startIdx, startIdx + pageLimit);
+
+      mobileCardsContainer.innerHTML = visibleSessions.map(s => {
+        const isNewlyAdded = Boolean(s.id && s.id === this.newlyAddedSessionId);
+        const rowHighlightClass = isNewlyAdded ? 'session-row-newly-added' : '';
         const safeId = escapeHTML(s.id);
         const safePatient = escapeHTML(s.patientName);
         const safeDoc = escapeHTML(s.doctor);
@@ -1441,7 +1464,7 @@ export class SessionsManager {
         const safeParts = Array.isArray(s.bodyParts) ? s.bodyParts.map(b => escapeHTML(b)).join('، ') : escapeHTML(s.bodyParts || '');
 
         return `
-          <div class="hero-styled-card">
+          <div class="hero-styled-card ${rowHighlightClass}">
             <div class="hsc-top">
               <div class="hsc-patient-meta">
                 <div class="hsc-avatar"><i class="fa-solid fa-user-injured"></i></div>
@@ -1481,7 +1504,37 @@ export class SessionsManager {
             </div>
           </div>
         `;
-      }).join('');
+      }).join('') + (totalPages > 1 ? `
+        <div class="mobile-pagination-bar no-print">
+          <button type="button" class="btn btn-outline btn-sm btn-page-nav" id="btn-sessions-prev-page" ${this.currentPage <= 1 ? 'disabled style="opacity: 0.4; pointer-events: none;"' : ''}>
+            <i class="fa-solid fa-chevron-right"></i> <span>السابق</span>
+          </button>
+          <div class="page-indicator">
+            <span class="page-num-pill">صفحة ${this.currentPage} من ${totalPages}</span>
+            <small class="page-range-sub">(${startIdx + 1} - ${Math.min(startIdx + pageLimit, sessions.length)} من ${sessions.length})</small>
+          </div>
+          <button type="button" class="btn btn-outline btn-sm btn-page-nav" id="btn-sessions-next-page" ${this.currentPage >= totalPages ? 'disabled style="opacity: 0.4; pointer-events: none;"' : ''}>
+            <span>التالي</span> <i class="fa-solid fa-chevron-left"></i>
+          </button>
+        </div>
+      ` : '');
+
+      if (totalPages > 1) {
+        mobileCardsContainer.querySelector('#btn-sessions-prev-page')?.addEventListener('click', () => {
+          if (this.currentPage > 1) {
+            this.currentPage--;
+            this.loadTodaySessions();
+            document.getElementById('card-sessions-today')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          }
+        });
+        mobileCardsContainer.querySelector('#btn-sessions-next-page')?.addEventListener('click', () => {
+          if (this.currentPage < totalPages) {
+            this.currentPage++;
+            this.loadTodaySessions();
+            document.getElementById('card-sessions-today')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          }
+        });
+      }
     }
   }
 

@@ -7341,3 +7341,113 @@ h1, h2, h3, h4, h5, h6 {
     border-color: #10b981;
   }
 }
+
+/* ================= Hybrid Solution: Desktop Sticky Tables & Mobile Pagination (v1.4.31) ================= */
+
+/* 1. Desktop Sticky Header & Max-Height Viewport */
+@media screen and (min-width: 992px) {
+  #patients-table-container,
+  #sessions-table-container {
+    max-height: 62vh !important;
+    overflow-y: auto !important;
+    overflow-x: auto !important;
+    position: relative;
+    border-radius: var(--radius-md);
+  }
+
+  #patients-data-table thead th,
+  #sessions-today-table thead th {
+    position: sticky !important;
+    top: 0 !important;
+    z-index: 10 !important;
+    background: var(--bg-surface) !important;
+    box-shadow: 0 2px 6px rgba(15, 23, 42, 0.06);
+  }
+
+  [data-theme="dark"] #patients-data-table thead th,
+  [data-theme="dark"] #sessions-today-table thead th {
+    background: #1e293b !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+  }
+}
+
+/* 2. Mobile Pagination Bar */
+.mobile-pagination-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 14px 4px 6px 4px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.btn-page-nav {
+  height: 38px;
+  padding: 0 16px;
+  border-radius: var(--radius-pill);
+  font-size: 0.82rem;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border: 1.5px solid var(--border-color);
+  background: var(--bg-surface);
+  color: var(--text-main);
+  cursor: pointer;
+  transition: all 0.15s ease;
+  box-shadow: var(--shadow-xs);
+}
+
+.btn-page-nav:hover:not(:disabled) {
+  border-color: var(--primary);
+  color: var(--primary);
+  background: var(--primary-light);
+}
+
+[data-theme="dark"] .btn-page-nav {
+  background: #1e293b;
+  border-color: #334155;
+  color: #f8fafc;
+}
+
+[data-theme="dark"] .btn-page-nav:hover:not(:disabled) {
+  border-color: var(--primary);
+  color: var(--primary);
+  background: rgba(56, 189, 248, 0.15);
+}
+
+.page-indicator {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+
+.page-num-pill {
+  font-size: 0.84rem;
+  font-weight: 800;
+  color: var(--text-main);
+}
+
+.page-range-sub {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  font-weight: 600;
+}
+
+/* Newly added session highlight */
+.session-row-newly-added {
+  animation: newSessionPulse 3s ease-in-out infinite alternate;
+}
+
+@keyframes newSessionPulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(56, 189, 248, 0.4);
+    border-color: rgba(56, 189, 248, 0.6);
+  }
+  100% {
+    box-shadow: 0 0 16px 2px rgba(56, 189, 248, 0.25);
+    border-color: #38bdf8;
+  }
+}

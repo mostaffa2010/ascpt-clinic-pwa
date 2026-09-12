@@ -47,8 +47,8 @@
   
 
     <!-- Stylesheets -->
-  <link rel="stylesheet" href="css/style.css?v=1.4.30" media="screen">
-  <link rel="stylesheet" href="css/print.css?v=1.4.30" media="print">
+  <link rel="stylesheet" href="css/style.css?v=1.4.31" media="screen">
+  <link rel="stylesheet" href="css/print.css?v=1.4.31" media="print">
 </head>
 <body>
   <script>
@@ -863,8 +863,8 @@
               </div>
               <span class="badge badge-cash" id="sessions-today-count-badge" style="flex-shrink: 0; white-space: nowrap; font-size: 0.82rem; padding: 4px 10px; font-weight: 800;">0 جلسة</span>
             </div>
-            <div class="table-responsive desktop-only-table">
-              <table class="data-table">
+            <div class="table-responsive desktop-only-table" id="sessions-table-container">
+              <table class="data-table" id="sessions-today-table">
                 <thead>
                   <tr>
                     <th>المريض</th>
@@ -1131,8 +1131,8 @@
             <div class="card-header">
               <span class="card-title"><i class="fa-solid fa-user-doctor"></i> إحصائية أطباء المركز للشهر (مصنفة نقدي وشركات)</span>
             </div>
-            <div class="table-responsive desktop-only-table">
-              <table class="data-table">
+            <div class="table-responsive desktop-only-table" id="sessions-table-container">
+              <table class="data-table" id="sessions-today-table">
                 <thead>
                   <tr>
                     <th>الطبيب المعالج</th>
@@ -1156,8 +1156,8 @@
             <div class="card-header">
               <span class="card-title"><i class="fa-solid fa-shield-halved"></i> توزيع المرضى حسب جهات الدفع والتأمين</span>
             </div>
-            <div class="table-responsive desktop-only-table">
-              <table class="data-table">
+            <div class="table-responsive desktop-only-table" id="sessions-table-container">
+              <table class="data-table" id="sessions-today-table">
                 <thead>
                   <tr>
                     <th>جهة السداد / شركة التأمين</th>
@@ -1208,8 +1208,8 @@
             <div class="card-header">
               <span class="card-title"><i class="fa-solid fa-receipt"></i> بيان مصروفات الشهر</span>
             </div>
-            <div class="table-responsive desktop-only-table">
-              <table class="data-table">
+            <div class="table-responsive desktop-only-table" id="sessions-table-container">
+              <table class="data-table" id="sessions-today-table">
                 <thead>
                   <tr>
                     <th>التاريخ</th>
@@ -1593,8 +1593,8 @@
             <div class="card-header">
               <span class="card-title"><i class="fa-solid fa-id-badge"></i> فريق العمل الحالي</span>
             </div>
-            <div class="table-responsive desktop-only-table">
-              <table class="data-table">
+            <div class="table-responsive desktop-only-table" id="sessions-table-container">
+              <table class="data-table" id="sessions-today-table">
                 <thead>
                   <tr>
                     <th>الاسم</th>
@@ -1663,7 +1663,7 @@
         <div class="admin-system-footer no-print" style="margin-top: 32px; margin-bottom: 35px; text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px;">
           <div style="display: inline-flex; align-items: center; gap: 8px; background: var(--bg-surface); border: 1.5px solid var(--border-color); padding: 7px 18px; border-radius: 999px; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);">
             <span style="width: 8px; height: 8px; border-radius: 50%; background-color: var(--success); display: inline-block; box-shadow: 0 0 6px var(--success);"></span>
-            <span style="font-weight: 800; font-size: 0.88rem; color: var(--text-main);">نظام ASCPT — الإصدار 1.4.30</span>
+            <span style="font-weight: 800; font-size: 0.88rem; color: var(--text-main);">نظام ASCPT — الإصدار 1.4.31</span>
             <span class="badge badge-primary" style="font-size: 0.72rem; padding: 2px 10px; border-radius: 999px; font-weight: 800;">إصدار معتمد</span>
           </div>
           <div style="font-size: 0.76rem; color: var(--text-muted); font-weight: 700;">
@@ -2882,7 +2882,7 @@
   </div>
 
 <!-- Main Application Script (ES Module) -->
-  <script type="module" src="js/app.js?v=1.4.30"></script>
+  <script type="module" src="js/app.js?v=1.4.31"></script>
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {

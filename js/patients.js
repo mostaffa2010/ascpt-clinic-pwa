@@ -16,6 +16,8 @@ export class PatientsManager {
     this.insEditMode = false;
     this.currentContractType = "direct";
     this.sortBy = localStorage.getItem('ascpt_patient_sort') || 'recent';
+    this.currentPage = 1;
+    this.pageSize = 10;
     this.newlyAddedPatientId = null;
     this.pendingPromptPatientId = null;
     this.chipsEditMode = {
@@ -35,12 +37,12 @@ export class PatientsManager {
   bindEvents() {
     const searchInput = document.getElementById('patient-search-input');
     if (searchInput) {
-      searchInput.addEventListener('input', () => { this.mobileVisibleLimit = 15; this.renderPatients(); });
+      searchInput.addEventListener('input', () => { this.currentPage = 1; this.renderPatients(); });
     }
 
     const filterType = document.getElementById('patient-filter-type');
     if (filterType) {
-      filterType.addEventListener('change', () => { this.mobileVisibleLimit = 15; this.renderPatients(); });
+      filterType.addEventListener('change', () => { this.currentPage = 1; this.renderPatients(); });
     }
 
     const btnToday = document.getElementById('btn-filter-today-patients');
@@ -419,6 +421,7 @@ export class PatientsManager {
 
   setSort(type) {
     this.sortBy = type === 'alphabetical' ? 'alphabetical' : 'recent';
+    this.currentPage = 1;
     localStorage.setItem('ascpt_patient_sort', this.sortBy);
     this.updateSortUI();
     this.renderPatients();
@@ -435,6 +438,7 @@ export class PatientsManager {
 
   toggleTodayFilter() {
     this.filterTodayOnly = !this.filterTodayOnly;
+    this.currentPage = 1;
     const btn = document.getElementById('btn-filter-today-patients');
     if (btn) {
       if (this.filterTodayOnly) {
@@ -722,11 +726,15 @@ export class PatientsManager {
       `;
     }).join('');
 
-    // 2. Render Handcrafted Mobile Cards (Progressive Batch Loading)
+    // 2. Render Handcrafted Mobile Cards (10 per page pagination)
     if (mobileContainer) {
-      const pageLimit = this.mobileVisibleLimit || 15;
-      const visiblePatients = filtered.slice(0, pageLimit);
-      const hasMorePatients = filtered.length > pageLimit;
+      const pageLimit = this.pageSize || 10;
+      const totalPages = Math.ceil(filtered.length / pageLimit) || 1;
+      if (this.currentPage > totalPages) this.currentPage = totalPages;
+      if (this.currentPage < 1) this.currentPage = 1;
+
+      const startIdx = (this.currentPage - 1) * pageLimit;
+      const visiblePatients = filtered.slice(startIdx, startIdx + pageLimit);
 
       mobileContainer.innerHTML = visiblePatients.map(p => {
         const isNewlyAdded = Boolean(p.id && p.id === this.newlyAddedPatientId);
@@ -825,19 +833,35 @@ export class PatientsManager {
             </div>
           </div>
         `;
-      }).join('') + (hasMorePatients ? `
-        <div id="btn-patients-load-more-box" style="text-align: center; padding: 14px 4px 6px 4px;">
-          <button type="button" class="btn btn-outline btn-sm" id="btn-patients-load-more" style="border-radius: 999px; padding: 8px 24px; font-weight: 700; color: var(--primary); border-color: var(--primary); display: inline-flex; align-items: center; gap: 8px;">
-            <i class="fa-solid fa-angles-down"></i>
-            <span>عرض المزيد (معروض ${visiblePatients.length} من ${filtered.length})</span>
+      }).join('') + (totalPages > 1 ? `
+        <div class="mobile-pagination-bar no-print">
+          <button type="button" class="btn btn-outline btn-sm btn-page-nav" id="btn-patients-prev-page" ${this.currentPage <= 1 ? 'disabled style="opacity: 0.4; pointer-events: none;"' : ''}>
+            <i class="fa-solid fa-chevron-right"></i> <span>السابق</span>
+          </button>
+          <div class="page-indicator">
+            <span class="page-num-pill">صفحة ${this.currentPage} من ${totalPages}</span>
+            <small class="page-range-sub">(${startIdx + 1} - ${Math.min(startIdx + pageLimit, filtered.length)} من ${filtered.length})</small>
+          </div>
+          <button type="button" class="btn btn-outline btn-sm btn-page-nav" id="btn-patients-next-page" ${this.currentPage >= totalPages ? 'disabled style="opacity: 0.4; pointer-events: none;"' : ''}>
+            <span>التالي</span> <i class="fa-solid fa-chevron-left"></i>
           </button>
         </div>
       ` : '');
 
-      if (hasMorePatients) {
-        mobileContainer.querySelector('#btn-patients-load-more')?.addEventListener('click', () => {
-          this.mobileVisibleLimit = (this.mobileVisibleLimit || 15) + 15;
-          this.renderPatients();
+      if (totalPages > 1) {
+        mobileContainer.querySelector('#btn-patients-prev-page')?.addEventListener('click', () => {
+          if (this.currentPage > 1) {
+            this.currentPage--;
+            this.renderPatients();
+            document.getElementById('card-patients-directory')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          }
+        });
+        mobileContainer.querySelector('#btn-patients-next-page')?.addEventListener('click', () => {
+          if (this.currentPage < totalPages) {
+            this.currentPage++;
+            this.renderPatients();
+            document.getElementById('card-patients-directory')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          }
         });
       }
     }

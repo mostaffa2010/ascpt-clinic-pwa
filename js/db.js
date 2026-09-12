@@ -128,11 +128,20 @@ class FirestoreDatabaseService {
 
       if (filterDate) {
         if (filterDate.length === 7) {
-          return sessions.filter(s => s.date && s.date.startsWith(filterDate));
+          sessions = sessions.filter(s => s.date && s.date.startsWith(filterDate));
+        } else {
+          sessions = sessions.filter(s => s.date === filterDate);
         }
-        return sessions.filter(s => s.date === filterDate);
       }
-      return sessions;
+
+      // Sort strictly descending by timestamp so newest sessions always appear at top
+      return sessions.sort((a, b) => {
+        const dateComp = (b.date || '').localeCompare(a.date || '');
+        if (dateComp !== 0) return dateComp;
+        const timeA = a.createdAt || a.recordedAt || '';
+        const timeB = b.createdAt || b.recordedAt || '';
+        return timeB.localeCompare(timeA);
+      });
     } catch (err) {
       console.error('Firestore getSessions error:', err);
       throw new Error('تعذر جلب سجل الجلسات من قاعدة البيانات.');
