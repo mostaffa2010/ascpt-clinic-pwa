@@ -47,8 +47,8 @@
   
 
     <!-- Stylesheets -->
-  <link rel="stylesheet" href="css/style.css?v=1.4.40" media="screen">
-  <link rel="stylesheet" href="css/print.css?v=1.4.40" media="print">
+  <link rel="stylesheet" href="css/style.css?v=1.4.41" media="screen">
+  <link rel="stylesheet" href="css/print.css?v=1.4.41" media="print">
 </head>
 <body>
   <script>
@@ -511,7 +511,7 @@
           </h2>
         </div>
 
-        <!-- Patient Clinical Record Header Card (Clean, Modern & Uncluttered v1.4.40) -->
+        <!-- Patient Clinical Record Header Card (Clean, Modern & Uncluttered v1.4.41) -->
         <div class="card patient-clinical-main-card gender-male" id="patient-clinical-card">
           <!-- 1. Patient Name (Standalone, Full-Width) -->
           <div class="pcm-name-bar">
@@ -1646,7 +1646,7 @@
         <div class="admin-system-footer no-print" style="margin-top: 32px; margin-bottom: 35px; text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px;">
           <div style="display: inline-flex; align-items: center; gap: 8px; background: var(--bg-surface); border: 1.5px solid var(--border-color); padding: 7px 18px; border-radius: 999px; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);">
             <span style="width: 8px; height: 8px; border-radius: 50%; background-color: var(--success); display: inline-block; box-shadow: 0 0 6px var(--success);"></span>
-            <span style="font-weight: 800; font-size: 0.88rem; color: var(--text-main);">نظام ASCPT — الإصدار 1.4.40</span>
+            <span style="font-weight: 800; font-size: 0.88rem; color: var(--text-main);">نظام ASCPT — الإصدار 1.4.41</span>
             <span class="badge badge-primary" style="font-size: 0.72rem; padding: 2px 10px; border-radius: 999px; font-weight: 800;">إصدار معتمد</span>
           </div>
           <div style="font-size: 0.76rem; color: var(--text-muted); font-weight: 700;">
@@ -1685,71 +1685,127 @@
 
   <!-- ================= Modals ================= -->
 
-  <!-- Modal 1: Add / Edit Patient -->
+  <!-- Modal 1: Add / Edit Patient (Modern Medical Form v1.4.41) -->
   <div class="modal-backdrop" id="modal-patient">
-    <div class="modal-content">
+    <div class="modal-content modal-patient-modern">
       <div class="modal-header">
-        <h3 id="modal-patient-title"><i class="fa-solid fa-user-plus"></i> تسجيل مريض جديد</h3>
+        <h3 id="modal-patient-title"><i class="fa-solid fa-user-plus text-primary"></i> تسجيل مريض جديد</h3>
         <button type="button" class="modal-close" data-close-modal="modal-patient">&times;</button>
       </div>
       <form id="form-patient" novalidate>
         <input type="hidden" id="p-id">
-        <div class="modal-body">
-          <div class="form-grid two-cols">
-            <div class="form-group">
-              <label for="p-name">اسم المريض بالكامل *</label>
-              <input type="text" id="p-name" class="form-control" required placeholder="الاسم الثلاثي أو الرباعي">
-            </div>
-            <div class="form-group">
-              <label for="p-age">السن *</label>
-              <input type="number" id="p-age" class="form-control" required min="1" max="120" inputmode="numeric" placeholder="مثال: 35">
-            </div>
-            <div class="form-group">
-              <label for="p-gender">النوع *</label>
-              <div class="custom-select-wrapper">
-                <select id="p-gender" class="form-control d-none" required>
-                  <option value="" disabled selected>-- اختر --</option>
-                  <option value="male">ذكر</option>
-                  <option value="female">أنثى</option>
-                </select>
-                <button type="button" class="custom-select-btn" id="btn-select-p-gender" data-open-picker="p-gender" data-picker-title="اختر نوع المريض">
-                  <span class="btn-text">-- اختر --</span>
-                  <i class="fa-solid fa-chevron-down"></i>
-                </button>
-              </div>
-            </div>
-            <div class="form-group">
-              <label for="p-phone">رقم الموبايل *</label>
-              <input type="tel" id="p-phone" class="form-control" required placeholder="01xxxxxxxxx" maxlength="11" inputmode="numeric">
-              <div id="p-phone-feedback" class="form-feedback-msg" style="display: none;"></div>
-            </div>
-            <div class="form-group">
-              <label for="p-address">العنوان</label>
-              <input type="text" id="p-address" class="form-control" placeholder="المنطقة / الشارع">
+        <input type="hidden" id="p-gender" value="male">
+
+        <div class="modal-body modal-patient-body">
+          <!-- 1. Patient Full Name -->
+          <div class="form-group form-group-modern">
+            <label for="p-name" class="modern-field-label">
+              <i class="fa-solid fa-user text-primary"></i> اسم المريض بالكامل <span class="required-star">*</span>
+            </label>
+            <div class="modern-input-wrapper">
+              <i class="fa-regular fa-id-card modern-input-icon"></i>
+              <input type="text" id="p-name" class="form-control modern-input" required placeholder="الاسم الثلاثي أو الرباعي للمريض">
             </div>
           </div>
 
-          <div class="form-group" style="margin-top: 12px;">
-            <label for="p-doctor">الدكتور المعالج *</label>
+          <!-- 2. Age & Gender (Side-by-Side 50% / 50%) -->
+          <div class="modern-two-cols-row">
+            <!-- Age Column -->
+            <div class="form-group form-group-modern">
+              <label for="p-age" class="modern-field-label">
+                <i class="fa-solid fa-cake-candles text-primary"></i> السن <span class="required-star">*</span>
+              </label>
+              <div class="modern-input-wrapper">
+                <i class="fa-solid fa-hashtag modern-input-icon"></i>
+                <input type="number" id="p-age" class="form-control modern-input" required min="1" max="120" inputmode="numeric" placeholder="مثال: 35">
+              </div>
+            </div>
+
+            <!-- Gender Segmented Toggle Column -->
+            <div class="form-group form-group-modern">
+              <label class="modern-field-label">
+                <i class="fa-solid fa-venus-mars text-primary"></i> النوع <span class="required-star">*</span>
+              </label>
+              <div class="gender-segmented-deck" role="group" aria-label="نوع المريض">
+                <button type="button" class="gender-btn-pill male active" id="btn-gender-male">
+                  <i class="fa-solid fa-mars"></i> <span>ذكر</span>
+                </button>
+                <button type="button" class="gender-btn-pill female" id="btn-gender-female">
+                  <i class="fa-solid fa-venus"></i> <span>أنثى</span>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- 3. Phone & Address Side-by-Side -->
+          <div class="modern-two-cols-row">
+            <div class="form-group form-group-modern">
+              <label for="p-phone" class="modern-field-label">
+                <i class="fa-solid fa-phone text-primary"></i> رقم الموبايل <span class="required-star">*</span>
+              </label>
+              <div class="modern-input-wrapper">
+                <i class="fa-solid fa-phone-flip modern-input-icon"></i>
+                <input type="tel" id="p-phone" class="form-control modern-input" required placeholder="01xxxxxxxxx" maxlength="11" inputmode="numeric">
+              </div>
+              <div id="p-phone-feedback" class="form-feedback-msg" style="display: none;"></div>
+            </div>
+
+            <div class="form-group form-group-modern">
+              <label for="p-address" class="modern-field-label">
+                <i class="fa-solid fa-location-dot text-primary"></i> العنوان
+              </label>
+              <div class="modern-input-wrapper">
+                <i class="fa-solid fa-map-pin modern-input-icon"></i>
+                <input type="text" id="p-address" class="form-control modern-input" placeholder="المنطقة أو الشارع">
+              </div>
+            </div>
+          </div>
+
+          <!-- 4. Treating Doctor -->
+          <div class="form-group form-group-modern" style="margin-top: 4px;">
+            <label for="p-doctor" class="modern-field-label">
+              <i class="fa-solid fa-user-doctor text-primary"></i> الدكتور المعالج <span class="required-star">*</span>
+            </label>
             <div class="custom-select-wrapper">
               <select id="p-doctor" class="form-control d-none" required></select>
-              <button type="button" class="custom-select-btn" id="btn-select-p-doctor" data-open-picker="p-doctor" data-picker-title="اختر الطبيب المعالج للمريض">
-                <span class="btn-text">-- اختر الطبيب المعالج --</span>
-                <i class="fa-solid fa-chevron-down"></i>
+              <button type="button" class="custom-select-btn modern-select-btn" id="btn-select-p-doctor" data-open-picker="p-doctor" data-picker-title="اختر الطبيب المعالج للمريض">
+                <span class="select-btn-val">
+                  <i class="fa-solid fa-stethoscope text-primary"></i>
+                  <span class="btn-text">-- اضغط لاختيار الطبيب المعالج --</span>
+                </span>
+                <i class="fa-solid fa-chevron-down custom-select-arrow"></i>
               </button>
             </div>
           </div>
 
-          <div class="form-group" style="margin-top: 12px;">
-            <label style="font-weight: 800; font-size: 0.88rem; color: var(--text-main); margin-bottom: 6px; display: block;">نظام الدفع والمحاسبة *</label>
-            <div style="display: flex; gap: 14px; flex-wrap: wrap;">
-              <label class="custom-radio-card" style="display: inline-flex; align-items: center; gap: 8px; cursor: pointer; padding: 8px 14px; border: 1.5px solid var(--border-color); border-radius: 10px; background: var(--bg-surface); font-weight: 700; font-size: 0.88rem; transition: all 0.2s ease;">
+          <!-- 5. Payment / Billing Interactive Selection Cards -->
+          <div class="form-group form-group-modern" style="margin-top: 6px;">
+            <label class="modern-field-label">
+              <i class="fa-solid fa-credit-card text-primary"></i> نظام الدفع والمحاسبة <span class="required-star">*</span>
+            </label>
+            <div class="billing-cards-grid">
+              <label class="billing-type-card" id="card-billing-cash">
                 <input type="radio" name="p-billing" value="cash" checked>
-                <span><i class="fa-solid fa-money-bill-wave" style="color: var(--success); margin-left: 4px;"></i> نقدي (Cash)</span>
+                <div class="btc-box">
+                  <div class="btc-icon-wrap cash"><i class="fa-solid fa-money-bill-wave"></i></div>
+                  <div class="btc-info">
+                    <strong class="btc-title">نقدي (Cash)</strong>
+                    <span class="btc-desc">دفع مباشر لكل جلسة</span>
+                  </div>
+                  <div class="btc-badge-check"><i class="fa-solid fa-circle-check"></i></div>
+                </div>
               </label>
-              <label class="custom-radio-card" style="display: inline-flex; align-items: center; gap: 8px; cursor: pointer; padding: 8px 14px; border: 1.5px solid var(--border-color); border-radius: 10px; background: var(--bg-surface); font-weight: 700; font-size: 0.88rem; transition: all 0.2s ease;">
+
+              <label class="billing-type-card" id="card-billing-insurance">
                 <input type="radio" name="p-billing" value="insurance">
-                <span><i class="fa-solid fa-file-shield" style="color: var(--primary); margin-left: 4px;"></i> تابع لشركة تأمين</span>
+                <div class="btc-box">
+                  <div class="btc-icon-wrap insurance"><i class="fa-solid fa-file-shield"></i></div>
+                  <div class="btc-info">
+                    <strong class="btc-title">شركة تأمين</strong>
+                    <span class="btc-desc">تعاقد مباشر / غير مباشر</span>
+                  </div>
+                  <div class="btc-badge-check"><i class="fa-solid fa-circle-check"></i></div>
+                </div>
               </label>
             </div>
           </div>
@@ -2850,7 +2906,7 @@
   </div>
 
 <!-- Main Application Script (ES Module) -->
-  <script type="module" src="js/app.js?v=1.4.40"></script>
+  <script type="module" src="js/app.js?v=1.4.41"></script>
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {

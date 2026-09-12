@@ -96,6 +96,10 @@ export class PatientsManager {
       r.addEventListener('change', (e) => this.onContractTypeChanged(e.target.value));
     });
 
+    // Modern Patient Form Gender Segmented Buttons
+    document.getElementById('btn-gender-male')?.addEventListener('click', () => this.setGender('male'));
+    document.getElementById('btn-gender-female')?.addEventListener('click', () => this.setGender('female'));
+
     // Toggle Insurance Edit Mode in Patient Form
     document.getElementById('btn-toggle-chips-ins-patient')?.addEventListener('click', () => this.toggleInsuranceEditMode('patient'));
 
@@ -1100,11 +1104,31 @@ export class PatientsManager {
     }
   }
 
+  setGender(gender) {
+    const hiddenInp = document.getElementById('p-gender');
+    if (hiddenInp) hiddenInp.value = gender;
+    this.updateGenderToggleUI(gender);
+  }
+
+  updateGenderToggleUI(gender) {
+    const maleBtn = document.getElementById('btn-gender-male');
+    const femaleBtn = document.getElementById('btn-gender-female');
+    if (maleBtn && femaleBtn) {
+      if (gender === 'female') {
+        maleBtn.classList.remove('active');
+        femaleBtn.classList.add('active');
+      } else {
+        femaleBtn.classList.remove('active');
+        maleBtn.classList.add('active');
+      }
+    }
+  }
+
   openAddModal() {
     document.getElementById('form-patient').reset();
     this.clearPhoneValidation();
     document.getElementById('p-id').value = '';
-    this.app.updateCustomSelectDisplay('p-gender');
+    this.setGender('male');
     const pDoc = document.getElementById('p-doctor');
     if (pDoc) pDoc.value = '';
     this.app.updateCustomSelectDisplay('p-doctor');
@@ -1161,11 +1185,10 @@ export class PatientsManager {
     document.getElementById('p-id').value = p.id;
     document.getElementById('p-name').value = p.name;
     document.getElementById('p-age').value = p.age;
-    document.getElementById('p-gender').value = p.gender || '';
+    this.setGender(p.gender === 'female' ? 'female' : 'male');
     document.getElementById('p-phone').value = p.phone;
     document.getElementById('p-address').value = p.address || '';
     document.getElementById('p-doctor').value = p.doctor;
-    this.app.updateCustomSelectDisplay('p-gender');
     this.app.updateCustomSelectDisplay('p-doctor');
 
     const billingRadios = document.querySelectorAll('input[name="p-billing"]');
