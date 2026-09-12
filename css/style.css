@@ -3778,28 +3778,31 @@ body {
 }
 
 .appt-slot-card {
-  padding: 16px 18px !important;
-  border-radius: var(--radius-lg) !important;
-  background: var(--bg-surface) !important;
-  backdrop-filter: none !important;
-  -webkit-backdrop-filter: none !important;
-  border: 1.5px solid var(--glass-border) !important;
-  box-shadow: 0 4px 16px -2px rgba(15, 23, 42, 0.05), 0 2px 6px -1px rgba(15, 23, 42, 0.03) !important;
-  transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.2s ease !important;
+  margin: 0 0 14px 0;
+  width: 100%;
+  box-sizing: border-box;
+  padding: 16px 18px;
+  border-radius: var(--radius-lg);
+  background: var(--bg-surface);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  border: 1.5px solid var(--glass-border);
+  box-shadow: 0 4px 16px -2px rgba(15, 23, 42, 0.05), 0 2px 6px -1px rgba(15, 23, 42, 0.03);
+  transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.2s ease, border-color 0.2s ease;
 }
 
 .appt-slot-card:hover {
-  transform: translateY(-2px) !important;
-  border-color: rgba(56, 189, 248, 0.4) !important;
-  box-shadow: 0 8px 24px -3px rgba(2, 132, 199, 0.15) !important;
+  transform: translateY(-2px);
+  border-color: rgba(56, 189, 248, 0.4);
+  box-shadow: 0 8px 24px -3px rgba(2, 132, 199, 0.15);
 }
 
 [data-theme="dark"] .appt-slot-card {
-  box-shadow: 0 8px 24px -4px rgba(0, 0, 0, 0.4) !important;
+  box-shadow: 0 8px 24px -4px rgba(0, 0, 0, 0.4);
 }
 
 [data-theme="dark"] .appt-slot-card:hover {
-  box-shadow: 0 12px 30px -4px rgba(2, 132, 199, 0.3) !important;
+  box-shadow: 0 12px 30px -4px rgba(2, 132, 199, 0.3);
 }
 
 .appt-slot-header {
@@ -3849,97 +3852,97 @@ body {
   gap: 6px;
 }
 
-.appt-chips-wrap .appt-chip {
-  margin-bottom: 0 !important;
-  border-radius: 14px !important;
-  padding: 10px 14px !important;
-  display: flex !important;
-  align-items: center !important;
-  justify-content: space-between !important;
-  gap: 10px !important;
-  transition: all 0.2s ease !important;
+.appt-slot-card .appt-chips-wrap .appt-chip {
+  margin-bottom: 0;
+  border-radius: 14px;
+  padding: 10px 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  transition: all 0.2s ease;
 }
 
 /* Light Mode: Crisp, clean light card for booked patient */
-:root:not([data-theme="dark"]) .appt-chips-wrap .appt-chip {
-  background: #f8fafc !important;
-  border: 1.5px solid #e2e8f0 !important;
-  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04) !important;
+:root:not([data-theme="dark"]) .appt-slot-card .appt-chips-wrap .appt-chip {
+  background: #f8fafc;
+  border: 1.5px solid #e2e8f0;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04);
 }
 
-:root:not([data-theme="dark"]) .appt-chips-wrap .appt-chip:hover {
-  background: #f0f9ff !important;
-  border-color: #0284c7 !important;
+:root:not([data-theme="dark"]) .appt-slot-card .appt-chips-wrap .appt-chip:hover {
+  background: #f0f9ff;
+  border-color: #0284c7;
 }
 
-:root:not([data-theme="dark"]) .appt-chip-patient {
-  color: #0f172a !important;
-  font-weight: 800 !important;
-  font-size: 0.95rem !important;
+:root:not([data-theme="dark"]) .appt-slot-card .appt-chip-patient {
+  color: #0f172a;
+  font-weight: 800;
+  font-size: 0.95rem;
 }
 
-:root:not([data-theme="dark"]) .appt-chip-move {
-  background: #e0f2fe !important;
-  color: #0284c7 !important;
-  border: 1px solid #bae6fd !important;
-  width: 28px !important;
-  height: 28px !important;
-  border-radius: 50% !important;
-  display: inline-flex !important;
-  align-items: center !important;
-  justify-content: center !important;
+:root:not([data-theme="dark"]) .appt-slot-card .appt-chip-move {
+  background: #e0f2fe;
+  color: #0284c7;
+  border: 1px solid #bae6fd;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 
-:root:not([data-theme="dark"]) .appt-chip-remove {
-  background: #fee2e2 !important;
-  color: #ef4444 !important;
-  border: 1px solid #fecaca !important;
-  width: 28px !important;
-  height: 28px !important;
-  border-radius: 50% !important;
-  display: inline-flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  font-size: 1.1rem !important;
-  line-height: 1 !important;
+:root:not([data-theme="dark"]) .appt-slot-card .appt-chip-remove {
+  background: #fee2e2;
+  color: #ef4444;
+  border: 1px solid #fecaca;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+  line-height: 1;
 }
 
 /* Dark Mode: Sleek glass card for booked patient */
-[data-theme="dark"] .appt-chips-wrap .appt-chip {
-  background: rgba(15, 23, 42, 0.75) !important;
-  border: 1.5px solid rgba(56, 189, 248, 0.25) !important;
+[data-theme="dark"] .appt-slot-card .appt-chips-wrap .appt-chip {
+  background: rgba(15, 23, 42, 0.75);
+  border: 1.5px solid rgba(56, 189, 248, 0.25);
 }
 
-[data-theme="dark"] .appt-chip-patient {
-  color: #f8fafc !important;
-  font-weight: 800 !important;
-  font-size: 0.95rem !important;
+[data-theme="dark"] .appt-slot-card .appt-chip-patient {
+  color: #f8fafc;
+  font-weight: 800;
+  font-size: 0.95rem;
 }
 
-[data-theme="dark"] .appt-chip-move {
-  background: rgba(56, 189, 248, 0.15) !important;
-  color: #38bdf8 !important;
-  border: 1px solid rgba(56, 189, 248, 0.3) !important;
-  width: 28px !important;
-  height: 28px !important;
-  border-radius: 50% !important;
-  display: inline-flex !important;
-  align-items: center !important;
-  justify-content: center !important;
+[data-theme="dark"] .appt-slot-card .appt-chip-move {
+  background: rgba(56, 189, 248, 0.15);
+  color: #38bdf8;
+  border: 1px solid rgba(56, 189, 248, 0.3);
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 
-[data-theme="dark"] .appt-chip-remove {
-  background: rgba(239, 68, 68, 0.15) !important;
-  color: #f87171 !important;
-  border: 1px solid rgba(239, 68, 68, 0.3) !important;
-  width: 28px !important;
-  height: 28px !important;
-  border-radius: 50% !important;
-  display: inline-flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  font-size: 1.1rem !important;
-  line-height: 1 !important;
+[data-theme="dark"] .appt-slot-card .appt-chip-remove {
+  background: rgba(239, 68, 68, 0.15);
+  color: #f87171;
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+  line-height: 1;
 }
 
 .appt-slot-empty-hint {
@@ -4021,24 +4024,24 @@ body {
 }
 
 .appt-doc-booking-pill {
-  border-radius: var(--radius-pill) !important;
-  padding: 5px 12px !important;
-  font-size: 0.78rem !important;
-  font-weight: 700 !important;
-  display: inline-flex !important;
-  align-items: center !important;
-  gap: 4px !important;
-  background: var(--bg-surface) !important;
-  border: 1.5px solid var(--border-color) !important;
-  color: var(--text-main) !important;
-  transition: all 0.18s ease !important;
+  border-radius: var(--radius-pill);
+  padding: 5px 12px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: var(--bg-surface);
+  border: 1.5px solid var(--border-color);
+  color: var(--text-main);
+  transition: all 0.18s ease;
 }
 
 .appt-doc-booking-pill:hover {
-  background: var(--primary-light) !important;
-  border-color: var(--primary) !important;
-  color: var(--primary) !important;
-  transform: translateY(-1px) !important;
+  background: var(--primary-light);
+  border-color: var(--primary);
+  color: var(--primary);
+  transform: translateY(-1px);
 }
 
 .appt-active-doc-group {
@@ -4598,11 +4601,7 @@ body {
     width: 100% !important;
   }
 
-  .appt-slot-card {
-    margin: 0 0 14px 0 !important;
-    width: 100% !important;
-    box-sizing: border-box !important;
-  }
+
 }
 
 /* ==========================================================================
@@ -4747,41 +4746,51 @@ body {
    ========================================================================== */
 
 /* 1. Receptionist Single Booking Button in Time Slot Card */
+.appt-slot-card .btn.appt-single-book-btn,
 .appt-single-book-btn {
-  width: 100% !important;
-  border-radius: 14px !important;
-  padding: 11px 16px !important;
-  font-weight: 700 !important;
-  font-size: 0.92rem !important;
-  display: flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  gap: 8px !important;
-  border: 1.5px dashed var(--primary) !important;
-  color: var(--primary) !important;
-  background: rgba(2, 132, 199, 0.05) !important;
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
-  cursor: pointer !important;
+  width: 100%;
+  height: auto;
+  border-radius: 14px;
+  padding: 11px 16px;
+  font-weight: 700;
+  font-size: 0.92rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border: 1.5px dashed var(--primary);
+  color: var(--primary);
+  background: rgba(2, 132, 199, 0.05);
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  cursor: pointer;
 }
 
-.appt-single-book-btn:hover, .appt-single-book-btn:active {
-  background: var(--primary) !important;
-  color: #ffffff !important;
-  border-style: solid !important;
-  box-shadow: 0 4px 14px -2px rgba(2, 132, 199, 0.35) !important;
+.appt-slot-card .btn.appt-single-book-btn:hover,
+.appt-slot-card .btn.appt-single-book-btn:active,
+.appt-single-book-btn:hover,
+.appt-single-book-btn:active {
+  background: var(--primary);
+  color: #ffffff;
+  border-style: solid;
+  border-color: var(--primary);
+  box-shadow: 0 4px 14px -2px rgba(2, 132, 199, 0.35);
   transform: translateY(-1px);
 }
 
+[data-theme="dark"] .appt-slot-card .btn.appt-single-book-btn,
 [data-theme="dark"] .appt-single-book-btn {
-  background: rgba(56, 189, 248, 0.08) !important;
-  border-color: rgba(56, 189, 248, 0.4) !important;
-  color: #38bdf8 !important;
+  background: rgba(56, 189, 248, 0.08);
+  border-color: rgba(56, 189, 248, 0.4);
+  color: #38bdf8;
 }
 
-[data-theme="dark"] .appt-single-book-btn:hover, [data-theme="dark"] .appt-single-book-btn:active {
-  background: #0284c7 !important;
-  color: #ffffff !important;
-  border-color: #0284c7 !important;
+[data-theme="dark"] .appt-slot-card .btn.appt-single-book-btn:hover,
+[data-theme="dark"] .appt-slot-card .btn.appt-single-book-btn:active,
+[data-theme="dark"] .appt-single-book-btn:hover,
+[data-theme="dark"] .appt-single-book-btn:active {
+  background: #0284c7;
+  color: #ffffff;
+  border-color: #0284c7;
 }
 
 /* 2. Doctor 3D Overlapping Stack Deck (High-Performance Left-Peeking Deck) */
@@ -4792,10 +4801,10 @@ body {
 }
 
 .doc-stack-header-bar {
-  display: flex !important;
-  align-items: center !important;
-  justify-content: space-between !important;
-  padding: 4px 6px 12px 6px !important;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 4px 6px 12px 6px;
 }
 
 .doc-stack-container {
@@ -4803,7 +4812,7 @@ body {
   width: 100%;
   min-height: 240px;
   perspective: 1200px;
-  touch-action: pan-y !important;
+  touch-action: pan-y;
   user-select: none;
   -webkit-user-select: none;
   box-sizing: border-box;
@@ -4815,116 +4824,118 @@ body {
   top: 0;
   left: 38px;
   right: 0;
-  border-radius: 20px !important;
-  box-sizing: border-box !important;
+  border-radius: 20px;
+  box-sizing: border-box;
   cursor: pointer;
   /* 100% GPU-only transitions: transforms and opacity */
   transition: transform 0.28s cubic-bezier(0.22, 1, 0.36, 1),
               opacity 0.24s ease,
               box-shadow 0.24s ease;
   will-change: transform, opacity;
-  backface-visibility: hidden !important;
-  -webkit-backface-visibility: hidden !important;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
   transform: translate3d(0, 0, 0);
   overflow: hidden;
-  backdrop-filter: none !important;
-  -webkit-backdrop-filter: none !important;
-  touch-action: pan-y !important;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  touch-action: pan-y;
 }
 
-.doc-stack-card.is-active-card {
-  z-index: 12 !important;
-  opacity: 1 !important;
-  visibility: visible !important;
-  pointer-events: auto !important;
-  border-color: rgba(2, 132, 199, 0.45) !important;
-  box-shadow: 0 10px 28px -4px rgba(2, 132, 199, 0.22) !important;
+.doc-stack-wrapper .doc-stack-card.is-active-card, .doc-stack-container .doc-stack-card.is-active-card {
+  z-index: 12;
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+  border-color: rgba(2, 132, 199, 0.45);
+  box-shadow: 0 10px 28px -4px rgba(2, 132, 199, 0.22);
 }
 
-[data-theme="dark"] .doc-stack-card.is-active-card {
-  border-color: rgba(56, 189, 248, 0.5) !important;
-  box-shadow: 0 12px 34px -4px rgba(0, 0, 0, 0.65) !important;
+[data-theme="dark"] .doc-stack-wrapper .doc-stack-card.is-active-card, .doc-stack-container .doc-stack-card.is-active-card {
+  border-color: rgba(56, 189, 248, 0.5);
+  box-shadow: 0 12px 34px -4px rgba(0, 0, 0, 0.65);
 }
 
-.doc-stack-card.is-peeking-card {
+.doc-stack-wrapper .doc-stack-card.is-peeking-card, .doc-stack-container .doc-stack-card.is-peeking-card {
   cursor: pointer;
-  pointer-events: auto !important;
-  border-color: var(--border-color) !important;
-  visibility: visible !important;
+  pointer-events: auto;
+  border-color: var(--border-color);
+  visibility: visible;
   opacity: 0.88;
 }
 
-[data-theme="dark"] .doc-stack-card.is-peeking-card {
+[data-theme="dark"] .doc-stack-wrapper .doc-stack-card.is-peeking-card, .doc-stack-container .doc-stack-card.is-peeking-card {
   opacity: 0.80;
 }
 
-.doc-stack-card.is-passed-card,
-.doc-stack-card.is-hidden-card {
-  pointer-events: none !important;
-  opacity: 0 !important;
-  visibility: hidden !important;
-  will-change: auto !important;
+.doc-stack-wrapper .doc-stack-card.is-passed-card,
+.doc-stack-wrapper .doc-stack-card.is-hidden-card,
+.doc-stack-container .doc-stack-card.is-passed-card,
+.doc-stack-container .doc-stack-card.is-hidden-card {
+  pointer-events: none;
+  opacity: 0;
+  visibility: hidden;
+  will-change: auto;
 }
 
 /* List Layout Toggle Override */
 .doc-stack-container.is-list-layout {
-  display: flex !important;
-  flex-direction: column !important;
-  gap: 14px !important;
-  min-height: auto !important;
-  padding-left: 0 !important;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  min-height: auto;
+  padding-left: 0;
 }
 
 .doc-stack-container.is-list-layout .doc-stack-card {
-  position: relative !important;
-  left: auto !important;
-  right: auto !important;
-  transform: none !important;
-  opacity: 1 !important;
-  visibility: visible !important;
-  z-index: 1 !important;
-  pointer-events: auto !important;
-  will-change: auto !important;
+  position: relative;
+  left: auto;
+  right: auto;
+  transform: none;
+  opacity: 1;
+  visibility: visible;
+  z-index: 1;
+  pointer-events: auto;
+  will-change: auto;
 }
 
 .doc-stack-nav-bar {
-  display: flex !important;
-  align-items: center !important;
-  justify-content: space-between !important;
-  padding: 12px 10px 4px 10px !important;
-  margin-top: 8px !important;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 10px 4px 10px;
+  margin-top: 8px;
 }
 
 .doc-stack-container.is-list-layout + .doc-stack-nav-bar {
-  display: none !important;
+  display: none;
 }
 
 .doc-stack-nav-btn {
-  background: var(--bg-surface) !important;
-  border: 1px solid var(--border-color) !important;
-  color: var(--text-main) !important;
-  font-size: 0.8rem !important;
-  font-weight: 700 !important;
-  padding: 6px 14px !important;
-  border-radius: 999px !important;
-  cursor: pointer !important;
-  display: inline-flex !important;
-  align-items: center !important;
-  gap: 6px !important;
-  transition: all 0.2s ease !important;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-color);
+  color: var(--text-main);
+  font-size: 0.8rem;
+  font-weight: 700;
+  padding: 6px 14px;
+  border-radius: 999px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.2s ease;
 }
 
 .doc-stack-nav-btn:hover, .doc-stack-nav-btn:active {
-  background: var(--primary-light) !important;
-  border-color: var(--primary) !important;
-  color: var(--primary) !important;
+  background: var(--primary-light);
+  border-color: var(--primary);
+  color: var(--primary);
 }
 
 .doc-stack-dots {
-  display: flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  gap: 8px !important;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
 }
 
 /* ==========================================================================
