@@ -873,4 +873,52 @@
     print-color-adjust: exact !important;
     image-rendering: -webkit-optimize-contrast;
   }
+
+  /* ================= DARK MODE PRINT NORMALIZATION ================= */
+  [data-theme="dark"],
+  [data-theme="dark"] body,
+  [data-theme="dark"] .app-container,
+  [data-theme="dark"] .main-content,
+  [data-theme="dark"] #view-finance,
+  [data-theme="dark"] .card,
+  [data-theme="dark"] .printable-doc,
+  [data-theme="dark"] #printable-patient-sheet,
+  [data-theme="dark"] #printable-insurance-claim,
+  [data-theme="dark"] #printable-attendance-cards,
+  [data-theme="dark"] #printable-insurance-letter,
+  [data-theme="dark"] #printable-cash-receipt,
+  [data-theme="dark"] #printable-medical-statement {
+    background: #ffffff !important;
+    background-color: #ffffff !important;
+    color: #000000 !important;
+  }
+
+  [data-theme="dark"] .data-table th,
+  [data-theme="dark"] table.data-table th {
+    background-color: #e2e8f0 !important;
+    color: #000000 !important;
+    border-color: #475569 !important;
+  }
+
+  [data-theme="dark"] .data-table td,
+  [data-theme="dark"] table.data-table td {
+    background-color: #ffffff !important;
+    color: #000000 !important;
+    border-color: #64748b !important;
+  }
+
+  [data-theme="dark"] .stat-box,
+  [data-theme="dark"] .stat-card {
+    background-color: #ffffff !important;
+    border-color: #64748b !important;
+  }
+
+  [data-theme="dark"] .stat-info .stat-value {
+    color: #000000 !important;
+  }
+
+  [data-theme="dark"] .stat-info .stat-label {
+    color: #334155 !important;
+  }
+
 }
