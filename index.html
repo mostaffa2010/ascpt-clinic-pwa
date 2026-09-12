@@ -173,7 +173,7 @@
       <section id="view-dashboard" class="view-section active">
         <!-- 1. Clinic Operations & Finance Dashboard (Admin & Receptionist) -->
         <div id="dashboard-admin-view">
-          <!-- Hero Dashboard Banner (v1.4.0-beta.2) -->
+          <!-- Hero Dashboard Banner (v1.4.0) -->
           <div class="hero-dashboard-banner">
             <div class="hero-banner-glass-bg"></div>
             <div class="hero-banner-content">
@@ -292,7 +292,7 @@
 
         <!-- 2. Doctor Personal Clinical Dashboard (Exclusively for Treating Doctors) -->
         <div id="dashboard-doctor-view" style="display: none;">
-          <!-- Hero Doctor Banner (v1.4.0-beta.2) -->
+          <!-- Hero Doctor Banner (v1.4.0) -->
           <div class="hero-dashboard-banner hero-doctor-banner">
             <div class="hero-banner-glass-bg"></div>
             <div class="hero-banner-content">
@@ -662,7 +662,7 @@
           <!-- Form: Log New Session or Examination -->
           <div class="card">
             <div class="card-header" style="padding: 0 0 12px 0; border-bottom: none; display: block; width: 100%;">
-              <!-- Interactive Dual Mode Action Cards (v1.4.0-beta.29) -->
+              <!-- Interactive Dual Mode Action Cards (v1.4.0) -->
               <div class="session-mode-pills-wrap">
                 <button type="button" id="btn-mode-session" class="session-mode-pill-btn active">
                   <div class="smp-icon blue">
@@ -1615,6 +1615,18 @@
               </button>
               <input type="file" id="backup-file-input" accept=".json" style="display: none;">
             </div>
+          </div>
+        </div>
+
+        <!-- Admin Panel System Version Footer -->
+        <div class="admin-system-footer no-print" style="margin-top: 32px; margin-bottom: 35px; text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px;">
+          <div style="display: inline-flex; align-items: center; gap: 8px; background: var(--bg-surface); border: 1.5px solid var(--border-color); padding: 7px 18px; border-radius: 999px; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);">
+            <span style="width: 8px; height: 8px; border-radius: 50%; background-color: var(--success); display: inline-block; box-shadow: 0 0 6px var(--success);"></span>
+            <span style="font-weight: 800; font-size: 0.88rem; color: var(--text-main);">نظام ASCPT — الإصدار 1.4.0</span>
+            <span class="badge badge-primary" style="font-size: 0.72rem; padding: 2px 10px; border-radius: 999px; font-weight: 800;">إصدار معتمد</span>
+          </div>
+          <div style="font-size: 0.76rem; color: var(--text-muted); font-weight: 700;">
+            مركز الإسكندرية التخصصي للعلاج الطبيعي • جميع التحديثات مستقرة
           </div>
         </div>
 
@@ -2733,7 +2745,7 @@
     </div>
   </div>
 
-  <!-- Toast Notification Capsule (v1.4.0-beta.29) -->
+  <!-- Toast Notification Capsule (v1.4.0) -->
   <div class="toast-capsule" id="toast-notification">
     <div class="toast-icon-wrap" id="toast-icon-wrap">
       <i class="fa-solid fa-circle-check" id="toast-icon"></i>
@@ -2802,7 +2814,7 @@
   </div>
 
 <!-- Main Application Script (ES Module) -->
-  <script type="module" src="js/app.js?v=1.4.0-beta.49"></script>
+  <script type="module" src="js/app.js?v=1.4.0"></script>
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
