@@ -47,8 +47,8 @@
   
 
     <!-- Stylesheets -->
-  <link rel="stylesheet" href="css/style.css?v=1.4.24" media="screen">
-  <link rel="stylesheet" href="css/print.css?v=1.4.24" media="print">
+  <link rel="stylesheet" href="css/style.css?v=1.4.25" media="screen">
+  <link rel="stylesheet" href="css/print.css?v=1.4.25" media="print">
 </head>
 <body>
   <script>
@@ -492,60 +492,65 @@
           </div>
         </div>
 
-        <!-- Patient Clinical Hero Banner (Matching the Doctor's Welcome Hero Banner) -->
-        <div class="hero-dashboard-banner sheet-patient-hero-banner" style="margin-bottom: 18px; border-radius: 22px;">
-          <div class="hero-banner-glass-bg"></div>
-          <div class="hero-banner-content">
-            <!-- Pill Tag at top -->
-            <div class="hero-greeting-pill" style="margin-bottom: 10px;">
-              <span class="hero-greeting-icon"><i class="fa-solid fa-file-waveform"></i></span>
-              <span id="sheet-hero-patient-code">الملف الطبي والتأهيلي للمريض</span>
-            </div>
-
-            <!-- Patient Name & Details Title Row -->
-            <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; flex-wrap: wrap;">
-              <div style="min-width: 0; flex: 1;">
-                <h2 class="hero-banner-title" id="sheet-patient-name" style="margin-bottom: 6px; font-size: 1.45rem; font-weight: 900; color: #ffffff;">اسم المريض</h2>
-                <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; font-size: 0.82rem; color: #e0f2fe; font-weight: 700;">
-                  <span style="background: rgba(255, 255, 255, 0.18); padding: 2px 10px; border-radius: 999px; border: 1px solid rgba(255, 255, 255, 0.25);">
+        <!-- Patient Clinical Record Header Card (Clean, Modern & Organized) -->
+        <div class="card patient-clinical-main-card">
+          <!-- 1. Patient Top Identity Row -->
+          <div class="pcm-header-row">
+            <div class="pcm-identity-box">
+              <div class="pcm-avatar">
+                <i class="fa-solid fa-hospital-user"></i>
+              </div>
+              <div class="pcm-names-wrap">
+                <div class="pcm-name-line">
+                  <h2 id="sheet-patient-name" class="pcm-name">اسم المريض</h2>
+                  <span class="hsc-age-badge pcm-age-pill">
                     <strong id="sheet-patient-age">-</strong> سنة <span id="sheet-patient-gender"></span>
                   </span>
-                  <span>•</span>
-                  <span><i class="fa-solid fa-user-doctor"></i> <strong id="sheet-patient-doctor">-</strong></span>
-                  <span>•</span>
-                  <a href="#" id="sheet-patient-phone-link" style="color: #ffffff; text-decoration: none; display: inline-flex; align-items: center; gap: 4px;">
-                    <i class="fa-solid fa-phone"></i> <bdi dir="ltr" id="sheet-patient-phone">-</bdi>
-                  </a>
-                  <span id="sheet-hero-address-wrap">
-                    <span>•</span>
-                    <i class="fa-solid fa-location-dot"></i> <span id="sheet-patient-address">-</span>
+                </div>
+                <div class="pcm-sub-pill">
+                  <span class="patient-doc-badge">
+                    <i class="fa-solid fa-user-doctor"></i> <strong id="sheet-patient-doctor">-</strong>
                   </span>
                 </div>
               </div>
-
-              <!-- 3 Quick Action Buttons (WhatsApp, Edit, Delete) on Frosted Glass -->
-              <div id="sheet-patient-quick-actions" style="display: flex; gap: 6px; align-items: center; flex-shrink: 0; padding-top: 4px;">
-                <!-- Populated dynamically -->
-              </div>
             </div>
 
-            <!-- Billing & Approval Progress Details -->
-            <div id="sheet-patient-billing-badge" style="margin-bottom: 12px;">
-              <!-- Populated by JS -->
+            <!-- Quick Action Hub (WhatsApp, Edit, Delete) -->
+            <div id="sheet-patient-quick-actions" class="pcm-actions-hub">
+              <!-- Populated dynamically -->
             </div>
+          </div>
 
-            <!-- Banner Footer: Last Update & Sessions Button -->
-            <div class="hero-banner-footer" style="padding-top: 10px; border-top: 1px solid rgba(255, 255, 255, 0.18);">
-              <div class="hero-date-chip" style="font-size: 0.78rem;">
-                <i class="fa-solid fa-clock-rotate-left"></i>
-                <span>آخر تحديث: <strong id="sheet-last-update-text">-</strong></span>
-              </div>
-              <button type="button" class="btn btn-hero-action" id="btn-view-patient-sessions" style="padding: 6px 14px; font-size: 0.82rem; font-weight: 800;">
-                <i class="fa-solid fa-calendar-check" style="color: var(--primary);"></i>
-                <span>سجل الجلسات</span>
-                <span class="badge" id="sheet-sessions-badge-count" style="background: var(--primary); color: #ffffff; font-size: 0.74rem; padding: 2px 7px; border-radius: 999px;">0 جلسة</span>
-              </button>
+          <!-- 2. Contact & Location Row -->
+          <div class="pcm-meta-strip">
+            <div class="pcm-meta-item">
+              <i class="fa-solid fa-phone" style="color: var(--primary);"></i>
+              <a href="#" id="sheet-patient-phone-link" class="pcm-phone-link">
+                <bdi dir="ltr" id="sheet-patient-phone">-</bdi>
+              </a>
             </div>
+            <div class="pcm-meta-item">
+              <i class="fa-solid fa-location-dot" style="color: var(--primary);"></i>
+              <span id="sheet-patient-address" class="pcm-meta-val">-</span>
+            </div>
+          </div>
+
+          <!-- 3. Billing & Insurance Cycle Box -->
+          <div class="pcm-billing-box" id="sheet-patient-billing-badge">
+            <!-- Populated dynamically -->
+          </div>
+
+          <!-- 4. Footer: Last Update & Sessions Button -->
+          <div class="pcm-footer-row">
+            <div class="pcm-update-time">
+              <i class="fa-solid fa-clock-rotate-left"></i>
+              <span>آخر تحديث: <strong id="sheet-last-update-text">-</strong></span>
+            </div>
+            <button type="button" class="btn btn-outline btn-sm pcm-sessions-btn" id="btn-view-patient-sessions">
+              <i class="fa-solid fa-calendar-check" style="color: var(--primary);"></i>
+              <span>سجل الجلسات</span>
+              <span class="badge" id="sheet-sessions-badge-count">0 جلسة</span>
+            </button>
           </div>
         </div>
 
@@ -1629,7 +1634,7 @@
         <div class="admin-system-footer no-print" style="margin-top: 32px; margin-bottom: 35px; text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px;">
           <div style="display: inline-flex; align-items: center; gap: 8px; background: var(--bg-surface); border: 1.5px solid var(--border-color); padding: 7px 18px; border-radius: 999px; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);">
             <span style="width: 8px; height: 8px; border-radius: 50%; background-color: var(--success); display: inline-block; box-shadow: 0 0 6px var(--success);"></span>
-            <span style="font-weight: 800; font-size: 0.88rem; color: var(--text-main);">نظام ASCPT — الإصدار 1.4.24</span>
+            <span style="font-weight: 800; font-size: 0.88rem; color: var(--text-main);">نظام ASCPT — الإصدار 1.4.25</span>
             <span class="badge badge-primary" style="font-size: 0.72rem; padding: 2px 10px; border-radius: 999px; font-weight: 800;">إصدار معتمد</span>
           </div>
           <div style="font-size: 0.76rem; color: var(--text-muted); font-weight: 700;">
@@ -2821,7 +2826,7 @@
   </div>
 
 <!-- Main Application Script (ES Module) -->
-  <script type="module" src="js/app.js?v=1.4.24"></script>
+  <script type="module" src="js/app.js?v=1.4.25"></script>
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {

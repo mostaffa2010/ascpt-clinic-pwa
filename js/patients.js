@@ -1452,14 +1452,14 @@ export class PatientsManager {
       const canDelete = RolesManager.canDelete(currentUser);
 
       actionsEl.innerHTML = `
-        <a href="https://wa.me/${cleanPhone}" target="_blank" class="btn btn-outline btn-sm" style="color: #10b981; border-color: #10b981; border-radius: 8px; width: 34px; height: 34px; display: inline-flex; align-items: center; justify-content: center; font-size: 1.05rem;" title="محادثة واتساب مع المريض">
+        <a href="https://wa.me/${cleanPhone}" target="_blank" class="btn btn-outline btn-sm" style="color: #10b981; border-color: rgba(16, 185, 129, 0.4); background: rgba(16, 185, 129, 0.1); border-radius: 10px; width: 36px; height: 36px; display: inline-flex; align-items: center; justify-content: center; font-size: 1.1rem;" title="محادثة واتساب مع المريض">
           <i class="fa-brands fa-whatsapp"></i>
         </a>
-        <button type="button" class="btn btn-outline btn-sm" onclick="patientsManager.openEditModalFromSheet('${p.id}')" style="border-radius: 8px; width: 34px; height: 34px; display: inline-flex; align-items: center; justify-content: center; font-size: 0.95rem; color: var(--primary); border-color: var(--border-color);" title="تعديل بيانات المريض">
+        <button type="button" class="btn btn-outline btn-sm" onclick="patientsManager.openEditModalFromSheet('${p.id}')" style="border-radius: 10px; width: 36px; height: 36px; display: inline-flex; align-items: center; justify-content: center; font-size: 0.95rem; color: var(--primary); border-color: var(--border-color); background: var(--bg-subtle);" title="تعديل بيانات المريض">
           <i class="fa-solid fa-pen-to-square"></i>
         </button>
         ${canDelete ? `
-          <button type="button" class="btn btn-outline btn-sm btn-delete-record" onclick="patientsManager.confirmDeleteFromSheet('${p.id}')" style="border-radius: 8px; width: 34px; height: 34px; display: inline-flex; align-items: center; justify-content: center; font-size: 0.95rem; color: var(--danger); border-color: #fca5a5;" title="حذف المريض">
+          <button type="button" class="btn btn-outline btn-sm btn-delete-record" onclick="patientsManager.confirmDeleteFromSheet('${p.id}')" style="border-radius: 10px; width: 36px; height: 36px; display: inline-flex; align-items: center; justify-content: center; font-size: 0.95rem; color: var(--danger); border-color: rgba(239, 68, 68, 0.35); background: rgba(239, 68, 68, 0.08);" title="حذف المريض">
             <i class="fa-solid fa-trash"></i>
           </button>
         ` : ''}
