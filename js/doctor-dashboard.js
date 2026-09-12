@@ -232,8 +232,8 @@ export class DoctorDashboardManager {
               </div>
               <div class="hsc-amount-box">
                 ${isExam 
-                  ? `<span class="badge" style="background: rgba(109, 40, 217, 0.18); color: #c4b5fd; font-weight: 800; font-size: 0.76rem;"><i class="fa-solid fa-stethoscope"></i> كشف</span>`
-                  : `<span class="badge" style="background: rgba(56, 189, 248, 0.15); color: #38bdf8; font-weight: 800; font-size: 0.76rem;">${unitCount} ${unitWord}</span>`
+                  ? `<span class="badge badge-exam-tag"><i class="fa-solid fa-stethoscope"></i> كشف</span>`
+                  : `<span class="badge badge-primary" style="font-weight: 800; font-size: 0.76rem;"><i class="fa-solid fa-heart-pulse"></i> ${unitCount} ${unitWord}</span>`
                 }
               </div>
             </div>

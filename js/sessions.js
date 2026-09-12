@@ -590,21 +590,21 @@ export class SessionsManager {
         const approvedVisits = patient.approvedSessions || 12;
         const approvedParts = patient.approvedBodyParts || 1;
         paymentContainer.innerHTML = `
-          <div style="background: #f0fdf4; border: 1.5px solid #bbf7d0; border-radius: 10px; padding: 12px 14px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px;">
+          <div class="payment-info-box-contract">
             <div style="display: flex; align-items: center; gap: 10px;">
-              <div style="width: 38px; height: 38px; border-radius: 8px; background: #dcfce7; color: #15803d; display: flex; align-items: center; justify-content: center; font-size: 1.15rem; flex-shrink: 0;">
+              <div class="pay-icon">
                 <i class="fa-solid fa-file-contract"></i>
               </div>
               <div>
-                <div style="font-weight: 800; font-size: 0.95rem; color: #166534;">
+                <div class="pay-title">
                   ${safeCompName} • رصيد ${approvedVisits} زيارة معتمدة (${approvedParts} أعضاء)
                 </div>
-                <div style="font-size: 0.78rem; color: #15803d; font-weight: 600;">
+                <div class="pay-sub">
                   تأمين المريض التلقائي • <span class="badge badge-direct" style="font-size: 0.7rem; padding: 1px 6px;">${cTypeLabel}</span> • حضور اليوم يُحتسب زيارة واحدة للمريض
                 </div>
               </div>
             </div>
-            <span class="badge" style="background: #16a34a; color: #ffffff; font-weight: 700; font-size: 0.76rem; padding: 4px 10px; border-radius: 9999px;">
+            <span class="badge badge-cash" style="font-size: 0.76rem; padding: 4px 10px; border-radius: 9999px;">
               حالة تأمين
             </span>
           </div>
@@ -1328,9 +1328,9 @@ export class SessionsManager {
 
         if (s.payType === 'insurance') {
           if (sessNum > approvedTotal) {
-            sessionNumBadge = `<span class="badge" style="background:#fee2e2; color:#b91c1c; border:1px solid #fecaca; font-weight:800; font-size:0.78rem;"><i class="fa-solid fa-triangle-exclamation"></i> زيارة ${sessNum} من ${approvedTotal}</span>`;
+            sessionNumBadge = `<span class="badge" style="background:var(--danger-light); color:var(--danger); border:1px solid var(--danger); font-weight:800; font-size:0.78rem;"><i class="fa-solid fa-triangle-exclamation"></i> زيارة ${sessNum} من ${approvedTotal}</span>`;
           } else if (sessNum === approvedTotal) {
-            sessionNumBadge = `<span class="badge" style="background:#fef3c7; color:#b45309; border:1px solid #fde68a; font-weight:800; font-size:0.78rem;"><i class="fa-solid fa-flag-checkered"></i> زيارة ${sessNum} من ${approvedTotal}</span>`;
+            sessionNumBadge = `<span class="badge" style="background:var(--warning-light); color:var(--warning); border:1px solid var(--warning); font-weight:800; font-size:0.78rem;"><i class="fa-solid fa-flag-checkered"></i> زيارة ${sessNum} من ${approvedTotal}</span>`;
           } else {
             sessionNumBadge = `<span class="badge" style="background:var(--bg-subtle); color:var(--primary); border:1px solid var(--border-color); font-weight:800; font-size:0.8rem;"><i class="fa-solid fa-calendar-check"></i> زيارة ${sessNum} من ${approvedTotal}</span>`;
           }
@@ -1342,10 +1342,10 @@ export class SessionsManager {
       let payBadge = '';
       if (isExam) {
         if (s.examType === 'cash' || s.payType === 'cash') {
-          payBadge = `<span class="badge badge-cash" style="background:#dcfce7; color:#15803d;"><i class="fa-solid fa-money-bill"></i> كشف نقدي</span>`;
+          payBadge = `<span class="badge badge-cash"><i class="fa-solid fa-money-bill"></i> كشف نقدي</span>`;
         } else {
           const cTypeLabel = s.contractType === 'indirect' ? 'غير مباشر' : 'مباشر';
-          payBadge = `<span class="badge badge-direct" style="background:#e0e7ff; color:#3730a3;"><i class="fa-solid fa-file-contract"></i> كشف تعاقد: ${safeIns} (${cTypeLabel})</span>`;
+          payBadge = `<span class="badge badge-direct"><i class="fa-solid fa-file-contract"></i> كشف تعاقد: ${safeIns} (${cTypeLabel})</span>`;
         }
       } else {
         if (s.payType === 'cash') {

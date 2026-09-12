@@ -682,8 +682,8 @@ export class PatientsManager {
               <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 5px; flex-shrink: 0;">
                 <div>${billingBadge}</div>
                 <div style="display: flex; align-items: center; gap: 4px;">
-                  <button type="button" class="btn btn-outline btn-sm btn-quick-attend" onclick="patientsManager.quickLogSession('${safeId}')" style="color: #d97706; background: rgba(245, 158, 11, 0.12); border: 1.2px solid rgba(245, 158, 11, 0.4); font-weight: 800; gap: 3px; display: inline-flex; align-items: center; border-radius: 999px; padding: 3px 8px; font-size: 0.74rem;" title="تسجيل جلسة سريعة لهذا المريض">
-                    <i class="fa-solid fa-bolt" style="color: #f59e0b;"></i> <span>جلسة</span>
+                  <button type="button" class="btn btn-outline btn-sm btn-quick-attend" onclick="patientsManager.quickLogSession('${safeId}')" title="تسجيل جلسة سريعة لهذا المريض">
+                    <i class="fa-solid fa-bolt"></i> <span>جلسة</span>
                   </button>
                   ${canAccessSheet ? `
                     <button type="button" class="btn btn-primary btn-sm btn-hero-sheet btn-patient-sheet-action" onclick="patientsManager.openPatientSheet('${safeId}')" style="padding: 3px 10px; font-size: 0.74rem; border-radius: 999px; gap: 3px;" title="فتح الشيت الطبي">

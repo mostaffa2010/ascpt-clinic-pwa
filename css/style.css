@@ -2113,6 +2113,7 @@ body.not-authenticated #modal-auth #btn-cancel-login {
   --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.35);
   --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.45), 0 2px 4px -2px rgba(0, 0, 0, 0.35);
   --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.55), 0 4px 6px -4px rgba(0, 0, 0, 0.45);
+  --primary-gradient: linear-gradient(135deg, #0284c7 0%, #0ea5e9 100%);
 }
 
 [data-theme="dark"] body {
@@ -6867,8 +6868,7 @@ h1, h2, h3, h4, h5, h6 {
 .pcm-meta-strip {
   display: flex;
   align-items: center;
-  justify-content: space-between; /* Phone on right, Address pushed far left */
-  gap: 12px;
+  gap: 16px;
   flex-wrap: wrap;
   padding: 10px 0;
   border-bottom: 1px solid var(--border-color);
@@ -6878,12 +6878,8 @@ h1, h2, h3, h4, h5, h6 {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  font-size: 0.84rem;
+  font-size: 0.82rem;
   color: var(--text-muted);
-}
-
-.pcm-meta-item:last-child {
-  text-align: left;
 }
 
 .pcm-phone-link {
@@ -6922,64 +6918,17 @@ h1, h2, h3, h4, h5, h6 {
   gap: 5px;
 }
 
-.pcm-sessions-action-row {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  flex-wrap: wrap;
-  margin-top: 10px;
-  padding-bottom: 4px;
-}
-
 .pcm-sessions-btn {
   display: inline-flex;
   align-items: center;
   gap: 6px;
   font-weight: 800;
-  font-size: 0.82rem;
+  font-size: 0.78rem;
   padding: 6px 14px;
   border-radius: 999px;
-  border: 1.5px solid var(--primary);
+  border-color: var(--primary);
   color: var(--primary);
   background: var(--primary-light);
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.pcm-sessions-btn:hover {
-  background: var(--primary);
-  color: #ffffff;
-}
-
-.pcm-insurance-letter-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  font-weight: 800;
-  font-size: 0.82rem;
-  padding: 6px 14px;
-  border-radius: 999px;
-  border: 1.5px solid #0284c7;
-  color: #0284c7;
-  background: rgba(2, 132, 199, 0.08);
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.pcm-insurance-letter-btn:hover {
-  background: #0284c7;
-  color: #ffffff;
-}
-
-[data-theme="dark"] .pcm-insurance-letter-btn {
-  border-color: #38bdf8;
-  color: #38bdf8;
-  background: rgba(56, 189, 248, 0.12);
-}
-
-[data-theme="dark"] .pcm-insurance-letter-btn:hover {
-  background: #38bdf8;
-  color: #0f172a;
 }
 
 /* 2. Card Header No-Wrap Badges */
@@ -7138,105 +7087,115 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 
-/* ================= Doctor Personal KPI Stats (Stacked Horizontal Rows on Mobile) ================= */
-.doc-kpi-stats-grid {
-  display: grid !important;
-  grid-template-columns: 1fr !important; /* Vertically stacked on mobile to eliminate text-wrap */
-  gap: 10px !important;
-  margin-bottom: 20px !important;
-  width: 100% !important;
+/* ================= Dark Mode & Light Mode Harmony Polish (v1.4.27) ================= */
+[data-theme="dark"] .btn-add-appt:hover {
+  background-color: rgba(56, 189, 248, 0.12) !important;
+  border-color: var(--primary) !important;
+  color: var(--primary) !important;
 }
 
-.doc-kpi-box {
-  display: flex !important;
-  align-items: center !important;
-  justify-content: space-between !important;
-  padding: 12px 16px !important;
-  border-radius: var(--radius-md) !important;
-  background-color: var(--bg-surface) !important;
-  border: 1px solid var(--border-color) !important;
-  box-shadow: var(--shadow-sm) !important;
-  gap: 12px !important;
-  transition: transform 0.15s ease, box-shadow 0.15s ease !important;
-  width: 100% !important;
-  box-sizing: border-box !important;
+[data-theme="dark"] .chip-add-new-btn {
+  background-color: rgba(52, 211, 153, 0.12) !important;
+  color: #34d399 !important;
+  border-color: rgba(52, 211, 153, 0.35) !important;
 }
 
-.doc-kpi-box:hover {
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-md) !important;
+[data-theme="dark"] .chip-add-new-btn:hover,
+[data-theme="dark"] .chip-add-new-btn:active {
+  background-color: rgba(52, 211, 153, 0.22) !important;
 }
 
-.doc-kpi-info-group {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  min-width: 0;
-  flex: 1;
+[data-theme="dark"] .training-pill-btn {
+  background-color: rgba(251, 191, 36, 0.15) !important;
+  border-color: rgba(251, 191, 36, 0.35) !important;
+  color: #fbbf24 !important;
 }
 
-.doc-kpi-icon {
-  width: 40px !important;
-  height: 40px !important;
-  border-radius: 12px !important;
-  display: flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  font-size: 1.15rem !important;
-  flex-shrink: 0 !important;
+[data-theme="dark"] .training-pill-btn:hover,
+[data-theme="dark"] .training-pill-btn:active {
+  background-color: rgba(251, 191, 36, 0.25) !important;
 }
 
-.doc-kpi-labels {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  min-width: 0;
+/* High Contrast Active Chips/Pills in Dark Mode */
+[data-theme="dark"] .btn-edit-chips.active,
+[data-theme="dark"] .category-chip.active,
+[data-theme="dark"] .cal-quick-btn.active,
+[data-theme="dark"] .cal-month-cell.selected,
+[data-theme="dark"] .btn-today-active,
+[data-theme="dark"] .btn-slot-period.active,
+[data-theme="dark"] .btn-claim-filter-pill.active {
+  background-color: var(--primary) !important;
+  color: #0f172a !important;
+  font-weight: 800 !important;
+  border-color: var(--primary) !important;
+  box-shadow: 0 2px 8px rgba(56, 189, 248, 0.35) !important;
 }
 
-.doc-kpi-title {
-  font-size: 0.92rem;
-  font-weight: 800;
-  color: var(--text-main);
-  line-height: 1.25;
-  white-space: nowrap;
+[data-theme="dark"] .btn-today-active i,
+[data-theme="dark"] .btn-today-active .badge {
+  color: #0f172a !important;
 }
 
-.doc-kpi-subtitle {
-  font-size: 0.74rem;
-  font-weight: 600;
-  color: var(--text-muted);
-  line-height: 1.2;
-  white-space: nowrap;
+[data-theme="dark"] #btn-add-settlement {
+  color: #38bdf8 !important;
+  border-color: rgba(56, 189, 248, 0.35) !important;
+  background: rgba(56, 189, 248, 0.1) !important;
 }
 
-.doc-kpi-value {
-  font-size: 0.92rem;
-  font-weight: 800;
-  color: var(--primary);
-  background: var(--primary-light);
-  padding: 6px 12px;
+[data-theme="dark"] #btn-add-settlement:hover,
+[data-theme="dark"] #btn-add-settlement:active {
+  background: #0284c7 !important;
+  color: #ffffff !important;
+}
+
+[data-theme="dark"] #btn-add-expense {
+  color: #f87171 !important;
+  border-color: rgba(248, 113, 113, 0.35) !important;
+  background: rgba(248, 113, 113, 0.1) !important;
+}
+
+[data-theme="dark"] #btn-add-expense:hover,
+[data-theme="dark"] #btn-add-expense:active {
+  background: #ef4444 !important;
+  color: #ffffff !important;
+}
+
+.renew-approval-alert {
+  background: #f0fdf4;
+  border: 1px solid #bbf7d0;
+  color: #166534;
+  padding: 10px 12px;
   border-radius: 8px;
-  white-space: nowrap !important;
-  flex-shrink: 0;
-  text-align: center;
-  letter-spacing: -0.2px;
+  font-size: 0.8rem;
+  font-weight: 600;
 }
 
-[data-theme="dark"] .doc-kpi-value {
-  background: rgba(56, 189, 248, 0.14);
-  color: #38bdf8;
+[data-theme="dark"] .renew-approval-alert {
+  background: rgba(52, 211, 153, 0.12) !important;
+  border-color: rgba(52, 211, 153, 0.3) !important;
+  color: #6ee7b7 !important;
 }
 
-/* Tablet & Desktop Layout for Doctor KPIs */
-@media screen and (min-width: 768px) {
-  .doc-kpi-stats-grid {
-    grid-template-columns: repeat(2, 1fr) !important;
-    gap: 14px !important;
-  }
+.stat-icon.purple {
+  background-color: rgba(168, 85, 247, 0.15);
+  color: #9333ea;
 }
 
-@media screen and (min-width: 1200px) {
-  .doc-kpi-stats-grid {
-    grid-template-columns: repeat(4, 1fr) !important;
-  }
+[data-theme="dark"] .stat-icon.purple {
+  background-color: rgba(168, 85, 247, 0.2) !important;
+  color: #c084fc !important;
+}
+
+.badge-exam-tag {
+  background: rgba(109, 40, 217, 0.12);
+  color: #7c3aed;
+  border: 1px solid rgba(109, 40, 217, 0.25);
+  font-weight: 800;
+  font-size: 0.76rem;
+}
+
+[data-theme="dark"] .badge-exam-tag {
+  background: rgba(109, 40, 217, 0.2) !important;
+  color: #c4b5fd !important;
+  border-color: rgba(196, 181, 253, 0.35) !important;
 }
