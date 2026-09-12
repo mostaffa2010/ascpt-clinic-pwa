@@ -47,8 +47,8 @@
   
 
     <!-- Stylesheets -->
-  <link rel="stylesheet" href="css/style.css?v=1.4.36" media="screen">
-  <link rel="stylesheet" href="css/print.css?v=1.4.36" media="print">
+  <link rel="stylesheet" href="css/style.css?v=1.4.37" media="screen">
+  <link rel="stylesheet" href="css/print.css?v=1.4.37" media="print">
 </head>
 <body>
   <script>
@@ -501,27 +501,17 @@
 
       <!-- ================= View: Patient Clinical Sheet (شيت العلاج الطبيعي للمريض) ================= -->
       <section id="view-patient-sheet" class="view-section">
-        <!-- Top Action Bar (One sleek row on mobile) -->
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; gap: 8px;">
-          <div style="display: flex; align-items: center; gap: 8px;">
-            <button type="button" class="btn btn-outline btn-sm" id="btn-back-to-patients-top" title="رجوع لسجل المرضى" style="padding: 6px 10px;">
-              <i class="fa-solid fa-arrow-right"></i> <span>رجوع</span>
-            </button>
-            <h2 style="font-size: 1.15rem; font-weight: 800; color: var(--text-main); margin: 0;">
-              <i class="fa-solid fa-file-waveform text-primary"></i> شيت المريض
-            </h2>
-          </div>
-          <div style="display: flex; gap: 8px;">
-            <button type="button" class="btn btn-outline btn-sm" id="btn-print-insurance-letter" style="padding: 6px 12px; font-weight: 700; display: none;">
-              <i class="fa-solid fa-file-shield"></i> خطاب تجديد تأمين
-            </button>
-            <button type="button" class="btn btn-primary btn-sm btn-print-sheet" id="btn-print-sheet-top" style="padding: 6px 12px; font-weight: 700;">
-              <i class="fa-solid fa-print"></i> طباعة Wi-Fi
-            </button>
-          </div>
+        <!-- Top Navigation Bar -->
+        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 14px;">
+          <button type="button" class="btn btn-outline btn-sm" id="btn-back-to-patients-top" title="رجوع لسجل المرضى" style="padding: 6px 12px; font-weight: 700; border-radius: 999px;">
+            <i class="fa-solid fa-arrow-right"></i> <span>رجوع</span>
+          </button>
+          <h2 style="font-size: 1.15rem; font-weight: 800; color: var(--text-main); margin: 0;">
+            <i class="fa-solid fa-file-waveform text-primary"></i> شيت المريض
+          </h2>
         </div>
 
-        <!-- Patient Clinical Record Header Card (Clean, Modern & Uncluttered v1.4.36) -->
+        <!-- Patient Clinical Record Header Card (Clean, Modern & Uncluttered v1.4.37) -->
         <div class="card patient-clinical-main-card gender-male" id="patient-clinical-card">
           <!-- 1. Patient Name (Standalone, Full-Width) -->
           <div class="pcm-name-bar">
@@ -546,7 +536,7 @@
             </div>
           </div>
 
-          <!-- 3. Contact & Billing Info Strip -->
+          <!-- 3. Contact & Billing / Sessions Strip -->
           <div class="pcm-info-strip">
             <div class="pcm-info-item">
               <i class="fa-solid fa-phone text-primary"></i>
@@ -559,21 +549,20 @@
               <span id="sheet-patient-address">غير محدد</span>
             </div>
             <div class="pcm-info-item pcm-info-billing" id="sheet-patient-billing-badge">
-              <!-- Populated dynamically without any dots -->
+              <!-- Populated dynamically -->
             </div>
+            <button type="button" class="pcm-sessions-chip" id="btn-view-patient-sessions" title="فتح سجل جلسات المريض">
+              <i class="fa-solid fa-calendar-check text-primary"></i>
+              <span id="sheet-sessions-btn-text">سجل الجلسات (0)</span>
+            </button>
           </div>
 
-          <!-- 4. Footer: Last Update & Sessions Button -->
+          <!-- 4. Footer: Last Update ONLY (Nothing after it) -->
           <div class="pcm-footer-row">
             <div class="pcm-update-time">
               <i class="fa-solid fa-clock-rotate-left"></i>
               <span>آخر تحديث: <strong id="sheet-last-update-text">لم يتم تعديل الشيت بعد (شيت جديد)</strong></span>
             </div>
-            <button type="button" class="btn btn-outline btn-sm pcm-sessions-btn" id="btn-view-patient-sessions">
-              <i class="fa-solid fa-calendar-check text-primary"></i>
-              <span>سجل الجلسات</span>
-              <span class="badge" id="sheet-sessions-badge-count">0 جلسة</span>
-            </button>
           </div>
         </div>
 
@@ -1657,7 +1646,7 @@
         <div class="admin-system-footer no-print" style="margin-top: 32px; margin-bottom: 35px; text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px;">
           <div style="display: inline-flex; align-items: center; gap: 8px; background: var(--bg-surface); border: 1.5px solid var(--border-color); padding: 7px 18px; border-radius: 999px; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);">
             <span style="width: 8px; height: 8px; border-radius: 50%; background-color: var(--success); display: inline-block; box-shadow: 0 0 6px var(--success);"></span>
-            <span style="font-weight: 800; font-size: 0.88rem; color: var(--text-main);">نظام ASCPT — الإصدار 1.4.36</span>
+            <span style="font-weight: 800; font-size: 0.88rem; color: var(--text-main);">نظام ASCPT — الإصدار 1.4.37</span>
             <span class="badge badge-primary" style="font-size: 0.72rem; padding: 2px 10px; border-radius: 999px; font-weight: 800;">إصدار معتمد</span>
           </div>
           <div style="font-size: 0.76rem; color: var(--text-muted); font-weight: 700;">
@@ -2876,7 +2865,7 @@
   </div>
 
 <!-- Main Application Script (ES Module) -->
-  <script type="module" src="js/app.js?v=1.4.36"></script>
+  <script type="module" src="js/app.js?v=1.4.37"></script>
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {

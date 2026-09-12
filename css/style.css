@@ -7012,11 +7012,11 @@ h1, h2, h3, h4, h5, h6 {
   transform: translateY(-2px);
 }
 
-/* 1.4 Row 3: Info Strip (Phone, Address, Billing) */
+/* 1.4 Row 3: Info Strip (Phone, Address, Billing & Sessions Chip) */
 .pcm-info-strip {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
   flex-wrap: wrap;
   padding: 10px 0;
   border-bottom: 1px solid var(--border-color);
@@ -7026,7 +7026,7 @@ h1, h2, h3, h4, h5, h6 {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  font-size: 0.82rem;
+  font-size: 0.80rem;
   color: var(--text-muted);
   background: var(--bg-subtle);
   padding: 5px 12px;
@@ -7051,20 +7051,68 @@ h1, h2, h3, h4, h5, h6 {
   padding: 0 !important;
 }
 
-.ps-billing-wrap {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  flex-wrap: wrap;
+/* Redesigned Compact Sessions Chip inside Info Strip */
+.pcm-sessions-chip {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+  font-size: 0.80rem !important;
+  font-weight: 800 !important;
+  color: var(--primary) !important;
+  background: var(--bg-subtle) !important;
+  border: 1px solid var(--border-color) !important;
+  padding: 5px 12px !important;
+  border-radius: 8px !important;
+  cursor: pointer !important;
+  transition: all 0.18s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  text-decoration: none !important;
+  white-space: nowrap !important;
 }
 
-/* 1.5 Row 4: Footer Row */
+.pcm-sessions-chip:hover {
+  background: var(--primary-light) !important;
+  border-color: var(--primary) !important;
+  transform: translateY(-1px);
+}
+
+[data-theme="dark"] .pcm-sessions-chip {
+  background: rgba(15, 23, 42, 0.5) !important;
+  border-color: #334155 !important;
+  color: #38bdf8 !important;
+}
+
+[data-theme="dark"] .pcm-sessions-chip:hover {
+  background: rgba(56, 189, 248, 0.15) !important;
+  border-color: #38bdf8 !important;
+}
+
+.pcm-sessions-chip.cycle-near-limit {
+  border-color: rgba(245, 158, 11, 0.4) !important;
+  background: rgba(245, 158, 11, 0.08) !important;
+  color: #d97706 !important;
+}
+[data-theme="dark"] .pcm-sessions-chip.cycle-near-limit {
+  background: rgba(245, 158, 11, 0.15) !important;
+  color: #fbbf24 !important;
+  border-color: rgba(245, 158, 11, 0.35) !important;
+}
+
+.pcm-sessions-chip.cycle-completed {
+  border-color: rgba(239, 68, 68, 0.4) !important;
+  background: rgba(239, 68, 68, 0.08) !important;
+  color: #dc2626 !important;
+}
+[data-theme="dark"] .pcm-sessions-chip.cycle-completed {
+  background: rgba(239, 68, 68, 0.15) !important;
+  color: #f87171 !important;
+  border-color: rgba(239, 68, 68, 0.35) !important;
+}
+
+/* 1.5 Row 4: Footer Row (ONLY Last Update, nothing after it) */
 .pcm-footer-row {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  flex-wrap: wrap;
+  justify-content: flex-start;
   padding-top: 10px;
 }
 
@@ -7074,19 +7122,7 @@ h1, h2, h3, h4, h5, h6 {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-}
-
-.pcm-sessions-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  font-weight: 700;
-  font-size: 0.80rem;
-  padding: 5px 14px;
-  border-radius: 999px;
-  border-color: var(--primary);
-  color: var(--primary);
-  background: var(--primary-light);
+  line-height: 1.4;
 }
 
 /* 2. Card Header No-Wrap Badges */

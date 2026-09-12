@@ -1562,11 +1562,20 @@ export class PatientsManager {
     }
 
         const badgeEl = document.getElementById('sheet-patient-billing-badge');
+    const sessBtnText = document.getElementById('sheet-sessions-btn-text');
+    const sessBtn = document.getElementById('btn-view-patient-sessions');
     const insLetterBtn = document.getElementById('btn-print-insurance-letter');
     if (insLetterBtn) insLetterBtn.style.display = (p.billing === 'cash') ? 'none' : 'inline-flex';
+
     if (badgeEl) {
       if (p.billing === 'cash') {
-        badgeEl.innerHTML = '<span class="badge badge-cash" style="font-size: 0.78rem; padding: 3px 10px; font-weight: 700; white-space: nowrap; display: inline-flex; align-items: center; gap: 5px;"><i class="fa-solid fa-money-bill-wave"></i> نقدي</span>';
+        badgeEl.innerHTML = '<span class="badge badge-cash" style="font-size: 0.78rem; padding: 4px 10px; font-weight: 700; white-space: nowrap; display: inline-flex; align-items: center; gap: 5px;"><i class="fa-solid fa-money-bill-wave"></i> نقدي</span>';
+        if (sessBtnText) {
+          sessBtnText.innerHTML = `سجل الجلسات (<strong>${this.currentPatientSessions.length}</strong>)`;
+        }
+        if (sessBtn) {
+          sessBtn.className = 'pcm-sessions-chip';
+        }
       } else {
         const cType = p.contractType === 'direct' ? 'مباشر' : 'غير مباشر';
         const badgeClass = p.contractType === 'direct' ? 'badge-direct' : 'badge-indirect';
@@ -1578,18 +1587,19 @@ export class PatientsManager {
         const isNearLimit = currentCount >= approvedTotal - 2;
         const isCompleted = currentCount >= approvedTotal;
 
-        badgeEl.innerHTML = `
-          <div class="ps-billing-wrap" style="display: inline-flex; align-items: center; gap: 6px; flex-wrap: wrap;">
-            <span class="badge ${badgeClass}" style="font-size: 0.78rem; padding: 3px 10px; font-weight: 700; display: inline-flex; align-items: center; gap: 5px;">
-              <i class="fa-solid ${iconClass}"></i> ${escapeHTML(p.insuranceCompany || 'تأمين')} (${cType})
-            </span>
-            <span style="font-size: 0.80rem; font-weight: 800; color: ${isCompleted ? 'var(--danger)' : (isNearLimit ? 'var(--warning)' : 'var(--primary)')};">
-              الجلسة ${currentCount} من ${approvedTotal}
-            </span>
-            ${isNearLimit && !isCompleted ? '<span class="badge badge-warning" style="font-size: 0.70rem; padding: 2px 6px;"><i class="fa-solid fa-triangle-exclamation"></i> اقتراب الانتهاء</span>' : ''}
-            ${isCompleted ? '<span class="badge badge-danger" style="font-size: 0.70rem; padding: 2px 6px;"><i class="fa-solid fa-circle-exclamation"></i> اكتملت الموافقة</span>' : ''}
-          </div>
-        `;
+        badgeEl.innerHTML = `<span class="badge ${badgeClass}" style="font-size: 0.78rem; padding: 4px 10px; font-weight: 700; display: inline-flex; align-items: center; gap: 5px;"><i class="fa-solid ${iconClass}"></i> ${escapeHTML(p.insuranceCompany || 'تأمين')} (${cType})</span>`;
+
+        if (sessBtnText) {
+          let extraStatus = '';
+          if (isCompleted) extraStatus = ' <i class="fa-solid fa-circle-exclamation text-danger" title="اكتملت الموافقة"></i>';
+          else if (isNearLimit) extraStatus = ' <i class="fa-solid fa-triangle-exclamation text-warning" title="اقتراب الانتهاء"></i>';
+          sessBtnText.innerHTML = `سجل الجلسات: <strong>${currentCount} من ${approvedTotal}</strong>${extraStatus}`;
+        }
+        if (sessBtn) {
+          sessBtn.className = 'pcm-sessions-chip';
+          if (isCompleted) sessBtn.classList.add('cycle-completed');
+          else if (isNearLimit) sessBtn.classList.add('cycle-near-limit');
+        }
       }
     }
 
