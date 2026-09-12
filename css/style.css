@@ -5478,32 +5478,38 @@ body::-webkit-scrollbar,
   }
 }
 
-/* 2. Claims Action Toolbar in Insurance Claims (Screenshot 21) */
+/* 2. Claims Action Toolbar in Insurance Claims (Desktop: flex, Mobile: 2-column grid) */
+.claim-actions-toolbar {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
 @media screen and (max-width: 767px) {
-  #view-claims .claim-actions-toolbar,
   .claim-actions-toolbar {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 8px;
-    width: 100%;
-    margin-top: 10px;
+    display: grid !important;
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 8px !important;
+    width: 100% !important;
+    margin-top: 10px !important;
   }
 
-  #view-claims .claim-actions-toolbar .btn,
   .claim-actions-toolbar .btn {
-    height: 38px;
-    padding: 0 8px;
-    font-size: 0.78rem;
-    border-radius: 12px;
-    justify-content: center;
-    white-space: nowrap;
+    height: 38px !important;
+    padding: 0 8px !important;
+    font-size: 0.78rem !important;
+    border-radius: 12px !important;
+    justify-content: center !important;
+    white-space: nowrap !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
   }
 
-  #view-claims .claim-actions-toolbar #btn-print-claim-statement,
   .claim-actions-toolbar #btn-print-claim-statement {
-    grid-column: span 2;
-    height: 42px;
-    font-size: 0.85rem;
+    grid-column: span 2 !important;
+    height: 42px !important;
+    font-size: 0.85rem !important;
   }
 }
 
