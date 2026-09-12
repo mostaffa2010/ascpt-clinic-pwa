@@ -15,6 +15,9 @@ export class PatientsManager {
     window.patientsManager = this;
     this.insEditMode = false;
     this.currentContractType = "direct";
+    this.sortBy = localStorage.getItem('ascpt_patient_sort') || 'recent';
+    this.newlyAddedPatientId = null;
+    this.pendingPromptPatientId = null;
     this.chipsEditMode = {
       modality: false,
       procedure: false,
@@ -44,6 +47,26 @@ export class PatientsManager {
     if (btnToday) {
       btnToday.addEventListener('click', () => this.toggleTodayFilter());
     }
+
+    // Sort Toggle Buttons (Recent vs Alphabetical)
+    document.getElementById('btn-sort-recent')?.addEventListener('click', () => this.setSort('recent'));
+    document.getElementById('btn-sort-alphabetical')?.addEventListener('click', () => this.setSort('alphabetical'));
+
+    // Post-Registration Action Prompt Handlers
+    document.getElementById('btn-prompt-record-session')?.addEventListener('click', async () => {
+      const pid = this.pendingPromptPatientId;
+      this.app.closeModal('modal-patient-action-prompt');
+      if (pid) {
+        this.app.switchView('sessions');
+        if (this.app?.sessionsManager?.selectPatient) {
+          await this.app.sessionsManager.selectPatient(pid);
+        }
+      }
+    });
+
+    document.getElementById('btn-prompt-stay-patients')?.addEventListener('click', () => {
+      this.app.closeModal('modal-patient-action-prompt');
+    });
 
     const btnOpenAdd = document.getElementById('btn-open-add-patient');
     if (btnOpenAdd) {
@@ -394,6 +417,22 @@ export class PatientsManager {
     return -1;
   }
 
+  setSort(type) {
+    this.sortBy = type === 'alphabetical' ? 'alphabetical' : 'recent';
+    localStorage.setItem('ascpt_patient_sort', this.sortBy);
+    this.updateSortUI();
+    this.renderPatients();
+  }
+
+  updateSortUI() {
+    const btnRecent = document.getElementById('btn-sort-recent');
+    const btnAlpha = document.getElementById('btn-sort-alphabetical');
+    if (btnRecent && btnAlpha) {
+      btnRecent.classList.toggle('active', this.sortBy === 'recent');
+      btnAlpha.classList.toggle('active', this.sortBy === 'alphabetical');
+    }
+  }
+
   toggleTodayFilter() {
     this.filterTodayOnly = !this.filterTodayOnly;
     const btn = document.getElementById('btn-filter-today-patients');
@@ -488,7 +527,13 @@ export class PatientsManager {
       return true;
     });
 
-    // 3. Relevance ranking if user typed a search query
+    this.updateSortUI();
+    const totalCountBadge = document.getElementById('patients-total-count-badge');
+    if (totalCountBadge) {
+      totalCountBadge.textContent = `${filtered.length} مريض`;
+    }
+
+    // 3. Smart Sorting (Search Relevance OR User Toggle: Recent / Alphabetical)
     if (rawSearch) {
       filtered.sort((a, b) => {
         const scoreA = this.getPatientSearchScore(a, rawSearch);
@@ -496,8 +541,22 @@ export class PatientsManager {
         if (scoreB !== scoreA) {
           return scoreB - scoreA;
         }
-        return a.name.localeCompare(b.name, 'ar');
+        return (a.name || '').localeCompare(b.name || '', 'ar');
       });
+    } else {
+      if (this.sortBy === 'alphabetical') {
+        filtered.sort((a, b) => {
+          const nameA = this.normalizeArabic(a.name || '');
+          const nameB = this.normalizeArabic(b.name || '');
+          return nameA.localeCompare(nameB, 'ar');
+        });
+      } else {
+        filtered.sort((a, b) => {
+          const timeA = a.createdAt || a.lastUpdatedAt || '';
+          const timeB = b.createdAt || b.lastUpdatedAt || '';
+          return timeB.localeCompare(timeA);
+        });
+      }
     }
 
     if (filtered.length === 0) {
@@ -553,6 +612,8 @@ export class PatientsManager {
 
     // 1. Render Desktop Table
     tbody.innerHTML = filtered.map(p => {
+      const isNewlyAdded = (p.id && p.id === this.newlyAddedPatientId);
+      const rowHighlightClass = isNewlyAdded ? 'patient-row-newly-added' : '';
       let billingBadge = '';
       const safeComp = escapeHTML(p.insuranceCompany || 'تأمين');
       const approvedVisits = p.approvedSessions || 12;
@@ -654,7 +715,7 @@ export class PatientsManager {
         const cleanWaPhone = (p.phone || '').replace(/[^0-9]/g, '').replace(/^0/, '20');
 
         return `
-          <div class="hero-styled-card hero-patient-card" style="padding: 10px 12px; margin-bottom: 9px; border-radius: 13px;">
+          <div class="hero-styled-card hero-patient-card ${rowHighlightClass}" style="padding: 10px 12px; margin-bottom: 9px; border-radius: 13px;">
             <!-- Row 1: Identity (Right) & Action Hub (Left - Formerly Empty Space) -->
             <div style="display: flex; align-items: flex-start; justify-content: space-between; gap: 8px;">
               <!-- Right Info: Avatar, Name, Age, Doctor Badge -->
@@ -1210,7 +1271,9 @@ export class PatientsManager {
       patientData.currentApprovalStartDate = existingP?.currentApprovalStartDate || getLocalDateStr();
     }
 
+    const isNew = !id;
     const actionResult = await db.savePatient(patientData, currentUser);
+    const savedId = (actionResult && actionResult.id) ? actionResult.id : (patientData.id || id);
     const auditDesc = id 
       ? `تعديل ملف المريض: ${name}`
       : `تسجيل مريض جديد: ${name} (طبيب: ${doctor} - نظام: ${billing})`;
@@ -1223,9 +1286,18 @@ export class PatientsManager {
     }
 
     this.app.closeModal('modal-patient');
-    this.app.showToast(id ? 'تم تعديل بيانات المريض بنجاح' : 'تم إضافة المريض بنجاح');
     this.renderAllInsuranceChips();
     await this.loadPatients();
+
+    if (isNew && savedId) {
+      this.pendingPromptPatientId = savedId;
+      this.newlyAddedPatientId = savedId;
+      const promptName = document.getElementById('action-prompt-patient-name');
+      if (promptName) promptName.textContent = name;
+      this.app.openModal('modal-patient-action-prompt');
+    } else {
+      this.app.showToast('تم تعديل بيانات المريض بنجاح');
+    }
   }
 
   async confirmDelete(patientId) {

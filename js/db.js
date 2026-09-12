@@ -68,9 +68,13 @@ class FirestoreDatabaseService {
   async getPatients() {
     this.ensureConnected();
     try {
-      const q = query(collection(firestoreDb, 'patients'), orderBy('createdAt', 'desc'));
-      const snap = await getDocs(q);
-      return snap.docs.map(d => ({ ...d.data(), id: d.id }));
+      const snap = await getDocs(collection(firestoreDb, 'patients'));
+      const list = snap.docs.map(d => ({ ...d.data(), id: d.id }));
+      return list.sort((a, b) => {
+        const tA = a.createdAt || a.lastUpdatedAt || '';
+        const tB = b.createdAt || b.lastUpdatedAt || '';
+        return tB.localeCompare(tA);
+      });
     } catch (err) {
       console.error('Firestore getPatients error:', err);
       throw new Error('تعذر تحميل سجل المرضى من قاعدة البيانات.');
@@ -96,7 +100,7 @@ class FirestoreDatabaseService {
 
     try {
       await setDoc(doc(firestoreDb, 'patients', patientId), dataToSave, { merge: true });
-      return isEdit ? 'updated' : 'created';
+      return { status: isEdit ? 'updated' : 'created', id: patientId };
     } catch (err) {
       console.error('Firestore savePatient error:', err);
       throw new Error('فشل حفظ بيانات المريض في قاعدة البيانات.');

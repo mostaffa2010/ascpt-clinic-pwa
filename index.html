@@ -47,8 +47,8 @@
   
 
     <!-- Stylesheets -->
-  <link rel="stylesheet" href="css/style.css?v=1.4.28" media="screen">
-  <link rel="stylesheet" href="css/print.css?v=1.4.28" media="print">
+  <link rel="stylesheet" href="css/style.css?v=1.4.29" media="screen">
+  <link rel="stylesheet" href="css/print.css?v=1.4.29" media="print">
 </head>
 <body>
   <script>
@@ -443,6 +443,22 @@
             <!-- Add Patient Button -->
             <button type="button" class="btn btn-primary" id="btn-open-add-patient" style="height: 42px; padding: 0 18px; font-weight: 700; white-space: nowrap; display: inline-flex; align-items: center; gap: 8px;">
               <i class="fa-solid fa-user-plus"></i> <span>مريض جديد</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Patients Sort & Count Bar (Placed right above the list) -->
+        <div class="patients-sort-bar no-print">
+          <div class="psb-count-wrap">
+            <span class="psb-title"><i class="fa-solid fa-users text-primary"></i> قائمة المرضى</span>
+            <span class="badge" id="patients-total-count-badge">0 مريض</span>
+          </div>
+          <div class="patients-sort-segmented">
+            <button type="button" class="sort-seg-btn active" id="btn-sort-recent" data-sort="recent" title="ترتيب زمني: أحدث من تم تسجيلهم أولاً">
+              <i class="fa-solid fa-clock-rotate-left"></i> <span>الأحدث تسجيلاً</span>
+            </button>
+            <button type="button" class="sort-seg-btn" id="btn-sort-alphabetical" data-sort="alphabetical" title="ترتيب أبجدي من الألف إلى الياء">
+              <i class="fa-solid fa-arrow-down-a-z"></i> <span>أبجدياً (أ - ي)</span>
             </button>
           </div>
         </div>
@@ -1642,7 +1658,7 @@
         <div class="admin-system-footer no-print" style="margin-top: 32px; margin-bottom: 35px; text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px;">
           <div style="display: inline-flex; align-items: center; gap: 8px; background: var(--bg-surface); border: 1.5px solid var(--border-color); padding: 7px 18px; border-radius: 999px; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);">
             <span style="width: 8px; height: 8px; border-radius: 50%; background-color: var(--success); display: inline-block; box-shadow: 0 0 6px var(--success);"></span>
-            <span style="font-weight: 800; font-size: 0.88rem; color: var(--text-main);">نظام ASCPT — الإصدار 1.4.28</span>
+            <span style="font-weight: 800; font-size: 0.88rem; color: var(--text-main);">نظام ASCPT — الإصدار 1.4.29</span>
             <span class="badge badge-primary" style="font-size: 0.72rem; padding: 2px 10px; border-radius: 999px; font-weight: 800;">إصدار معتمد</span>
           </div>
           <div style="font-size: 0.76rem; color: var(--text-muted); font-weight: 700;">
@@ -1831,6 +1847,28 @@
           <button type="submit" class="btn btn-primary" id="btn-save-patient">حفظ المريض</button>
         </div>
       </form>
+    </div>
+  </div>
+
+  <!-- Modal: Post Patient Registration Action Prompt (الحل التلقائي السريع) -->
+  <div class="modal-backdrop" id="modal-patient-action-prompt" style="z-index: 250;">
+    <div class="modal-content" style="max-width: 440px; border-radius: 24px; padding: 24px 22px; text-align: center;">
+      <div style="width: 60px; height: 60px; border-radius: 50%; background: var(--success-light); color: var(--success); display: inline-flex; align-items: center; justify-content: center; font-size: 1.65rem; margin-bottom: 14px; box-shadow: 0 4px 16px rgba(16, 185, 129, 0.25);">
+        <i class="fa-solid fa-check"></i>
+      </div>
+      <h3 style="font-size: 1.25rem; font-weight: 800; color: var(--text-main); margin-bottom: 6px;">تم تسجيل المريض بنجاح!</h3>
+      <p style="font-size: 0.92rem; color: var(--text-muted); margin-bottom: 22px; line-height: 1.55;">
+        تمت إضافة المريض: <strong id="action-prompt-patient-name" style="color: var(--primary); font-weight: 800;">-</strong><br>
+        هل ترغب في تسجيل جلسة علاج أو كشف له الآن؟
+      </p>
+      <div style="display: flex; flex-direction: column; gap: 10px; width: 100%;">
+        <button type="button" class="btn btn-primary" id="btn-prompt-record-session" style="height: 48px; border-radius: 14px; font-weight: 800; font-size: 0.98rem; display: flex; align-items: center; justify-content: center; gap: 8px;">
+          <i class="fa-solid fa-bolt"></i> <span>تسجيل جلسة / كشف الآن</span>
+        </button>
+        <button type="button" class="btn btn-outline" id="btn-prompt-stay-patients" style="height: 44px; border-radius: 14px; font-weight: 700; font-size: 0.9rem; color: var(--text-muted);">
+          البقاء في سجل المرضى
+        </button>
+      </div>
     </div>
   </div>
 
@@ -2839,7 +2877,7 @@
   </div>
 
 <!-- Main Application Script (ES Module) -->
-  <script type="module" src="js/app.js?v=1.4.28"></script>
+  <script type="module" src="js/app.js?v=1.4.29"></script>
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
