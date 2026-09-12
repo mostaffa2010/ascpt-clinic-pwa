@@ -47,8 +47,8 @@
   
 
     <!-- Stylesheets -->
-  <link rel="stylesheet" href="css/style.css?v=1.4.34" media="screen">
-  <link rel="stylesheet" href="css/print.css?v=1.4.34" media="print">
+  <link rel="stylesheet" href="css/style.css?v=1.4.35" media="screen">
+  <link rel="stylesheet" href="css/print.css?v=1.4.35" media="print">
 </head>
 <body>
   <script>
@@ -521,22 +521,21 @@
           </div>
         </div>
 
-        <!-- Patient Clinical Record Header Card (Clean, Modern & Organized) -->
-        <div class="card patient-clinical-main-card">
+        <!-- Patient Clinical Record Header Card (Pattern A: Modern Clinical Profile with Gender Customization) -->
+        <div class="card patient-clinical-main-card gender-male" id="patient-clinical-card">
           <!-- 1. Patient Top Identity Row -->
           <div class="pcm-header-row">
             <div class="pcm-identity-box">
-              <div class="pcm-avatar">
-                <i class="fa-solid fa-hospital-user"></i>
+              <div class="pcm-avatar" id="sheet-pcm-avatar">
+                <i class="fa-solid fa-person" id="sheet-pcm-avatar-icon"></i>
               </div>
               <div class="pcm-names-wrap">
-                <div class="pcm-name-line">
-                  <h2 id="sheet-patient-name" class="pcm-name">اسم المريض</h2>
-                  <span class="hsc-age-badge pcm-age-pill">
-                    <strong id="sheet-patient-age">-</strong> سنة <span id="sheet-patient-gender"></span>
+                <h2 id="sheet-patient-name" class="pcm-name">اسم المريض</h2>
+                <div class="pcm-badges-line">
+                  <span id="sheet-patient-gender-badge" class="badge badge-gender-male">
+                    <i class="fa-solid fa-mars" id="sheet-gender-icon"></i>
+                    <span id="sheet-patient-gender-text">ذكر</span> • <strong id="sheet-patient-age">-</strong> سنة
                   </span>
-                </div>
-                <div class="pcm-sub-pill">
                   <span class="patient-doc-badge">
                     <i class="fa-solid fa-user-doctor"></i> <strong id="sheet-patient-doctor">-</strong>
                   </span>
@@ -550,17 +549,17 @@
             </div>
           </div>
 
-          <!-- 2. Contact & Location Row -->
+          <!-- 2. Contact & Location Quick Chips -->
           <div class="pcm-meta-strip">
             <div class="pcm-meta-item">
-              <i class="fa-solid fa-phone" style="color: var(--primary);"></i>
+              <i class="fa-solid fa-phone text-primary"></i>
               <a href="#" id="sheet-patient-phone-link" class="pcm-phone-link">
                 <bdi dir="ltr" id="sheet-patient-phone">-</bdi>
               </a>
             </div>
             <div class="pcm-meta-item">
-              <i class="fa-solid fa-location-dot" style="color: var(--primary);"></i>
-              <span id="sheet-patient-address" class="pcm-meta-val">-</span>
+              <i class="fa-solid fa-location-dot text-primary"></i>
+              <span id="sheet-patient-address" class="pcm-meta-val">غير محدد</span>
             </div>
           </div>
 
@@ -573,7 +572,7 @@
           <div class="pcm-footer-row">
             <div class="pcm-update-time">
               <i class="fa-solid fa-clock-rotate-left"></i>
-              <span>آخر تحديث: <strong id="sheet-last-update-text">-</strong></span>
+              <span>آخر تحديث: <strong id="sheet-last-update-text">لم يتم تعديل الشيت بعد (شيت جديد)</strong></span>
             </div>
             <button type="button" class="btn btn-outline btn-sm pcm-sessions-btn" id="btn-view-patient-sessions">
               <i class="fa-solid fa-calendar-check" style="color: var(--primary);"></i>
@@ -1663,7 +1662,7 @@
         <div class="admin-system-footer no-print" style="margin-top: 32px; margin-bottom: 35px; text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px;">
           <div style="display: inline-flex; align-items: center; gap: 8px; background: var(--bg-surface); border: 1.5px solid var(--border-color); padding: 7px 18px; border-radius: 999px; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);">
             <span style="width: 8px; height: 8px; border-radius: 50%; background-color: var(--success); display: inline-block; box-shadow: 0 0 6px var(--success);"></span>
-            <span style="font-weight: 800; font-size: 0.88rem; color: var(--text-main);">نظام ASCPT — الإصدار 1.4.34</span>
+            <span style="font-weight: 800; font-size: 0.88rem; color: var(--text-main);">نظام ASCPT — الإصدار 1.4.35</span>
             <span class="badge badge-primary" style="font-size: 0.72rem; padding: 2px 10px; border-radius: 999px; font-weight: 800;">إصدار معتمد</span>
           </div>
           <div style="font-size: 0.76rem; color: var(--text-muted); font-weight: 700;">
@@ -2882,7 +2881,7 @@
   </div>
 
 <!-- Main Application Script (ES Module) -->
-  <script type="module" src="js/app.js?v=1.4.34"></script>
+  <script type="module" src="js/app.js?v=1.4.35"></script>
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {

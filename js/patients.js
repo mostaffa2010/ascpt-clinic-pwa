@@ -1514,26 +1514,46 @@ export class PatientsManager {
       this.currentPatientSessions = [];
     }
 
-    // 1. Fill Header info
+    // 1. Fill Header info with Pattern A (Gender Customization: Male / Female)
+    const isFemale = (p.gender === 'female');
+    const cardEl = document.getElementById('patient-clinical-card');
+    if (cardEl) {
+      cardEl.classList.remove('gender-male', 'gender-female');
+      cardEl.classList.add(isFemale ? 'gender-female' : 'gender-male');
+    }
+
+    const avatarIcon = document.getElementById('sheet-pcm-avatar-icon');
+    if (avatarIcon) {
+      avatarIcon.className = isFemale ? 'fa-solid fa-person-dress' : 'fa-solid fa-person';
+    }
+
     const nameEl = document.getElementById('sheet-patient-name');
     if (nameEl) nameEl.textContent = p.name;
 
     const ageEl = document.getElementById('sheet-patient-age');
-    if (ageEl) ageEl.textContent = p.age;
+    if (ageEl) ageEl.textContent = p.age || '-';
 
-    const genderEl = document.getElementById('sheet-patient-gender');
-    if (genderEl) {
-      genderEl.textContent = p.gender === 'male' ? '- ذكر' : (p.gender === 'female' ? '- أنثى' : '');
+    const genderBadge = document.getElementById('sheet-patient-gender-badge');
+    const genderIcon = document.getElementById('sheet-gender-icon');
+    const genderText = document.getElementById('sheet-patient-gender-text');
+    if (genderBadge) {
+      genderBadge.className = isFemale ? 'badge badge-gender-female' : 'badge badge-gender-male';
+    }
+    if (genderIcon) {
+      genderIcon.className = isFemale ? 'fa-solid fa-venus' : 'fa-solid fa-mars';
+    }
+    if (genderText) {
+      genderText.textContent = isFemale ? 'أنثى' : 'ذكر';
     }
 
     const phoneEl = document.getElementById('sheet-patient-phone');
-    if (phoneEl) phoneEl.textContent = p.phone;
+    if (phoneEl) phoneEl.textContent = p.phone || '-';
 
     const addrEl = document.getElementById('sheet-patient-address');
     if (addrEl) addrEl.textContent = p.address || 'غير محدد';
 
     const docEl = document.getElementById('sheet-patient-doctor');
-    if (docEl) docEl.textContent = p.doctor;
+    if (docEl) docEl.textContent = p.doctor || 'طبيب المركز';
 
     const phoneLink = document.getElementById('sheet-patient-phone-link');
     if (phoneLink) {
@@ -1590,14 +1610,14 @@ export class PatientsManager {
       const canDelete = RolesManager.canDelete(currentUser);
 
       actionsEl.innerHTML = `
-        <a href="https://wa.me/${cleanPhone}" target="_blank" class="btn btn-outline btn-sm" style="color: #10b981; border-color: rgba(16, 185, 129, 0.4); background: rgba(16, 185, 129, 0.1); border-radius: 10px; width: 36px; height: 36px; display: inline-flex; align-items: center; justify-content: center; font-size: 1.1rem;" title="محادثة واتساب مع المريض">
+        <a href="https://wa.me/${cleanPhone}" target="_blank" class="btn btn-outline btn-sm pcm-action-circle wa" title="محادثة واتساب">
           <i class="fa-brands fa-whatsapp"></i>
         </a>
-        <button type="button" class="btn btn-outline btn-sm" onclick="patientsManager.openEditModalFromSheet('${p.id}')" style="border-radius: 10px; width: 36px; height: 36px; display: inline-flex; align-items: center; justify-content: center; font-size: 0.95rem; color: var(--primary); border-color: var(--border-color); background: var(--bg-subtle);" title="تعديل بيانات المريض">
+        <button type="button" class="btn btn-outline btn-sm pcm-action-circle edit" onclick="patientsManager.openEditModalFromSheet('${p.id}')" title="تعديل بيانات المريض">
           <i class="fa-solid fa-pen-to-square"></i>
         </button>
         ${canDelete ? `
-          <button type="button" class="btn btn-outline btn-sm btn-delete-record" onclick="patientsManager.confirmDeleteFromSheet('${p.id}')" style="border-radius: 10px; width: 36px; height: 36px; display: inline-flex; align-items: center; justify-content: center; font-size: 0.95rem; color: var(--danger); border-color: rgba(239, 68, 68, 0.35); background: rgba(239, 68, 68, 0.08);" title="حذف المريض">
+          <button type="button" class="btn btn-outline btn-sm pcm-action-circle del" onclick="patientsManager.confirmDeleteFromSheet('${p.id}')" title="حذف المريض">
             <i class="fa-solid fa-trash"></i>
           </button>
         ` : ''}
