@@ -3482,11 +3482,13 @@ body {
   #card-doctor-personal-sessions,
   #card-doctor-appointments-schedule,
   #card-main-appointments-schedule {
-    background: transparent;
-    border: none;
-    box-shadow: none;
-    padding: 0;
-    margin-bottom: 14px;
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    padding: 0 !important;
+    margin-bottom: 14px !important;
   }
 
   #card-dashboard-recent .card-header,
@@ -3495,18 +3497,20 @@ body {
   #card-doctor-personal-sessions .card-header,
   #card-doctor-appointments-schedule .card-header,
   #card-main-appointments-schedule .card-header {
-    padding: 4px 2px 12px 2px;
-    border-bottom: none;
-    background: transparent;
+    padding: 4px 2px 12px 2px !important;
+    border-bottom: none !important;
+    background: transparent !important;
   }
 
   #card-doctor-appointments-schedule .table-responsive,
   #card-main-appointments-schedule .table-responsive {
-    border: none;
-    background: transparent;
-    box-shadow: none;
-    overflow: visible;
-    padding: 0;
+    border: none !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    overflow: visible !important;
+    padding: 0 !important;
   }
 }
 
@@ -4586,37 +4590,41 @@ body {
   #card-main-appointments-schedule,
   .card:has(#my-appointments-grid),
   .card:has(#appointments-grid) {
-    background: transparent;
-    border: none;
-    box-shadow: none;
-    padding: 0;
-    margin-top: 10px;
-    margin-bottom: 14px;
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    padding: 0 !important;
+    margin-top: 10px !important;
+    margin-bottom: 14px !important;
   }
 
   #card-doctor-appointments-schedule > .card-header,
   #card-main-appointments-schedule > .card-header,
   .card:has(#my-appointments-grid) > .card-header,
   .card:has(#appointments-grid) > .card-header {
-    background: transparent;
-    border: none;
-    padding: 6px 4px 12px 4px;
+    background: transparent !important;
+    border: none !important;
+    padding: 6px 4px 12px 4px !important;
   }
 
   #card-doctor-appointments-schedule .table-responsive,
   #card-main-appointments-schedule .table-responsive,
   .table-responsive:has(#my-appointments-grid),
   .table-responsive:has(#appointments-grid) {
-    background: transparent;
-    border: none;
-    box-shadow: none;
-    overflow: visible;
-    padding: 0;
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    overflow: visible !important;
+    padding: 0 !important;
   }
 
   .appt-timeline-container {
-    gap: 14px;
-    width: 100%;
+    gap: 14px !important;
+    width: 100% !important;
   }
 }
 
