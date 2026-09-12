@@ -202,9 +202,9 @@ export class AppointmentsManager {
   }
 
   // ================= Doctor's Own Schedule (Stacked Cards Deck + Smart Hybrid) =================
-  getCompletedSlots(doctorUid) {
+  getCompletedAppts(doctorUid) {
     const today = getLocalDateStr();
-    const key = `ascpt_done_slots_${doctorUid}_${today}`;
+    const key = `ascpt_done_appts_${doctorUid}_${today}`;
     try {
       return JSON.parse(localStorage.getItem(key) || '[]');
     } catch (_) {
@@ -212,22 +212,23 @@ export class AppointmentsManager {
     }
   }
 
-  toggleSlotCompleted(slotKey, doctorUid) {
+  toggleApptCompleted(apptId, doctorUid, patientName) {
     const today = getLocalDateStr();
-    const key = `ascpt_done_slots_${doctorUid}_${today}`;
-    let list = this.getCompletedSlots(doctorUid);
-    const wasCompleted = list.includes(slotKey);
+    const key = `ascpt_done_appts_${doctorUid}_${today}`;
+    let list = this.getCompletedAppts(doctorUid);
+    const wasCompleted = list.includes(apptId);
     if (wasCompleted) {
-      list = list.filter(k => k !== slotKey);
+      list = list.filter(id => id !== apptId);
     } else {
-      list.push(slotKey);
+      list.push(apptId);
     }
     try {
       localStorage.setItem(key, JSON.stringify(list));
     } catch (_) {}
 
     if (this.app?.showToast) {
-      this.app.showToast(wasCompleted ? 'تم استرجاع الموعد للمتبقية' : 'تم إنهاء الموعد بنجاح');
+      const nameTxt = patientName ? `موعد ${patientName}` : 'موعد المريض';
+      this.app.showToast(wasCompleted ? `تم استرجاع ${nameTxt} للمتبقية` : `تم إنهاء ${nameTxt} بنجاح`);
     }
     this.renderForDoctor(doctorUid);
   }
@@ -291,35 +292,47 @@ export class AppointmentsManager {
       this.renderForDoctor(doctorUid);
     });
 
-    // Complete / Done buttons
-    grid.querySelectorAll('.btn-complete-slot').forEach(btn => {
+    // Per-patient Complete ("تم") buttons
+    grid.querySelectorAll('.btn-complete-patient').forEach(btn => {
       btn.addEventListener('click', (e) => {
         e.stopPropagation();
-        const slotKey = btn.getAttribute('data-slot-key');
-        this.toggleSlotCompleted(slotKey, doctorUid);
+        const apptId = btn.getAttribute('data-appt-id');
+        const patientName = btn.getAttribute('data-patient-name');
+        this.toggleApptCompleted(apptId, doctorUid, patientName);
       });
     });
 
-    // Undo buttons
-    grid.querySelectorAll('.btn-undo-slot').forEach(btn => {
+    // Per-patient Undo buttons
+    grid.querySelectorAll('.btn-undo-patient').forEach(btn => {
       btn.addEventListener('click', (e) => {
         e.stopPropagation();
-        const slotKey = btn.getAttribute('data-slot-key');
-        this.toggleSlotCompleted(slotKey, doctorUid);
+        const apptId = btn.getAttribute('data-appt-id');
+        const patientName = btn.getAttribute('data-patient-name');
+        this.toggleApptCompleted(apptId, doctorUid, patientName);
       });
     });
   }
 
   buildDoctorStackedScheduleHTML(doctorUid) {
     const slotsToRender = (this.slots && this.slots.length > 0) ? this.slots : DEFAULT_APPT_SLOTS;
-    const completedSlotKeys = this.getCompletedSlots(doctorUid);
+    const completedApptIds = this.getCompletedAppts(doctorUid);
 
     // All booked slots for this doctor
     const allSlots = slotsToRender.map((slot) => {
       const cellAppts = this.getCellAppointments(doctorUid, slot.key);
       if (cellAppts.length === 0) return null;
-      const isDone = completedSlotKeys.includes(slot.key);
-      return { slot, cellAppts, isDone };
+
+      const uncompletedAppts = cellAppts.filter(a => !completedApptIds.includes(a.id));
+      const completedAppts = cellAppts.filter(a => completedApptIds.includes(a.id));
+      const isSlotFullyDone = uncompletedAppts.length === 0;
+
+      return {
+        slot,
+        cellAppts,
+        uncompletedAppts,
+        completedAppts,
+        isSlotFullyDone
+      };
     }).filter(Boolean);
 
     if (allSlots.length === 0) {
@@ -337,16 +350,19 @@ export class AppointmentsManager {
       };
     }
 
-    const uncompletedSlots = allSlots.filter(s => !s.isDone);
-    const completedSlots = allSlots.filter(s => s.isDone);
+    const totalUncompletedPatients = allSlots.reduce((acc, curr) => acc + curr.uncompletedAppts.length, 0);
+    const totalCompletedPatients = allSlots.reduce((acc, curr) => acc + curr.completedAppts.length, 0);
 
     const isShowingCompleted = this.doctorApptFilter === 'completed';
-    const slotsToDisplay = isShowingCompleted ? completedSlots : uncompletedSlots;
 
-    // Smart Auto-Focus: Find closest time slot to current clock
+    // When showing Active, display slots that have uncompleted patients (or if all done, empty message)
+    // When showing Completed, display slots that have completed patients
+    const slotsToDisplay = isShowingCompleted 
+      ? allSlots.filter(s => s.completedAppts.length > 0)
+      : allSlots.filter(s => !s.isSlotFullyDone);
+
+    // Smart Auto-Focus: Find closest time slot to current clock among slotsToDisplay
     const initialIndex = !isShowingCompleted ? this.findClosestSlotIndex(slotsToDisplay) : 0;
-
-    const totalActivePatients = uncompletedSlots.reduce((acc, curr) => acc + curr.cellAppts.length, 0);
 
     let contentHTML = '';
 
@@ -354,8 +370,8 @@ export class AppointmentsManager {
       if (isShowingCompleted) {
         contentHTML = `
           <div class="hero-styled-card doc-empty-schedule-card" style="text-align: center; padding: 30px 20px; margin: 4px 0;">
-            <div style="font-weight: 800; font-size: 0.98rem; color: var(--text-main);">لا توجد مواعيد مكتملة حتى الآن اليوم</div>
-            <div style="font-size: 0.80rem; color: var(--text-muted); margin-top: 4px;">عند الضغط على "تم إنهاء هذا الموعد" ستنتقل الحالات المكتملة إلى هنا.</div>
+            <div style="font-weight: 800; font-size: 0.98rem; color: var(--text-main);">لا توجد حالات مكتملة بعد اليوم</div>
+            <div style="font-size: 0.80rem; color: var(--text-muted); margin-top: 4px;">عند الضغط على "تم" لأي مريض ستظهر بياناته هنا.</div>
           </div>
         `;
       } else {
@@ -364,8 +380,8 @@ export class AppointmentsManager {
             <div style="width: 54px; height: 54px; border-radius: 50%; background: rgba(16, 185, 129, 0.15); color: var(--success); display: inline-flex; align-items: center; justify-content: center; font-size: 1.6rem; margin-bottom: 12px;">
               <i class="fa-solid fa-circle-check"></i>
             </div>
-            <div style="font-weight: 800; font-size: 1.1rem; color: var(--text-main);">تم إنهاء جميع مواعيدك لليوم بنجاح!</div>
-            <div style="font-size: 0.84rem; color: var(--text-muted); margin-top: 6px;">عاش يا دكتور، جميع الحالات والزيارات المجدولة أُكملت.</div>
+            <div style="font-weight: 800; font-size: 1.1rem; color: var(--text-main);">تم إنهاء جميع حالاتك لليوم بنجاح!</div>
+            <div style="font-size: 0.84rem; color: var(--text-muted); margin-top: 6px;">عاش يا دكتور، جميع المرضى والزيارات المجدولة أُكملت.</div>
           </div>
         `;
       }
@@ -373,8 +389,20 @@ export class AppointmentsManager {
       contentHTML = `
         <!-- The 3D Overlapping Stack Deck -->
         <div class="doc-stack-container" id="doc-stack-container">
-          ${slotsToDisplay.map(({ slot, cellAppts, isDone }, index) => {
-            const countLabel = cellAppts.length === 1 ? 'حالة واحدة' : (cellAppts.length === 2 ? 'حالتان' : `${cellAppts.length} حالات`);
+          ${slotsToDisplay.map(({ slot, cellAppts, uncompletedAppts, completedAppts, isSlotFullyDone }, index) => {
+            // In active view, show count of remaining vs total
+            let countLabel = '';
+            if (isShowingCompleted) {
+              countLabel = `${completedAppts.length} مكتمل`;
+            } else if (cellAppts.length > 1) {
+              countLabel = `${uncompletedAppts.length} متبقي من ${cellAppts.length}`;
+            } else {
+              countLabel = 'حالة واحدة';
+            }
+
+            // In active view, show all patients in this slot (with completed ones dimmed/checked off)
+            // In completed view, show the completed ones
+            const patientsToShow = isShowingCompleted ? completedAppts : cellAppts;
 
             return `
               <div class="hero-styled-card doc-stack-card ${index === initialIndex ? 'is-active-card' : 'is-peeking-card'}" data-stack-index="${index}">
@@ -384,8 +412,8 @@ export class AppointmentsManager {
                     <span style="font-weight: 800; font-size: 1.05rem; color: var(--text-main);">${escapeHTML(slot.label)}</span>
                   </div>
                   <div style="display: flex; align-items: center; gap: 6px;">
-                    <span class="badge ${isDone ? 'badge-cash' : 'badge-primary'}" style="font-size: 0.78rem; padding: 4px 10px; border-radius: 999px; font-weight: 800;">
-                      ${isDone ? '<i class="fa-solid fa-check"></i> مكتمل' : countLabel}
+                    <span class="badge ${isSlotFullyDone ? 'badge-cash' : 'badge-primary'}" style="font-size: 0.78rem; padding: 4px 10px; border-radius: 999px; font-weight: 800;">
+                      ${countLabel}
                     </span>
                     <i class="fa-solid fa-chevron-down doc-card-peek-indicator" style="font-size: 0.75rem; color: var(--text-muted);"></i>
                   </div>
@@ -394,53 +422,55 @@ export class AppointmentsManager {
                 <div class="hsc-divider" style="margin: 10px 0 12px 0;"></div>
 
                 <div class="doc-card-patients-list">
-                  ${cellAppts.map((a, pIdx) => {
+                  ${patientsToShow.map((a, pIdx) => {
+                    const isDone = completedApptIds.includes(a.id);
                     const patientObj = (this.patients || []).find(p => p.id === a.patientId);
                     const phone = patientObj?.phone || '';
                     const billing = patientObj?.billing || '';
                     let billingBadge = '';
                     if (billing === 'cash') {
-                      billingBadge = '<span class="badge badge-cash" style="font-size: 0.7rem; padding: 2px 7px;">نقدي</span>';
+                      billingBadge = '<span class="badge badge-cash" style="font-size: 0.68rem; padding: 1.5px 6px;">نقدي</span>';
                     } else if (billing === 'insurance') {
                       const comp = patientObj?.insuranceCompany || 'تأمين';
-                      billingBadge = `<span class="badge badge-direct" style="font-size: 0.7rem; padding: 2px 7px;">${escapeHTML(comp)}</span>`;
+                      billingBadge = `<span class="badge badge-direct" style="font-size: 0.68rem; padding: 1.5px 6px;">${escapeHTML(comp)}</span>`;
                     }
 
                     return `
-                      <div class="doc-patient-item">
-                        <div class="doc-patient-avatar">
-                          <i class="fa-solid fa-user"></i>
+                      <div class="doc-patient-item" style="padding: 8px 10px; border-radius: 12px; background: var(--bg-subtle); margin-bottom: 7px; display: flex; align-items: center; justify-content: space-between; gap: 8px; ${isDone ? 'opacity: 0.72;' : ''}">
+                        <div style="display: flex; align-items: center; gap: 8px; min-width: 0; flex: 1;">
+                          <div class="doc-patient-avatar" style="width: 34px; height: 34px; border-radius: 9px; font-size: 0.88rem; flex-shrink: 0; display: flex; align-items: center; justify-content: center; ${isDone ? 'background: rgba(16, 185, 129, 0.15); color: #10b981;' : ''}">
+                            <i class="fa-solid ${isDone ? 'fa-check' : 'fa-user'}"></i>
+                          </div>
+                          <div class="doc-patient-info" style="min-width: 0;">
+                            <div class="doc-patient-name" style="font-weight: 800; font-size: 0.88rem; color: var(--text-main); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; ${isDone ? 'text-decoration: line-through;' : ''}">${escapeHTML(a.patientName)}</div>
+                            <div style="display: flex; align-items: center; gap: 6px; margin-top: 2px;">
+                              ${billingBadge}
+                              ${phone ? `<a href="tel:${escapeHTML(phone)}" style="font-size: 0.72rem; color: var(--text-muted); text-decoration: none; display: inline-flex; align-items: center; gap: 3px;" title="اتصال"><i class="fa-solid fa-phone" style="font-size: 0.65rem;"></i> <bdi dir="ltr">${escapeHTML(phone)}</bdi></a>` : ''}
+                            </div>
+                          </div>
                         </div>
-                        <div class="doc-patient-info">
-                          <div class="doc-patient-name">${escapeHTML(a.patientName)}</div>
-                          ${phone ? `<div class="doc-patient-phone"><i class="fa-solid fa-phone" style="font-size: 0.7rem;"></i> ${escapeHTML(phone)}</div>` : ''}
-                        </div>
-                        <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 4px;">
-                          ${billingBadge}
-                          <span class="doc-patient-order">#${pIdx + 1}</span>
+
+                        <!-- Per-Patient Done / Undo Action Button -->
+                        <div style="flex-shrink: 0;">
+                          ${!isDone ? `
+                            <button type="button" class="btn btn-outline btn-sm btn-complete-patient" data-appt-id="${escapeHTML(a.id)}" data-patient-name="${escapeHTML(a.patientName)}" style="padding: 4px 10px; font-size: 0.76rem; font-weight: 800; border-radius: 999px; color: #10b981; border-color: rgba(16, 185, 129, 0.4); background: rgba(16, 185, 129, 0.08); display: inline-flex; align-items: center; gap: 4px; cursor: pointer;" title="تأكيد إنهاء جلسة هذا المريض">
+                              <i class="fa-solid fa-check"></i> <span>تم</span>
+                            </button>
+                          ` : `
+                            <div style="display: flex; align-items: center; gap: 4px;">
+                              <span style="display: inline-flex; align-items: center; gap: 3px; font-size: 0.72rem; font-weight: 800; color: #10b981; background: rgba(16, 185, 129, 0.12); padding: 3px 8px; border-radius: 999px;">
+                                <i class="fa-solid fa-check-double"></i> مكتمل
+                              </span>
+                              <button type="button" class="btn btn-sm btn-undo-patient" data-appt-id="${escapeHTML(a.id)}" data-patient-name="${escapeHTML(a.patientName)}" title="استرجاع للمتبقية" style="padding: 2px 6px; font-size: 0.74rem; color: var(--text-muted); background: transparent; border: none; cursor: pointer;">
+                                <i class="fa-solid fa-rotate-left"></i>
+                              </button>
+                            </div>
+                          `}
                         </div>
                       </div>
                     `;
                   }).join('')}
                 </div>
-
-                <div class="hsc-divider" style="margin: 12px 0 10px 0;"></div>
-
-                <!-- Done / Complete Action Footer -->
-                ${!isDone ? `
-                  <button type="button" class="btn btn-outline btn-sm btn-complete-slot" data-slot-key="${escapeHTML(slot.key)}" style="width: 100%; border-radius: 12px; height: 38px; font-weight: 800; font-size: 0.84rem; color: #10b981; border-color: rgba(16, 185, 129, 0.4); background: rgba(16, 185, 129, 0.08); display: inline-flex; align-items: center; justify-content: center; gap: 6px; cursor: pointer;">
-                    <i class="fa-solid fa-check-circle"></i> <span>تم إنهاء هذا الموعد</span>
-                  </button>
-                ` : `
-                  <div style="display: flex; align-items: center; justify-content: space-between; gap: 8px; width: 100%;">
-                    <span style="font-size: 0.78rem; font-weight: 800; color: var(--success); display: inline-flex; align-items: center; gap: 4px;">
-                      <i class="fa-solid fa-circle-check"></i> موعد منتهي
-                    </span>
-                    <button type="button" class="btn btn-outline btn-sm btn-undo-slot" data-slot-key="${escapeHTML(slot.key)}" style="border-radius: 8px; font-size: 0.74rem; font-weight: 700; padding: 4px 10px; color: var(--text-muted); display: inline-flex; align-items: center; gap: 4px;">
-                      <i class="fa-solid fa-rotate-left"></i> استرجاع للمتبقية
-                    </button>
-                  </div>
-                `}
               </div>
             `;
           }).join('')}
@@ -472,10 +502,10 @@ export class AppointmentsManager {
         <div class="doc-stack-header-bar" style="flex-wrap: wrap; gap: 8px;">
           <div style="display: flex; align-items: center; gap: 6px;">
             <button type="button" class="btn btn-sm ${!isShowingCompleted ? 'btn-primary' : 'btn-outline'}" id="btn-doc-appts-active" style="font-size: 0.76rem; padding: 4px 10px; border-radius: 999px; font-weight: 800;">
-              المتبقية (${uncompletedSlots.length})
+              المتبقية (${totalUncompletedPatients})
             </button>
             <button type="button" class="btn btn-sm ${isShowingCompleted ? 'btn-primary' : 'btn-outline'}" id="btn-doc-appts-completed" style="font-size: 0.76rem; padding: 4px 10px; border-radius: 999px; font-weight: 800;">
-              المكتملة (${completedSlots.length})
+              المكتملة (${totalCompletedPatients})
             </button>
           </div>
 
@@ -496,7 +526,7 @@ export class AppointmentsManager {
     return { html, initialIndex };
   }
 
-  initDocStackDeck(initialIndex = 0) {
+    initDocStackDeck(initialIndex = 0) {
     initStackDeck({
       prefix: 'doc-stack',
       initialIndex
