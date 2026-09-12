@@ -221,6 +221,20 @@ export class PatientsManager {
       formSheet.addEventListener('submit', (e) => this.handleSaveSheet(e));
     }
 
+    // Sticky Quick Section Navigation Pills for Patient Sheet
+    document.querySelectorAll('.sheet-nav-pill').forEach(pill => {
+      pill.addEventListener('click', (e) => {
+        e.preventDefault();
+        const targetId = pill.getAttribute('data-target');
+        const targetEl = document.getElementById(targetId);
+        if (targetEl) {
+          document.querySelectorAll('.sheet-nav-pill').forEach(p => p.classList.remove('active'));
+          pill.classList.add('active');
+          targetEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      });
+    });
+
     // Toggle Chips Edit Mode Buttons in Clinical Sheet
     document.getElementById('btn-toggle-chips-modality')?.addEventListener('click', () => this.toggleChipsEditMode('modality'));
     document.getElementById('btn-toggle-chips-procedure')?.addEventListener('click', () => this.toggleChipsEditMode('procedure'));
@@ -1395,6 +1409,12 @@ export class PatientsManager {
     const docEl = document.getElementById('sheet-patient-doctor');
     if (docEl) docEl.textContent = p.doctor;
 
+    const phoneLink = document.getElementById('sheet-patient-phone-link');
+    if (phoneLink) {
+      const cleanPhone = (p.phone || '').replace(/[^0-9]/g, '');
+      phoneLink.href = `tel:${cleanPhone}`;
+    }
+
         const badgeEl = document.getElementById('sheet-patient-billing-badge');
     const insLetterBtn = document.getElementById('btn-print-insurance-letter');
     if (insLetterBtn) insLetterBtn.style.display = (p.billing === 'cash') ? 'none' : 'inline-flex';
@@ -1587,26 +1607,48 @@ export class PatientsManager {
 
   updateSheetPickerPreview(category, selectedList = []) {
     const containerMap = {
-      modality: { preview: 'sheet-modalities-selected-preview', badge: 'sheet-modalities-count-badge', placeholder: '-- اضغط لاختيار وتحديد الأجهزة المقررة --', icon: 'fa-bolt-lightning' },
-      procedure: { preview: 'sheet-procedures-selected-preview', badge: 'sheet-procedures-count-badge', placeholder: '-- اضغط لاختيار وتحديد إجراءات العلاج اليدوي --', icon: 'fa-hand-holding-hand' },
-      exercise: { preview: 'sheet-exercises-selected-preview', badge: 'sheet-exercises-count-badge', placeholder: '-- اضغط لاختيار وتحديد التمارين العلاجية --', icon: 'fa-person-running' }
+      modality: { preview: 'sheet-modalities-selected-preview', badge: 'sheet-modalities-count-badge', chipsWrap: 'sheet-modalities-chips-wrap', placeholder: '-- اضغط لاختيار وتحديد الأجهزة المقررة --', icon: 'fa-bolt-lightning' },
+      procedure: { preview: 'sheet-procedures-selected-preview', badge: 'sheet-procedures-count-badge', chipsWrap: 'sheet-procedures-chips-wrap', placeholder: '-- اضغط لاختيار وتحديد إجراءات العلاج اليدوي --', icon: 'fa-hand-holding-hand' },
+      exercise: { preview: 'sheet-exercises-selected-preview', badge: 'sheet-exercises-count-badge', chipsWrap: 'sheet-exercises-chips-wrap', placeholder: '-- اضغط لاختيار وتحديد التمارين العلاجية --', icon: 'fa-person-running' }
     };
     const cfg = containerMap[category];
     if (!cfg) return;
 
     const previewEl = document.getElementById(cfg.preview);
     const badgeEl = document.getElementById(cfg.badge);
+    const chipsWrapEl = document.getElementById(cfg.chipsWrap);
+
     if (badgeEl) badgeEl.textContent = `${selectedList.length} محدد`;
 
     if (previewEl) {
       if (!selectedList || selectedList.length === 0) {
         previewEl.innerHTML = `<span style="color: var(--text-muted); font-size: 0.88rem;">${cfg.placeholder}</span>`;
       } else {
-        previewEl.innerHTML = selectedList.map(item => `
-          <span class="clinical-selected-chip">
-            <i class="fa-solid ${cfg.icon}"></i> <span>${escapeHTML(item)}</span>
+        previewEl.innerHTML = `<span style="font-weight: 700; color: var(--primary); font-size: 0.88rem;"><i class="fa-solid fa-check-circle"></i> تم تحديد ${selectedList.length} عنصر (انظر الشارات بالأسفل)</span>`;
+      }
+    }
+
+    if (chipsWrapEl) {
+      if (!selectedList || selectedList.length === 0) {
+        chipsWrapEl.innerHTML = '';
+      } else {
+        chipsWrapEl.innerHTML = selectedList.map(item => `
+          <span class="sheet-interactive-tag">
+            <i class="fa-solid ${cfg.icon}"></i>
+            <span>${escapeHTML(item)}</span>
+            <button type="button" class="sheet-tag-remove-btn" data-category="${category}" data-item="${escapeHTML(item)}" title="إلغاء هذا الاختيار">&times;</button>
           </span>
         `).join('');
+
+        // Bind remove event on tags
+        chipsWrapEl.querySelectorAll('.sheet-tag-remove-btn').forEach(btn => {
+          btn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const cat = btn.getAttribute('data-category');
+            const itemToRemove = btn.getAttribute('data-item');
+            this.removeSheetTag(cat, itemToRemove);
+          });
+        });
       }
     }
 
@@ -1616,6 +1658,19 @@ export class PatientsManager {
       hiddenContainer.innerHTML = selectedList.map(item => `
         <button type="button" class="sheet-chip selected" data-val="${escapeHTML(item)}"></button>
       `).join('');
+    }
+  }
+
+  removeSheetTag(category, item) {
+    if (category === 'modality') {
+      this.currentSheetModalities = (this.currentSheetModalities || []).filter(i => i !== item);
+      this.updateSheetPickerPreview('modality', this.currentSheetModalities);
+    } else if (category === 'procedure') {
+      this.currentSheetProcedures = (this.currentSheetProcedures || []).filter(i => i !== item);
+      this.updateSheetPickerPreview('procedure', this.currentSheetProcedures);
+    } else if (category === 'exercise') {
+      this.currentSheetExercises = (this.currentSheetExercises || []).filter(i => i !== item);
+      this.updateSheetPickerPreview('exercise', this.currentSheetExercises);
     }
   }
 
