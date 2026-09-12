@@ -6867,8 +6867,7 @@ h1, h2, h3, h4, h5, h6 {
 .pcm-meta-strip {
   display: flex;
   align-items: center;
-  justify-content: space-between; /* Phone on right, Address pushed far left */
-  gap: 12px;
+  gap: 16px;
   flex-wrap: wrap;
   padding: 10px 0;
   border-bottom: 1px solid var(--border-color);
@@ -6878,12 +6877,8 @@ h1, h2, h3, h4, h5, h6 {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  font-size: 0.84rem;
+  font-size: 0.82rem;
   color: var(--text-muted);
-}
-
-.pcm-meta-item:last-child {
-  text-align: left;
 }
 
 .pcm-phone-link {
@@ -6922,64 +6917,17 @@ h1, h2, h3, h4, h5, h6 {
   gap: 5px;
 }
 
-.pcm-sessions-action-row {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  flex-wrap: wrap;
-  margin-top: 10px;
-  padding-bottom: 4px;
-}
-
 .pcm-sessions-btn {
   display: inline-flex;
   align-items: center;
   gap: 6px;
   font-weight: 800;
-  font-size: 0.82rem;
+  font-size: 0.78rem;
   padding: 6px 14px;
   border-radius: 999px;
-  border: 1.5px solid var(--primary);
+  border-color: var(--primary);
   color: var(--primary);
   background: var(--primary-light);
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.pcm-sessions-btn:hover {
-  background: var(--primary);
-  color: #ffffff;
-}
-
-.pcm-insurance-letter-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  font-weight: 800;
-  font-size: 0.82rem;
-  padding: 6px 14px;
-  border-radius: 999px;
-  border: 1.5px solid #0284c7;
-  color: #0284c7;
-  background: rgba(2, 132, 199, 0.08);
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.pcm-insurance-letter-btn:hover {
-  background: #0284c7;
-  color: #ffffff;
-}
-
-[data-theme="dark"] .pcm-insurance-letter-btn {
-  border-color: #38bdf8;
-  color: #38bdf8;
-  background: rgba(56, 189, 248, 0.12);
-}
-
-[data-theme="dark"] .pcm-insurance-letter-btn:hover {
-  background: #38bdf8;
-  color: #0f172a;
 }
 
 /* 2. Card Header No-Wrap Badges */
@@ -7135,108 +7083,4 @@ h1, h2, h3, h4, h5, h6 {
   color: #38bdf8;
   border: 1px solid rgba(56, 189, 248, 0.3);
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.4);
-}
-
-
-/* ================= Doctor Personal KPI Stats (Stacked Horizontal Rows on Mobile) ================= */
-.doc-kpi-stats-grid {
-  display: grid !important;
-  grid-template-columns: 1fr !important; /* Vertically stacked on mobile to eliminate text-wrap */
-  gap: 10px !important;
-  margin-bottom: 20px !important;
-  width: 100% !important;
-}
-
-.doc-kpi-box {
-  display: flex !important;
-  align-items: center !important;
-  justify-content: space-between !important;
-  padding: 12px 16px !important;
-  border-radius: var(--radius-md) !important;
-  background-color: var(--bg-surface) !important;
-  border: 1px solid var(--border-color) !important;
-  box-shadow: var(--shadow-sm) !important;
-  gap: 12px !important;
-  transition: transform 0.15s ease, box-shadow 0.15s ease !important;
-  width: 100% !important;
-  box-sizing: border-box !important;
-}
-
-.doc-kpi-box:hover {
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-md) !important;
-}
-
-.doc-kpi-info-group {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  min-width: 0;
-  flex: 1;
-}
-
-.doc-kpi-icon {
-  width: 40px !important;
-  height: 40px !important;
-  border-radius: 12px !important;
-  display: flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  font-size: 1.15rem !important;
-  flex-shrink: 0 !important;
-}
-
-.doc-kpi-labels {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  min-width: 0;
-}
-
-.doc-kpi-title {
-  font-size: 0.92rem;
-  font-weight: 800;
-  color: var(--text-main);
-  line-height: 1.25;
-  white-space: nowrap;
-}
-
-.doc-kpi-subtitle {
-  font-size: 0.74rem;
-  font-weight: 600;
-  color: var(--text-muted);
-  line-height: 1.2;
-  white-space: nowrap;
-}
-
-.doc-kpi-value {
-  font-size: 0.92rem;
-  font-weight: 800;
-  color: var(--primary);
-  background: var(--primary-light);
-  padding: 6px 12px;
-  border-radius: 8px;
-  white-space: nowrap !important;
-  flex-shrink: 0;
-  text-align: center;
-  letter-spacing: -0.2px;
-}
-
-[data-theme="dark"] .doc-kpi-value {
-  background: rgba(56, 189, 248, 0.14);
-  color: #38bdf8;
-}
-
-/* Tablet & Desktop Layout for Doctor KPIs */
-@media screen and (min-width: 768px) {
-  .doc-kpi-stats-grid {
-    grid-template-columns: repeat(2, 1fr) !important;
-    gap: 14px !important;
-  }
-}
-
-@media screen and (min-width: 1200px) {
-  .doc-kpi-stats-grid {
-    grid-template-columns: repeat(4, 1fr) !important;
-  }
 }
