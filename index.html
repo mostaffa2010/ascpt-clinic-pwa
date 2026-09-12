@@ -47,8 +47,8 @@
   
 
     <!-- Stylesheets -->
-  <link rel="stylesheet" href="css/style.css?v=1.4.14" media="screen">
-  <link rel="stylesheet" href="css/print.css?v=1.4.14" media="print">
+  <link rel="stylesheet" href="css/style.css?v=1.4.15" media="screen">
+  <link rel="stylesheet" href="css/print.css?v=1.4.15" media="print">
 </head>
 <body>
   <script>
@@ -1622,7 +1622,7 @@
         <div class="admin-system-footer no-print" style="margin-top: 32px; margin-bottom: 35px; text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px;">
           <div style="display: inline-flex; align-items: center; gap: 8px; background: var(--bg-surface); border: 1.5px solid var(--border-color); padding: 7px 18px; border-radius: 999px; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);">
             <span style="width: 8px; height: 8px; border-radius: 50%; background-color: var(--success); display: inline-block; box-shadow: 0 0 6px var(--success);"></span>
-            <span style="font-weight: 800; font-size: 0.88rem; color: var(--text-main);">نظام ASCPT — الإصدار 1.4.14</span>
+            <span style="font-weight: 800; font-size: 0.88rem; color: var(--text-main);">نظام ASCPT — الإصدار 1.4.15</span>
             <span class="badge badge-primary" style="font-size: 0.72rem; padding: 2px 10px; border-radius: 999px; font-weight: 800;">إصدار معتمد</span>
           </div>
           <div style="font-size: 0.76rem; color: var(--text-muted); font-weight: 700;">
@@ -2814,7 +2814,7 @@
   </div>
 
 <!-- Main Application Script (ES Module) -->
-  <script type="module" src="js/app.js?v=1.4.14"></script>
+  <script type="module" src="js/app.js?v=1.4.15"></script>
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
@@ -2857,45 +2857,71 @@
             <!-- Rendered by JS -->
           </div>
 
-          <!-- Time Input Row: Hour, Minute, Period -->
+          <!-- Time Input Row: Hour, Minute, Period (Custom Pickers & Segmented Switcher) -->
           <div style="background: var(--bg-subtle); border: 1.5px solid var(--border-color); border-radius: var(--radius-md); padding: 14px; margin-bottom: 14px;">
-            <label style="font-weight: 800; font-size: 0.88rem; color: var(--primary); margin-bottom: 10px; display: block;">
+            <label style="font-weight: 800; font-size: 0.88rem; color: var(--primary); margin-bottom: 10px; display: flex; align-items: center; gap: 6px;">
               <i class="fa-regular fa-clock"></i> تحديد الموعد بدقة:
             </label>
-            <div style="display: grid; grid-template-columns: 1fr auto 1fr 1.2fr; gap: 8px; align-items: end;">
+            <div style="display: grid; grid-template-columns: 1fr auto 1fr 1.3fr; gap: 8px; align-items: end;">
+              <!-- Hour Custom Dropdown Trigger -->
               <div>
                 <label style="font-size: 0.75rem; color: var(--text-muted); font-weight: 700; margin-bottom: 4px; display: block; text-align: center;">الساعة</label>
-                <select id="slot-input-hour" class="form-control" style="font-weight: 800; text-align: center; font-size: 1.05rem; height: 44px; border-radius: 12px;">
-                  <option value="1">1</option>
-                  <option value="2">2</option>
-                  <option value="3" selected>3</option>
-                  <option value="4">4</option>
-                  <option value="5">5</option>
-                  <option value="6">6</option>
-                  <option value="7">7</option>
-                  <option value="8">8</option>
-                  <option value="9">9</option>
-                  <option value="10">10</option>
-                  <option value="11">11</option>
-                  <option value="12">12</option>
-                </select>
+                <div class="custom-select-wrapper">
+                  <select id="slot-input-hour" style="display: none;">
+                    <option value="1">1</option>
+                    <option value="2">2</option>
+                    <option value="3" selected>3</option>
+                    <option value="4">4</option>
+                    <option value="5">5</option>
+                    <option value="6">6</option>
+                    <option value="7">7</option>
+                    <option value="8">8</option>
+                    <option value="9">9</option>
+                    <option value="10">10</option>
+                    <option value="11">11</option>
+                    <option value="12">12</option>
+                  </select>
+                  <button type="button" class="custom-select-btn" id="btn-select-slot-input-hour" data-open-picker="slot-input-hour" data-picker-title="اختر الساعة" style="width: 100%; height: 44px; justify-content: center; font-weight: 800; font-size: 1.05rem; border-radius: 12px; gap: 6px;">
+                    <span class="btn-text">3</span>
+                    <i class="fa-solid fa-chevron-down" style="font-size: 0.75rem; opacity: 0.6;"></i>
+                  </button>
+                </div>
               </div>
+
               <div style="font-size: 1.4rem; font-weight: 900; color: var(--primary); padding-bottom: 8px; text-align: center;">:</div>
+
+              <!-- Minute Custom Dropdown Trigger -->
               <div>
                 <label style="font-size: 0.75rem; color: var(--text-muted); font-weight: 700; margin-bottom: 4px; display: block; text-align: center;">الدقيقة</label>
-                <select id="slot-input-minute" class="form-control" style="font-weight: 800; text-align: center; font-size: 1.05rem; height: 44px; border-radius: 12px;">
-                  <option value="00">00</option>
-                  <option value="15">15</option>
-                  <option value="30" selected>30</option>
-                  <option value="45">45</option>
-                </select>
+                <div class="custom-select-wrapper">
+                  <select id="slot-input-minute" style="display: none;">
+                    <option value="00">00</option>
+                    <option value="15">15</option>
+                    <option value="30" selected>30</option>
+                    <option value="45">45</option>
+                  </select>
+                  <button type="button" class="custom-select-btn" id="btn-select-slot-input-minute" data-open-picker="slot-input-minute" data-picker-title="اختر الدقيقة" style="width: 100%; height: 44px; justify-content: center; font-weight: 800; font-size: 1.05rem; border-radius: 12px; gap: 6px;">
+                    <span class="btn-text">30</span>
+                    <i class="fa-solid fa-chevron-down" style="font-size: 0.75rem; opacity: 0.6;"></i>
+                  </button>
+                </div>
               </div>
+
+              <!-- Period Segmented Switcher (مساءً / صباحاً) -->
               <div>
                 <label style="font-size: 0.75rem; color: var(--text-muted); font-weight: 700; margin-bottom: 4px; display: block; text-align: center;">الفترة</label>
-                <select id="slot-input-period" class="form-control" style="font-weight: 800; text-align: center; font-size: 1rem; height: 44px; border-radius: 12px;">
+                <select id="slot-input-period" style="display: none;">
                   <option value="PM" selected>مساءً (م)</option>
                   <option value="AM">صباحاً (ص)</option>
                 </select>
+                <div class="period-segmented-wrap" style="display: flex; background: var(--bg-surface); border: 1.5px solid var(--border-color); border-radius: 12px; padding: 3px; gap: 3px; height: 44px; box-sizing: border-box;">
+                  <button type="button" class="btn-slot-period active" data-period="PM" id="btn-period-pm" style="flex: 1; border: none; border-radius: 9px; font-weight: 800; font-size: 0.85rem; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; transition: all 0.18s ease; background: var(--primary); color: #ffffff;">
+                    مساءً
+                  </button>
+                  <button type="button" class="btn-slot-period" data-period="AM" id="btn-period-am" style="flex: 1; border: none; border-radius: 9px; font-weight: 800; font-size: 0.85rem; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; transition: all 0.18s ease; background: transparent; color: var(--text-muted);">
+                    صباحاً
+                  </button>
+                </div>
               </div>
             </div>
           </div>

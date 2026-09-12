@@ -135,6 +135,27 @@ export class AppointmentsManager {
           if (hSel) hSel.value = h;
           if (mSel) mSel.value = m;
           if (pSel) pSel.value = p;
+          this.app.updateCustomSelectDisplay('slot-input-hour');
+          this.app.updateCustomSelectDisplay('slot-input-minute');
+          this.updatePeriodSegmentedDisplay(p);
+          this.updateSlotPreview();
+        }
+      });
+    }
+
+    // Period Segmented Control (مساءً / صباحاً)
+    const modalSlot = document.getElementById('modal-edit-appointment-slot');
+    if (modalSlot) {
+      modalSlot.addEventListener('click', (e) => {
+        const pBtn = e.target.closest('.btn-slot-period');
+        if (pBtn) {
+          const p = pBtn.dataset.period;
+          const pSel = document.getElementById('slot-input-period');
+          if (pSel) {
+            pSel.value = p;
+            pSel.dispatchEvent(new Event('change', { bubbles: true }));
+          }
+          this.updatePeriodSegmentedDisplay(p);
           this.updateSlotPreview();
         }
       });
@@ -725,6 +746,27 @@ export class AppointmentsManager {
     if (previewEl) previewEl.textContent = label;
   }
 
+  updatePeriodSegmentedDisplay(period) {
+    const pmBtn = document.getElementById('btn-period-pm');
+    const amBtn = document.getElementById('btn-period-am');
+    if (!pmBtn || !amBtn) return;
+    if (period === 'AM') {
+      amBtn.classList.add('active');
+      amBtn.style.background = 'var(--primary)';
+      amBtn.style.color = '#ffffff';
+      pmBtn.classList.remove('active');
+      pmBtn.style.background = 'transparent';
+      pmBtn.style.color = 'var(--text-muted)';
+    } else {
+      pmBtn.classList.add('active');
+      pmBtn.style.background = 'var(--primary)';
+      pmBtn.style.color = '#ffffff';
+      amBtn.classList.remove('active');
+      amBtn.style.background = 'transparent';
+      amBtn.style.color = 'var(--text-muted)';
+    }
+  }
+
   openEditSlotModal(slotKey, slotLabel) {
     this.slotEditMode = 'edit';
     this.slotEditOldKey = slotKey;
@@ -752,6 +794,9 @@ export class AppointmentsManager {
     if (mSel) mSel.value = parsed.minute;
     if (pSel) pSel.value = parsed.period;
 
+    this.app.updateCustomSelectDisplay('slot-input-hour');
+    this.app.updateCustomSelectDisplay('slot-input-minute');
+    this.updatePeriodSegmentedDisplay(parsed.period);
     this.updateSlotPreview();
     this.app.openModal('modal-edit-appointment-slot');
   }
@@ -782,6 +827,9 @@ export class AppointmentsManager {
     if (mSel) mSel.value = '00';
     if (pSel) pSel.value = 'PM';
 
+    this.app.updateCustomSelectDisplay('slot-input-hour');
+    this.app.updateCustomSelectDisplay('slot-input-minute');
+    this.updatePeriodSegmentedDisplay('PM');
     this.updateSlotPreview();
     this.app.openModal('modal-edit-appointment-slot');
   }
