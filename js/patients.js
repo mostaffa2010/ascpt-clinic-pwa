@@ -1566,7 +1566,7 @@ export class PatientsManager {
     if (insLetterBtn) insLetterBtn.style.display = (p.billing === 'cash') ? 'none' : 'inline-flex';
     if (badgeEl) {
       if (p.billing === 'cash') {
-        badgeEl.innerHTML = '<span class="badge badge-cash" style="font-size: 0.82rem; padding: 4px 12px; font-weight: 700; white-space: nowrap; display: inline-flex; align-items: center; gap: 5px;"><i class="fa-solid fa-money-bill-wave"></i> نقدي</span>';
+        badgeEl.innerHTML = '<span class="badge badge-cash" style="font-size: 0.78rem; padding: 3px 10px; font-weight: 700; white-space: nowrap; display: inline-flex; align-items: center; gap: 5px;"><i class="fa-solid fa-money-bill-wave"></i> نقدي</span>';
       } else {
         const cType = p.contractType === 'direct' ? 'مباشر' : 'غير مباشر';
         const badgeClass = p.contractType === 'direct' ? 'badge-direct' : 'badge-indirect';
@@ -1578,26 +1578,16 @@ export class PatientsManager {
         const isNearLimit = currentCount >= approvedTotal - 2;
         const isCompleted = currentCount >= approvedTotal;
 
-        const dotsHTML = Array.from({ length: Math.min(24, approvedTotal) }, (_, i) => {
-          const isDone = i < currentCount;
-          return `<span class="cycle-dot ${isDone ? 'done' : ''}" title="جلسة ${i+1}"></span>`;
-        }).join('');
-
         badgeEl.innerHTML = `
-          <div style="display: flex; flex-direction: column; gap: 8px; width: 100%;">
-            <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
-              <span class="badge ${badgeClass}" style="font-size: 0.82rem; padding: 4px 12px; font-weight: 700; display: inline-flex; align-items: center; gap: 5px;">
-                <i class="fa-solid ${iconClass}"></i> ${escapeHTML(p.insuranceCompany || 'تأمين')} (${cType})
-              </span>
-              <span style="font-size: 0.82rem; font-weight: 800; color: ${isCompleted ? 'var(--danger)' : (isNearLimit ? 'var(--warning)' : 'var(--primary)')};">
-                الجلسة ${currentCount} من ${approvedTotal}
-              </span>
-              ${isNearLimit && !isCompleted ? '<span class="badge badge-warning" style="font-size: 0.72rem; padding: 2px 8px;"><i class="fa-solid fa-triangle-exclamation"></i> اقتراب انتهاء الموافقة</span>' : ''}
-              ${isCompleted ? '<span class="badge badge-danger" style="font-size: 0.72rem; padding: 2px 8px;"><i class="fa-solid fa-circle-exclamation"></i> اكتملت الموافقة</span>' : ''}
-            </div>
-            <div class="cycle-dots-container" style="display: flex; gap: 4px; align-items: center; flex-wrap: wrap;">
-              ${dotsHTML}
-            </div>
+          <div class="ps-billing-wrap" style="display: inline-flex; align-items: center; gap: 6px; flex-wrap: wrap;">
+            <span class="badge ${badgeClass}" style="font-size: 0.78rem; padding: 3px 10px; font-weight: 700; display: inline-flex; align-items: center; gap: 5px;">
+              <i class="fa-solid ${iconClass}"></i> ${escapeHTML(p.insuranceCompany || 'تأمين')} (${cType})
+            </span>
+            <span style="font-size: 0.80rem; font-weight: 800; color: ${isCompleted ? 'var(--danger)' : (isNearLimit ? 'var(--warning)' : 'var(--primary)')};">
+              الجلسة ${currentCount} من ${approvedTotal}
+            </span>
+            ${isNearLimit && !isCompleted ? '<span class="badge badge-warning" style="font-size: 0.70rem; padding: 2px 6px;"><i class="fa-solid fa-triangle-exclamation"></i> اقتراب الانتهاء</span>' : ''}
+            ${isCompleted ? '<span class="badge badge-danger" style="font-size: 0.70rem; padding: 2px 6px;"><i class="fa-solid fa-circle-exclamation"></i> اكتملت الموافقة</span>' : ''}
           </div>
         `;
       }
