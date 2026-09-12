@@ -1094,6 +1094,9 @@ export class PatientsManager {
     this.clearPhoneValidation();
     document.getElementById('p-id').value = '';
     this.app.updateCustomSelectDisplay('p-gender');
+    const pDoc = document.getElementById('p-doctor');
+    if (pDoc) pDoc.value = '';
+    this.app.updateCustomSelectDisplay('p-doctor');
     const insComp = document.getElementById('p-insurance-company');
     if (insComp) insComp.value = '';
     const insPrev = document.getElementById('p-selected-ins-preview');
@@ -1283,10 +1286,10 @@ export class PatientsManager {
       }
     }
 
-    // 4. Doctor Validation
+    // 4. Doctor Validation (Explicit User Choice Required)
     if (!doctor || doctor === '') {
       if (saveBtn) { saveBtn.disabled = false; saveBtn.innerHTML = 'حفظ المريض'; }
-      await this.app.showAlert('يرجى اختيار الطبيب المعالج المتابع للحالة.', 'اختيار الطبيب', 'warning');
+      await this.app.showAlert('يرجى اختيار الطبيب المعالج المتابع للمريض أولاً.', 'بيانات ناقصة: اختيار الطبيب', 'warning');
       return;
     }
 

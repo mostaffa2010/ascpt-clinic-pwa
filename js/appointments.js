@@ -764,17 +764,16 @@ export class AppointmentsManager {
     // Populate and sync Doctor Dropdown in modal
     const docSelect = document.getElementById('appt-doctor-select');
     if (docSelect) {
-      docSelect.innerHTML = (this.doctors || []).map((d) => {
+      docSelect.innerHTML = `<option value="">-- اضغط لاختيار الطبيب المعالج --</option>` + (this.doctors || []).map((d) => {
         const clean = (d.name || '').replace(/^د\.\s*/, '');
         const isSel = (doctorUid && d.uid === doctorUid) ? 'selected' : '';
         return `<option value="${escapeHTML(d.uid)}" ${isSel}>د. ${escapeHTML(clean)}</option>`;
       }).join('');
 
-      if (!doctorUid && this.doctors && this.doctors.length > 0) {
-        docSelect.value = this.doctors[0].uid;
-        this.pendingDoctorUid = this.doctors[0].uid;
-        this.pendingDoctorName = this.doctors[0].name;
-      }
+      docSelect.value = doctorUid || '';
+      this.pendingDoctorUid = doctorUid || '';
+      const matchedDoc = (this.doctors || []).find(d => d.uid === doctorUid);
+      this.pendingDoctorName = matchedDoc ? matchedDoc.name : '';
       if (this.app?.updateCustomSelectDisplay) {
         this.app.updateCustomSelectDisplay('appt-doctor-select');
       }

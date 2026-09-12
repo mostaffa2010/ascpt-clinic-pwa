@@ -1078,7 +1078,7 @@ class App {
     const container = document.getElementById('custom-picker-list');
     if (!container) return;
 
-    const options = Array.from(select.options);
+    const options = Array.from(select.options).filter(opt => opt.value !== '');
     const currentVal = select.value;
 
     container.innerHTML = options.map((opt) => {
@@ -1126,7 +1126,15 @@ class App {
     const textSpan = btn.querySelector('.btn-text');
     if (textSpan) {
       const selectedOpt = select.options[select.selectedIndex];
-      textSpan.textContent = selectedOpt ? selectedOpt.text : '-- اختر --';
+      if (!selectedOpt || !selectedOpt.value) {
+        if (selectId === 'p-doctor' || selectId === 'session-doctor-select' || selectId === 'appt-doctor-select') {
+          textSpan.textContent = '-- اضغط لاختيار الطبيب المعالج --';
+        } else {
+          textSpan.textContent = selectedOpt ? selectedOpt.text : '-- اختر --';
+        }
+      } else {
+        textSpan.textContent = selectedOpt.text;
+      }
     }
   }
 
@@ -1493,24 +1501,34 @@ class App {
     const pDoc = document.getElementById('p-doctor');
     if (pDoc) {
       const prev = pDoc.value;
-      pDoc.innerHTML = doctorObjects.map(d =>
+      pDoc.innerHTML = `<option value="">-- اضغط لاختيار الطبيب المعالج --</option>` + doctorObjects.map(d =>
         `<option value="${escapeHTML(d.name)}" data-uid="${escapeHTML(d.uid)}">${escapeHTML(d.name)}</option>`
       ).join('');
-      if (prev && doctorObjects.some(d => d.name === prev)) pDoc.value = prev;
+      pDoc.value = (prev && doctorObjects.some(d => d.name === prev)) ? prev : '';
     }
 
     const sessDoc = document.getElementById('session-doctor-select');
     if (sessDoc) {
       const prev = sessDoc.value;
-      sessDoc.innerHTML = doctorObjects.map(d =>
+      sessDoc.innerHTML = `<option value="">-- اضغط لاختيار الطبيب المعالج --</option>` + doctorObjects.map(d =>
         `<option value="${escapeHTML(d.name)}" data-uid="${escapeHTML(d.uid)}">${escapeHTML(d.name)}</option>`
       ).join('');
-      if (prev && doctorObjects.some(d => d.name === prev)) sessDoc.value = prev;
+      sessDoc.value = (prev && doctorObjects.some(d => d.name === prev)) ? prev : '';
+    }
+
+    const apptDoc = document.getElementById('appt-doctor-select');
+    if (apptDoc) {
+      const prev = apptDoc.value;
+      apptDoc.innerHTML = `<option value="">-- اضغط لاختيار الطبيب المعالج --</option>` + doctorObjects.map(d =>
+        `<option value="${escapeHTML(d.uid)}" data-name="${escapeHTML(d.name)}">${escapeHTML(d.name)}</option>`
+      ).join('');
+      apptDoc.value = (prev && doctorObjects.some(d => d.uid === prev)) ? prev : '';
     }
 
     // Sync custom button displays
     this.updateCustomSelectDisplay('p-doctor');
     this.updateCustomSelectDisplay('session-doctor-select');
+    this.updateCustomSelectDisplay('appt-doctor-select');
     this.updateCustomSelectDisplay('finance-doctor-filter');
   }
 

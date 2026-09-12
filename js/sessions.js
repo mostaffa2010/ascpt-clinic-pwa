@@ -676,9 +676,12 @@ export class SessionsManager {
       subEl.textContent = `الهاتف: ${patient.phone} | الطبيب: ${patient.doctor} | ${billingTxt}`;
     }
 
-    // Auto-fill Doctor
+    // Do NOT auto-fill Doctor by default — user must explicitly choose
     const docSelect = document.getElementById('session-doctor-select');
-    if (docSelect) docSelect.value = patient.doctor;
+    if (docSelect && !this.editingSessionId) {
+      docSelect.value = '';
+      this.app.updateCustomSelectDisplay('session-doctor-select');
+    }
 
     this.selectedPatient = patient;
 
@@ -741,7 +744,15 @@ export class SessionsManager {
     const patientName = patient ? patient.name : 'مريض';
 
     const docSelectEl = document.getElementById('session-doctor-select');
-    const doctor = docSelectEl?.value || '';
+    const doctor = (docSelectEl?.value || '').trim();
+    if (!doctor || doctor === '') {
+      await this.app.showAlert(
+        'يرجى اختيار الطبيب المعالج الذي أجرى ' + (this.entryMode === 'examination' ? 'الكشف' : 'الجلسة') + ' أولاً.',
+        'بيانات ناقصة: اختيار الطبيب',
+        'warning'
+      );
+      return;
+    }
     const selectedDoctorOpt = docSelectEl?.options[docSelectEl.selectedIndex];
     const doctorUid = selectedDoctorOpt?.getAttribute('data-uid') || patient?.doctorUid || '';
     
@@ -1229,6 +1240,11 @@ export class SessionsManager {
     this.editingSessionId = null;
     this.selectedPatient = null;
     document.getElementById('form-log-session').reset();
+    const docSelect = document.getElementById('session-doctor-select');
+    if (docSelect) {
+      docSelect.value = '';
+      this.app.updateCustomSelectDisplay('session-doctor-select');
+    }
     const dateInput = document.getElementById('session-date');
     if (dateInput) dateInput.value = this.currentSessionDate;
     this.renderBodyPartsChips([]);
