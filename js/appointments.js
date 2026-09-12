@@ -5,7 +5,7 @@
 // Time slots represent horizontal rows across all doctors.
 // Slots can now be customized, added, or deleted directly from the UI.
 
-import { escapeHTML, initStackDeck, getDoctorColor } from './utils.js';
+import { escapeHTML, initStackDeck, getDoctorColor, getLocalDateStr } from './utils.js';
 import { db } from './db.js';
 import { auth } from './auth.js';
 
@@ -74,6 +74,7 @@ export class AppointmentsManager {
     this.slotEditMode = 'edit'; // 'edit' | 'add'
     this.slotEditOldKey = null;
     this.movingAppt = null;
+    this.doctorApptFilter = 'active'; // 'active' | 'completed'
   }
 
   async init() {
@@ -200,80 +201,197 @@ export class AppointmentsManager {
     }
   }
 
-  // ================= Doctor's Own Schedule (Stacked Cards Deck) =================
+  // ================= Doctor's Own Schedule (Stacked Cards Deck + Smart Hybrid) =================
+  getCompletedSlots(doctorUid) {
+    const today = getLocalDateStr();
+    const key = `ascpt_done_slots_${doctorUid}_${today}`;
+    try {
+      return JSON.parse(localStorage.getItem(key) || '[]');
+    } catch (_) {
+      return [];
+    }
+  }
+
+  toggleSlotCompleted(slotKey, doctorUid) {
+    const today = getLocalDateStr();
+    const key = `ascpt_done_slots_${doctorUid}_${today}`;
+    let list = this.getCompletedSlots(doctorUid);
+    const wasCompleted = list.includes(slotKey);
+    if (wasCompleted) {
+      list = list.filter(k => k !== slotKey);
+    } else {
+      list.push(slotKey);
+    }
+    try {
+      localStorage.setItem(key, JSON.stringify(list));
+    } catch (_) {}
+
+    if (this.app?.showToast) {
+      this.app.showToast(wasCompleted ? 'تم استرجاع الموعد للمتبقية' : 'تم إنهاء الموعد بنجاح');
+    }
+    this.renderForDoctor(doctorUid);
+  }
+
+  findClosestSlotIndex(slots) {
+    if (!slots || slots.length === 0) return 0;
+    const now = new Date();
+    const currentMinutes = now.getHours() * 60 + now.getMinutes();
+
+    let closestIdx = 0;
+    let minDiff = Infinity;
+
+    slots.forEach((s, idx) => {
+      const [h, m] = (s.slot?.key || '').split(':').map(Number);
+      if (!isNaN(h) && !isNaN(m)) {
+        const slotMinutes = h * 60 + m;
+        // In-progress window: 20 mins before slot to 45 mins after
+        if (currentMinutes >= slotMinutes - 20 && currentMinutes <= slotMinutes + 45) {
+          minDiff = -1;
+          closestIdx = idx;
+          return;
+        }
+        const diff = Math.abs(currentMinutes - slotMinutes);
+        if (minDiff !== -1 && diff < minDiff) {
+          minDiff = diff;
+          closestIdx = idx;
+        }
+      }
+    });
+
+    return closestIdx;
+  }
+
   async renderForDoctor(doctorUid) {
     const grid = document.getElementById('my-appointments-grid');
     if (!grid) return;
     try {
       await this.loadAll();
-      grid.innerHTML = this.buildDoctorStackedScheduleHTML(doctorUid);
-      this.initDocStackDeck();
+      const { html, initialIndex } = this.buildDoctorStackedScheduleHTML(doctorUid);
+      grid.innerHTML = html;
+      this.initDocStackDeck(initialIndex);
+      this.bindDoctorScheduleEvents(doctorUid);
     } catch (err) {
       console.error('Appointments (doctor) render error:', err);
       grid.innerHTML = this.buildErrorHTML(err);
     }
   }
 
+  bindDoctorScheduleEvents(doctorUid) {
+    const grid = document.getElementById('my-appointments-grid');
+    if (!grid) return;
+
+    // Filter toggles: Active vs Completed
+    grid.querySelector('#btn-doc-appts-active')?.addEventListener('click', () => {
+      this.doctorApptFilter = 'active';
+      this.renderForDoctor(doctorUid);
+    });
+
+    grid.querySelector('#btn-doc-appts-completed')?.addEventListener('click', () => {
+      this.doctorApptFilter = 'completed';
+      this.renderForDoctor(doctorUid);
+    });
+
+    // Complete / Done buttons
+    grid.querySelectorAll('.btn-complete-slot').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const slotKey = btn.getAttribute('data-slot-key');
+        this.toggleSlotCompleted(slotKey, doctorUid);
+      });
+    });
+
+    // Undo buttons
+    grid.querySelectorAll('.btn-undo-slot').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const slotKey = btn.getAttribute('data-slot-key');
+        this.toggleSlotCompleted(slotKey, doctorUid);
+      });
+    });
+  }
+
   buildDoctorStackedScheduleHTML(doctorUid) {
     const slotsToRender = (this.slots && this.slots.length > 0) ? this.slots : DEFAULT_APPT_SLOTS;
+    const completedSlotKeys = this.getCompletedSlots(doctorUid);
 
-    // Filter only slots where THIS doctor has booked appointments
-    const activeSlots = slotsToRender.map((slot) => {
+    // All booked slots for this doctor
+    const allSlots = slotsToRender.map((slot) => {
       const cellAppts = this.getCellAppointments(doctorUid, slot.key);
       if (cellAppts.length === 0) return null;
-      return { slot, cellAppts };
+      const isDone = completedSlotKeys.includes(slot.key);
+      return { slot, cellAppts, isDone };
     }).filter(Boolean);
 
-    // If no appointments at all for this doctor:
-    if (activeSlots.length === 0) {
-      return `
-        <div class="hero-styled-card doc-empty-schedule-card" style="text-align: center; padding: 36px 20px; margin: 4px 0;">
-          <div style="width: 54px; height: 54px; border-radius: 50%; background: rgba(2, 132, 199, 0.12); color: var(--primary); display: inline-flex; align-items: center; justify-content: center; font-size: 1.4rem; margin-bottom: 12px;">
-            <i class="fa-solid fa-mug-hot"></i>
+    if (allSlots.length === 0) {
+      return {
+        html: `
+          <div class="hero-styled-card doc-empty-schedule-card" style="text-align: center; padding: 36px 20px; margin: 4px 0;">
+            <div style="width: 54px; height: 54px; border-radius: 50%; background: rgba(2, 132, 199, 0.12); color: var(--primary); display: inline-flex; align-items: center; justify-content: center; font-size: 1.4rem; margin-bottom: 12px;">
+              <i class="fa-solid fa-mug-hot"></i>
+            </div>
+            <div style="font-weight: 800; font-size: 1.05rem; color: var(--text-main);">لا توجد مواعيد محجوزة لك اليوم</div>
+            <div style="font-size: 0.82rem; color: var(--text-muted); margin-top: 5px;">ستظهر مواعيدك وحالاتك هنا فور قيام الاستقبال بالحجز لك.</div>
           </div>
-          <div style="font-weight: 800; font-size: 1.05rem; color: var(--text-main);">لا توجد مواعيد محجوزة لك اليوم</div>
-          <div style="font-size: 0.82rem; color: var(--text-muted); margin-top: 5px;">ستظهر مواعيدك وحالاتك هنا فور قيام الاستقبال بالحجز لك.</div>
-        </div>
-      `;
+        `,
+        initialIndex: 0
+      };
     }
 
-    const totalPatients = activeSlots.reduce((acc, curr) => acc + curr.cellAppts.length, 0);
+    const uncompletedSlots = allSlots.filter(s => !s.isDone);
+    const completedSlots = allSlots.filter(s => s.isDone);
 
-    return `
-      <div class="doc-stack-wrapper">
-        <div class="doc-stack-header-bar">
-          <span style="font-size: 0.86rem; font-weight: 800; color: var(--text-main);">
-            <i class="fa-solid fa-layer-group" style="color: var(--primary); margin-left: 5px;"></i> ${activeSlots.length} مواعيد (${totalPatients} حالات)
-          </span>
-          <div style="display: flex; align-items: center; gap: 8px;">
-            ${activeSlots.length > 1 ? `
-            <span id="doc-stack-counter" style="font-size: 0.78rem; font-weight: 800; color: var(--primary); background: rgba(2, 132, 199, 0.12); padding: 2px 10px; border-radius: 999px;">1 من ${activeSlots.length}</span>
-            <button type="button" class="btn btn-outline btn-sm" id="btn-toggle-doc-stack-layout" style="font-size: 0.75rem; padding: 3px 9px; border-radius: 8px; height: 28px;" title="تبديل بين التراكم والقائمة">
-              <i class="fa-solid fa-list" id="icon-stack-toggle"></i>
-            </button>
-            ` : ''}
+    const isShowingCompleted = this.doctorApptFilter === 'completed';
+    const slotsToDisplay = isShowingCompleted ? completedSlots : uncompletedSlots;
+
+    // Smart Auto-Focus: Find closest time slot to current clock
+    const initialIndex = !isShowingCompleted ? this.findClosestSlotIndex(slotsToDisplay) : 0;
+
+    const totalActivePatients = uncompletedSlots.reduce((acc, curr) => acc + curr.cellAppts.length, 0);
+
+    let contentHTML = '';
+
+    if (slotsToDisplay.length === 0) {
+      if (isShowingCompleted) {
+        contentHTML = `
+          <div class="hero-styled-card doc-empty-schedule-card" style="text-align: center; padding: 30px 20px; margin: 4px 0;">
+            <div style="font-weight: 800; font-size: 0.98rem; color: var(--text-main);">لا توجد مواعيد مكتملة حتى الآن اليوم</div>
+            <div style="font-size: 0.80rem; color: var(--text-muted); margin-top: 4px;">عند الضغط على "تم إنهاء هذا الموعد" ستنتقل الحالات المكتملة إلى هنا.</div>
           </div>
-        </div>
-
+        `;
+      } else {
+        contentHTML = `
+          <div class="hero-styled-card doc-empty-schedule-card" style="text-align: center; padding: 36px 20px; margin: 4px 0;">
+            <div style="width: 54px; height: 54px; border-radius: 50%; background: rgba(16, 185, 129, 0.15); color: var(--success); display: inline-flex; align-items: center; justify-content: center; font-size: 1.6rem; margin-bottom: 12px;">
+              <i class="fa-solid fa-circle-check"></i>
+            </div>
+            <div style="font-weight: 800; font-size: 1.1rem; color: var(--text-main);">تم إنهاء جميع مواعيدك لليوم بنجاح!</div>
+            <div style="font-size: 0.84rem; color: var(--text-muted); margin-top: 6px;">عاش يا دكتور، جميع الحالات والزيارات المجدولة أُكملت.</div>
+          </div>
+        `;
+      }
+    } else {
+      contentHTML = `
         <!-- The 3D Overlapping Stack Deck -->
         <div class="doc-stack-container" id="doc-stack-container">
-          ${activeSlots.map(({ slot, cellAppts }, index) => {
+          ${slotsToDisplay.map(({ slot, cellAppts, isDone }, index) => {
             const countLabel = cellAppts.length === 1 ? 'حالة واحدة' : (cellAppts.length === 2 ? 'حالتان' : `${cellAppts.length} حالات`);
 
             return `
-              <div class="hero-styled-card doc-stack-card ${index === 0 ? 'is-active-card' : 'is-peeking-card'}" data-stack-index="${index}">
+              <div class="hero-styled-card doc-stack-card ${index === initialIndex ? 'is-active-card' : 'is-peeking-card'}" data-stack-index="${index}">
                 <div class="doc-card-header">
                   <div class="doc-card-time-badge">
                     <i class="fa-regular fa-clock" style="color: var(--primary); font-size: 1.15rem;"></i>
                     <span style="font-weight: 800; font-size: 1.05rem; color: var(--text-main);">${escapeHTML(slot.label)}</span>
                   </div>
                   <div style="display: flex; align-items: center; gap: 6px;">
-                    <span class="badge badge-primary" style="font-size: 0.78rem; padding: 4px 10px; border-radius: 999px; font-weight: 800;">${countLabel}</span>
+                    <span class="badge ${isDone ? 'badge-cash' : 'badge-primary'}" style="font-size: 0.78rem; padding: 4px 10px; border-radius: 999px; font-weight: 800;">
+                      ${isDone ? '<i class="fa-solid fa-check"></i> مكتمل' : countLabel}
+                    </span>
                     <i class="fa-solid fa-chevron-down doc-card-peek-indicator" style="font-size: 0.75rem; color: var(--text-muted);"></i>
                   </div>
                 </div>
 
-                <div class="hsc-divider" style="margin: 12px 0 14px 0;"></div>
+                <div class="hsc-divider" style="margin: 10px 0 12px 0;"></div>
 
                 <div class="doc-card-patients-list">
                   ${cellAppts.map((a, pIdx) => {
@@ -305,21 +423,39 @@ export class AppointmentsManager {
                     `;
                   }).join('')}
                 </div>
+
+                <div class="hsc-divider" style="margin: 12px 0 10px 0;"></div>
+
+                <!-- Done / Complete Action Footer -->
+                ${!isDone ? `
+                  <button type="button" class="btn btn-outline btn-sm btn-complete-slot" data-slot-key="${escapeHTML(slot.key)}" style="width: 100%; border-radius: 12px; height: 38px; font-weight: 800; font-size: 0.84rem; color: #10b981; border-color: rgba(16, 185, 129, 0.4); background: rgba(16, 185, 129, 0.08); display: inline-flex; align-items: center; justify-content: center; gap: 6px; cursor: pointer;">
+                    <i class="fa-solid fa-check-circle"></i> <span>تم إنهاء هذا الموعد</span>
+                  </button>
+                ` : `
+                  <div style="display: flex; align-items: center; justify-content: space-between; gap: 8px; width: 100%;">
+                    <span style="font-size: 0.78rem; font-weight: 800; color: var(--success); display: inline-flex; align-items: center; gap: 4px;">
+                      <i class="fa-solid fa-circle-check"></i> موعد منتهي
+                    </span>
+                    <button type="button" class="btn btn-outline btn-sm btn-undo-slot" data-slot-key="${escapeHTML(slot.key)}" style="border-radius: 8px; font-size: 0.74rem; font-weight: 700; padding: 4px 10px; color: var(--text-muted); display: inline-flex; align-items: center; gap: 4px;">
+                      <i class="fa-solid fa-rotate-left"></i> استرجاع للمتبقية
+                    </button>
+                  </div>
+                `}
               </div>
             `;
           }).join('')}
         </div>
 
         <!-- Stack Navigation Controls -->
-        ${activeSlots.length > 1 ? `
+        ${slotsToDisplay.length > 1 ? `
         <div class="doc-stack-nav-bar" id="doc-stack-nav-bar">
           <button type="button" class="doc-stack-nav-btn" id="btn-doc-stack-prev">
             <i class="fa-solid fa-chevron-right"></i> السابق
           </button>
 
           <div class="doc-stack-dots" id="doc-stack-dots">
-            ${activeSlots.map((_, i) => `
-              <span class="doc-dot ${i === 0 ? 'active' : ''}" data-dot-index="${i}"></span>
+            ${slotsToDisplay.map((_, i) => `
+              <span class="doc-dot ${i === initialIndex ? 'active' : ''}" data-dot-index="${i}"></span>
             `).join('')}
           </div>
 
@@ -328,15 +464,46 @@ export class AppointmentsManager {
           </button>
         </div>
         ` : ''}
+      `;
+    }
+
+    const html = `
+      <div class="doc-stack-wrapper">
+        <div class="doc-stack-header-bar" style="flex-wrap: wrap; gap: 8px;">
+          <div style="display: flex; align-items: center; gap: 6px;">
+            <button type="button" class="btn btn-sm ${!isShowingCompleted ? 'btn-primary' : 'btn-outline'}" id="btn-doc-appts-active" style="font-size: 0.76rem; padding: 4px 10px; border-radius: 999px; font-weight: 800;">
+              المتبقية (${uncompletedSlots.length})
+            </button>
+            <button type="button" class="btn btn-sm ${isShowingCompleted ? 'btn-primary' : 'btn-outline'}" id="btn-doc-appts-completed" style="font-size: 0.76rem; padding: 4px 10px; border-radius: 999px; font-weight: 800;">
+              المكتملة (${completedSlots.length})
+            </button>
+          </div>
+
+          <div style="display: flex; align-items: center; gap: 8px;">
+            ${slotsToDisplay.length > 1 ? `
+            <span id="doc-stack-counter" style="font-size: 0.78rem; font-weight: 800; color: var(--primary); background: rgba(2, 132, 199, 0.12); padding: 2px 10px; border-radius: 999px;">${initialIndex + 1} من ${slotsToDisplay.length}</span>
+            <button type="button" class="btn btn-outline btn-sm" id="btn-toggle-doc-stack-layout" style="font-size: 0.75rem; padding: 3px 9px; border-radius: 8px; height: 28px;" title="تبديل بين التراكم والقائمة">
+              <i class="fa-solid fa-list" id="icon-stack-toggle"></i>
+            </button>
+            ` : ''}
+          </div>
+        </div>
+
+        ${contentHTML}
       </div>
     `;
+
+    return { html, initialIndex };
   }
 
-  initDocStackDeck() {
-    initStackDeck('doc-stack');
+  initDocStackDeck(initialIndex = 0) {
+    initStackDeck({
+      prefix: 'doc-stack',
+      initialIndex
+    });
   }
 
-  buildErrorHTML(err) {
+    buildErrorHTML(err) {
     return `<div style="padding: 20px; text-align: center; color: var(--danger);">
       <i class="fa-solid fa-triangle-exclamation"></i> تعذر تحميل جدول المواعيد.<br>
       <span style="font-size: 0.8rem; color: var(--text-muted);">${escapeHTML(err.message || 'خطأ غير معروف')}</span>
@@ -956,6 +1123,7 @@ export class AppointmentsManager {
       this.app.closeModal('modal-move-appointment');
       this.app.showToast(`تم نقل موعد ${this.movingAppt.patientName} إلى د. ${targetDoctorName} (${targetSlotLabel}) بنجاح`);
       this.movingAppt = null;
+    this.doctorApptFilter = 'active'; // 'active' | 'completed'
       await this.refreshVisibleGrids();
     } catch (err) {
       this.app.showAlert('تعذر نقل الموعد: ' + err.message, 'خطأ', 'danger');

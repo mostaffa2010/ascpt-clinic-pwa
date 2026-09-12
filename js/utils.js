@@ -53,7 +53,10 @@ export function initStackDeck(config) {
   const cards = Array.from(container.querySelectorAll('.doc-stack-card'));
   if (!cards.length) return null;
 
-  let currentIndex = 0;
+  const initialIndex = typeof config === 'object' && typeof config.initialIndex === 'number'
+    ? Math.max(0, Math.min(config.initialIndex, cards.length - 1))
+    : 0;
+  let currentIndex = initialIndex;
   let isListMode = false;
   let isDragging = false;
   let isSwipeActive = false;
@@ -166,7 +169,7 @@ export function initStackDeck(config) {
   };
 
   // Initial layout
-  updatePositions(0, false);
+  updatePositions(initialIndex, false);
 
   // Click peeking card to bring to front
   cards.forEach((card, idx) => {
