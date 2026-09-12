@@ -185,6 +185,30 @@ export class FinanceManager {
         }
       });
     }
+
+    // Event Delegation: Monthly Expenses Table (Desktop)
+    const mExpTbody = document.getElementById('monthly-expenses-tbody');
+    if (mExpTbody) {
+      mExpTbody.addEventListener('click', (e) => {
+        const delBtn = e.target.closest('.btn-delete-expense');
+        if (delBtn) {
+          const eid = delBtn.getAttribute('data-expense-id');
+          if (eid) this.deleteExpense(eid);
+        }
+      });
+    }
+
+    // Event Delegation: Monthly Expenses Cards (Mobile)
+    const mExpMob = document.getElementById('monthly-expenses-mobile-cards');
+    if (mExpMob) {
+      mExpMob.addEventListener('click', (e) => {
+        const delBtn = e.target.closest('.btn-delete-expense');
+        if (delBtn) {
+          const eid = delBtn.getAttribute('data-expense-id');
+          if (eid) this.deleteExpense(eid);
+        }
+      });
+    }
   }
 
   setDateQuick(type) {
@@ -580,12 +604,16 @@ export class FinanceManager {
   }
 
   async deleteExpense(expenseId) {
-    const confirmed = await this.app.showConfirm('هل أنت متأكد من حذف هذا المصروف؟', 'تأكيد الحذف');
+    const currentUser = auth.getCurrentUser();
+    if (!RolesManager.canDeleteFinance(currentUser)) {
+      this.app.showAlert('عذراً، صلاحية حذف المصروفات مقصورة على مدير المركز فقط.', 'تنبيه الصلاحيات', 'warning');
+      return;
+    }
+    const confirmed = await this.app.showConfirm('هل أنت متأكد من حذف هذا المصروف نهائياً؟ سيتم خصمه وتحديث إجماليات الحسابات والخزينة فوراً.', 'تأكيد حذف المصروف');
     if (confirmed) {
-      const currentUser = auth.getCurrentUser();
       await db.deleteExpense(expenseId);
       try { await db.logAudit('حذف مصروف', `حذف مصروف برقم ${expenseId}`, currentUser); } catch (_) {}
-      this.app.showToast('تم حذف المصروف بنجاح');
+      this.app.showToast('تم حذف المصروف بنجاح وتحديث الحسابات');
       await this.loadReport();
       this.app.refreshAll();
     }
@@ -1558,9 +1586,10 @@ export class FinanceManager {
 
     // C. Monthly Expenses Table (Desktop)
     const mExpTbody = document.getElementById('monthly-expenses-tbody');
+    const canDelFinance = RolesManager.canDeleteFinance(auth.getCurrentUser());
     if (mExpTbody) {
       if (allExpenses.length === 0) {
-        mExpTbody.innerHTML = `<tr><td colspan="4" style="text-align: center; color: var(--text-muted); padding: 20px;">لا توجد مصروفات مسجلة لهذا الشهر.</td></tr>`;
+        mExpTbody.innerHTML = `<tr><td colspan="5" style="text-align: center; color: var(--text-muted); padding: 20px;">لا توجد مصروفات مسجلة لهذا الشهر.</td></tr>`;
       } else {
         mExpTbody.innerHTML = allExpenses.map(e => {
           const safeDate = escapeHTML(e.date || '-');
@@ -1573,6 +1602,13 @@ export class FinanceManager {
               <td style="font-weight: 600;">${safeTitle}</td>
               <td style="font-weight: 700; color: var(--danger);">${safeAmount} ج.م</td>
               <td style="font-size: 0.8rem; color: var(--text-muted);">${safeRecBy}</td>
+              <td class="no-print" style="text-align: center;">
+                ${canDelFinance ? `
+                  <button type="button" class="btn btn-outline btn-sm btn-delete-record btn-delete-expense" style="color: var(--danger);" data-expense-id="${e.id}" title="حذف المصروف">
+                    <i class="fa-solid fa-trash"></i>
+                  </button>
+                ` : '-'}
+              </td>
             </tr>
           `;
         }).join('');
@@ -1618,6 +1654,11 @@ export class FinanceManager {
                     <div class="expense-amount-badge">
                       -${(parseFloat(e.amount) || 0).toLocaleString('en-US')} <small>ج.م</small>
                     </div>
+                    ${canDelFinance ? `
+                      <button type="button" class="btn-delete-expense-compact btn-delete-expense" data-expense-id="${e.id}" title="حذف المصروف">
+                        <i class="fa-solid fa-trash"></i>
+                      </button>
+                    ` : ''}
                   </div>
                 </div>
               `).join('')}

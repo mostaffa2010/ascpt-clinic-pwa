@@ -96,7 +96,9 @@ export class RolesManager {
 
   // حذف وتعديل الحسابات والمصروفات متاح للمدير فقط
   static canDeleteFinance(currentUser) {
-    return currentUser && currentUser.role === ROLES.ADMIN;
+    if (!currentUser) return false;
+    const role = (currentUser.role || "").toLowerCase();
+    return role === ROLES.ADMIN || role === "admin" || currentUser.isAdmin === true;
   }
 
   // الدخول والاطلاع على الشيت الطبي متاح للأطباء والمدير

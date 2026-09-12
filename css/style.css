@@ -5267,6 +5267,141 @@ body::-webkit-scrollbar,
 }
 }
 
+/* --- 7.9. CASH SAFE DRAWER GLANCE HERO CARD (SCREEN ONLY) --- */
+@media screen {
+  #card-cash-drawer-glance {
+    background: linear-gradient(135deg, rgba(16, 185, 129, 0.08) 0%, rgba(2, 132, 199, 0.05) 100%) !important;
+    border: 1.5px solid rgba(16, 185, 129, 0.35) !important;
+    border-radius: 20px !important;
+    padding: 16px 18px !important;
+    margin-bottom: 16px !important;
+    box-shadow: 0 4px 16px -2px rgba(16, 185, 129, 0.06) !important;
+  }
+
+  [data-theme="dark"] #card-cash-drawer-glance {
+    background: linear-gradient(135deg, rgba(16, 185, 129, 0.12) 0%, rgba(15, 23, 42, 0.75) 100%) !important;
+    border-color: rgba(16, 185, 129, 0.35) !important;
+    box-shadow: 0 4px 16px -2px rgba(0, 0, 0, 0.4) !important;
+  }
+
+  .cash-drawer-top-row {
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    margin-bottom: 10px !important;
+    gap: 10px !important;
+  }
+
+  .cash-drawer-brand {
+    display: flex !important;
+    align-items: center !important;
+    gap: 10px !important;
+    min-width: 0 !important;
+  }
+
+  .cash-drawer-icon-wrap {
+    width: 38px !important;
+    height: 38px !important;
+    border-radius: 12px !important;
+    background: var(--success-light) !important;
+    color: var(--success) !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    font-size: 1.15rem !important;
+    flex-shrink: 0 !important;
+  }
+
+  [data-theme="dark"] .cash-drawer-icon-wrap {
+    background: rgba(16, 185, 129, 0.2) !important;
+    color: #34d399 !important;
+  }
+
+  .cash-drawer-title-box {
+    min-width: 0 !important;
+  }
+
+  .cash-drawer-title-box .title {
+    font-weight: 800 !important;
+    font-size: 0.95rem !important;
+    color: var(--text-main) !important;
+    line-height: 1.25 !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+  }
+
+  .cash-drawer-title-box .subtitle {
+    font-size: 0.74rem !important;
+    color: var(--text-muted) !important;
+    margin-top: 2px !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+  }
+
+  .cash-drawer-status-pill {
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 5px !important;
+    padding: 4px 10px !important;
+    border-radius: 999px !important;
+    background: rgba(16, 185, 129, 0.12) !important;
+    color: var(--success) !important;
+    font-size: 0.72rem !important;
+    font-weight: 800 !important;
+    border: 1px solid rgba(16, 185, 129, 0.3) !important;
+    white-space: nowrap !important;
+    flex-shrink: 0 !important;
+  }
+
+  [data-theme="dark"] .cash-drawer-status-pill {
+    color: #34d399 !important;
+    border-color: rgba(52, 211, 153, 0.35) !important;
+  }
+
+  .cash-drawer-hero-metric {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    text-align: center !important;
+    padding: 6px 0 10px 0 !important;
+  }
+
+  .cash-drawer-amount-text {
+    font-size: 2.1rem !important;
+    font-weight: 800 !important;
+    color: var(--success) !important;
+    font-variant-numeric: tabular-nums !important;
+    line-height: 1 !important;
+    letter-spacing: -0.5px !important;
+  }
+
+  .cash-drawer-formula-box {
+    background: var(--bg-surface) !important;
+    border: 1px dashed rgba(16, 185, 129, 0.35) !important;
+    border-radius: 12px !important;
+    padding: 8px 12px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 8px !important;
+    font-size: 0.78rem !important;
+    font-weight: 700 !important;
+    color: var(--text-main) !important;
+    text-align: center !important;
+  }
+
+  [data-theme="dark"] .cash-drawer-formula-box {
+    background: rgba(15, 23, 42, 0.55) !important;
+  }
+
+  .cash-drawer-formula-box i {
+    color: var(--primary) !important;
+    font-size: 0.82rem !important;
+  }
+}
+
 /* ==========================================================================
    v1.4.0-beta.18: Mobile Financial Tables to Cards & Visual Polish
    ========================================================================== */
