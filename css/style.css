@@ -613,9 +613,9 @@ body {
 }
 
 .chip-choice.selected {
-  background-color: var(--primary) !important;
-  color: #ffffff !important;
-  border-color: var(--primary) !important;
+  background-color: var(--primary);
+  color: #ffffff;
+  border-color: var(--primary);
   box-shadow: 0 4px 12px rgba(2, 132, 199, 0.3);
 }
 
@@ -1075,8 +1075,8 @@ input[type="radio"] {
   position: relative;
   flex-shrink: 0;
   transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-  background-color: var(--bg-surface) !important;
-  border: 2px solid var(--border-color) !important;
+  background-color: var(--bg-surface);
+  border: 2px solid var(--border-color);
 }
 
 /* Custom Checkbox */
@@ -1087,13 +1087,13 @@ input[type="checkbox"] {
 }
 
 input[type="checkbox"]:hover {
-  border-color: var(--primary) !important;
+  border-color: var(--primary);
   box-shadow: 0 0 0 3px var(--primary-light);
 }
 
 input[type="checkbox"]:checked {
-  background-color: var(--primary) !important;
-  border-color: var(--primary) !important;
+  background-color: var(--primary);
+  border-color: var(--primary);
 }
 
 input[type="checkbox"]:checked::before {
@@ -1119,13 +1119,13 @@ input[type="radio"] {
 }
 
 input[type="radio"]:hover {
-  border-color: var(--primary) !important;
+  border-color: var(--primary);
   box-shadow: 0 0 0 3px var(--primary-light);
 }
 
 input[type="radio"]:checked {
-  border-color: var(--primary) !important;
-  background-color: var(--bg-surface) !important;
+  border-color: var(--primary);
+  background-color: var(--bg-surface);
 }
 
 input[type="radio"]:checked::before {
@@ -1143,39 +1143,39 @@ input[type="radio"]:focus-visible {
 
 /* Radio Button Card Wrapper */
 .custom-radio-card:hover {
-  border-color: var(--primary) !important;
+  border-color: var(--primary);
 }
 
 /* Dark Mode Overrides for Custom Checkboxes & Radio Buttons */
 [data-theme="dark"] input[type="checkbox"],
 [data-theme="dark"] input[type="radio"] {
-  background-color: #1e293b !important;
-  border-color: #475569 !important;
+  background-color: #1e293b;
+  border-color: #475569;
 }
 
 [data-theme="dark"] input[type="checkbox"]:hover,
 [data-theme="dark"] input[type="radio"]:hover {
-  border-color: var(--primary) !important;
-  box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.25) !important;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.25);
 }
 
 [data-theme="dark"] input[type="checkbox"]:checked {
-  background-color: var(--primary) !important;
-  border-color: var(--primary) !important;
+  background-color: var(--primary);
+  border-color: var(--primary);
 }
 
 [data-theme="dark"] input[type="radio"]:checked {
-  background-color: #1e293b !important;
-  border-color: var(--primary) !important;
+  background-color: #1e293b;
+  border-color: var(--primary);
 }
 
 [data-theme="dark"] input[type="radio"]:checked::before {
-  background-color: var(--primary) !important;
+  background-color: var(--primary);
 }
 
 [data-theme="dark"] .custom-radio-card {
-  background-color: var(--bg-surface) !important;
-  border-color: var(--border-color) !important;
+  background-color: var(--bg-surface);
+  border-color: var(--border-color);
 }
 
 /* Ensure segmented controls keep native inputs hidden */
@@ -1430,13 +1430,13 @@ input[type="radio"]:focus-visible {
 }
 
 .cal-quick-btn {
-  padding: 3px 10px !important;
-  font-size: 0.76rem !important;
-  font-weight: 700 !important;
-  border-color: #bae6fd !important;
-  color: var(--primary) !important;
-  background-color: #ffffff !important;
-  border-radius: var(--radius-full) !important;
+  padding: 3px 10px;
+  font-size: 0.76rem;
+  font-weight: 700;
+  border-color: #bae6fd;
+  color: var(--primary);
+  background-color: #ffffff;
+  border-radius: var(--radius-full);
 }
 
 .cal-weekdays-grid {
@@ -1489,17 +1489,17 @@ input[type="radio"]:focus-visible {
 }
 
 .cal-day-cell.selected {
-  background-color: var(--primary) !important;
-  color: #ffffff !important;
+  background-color: var(--primary);
+  color: #ffffff;
   font-weight: 800;
   box-shadow: 0 2px 6px rgba(2, 132, 199, 0.4);
 }
 
 .date-picker-clickable {
   cursor: pointer;
-  background-color: var(--bg-surface) !important;
-  color: var(--text-main) !important;
-  padding-left: 32px !important;
+  background-color: var(--bg-surface);
+  color: var(--text-main);
+  padding-left: 32px;
 }
 
 /* ================= Demo Showcase Bar ================= */
@@ -1519,28 +1519,28 @@ input[type="radio"]:focus-visible {
 
 /* Quick Date Switcher Buttons */
 .btn-quick-date {
-  padding: 4px 12px !important;
-  font-size: 0.78rem !important;
-  font-weight: 700 !important;
-  border-radius: 10px !important;
-  border: 1.5px solid var(--border-color) !important;
-  background-color: var(--bg-surface) !important;
-  color: var(--text-main) !important;
+  padding: 4px 12px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  border-radius: 10px;
+  border: 1.5px solid var(--border-color);
+  background-color: var(--bg-surface);
+  color: var(--text-main);
   cursor: pointer;
   transition: all 0.2s ease;
   white-space: nowrap;
 }
 
 .btn-quick-date:hover {
-  border-color: var(--primary) !important;
-  color: var(--primary) !important;
+  border-color: var(--primary);
+  color: var(--primary);
 }
 
 .btn-quick-date.active {
-  background-color: var(--primary) !important;
-  color: #ffffff !important;
-  border-color: var(--primary) !important;
-  box-shadow: 0 1px 3px rgba(2, 132, 199, 0.3) !important;
+  background-color: var(--primary);
+  color: #ffffff;
+  border-color: var(--primary);
+  box-shadow: 0 1px 3px rgba(2, 132, 199, 0.3);
 }
 
 /* User Badge in Top Bar */
@@ -1985,8 +1985,8 @@ body.not-authenticated #modal-auth #btn-cancel-login {
   color: #ffffff;
 }
 .btn-today-active .badge {
-  background-color: rgba(255, 255, 255, 0.3) !important;
-  color: #ffffff !important;
+  background-color: rgba(255, 255, 255, 0.3);
+  color: #ffffff;
 }
 
 /* ================= Appointment Chip Actions & Move Button ================= */
@@ -2521,39 +2521,39 @@ body.not-authenticated #modal-auth #btn-cancel-login {
 }
 
 [data-theme="dark"] .payment-info-box-cash {
-  background-color: rgba(56, 189, 248, 0.1) !important;
-  border-color: rgba(56, 189, 248, 0.25) !important;
+  background-color: rgba(56, 189, 248, 0.1);
+  border-color: rgba(56, 189, 248, 0.25);
 }
 [data-theme="dark"] .payment-info-box-cash .pay-icon {
-  background: rgba(56, 189, 248, 0.2) !important;
-  color: #38bdf8 !important;
+  background: rgba(56, 189, 248, 0.2);
+  color: #38bdf8;
 }
 [data-theme="dark"] .payment-info-box-cash .pay-title {
-  color: #7dd3fc !important;
+  color: #7dd3fc;
 }
 [data-theme="dark"] .payment-info-box-cash .pay-sub {
-  color: #bae6fd !important;
+  color: #bae6fd;
 }
 
 [data-theme="dark"] .payment-info-box-contract {
-  background-color: rgba(52, 211, 153, 0.1) !important;
-  border-color: rgba(52, 211, 153, 0.25) !important;
+  background-color: rgba(52, 211, 153, 0.1);
+  border-color: rgba(52, 211, 153, 0.25);
 }
 [data-theme="dark"] .payment-info-box-contract .pay-icon {
-  background: rgba(52, 211, 153, 0.2) !important;
-  color: #34d399 !important;
+  background: rgba(52, 211, 153, 0.2);
+  color: #34d399;
 }
 [data-theme="dark"] .payment-info-box-contract .pay-title {
-  color: #6ee7b7 !important;
+  color: #6ee7b7;
 }
 [data-theme="dark"] .payment-info-box-contract .pay-sub {
-  color: #a7f3d0 !important;
+  color: #a7f3d0;
 }
 
 [data-theme="dark"] .stat-box,
 [data-theme="dark"] .stat-card {
-  background-color: var(--bg-surface) !important;
-  border-color: var(--border-color) !important;
+  background-color: var(--bg-surface);
+  border-color: var(--border-color);
 }
 
 
@@ -2567,8 +2567,8 @@ body.not-authenticated #modal-auth #btn-cancel-login {
   transition: all 0.15s ease;
 }
 .btn-delete-exp-cat:hover {
-  background-color: rgba(239, 68, 68, 0.15) !important;
-  color: #ef4444 !important;
+  background-color: rgba(239, 68, 68, 0.15);
+  color: #ef4444;
 }
 
 /* ========================================================
@@ -2732,13 +2732,13 @@ body.not-authenticated #modal-auth #btn-cancel-login {
 }
 
 .btn-hero-action {
-  background: #ffffff !important;
-  color: #0369a1 !important;
-  border: none !important;
-  padding: 8px 18px !important;
-  border-radius: var(--radius-pill) !important;
-  font-weight: 800 !important;
-  font-size: 0.86rem !important;
+  background: #ffffff;
+  color: #0369a1;
+  border: none;
+  padding: 8px 18px;
+  border-radius: var(--radius-pill);
+  font-weight: 800;
+  font-size: 0.86rem;
   box-shadow: 0 4px 14px rgba(0, 0, 0, 0.16);
   transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   display: inline-flex;
@@ -2748,7 +2748,7 @@ body.not-authenticated #modal-auth #btn-cancel-login {
 }
 
 .btn-hero-action:hover {
-  background: #f0f9ff !important;
+  background: #f0f9ff;
   transform: translateY(-2px);
   box-shadow: 0 6px 18px rgba(0, 0, 0, 0.22);
 }
@@ -2764,7 +2764,7 @@ body.not-authenticated #modal-auth #btn-cancel-login {
 }
 
 .hero-doctor-banner .btn-hero-action {
-  color: #4338ca !important;
+  color: #4338ca;
 }
 
 /* 2. Quick Access Bar (Inspired by Pinterest Ref 2) */
@@ -2890,10 +2890,10 @@ body.not-authenticated #modal-auth #btn-cancel-login {
 }
 
 .date-strip-pill.active {
-  background: var(--primary-gradient) !important;
-  color: #ffffff !important;
-  border-color: var(--primary) !important;
-  box-shadow: 0 4px 12px rgba(2, 132, 199, 0.3) !important;
+  background: var(--primary-gradient);
+  color: #ffffff;
+  border-color: var(--primary);
+  box-shadow: 0 4px 12px rgba(2, 132, 199, 0.3);
 }
 
 /* 4. Mobile Native Card Transformation for Recent Sessions */
@@ -2936,8 +2936,8 @@ body.not-authenticated #modal-auth #btn-cancel-login {
   }
   
   #dashboard-recent-table td {
-    padding: 2px 0 !important;
-    border-bottom: none !important;
+    padding: 2px 0;
+    border-bottom: none;
     white-space: normal;
   }
   
@@ -2992,8 +2992,8 @@ body.not-authenticated #modal-auth #btn-cancel-login {
     color: var(--text-muted);
     width: 100%;
     text-align: left;
-    border-top: 1px dashed var(--border-color) !important;
-    padding-top: 6px !important;
+    border-top: 1px dashed var(--border-color);
+    padding-top: 6px;
     margin-top: 4px;
   }
 }
@@ -3010,8 +3010,8 @@ body.not-authenticated #modal-auth #btn-cancel-login {
 }
 
 [data-theme="dark"] .btn-hero-action {
-  background: #f8fafc !important;
-  color: #0284c7 !important;
+  background: #f8fafc;
+  color: #0284c7;
 }
 
 [data-theme="dark"] .qa-blue { background: rgba(56, 189, 248, 0.18); color: #38bdf8; }
