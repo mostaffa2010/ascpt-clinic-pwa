@@ -47,8 +47,8 @@
   
 
     <!-- Stylesheets -->
-  <link rel="stylesheet" href="css/style.css?v=1.4.23" media="screen">
-  <link rel="stylesheet" href="css/print.css?v=1.4.23" media="print">
+  <link rel="stylesheet" href="css/style.css?v=1.4.24" media="screen">
+  <link rel="stylesheet" href="css/print.css?v=1.4.24" media="print">
 </head>
 <body>
   <script>
@@ -492,77 +492,61 @@
           </div>
         </div>
 
-        <!-- Patient Demographics Hero Profile Card (Elevated Luxury Clinical Look) -->
-        <div class="card sheet-hero-profile-card">
-          <!-- Top Row: Patient Main Info & Quick Action Icons -->
-          <div class="sheet-hero-header-row">
-            <div class="sheet-hero-identity">
-              <div class="sheet-hero-avatar">
-                <i class="fa-solid fa-id-card-clip"></i>
-              </div>
-              <div class="sheet-hero-names">
-                <div class="sheet-hero-title-wrap">
-                  <h2 id="sheet-patient-name" class="sheet-hero-name">اسم المريض</h2>
-                  <span class="hsc-age-badge" id="sheet-hero-age-pill">
+        <!-- Patient Clinical Hero Banner (Matching the Doctor's Welcome Hero Banner) -->
+        <div class="hero-dashboard-banner sheet-patient-hero-banner" style="margin-bottom: 18px; border-radius: 22px;">
+          <div class="hero-banner-glass-bg"></div>
+          <div class="hero-banner-content">
+            <!-- Pill Tag at top -->
+            <div class="hero-greeting-pill" style="margin-bottom: 10px;">
+              <span class="hero-greeting-icon"><i class="fa-solid fa-file-waveform"></i></span>
+              <span id="sheet-hero-patient-code">الملف الطبي والتأهيلي للمريض</span>
+            </div>
+
+            <!-- Patient Name & Details Title Row -->
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; flex-wrap: wrap;">
+              <div style="min-width: 0; flex: 1;">
+                <h2 class="hero-banner-title" id="sheet-patient-name" style="margin-bottom: 6px; font-size: 1.45rem; font-weight: 900; color: #ffffff;">اسم المريض</h2>
+                <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; font-size: 0.82rem; color: #e0f2fe; font-weight: 700;">
+                  <span style="background: rgba(255, 255, 255, 0.18); padding: 2px 10px; border-radius: 999px; border: 1px solid rgba(255, 255, 255, 0.25);">
                     <strong id="sheet-patient-age">-</strong> سنة <span id="sheet-patient-gender"></span>
                   </span>
-                </div>
-                <div class="sheet-hero-badges-line">
-                  <span class="patient-doc-badge">
-                    <i class="fa-solid fa-user-doctor"></i> <strong id="sheet-patient-doctor">-</strong>
-                  </span>
-                  <a href="#" id="sheet-patient-phone-link" class="hsc-meta-link" title="اتصال مباشر بالمريض">
+                  <span>•</span>
+                  <span><i class="fa-solid fa-user-doctor"></i> <strong id="sheet-patient-doctor">-</strong></span>
+                  <span>•</span>
+                  <a href="#" id="sheet-patient-phone-link" style="color: #ffffff; text-decoration: none; display: inline-flex; align-items: center; gap: 4px;">
                     <i class="fa-solid fa-phone"></i> <bdi dir="ltr" id="sheet-patient-phone">-</bdi>
                   </a>
-                  <span class="hsc-meta-text" id="sheet-hero-address-wrap">
-                    <i class="fa-solid fa-location-dot" style="color: var(--primary);"></i> <span id="sheet-patient-address">-</span>
+                  <span id="sheet-hero-address-wrap">
+                    <span>•</span>
+                    <i class="fa-solid fa-location-dot"></i> <span id="sheet-patient-address">-</span>
                   </span>
                 </div>
               </div>
+
+              <!-- 3 Quick Action Buttons (WhatsApp, Edit, Delete) on Frosted Glass -->
+              <div id="sheet-patient-quick-actions" style="display: flex; gap: 6px; align-items: center; flex-shrink: 0; padding-top: 4px;">
+                <!-- Populated dynamically -->
+              </div>
             </div>
 
-            <!-- Quick Action Buttons Hub (WhatsApp, Edit, Delete) -->
-            <div id="sheet-patient-quick-actions" class="sheet-hero-actions-hub">
-              <!-- Populated dynamically -->
+            <!-- Billing & Approval Progress Details -->
+            <div id="sheet-patient-billing-badge" style="margin-bottom: 12px;">
+              <!-- Populated by JS -->
+            </div>
+
+            <!-- Banner Footer: Last Update & Sessions Button -->
+            <div class="hero-banner-footer" style="padding-top: 10px; border-top: 1px solid rgba(255, 255, 255, 0.18);">
+              <div class="hero-date-chip" style="font-size: 0.78rem;">
+                <i class="fa-solid fa-clock-rotate-left"></i>
+                <span>آخر تحديث: <strong id="sheet-last-update-text">-</strong></span>
+              </div>
+              <button type="button" class="btn btn-hero-action" id="btn-view-patient-sessions" style="padding: 6px 14px; font-size: 0.82rem; font-weight: 800;">
+                <i class="fa-solid fa-calendar-check" style="color: var(--primary);"></i>
+                <span>سجل الجلسات</span>
+                <span class="badge" id="sheet-sessions-badge-count" style="background: var(--primary); color: #ffffff; font-size: 0.74rem; padding: 2px 7px; border-radius: 999px;">0 جلسة</span>
+              </button>
             </div>
           </div>
-
-          <!-- Middle Row: Billing & Approval Progress Details -->
-          <div class="sheet-hero-billing-row" id="sheet-patient-billing-badge">
-            <!-- Populated by JS -->
-          </div>
-
-          <!-- Bottom Row: Sessions Counter Badge & Last Update Time -->
-          <div class="sheet-hero-footer-row">
-            <div class="sheet-hero-update-stamp">
-              <i class="fa-solid fa-clock-rotate-left" style="color: var(--primary);"></i>
-              <span>آخر تحديث: <strong id="sheet-last-update-text">-</strong></span>
-            </div>
-            <button type="button" class="btn btn-sm btn-outline sheet-hero-sessions-btn" id="btn-view-patient-sessions">
-              <i class="fa-solid fa-calendar-check"></i>
-              <span>سجل الجلسات</span>
-              <span class="badge" id="sheet-sessions-badge-count">0 جلسة</span>
-            </button>
-          </div>
-        </div>
-
-        <!-- Sticky Quick Section Navigation Bar (Touch 1) -->
-        <div class="sheet-section-nav no-print">
-          <button type="button" class="sheet-nav-pill active" data-target="sheet-sec-diagnosis">
-            <i class="fa-solid fa-stethoscope"></i> <span>1. التشخيص</span>
-          </button>
-          <button type="button" class="sheet-nav-pill" data-target="sheet-sec-modalities">
-            <i class="fa-solid fa-bolt-lightning"></i> <span>2. الأجهزة</span>
-          </button>
-          <button type="button" class="sheet-nav-pill" data-target="sheet-sec-procedures">
-            <i class="fa-solid fa-hand-holding-hand"></i> <span>3. العلاج اليدوي</span>
-          </button>
-          <button type="button" class="sheet-nav-pill" data-target="sheet-sec-exercises">
-            <i class="fa-solid fa-person-running"></i> <span>4. التمارين</span>
-          </button>
-          <button type="button" class="sheet-nav-pill" data-target="sheet-sec-plan">
-            <i class="fa-solid fa-clipboard-list"></i> <span>5. الخطة</span>
-          </button>
         </div>
 
         <!-- Doctor Clinical Edit Form -->
@@ -570,7 +554,7 @@
           <!-- 1. Diagnosis & Region -->
           <div class="card" id="sheet-sec-diagnosis" style="margin-bottom: 16px;">
             <div class="card-header">
-              <span class="card-title"><i class="fa-solid fa-stethoscope"></i> 1. التقييم والتشخيص الطبي (Medical Diagnosis)</span>
+              <span class="card-title"><i class="fa-solid fa-stethoscope"></i> 1. التقييم والتشخيص الطبي</span>
             </div>
             <div class="form-grid two-cols">
               <div class="form-group">
@@ -586,9 +570,9 @@
 
           <!-- 2. Modalities (الأجهزة الفيزيائية) -->
           <div class="card" id="sheet-sec-modalities" style="margin-bottom: 16px;">
-            <div class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
-              <span class="card-title"><i class="fa-solid fa-bolt-lightning"></i> 2. الأجهزة والوسائل الفيزيائية (Physical Modalities)</span>
-              <span id="sheet-modalities-count-badge" class="badge badge-primary" style="font-size: 0.78rem;">0 محدد</span>
+            <div class="card-header" style="display: flex; justify-content: space-between; align-items: center; gap: 8px;">
+              <span class="card-title" style="min-width: 0; line-height: 1.3;"><i class="fa-solid fa-bolt-lightning"></i> 2. الأجهزة والوسائل الفيزيائية</span>
+              <span id="sheet-modalities-count-badge" class="badge badge-primary" style="font-size: 0.78rem; white-space: nowrap !important; flex-shrink: 0 !important; padding: 4px 10px; border-radius: 999px;">0 محدد</span>
             </div>
             <div style="padding: 12px 16px;">
               <button type="button" class="custom-select-btn" id="btn-open-picker-modalities" style="min-height: 44px; padding: 8px 12px; display: flex; align-items: center; justify-content: space-between; width: 100%;">
@@ -597,7 +581,6 @@
                 </div>
                 <i class="fa-solid fa-chevron-down custom-select-arrow" style="margin-right: 6px;"></i>
               </button>
-              <!-- Interactive Selected Chips Grid (Touch 3) -->
               <div class="sheet-selected-tags-grid" id="sheet-modalities-chips-wrap"></div>
               <div class="body-parts-chips" id="sheet-modalities-container" style="display: none;"></div>
             </div>
@@ -605,9 +588,9 @@
 
           <!-- 3. Procedures & Manual Therapy -->
           <div class="card" id="sheet-sec-procedures" style="margin-bottom: 16px;">
-            <div class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
-              <span class="card-title"><i class="fa-solid fa-hand-holding-hand"></i> 3. الإجراءات والعلاج اليدوي (Procedures & Manual Therapy)</span>
-              <span id="sheet-procedures-count-badge" class="badge badge-primary" style="font-size: 0.78rem;">0 محدد</span>
+            <div class="card-header" style="display: flex; justify-content: space-between; align-items: center; gap: 8px;">
+              <span class="card-title" style="min-width: 0; line-height: 1.3;"><i class="fa-solid fa-hand-holding-hand"></i> 3. الإجراءات والعلاج اليدوي</span>
+              <span id="sheet-procedures-count-badge" class="badge badge-primary" style="font-size: 0.78rem; white-space: nowrap !important; flex-shrink: 0 !important; padding: 4px 10px; border-radius: 999px;">0 محدد</span>
             </div>
             <div style="padding: 12px 16px;">
               <button type="button" class="custom-select-btn" id="btn-open-picker-procedures" style="min-height: 44px; padding: 8px 12px; display: flex; align-items: center; justify-content: space-between; width: 100%;">
@@ -616,7 +599,6 @@
                 </div>
                 <i class="fa-solid fa-chevron-down custom-select-arrow" style="margin-right: 6px;"></i>
               </button>
-              <!-- Interactive Selected Chips Grid (Touch 3) -->
               <div class="sheet-selected-tags-grid" id="sheet-procedures-chips-wrap"></div>
               <div class="body-parts-chips" id="sheet-procedures-container" style="display: none;"></div>
             </div>
@@ -624,9 +606,9 @@
 
           <!-- 4. Therapeutic Exercises -->
           <div class="card" id="sheet-sec-exercises" style="margin-bottom: 16px;">
-            <div class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
-              <span class="card-title"><i class="fa-solid fa-person-running"></i> 4. التمارين العلاجية الموصوفة (Therapeutic Exercises)</span>
-              <span id="sheet-exercises-count-badge" class="badge badge-primary" style="font-size: 0.78rem;">0 محدد</span>
+            <div class="card-header" style="display: flex; justify-content: space-between; align-items: center; gap: 8px;">
+              <span class="card-title" style="min-width: 0; line-height: 1.3;"><i class="fa-solid fa-person-running"></i> 4. التمارين العلاجية والتأهيل</span>
+              <span id="sheet-exercises-count-badge" class="badge badge-primary" style="font-size: 0.78rem; white-space: nowrap !important; flex-shrink: 0 !important; padding: 4px 10px; border-radius: 999px;">0 محدد</span>
             </div>
             <div style="padding: 12px 16px;">
               <button type="button" class="custom-select-btn" id="btn-open-picker-exercises" style="min-height: 44px; padding: 8px 12px; display: flex; align-items: center; justify-content: space-between; width: 100%;">
@@ -635,7 +617,6 @@
                 </div>
                 <i class="fa-solid fa-chevron-down custom-select-arrow" style="margin-right: 6px;"></i>
               </button>
-              <!-- Interactive Selected Chips Grid (Touch 3) -->
               <div class="sheet-selected-tags-grid" id="sheet-exercises-chips-wrap"></div>
               <div class="body-parts-chips" id="sheet-exercises-container" style="display: none;"></div>
               <div class="form-group" style="margin-top: 12px;">
@@ -648,7 +629,7 @@
           <!-- 5. Treatment Plan & Progress -->
           <div class="card" id="sheet-sec-plan" style="margin-bottom: 24px;">
             <div class="card-header">
-              <span class="card-title"><i class="fa-solid fa-clipboard-list"></i> 5. الخطة العلاجية وملاحظات الطبيب (Treatment Plan & Notes)</span>
+              <span class="card-title"><i class="fa-solid fa-clipboard-list"></i> 5. الخطة العلاجية وملاحظات الطبيب</span>
             </div>
             <div class="form-grid two-cols">
               <div class="form-group">
@@ -662,23 +643,21 @@
             </div>
           </div>
 
-          <!-- Sticky Floating Action Bar (Touch 4) -->
-          <div class="sheet-floating-action-bar no-print">
-            <button type="button" class="btn btn-outline btn-sm" id="btn-back-to-patients-bottom">
-              <i class="fa-solid fa-arrow-right"></i> <span>عودة</span>
+          <!-- Fixed Clean Floating Save Bar at Bottom -->
+          <div class="sheet-bottom-bar-fixed no-print">
+            <button type="button" class="btn btn-outline" id="btn-back-to-patients-bottom" style="height: 46px; width: 48px; border-radius: 14px; display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; padding: 0;" title="رجوع لسجل المرضى">
+              <i class="fa-solid fa-arrow-right" style="font-size: 1.1rem;"></i>
             </button>
-            <div style="display: flex; gap: 8px; align-items: center;">
-              <button type="button" class="btn btn-outline btn-sm btn-print-sheet" id="btn-print-sheet-bottom">
-                <i class="fa-solid fa-print"></i> <span>طباعة Wi-Fi</span>
-              </button>
-              <button type="submit" class="btn btn-success" id="btn-save-sheet" style="font-weight: 800; padding: 8px 18px; border-radius: 12px; gap: 6px; box-shadow: 0 4px 14px rgba(16, 185, 129, 0.3);">
-                <i class="fa-solid fa-floppy-disk"></i> <span>حفظ الشيت الطبي</span>
-              </button>
-            </div>
+            <button type="submit" form="form-patient-sheet" class="btn btn-primary btn-save-sheet-hero" id="btn-save-sheet" style="flex: 1; height: 46px; border-radius: 14px; font-size: 0.95rem; font-weight: 800; display: inline-flex; align-items: center; justify-content: center; gap: 8px; white-space: nowrap;">
+              <i class="fa-solid fa-floppy-disk"></i> <span>حفظ الشيت الطبي</span>
+            </button>
+            <button type="button" class="btn btn-outline btn-print-sheet" id="btn-print-sheet-bottom" style="height: 46px; width: 48px; border-radius: 14px; display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; padding: 0;" title="طباعة الشيت عبر Wi-Fi">
+              <i class="fa-solid fa-print" style="font-size: 1.1rem;"></i>
+            </button>
           </div>
         </form>
       </section>
-
+      
       <!-- ================= View 3: Daily Sessions Check-in ================= -->
       <section id="view-sessions" class="view-section">
         <div style="margin-bottom: 20px;">
@@ -1650,7 +1629,7 @@
         <div class="admin-system-footer no-print" style="margin-top: 32px; margin-bottom: 35px; text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px;">
           <div style="display: inline-flex; align-items: center; gap: 8px; background: var(--bg-surface); border: 1.5px solid var(--border-color); padding: 7px 18px; border-radius: 999px; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);">
             <span style="width: 8px; height: 8px; border-radius: 50%; background-color: var(--success); display: inline-block; box-shadow: 0 0 6px var(--success);"></span>
-            <span style="font-weight: 800; font-size: 0.88rem; color: var(--text-main);">نظام ASCPT — الإصدار 1.4.23</span>
+            <span style="font-weight: 800; font-size: 0.88rem; color: var(--text-main);">نظام ASCPT — الإصدار 1.4.24</span>
             <span class="badge badge-primary" style="font-size: 0.72rem; padding: 2px 10px; border-radius: 999px; font-weight: 800;">إصدار معتمد</span>
           </div>
           <div style="font-size: 0.76rem; color: var(--text-muted); font-weight: 700;">
@@ -2842,7 +2821,7 @@
   </div>
 
 <!-- Main Application Script (ES Module) -->
-  <script type="module" src="js/app.js?v=1.4.23"></script>
+  <script type="module" src="js/app.js?v=1.4.24"></script>
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {

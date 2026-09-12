@@ -221,19 +221,7 @@ export class PatientsManager {
       formSheet.addEventListener('submit', (e) => this.handleSaveSheet(e));
     }
 
-    // Sticky Quick Section Navigation Pills for Patient Sheet
-    document.querySelectorAll('.sheet-nav-pill').forEach(pill => {
-      pill.addEventListener('click', (e) => {
-        e.preventDefault();
-        const targetId = pill.getAttribute('data-target');
-        const targetEl = document.getElementById(targetId);
-        if (targetEl) {
-          document.querySelectorAll('.sheet-nav-pill').forEach(p => p.classList.remove('active'));
-          pill.classList.add('active');
-          targetEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        }
-      });
-    });
+
 
     // Toggle Chips Edit Mode Buttons in Clinical Sheet
     document.getElementById('btn-toggle-chips-modality')?.addEventListener('click', () => this.toggleChipsEditMode('modality'));
