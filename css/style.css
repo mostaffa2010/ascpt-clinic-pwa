@@ -2032,21 +2032,81 @@ body.not-authenticated #modal-auth #btn-cancel-login {
 
 
 /* ================= Today Patients Filter Button ================= */
-#btn-filter-today-patients.btn-today-active,
-.btn.btn-today-active,
-.btn-today-active {
-  background-color: var(--primary);
-  color: #ffffff;
-  border-color: var(--primary);
+#btn-filter-today-patients {
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
 }
-#btn-filter-today-patients.btn-today-active i,
-.btn.btn-today-active i,
-.btn-today-active i {
-  color: #ffffff;
+
+#btn-filter-today-patients i {
+  color: var(--primary);
+  font-size: 0.95rem;
+  transition: color 0.18s ease;
 }
-.btn-today-active .badge {
-  background-color: rgba(255, 255, 255, 0.3);
-  color: #ffffff;
+
+#btn-filter-today-patients #badge-today-patients-count {
+  background: var(--primary-light);
+  color: var(--primary);
+  border: 1px solid rgba(2, 132, 199, 0.25);
+  font-weight: 800;
+  transition: all 0.18s ease;
+}
+
+[data-theme="dark"] #btn-filter-today-patients #badge-today-patients-count {
+  background: rgba(56, 189, 248, 0.16);
+  color: #38bdf8;
+  border-color: rgba(56, 189, 248, 0.35);
+}
+
+/* --- LIGHT MODE: Active State --- */
+:root:not([data-theme="dark"]) #btn-filter-today-patients.btn-today-active {
+  background: var(--primary-gradient) !important;
+  color: #ffffff !important;
+  border-color: var(--primary-hover) !important;
+  box-shadow: 0 4px 14px rgba(2, 132, 199, 0.35) !important;
+}
+
+:root:not([data-theme="dark"]) #btn-filter-today-patients.btn-today-active:hover {
+  background: linear-gradient(135deg, #0369a1 0%, #075985 100%) !important;
+  color: #ffffff !important;
+  border-color: #075985 !important;
+}
+
+:root:not([data-theme="dark"]) #btn-filter-today-patients.btn-today-active i,
+:root:not([data-theme="dark"]) #btn-filter-today-patients.btn-today-active span {
+  color: #ffffff !important;
+}
+
+:root:not([data-theme="dark"]) #btn-filter-today-patients.btn-today-active #badge-today-patients-count {
+  background-color: rgba(255, 255, 255, 0.25) !important;
+  color: #ffffff !important;
+  border: 1px solid rgba(255, 255, 255, 0.45) !important;
+  font-weight: 800 !important;
+}
+
+/* --- DARK MODE: Active State --- */
+[data-theme="dark"] #btn-filter-today-patients.btn-today-active {
+  background: linear-gradient(135deg, rgba(56, 189, 248, 0.22) 0%, rgba(14, 165, 233, 0.32) 100%) !important;
+  color: #38bdf8 !important;
+  border: 1.5px solid #38bdf8 !important;
+  box-shadow: 0 0 16px rgba(56, 189, 248, 0.28), 0 4px 14px rgba(0, 0, 0, 0.4) !important;
+}
+
+[data-theme="dark"] #btn-filter-today-patients.btn-today-active:hover {
+  background: linear-gradient(135deg, rgba(56, 189, 248, 0.32) 0%, rgba(14, 165, 233, 0.42) 100%) !important;
+  color: #7dd3fc !important;
+  border-color: #7dd3fc !important;
+}
+
+[data-theme="dark"] #btn-filter-today-patients.btn-today-active i,
+[data-theme="dark"] #btn-filter-today-patients.btn-today-active span {
+  color: #38bdf8 !important;
+}
+
+[data-theme="dark"] #btn-filter-today-patients.btn-today-active #badge-today-patients-count {
+  background-color: rgba(56, 189, 248, 0.3) !important;
+  color: #ffffff !important;
+  border: 1px solid rgba(56, 189, 248, 0.6) !important;
+  font-weight: 900 !important;
 }
 
 /* ================= Appointment Chip Actions & Move Button ================= */
@@ -7121,7 +7181,6 @@ h1, h2, h3, h4, h5, h6 {
 [data-theme="dark"] .category-chip.active,
 [data-theme="dark"] .cal-quick-btn.active,
 [data-theme="dark"] .cal-month-cell.selected,
-[data-theme="dark"] .btn-today-active,
 [data-theme="dark"] .btn-slot-period.active,
 [data-theme="dark"] .btn-claim-filter-pill.active {
   background-color: var(--primary) !important;
@@ -7129,11 +7188,6 @@ h1, h2, h3, h4, h5, h6 {
   font-weight: 800 !important;
   border-color: var(--primary) !important;
   box-shadow: 0 2px 8px rgba(56, 189, 248, 0.35) !important;
-}
-
-[data-theme="dark"] .btn-today-active i,
-[data-theme="dark"] .btn-today-active .badge {
-  color: #0f172a !important;
 }
 
 [data-theme="dark"] #btn-add-settlement {
