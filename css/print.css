@@ -392,14 +392,23 @@
     color: #000000 !important;
   }
 
-  body:not(.printing-sheet) .stats-grid {
+  body:not(.printing-sheet) .stats-grid,
+  body:not(.printing-sheet) #finance-kpi-stats-grid,
+  [data-theme="dark"] .stats-grid,
+  [data-theme="dark"] #finance-kpi-stats-grid {
     display: flex !important;
     flex-direction: row !important;
     gap: 6px !important;
     margin-bottom: 8px !important;
   }
 
-  body:not(.printing-sheet) .stat-box {
+  body:not(.printing-sheet) .stat-box,
+  body:not(.printing-sheet) #finance-kpi-stats-grid .stat-box,
+  body:not(.printing-sheet) #finance-kpi-stats-grid .stat-box.highlight,
+  [data-theme="dark"] .stat-box,
+  [data-theme="dark"] .stat-card,
+  [data-theme="dark"] #finance-kpi-stats-grid .stat-box,
+  [data-theme="dark"] #finance-kpi-stats-grid .stat-box.highlight {
     flex: 1 !important;
     border: 1.2px solid #64748b !important;
     border-radius: 4px !important;
@@ -408,25 +417,44 @@
     display: flex !important;
     align-items: center !important;
     gap: 6px !important;
+    background: #ffffff !important;
     background-color: #ffffff !important;
+    color: #000000 !important;
   }
 
-  body:not(.printing-sheet) .stat-icon {
+  body:not(.printing-sheet) .stat-icon,
+  body:not(.printing-sheet) #finance-kpi-stats-grid .stat-icon,
+  [data-theme="dark"] .stat-icon,
+  [data-theme="dark"] #finance-kpi-stats-grid .stat-icon {
     width: 22px !important;
     height: 22px !important;
     font-size: 8.5pt !important;
+    border-radius: 4px !important;
+    background: transparent !important;
+    background-color: transparent !important;
   }
 
-  body:not(.printing-sheet) .stat-info .stat-value {
+  body:not(.printing-sheet) .stat-info .stat-value,
+  body:not(.printing-sheet) #finance-kpi-stats-grid .stat-value,
+  body:not(.printing-sheet) #finance-kpi-stats-grid .stat-info .stat-value,
+  [data-theme="dark"] .stat-info .stat-value,
+  [data-theme="dark"] #finance-kpi-stats-grid .stat-value,
+  [data-theme="dark"] #finance-kpi-stats-grid .stat-info .stat-value {
     font-size: 9.5pt !important;
     font-weight: 800 !important;
     color: #000000 !important;
   }
 
-  body:not(.printing-sheet) .stat-info .stat-label {
+  body:not(.printing-sheet) .stat-info .stat-label,
+  body:not(.printing-sheet) #finance-kpi-stats-grid .stat-label,
+  body:not(.printing-sheet) #finance-kpi-stats-grid .stat-info .stat-label,
+  [data-theme="dark"] .stat-info .stat-label,
+  [data-theme="dark"] #finance-kpi-stats-grid .stat-label,
+  [data-theme="dark"] #finance-kpi-stats-grid .stat-info .stat-label {
     font-size: 7pt !important;
     color: #334155 !important;
     font-weight: 700 !important;
+    margin-top: 0 !important;
   }
 
   body:not(.printing-sheet) #doctors-breakdown-container {

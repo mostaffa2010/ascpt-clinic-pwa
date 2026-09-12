@@ -14,6 +14,7 @@ const APP_SHELL_ASSETS = [
   '/manifest.json',
   '/css/style.css?v=1.4.0',
   '/css/print.css',
+  '/css/print.css?v=1.4.0',
   '/icons/icon-192.png',
   '/icons/icon-512.png',
   '/assets/vendor/xlsx/xlsx.full.min.js',

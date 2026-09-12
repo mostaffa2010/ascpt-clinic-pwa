@@ -5216,6 +5216,8 @@ body::-webkit-scrollbar,
   box-shadow: var(--shadow-sm) !important;
 }
 
+/* --- 8. FINANCE VIEW: Modern KPI Metric Cards (Screen Only) --- */
+@media screen {
 /* --- 8. FINANCE VIEW: Modern KPI Metric Cards --- */
 #finance-kpi-stats-grid .stat-box {
   border-radius: 18px !important;
@@ -5262,6 +5264,7 @@ body::-webkit-scrollbar,
   height: 44px !important;
   border-radius: 14px !important;
   font-size: 1.2rem !important;
+}
 }
 
 /* ==========================================================================
