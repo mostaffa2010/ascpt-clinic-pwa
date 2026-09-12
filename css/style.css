@@ -98,7 +98,12 @@ body {
 
 /* ================= Top Bar (Mobile) ================= */
 .top-header {
-  height: var(--topbar-height);
+  height: calc(var(--topbar-height) + env(safe-area-inset-top, 0px));
+  padding-top: env(safe-area-inset-top, 0px);
+  padding-right: 16px;
+  padding-bottom: 0;
+  padding-left: 16px;
+  box-sizing: border-box;
   background-color: rgba(255, 255, 255, 0.88);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
@@ -106,7 +111,6 @@ body {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 16px;
   position: sticky;
   top: 0;
   z-index: 40;
@@ -3138,11 +3142,11 @@ body {
     padding: 12px 14px !important;
     margin-bottom: 10px !important;
     border-radius: var(--radius-lg) !important;
-    background: var(--bg-glass-card) !important;
-    backdrop-filter: var(--glass-blur) !important;
-    -webkit-backdrop-filter: var(--glass-blur) !important;
+    background: var(--bg-surface) !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
     border: 1px solid var(--glass-border) !important;
-    box-shadow: 0 4px 16px 0 rgba(0, 0, 0, 0.1) !important;
+    box-shadow: 0 4px 16px 0 rgba(0, 0, 0, 0.05) !important;
     position: relative !important;
     transition: transform 0.18s ease, box-shadow 0.18s ease !important;
   }
@@ -3259,11 +3263,11 @@ body {
     padding: 12px 14px !important;
     margin-bottom: 10px !important;
     border-radius: var(--radius-lg) !important;
-    background: var(--bg-glass-card) !important;
-    backdrop-filter: var(--glass-blur) !important;
-    -webkit-backdrop-filter: var(--glass-blur) !important;
+    background: var(--bg-surface) !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
     border: 1px solid var(--glass-border) !important;
-    box-shadow: 0 4px 16px 0 rgba(0, 0, 0, 0.1) !important;
+    box-shadow: 0 4px 16px 0 rgba(0, 0, 0, 0.05) !important;
     transition: transform 0.18s ease, box-shadow 0.18s ease !important;
   }
 
@@ -3363,11 +3367,11 @@ body {
     padding: 12px 14px !important;
     margin-bottom: 10px !important;
     border-radius: var(--radius-lg) !important;
-    background: var(--bg-glass-card) !important;
-    backdrop-filter: var(--glass-blur) !important;
-    -webkit-backdrop-filter: var(--glass-blur) !important;
+    background: var(--bg-surface) !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
     border: 1px solid var(--glass-border) !important;
-    box-shadow: 0 4px 16px 0 rgba(0, 0, 0, 0.1) !important;
+    box-shadow: 0 4px 16px 0 rgba(0, 0, 0, 0.05) !important;
     transition: transform 0.18s ease, box-shadow 0.18s ease !important;
   }
 
@@ -3776,9 +3780,9 @@ body {
 .appt-slot-card {
   padding: 16px 18px !important;
   border-radius: var(--radius-lg) !important;
-  background: var(--bg-glass-card) !important;
-  backdrop-filter: var(--glass-blur) !important;
-  -webkit-backdrop-filter: var(--glass-blur) !important;
+  background: var(--bg-surface) !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
   border: 1.5px solid var(--glass-border) !important;
   box-shadow: 0 4px 16px -2px rgba(15, 23, 42, 0.05), 0 2px 6px -1px rgba(15, 23, 42, 0.03) !important;
   transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.2s ease !important;
@@ -6627,4 +6631,12 @@ h1, h2, h3, h4, h5, h6 {
 
 [data-theme="dark"] .btn-quick-attend:hover {
   background: rgba(245, 158, 11, 0.25) !important;
+}
+
+/* ================= Mobile Performance: Optimize Heavy Glassmorphism on Budget Devices (v1.4.1) ================= */
+@media screen and (max-width: 767px) {
+  .card, .stat-box, .stat-card {
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+  }
 }
