@@ -847,7 +847,7 @@ table.appt-table th {
 
 .modal-content {
   background-color: var(--bg-surface);
-  border-radius: var(--radius-lg);
+  border-radius: 10px;
   max-width: 580px;
   width: 100%;
   max-height: 90vh;
@@ -865,45 +865,21 @@ table.appt-table th {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 16px 22px;
+  padding: 16px 20px;
   border-bottom: 1px solid var(--border-color);
 }
 
 .modal-header h3 {
   font-size: 1.15rem;
-  font-weight: 800;
-  color: var(--text-main);
-  display: inline-flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.modal-header h3 i {
-  color: var(--primary);
-  font-size: 1.1rem;
+  font-weight: 700;
 }
 
 .modal-close {
-  width: 34px;
-  height: 34px;
-  border-radius: 50%;
-  background-color: var(--bg-subtle);
-  border: 1px solid var(--border-color);
-  color: var(--text-muted);
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1.25rem;
-  line-height: 1;
+  background: none;
+  border: none;
+  font-size: 1.2rem;
   cursor: pointer;
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-  flex-shrink: 0;
-}
-
-.modal-close:hover, .modal-close:active {
-  background-color: var(--border-color);
-  color: var(--text-main);
-  transform: scale(0.95);
+  color: var(--text-muted);
 }
 
 .modal-body {
@@ -3071,6 +3047,12 @@ body.not-authenticated #modal-auth #btn-cancel-login {
   border-bottom: 1px solid var(--glass-border) !important;
 }
 
+.bottom-nav {
+  background: var(--bg-glass) !important;
+  backdrop-filter: var(--glass-blur) !important;
+  -webkit-backdrop-filter: var(--glass-blur) !important;
+  border-top: 1px solid var(--glass-border) !important;
+}
 
 .modal-content {
   background: #ffffff !important;
@@ -3084,6 +3066,12 @@ body.not-authenticated #modal-auth #btn-cancel-login {
   box-shadow: 0 20px 45px -10px rgba(0, 0, 0, 0.6) !important;
 }
 
+.quick-action-btn {
+  background: var(--bg-glass-card) !important;
+  backdrop-filter: var(--glass-blur) !important;
+  -webkit-backdrop-filter: var(--glass-blur) !important;
+  border: 1px solid var(--glass-border) !important;
+}
 
 /* Subtle background gradient for body to give depth to frosted glass */
 [data-theme="dark"] body {
@@ -3098,6 +3086,361 @@ body {
               radial-gradient(circle at 90% 85%, rgba(14, 165, 233, 0.05) 0%, transparent 45%),
               #f8fafc;
   background-attachment: fixed;
+}
+
+/* ========================================================
+   MOBILE SCREEN ENGINE (max-width: 767px)
+   Compact 3-Row Grid Architecture
+   ======================================================== */
+@media screen and (max-width: 767px) {
+  /* 1. Dissolve outer container borders and shadows to completely remove the 'grouped box' look */
+  #card-dashboard-recent,
+  #card-sessions-today,
+  #card-patients-directory,
+  .card:has(#dashboard-recent-table),
+  .card:has(#doctor-personal-table),
+  .card:has(#sessions-today-tbody),
+  .card:has(#patients-tbody) {
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+    margin-bottom: 12px !important;
+  }
+
+  #card-dashboard-recent .card-header,
+  #card-sessions-today .card-header,
+  #card-patients-directory .card-header {
+    padding: 4px 2px 10px 2px !important;
+    border-bottom: none !important;
+  }
+
+  #card-dashboard-recent .table-responsive,
+  #card-sessions-today .table-responsive,
+  #card-patients-directory .table-responsive,
+  .table-responsive:has(#dashboard-recent-table),
+  .table-responsive:has(#sessions-today-tbody),
+  .table-responsive:has(#patients-tbody) {
+    border: none !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    overflow: visible !important;
+    padding: 0 !important;
+  }
+
+  .data-table thead {
+    display: none !important;
+  }
+
+  /* 2. SESSIONS TODAY: COMPACT 3-ROW CARD ARCHITECTURE */
+  #sessions-today-tbody tr {
+    display: grid !important;
+    grid-template-columns: 1fr auto auto !important;
+    grid-template-rows: auto auto auto !important;
+    column-gap: 8px !important;
+    row-gap: 5px !important;
+    padding: 12px 14px !important;
+    margin-bottom: 10px !important;
+    border-radius: var(--radius-lg) !important;
+    background: var(--bg-surface) !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    border: 1px solid var(--glass-border) !important;
+    box-shadow: 0 4px 16px 0 rgba(0, 0, 0, 0.05) !important;
+    position: relative !important;
+    transition: transform 0.18s ease, box-shadow 0.18s ease !important;
+  }
+
+  #sessions-today-tbody tr:active {
+    transform: scale(0.98) !important;
+  }
+
+  /* Row 1: Patient Name (Right) vs Session Num Badge (Left) */
+  #sessions-today-tbody tr td:nth-child(1) {
+    grid-column: 1 / 2 !important;
+    grid-row: 1 / 2 !important;
+    font-size: 1.02rem !important;
+    font-weight: 800 !important;
+    color: var(--text-main) !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 6px !important;
+    padding: 0 !important;
+    border: none !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+  }
+
+  #sessions-today-tbody tr td:nth-child(2) {
+    grid-column: 2 / 4 !important;
+    grid-row: 1 / 2 !important;
+    justify-self: end !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 4px !important;
+    padding: 0 !important;
+    border: none !important;
+  }
+
+  /* Row 2: Doctor (Col 1) + Parts Badge (Col 2) + Amount (Col 3) */
+  #sessions-today-tbody tr td:nth-child(3) {
+    grid-column: 1 / 2 !important;
+    grid-row: 2 / 3 !important;
+    font-size: 0.8rem !important;
+    color: var(--text-muted) !important;
+    font-weight: 600 !important;
+    display: flex !important;
+    align-items: center !important;
+    padding: 0 !important;
+    border: none !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+  }
+  #sessions-today-tbody tr td:nth-child(3)::before {
+    content: 'طبيب: ' !important;
+    font-weight: 500 !important;
+  }
+
+  #sessions-today-tbody tr td:nth-child(4) {
+    display: none !important;
+  }
+
+  #sessions-today-tbody tr td:nth-child(5) {
+    grid-column: 2 / 3 !important;
+    grid-row: 2 / 3 !important;
+    justify-self: end !important;
+    display: flex !important;
+    align-items: center !important;
+    padding: 0 !important;
+    border: none !important;
+  }
+
+  #sessions-today-tbody tr td:nth-child(6) {
+    grid-column: 3 / 4 !important;
+    grid-row: 2 / 3 !important;
+    justify-self: end !important;
+    font-size: 1.15rem !important;
+    font-weight: 800 !important;
+    color: var(--success) !important;
+    padding: 0 !important;
+    border: none !important;
+    line-height: 1 !important;
+  }
+
+  /* Row 3: Recorded Time (Right) vs Action Buttons (Left) */
+  #sessions-today-tbody tr td:nth-child(7) {
+    grid-column: 1 / 2 !important;
+    grid-row: 3 / 4 !important;
+    font-size: 0.74rem !important;
+    color: var(--text-muted) !important;
+    display: flex !important;
+    align-items: center !important;
+    padding: 6px 0 0 0 !important;
+    border: none !important;
+    border-top: 1px dashed var(--border-color) !important;
+  }
+
+  #sessions-today-tbody tr td:nth-child(8) {
+    grid-column: 2 / 4 !important;
+    grid-row: 3 / 4 !important;
+    justify-self: end !important;
+    display: flex !important;
+    align-items: center !important;
+    padding: 6px 0 0 0 !important;
+    border: none !important;
+    border-top: 1px dashed var(--border-color) !important;
+  }
+
+  /* 3. RECENT SESSIONS ON DASHBOARD: COMPACT 3-ROW CARD */
+  #dashboard-recent-table tbody tr {
+    display: grid !important;
+    grid-template-columns: 1fr auto auto !important;
+    grid-template-rows: auto auto auto !important;
+    column-gap: 8px !important;
+    row-gap: 5px !important;
+    padding: 12px 14px !important;
+    margin-bottom: 10px !important;
+    border-radius: var(--radius-lg) !important;
+    background: var(--bg-surface) !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    border: 1px solid var(--glass-border) !important;
+    box-shadow: 0 4px 16px 0 rgba(0, 0, 0, 0.05) !important;
+    transition: transform 0.18s ease, box-shadow 0.18s ease !important;
+  }
+
+  #dashboard-recent-table tbody tr td:nth-child(1) {
+    grid-column: 1 / 2 !important;
+    grid-row: 1 / 2 !important;
+    font-size: 1.02rem !important;
+    font-weight: 800 !important;
+    color: var(--text-main) !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 6px !important;
+    padding: 0 !important;
+    border: none !important;
+  }
+
+  #dashboard-recent-table tbody tr td:nth-child(3) {
+    grid-column: 2 / 4 !important;
+    grid-row: 1 / 2 !important;
+    justify-self: end !important;
+    display: flex !important;
+    align-items: center !important;
+    padding: 0 !important;
+    border: none !important;
+  }
+
+  #dashboard-recent-table tbody tr td:nth-child(2) {
+    grid-column: 1 / 2 !important;
+    grid-row: 2 / 3 !important;
+    font-size: 0.8rem !important;
+    color: var(--text-muted) !important;
+    font-weight: 600 !important;
+    display: flex !important;
+    align-items: center !important;
+    padding: 0 !important;
+    border: none !important;
+  }
+  #dashboard-recent-table tbody tr td:nth-child(2)::before {
+    content: 'طبيب: ' !important;
+    font-weight: 500 !important;
+  }
+
+  #dashboard-recent-table tbody tr td:nth-child(4) {
+    grid-column: 2 / 3 !important;
+    grid-row: 2 / 3 !important;
+    justify-self: end !important;
+    display: flex !important;
+    align-items: center !important;
+    padding: 0 !important;
+    border: none !important;
+    font-size: 0.78rem !important;
+    color: var(--text-muted) !important;
+  }
+
+  #dashboard-recent-table tbody tr td:nth-child(5) {
+    grid-column: 3 / 4 !important;
+    grid-row: 2 / 3 !important;
+    justify-self: end !important;
+    font-size: 1.15rem !important;
+    font-weight: 800 !important;
+    color: var(--success) !important;
+    padding: 0 !important;
+    border: none !important;
+    line-height: 1 !important;
+  }
+
+  #dashboard-recent-table tbody tr td:nth-child(6) {
+    grid-column: 1 / 2 !important;
+    grid-row: 3 / 4 !important;
+    font-size: 0.74rem !important;
+    color: var(--text-muted) !important;
+    display: flex !important;
+    align-items: center !important;
+    padding: 6px 0 0 0 !important;
+    border: none !important;
+    border-top: 1px dashed var(--border-color) !important;
+  }
+
+  #dashboard-recent-table tbody tr td:nth-child(7) {
+    grid-column: 2 / 4 !important;
+    grid-row: 3 / 4 !important;
+    justify-self: end !important;
+    display: flex !important;
+    align-items: center !important;
+    padding: 6px 0 0 0 !important;
+    border: none !important;
+    border-top: 1px dashed var(--border-color) !important;
+  }
+
+  /* 4. PATIENT DIRECTORY: COMPACT 3-ROW CARD */
+  #patients-tbody tr {
+    display: grid !important;
+    grid-template-columns: 1fr auto !important;
+    grid-template-rows: auto auto auto !important;
+    column-gap: 8px !important;
+    row-gap: 6px !important;
+    padding: 12px 14px !important;
+    margin-bottom: 10px !important;
+    border-radius: var(--radius-lg) !important;
+    background: var(--bg-surface) !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    border: 1px solid var(--glass-border) !important;
+    box-shadow: 0 4px 16px 0 rgba(0, 0, 0, 0.05) !important;
+    transition: transform 0.18s ease, box-shadow 0.18s ease !important;
+  }
+
+  #patients-tbody tr td:nth-child(1) {
+    grid-column: 1 / 2 !important;
+    grid-row: 1 / 2 !important;
+    font-size: 1.02rem !important;
+    font-weight: 800 !important;
+    color: var(--primary) !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 6px !important;
+    padding: 0 !important;
+    border: none !important;
+  }
+
+  #patients-tbody tr td:nth-child(6) {
+    grid-column: 2 / 3 !important;
+    grid-row: 1 / 2 !important;
+    justify-self: end !important;
+    display: flex !important;
+    align-items: center !important;
+    padding: 0 !important;
+    border: none !important;
+  }
+
+  #patients-tbody tr td:nth-child(3) {
+    grid-column: 1 / 2 !important;
+    grid-row: 2 / 3 !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 6px !important;
+    padding: 0 !important;
+    border: none !important;
+    font-size: 0.86rem !important;
+  }
+
+  #patients-tbody tr td:nth-child(2) {
+    grid-column: 2 / 3 !important;
+    grid-row: 2 / 3 !important;
+    justify-self: end !important;
+    font-size: 0.82rem !important;
+    color: var(--text-muted) !important;
+    font-weight: 700 !important;
+    padding: 0 !important;
+    border: none !important;
+  }
+
+  #patients-tbody tr td:nth-child(4),
+  #patients-tbody tr td:nth-child(5),
+  #patients-tbody tr td:nth-child(7) {
+    display: none !important;
+  }
+
+  #patients-tbody tr td:nth-child(8) {
+    grid-column: 1 / 3 !important;
+    grid-row: 3 / 4 !important;
+    border-top: 1px dashed var(--border-color) !important;
+    padding: 8px 0 0 0 !important;
+    border-bottom: none !important;
+  }
+
+  #patients-tbody tr td:nth-child(8) > div {
+    display: flex !important;
+    gap: 6px !important;
+    align-items: center !important;
+    flex-wrap: wrap !important;
+    justify-content: flex-end !important;
+  }
 }
 
 /* ========================================================
@@ -3122,24 +3465,13 @@ body {
     width: 100% !important;
   }
 
-  /* Unified Mobile Card Containers Unwrap (Eliminates Nested Borders Across All Views) */
+  /* Reset outer box styling on mobile */
   #card-dashboard-recent,
   #card-sessions-today,
   #card-patients-directory,
   #card-doctor-personal-sessions,
   #card-doctor-appointments-schedule,
-  #card-main-appointments-schedule,
-  #card-finance-report-sessions,
-  #card-finance-daily-expenses,
-  #card-finance-daily-doctors,
-  #card-monthly-doctors,
-  #card-monthly-insurance,
-  #card-monthly-expenses,
-  #card-monthly-settlements,
-  #claims-ledger-card,
-  #card-admin-users,
-  #card-admin-audit,
-  #card-admin-backup {
+  #card-main-appointments-schedule {
     background: transparent !important;
     border: none !important;
     box-shadow: none !important;
@@ -3152,18 +3484,7 @@ body {
   #card-patients-directory .card-header,
   #card-doctor-personal-sessions .card-header,
   #card-doctor-appointments-schedule .card-header,
-  #card-main-appointments-schedule .card-header,
-  #card-finance-report-sessions .card-header,
-  #card-finance-daily-expenses .card-header,
-  #card-finance-daily-doctors .card-header,
-  #card-monthly-doctors .card-header,
-  #card-monthly-insurance .card-header,
-  #card-monthly-expenses .card-header,
-  #card-monthly-settlements .card-header,
-  #claims-ledger-card .card-header,
-  #card-admin-users .card-header,
-  #card-admin-audit .card-header,
-  #card-admin-backup .card-header {
+  #card-main-appointments-schedule .card-header {
     padding: 4px 2px 12px 2px !important;
     border-bottom: none !important;
     background: transparent !important;
@@ -3833,7 +4154,70 @@ body {
   }
 }
 
-/* Modal Header & Close Button styles unified into base Modal architecture */
+/* 2. Modal Header & Close Button (Tactile Circular Button) */
+.modal-header {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  padding: 16px 22px !important;
+  border-bottom: 1px solid #f1f5f9 !important;
+}
+
+[data-theme="dark"] .modal-header {
+  border-bottom: 1px solid #334155 !important;
+}
+
+.modal-header h3 {
+  font-size: 1.15rem !important;
+  font-weight: 800 !important;
+  color: #0f172a !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 10px !important;
+}
+
+[data-theme="dark"] .modal-header h3 {
+  color: #f8fafc !important;
+}
+
+.modal-header h3 i {
+  color: var(--primary) !important;
+  font-size: 1.1rem !important;
+}
+
+.modal-close {
+  width: 34px !important;
+  height: 34px !important;
+  border-radius: 50% !important;
+  background-color: #f1f5f9 !important;
+  border: 1px solid #e2e8f0 !important;
+  color: #64748b !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  font-size: 1.25rem !important;
+  line-height: 1 !important;
+  cursor: pointer !important;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  flex-shrink: 0 !important;
+}
+
+.modal-close:hover, .modal-close:active {
+  background-color: #e2e8f0 !important;
+  color: #0f172a !important;
+  transform: scale(0.95);
+}
+
+[data-theme="dark"] .modal-close {
+  background-color: #334155 !important;
+  border-color: #475569 !important;
+  color: #cbd5e1 !important;
+}
+
+[data-theme="dark"] .modal-close:hover, [data-theme="dark"] .modal-close:active {
+  background-color: #475569 !important;
+  color: #ffffff !important;
+}
 
 /* 3. Custom Picker Rows (Dropdown Replacement Modal) */
 .custom-picker-options-list {
@@ -4566,52 +4950,52 @@ body::-webkit-scrollbar,
 
 /* --- 1. SESSIONS VIEW: Mode Switcher --- */
 .session-mode-switcher {
-  display: flex;
-  background: var(--bg-subtle);
-  border-radius: 16px;
-  padding: 5px;
-  gap: 6px;
-  width: 100%;
-  border: 1.5px solid var(--border-color);
-  box-sizing: border-box;
+  display: flex !important;
+  background: var(--bg-subtle) !important;
+  border-radius: 16px !important;
+  padding: 5px !important;
+  gap: 6px !important;
+  width: 100% !important;
+  border: 1.5px solid var(--border-color) !important;
+  box-sizing: border-box !important;
 }
 
 .session-mode-btn {
-  flex: 1;
-  padding: 10px 14px;
-  border: none;
-  border-radius: 12px;
-  font-weight: 800;
-  font-size: 0.92rem;
-  cursor: pointer;
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
+  flex: 1 !important;
+  padding: 10px 14px !important;
+  border: none !important;
+  border-radius: 12px !important;
+  font-weight: 800 !important;
+  font-size: 0.92rem !important;
+  cursor: pointer !important;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 8px !important;
 }
 
 :root:not([data-theme="dark"]) .session-mode-btn.active {
-  background: #ffffff;
-  color: #0284c7;
-  box-shadow: 0 3px 12px rgba(15, 23, 42, 0.08);
+  background: #ffffff !important;
+  color: #0284c7 !important;
+  box-shadow: 0 3px 12px rgba(15, 23, 42, 0.08) !important;
 }
 
 :root:not([data-theme="dark"]) .session-mode-btn:not(.active) {
-  background: transparent;
-  color: #64748b;
+  background: transparent !important;
+  color: #64748b !important;
 }
 
 [data-theme="dark"] .session-mode-btn.active {
-  background: #1e293b;
-  color: #38bdf8;
-  border: 1px solid rgba(56, 189, 248, 0.3);
-  box-shadow: 0 3px 12px rgba(0, 0, 0, 0.4);
+  background: #1e293b !important;
+  color: #38bdf8 !important;
+  border: 1px solid rgba(56, 189, 248, 0.3) !important;
+  box-shadow: 0 3px 12px rgba(0, 0, 0, 0.4) !important;
 }
 
 [data-theme="dark"] .session-mode-btn:not(.active) {
-  background: transparent;
-  color: #94a3b8;
+  background: transparent !important;
+  color: #94a3b8 !important;
 }
 
 /* --- 2. SESSIONS VIEW: Patient Picker Interactive Card --- */
@@ -4734,43 +5118,43 @@ body::-webkit-scrollbar,
 /* --- 5. FINANCE VIEW: Top Actions Mobile Grid & Pills --- */
 @media screen and (max-width: 767px) {
   #finance-top-actions {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 8px;
-    width: 100%;
-    margin-top: 10px;
+    display: grid !important;
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 8px !important;
+    width: 100% !important;
+    margin-top: 10px !important;
   }
 
   #finance-top-actions .btn {
-    height: 42px;
-    padding: 0 10px;
-    font-size: 0.82rem;
-    border-radius: 12px;
-    justify-content: center;
-    white-space: nowrap;
+    height: 42px !important;
+    padding: 0 10px !important;
+    font-size: 0.82rem !important;
+    border-radius: 12px !important;
+    justify-content: center !important;
+    white-space: nowrap !important;
   }
 }
 
 #btn-add-expense {
-  background: rgba(239, 68, 68, 0.08);
-  border-color: rgba(239, 68, 68, 0.3);
-  color: #ef4444;
+  background: rgba(239, 68, 68, 0.08) !important;
+  border-color: rgba(239, 68, 68, 0.3) !important;
+  color: #ef4444 !important;
 }
 
 #btn-add-expense:hover, #btn-add-expense:active {
-  background: #ef4444;
-  color: #ffffff;
+  background: #ef4444 !important;
+  color: #ffffff !important;
 }
 
 #btn-add-settlement {
-  background: rgba(2, 132, 199, 0.08);
-  border-color: rgba(2, 132, 199, 0.3);
-  color: #0284c7;
+  background: rgba(2, 132, 199, 0.08) !important;
+  border-color: rgba(2, 132, 199, 0.3) !important;
+  color: #0284c7 !important;
 }
 
 #btn-add-settlement:hover, #btn-add-settlement:active {
-  background: #0284c7;
-  color: #ffffff;
+  background: #0284c7 !important;
+  color: #ffffff !important;
 }
 
 /* --- 6. FINANCE VIEW: Mode Segmented Control --- */
@@ -5068,26 +5452,26 @@ body::-webkit-scrollbar,
 /* 2. Claims Action Toolbar in Insurance Claims (Screenshot 21) */
 @media screen and (max-width: 767px) {
   .claim-actions-toolbar {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 8px;
-    width: 100%;
-    margin-top: 10px;
+    display: grid !important;
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 8px !important;
+    width: 100% !important;
+    margin-top: 10px !important;
   }
 
   .claim-actions-toolbar .btn {
-    height: 38px;
-    padding: 0 8px;
-    font-size: 0.78rem;
-    border-radius: 12px;
-    justify-content: center;
-    white-space: nowrap;
+    height: 38px !important;
+    padding: 0 8px !important;
+    font-size: 0.78rem !important;
+    border-radius: 12px !important;
+    justify-content: center !important;
+    white-space: nowrap !important;
   }
 
   .claim-actions-toolbar #btn-print-claim-statement {
-    grid-column: span 2;
-    height: 42px;
-    font-size: 0.85rem;
+    grid-column: span 2 !important;
+    height: 42px !important;
+    font-size: 0.85rem !important;
   }
 }
 
@@ -5126,7 +5510,36 @@ body::-webkit-scrollbar,
   }
 }
 
-/* Financial parent cards unwrap consolidated into main mobile engine */
+/* 2. Unwrap all financial table parent cards on mobile (Eliminates side border lines!) */
+@media screen and (max-width: 767px) {
+  #card-finance-report-sessions,
+  #card-finance-daily-expenses,
+  #card-finance-daily-doctors,
+  #card-monthly-doctors,
+  #card-monthly-insurance,
+  #card-monthly-expenses,
+  #card-monthly-settlements,
+  #claims-ledger-card {
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+    margin-bottom: 16px !important;
+  }
+
+  #card-finance-report-sessions .card-header,
+  #card-finance-daily-expenses .card-header,
+  #card-finance-daily-doctors .card-header,
+  #card-monthly-doctors .card-header,
+  #card-monthly-insurance .card-header,
+  #card-monthly-expenses .card-header,
+  #card-monthly-settlements .card-header,
+  #claims-ledger-card .card-header {
+    padding: 4px 2px 10px 2px !important;
+    border-bottom: none !important;
+    background: transparent !important;
+  }
+}
 
 
 /* ==========================================================================
@@ -5635,9 +6048,9 @@ body::-webkit-scrollbar,
 }
 
 .hero-admin-banner .hero-greeting-pill {
-  background: rgba(255, 255, 255, 0.18);
-  color: #ffffff;
-  border: 1px solid rgba(255, 255, 255, 0.25);
+  background: rgba(255, 255, 255, 0.18) !important;
+  color: #ffffff !important;
+  border: 1px solid rgba(255, 255, 255, 0.25) !important;
 }
 
 .hero-admin-banner .hero-date-chip {
@@ -5818,7 +6231,32 @@ body::-webkit-scrollbar,
     scrollbar-color: rgba(56, 189, 248, 0.4) transparent !important;
   }
 
+  /* Custom Slim WebKit Scrollbar for Mobile Touch Feedback */
+  #sessions-today-mobile-cards::-webkit-scrollbar,
+  #patients-mobile-cards::-webkit-scrollbar,
+  #doctor-personal-mobile-cards::-webkit-scrollbar,
+  #finance-report-mobile-cards::-webkit-scrollbar,
+  #dashboard-recent-mobile-cards::-webkit-scrollbar {
+    width: 4px !important;
+    display: block !important;
+  }
 
+  #sessions-today-mobile-cards::-webkit-scrollbar-thumb,
+  #patients-mobile-cards::-webkit-scrollbar-thumb,
+  #doctor-personal-mobile-cards::-webkit-scrollbar-thumb,
+  #finance-report-mobile-cards::-webkit-scrollbar-thumb,
+  #dashboard-recent-mobile-cards::-webkit-scrollbar-thumb {
+    background-color: rgba(2, 132, 199, 0.35) !important;
+    border-radius: 999px !important;
+  }
+
+  [data-theme="dark"] #sessions-today-mobile-cards::-webkit-scrollbar-thumb,
+  [data-theme="dark"] #patients-mobile-cards::-webkit-scrollbar-thumb,
+  [data-theme="dark"] #doctor-personal-mobile-cards::-webkit-scrollbar-thumb,
+  [data-theme="dark"] #finance-report-mobile-cards::-webkit-scrollbar-thumb,
+  [data-theme="dark"] #dashboard-recent-mobile-cards::-webkit-scrollbar-thumb {
+    background-color: rgba(56, 189, 248, 0.4) !important;
+  }
 }
 
 /* ==========================================================================
@@ -5915,53 +6353,53 @@ h1, h2, h3, h4, h5, h6 {
 /* 1. Unified Quick Date Toggle Buttons (اليوم / أمس) Across All Views */
 .btn-quick-date,
 .date-strip-pill {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 34px;
-  height: 34px;
-  padding: 0 16px;
-  border-radius: 999px;
-  border: 1.5px solid var(--border-color);
-  background: var(--bg-surface);
-  color: var(--text-main);
-  font-size: 0.82rem;
-  font-weight: 700;
-  cursor: pointer;
-  white-space: nowrap;
-  box-sizing: border-box;
-  flex-shrink: 0;
-  transition: all 0.18s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04);
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  min-height: 34px !important;
+  height: 34px !important;
+  padding: 0 16px !important;
+  border-radius: 999px !important;
+  border: 1.5px solid var(--border-color) !important;
+  background: var(--bg-surface) !important;
+  color: var(--text-main) !important;
+  font-size: 0.82rem !important;
+  font-weight: 700 !important;
+  cursor: pointer !important;
+  white-space: nowrap !important;
+  box-sizing: border-box !important;
+  flex-shrink: 0 !important;
+  transition: all 0.18s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04) !important;
 }
 
 .btn-quick-date:hover,
 .date-strip-pill:hover {
-  border-color: var(--primary);
-  color: var(--primary);
+  border-color: var(--primary) !important;
+  color: var(--primary) !important;
 }
 
 .btn-quick-date.active,
 .date-strip-pill.active {
-  background: var(--primary);
-  color: #ffffff;
-  border-color: var(--primary);
-  box-shadow: 0 2px 8px rgba(2, 132, 199, 0.3);
+  background: var(--primary) !important;
+  color: #ffffff !important;
+  border-color: var(--primary) !important;
+  box-shadow: 0 2px 8px rgba(2, 132, 199, 0.3) !important;
 }
 
 [data-theme="dark"] .btn-quick-date,
 [data-theme="dark"] .date-strip-pill {
-  background: #1e293b;
-  border-color: #334155;
-  color: #f1f5f9;
+  background: #1e293b !important;
+  border-color: #334155 !important;
+  color: #f1f5f9 !important;
 }
 
 [data-theme="dark"] .btn-quick-date.active,
 [data-theme="dark"] .date-strip-pill.active {
-  background: var(--primary);
-  color: #0f172a;
-  border-color: var(--primary);
-  box-shadow: 0 2px 8px rgba(56, 189, 248, 0.35);
+  background: var(--primary) !important;
+  color: #0f172a !important;
+  border-color: var(--primary) !important;
+  box-shadow: 0 2px 8px rgba(56, 189, 248, 0.35) !important;
 }
 
 .horizontal-date-strip {
@@ -6045,21 +6483,21 @@ h1, h2, h3, h4, h5, h6 {
 /* 2. Quick Access Grid Mobile Safeguards */
 @media screen and (max-width: 480px) {
   .quick-access-items {
-    grid-template-columns: repeat(4, 1fr);
-    gap: 6px;
+    grid-template-columns: repeat(4, 1fr) !important;
+    gap: 6px !important;
   }
   .quick-action-btn {
-    padding: 10px 4px;
-    gap: 5px;
+    padding: 10px 4px !important;
+    gap: 5px !important;
   }
   .quick-action-icon {
-    width: 38px;
-    height: 38px;
-    font-size: 0.95rem;
+    width: 38px !important;
+    height: 38px !important;
+    font-size: 0.95rem !important;
   }
   .quick-action-label {
-    font-size: 0.72rem;
-    white-space: nowrap;
+    font-size: 0.72rem !important;
+    white-space: nowrap !important;
   }
 }
 
