@@ -777,9 +777,9 @@ export class PatientsManager {
           <div class="hero-styled-card hero-patient-card ${genderClass} ${rowHighlightClass}" style="padding: 11px 13px; margin-bottom: 10px; border-radius: 14px;">
             <!-- Row 1: Identity (Right) & Action Hub (Left) -->
             <div style="display: flex; align-items: flex-start; justify-content: space-between; gap: 8px;">
-              <!-- Right Info: Avatar, Name, Gender/Age, Doctor Badge -->
+              <!-- Right Info: Avatar, Name, Gender/Age, Doctor Badge (No Phone Number) -->
               <div style="display: flex; align-items: center; gap: 10px; min-width: 0; flex: 1;">
-                <div class="hsc-avatar patient-avatar" style="width: 38px; height: 38px; font-size: 1.15rem; flex-shrink: 0; border-radius: 50%;">
+                <div class="hsc-avatar patient-avatar" style="width: 40px; height: 40px; font-size: 1.2rem; flex-shrink: 0; border-radius: 50%;">
                   <i class="${avatarIcon}"></i>
                 </div>
                 <div style="display: flex; flex-direction: column; gap: 3px; min-width: 0;">
@@ -793,22 +793,19 @@ export class PatientsManager {
                     <span class="patient-doc-badge" style="font-size: 0.74rem; padding: 2px 8px;">
                       <i class="fa-solid fa-user-doctor"></i> د. ${escapeHTML(cleanDocName)}
                     </span>
-                    <a href="tel:${safePhone}" class="hsc-meta-link" style="font-size: 0.74rem; gap: 4px; white-space: nowrap; font-weight: 700;" title="اتصال هاتفي">
-                      <i class="fa-solid fa-phone" style="font-size: 0.70rem;"></i> <bdi dir="ltr">${safePhone}</bdi>
-                    </a>
                   </div>
                 </div>
               </div>
 
-              <!-- Left Action Hub: Insurance Badge on Top, Quick Actions Below -->
-              <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 5px; flex-shrink: 0;">
+              <!-- Left Action Hub: Insurance Badge on Top, Matched Actions Below -->
+              <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 6px; flex-shrink: 0;">
                 <div>${billingBadge}</div>
-                <div style="display: flex; align-items: center; gap: 4px;">
-                  <button type="button" class="btn btn-outline btn-sm btn-quick-attend" onclick="patientsManager.quickLogSession('${safeId}')" title="تسجيل جلسة سريعة لهذا المريض">
+                <div style="display: flex; align-items: center; gap: 5px;">
+                  <button type="button" class="btn btn-quick-attend" onclick="patientsManager.quickLogSession('${safeId}')" title="تسجيل جلسة سريعة لهذا المريض">
                     <i class="fa-solid fa-bolt"></i> <span>جلسة</span>
                   </button>
                   ${canAccessSheet ? `
-                    <button type="button" class="btn btn-primary btn-sm btn-hero-sheet btn-patient-sheet-action" onclick="patientsManager.openPatientSheet('${safeId}')" style="padding: 3px 10px; font-size: 0.74rem; border-radius: 999px; gap: 3px;" title="فتح الشيت الطبي">
+                    <button type="button" class="btn btn-hero-sheet btn-patient-sheet-action" onclick="patientsManager.openPatientSheet('${safeId}')" title="فتح الشيت الطبي">
                       <i class="fa-solid fa-file-waveform"></i> <span>الشيت</span>
                     </button>
                   ` : ''}

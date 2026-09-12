@@ -7857,3 +7857,66 @@ h1, h2, h3, h4, h5, h6 {
   color: #f472b6 !important;
   border: 1.5px solid rgba(244, 114, 182, 0.45) !important;
 }
+
+/* Twin Matched Action Buttons in Mobile Patient Directory: Quick Session & Clinical Sheet */
+.hero-patient-card .btn-quick-attend,
+.hero-patient-card .btn-hero-sheet {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 4px !important;
+  font-size: 0.76rem !important;
+  font-weight: 800 !important;
+  padding: 4px 10px !important;
+  border-radius: 8px !important;
+  height: 30px !important;
+  line-height: 1 !important;
+  white-space: nowrap !important;
+  transition: all 0.18s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  cursor: pointer !important;
+  box-shadow: none !important;
+}
+
+/* Quick Session Button (Amber outline identity) */
+.hero-patient-card .btn-quick-attend {
+  background: rgba(245, 158, 11, 0.08) !important;
+  border: 1.5px solid rgba(245, 158, 11, 0.4) !important;
+  color: #d97706 !important;
+}
+.hero-patient-card .btn-quick-attend:hover,
+.hero-patient-card .btn-quick-attend:active {
+  background: rgba(245, 158, 11, 0.22) !important;
+  border-color: #f59e0b !important;
+  transform: translateY(-1px);
+}
+[data-theme="dark"] .hero-patient-card .btn-quick-attend {
+  background: rgba(245, 158, 11, 0.15) !important;
+  color: #fbbf24 !important;
+  border-color: rgba(251, 191, 36, 0.35) !important;
+}
+[data-theme="dark"] .hero-patient-card .btn-quick-attend:hover {
+  background: rgba(245, 158, 11, 0.25) !important;
+  border-color: #fbbf24 !important;
+}
+
+/* Sheet Button (Matching geometry, Primary Blue outline identity) */
+.hero-patient-card .btn-hero-sheet {
+  background: rgba(2, 132, 199, 0.08) !important;
+  border: 1.5px solid rgba(2, 132, 199, 0.4) !important;
+  color: var(--primary) !important;
+}
+.hero-patient-card .btn-hero-sheet:hover,
+.hero-patient-card .btn-hero-sheet:active {
+  background: rgba(2, 132, 199, 0.18) !important;
+  border-color: var(--primary) !important;
+  transform: translateY(-1px);
+}
+[data-theme="dark"] .hero-patient-card .btn-hero-sheet {
+  background: rgba(56, 189, 248, 0.15) !important;
+  color: #38bdf8 !important;
+  border-color: rgba(56, 189, 248, 0.35) !important;
+}
+[data-theme="dark"] .hero-patient-card .btn-hero-sheet:hover {
+  background: rgba(56, 189, 248, 0.25) !important;
+  border-color: #38bdf8 !important;
+}
