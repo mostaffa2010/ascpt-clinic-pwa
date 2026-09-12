@@ -586,20 +586,57 @@ export class PatientsManager {
         document.getElementById('btn-reset-today-filter')?.addEventListener('click', () => this.toggleTodayFilter());
         return;
       }
-      const emptySearchCard = `
-        <div class="hero-styled-card" style="text-align: center; padding: 36px 20px;">
-          <div style="width: 56px; height: 56px; border-radius: 50%; background: rgba(2, 132, 199, 0.12); color: var(--primary); display: inline-flex; align-items: center; justify-content: center; font-size: 1.4rem; margin-bottom: 12px;">
-            <i class="fa-solid fa-magnifying-glass"></i>
+
+      if (rawSearch) {
+        const emptySearchCard = `
+          <div class="hero-styled-card" style="text-align: center; padding: 36px 20px;">
+            <div style="width: 56px; height: 56px; border-radius: 50%; background: rgba(2, 132, 199, 0.12); color: var(--primary); display: inline-flex; align-items: center; justify-content: center; font-size: 1.4rem; margin-bottom: 12px;">
+              <i class="fa-solid fa-magnifying-glass"></i>
+            </div>
+            <div style="font-weight: 800; font-size: 1.05rem; color: var(--text-main);">لا توجد نتائج مطابقة</div>
+            <div style="font-size: 0.84rem; color: var(--text-muted); margin-top: 5px; margin-bottom: 16px;">لم يتم العثور على مريض مطابق لكلمة: <strong>"${escapeHTML(rawSearch)}"</strong></div>
+            <button type="button" class="btn btn-primary btn-sm" onclick="patientsManager.openAddModal()" style="display: inline-flex; align-items: center; gap: 8px; border-radius: 999px; padding: 8px 20px; font-weight: 700;">
+              <i class="fa-solid fa-user-plus"></i> <span>تسجيل مريض جديد الآن</span>
+            </button>
           </div>
-          <div style="font-weight: 800; font-size: 1.05rem; color: var(--text-main);">لا توجد نتائج مطابقة</div>
-          <div style="font-size: 0.84rem; color: var(--text-muted); margin-top: 5px; margin-bottom: 16px;">لم يتم العثور على مريض مطابق لكلمة: <strong>"${escapeHTML(rawSearch)}"</strong></div>
+        `;
+        tbody.innerHTML = `<tr><td colspan="8" style="text-align: center; color: var(--text-muted); padding: 30px;">لا يوجد مرضى مطابقين لكلمة البحث: <strong>"${escapeHTML(rawSearch)}"</strong></td></tr>`;
+        if (mobileContainer) mobileContainer.innerHTML = emptySearchCard;
+        return;
+      }
+
+      if (filterType !== 'all') {
+        const emptyFilterCard = `
+          <div class="hero-styled-card" style="text-align: center; padding: 36px 20px;">
+            <div style="width: 56px; height: 56px; border-radius: 50%; background: rgba(2, 132, 199, 0.12); color: var(--primary); display: inline-flex; align-items: center; justify-content: center; font-size: 1.4rem; margin-bottom: 12px;">
+              <i class="fa-solid fa-filter"></i>
+            </div>
+            <div style="font-weight: 800; font-size: 1.05rem; color: var(--text-main);">لا توجد حالات بهذا النظام</div>
+            <div style="font-size: 0.84rem; color: var(--text-muted); margin-top: 5px; margin-bottom: 16px;">لم يتم العثور على أي مريض مسجل بهذا النظام حالياً.</div>
+            <button type="button" class="btn btn-primary btn-sm" onclick="patientsManager.openAddModal()" style="display: inline-flex; align-items: center; gap: 8px; border-radius: 999px; padding: 8px 20px; font-weight: 700;">
+              <i class="fa-solid fa-user-plus"></i> <span>تسجيل مريض جديد الآن</span>
+            </button>
+          </div>
+        `;
+        tbody.innerHTML = `<tr><td colspan="8" style="text-align: center; color: var(--text-muted); padding: 30px;">لا توجد حالات مسجلة بهذا النظام.</td></tr>`;
+        if (mobileContainer) mobileContainer.innerHTML = emptyFilterCard;
+        return;
+      }
+
+      const emptyAllCard = `
+        <div class="hero-styled-card" style="text-align: center; padding: 36px 20px;">
+          <div style="width: 56px; height: 56px; border-radius: 50%; background: var(--primary-light); color: var(--primary); display: inline-flex; align-items: center; justify-content: center; font-size: 1.4rem; margin-bottom: 12px;">
+            <i class="fa-solid fa-users"></i>
+          </div>
+          <div style="font-weight: 800; font-size: 1.05rem; color: var(--text-main);">سجل المرضى فارغ</div>
+          <div style="font-size: 0.84rem; color: var(--text-muted); margin-top: 5px; margin-bottom: 16px;">لم يتم تسجيل أي مرضى بعد. ابدأ بإضافة أول مريض في المركز.</div>
           <button type="button" class="btn btn-primary btn-sm" onclick="patientsManager.openAddModal()" style="display: inline-flex; align-items: center; gap: 8px; border-radius: 999px; padding: 8px 20px; font-weight: 700;">
             <i class="fa-solid fa-user-plus"></i> <span>تسجيل مريض جديد الآن</span>
           </button>
         </div>
       `;
-      tbody.innerHTML = `<tr><td colspan="8" style="text-align: center; color: var(--text-muted); padding: 30px;">لا يوجد مرضى مطابقين لكلمة البحث: <strong>"${escapeHTML(rawSearch)}"</strong></td></tr>`;
-      if (mobileContainer) mobileContainer.innerHTML = emptySearchCard;
+      tbody.innerHTML = `<tr><td colspan="8" style="text-align: center; color: var(--text-muted); padding: 30px;">سجل المرضى فارغ.</td></tr>`;
+      if (mobileContainer) mobileContainer.innerHTML = emptyAllCard;
       return;
     }
 
@@ -692,6 +729,8 @@ export class PatientsManager {
       const hasMorePatients = filtered.length > pageLimit;
 
       mobileContainer.innerHTML = visiblePatients.map(p => {
+        const isNewlyAdded = Boolean(p.id && p.id === this.newlyAddedPatientId);
+        const rowHighlightClass = isNewlyAdded ? 'patient-row-newly-added' : '';
         let billingBadge = '';
         const safeComp = escapeHTML(p.insuranceCompany || 'تأمين');
         const approvedVisits = p.approvedSessions || 12;

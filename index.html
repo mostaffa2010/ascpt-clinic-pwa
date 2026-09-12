@@ -47,8 +47,8 @@
   
 
     <!-- Stylesheets -->
-  <link rel="stylesheet" href="css/style.css?v=1.4.29" media="screen">
-  <link rel="stylesheet" href="css/print.css?v=1.4.29" media="print">
+  <link rel="stylesheet" href="css/style.css?v=1.4.30" media="screen">
+  <link rel="stylesheet" href="css/print.css?v=1.4.30" media="print">
 </head>
 <body>
   <script>
@@ -403,63 +403,68 @@
 
       <!-- ================= View 2: Patients Directory ================= -->
       <section id="view-patients" class="view-section">
-        <div style="margin-bottom: 16px;">
-          <h2 style="font-size: 1.35rem; font-weight: 800;">سجل المرضى</h2>
-          <p style="font-size: 0.85rem; color: var(--text-muted);">إدارة ملفات المرضى المسجلين والجدد والبحث السريع في السجلات</p>
+        <div style="margin-bottom: 14px;">
+          <div style="display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap;">
+            <h2 style="font-size: 1.35rem; font-weight: 800; display: flex; align-items: center; gap: 8px; margin: 0;">
+              <span>سجل المرضى</span>
+              <span class="badge" id="patients-total-count-badge" style="font-size: 0.78rem; font-weight: 800; padding: 2px 8px; border-radius: 999px;">0 مريض</span>
+            </h2>
+          </div>
+          <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: 3px;">إدارة ملفات المرضى المسجلين والجدد والبحث السريع في السجلات</p>
         </div>
 
         <!-- Unified Search, Filter & New Patient Toolbar (Perfect on Desktop & Mobile) -->
-        <div class="card" style="padding: 12px 16px; margin-bottom: 16px;">
-          <div style="display: flex; gap: 12px; flex-wrap: wrap; align-items: center; justify-content: space-between;">
-            <!-- Search Box -->
-            <div style="flex: 1; min-width: 260px; position: relative;">
+        <div class="card" style="padding: 12px 14px; margin-bottom: 14px;">
+          <div style="display: flex; flex-direction: column; gap: 10px; width: 100%;">
+            <!-- Row 1: Search Box -->
+            <div style="width: 100%; position: relative;">
               <input type="text" id="patient-search-input" class="form-control" placeholder="ابحث بالاسم، رقم الموبايل، أو جهة التأمين..." style="padding-right: 38px; height: 42px; font-size: 0.9rem;">
               <i class="fa-solid fa-magnifying-glass input-icon-end"></i>
             </div>
 
-            <!-- Filter Dropdown -->
-            <div style="min-width: 170px;">
-              <div class="custom-select-wrapper">
-                <select id="patient-filter-type" class="form-control d-none">
-                  <option value="all">كل الأنظمة</option>
-                  <option value="cash">نقدي فقط</option>
-                  <option value="insurance_direct">تأمين (مباشر)</option>
-                  <option value="insurance_indirect">تأمين (غير مباشر)</option>
-                </select>
-                <button type="button" class="custom-select-btn" id="btn-select-patient-filter-type" data-open-picker="patient-filter-type" data-picker-title="تصفية سجل المرضى" style="height: 42px;">
-                  <span class="btn-text">كل الأنظمة</span>
-                  <i class="fa-solid fa-chevron-down"></i>
-                </button>
+            <!-- Row 2: Filter Dropdown & Filter Today Patients -->
+            <div style="display: flex; gap: 8px; width: 100%; align-items: center;">
+              <!-- Filter Dropdown -->
+              <div style="flex: 1; min-width: 0;">
+                <div class="custom-select-wrapper">
+                  <select id="patient-filter-type" class="form-control d-none">
+                    <option value="all">كل الأنظمة</option>
+                    <option value="cash">نقدي فقط</option>
+                    <option value="insurance_direct">تأمين (مباشر)</option>
+                    <option value="insurance_indirect">تأمين (غير مباشر)</option>
+                  </select>
+                  <button type="button" class="custom-select-btn" id="btn-select-patient-filter-type" data-open-picker="patient-filter-type" data-picker-title="تصفية سجل المرضى" style="height: 40px; width: 100%; justify-content: space-between;">
+                    <span class="btn-text">كل الأنظمة</span>
+                    <i class="fa-solid fa-chevron-down"></i>
+                  </button>
+                </div>
               </div>
+
+              <!-- Filter Today Patients Button -->
+              <button type="button" class="btn btn-outline" id="btn-filter-today-patients" style="flex: 1; min-width: 0; height: 40px; padding: 0 10px; font-weight: 700; white-space: nowrap; display: inline-flex; align-items: center; justify-content: center; gap: 6px;" title="عرض مرضى مواعيد وجلسات اليوم فقط">
+                <i class="fa-solid fa-calendar-day"></i>
+                <span>حالات اليوم</span>
+                <span class="badge" id="badge-today-patients-count" style="font-size: 0.75rem; padding: 2px 7px; border-radius: 12px;">0</span>
+              </button>
             </div>
 
-            <!-- Filter Today Patients Button -->
-            <button type="button" class="btn btn-outline" id="btn-filter-today-patients" style="height: 42px; padding: 0 14px; font-weight: 700; white-space: nowrap; display: inline-flex; align-items: center; gap: 8px;" title="عرض مرضى مواعيد وجلسات اليوم فقط">
-              <i class="fa-solid fa-calendar-day"></i>
-              <span>حالات اليوم</span>
-              <span class="badge" id="badge-today-patients-count" style="font-size: 0.75rem; padding: 2px 7px; border-radius: 12px;">0</span>
-            </button>
+            <!-- Row 3: Compact Sort Segmented Toggle & Add Patient Button Side-by-Side -->
+            <div style="display: flex; gap: 8px; width: 100%; align-items: center; justify-content: space-between;">
+              <!-- Compact Sort Segmented Toggle -->
+              <div class="patients-sort-segmented" style="height: 38px;">
+                <button type="button" class="sort-seg-btn active" id="btn-sort-recent" data-sort="recent" title="ترتيب زمني: أحدث من تم تسجيلهم أولاً">
+                  <i class="fa-solid fa-clock-rotate-left"></i> <span>الأحدث</span>
+                </button>
+                <button type="button" class="sort-seg-btn" id="btn-sort-alphabetical" data-sort="alphabetical" title="ترتيب أبجدي من الألف إلى الياء">
+                  <i class="fa-solid fa-arrow-down-a-z"></i> <span>أبجدياً</span>
+                </button>
+              </div>
 
-            <!-- Add Patient Button -->
-            <button type="button" class="btn btn-primary" id="btn-open-add-patient" style="height: 42px; padding: 0 18px; font-weight: 700; white-space: nowrap; display: inline-flex; align-items: center; gap: 8px;">
-              <i class="fa-solid fa-user-plus"></i> <span>مريض جديد</span>
-            </button>
-          </div>
-        </div>
-
-        <!-- Patients Sort & Count Bar (Placed right above the list) -->
-        <div class="patients-sort-bar no-print">
-          <div class="psb-count-wrap">
-            <span class="psb-title"><i class="fa-solid fa-users text-primary"></i> قائمة المرضى</span>
-            <span class="badge" id="patients-total-count-badge">0 مريض</span>
-          </div>
-          <div class="patients-sort-segmented">
-            <button type="button" class="sort-seg-btn active" id="btn-sort-recent" data-sort="recent" title="ترتيب زمني: أحدث من تم تسجيلهم أولاً">
-              <i class="fa-solid fa-clock-rotate-left"></i> <span>الأحدث تسجيلاً</span>
-            </button>
-            <button type="button" class="sort-seg-btn" id="btn-sort-alphabetical" data-sort="alphabetical" title="ترتيب أبجدي من الألف إلى الياء">
-              <i class="fa-solid fa-arrow-down-a-z"></i> <span>أبجدياً (أ - ي)</span>
-            </button>
+              <!-- Add Patient Button -->
+              <button type="button" class="btn btn-primary" id="btn-open-add-patient" style="height: 38px; padding: 0 16px; font-weight: 800; font-size: 0.88rem; white-space: nowrap; display: inline-flex; align-items: center; justify-content: center; gap: 6px;">
+                <i class="fa-solid fa-user-plus"></i> <span>مريض جديد</span>
+              </button>
+            </div>
           </div>
         </div>
 
@@ -1658,7 +1663,7 @@
         <div class="admin-system-footer no-print" style="margin-top: 32px; margin-bottom: 35px; text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px;">
           <div style="display: inline-flex; align-items: center; gap: 8px; background: var(--bg-surface); border: 1.5px solid var(--border-color); padding: 7px 18px; border-radius: 999px; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);">
             <span style="width: 8px; height: 8px; border-radius: 50%; background-color: var(--success); display: inline-block; box-shadow: 0 0 6px var(--success);"></span>
-            <span style="font-weight: 800; font-size: 0.88rem; color: var(--text-main);">نظام ASCPT — الإصدار 1.4.29</span>
+            <span style="font-weight: 800; font-size: 0.88rem; color: var(--text-main);">نظام ASCPT — الإصدار 1.4.30</span>
             <span class="badge badge-primary" style="font-size: 0.72rem; padding: 2px 10px; border-radius: 999px; font-weight: 800;">إصدار معتمد</span>
           </div>
           <div style="font-size: 0.76rem; color: var(--text-muted); font-weight: 700;">
@@ -2877,7 +2882,7 @@
   </div>
 
 <!-- Main Application Script (ES Module) -->
-  <script type="module" src="js/app.js?v=1.4.29"></script>
+  <script type="module" src="js/app.js?v=1.4.30"></script>
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
