@@ -2454,9 +2454,9 @@ body.not-authenticated #modal-auth #btn-cancel-login {
 }
 
 [data-theme="dark"] .badge-role-admin {
-  background-color: rgba(248, 113, 113, 0.18) !important;
-  color: #fca5a5 !important;
-  border: 1px solid rgba(248, 113, 113, 0.35) !important;
+  background-color: rgba(168, 85, 247, 0.16) !important;
+  color: #d8b4fe !important;
+  border: 1px solid rgba(168, 85, 247, 0.35) !important;
 }
 
 [data-theme="dark"] .badge-role-doctor {
@@ -6142,7 +6142,7 @@ body::-webkit-scrollbar,
 .audit-mobile-timeline {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 10px;
   max-height: none;
   overflow-y: visible;
   padding-right: 2px;
@@ -6152,31 +6152,41 @@ body::-webkit-scrollbar,
   background: var(--bg-surface);
   border: 1.5px solid var(--border-color);
   border-radius: 16px;
-  padding: 12px 14px;
+  padding: 13px 15px;
   transition: all 0.2s ease;
   box-shadow: 0 2px 8px -2px rgba(15, 23, 42, 0.04);
 }
 
 [data-theme="dark"] .audit-mobile-item {
-  background: rgba(15, 23, 42, 0.7);
-  border-color: rgba(255, 255, 255, 0.08);
-  box-shadow: 0 4px 14px -2px rgba(0, 0, 0, 0.4);
+  background: linear-gradient(145deg, #1e293b 0%, #172337 100%) !important;
+  border: 1.5px solid #334155 !important;
+  box-shadow: 0 4px 14px -2px rgba(0, 0, 0, 0.35) !important;
 }
 
-/* 4. Unwrapped Mobile Cards for Admin View (Eliminates side border lines) */
-@media screen and (max-width: 767px) {
-  #view-admin .card {
-    background: transparent;
-    border: none;
-    box-shadow: none;
-    padding: 0;
-    margin-bottom: 16px;
+/* 4. Unwrapped Mobile Cards for Admin View (Eliminates side border lines & double nesting) */
+@media screen and (max-width: 991px) {
+  #view-admin .card,
+  #card-admin-add-user,
+  #card-admin-staff-list,
+  #card-admin-audit-log,
+  #card-admin-backup-restore {
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    padding: 0 !important;
+    margin-bottom: 18px !important;
   }
 
-  #view-admin .card > .card-header {
-    padding: 4px 2px 10px 2px;
-    border-bottom: none;
-    background: transparent;
+  #view-admin .card > .card-header,
+  #card-admin-add-user > .card-header,
+  #card-admin-staff-list > .card-header,
+  #card-admin-audit-log > .card-header,
+  #card-admin-backup-restore > .card-header {
+    padding: 4px 2px 12px 2px !important;
+    border-bottom: none !important;
+    background: transparent !important;
   }
 
   #card-admin-add-user form {
@@ -6188,16 +6198,9 @@ body::-webkit-scrollbar,
   }
 
   [data-theme="dark"] #card-admin-add-user form {
-    background: rgba(15, 23, 42, 0.75);
-    border-color: rgba(255, 255, 255, 0.08);
-    box-shadow: 0 8px 24px -4px rgba(0, 0, 0, 0.4);
-  }
-
-  #card-admin-backup-restore {
-    background: var(--bg-surface);
-    border: 1.5px solid var(--border-color);
-    border-radius: 20px;
-    padding: 16px 14px;
+    background: linear-gradient(145deg, #1e293b 0%, #172337 100%) !important;
+    border: 1.5px solid #334155 !important;
+    box-shadow: 0 8px 24px -4px rgba(0, 0, 0, 0.4) !important;
   }
 }
 
@@ -6205,15 +6208,32 @@ body::-webkit-scrollbar,
 .backup-restore-body {
   background: var(--bg-surface);
   border: 1.5px solid var(--border-color);
-  border-radius: 18px;
-  padding: 14px 16px;
-  box-shadow: 0 2px 10px rgba(15, 23, 42, 0.04);
+  border-radius: 20px;
+  padding: 16px 18px;
+  box-shadow: 0 4px 16px -2px rgba(15, 23, 42, 0.05);
+}
+
+:root:not([data-theme="dark"]) .backup-restore-body {
+  background: linear-gradient(135deg, #ffffff 0%, #f0f9ff 100%);
+  border: 1.5px solid rgba(2, 132, 199, 0.2);
 }
 
 [data-theme="dark"] .backup-restore-body {
-  background: rgba(15, 23, 42, 0.75);
-  border-color: rgba(255, 255, 255, 0.08);
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+  background: linear-gradient(145deg, #1e293b 0%, #172337 100%) !important;
+  border: 1.5px solid #334155 !important;
+  box-shadow: 0 4px 18px -2px rgba(0, 0, 0, 0.4) !important;
+}
+
+[data-theme="dark"] #btn-download-backup {
+  background: rgba(56, 189, 248, 0.1) !important;
+  border-color: rgba(56, 189, 248, 0.35) !important;
+  color: #38bdf8 !important;
+}
+
+[data-theme="dark"] .btn-toggle-audit-more {
+  background: rgba(56, 189, 248, 0.1) !important;
+  border-color: rgba(56, 189, 248, 0.35) !important;
+  color: #38bdf8 !important;
 }
 
 .backup-buttons-row {

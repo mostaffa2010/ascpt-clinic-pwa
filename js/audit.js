@@ -356,7 +356,7 @@ export class AuditAndAdminManager {
                     </button>
                   </div>
                 ` : `
-                  <div style="width: 100%; text-align: center; font-size: 0.82rem; font-weight: 800; color: var(--success); background: rgba(16, 185, 129, 0.1); padding: 7px 12px; border-radius: 10px;">
+                  <div style="width: 100%; text-align: center; font-size: 0.82rem; font-weight: 800; color: #34d399; background: rgba(16, 185, 129, 0.14); border: 1px solid rgba(16, 185, 129, 0.3); padding: 7px 12px; border-radius: 10px;">
                     <i class="fa-solid fa-circle-check"></i> حسابك الحالي المسجل
                   </div>
                 `}
