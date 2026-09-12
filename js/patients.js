@@ -661,12 +661,12 @@ export class PatientsManager {
                   <i class="fa-solid fa-id-card-clip"></i>
                 </div>
                 <div style="display: flex; flex-direction: column; gap: 3px; min-width: 0;">
-                  <div style="display: flex; align-items: center; gap: 5px; flex-wrap: wrap;">
-                    <span class="hsc-patient-name" style="cursor: pointer; font-size: 0.92rem; font-weight: 800; line-height: 1.25;" onclick="patientsManager.openPatientSheet('${safeId}')" title="اضغط لفتح الشيت الطبي">${safeName}</span>
+                  <div style="display: flex; align-items: center; gap: 6px; flex-wrap: wrap;">
+                    <span class="hsc-patient-name" style="cursor: pointer; font-size: 0.94rem; font-weight: 800; line-height: 1.45;" onclick="patientsManager.openPatientSheet('${safeId}')" title="اضغط لفتح الشيت الطبي">${safeName}</span>
                     <span class="hsc-age-badge" style="font-size: 0.70rem; padding: 1px 5px; border-radius: 999px;">${safeAge} سنة</span>
                   </div>
-                  <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-top: 1px;">
-                    <span style="display: inline-flex; align-items: center; gap: 3px; font-size: 0.73rem; font-weight: 700; color: ${docColor.color}; background: ${docColor.bg}; border: 1px solid ${docColor.border}; padding: 1px 6px; border-radius: 999px; white-space: nowrap;">
+                  <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-top: 4px;">
+                    <span class="patient-doc-badge">
                       <i class="fa-solid fa-user-doctor"></i> د. ${escapeHTML(cleanDocName)}
                     </span>
                     <a href="tel:${safePhone}" class="hsc-meta-link" style="font-size: 0.75rem; gap: 3px; white-space: nowrap; font-weight: 700;" title="اتصال هاتفي">

@@ -631,6 +631,7 @@ export class FinanceManager {
     const contentMonthly = document.getElementById('finance-monthly-content');
     const contentClaims = document.getElementById('finance-claims-content');
     const labelPatients = document.getElementById('rep-total-patients-label');
+    const drawerCard = document.getElementById('card-cash-drawer-glance');
 
     if (mode === 'daily') {
       if (btnDaily) btnDaily.className = 'btn btn-primary btn-sm';
@@ -648,6 +649,7 @@ export class FinanceManager {
       if (contentDaily) contentDaily.style.display = 'block';
       if (contentMonthly) contentMonthly.style.display = 'none';
       if (contentClaims) contentClaims.style.display = 'none';
+      if (drawerCard) drawerCard.style.display = 'block';
 
       if (labelPatients) labelPatients.textContent = 'إجمالي مرضى اليوم';
       const title = document.getElementById('finance-header-title');
@@ -665,6 +667,7 @@ export class FinanceManager {
       if (contentDaily) contentDaily.style.display = 'none';
       if (contentMonthly) contentMonthly.style.display = 'block';
       if (contentClaims) contentClaims.style.display = 'none';
+      if (drawerCard) drawerCard.style.display = 'none';
 
       if (labelPatients) labelPatients.textContent = 'إجمالي مرضى الشهر';
       const title = document.getElementById('finance-header-title');
@@ -682,6 +685,7 @@ export class FinanceManager {
       if (contentDaily) contentDaily.style.display = 'none';
       if (contentMonthly) contentMonthly.style.display = 'none';
       if (contentClaims) contentClaims.style.display = 'block';
+      if (drawerCard) drawerCard.style.display = 'none';
 
       // Hide top actions, filter bar card, and 4 KPI cards when in claims mode
       const topActions = document.getElementById('finance-top-actions');
