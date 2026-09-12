@@ -1967,7 +1967,7 @@ export class PatientsManager {
     await db.logAudit('إضافة زر سريري', `إضافة زر ${name} في قسم ${category}`, auth.getCurrentUser());
   }
 
-  // ================= Patient Sessions History Modal =================
+  // ================= Patient Sessions History Modal (Timeline Cards) =================
   openPatientSessionsModal() {
     if (!this.currentSheetPatient) return;
     const p = this.currentSheetPatient;
@@ -1979,45 +1979,80 @@ export class PatientsManager {
     const countEl = document.getElementById('modal-p-sess-total-badge');
     if (countEl) countEl.textContent = `${sessions.length} جلسة`;
 
-    const tbody = document.getElementById('modal-p-sess-tbody');
-    if (!tbody) return;
+    const listEl = document.getElementById('modal-p-sess-list');
+    if (!listEl) return;
 
     if (sessions.length === 0) {
-      tbody.innerHTML = `
-        <tr>
-          <td colspan="7" style="text-align: center; color: var(--text-muted); padding: 35px 15px;">
-            <i class="fa-solid fa-calendar-xmark" style="font-size: 2.2rem; color: #cbd5e1; margin-bottom: 10px; display: block;"></i>
-            <span style="font-weight: 700; font-size: 0.95rem;">لا توجد جلسات سابقة مسجلة لهذا المريض حتى الآن</span>
-            <p style="font-size: 0.78rem; margin-top: 4px; color: #94a3b8;">يتم تسجيل حضور الجلسات من شاشة "تسجيل الجلسات" اليومية</p>
-          </td>
-        </tr>
+      listEl.innerHTML = `
+        <div class="stc-empty-box">
+          <i class="fa-solid fa-calendar-xmark"></i>
+          <h4>لا توجد جلسات مسجلة لهذا المريض بعد</h4>
+          <p>يتم تسجيل حضور الجلسات من شاشة "تسجيل الجلسات" اليومية</p>
+        </div>
       `;
     } else {
-      tbody.innerHTML = sessions.map((s, idx) => {
+      listEl.innerHTML = sessions.map((s, idx) => {
+        const sessionNum = sessions.length - idx;
+        const isLatest = (idx === 0);
+
         let payBadge = '';
         if (s.payType === 'cash') {
-          payBadge = `<span class="badge badge-cash"><i class="fa-solid fa-money-bill"></i> نقدي (${s.amountPaid || 0} ج.م)</span>`;
+          payBadge = `<span class="badge badge-cash" style="font-size: 0.74rem; padding: 3px 8px;"><i class="fa-solid fa-money-bill-wave"></i> نقدي (${s.amountPaid || 0} ج.م)</span>`;
         } else if (s.contractType === 'direct') {
-          payBadge = `<span class="badge badge-direct"><i class="fa-solid fa-file-contract"></i> ${escapeHTML(s.insuranceName || 'تأمين')} (مباشر) - ${s.amountPaid || 0} ج.م</span>`;
+          payBadge = `<span class="badge badge-direct" style="font-size: 0.74rem; padding: 3px 8px;"><i class="fa-solid fa-file-contract"></i> ${escapeHTML(s.insuranceName || 'تأمين')} (مباشر) • ${s.amountPaid || 0} ج.م</span>`;
         } else {
-          payBadge = `<span class="badge badge-indirect"><i class="fa-solid fa-handshake"></i> ${escapeHTML(s.insuranceName || 'تأمين')} (غير مباشر) - ${s.amountPaid || 0} ج.م</span>`;
+          payBadge = `<span class="badge badge-indirect" style="font-size: 0.74rem; padding: 3px 8px;"><i class="fa-solid fa-handshake"></i> ${escapeHTML(s.insuranceName || 'تأمين')} (غير مباشر) • ${s.amountPaid || 0} ج.م</span>`;
         }
 
         const parts = Array.isArray(s.bodyParts) ? s.bodyParts.join('، ') : (s.bodyParts || 'غير محدد');
 
+        let dateLabel = s.date;
+        try {
+          const d = new Date(s.date + 'T00:00:00');
+          if (!isNaN(d.getTime())) {
+            const days = ['الأحد', 'الإثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة', 'السبت'];
+            dateLabel = `${days[d.getDay()]} ${s.date}`;
+          }
+        } catch (e) {}
+
         return `
-          <tr>
-            <td style="font-weight: 800; color: var(--primary);">${idx + 1}</td>
-            <td style="font-weight: 700; white-space: nowrap;">
-              <div>${s.date}</div>
-              <small style="color: var(--text-muted); font-size: 0.72rem;">${s.recordedAt || ''}</small>
-            </td>
-            <td><span style="font-weight: 700; color: var(--text-main);">${escapeHTML(s.doctor)}</span></td>
-            <td style="font-size: 0.85rem;">${escapeHTML(parts)}</td>
-            <td>${payBadge}</td>
-            <td style="font-size: 0.82rem; color: var(--text-muted);">${escapeHTML(s.notes || '-')}</td>
-            <td style="font-size: 0.75rem; color: var(--text-muted);">${s.recordedBy || '-'}</td>
-          </tr>
+          <div class="session-timeline-card ${isLatest ? 'is-latest' : ''}">
+            <div class="stc-header">
+              <div class="stc-left-meta">
+                <span class="stc-num-badge">الجلسة #${sessionNum}</span>
+                ${isLatest ? '<span class="badge badge-success" style="font-size: 0.68rem; padding: 2px 7px;"><i class="fa-solid fa-sparkles"></i> الأحدث</span>' : ''}
+                <div class="stc-datetime">
+                  <i class="fa-regular fa-calendar text-primary"></i>
+                  <span>${dateLabel}</span>
+                  ${s.recordedAt ? `<span class="stc-time">• <i class="fa-regular fa-clock"></i> ${s.recordedAt}</span>` : ''}
+                </div>
+              </div>
+              <div class="stc-pay">
+                ${payBadge}
+              </div>
+            </div>
+
+            <div class="stc-body">
+              <div class="stc-doctor">
+                <i class="fa-solid fa-user-doctor text-primary"></i>
+                <span>الطبيب المعالج: <strong>${escapeHTML(s.doctor)}</strong></span>
+              </div>
+              <div class="stc-part">
+                <span class="stc-part-pill"><i class="fa-solid fa-location-crosshairs"></i> ${escapeHTML(parts)}</span>
+              </div>
+            </div>
+
+            ${s.notes ? `
+              <div class="stc-notes">
+                <i class="fa-regular fa-comment-dots text-primary" style="margin-top: 2px;"></i>
+                <span>${escapeHTML(s.notes)}</span>
+              </div>
+            ` : ''}
+
+            <div class="stc-footer">
+              <small><i class="fa-solid fa-user-check"></i> المسجل: ${escapeHTML(s.recordedBy || 'موظف الاستقبال')}</small>
+            </div>
+          </div>
         `;
       }).join('');
     }

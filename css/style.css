@@ -7610,3 +7610,184 @@ h1, h2, h3, h4, h5, h6 {
 #sheet-doctor-notes {
   min-height: 105px;
 }
+
+/* ==========================================================================
+   PATIENT SESSIONS TIMELINE CARDS (v1.4.38)
+   ========================================================================== */
+
+.session-timeline-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.session-timeline-card {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-color);
+  border-right: 4px solid #94a3b8;
+  border-radius: 14px;
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  transition: all 0.2s ease;
+  position: relative;
+  box-shadow: 0 2px 8px -1px rgba(15, 23, 42, 0.04);
+}
+
+.session-timeline-card:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px -2px rgba(15, 23, 42, 0.08);
+}
+
+/* Latest session highlight */
+.session-timeline-card.is-latest {
+  border-right: 4px solid var(--primary) !important;
+  background: linear-gradient(180deg, rgba(2, 132, 199, 0.04) 0%, var(--bg-surface) 100%);
+  border-color: rgba(2, 132, 199, 0.3);
+}
+[data-theme="dark"] .session-timeline-card.is-latest {
+  background: linear-gradient(180deg, rgba(56, 189, 248, 0.08) 0%, #1e293b 100%) !important;
+  border-color: rgba(56, 189, 248, 0.35) !important;
+  border-right-color: #38bdf8 !important;
+}
+
+/* Top Header of Card */
+.stc-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  flex-wrap: wrap;
+  padding-bottom: 6px;
+  border-bottom: 1px dashed var(--border-color);
+}
+
+.stc-left-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.stc-num-badge {
+  font-weight: 800;
+  font-size: 0.78rem;
+  padding: 2px 8px;
+  border-radius: 6px;
+  background: var(--bg-subtle);
+  color: var(--text-muted);
+  border: 1px solid var(--border-color);
+  display: inline-flex;
+  align-items: center;
+}
+
+.session-timeline-card.is-latest .stc-num-badge {
+  background: var(--primary);
+  color: #ffffff;
+  border-color: var(--primary);
+}
+
+.stc-datetime {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--text-main);
+}
+
+.stc-time {
+  font-size: 0.74rem;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+/* Mid Details */
+.stc-body {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.stc-doctor {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.82rem;
+  color: var(--text-main);
+}
+
+.stc-doctor strong {
+  color: var(--text-main);
+  font-weight: 800;
+}
+
+.stc-part-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--primary);
+  background: var(--primary-light);
+  padding: 2px 9px;
+  border-radius: 999px;
+  border: 1px solid rgba(2, 132, 199, 0.2);
+}
+
+[data-theme="dark"] .stc-part-pill {
+  background: rgba(56, 189, 248, 0.12);
+  border-color: rgba(56, 189, 248, 0.3);
+  color: #38bdf8;
+}
+
+/* Notes & Footer */
+.stc-notes {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  background: var(--bg-subtle);
+  padding: 6px 10px;
+  border-radius: 8px;
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  line-height: 1.4;
+  border: 1px solid var(--border-color);
+}
+
+.stc-footer {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 8px;
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  padding-top: 2px;
+}
+
+/* Empty State */
+.stc-empty-box {
+  text-align: center;
+  padding: 40px 16px;
+  color: var(--text-muted);
+}
+.stc-empty-box i {
+  font-size: 2.5rem;
+  color: var(--text-muted);
+  opacity: 0.4;
+  margin-bottom: 12px;
+  display: block;
+}
+.stc-empty-box h4 {
+  margin: 0 0 6px 0;
+  font-size: 1rem;
+  font-weight: 800;
+  color: var(--text-main);
+}
+.stc-empty-box p {
+  margin: 0;
+  font-size: 0.80rem;
+}
