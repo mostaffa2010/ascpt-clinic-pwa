@@ -1626,6 +1626,25 @@ export class PatientsManager {
 
     // 7. Switch View
     this.app.switchView('patient-sheet');
+    setTimeout(() => this.setupSheetTextareas(), 60);
+  }
+
+  setupSheetTextareas() {
+    ['sheet-diagnosis', 'sheet-exercise-details', 'sheet-doctor-notes'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) {
+        const minH = (id === 'sheet-doctor-notes') ? 105 : 95;
+        el.style.height = 'auto';
+        el.style.height = Math.max(el.scrollHeight, minH) + 'px';
+        if (!el.__autoResizeBound) {
+          el.__autoResizeBound = true;
+          el.addEventListener('input', () => {
+            el.style.height = 'auto';
+            el.style.height = Math.max(el.scrollHeight, minH) + 'px';
+          });
+        }
+      }
+    });
   }
 
   async handleSaveSheet(e) {
