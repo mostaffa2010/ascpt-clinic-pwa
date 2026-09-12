@@ -7791,3 +7791,69 @@ h1, h2, h3, h4, h5, h6 {
   margin: 0;
   font-size: 0.80rem;
 }
+
+/* ==========================================================================
+   PATIENT DIRECTORY MOBILE CARDS - GENDER THEMING (v1.4.39)
+   ========================================================================== */
+
+.hero-patient-card {
+  border-radius: 14px !important;
+  transition: all 0.2s ease !important;
+  position: relative;
+  overflow: hidden;
+  border: 1px solid var(--border-color);
+}
+
+/* Male Patient Card (ذكر) */
+.hero-patient-card.gender-male {
+  border-top: 3.5px solid #0284c7 !important;
+}
+:root:not([data-theme="dark"]) .hero-patient-card.gender-male {
+  background: linear-gradient(180deg, #f0f9ff 0%, #ffffff 50%) !important;
+  border-color: #bae6fd !important;
+  border-top-color: #0284c7 !important;
+}
+[data-theme="dark"] .hero-patient-card.gender-male {
+  background: linear-gradient(180deg, #0c2340 0%, #1e293b 50%) !important;
+  border-color: #1e3a5f !important;
+  border-top-color: #38bdf8 !important;
+  box-shadow: 0 4px 16px -2px rgba(0, 0, 0, 0.4) !important;
+}
+
+.hero-patient-card.gender-male .patient-avatar {
+  background: linear-gradient(135deg, rgba(2, 132, 199, 0.15) 0%, rgba(2, 132, 199, 0.25) 100%) !important;
+  color: #0284c7 !important;
+  border: 1.5px solid rgba(2, 132, 199, 0.35) !important;
+}
+[data-theme="dark"] .hero-patient-card.gender-male .patient-avatar {
+  background: linear-gradient(135deg, rgba(56, 189, 248, 0.18) 0%, rgba(56, 189, 248, 0.28) 100%) !important;
+  color: #38bdf8 !important;
+  border: 1.5px solid rgba(56, 189, 248, 0.45) !important;
+}
+
+/* Female Patient Card (أنثى) */
+.hero-patient-card.gender-female {
+  border-top: 3.5px solid #ec4899 !important;
+}
+:root:not([data-theme="dark"]) .hero-patient-card.gender-female {
+  background: linear-gradient(180deg, #fdf2f8 0%, #ffffff 50%) !important;
+  border-color: #fbcfe8 !important;
+  border-top-color: #ec4899 !important;
+}
+[data-theme="dark"] .hero-patient-card.gender-female {
+  background: linear-gradient(180deg, #38122c 0%, #1e293b 50%) !important;
+  border-color: #5b2148 !important;
+  border-top-color: #f472b6 !important;
+  box-shadow: 0 4px 16px -2px rgba(0, 0, 0, 0.4) !important;
+}
+
+.hero-patient-card.gender-female .patient-avatar {
+  background: linear-gradient(135deg, rgba(236, 72, 153, 0.15) 0%, rgba(236, 72, 153, 0.25) 100%) !important;
+  color: #db2777 !important;
+  border: 1.5px solid rgba(236, 72, 153, 0.35) !important;
+}
+[data-theme="dark"] .hero-patient-card.gender-female .patient-avatar {
+  background: linear-gradient(135deg, rgba(244, 114, 182, 0.18) 0%, rgba(244, 114, 182, 0.28) 100%) !important;
+  color: #f472b6 !important;
+  border: 1.5px solid rgba(244, 114, 182, 0.45) !important;
+}

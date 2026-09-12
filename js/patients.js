@@ -675,9 +675,14 @@ export class PatientsManager {
       const safeDoctor = escapeHTML(p.doctor);
       const safeEditor = escapeHTML(p.lastUpdatedBy || p.createdBy || '-');
       const cleanWaPhone = (p.phone || '').replace(/[^0-9]/g, '').replace(/^0/, '20');
+      const isFemale = (p.gender === 'female');
+      const genderClass = isFemale ? 'gender-female' : 'gender-male';
+      const genderBadgeClass = isFemale ? 'badge-gender-female' : 'badge-gender-male';
+      const genderIcon = isFemale ? 'fa-solid fa-venus' : 'fa-solid fa-mars';
+      const genderText = isFemale ? 'أنثى' : 'ذكر';
 
       return `
-        <tr>
+        <tr class="${genderClass}">
           <td style="font-weight: 800; color: var(--primary); cursor: ${canAccessSheet ? 'pointer' : 'default'}; white-space: nowrap;"
               class="${canAccessSheet ? 'patient-sheet-link' : 'btn-edit-patient'}"
               data-patient-id="${safeId}"
@@ -685,7 +690,7 @@ export class PatientsManager {
               title="${canAccessSheet ? 'اضغط لفتح الشيت الطبي' : 'تعديل بيانات المريض'}">
             <i class="fa-solid ${canAccessSheet ? 'fa-file-waveform' : 'fa-user'}" style="margin-left: 6px;"></i> ${safeName}
           </td>
-          <td style="white-space: nowrap;">${safeAge} سنة</td>
+          <td style="white-space: nowrap;"><span class="badge ${genderBadgeClass}" style="font-size: 0.74rem; padding: 2px 8px;"><i class="${genderIcon}"></i> ${genderText} • ${safeAge} سنة</span></td>
           <td style="white-space: nowrap;">
             <a href="tel:${safePhone}" style="color: var(--primary); text-decoration: none; white-space: nowrap; direction: ltr; display: inline-flex; align-items: center; gap: 4px;">
               <i class="fa-solid fa-phone" style="font-size: 0.75rem;"></i> <bdi dir="ltr">${safePhone}</bdi>
@@ -761,25 +766,34 @@ export class PatientsManager {
         const docColor = getDoctorColor(p.doctorId || p.doctor || 'default');
         const cleanWaPhone = (p.phone || '').replace(/[^0-9]/g, '').replace(/^0/, '20');
 
+        const isFemale = (p.gender === 'female');
+        const genderClass = isFemale ? 'gender-female' : 'gender-male';
+        const genderBadgeClass = isFemale ? 'badge-gender-female' : 'badge-gender-male';
+        const genderIcon = isFemale ? 'fa-solid fa-venus' : 'fa-solid fa-mars';
+        const genderText = isFemale ? 'أنثى' : 'ذكر';
+        const avatarIcon = isFemale ? 'fa-solid fa-person-dress' : 'fa-solid fa-person';
+
         return `
-          <div class="hero-styled-card hero-patient-card ${rowHighlightClass}" style="padding: 10px 12px; margin-bottom: 9px; border-radius: 13px;">
-            <!-- Row 1: Identity (Right) & Action Hub (Left - Formerly Empty Space) -->
+          <div class="hero-styled-card hero-patient-card ${genderClass} ${rowHighlightClass}" style="padding: 11px 13px; margin-bottom: 10px; border-radius: 14px;">
+            <!-- Row 1: Identity (Right) & Action Hub (Left) -->
             <div style="display: flex; align-items: flex-start; justify-content: space-between; gap: 8px;">
-              <!-- Right Info: Avatar, Name, Age, Doctor Badge -->
-              <div style="display: flex; align-items: center; gap: 8px; min-width: 0; flex: 1;">
-                <div class="hsc-avatar patient-avatar" style="width: 36px; height: 36px; font-size: 0.98rem; flex-shrink: 0; border-radius: 9px;">
-                  <i class="fa-solid fa-id-card-clip"></i>
+              <!-- Right Info: Avatar, Name, Gender/Age, Doctor Badge -->
+              <div style="display: flex; align-items: center; gap: 10px; min-width: 0; flex: 1;">
+                <div class="hsc-avatar patient-avatar" style="width: 38px; height: 38px; font-size: 1.15rem; flex-shrink: 0; border-radius: 50%;">
+                  <i class="${avatarIcon}"></i>
                 </div>
                 <div style="display: flex; flex-direction: column; gap: 3px; min-width: 0;">
                   <div style="display: flex; align-items: center; gap: 6px; flex-wrap: wrap;">
-                    <span class="hsc-patient-name" style="cursor: pointer; font-size: 0.94rem; font-weight: 800; line-height: 1.45;" onclick="patientsManager.openPatientSheet('${safeId}')" title="اضغط لفتح الشيت الطبي">${safeName}</span>
-                    <span class="hsc-age-badge" style="font-size: 0.70rem; padding: 1px 5px; border-radius: 999px;">${safeAge} سنة</span>
+                    <span class="hsc-patient-name" style="cursor: pointer; font-size: 0.98rem; font-weight: 800; line-height: 1.35;" onclick="patientsManager.openPatientSheet('${safeId}')" title="اضغط لفتح الشيت الطبي">${safeName}</span>
+                    <span class="badge ${genderBadgeClass}" style="font-size: 0.68rem; padding: 2px 7px; border-radius: 999px;">
+                      <i class="${genderIcon}"></i> ${genderText} • ${safeAge} سنة
+                    </span>
                   </div>
-                  <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-top: 4px;">
-                    <span class="patient-doc-badge">
+                  <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-top: 2px;">
+                    <span class="patient-doc-badge" style="font-size: 0.74rem; padding: 2px 8px;">
                       <i class="fa-solid fa-user-doctor"></i> د. ${escapeHTML(cleanDocName)}
                     </span>
-                    <a href="tel:${safePhone}" class="hsc-meta-link" style="font-size: 0.75rem; gap: 3px; white-space: nowrap; font-weight: 700;" title="اتصال هاتفي">
+                    <a href="tel:${safePhone}" class="hsc-meta-link" style="font-size: 0.74rem; gap: 4px; white-space: nowrap; font-weight: 700;" title="اتصال هاتفي">
                       <i class="fa-solid fa-phone" style="font-size: 0.70rem;"></i> <bdi dir="ltr">${safePhone}</bdi>
                     </a>
                   </div>
@@ -803,7 +817,7 @@ export class PatientsManager {
             </div>
 
             <!-- Row 2: Location/Address (Right) & Utility Icons (Left) -->
-            <div style="display: flex; align-items: center; justify-content: space-between; gap: 6px; margin-top: 7px; padding-top: 6px; border-top: 1px solid var(--border-color);">
+            <div style="display: flex; align-items: center; justify-content: space-between; gap: 6px; margin-top: 7px; padding-top: 6px; border-top: 1px dashed var(--border-color);">
               <!-- Right: Address -->
               <div style="display: flex; align-items: center; gap: 5px; font-size: 0.76rem; min-width: 0; flex: 1;">
                 <span class="hsc-meta-text" style="font-size: 0.74rem; gap: 4px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
@@ -813,19 +827,19 @@ export class PatientsManager {
 
               <!-- Left: Utility Tool Icons (WhatsApp, Docs, Edit, Delete) -->
               <div style="display: flex; align-items: center; gap: 4px; flex-shrink: 0;">
-                <button type="button" class="btn btn-outline btn-sm btn-icon-action btn-whatsapp-action" onclick="patientsManager.openWhatsAppTemplates('${cleanWaPhone}', '${safeName}', '${safeDoctor}')" style="color: #10b981; border-color: rgba(16, 185, 129, 0.35); width: 28px; height: 28px; padding: 0; display: inline-flex; align-items: center; justify-content: center; border-radius: 50%;" title="خيارات واتساب الذكية">
-                  <i class="fa-brands fa-whatsapp" style="font-size: 0.90rem;"></i>
+                <button type="button" class="btn btn-outline btn-sm btn-icon-action btn-whatsapp-action" onclick="patientsManager.openWhatsAppTemplates('${cleanWaPhone}', '${safeName}', '${safeDoctor}')" style="color: #10b981; border-color: rgba(16, 185, 129, 0.35); background: rgba(16, 185, 129, 0.08); width: 28px; height: 28px; padding: 0; display: inline-flex; align-items: center; justify-content: center; border-radius: 50%;" title="خيارات واتساب الذكية">
+                  <i class="fa-brands fa-whatsapp" style="font-size: 0.92rem;"></i>
                 </button>
                 ${!isDoctor ? `
-                  <button type="button" class="btn btn-outline btn-sm btn-icon-action btn-patient-docs" onclick="patientsManager.openPatientDocsModal('${safeId}')" style="width: 28px; height: 28px; padding: 0; display: inline-flex; align-items: center; justify-content: center; border-radius: 50%; font-size: 0.76rem;" title="المستندات">
-                    <i class="fa-solid fa-file-invoice"></i>
+                  <button type="button" class="btn btn-outline btn-sm btn-icon-action btn-patient-docs" onclick="patientsManager.openPatientDocsModal('${safeId}')" style="width: 28px; height: 28px; padding: 0; display: inline-flex; align-items: center; justify-content: center; border-radius: 50%; font-size: 0.76rem; border-color: var(--border-color);" title="المستندات">
+                    <i class="fa-solid fa-file-invoice text-primary"></i>
                   </button>
-                  <button type="button" class="btn btn-outline btn-sm btn-icon-action btn-edit-patient" onclick="patientsManager.openEditModal('${safeId}')" style="width: 28px; height: 28px; padding: 0; display: inline-flex; align-items: center; justify-content: center; border-radius: 50%; font-size: 0.76rem;" title="تعديل">
-                    <i class="fa-solid fa-pen-to-square"></i>
+                  <button type="button" class="btn btn-outline btn-sm btn-icon-action btn-edit-patient" onclick="patientsManager.openEditModal('${safeId}')" style="width: 28px; height: 28px; padding: 0; display: inline-flex; align-items: center; justify-content: center; border-radius: 50%; font-size: 0.76rem; border-color: var(--border-color);" title="تعديل">
+                    <i class="fa-solid fa-pen-to-square text-primary"></i>
                   </button>
                 ` : ''}
                 ${!isDoctor && canDeletePatient ? `
-                  <button type="button" class="btn btn-outline btn-sm btn-icon-action btn-delete-patient" style="color: var(--danger); border-color: rgba(239, 68, 68, 0.35); width: 28px; height: 28px; padding: 0; display: inline-flex; align-items: center; justify-content: center; border-radius: 50%; font-size: 0.76rem;" onclick="patientsManager.confirmDelete('${safeId}')" title="حذف">
+                  <button type="button" class="btn btn-outline btn-sm btn-icon-action btn-delete-patient" style="color: var(--danger); border-color: rgba(239, 68, 68, 0.35); background: rgba(239, 68, 68, 0.08); width: 28px; height: 28px; padding: 0; display: inline-flex; align-items: center; justify-content: center; border-radius: 50%; font-size: 0.76rem;" onclick="patientsManager.confirmDelete('${safeId}')" title="حذف">
                     <i class="fa-solid fa-trash"></i>
                   </button>
                 ` : ''}
