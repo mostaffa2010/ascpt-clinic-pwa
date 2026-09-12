@@ -670,10 +670,10 @@ table.appt-table th {
 .appt-time-label {
   font-weight: 800;
   color: var(--primary);
-  white-space: nowrap !important;
+  white-space: nowrap;
   text-align: center;
   background-color: var(--bg-subtle);
-  padding: 8px !important;
+  padding: 8px;
 }
 
 .appt-time-box {
@@ -711,7 +711,7 @@ table.appt-table th {
 
 .appt-cell {
   min-width: 150px;
-  padding: 8px !important;
+  padding: 8px;
 }
 
 .appt-cell-over {
@@ -3482,11 +3482,11 @@ body {
   #card-doctor-personal-sessions,
   #card-doctor-appointments-schedule,
   #card-main-appointments-schedule {
-    background: transparent !important;
-    border: none !important;
-    box-shadow: none !important;
-    padding: 0 !important;
-    margin-bottom: 14px !important;
+    background: transparent;
+    border: none;
+    box-shadow: none;
+    padding: 0;
+    margin-bottom: 14px;
   }
 
   #card-dashboard-recent .card-header,
@@ -3495,18 +3495,18 @@ body {
   #card-doctor-personal-sessions .card-header,
   #card-doctor-appointments-schedule .card-header,
   #card-main-appointments-schedule .card-header {
-    padding: 4px 2px 12px 2px !important;
-    border-bottom: none !important;
-    background: transparent !important;
+    padding: 4px 2px 12px 2px;
+    border-bottom: none;
+    background: transparent;
   }
 
   #card-doctor-appointments-schedule .table-responsive,
   #card-main-appointments-schedule .table-responsive {
-    border: none !important;
-    background: transparent !important;
-    box-shadow: none !important;
-    overflow: visible !important;
-    padding: 0 !important;
+    border: none;
+    background: transparent;
+    box-shadow: none;
+    overflow: visible;
+    padding: 0;
   }
 }
 
@@ -4070,21 +4070,21 @@ body {
 
 /* 3. Slot Quick Buttons in Edit Slot Modal */
 .slot-quick-btn {
-  padding: 6px 12px !important;
-  font-size: 0.82rem !important;
-  font-weight: 700 !important;
-  border-radius: var(--radius-pill) !important;
-  background: var(--bg-subtle) !important;
-  border: 1.5px solid var(--border-color) !important;
-  color: var(--text-main) !important;
-  transition: all 0.18s ease !important;
+  padding: 6px 12px;
+  font-size: 0.82rem;
+  font-weight: 700;
+  border-radius: var(--radius-pill);
+  background: var(--bg-subtle);
+  border: 1.5px solid var(--border-color);
+  color: var(--text-main);
+  transition: all 0.18s ease;
 }
 
 .slot-quick-btn:hover {
-  background: var(--primary-light) !important;
-  border-color: var(--primary) !important;
-  color: var(--primary) !important;
-  transform: translateY(-1px) !important;
+  background: var(--primary-light);
+  border-color: var(--primary);
+  color: var(--primary);
+  transform: translateY(-1px);
 }
 
 /* 4. Glassmorphic Modal Input Fields & Form Controls */
@@ -4586,40 +4586,38 @@ body {
   #card-main-appointments-schedule,
   .card:has(#my-appointments-grid),
   .card:has(#appointments-grid) {
-    background: transparent !important;
-    border: none !important;
-    box-shadow: none !important;
-    padding: 0 !important;
-    margin-top: 10px !important;
-    margin-bottom: 14px !important;
+    background: transparent;
+    border: none;
+    box-shadow: none;
+    padding: 0;
+    margin-top: 10px;
+    margin-bottom: 14px;
   }
 
   #card-doctor-appointments-schedule > .card-header,
   #card-main-appointments-schedule > .card-header,
   .card:has(#my-appointments-grid) > .card-header,
   .card:has(#appointments-grid) > .card-header {
-    background: transparent !important;
-    border: none !important;
-    padding: 6px 4px 12px 4px !important;
+    background: transparent;
+    border: none;
+    padding: 6px 4px 12px 4px;
   }
 
   #card-doctor-appointments-schedule .table-responsive,
   #card-main-appointments-schedule .table-responsive,
   .table-responsive:has(#my-appointments-grid),
   .table-responsive:has(#appointments-grid) {
-    background: transparent !important;
-    border: none !important;
-    box-shadow: none !important;
-    overflow: visible !important;
-    padding: 0 !important;
+    background: transparent;
+    border: none;
+    box-shadow: none;
+    overflow: visible;
+    padding: 0;
   }
 
   .appt-timeline-container {
-    gap: 14px !important;
-    width: 100% !important;
+    gap: 14px;
+    width: 100%;
   }
-
-
 }
 
 /* ==========================================================================
@@ -5936,26 +5934,26 @@ body::-webkit-scrollbar,
   #monthly-doctors-mobile-cards .doc-stack-container,
   #admin-users-mobile-cards .doc-stack-container,
   #my-appointments-grid .doc-stack-container {
-    display: grid !important;
-    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)) !important;
-    gap: 14px !important;
-    min-height: auto !important;
-    perspective: none !important;
-    padding-left: 0 !important;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 14px;
+    min-height: auto;
+    perspective: none;
+    padding-left: 0;
   }
   #daily-doctors-mobile-deck .doc-stack-card,
   #monthly-doctors-mobile-cards .doc-stack-card,
   #admin-users-mobile-cards .doc-stack-card,
   #my-appointments-grid .doc-stack-card {
-    position: relative !important;
-    left: auto !important;
-    right: auto !important;
-    transform: none !important;
-    opacity: 1 !important;
-    visibility: visible !important;
-    z-index: 1 !important;
-    pointer-events: auto !important;
-    will-change: auto !important;
+    position: relative;
+    left: auto;
+    right: auto;
+    transform: none;
+    opacity: 1;
+    visibility: visible;
+    z-index: 1;
+    pointer-events: auto;
+    will-change: auto;
   }
   #daily-doctors-mobile-deck .doc-stack-nav-bar,
   #monthly-doctors-mobile-cards .doc-stack-nav-bar,
@@ -5967,7 +5965,7 @@ body::-webkit-scrollbar,
   #monthly-doctors-mobile-cards #monthly-doc-stack-counter,
   #my-appointments-grid #btn-toggle-doc-stack-layout,
   #my-appointments-grid #doc-stack-counter {
-    display: none !important;
+    display: none;
   }
 }
 
@@ -6078,105 +6076,105 @@ body::-webkit-scrollbar,
 
 /* 1. Hero Admin Banner */
 .hero-admin-banner {
-  background: linear-gradient(135deg, #1e1b4b 0%, #6b21a8 55%, #0284c7 100%) !important;
-  border: 1px solid rgba(255, 255, 255, 0.18) !important;
-  box-shadow: 0 12px 28px -6px rgba(107, 33, 168, 0.35) !important;
-  color: #ffffff !important;
+  background: linear-gradient(135deg, #1e1b4b 0%, #6b21a8 55%, #0284c7 100%);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  box-shadow: 0 12px 28px -6px rgba(107, 33, 168, 0.35);
+  color: #ffffff;
 }
 
 .hero-admin-banner .hero-banner-title {
-  color: #ffffff !important;
+  color: #ffffff;
 }
 
 .hero-admin-banner .hero-banner-sub {
-  color: rgba(255, 255, 255, 0.88) !important;
+  color: rgba(255, 255, 255, 0.88);
 }
 
 .hero-admin-banner .hero-greeting-pill {
-  background: rgba(255, 255, 255, 0.18) !important;
-  color: #ffffff !important;
-  border: 1px solid rgba(255, 255, 255, 0.25) !important;
+  background: rgba(255, 255, 255, 0.18);
+  color: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.25);
 }
 
 .hero-admin-banner .hero-date-chip {
-  background: rgba(255, 255, 255, 0.16) !important;
-  color: #ffffff !important;
-  border: 1px solid rgba(255, 255, 255, 0.22) !important;
+  background: rgba(255, 255, 255, 0.16);
+  color: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.22);
 }
 
 [data-theme="dark"] .hero-admin-banner {
-  background: linear-gradient(135deg, #090514 0%, #4c1d95 60%, #0c1527 100%) !important;
-  border-color: rgba(168, 85, 247, 0.35) !important;
-  box-shadow: 0 14px 34px -6px rgba(0, 0, 0, 0.7) !important;
+  background: linear-gradient(135deg, #090514 0%, #4c1d95 60%, #0c1527 100%);
+  border-color: rgba(168, 85, 247, 0.35);
+  box-shadow: 0 14px 34px -6px rgba(0, 0, 0, 0.7);
 }
 
 /* 2. Admin User Mobile Cards */
 .admin-user-mobile-card {
-  margin-bottom: 10px !important;
-  border-radius: 18px !important;
-  padding: 14px 16px !important;
+  margin-bottom: 10px;
+  border-radius: 18px;
+  padding: 14px 16px;
 }
 
 /* 3. Audit Log Mobile Timeline */
 .audit-mobile-timeline {
-  display: flex !important;
-  flex-direction: column !important;
-  gap: 8px !important;
-  max-height: none !important;
-  overflow-y: visible !important;
-  padding-right: 2px !important;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-height: none;
+  overflow-y: visible;
+  padding-right: 2px;
 }
 
 .audit-mobile-item {
-  background: var(--bg-surface) !important;
-  border: 1.5px solid var(--border-color) !important;
-  border-radius: 16px !important;
-  padding: 12px 14px !important;
-  transition: all 0.2s ease !important;
-  box-shadow: 0 2px 8px -2px rgba(15, 23, 42, 0.04) !important;
+  background: var(--bg-surface);
+  border: 1.5px solid var(--border-color);
+  border-radius: 16px;
+  padding: 12px 14px;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 8px -2px rgba(15, 23, 42, 0.04);
 }
 
 [data-theme="dark"] .audit-mobile-item {
-  background: rgba(15, 23, 42, 0.7) !important;
-  border-color: rgba(255, 255, 255, 0.08) !important;
-  box-shadow: 0 4px 14px -2px rgba(0, 0, 0, 0.4) !important;
+  background: rgba(15, 23, 42, 0.7);
+  border-color: rgba(255, 255, 255, 0.08);
+  box-shadow: 0 4px 14px -2px rgba(0, 0, 0, 0.4);
 }
 
 /* 4. Unwrapped Mobile Cards for Admin View (Eliminates side border lines) */
 @media screen and (max-width: 767px) {
   #view-admin .card {
-    background: transparent !important;
-    border: none !important;
-    box-shadow: none !important;
-    padding: 0 !important;
-    margin-bottom: 16px !important;
+    background: transparent;
+    border: none;
+    box-shadow: none;
+    padding: 0;
+    margin-bottom: 16px;
   }
 
   #view-admin .card > .card-header {
-    padding: 4px 2px 10px 2px !important;
-    border-bottom: none !important;
-    background: transparent !important;
+    padding: 4px 2px 10px 2px;
+    border-bottom: none;
+    background: transparent;
   }
 
   #card-admin-add-user form {
-    background: var(--bg-surface) !important;
-    border: 1.5px solid var(--border-color) !important;
-    border-radius: 20px !important;
-    padding: 16px 14px !important;
-    box-shadow: 0 4px 18px -2px rgba(15, 23, 42, 0.05) !important;
+    background: var(--bg-surface);
+    border: 1.5px solid var(--border-color);
+    border-radius: 20px;
+    padding: 16px 14px;
+    box-shadow: 0 4px 18px -2px rgba(15, 23, 42, 0.05);
   }
 
   [data-theme="dark"] #card-admin-add-user form {
-    background: rgba(15, 23, 42, 0.75) !important;
-    border-color: rgba(255, 255, 255, 0.08) !important;
-    box-shadow: 0 8px 24px -4px rgba(0, 0, 0, 0.4) !important;
+    background: rgba(15, 23, 42, 0.75);
+    border-color: rgba(255, 255, 255, 0.08);
+    box-shadow: 0 8px 24px -4px rgba(0, 0, 0, 0.4);
   }
 
   #card-admin-backup-restore {
-    background: var(--bg-surface) !important;
-    border: 1.5px solid var(--border-color) !important;
-    border-radius: 20px !important;
-    padding: 16px 14px !important;
+    background: var(--bg-surface);
+    border: 1.5px solid var(--border-color);
+    border-radius: 20px;
+    padding: 16px 14px;
   }
 }
 
