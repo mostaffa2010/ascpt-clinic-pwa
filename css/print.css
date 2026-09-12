@@ -12,9 +12,6 @@
 @media print {
   /* ================= 0. DUAL-FRIENDLY HIGH-CONTRAST PALETTE ================= */
   :root, html, body, [data-theme="dark"], [data-theme="dark"] body {
-    background-color: #ffffff !important;
-    background: #ffffff !important;
-    color: #000000 !important;
     /* Primary / Headings: Deep Medical Sapphire / Navy */
     --primary: #0369a1 !important;
     --primary-dark: #075985 !important;
@@ -76,7 +73,10 @@
   .bottom-nav,
   .top-header,
   .btn,
+  button,
   .modal-backdrop,
+  .modal-overlay,
+  .modal,
   .search-box,
   .filters-bar,
   .no-print,
@@ -84,6 +84,9 @@
   #pwa-install-banner,
   .toast-box,
   .card-header button,
+  .finance-mode-segmented,
+  .horizontal-date-strip,
+  #card-cash-drawer-glance,
   .mobile-only-cards-container,
   #finance-report-mobile-cards,
   #finance-expenses-mobile-cards,
@@ -451,39 +454,61 @@
     width: 100% !important;
   }
 
-  [data-theme="dark"] .app-container,
-  [data-theme="dark"] .main-content,
-  [data-theme="dark"] #view-finance,
-  [data-theme="dark"] .card {
+  body:not(.printing-sheet) .card,
+  body:not(.printing-sheet) #card-finance-report-sessions,
+  body:not(.printing-sheet) #card-finance-daily-expenses,
+  body:not(.printing-sheet) #card-monthly-doctors,
+  body:not(.printing-sheet) #card-monthly-insurance,
+  body:not(.printing-sheet) #card-monthly-expenses,
+  body:not(.printing-sheet) #card-doctors-breakdown {
+    border: 1px solid #cbd5e1 !important;
+    box-shadow: none !important;
+    margin-bottom: 10px !important;
+    padding: 8px 10px !important;
+    background: #ffffff !important;
+    page-break-inside: avoid !important;
+  }
+
+  body:not(.printing-sheet) .card-header,
+  body:not(.printing-sheet) #card-finance-report-sessions .card-header,
+  body:not(.printing-sheet) #card-finance-daily-expenses .card-header,
+  body:not(.printing-sheet) #card-monthly-doctors .card-header,
+  body:not(.printing-sheet) #card-monthly-insurance .card-header,
+  body:not(.printing-sheet) #card-monthly-expenses .card-header,
+  body:not(.printing-sheet) #card-doctors-breakdown .card-header {
+    display: block !important;
+    padding: 0 0 6px 0 !important;
+    margin-bottom: 6px !important;
+    border-bottom: 1.5px solid #0369a1 !important;
     background: transparent !important;
-    background-color: transparent !important;
-    color: #000000 !important;
   }
 
-  [data-theme="dark"] .data-table th {
-    background-color: #e2e8f0 !important;
-    color: #000000 !important;
-    border-color: #475569 !important;
+  body:not(.printing-sheet) table.data-table,
+  body:not(.printing-sheet) #finance-report-table,
+  body:not(.printing-sheet) #finance-expenses-table {
+    display: table !important;
+    width: 100% !important;
+    border-collapse: collapse !important;
+    font-size: 7.5pt !important;
+    background: #ffffff !important;
   }
 
-  [data-theme="dark"] .data-table td {
-    background-color: #ffffff !important;
-    color: #000000 !important;
-    border-color: #64748b !important;
+  body:not(.printing-sheet) table.data-table thead,
+  body:not(.printing-sheet) #finance-report-table thead,
+  body:not(.printing-sheet) #finance-expenses-table thead {
+    display: table-header-group !important;
   }
 
-  [data-theme="dark"] .stat-box,
-  [data-theme="dark"] .stat-card {
-    background-color: #ffffff !important;
-    border-color: #64748b !important;
+  body:not(.printing-sheet) table.data-table tbody,
+  body:not(.printing-sheet) #finance-report-table tbody,
+  body:not(.printing-sheet) #finance-expenses-table tbody {
+    display: table-row-group !important;
   }
 
-  [data-theme="dark"] .stat-info .stat-value {
-    color: #000000 !important;
-  }
-
-  [data-theme="dark"] .stat-info .stat-label {
-    color: #334155 !important;
+  body:not(.printing-sheet) table.data-table tr,
+  body:not(.printing-sheet) #finance-report-table tr,
+  body:not(.printing-sheet) #finance-expenses-table tr {
+    display: table-row !important;
   }
 
   body:not(.printing-sheet) table.data-table {

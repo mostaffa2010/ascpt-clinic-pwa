@@ -968,7 +968,7 @@ table.appt-table th {
    fixed 260px sidebar would crowd a ~768-991px screen, but gives forms
    and stat grids room to breathe instead of stacking everything into
    a single narrow column like on a phone. */
-@media (min-width: 768px) and (max-width: 991px) {
+@media screen and (min-width: 768px) and (max-width: 991px) {
   .main-content {
     padding: 22px 28px;
     padding-bottom: calc(var(--bottom-nav-height) + 24px);
@@ -985,7 +985,7 @@ table.appt-table th {
 }
 
 /* ================= Responsive for Desktop (>= 992px) ================= */
-@media (min-width: 992px) {
+@media screen and (min-width: 992px) {
   .top-header {
     display: none; /* Desktop uses sidebar brand section */
   }
@@ -1044,7 +1044,7 @@ table.appt-table th {
     max-width: 100%;
   }
 
-  @media (min-width: 992px) and (max-width: 1180px) {
+  @media screen and (min-width: 992px) and (max-width: 1180px) {
     .split-screen {
       grid-template-columns: 320px minmax(0, 1fr);
       gap: 16px;
@@ -1825,7 +1825,7 @@ body.not-authenticated #modal-auth #btn-cancel-login {
 }
 
 /* Fix modal and grid horizontal containment: on mobile protect from viewport overflow, but on desktop allow modals to respect their specified max-width */
-@media (max-width: 580px) {
+@media screen and (max-width: 580px) {
   .modal-content {
     max-width: 95vw !important;
   }
@@ -2594,7 +2594,7 @@ body.not-authenticated #modal-auth #btn-cancel-login {
 }
 
 /* ================= Mobile Bottom Sheet Enhancement for Modals (v1.4.0) ================= */
-@media (max-width: 767px) {
+@media screen and (max-width: 767px) {
   .modal-backdrop {
     padding: 0;
     align-items: flex-end;
@@ -2883,7 +2883,7 @@ body.not-authenticated #modal-auth #btn-cancel-login {
 }
 
 /* 4. Mobile Native Card Transformation for Recent Sessions */
-@media (max-width: 767px) {
+@media screen and (max-width: 767px) {
   #dashboard-recent-table,
   #dashboard-recent-table thead,
   #dashboard-recent-table tbody,
@@ -3088,7 +3088,7 @@ body {
    MOBILE SCREEN ENGINE (max-width: 767px)
    Compact 3-Row Grid Architecture
    ======================================================== */
-@media (max-width: 767px) {
+@media screen and (max-width: 767px) {
   /* 1. Dissolve outer container borders and shadows to completely remove the 'grouped box' look */
   #card-dashboard-recent,
   #card-sessions-today,
@@ -3443,7 +3443,7 @@ body {
    PREMIUM HERO-STYLED MOBILE CARDS (v1.4.0-beta.6)
    Handcrafted Mobile Cards matching the Hero Banner aesthetic
    ======================================================== */
-@media (min-width: 992px) {
+@media screen and (min-width: 992px) {
   .mobile-only-cards-container {
     display: none !important;
   }
@@ -4110,7 +4110,7 @@ body {
    ========================================================================== */
 
 /* 1. Backdrop & Mobile Bottom Sheets (Clean White, No Murky Transparency) */
-@media (max-width: 767px) {
+@media screen and (max-width: 767px) {
   .modal-backdrop {
     padding: 0 !important;
     align-items: flex-end !important;
@@ -4556,7 +4556,7 @@ body {
 }
 
 /* Mobile Unwrap for Appointments Schedules (v1.4.0-beta.12) */
-@media (max-width: 767px) {
+@media screen and (max-width: 767px) {
   #card-doctor-appointments-schedule,
   #card-main-appointments-schedule,
   .card:has(#my-appointments-grid),
@@ -4634,7 +4634,7 @@ body {
   margin: 0 !important;
 }
 
-@media (min-width: 768px) {
+@media screen and (min-width: 768px) {
   .doc-carousel-card {
     flex: 0 0 320px !important;
     max-width: 320px !important;
@@ -5112,7 +5112,7 @@ body::-webkit-scrollbar,
 }
 
 /* --- 5. FINANCE VIEW: Top Actions Mobile Grid & Pills --- */
-@media (max-width: 767px) {
+@media screen and (max-width: 767px) {
   #finance-top-actions {
     display: grid !important;
     grid-template-columns: repeat(2, 1fr) !important;
@@ -5308,7 +5308,7 @@ body::-webkit-scrollbar,
 }
 
 /* 2. Claims Action Toolbar in Insurance Claims (Screenshot 21) */
-@media (max-width: 767px) {
+@media screen and (max-width: 767px) {
   .claim-actions-toolbar {
     display: grid !important;
     grid-template-columns: repeat(2, 1fr) !important;
@@ -5338,7 +5338,7 @@ body::-webkit-scrollbar,
    ========================================================================== */
 
 /* 1. Responsive Segmented Switcher Labels */
-@media (max-width: 767px) {
+@media screen and (max-width: 767px) {
   .finance-mode-segmented .tab-label-full {
     display: none !important;
   }
@@ -5359,7 +5359,7 @@ body::-webkit-scrollbar,
   }
 }
 
-@media (min-width: 768px) {
+@media screen and (min-width: 768px) {
   .finance-mode-segmented .tab-label-full {
     display: inline !important;
   }
@@ -5725,7 +5725,7 @@ body::-webkit-scrollbar,
 }
 
 
-@media (max-width: 380px) {
+@media screen and (max-width: 380px) {
   .session-mode-pill-btn {
     padding: 8px 6px !important;
     gap: 6px !important;
@@ -5744,7 +5744,7 @@ body::-webkit-scrollbar,
 }
 
 /* 2. Doctor Stack Deck Desktop Responsiveness */
-@media (min-width: 768px) {
+@media screen and (min-width: 768px) {
   #daily-doctors-mobile-deck .doc-stack-container,
   #monthly-doctors-mobile-cards .doc-stack-container,
   #admin-users-mobile-cards .doc-stack-container,
@@ -5956,7 +5956,7 @@ body::-webkit-scrollbar,
 }
 
 /* 4. Unwrapped Mobile Cards for Admin View (Eliminates side border lines) */
-@media (max-width: 767px) {
+@media screen and (max-width: 767px) {
   #view-admin .card {
     background: transparent !important;
     border: none !important;
@@ -6014,7 +6014,7 @@ body::-webkit-scrollbar,
   gap: 10px;
 }
 
-@media (max-width: 480px) {
+@media screen and (max-width: 480px) {
   .backup-buttons-row {
     grid-template-columns: 1fr;
     gap: 8px;
@@ -6049,7 +6049,7 @@ body::-webkit-scrollbar,
 /* ==========================================================================
    v1.4.0-beta.28: Bounded Mobile Scrollable Containers (~3 Cards Height)
    ========================================================================== */
-@media (max-width: 991px) {
+@media screen and (max-width: 991px) {
   /* v1.4.0-beta.31: Eliminate Inner Scroll Traps - Natural Viewport Flow */
   #sessions-today-mobile-cards,
   #patients-mobile-cards,
@@ -6136,7 +6136,7 @@ body::-webkit-scrollbar,
    ========================================================================== */
 
 /* 1. Mobile Input Touch Standards & iOS Auto-Zoom Prevention */
-@media (max-width: 767px) {
+@media screen and (max-width: 767px) {
   .form-control,
   input[type="text"],
   input[type="tel"],
@@ -6339,7 +6339,7 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 /* 2. Quick Access Grid Mobile Safeguards */
-@media (max-width: 480px) {
+@media screen and (max-width: 480px) {
   .quick-access-items {
     grid-template-columns: repeat(4, 1fr) !important;
     gap: 6px !important;

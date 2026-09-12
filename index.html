@@ -48,7 +48,7 @@
 
     <!-- Stylesheets -->
   <link rel="stylesheet" href="css/style.css?v=1.4.0-beta.49">
-  <link rel="stylesheet" href="css/print.css?v=1.4.0-beta.49" media="print">
+  <link rel="stylesheet" href="css/print.css" media="print">
 </head>
 <body>
   <script>
@@ -1009,8 +1009,17 @@
               </table>
             </div>
           </div>
-          <!-- Doctors Breakdown (Daily Stack Deck) -->
-          <div id="daily-doctors-mobile-deck" style="margin-bottom: 16px;"></div>
+          <!-- Doctors Breakdown Box (Desktop & Print) -->
+          <div class="card desktop-only-table" id="card-doctors-breakdown" style="margin-bottom: 16px;">
+            <div class="card-header">
+              <span class="card-title"><i class="fa-solid fa-user-doctor"></i> إحصائية مرضى كل دكتور (اليوم)</span>
+            </div>
+            <div id="doctors-breakdown-container" style="display: flex; gap: 15px; flex-wrap: wrap;">
+              <!-- Rendered dynamically -->
+            </div>
+          </div>
+          <!-- Doctors Breakdown (Daily Stack Deck) (Mobile Only) -->
+          <div id="daily-doctors-mobile-deck" class="mobile-only-cards-container" style="margin-bottom: 16px;"></div>
 
           <!-- Detailed Patients Sessions Table -->
           <div class="card" id="card-finance-report-sessions">
@@ -1070,7 +1079,7 @@
           <!-- Doctors Performance Table -->
           <div class="card" id="card-monthly-doctors" style="margin-bottom: 16px;">
             <div class="card-header">
-              <span class="card-title"><i class="fa-solid fa-user-doctor"></i> إحصائية أطباء المركز للشهر</span>
+              <span class="card-title"><i class="fa-solid fa-user-doctor"></i> إحصائية أطباء المركز للشهر (مصنفة نقدي وشركات)</span>
             </div>
             <div class="table-responsive desktop-only-table">
               <table class="data-table">
