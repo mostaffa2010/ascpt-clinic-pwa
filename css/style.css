@@ -1846,24 +1846,24 @@ body.not-authenticated #modal-auth #btn-cancel-login {
 
 #modal-patient .modal-body,
 #p-insurance-details {
-  max-width: 100% !important;
-  box-sizing: border-box !important;
-  overflow-x: hidden !important;
+  max-width: 100%;
+  box-sizing: border-box;
+  overflow-x: hidden;
 }
 
 .insurance-companies-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 8px !important;
-  width: 100% !important;
-  max-width: 100% !important;
-  box-sizing: border-box !important;
+  gap: 8px;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
 }
 
 .insurance-company-card {
-  min-width: 0 !important;
-  max-width: 100% !important;
-  box-sizing: border-box !important;
+  min-width: 0;
+  max-width: 100%;
+  box-sizing: border-box;
 }
 
 .insurance-companies-grid[style*="display: none"],
@@ -1878,29 +1878,30 @@ body.not-authenticated #modal-auth #btn-cancel-login {
 
 /* ================= Edit Mode for Insurance Cards and Body Parts ================= */
 .insurance-company-card.in-edit-mode {
-  position: relative !important;
-  padding-left: 36px !important;
-  border-style: dashed !important;
-  border-color: #94a3b8 !important;
+  position: relative;
+  padding-left: 36px;
+  border-style: dashed;
+  border-color: #94a3b8;
   animation: pulseEdit 1.5s infinite ease-in-out;
 }
 
 .insurance-company-card.in-edit-mode .chip-delete-tag {
-  position: absolute !important;
-  left: 8px !important;
-  top: 50% !important;
-  transform: translateY(-50%) !important;
-  color: #ef4444 !important;
-  font-size: 1.15rem !important;
-  z-index: 10 !important;
-  cursor: pointer !important;
-  display: inline-flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  background: #fee2e2 !important;
-  border-radius: 50% !important;
-  width: 22px !important;
-  height: 22px !important;
+  position: absolute;
+  left: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #ef4444;
+  font-size: 1.15rem;
+  z-index: 10;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: #fee2e2;
+  border-radius: 50%;
+  width: 22px;
+  height: 22px;
+  transition: transform 0.15s;
 }
 
 .chip-choice.in-edit-mode {
@@ -2411,42 +2412,42 @@ body.not-authenticated #modal-auth #btn-cancel-login {
 }
 
 [data-theme="dark"] .insurance-contract-segmented {
-  background: var(--bg-subtle) !important;
+  background: var(--bg-subtle);
   border: 1px solid var(--border-color);
 }
 
 [data-theme="dark"] .insurance-contract-segmented .segmented-btn {
-  color: var(--text-muted) !important;
+  color: var(--text-muted);
 }
 
 [data-theme="dark"] .insurance-contract-segmented input[type="radio"]:checked + .segmented-btn {
-  background: var(--bg-surface) !important;
-  color: var(--primary) !important;
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.4) !important;
+  background: var(--bg-surface);
+  color: var(--primary);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.4);
 }
 
 [data-theme="dark"] .insurance-company-card {
-  background: var(--bg-surface) !important;
-  border-color: var(--border-color) !important;
-  color: var(--text-main) !important;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.25) !important;
+  background: var(--bg-surface);
+  border-color: var(--border-color);
+  color: var(--text-main);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.25);
 }
 
 [data-theme="dark"] .insurance-company-card .ins-icon-wrap {
-  background: var(--bg-subtle) !important;
-  color: var(--primary) !important;
+  background: var(--bg-subtle);
+  color: var(--primary);
 }
 
 [data-theme="dark"] .insurance-company-card.selected {
-  border-color: var(--primary) !important;
-  background: rgba(56, 189, 248, 0.15) !important;
-  color: var(--primary) !important;
-  box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.3) !important;
+  border-color: var(--primary);
+  background: rgba(56, 189, 248, 0.15);
+  color: var(--primary);
+  box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.3);
 }
 
 [data-theme="dark"] .insurance-company-card.selected .ins-icon-wrap {
-  background: var(--primary) !important;
-  color: #ffffff !important;
+  background: var(--primary);
+  color: #ffffff;
 }
 
 
@@ -5479,27 +5480,30 @@ body::-webkit-scrollbar,
 
 /* 2. Claims Action Toolbar in Insurance Claims (Screenshot 21) */
 @media screen and (max-width: 767px) {
+  #view-claims .claim-actions-toolbar,
   .claim-actions-toolbar {
-    display: grid !important;
-    grid-template-columns: repeat(2, 1fr) !important;
-    gap: 8px !important;
-    width: 100% !important;
-    margin-top: 10px !important;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+    width: 100%;
+    margin-top: 10px;
   }
 
+  #view-claims .claim-actions-toolbar .btn,
   .claim-actions-toolbar .btn {
-    height: 38px !important;
-    padding: 0 8px !important;
-    font-size: 0.78rem !important;
-    border-radius: 12px !important;
-    justify-content: center !important;
-    white-space: nowrap !important;
+    height: 38px;
+    padding: 0 8px;
+    font-size: 0.78rem;
+    border-radius: 12px;
+    justify-content: center;
+    white-space: nowrap;
   }
 
+  #view-claims .claim-actions-toolbar #btn-print-claim-statement,
   .claim-actions-toolbar #btn-print-claim-statement {
-    grid-column: span 2 !important;
-    height: 42px !important;
-    font-size: 0.85rem !important;
+    grid-column: span 2;
+    height: 42px;
+    font-size: 0.85rem;
   }
 }
 
@@ -6192,27 +6196,30 @@ body::-webkit-scrollbar,
 }
 
 /* Dedicated full-width Badges Row & Amount Box (Protects long insurance names) */
+.hero-styled-card .hsc-amount-box,
 .hsc-amount-box {
-  display: flex !important;
-  flex-direction: column !important;
-  align-items: flex-end !important;
-  justify-content: flex-start !important;
-  flex-shrink: 0 !important;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  justify-content: flex-start;
+  flex-shrink: 0;
 }
 
+.hero-styled-card .hsc-badges-row,
 .hsc-badges-row {
-  display: flex !important;
-  align-items: center !important;
-  gap: 6px !important;
-  flex-wrap: wrap !important;
-  margin-top: 8px !important;
-  width: 100% !important;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-top: 8px;
+  width: 100%;
 }
 
+.hero-styled-card .hsc-badges-row .badge,
 .hsc-badges-row .badge {
-  white-space: normal !important;
-  line-height: 1.4 !important;
-  max-width: 100% !important;
+  white-space: normal;
+  line-height: 1.4;
+  max-width: 100%;
 }
 
 
