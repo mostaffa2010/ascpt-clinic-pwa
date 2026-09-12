@@ -47,8 +47,8 @@
   
 
     <!-- Stylesheets -->
-  <link rel="stylesheet" href="css/style.css?v=1.4.17" media="screen">
-  <link rel="stylesheet" href="css/print.css?v=1.4.17" media="print">
+  <link rel="stylesheet" href="css/style.css?v=1.4.18" media="screen">
+  <link rel="stylesheet" href="css/print.css?v=1.4.18" media="print">
 </head>
 <body>
   <script>
@@ -361,7 +361,7 @@
           <div class="card" id="card-doctor-personal-sessions" style="margin-top: 20px;">
             <div class="card-header" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
               <div class="card-title" style="margin: 0; display: flex; align-items: center; gap: 8px; font-size: 1rem;">
-                <i class="fa-solid fa-book-medical" style="color: var(--primary);"></i>
+                <i class="fa-solid fa-book-medical text-primary"></i>
                 <span id="doc-table-title">جلسات مرضاك اليوم</span>
               </div>
               <div style="display: flex; gap: 6px; flex-wrap: wrap;">
@@ -406,13 +406,13 @@
             <!-- Search Box -->
             <div style="flex: 1; min-width: 260px; position: relative;">
               <input type="text" id="patient-search-input" class="form-control" placeholder="ابحث بالاسم، رقم الموبايل، أو جهة التأمين..." style="padding-right: 38px; height: 42px; font-size: 0.9rem;">
-              <i class="fa-solid fa-magnifying-glass" style="position: absolute; right: 14px; top: 50%; transform: translateY(-50%); color: var(--text-muted);"></i>
+              <i class="fa-solid fa-magnifying-glass input-icon-end"></i>
             </div>
 
             <!-- Filter Dropdown -->
             <div style="min-width: 170px;">
               <div class="custom-select-wrapper">
-                <select id="patient-filter-type" class="form-control" style="display: none;">
+                <select id="patient-filter-type" class="form-control d-none">
                   <option value="all">كل الأنظمة</option>
                   <option value="cash">نقدي فقط</option>
                   <option value="insurance_direct">تأمين (مباشر)</option>
@@ -427,7 +427,7 @@
 
             <!-- Filter Today Patients Button -->
             <button type="button" class="btn btn-outline" id="btn-filter-today-patients" style="height: 42px; padding: 0 14px; font-weight: 700; white-space: nowrap; display: inline-flex; align-items: center; gap: 8px;" title="عرض مرضى مواعيد وجلسات اليوم فقط">
-              <i class="fa-solid fa-calendar-day" style="color: var(--primary);"></i>
+              <i class="fa-solid fa-calendar-day text-primary"></i>
               <span>حالات اليوم</span>
               <span class="badge badge-primary" id="badge-today-patients-count" style="font-size: 0.75rem; padding: 2px 7px; border-radius: 12px;">0</span>
             </button>
@@ -479,7 +479,7 @@
               <i class="fa-solid fa-arrow-right"></i> <span>رجوع</span>
             </button>
             <h2 style="font-size: 1.15rem; font-weight: 800; color: var(--text-main); margin: 0;">
-              <i class="fa-solid fa-file-waveform" style="color: var(--primary);"></i> شيت المريض
+              <i class="fa-solid fa-file-waveform text-primary"></i> شيت المريض
             </h2>
           </div>
           <div style="display: flex; gap: 8px;">
@@ -720,7 +720,7 @@
                       <i class="fa-solid fa-user-injured" style="font-size: 1.2rem; color: var(--primary);"></i>
                       <span id="patient-picker-placeholder" style="font-weight: 700; color: var(--primary); font-size: 0.92rem;">اضغط هنا للبحث واختيار المريض...</span>
                     </div>
-                    <i class="fa-solid fa-magnifying-glass" style="color: var(--primary);"></i>
+                    <i class="fa-solid fa-magnifying-glass text-primary"></i>
                   </div>
 
                   <div id="selected-patient-box" class="selected-patient-card" style="display: none;">
@@ -737,7 +737,7 @@
                 <div class="form-group">
                   <label for="session-doctor-select">الطبيب المعالج *</label>
                   <div class="custom-select-wrapper">
-                    <select id="session-doctor-select" class="form-control" style="display: none;" required></select>
+                    <select id="session-doctor-select" class="form-control d-none" required></select>
                     <button type="button" class="custom-select-btn" id="btn-select-session-doctor-select" data-open-picker="session-doctor-select" data-picker-title="اختر الطبيب المعالج">
                       <span class="btn-text">-- اختر الطبيب المعالج --</span>
                       <i class="fa-solid fa-chevron-down"></i>
@@ -748,7 +748,7 @@
                 <div class="form-group" id="form-group-body-parts">
                   <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
                     <label style="margin: 0; font-weight: 800; font-size: 0.88rem; color: var(--text-main);">
-                      <i class="fa-solid fa-bone" style="color: var(--primary);"></i> الأعضاء المعالجة في الجلسة *
+                      <i class="fa-solid fa-bone text-primary"></i> الأعضاء المعالجة في الجلسة *
                     </label>
                     <span id="session-body-parts-badge" class="badge badge-primary" style="font-size: 0.78rem;">0 أعضاء</span>
                   </div>
@@ -768,7 +768,7 @@
                 <!-- Examination Type Selector (Shown only in Examination mode) -->
                 <div class="form-group" id="form-group-exam-type" style="display: none; background: var(--bg-subtle); border: 1.5px solid var(--border-color); border-radius: var(--radius-md, 10px); padding: 12px;">
                   <label style="margin: 0 0 8px 0; font-weight: 800; font-size: 0.88rem; color: var(--text-main); display: block;">
-                    <i class="fa-solid fa-stethoscope" style="color: var(--primary);"></i> نوع الكشف المطلوب *
+                    <i class="fa-solid fa-stethoscope text-primary"></i> نوع الكشف المطلوب *
                   </label>
                   <div class="exam-type-segmented" style="display: flex; gap: 8px;">
                     <button type="button" class="btn exam-type-btn active" id="btn-exam-type-cash" style="flex: 1; padding: 10px 12px; font-weight: 800; font-size: 0.9rem; border-radius: 9px; display: flex; align-items: center; justify-content: center; gap: 6px; border: 1.5px solid var(--primary, #0284c7); background: var(--primary, #0284c7); color: #ffffff; cursor: pointer; transition: all 0.2s;">
@@ -816,7 +816,7 @@
           <div class="card" id="card-sessions-today">
             <div class="card-header" style="display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-wrap: nowrap;">
               <div class="card-title" style="margin: 0; display: flex; align-items: center; gap: 6px; font-size: 0.95rem; white-space: nowrap;">
-                <i class="fa-solid fa-list-check" style="color: var(--primary);"></i>
+                <i class="fa-solid fa-list-check text-primary"></i>
                 <span>سجل جلسات:</span>
                 <span id="sessions-table-date-label" class="badge" style="background: #e0f2fe; color: #0284c7; font-size: 0.82rem; font-weight: 800; white-space: nowrap;">اليوم</span>
               </div>
@@ -904,7 +904,7 @@
             <div style="display: flex; align-items: center; gap: 8px; width: 100%;">
               <label style="font-size: 0.85rem; font-weight: bold; white-space: nowrap; margin: 0;">تصفية بالطبيب:</label>
               <div class="custom-select-wrapper" style="flex: 1; min-width: 0;">
-                <select id="finance-doctor-filter" class="form-control" style="display: none;">
+                <select id="finance-doctor-filter" class="form-control d-none">
                   <option value="all">كل الأطباء</option>
                 </select>
                 <button type="button" class="custom-select-btn" id="btn-select-finance-doctor-filter" data-open-picker="finance-doctor-filter" data-picker-title="تصفية التقرير بالطبيب" style="width: 100%; justify-content: space-between;">
@@ -995,7 +995,7 @@
           <!-- Today Insurance Settlements Card -->
           <div class="card" id="finance-daily-settlements-card" style="margin-bottom: 16px; display: none;">
             <div class="card-header" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
-              <span class="card-title"><i class="fa-solid fa-money-bill-transfer" style="color: var(--primary);"></i> تحصيلات التأمين المسجلة اليوم</span>
+              <span class="card-title"><i class="fa-solid fa-money-bill-transfer text-primary"></i> تحصيلات التأمين المسجلة اليوم</span>
               <span class="badge badge-cash" id="daily-settlements-total-badge" style="font-size: 0.8rem; font-weight: 800;">0 ج.م</span>
             </div>
             <div class="table-responsive">
@@ -1308,7 +1308,7 @@
                 <div style="display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap;">
                   <div class="search-box" style="flex: 1; min-width: 240px; position: relative;">
                     <input type="text" id="claim-patient-search-input" class="form-control" placeholder="ابحث بالاسم، الهاتف، أو الطبيب في مرضى المطالبة..." style="padding-right: 38px; height: 42px; font-size: 0.88rem;">
-                    <i class="fa-solid fa-magnifying-glass" style="position: absolute; right: 14px; top: 50%; transform: translateY(-50%); color: var(--text-muted); pointer-events: none;"></i>
+                    <i class="fa-solid fa-magnifying-glass input-icon-end"></i>
                   </div>
                   <div id="claim-search-stats" style="font-size: 0.82rem; font-weight: 700; color: var(--text-muted);">
                     <!-- Dynamic search stats -->
@@ -1367,11 +1367,11 @@
               <div style="padding: 8px 4px 12px 4px; display: flex; gap: 12px; flex-wrap: wrap; align-items: center;">
                 <div class="search-box" style="flex: 1; min-width: 240px; position: relative;">
                   <input type="text" id="claims-ledger-search" class="form-control" placeholder="ابحث بكود المطالبة، اسم الشركة، أو الفترة..." style="padding-right: 38px; height: 40px; font-size: 0.86rem;">
-                  <i class="fa-solid fa-magnifying-glass" style="position: absolute; right: 14px; top: 50%; transform: translateY(-50%); color: var(--text-muted); pointer-events: none;"></i>
+                  <i class="fa-solid fa-magnifying-glass input-icon-end"></i>
                 </div>
                 <div style="display: flex; align-items: center; gap: 6px; min-width: 210px;">
                   <label for="claims-ledger-company-filter" style="font-size: 0.82rem; font-weight: 800; white-space: nowrap; color: var(--text-main);">
-                    <i class="fa-solid fa-filter" style="color: var(--primary);"></i> الشركة:
+                    <i class="fa-solid fa-filter text-primary"></i> الشركة:
                   </label>
                   <div class="custom-select-wrapper" style="flex: 1;">
                     <select id="claims-ledger-company-filter" style="display: none;">
@@ -1413,13 +1413,13 @@
       <!-- ================= View: Weekly Appointments Schedule ================= -->
       <section id="view-appointments" class="view-section">
         <div style="margin-bottom: 20px;">
-          <h2 style="font-size: 1.35rem; font-weight: 800;"><i class="fa-solid fa-calendar-week" style="color: var(--primary);"></i> جدول المواعيد الأسبوعي</h2>
+          <h2 style="font-size: 1.35rem; font-weight: 800;"><i class="fa-solid fa-calendar-week text-primary"></i> جدول المواعيد الأسبوعي</h2>
           <p style="font-size: 0.85rem; color: var(--text-muted);">قالب أسبوعي ثابت لكل الدكاترة — يفضل الموعد كما هو كل أسبوع حتى تحذفه وتحجز مكانه مريضاً آخر.</p>
         </div>
         <div class="card" id="card-main-appointments-schedule">
           <div class="card-header" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; padding: 12px 16px;">
             <div style="display: flex; align-items: center; gap: 10px;">
-              <span class="card-title" style="margin: 0;"><i class="fa-solid fa-table-cells" style="color: var(--primary);"></i> مواعيد أطباء المركز</span>
+              <span class="card-title" style="margin: 0;"><i class="fa-solid fa-table-cells text-primary"></i> مواعيد أطباء المركز</span>
               <button type="button" class="btn btn-outline btn-sm" id="btn-add-new-slot" style="color: var(--primary); border-color: var(--primary); font-weight: 800; font-size: 0.78rem; padding: 4px 10px; border-radius: 8px; cursor: pointer;">
                 <i class="fa-solid fa-plus"></i> إضافة موعد جديد
               </button>
@@ -1529,7 +1529,7 @@
                 <div class="form-group">
                   <label>الصلاحية (الدور) *</label>
                   <div class="custom-select-wrapper">
-                    <select id="newuser-role" class="form-control" style="display: none;" required>
+                    <select id="newuser-role" class="form-control d-none" required>
                       <option value="doctor">طبيب معالج (Doctor)</option>
                       <option value="receptionist">سكرتارية / استقبال (Receptionist)</option>
                       <option value="admin">مدير المركز (Admin - صلاحيات كاملة)</option>
@@ -1622,7 +1622,7 @@
         <div class="admin-system-footer no-print" style="margin-top: 32px; margin-bottom: 35px; text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px;">
           <div style="display: inline-flex; align-items: center; gap: 8px; background: var(--bg-surface); border: 1.5px solid var(--border-color); padding: 7px 18px; border-radius: 999px; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);">
             <span style="width: 8px; height: 8px; border-radius: 50%; background-color: var(--success); display: inline-block; box-shadow: 0 0 6px var(--success);"></span>
-            <span style="font-weight: 800; font-size: 0.88rem; color: var(--text-main);">نظام ASCPT — الإصدار 1.4.17</span>
+            <span style="font-weight: 800; font-size: 0.88rem; color: var(--text-main);">نظام ASCPT — الإصدار 1.4.18</span>
             <span class="badge badge-primary" style="font-size: 0.72rem; padding: 2px 10px; border-radius: 999px; font-weight: 800;">إصدار معتمد</span>
           </div>
           <div style="font-size: 0.76rem; color: var(--text-muted); font-weight: 700;">
@@ -1683,7 +1683,7 @@
             <div class="form-group">
               <label for="p-gender">النوع *</label>
               <div class="custom-select-wrapper">
-                <select id="p-gender" class="form-control" style="display: none;" required>
+                <select id="p-gender" class="form-control d-none" required>
                   <option value="" disabled selected>-- اختر --</option>
                   <option value="male">ذكر</option>
                   <option value="female">أنثى</option>
@@ -1708,7 +1708,7 @@
           <div class="form-group" style="margin-top: 12px;">
             <label for="p-doctor">الدكتور المعالج *</label>
             <div class="custom-select-wrapper">
-              <select id="p-doctor" class="form-control" style="display: none;" required></select>
+              <select id="p-doctor" class="form-control d-none" required></select>
               <button type="button" class="custom-select-btn" id="btn-select-p-doctor" data-open-picker="p-doctor" data-picker-title="اختر الطبيب المعالج للمريض">
                 <span class="btn-text">-- اختر الطبيب المعالج --</span>
                 <i class="fa-solid fa-chevron-down"></i>
@@ -1771,7 +1771,7 @@
               <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
                 <div class="form-group">
                   <label for="p-approved-sessions" style="font-weight: 800; font-size: 0.85rem; color: var(--text-main); margin-bottom: 4px; display: block; white-space: nowrap;">
-                    <i class="fa-solid fa-calendar-check" style="color: var(--primary);"></i> زيارات الجواب المعتمدة *
+                    <i class="fa-solid fa-calendar-check text-primary"></i> زيارات الجواب المعتمدة *
                   </label>
                   <input type="number" id="p-approved-sessions" class="form-control" value="12" min="1" max="100" style="height: 42px; font-weight: 800; font-size: 0.95rem; line-height: 1.4; padding: 0 10px;" placeholder="12">
                   <small style="color: var(--text-muted); font-size: 0.72rem; display: block; margin-top: 3px;">
@@ -1780,10 +1780,10 @@
                 </div>
                 <div class="form-group">
                   <label for="btn-select-p-approved-body-parts" style="font-weight: 800; font-size: 0.85rem; color: var(--text-main); margin-bottom: 4px; display: block; white-space: nowrap;">
-                    <i class="fa-solid fa-person-dots-from-line" style="color: var(--primary);"></i> الأعضاء بالزيارة *
+                    <i class="fa-solid fa-person-dots-from-line text-primary"></i> الأعضاء بالزيارة *
                   </label>
                   <div class="custom-select-wrapper">
-                    <select id="p-approved-body-parts" class="form-control" style="display: none;">
+                    <select id="p-approved-body-parts" class="form-control d-none">
                       <option value="1" selected>عضو واحد (1)</option>
                       <option value="2">عضوين (2)</option>
                       <option value="3">3 أعضاء (3)</option>
@@ -1819,7 +1819,7 @@
   <div class="modal-backdrop" id="modal-patient-docs" style="z-index: 210;">
     <div class="modal-content" style="max-width: 460px;">
       <div class="modal-header">
-        <h3><i class="fa-solid fa-file-invoice" style="color: var(--primary);"></i> المستندات والطباعة للمريض</h3>
+        <h3><i class="fa-solid fa-file-invoice text-primary"></i> المستندات والطباعة للمريض</h3>
         <button type="button" class="modal-close" data-close-modal="modal-patient-docs">&times;</button>
       </div>
       <div class="modal-body" style="padding: 16px;">
@@ -1844,7 +1844,7 @@
   <div class="modal-backdrop" id="modal-cash-receipt" style="z-index: 220;">
     <div class="modal-content" style="max-width: 460px;">
       <div class="modal-header">
-        <h3><i class="fa-solid fa-receipt" style="color: var(--primary);"></i> طباعة إيصال استلام نقدية</h3>
+        <h3><i class="fa-solid fa-receipt text-primary"></i> طباعة إيصال استلام نقدية</h3>
         <button type="button" class="modal-close" data-close-modal="modal-cash-receipt">&times;</button>
       </div>
       <form id="form-cash-receipt" novalidate>
@@ -1879,7 +1879,7 @@
   <div class="modal-backdrop" id="modal-medical-statement" style="z-index: 220;">
     <div class="modal-content" style="max-width: 520px;">
       <div class="modal-header">
-        <h3><i class="fa-solid fa-file-lines" style="color: var(--primary);"></i> إفادة طبية (إلى من يهمه الأمر)</h3>
+        <h3><i class="fa-solid fa-file-lines text-primary"></i> إفادة طبية (إلى من يهمه الأمر)</h3>
         <button type="button" class="modal-close" data-close-modal="modal-medical-statement">&times;</button>
       </div>
       <form id="form-medical-statement" novalidate>
@@ -1916,7 +1916,7 @@
   <div class="modal-backdrop" id="modal-renew-approval" style="z-index: 220;">
     <div class="modal-content" style="max-width: 440px;">
       <div class="modal-header">
-        <h3><i class="fa-solid fa-rotate-right" style="color: var(--primary);"></i> تجديد موافقة التأمين</h3>
+        <h3><i class="fa-solid fa-rotate-right text-primary"></i> تجديد موافقة التأمين</h3>
         <button type="button" class="modal-close" data-close-modal="modal-renew-approval">&times;</button>
       </div>
       <form id="form-renew-approval" novalidate>
@@ -1929,16 +1929,16 @@
           <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px;">
             <div class="form-group">
               <label for="renew-sessions-count" style="font-weight: 800; font-size: 0.85rem; color: var(--text-main); margin-bottom: 4px; display: block; white-space: nowrap;">
-                <i class="fa-solid fa-calendar-check" style="color: var(--primary);"></i> زيارات الجواب الجديد *
+                <i class="fa-solid fa-calendar-check text-primary"></i> زيارات الجواب الجديد *
               </label>
               <input type="number" id="renew-sessions-count" class="form-control" required min="1" max="100" value="12" style="height: 42px; font-weight: 800; font-size: 0.95rem; line-height: 1.4; padding: 0 10px;">
             </div>
             <div class="form-group">
               <label for="btn-select-renew-approved-body-parts" style="font-weight: 800; font-size: 0.85rem; color: var(--text-main); margin-bottom: 4px; display: block; white-space: nowrap;">
-                <i class="fa-solid fa-person-dots-from-line" style="color: var(--primary);"></i> الأعضاء بالزيارة *
+                <i class="fa-solid fa-person-dots-from-line text-primary"></i> الأعضاء بالزيارة *
               </label>
               <div class="custom-select-wrapper">
-                <select id="renew-approved-body-parts" class="form-control" style="display: none;">
+                <select id="renew-approved-body-parts" class="form-control d-none">
                   <option value="1" selected>عضو واحد (1)</option>
                   <option value="2">عضوين (2)</option>
                   <option value="3">3 أعضاء (3)</option>
@@ -1957,13 +1957,13 @@
           </div>
           <div class="form-group" style="margin-bottom: 12px;">
             <label for="renew-approval-date" style="font-weight: 800; font-size: 0.88rem; color: var(--text-main);">
-              <i class="fa-solid fa-calendar-day" style="color: var(--primary);"></i> تاريخ سريان الجواب الجديد *
+              <i class="fa-solid fa-calendar-day text-primary"></i> تاريخ سريان الجواب الجديد *
             </label>
             <input type="text" id="renew-approval-date" readonly class="form-control date-picker-clickable" required style="height: 40px; font-weight: 700;" data-open-calendar="renew-approval-date" placeholder="اختر التاريخ...">
           </div>
           <div class="form-group">
             <label for="renew-approval-no" style="font-weight: 700; font-size: 0.85rem; color: var(--text-main);">
-              <i class="fa-solid fa-id-card-clip" style="color: var(--primary);"></i> رقم خطاب الموافقة الجديد (اختياري)
+              <i class="fa-solid fa-id-card-clip text-primary"></i> رقم خطاب الموافقة الجديد (اختياري)
             </label>
             <input type="text" id="renew-approval-no" class="form-control" placeholder="رقم الموافقة إن وجد..." style="height: 40px;">
           </div>
@@ -1984,7 +1984,7 @@
   <div class="modal-backdrop" id="modal-expense">
     <div class="modal-content" style="max-width: 440px;">
       <div class="modal-header">
-        <h3><i class="fa-solid fa-receipt" style="color: var(--primary);"></i> تسجيل مصروف جديد</h3>
+        <h3><i class="fa-solid fa-receipt text-primary"></i> تسجيل مصروف جديد</h3>
         <button type="button" class="modal-close" data-close-modal="modal-expense">&times;</button>
       </div>
       <form id="form-expense" novalidate>
@@ -1993,14 +1993,14 @@
           <div class="form-group" style="margin-bottom: 14px;">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
               <label style="font-weight: 700; margin: 0; font-size: 0.88rem; color: var(--text-main);">
-                <i class="fa-solid fa-tags" style="color: var(--primary);"></i> بند المصروف *
+                <i class="fa-solid fa-tags text-primary"></i> بند المصروف *
               </label>
               <button type="button" class="btn-edit-chips" id="btn-manage-expense-categories" style="padding: 2px 8px; font-size: 0.74rem; font-weight: 700; display: inline-flex; align-items: center; gap: 4px;" title="إضافة أو حذف بنود من القائمة">
                 <i class="fa-solid fa-gear"></i> <span>إدارة البنود</span>
               </button>
             </div>
             <div class="custom-select-wrapper">
-              <select id="exp-category-select" class="form-control" style="display: none;" required>
+              <select id="exp-category-select" class="form-control d-none" required>
                 <!-- Populated dynamically -->
               </select>
               <button type="button" class="custom-select-btn" id="btn-select-exp-category-select" data-open-picker="exp-category-select" data-picker-title="اختر بند المصروف" style="height: 42px;">
@@ -2013,7 +2013,7 @@
           <!-- Optional Details / Notes Field -->
           <div class="form-group" style="margin-bottom: 14px;">
             <label for="exp-notes" style="font-weight: 700; font-size: 0.85rem; margin-bottom: 6px; display: block; color: var(--text-main);">
-              <i class="fa-solid fa-pen-to-square" style="color: var(--primary);"></i> بيان / تفاصيل إضافية (اختياري)
+              <i class="fa-solid fa-pen-to-square text-primary"></i> بيان / تفاصيل إضافية (اختياري)
             </label>
             <input type="text" id="exp-notes" class="form-control" placeholder="مثال: فاتورة كهرباء شهر أغسطس، شراء قطن وكحول..." style="height: 42px; font-size: 0.88rem;">
           </div>
@@ -2040,7 +2040,7 @@
   <div class="modal-backdrop" id="modal-manage-expense-categories" style="z-index: 240;">
     <div class="modal-content" style="max-width: 440px;">
       <div class="modal-header">
-        <h3 id="manage-exp-modal-title"><i class="fa-solid fa-tags" style="color: var(--primary);"></i> إدارة بنود المصروفات</h3>
+        <h3 id="manage-exp-modal-title"><i class="fa-solid fa-tags text-primary"></i> إدارة بنود المصروفات</h3>
         <button type="button" class="modal-close" data-close-modal="modal-manage-expense-categories">&times;</button>
       </div>
       <div class="modal-body" style="padding: 16px;">
@@ -2079,7 +2079,7 @@
           <div class="form-group" style="margin-bottom: 14px;" id="form-group-appt-doctor">
             <label style="display: inline-block; font-size: 0.88rem; font-weight: 700; color: var(--text-main); margin-bottom: 6px;">الطبيب المعالج *</label>
             <div class="custom-select-wrapper">
-              <select id="appt-doctor-select" class="form-control" style="display: none;" required></select>
+              <select id="appt-doctor-select" class="form-control d-none" required></select>
               <button type="button" class="custom-select-btn" id="btn-select-appt-doctor-select" data-open-picker="appt-doctor-select" data-picker-title="اختر الطبيب المعالج للموعد" style="width: 100%;">
                 <span class="btn-text">-- اختر الطبيب المعالج --</span>
                 <i class="fa-solid fa-chevron-down"></i>
@@ -2174,14 +2174,14 @@
         <form id="form-login" autocomplete="off" novalidate>
           <div class="form-group" style="margin-bottom: 14px;">
             <label for="login-email" style="display: block; font-size: 0.85rem; font-weight: 700; color: var(--text-main); margin-bottom: 6px;">
-              <i class="fa-solid fa-envelope" style="color: var(--primary);"></i> البريد الإلكتروني
+              <i class="fa-solid fa-envelope text-primary"></i> البريد الإلكتروني
             </label>
             <input type="email" id="login-email" class="form-control" placeholder="staff@ascpt.clinic" required autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" style="width: 100%; border-radius: 8px; padding: 10px 12px; font-size: 0.9rem; border: 1.5px solid var(--border-color);" dir="ltr">
           </div>
 
           <div class="form-group" style="margin-bottom: 14px;">
             <label for="login-password" style="display: block; font-size: 0.85rem; font-weight: 700; color: var(--text-main); margin-bottom: 6px;">
-              <i class="fa-solid fa-lock" style="color: var(--primary);"></i> كلمة السر
+              <i class="fa-solid fa-lock text-primary"></i> كلمة السر
             </label>
             <div style="position: relative;">
               <input type="text" id="login-password" class="form-control" placeholder="••••••••" required autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" style="width: 100%; border-radius: 8px; padding: 10px 40px 10px 12px; font-size: 0.9rem; border: 1.5px solid var(--border-color); -webkit-text-security: disc;" dir="ltr">
@@ -2277,7 +2277,7 @@
   <div class="modal-backdrop" id="modal-multi-picker" style="z-index: 360;">
     <div class="modal-content" style="max-width: 460px; max-height: 85vh; display: flex; flex-direction: column;">
       <div class="modal-header" style="flex-shrink: 0;">
-        <h3 id="multi-picker-title"><i class="fa-solid fa-list-check" style="color: var(--primary);"></i> اختر من القائمة</h3>
+        <h3 id="multi-picker-title"><i class="fa-solid fa-list-check text-primary"></i> اختر من القائمة</h3>
         <button type="button" class="modal-close" data-close-modal="modal-multi-picker">&times;</button>
       </div>
       
@@ -2621,7 +2621,7 @@
         <div class="form-group" style="margin-bottom: 12px;">
           <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
             <label style="font-weight: 800; margin: 0; font-size: 0.88rem; color: var(--text-main);">
-              <i class="fa-solid fa-list-check" style="color: var(--primary);"></i> خطة ووسائل العلاج (Plan of Treatment) *
+              <i class="fa-solid fa-list-check text-primary"></i> خطة ووسائل العلاج (Plan of Treatment) *
             </label>
             <span id="card-treatments-count-badge" class="badge badge-primary" style="font-size: 0.76rem;">0 محدد</span>
           </div>
@@ -2661,7 +2661,7 @@
       <div class="modal-header" style="background: var(--bg-subtle); border-bottom: 2px solid var(--primary); padding: 14px 18px;">
         <div>
           <h3 style="font-size: 1.15rem; font-weight: 800; color: var(--primary); margin: 0; display: flex; align-items: center; gap: 8px;">
-            <i class="fa-solid fa-calendar-days" style="color: var(--primary);"></i>
+            <i class="fa-solid fa-calendar-days text-primary"></i>
             <span>سجل جلسات: <strong id="modal-p-sess-patient-name" style="color: var(--text-main);">-</strong></span>
           </h3>
           <p style="margin: 4px 0 0 0; font-size: 0.8rem; color: var(--text-muted); font-weight: 700;">
@@ -2814,7 +2814,7 @@
   </div>
 
 <!-- Main Application Script (ES Module) -->
-  <script type="module" src="js/app.js?v=1.4.17"></script>
+  <script type="module" src="js/app.js?v=1.4.18"></script>
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
@@ -2837,7 +2837,7 @@
   <div class="modal-backdrop" id="modal-edit-appointment-slot" style="z-index: 225;">
     <div class="modal-content" style="max-width: 440px;">
       <div class="modal-header">
-        <h3 id="modal-slot-title"><i class="fa-solid fa-clock" style="color: var(--primary);"></i> تعديل موعد في الجدول</h3>
+        <h3 id="modal-slot-title"><i class="fa-solid fa-clock text-primary"></i> تعديل موعد في الجدول</h3>
         <button type="button" class="modal-close" data-close-modal="modal-edit-appointment-slot">&times;</button>
       </div>
       <form id="form-edit-appointment-slot" novalidate>
@@ -2952,7 +2952,7 @@
   <div class="modal-backdrop" id="modal-move-appointment">
     <div class="modal-content" style="max-width: 460px;">
       <div class="modal-header">
-        <h3 id="move-appt-modal-title"><i class="fa-solid fa-arrow-right-arrow-left" style="color: var(--primary);"></i> نقل وتعديل الموعد</h3>
+        <h3 id="move-appt-modal-title"><i class="fa-solid fa-arrow-right-arrow-left text-primary"></i> نقل وتعديل الموعد</h3>
         <button type="button" class="modal-close" data-close-modal="modal-move-appointment">&times;</button>
       </div>
       <form id="form-move-appointment" novalidate>
@@ -2969,10 +2969,10 @@
 
           <div class="form-group" style="margin-bottom: 14px;">
             <label style="font-weight: 700; font-size: 0.85rem; margin-bottom: 6px; display: block;">
-              <i class="fa-solid fa-user-doctor" style="color: var(--primary);"></i> اختيار الطبيب المعالج:
+              <i class="fa-solid fa-user-doctor text-primary"></i> اختيار الطبيب المعالج:
             </label>
             <div class="custom-select-wrapper">
-              <select id="move-appt-doctor" class="form-control" style="display: none;" required>
+              <select id="move-appt-doctor" class="form-control d-none" required>
                 <!-- Populated by JS -->
               </select>
               <button type="button" class="custom-select-btn" id="btn-select-move-appt-doctor" data-open-picker="move-appt-doctor" data-picker-title="اختيار الطبيب المعالج" style="height: 42px;">
@@ -2984,10 +2984,10 @@
 
           <div class="form-group" style="margin-bottom: 14px;">
             <label style="font-weight: 700; font-size: 0.85rem; margin-bottom: 6px; display: block;">
-              <i class="fa-regular fa-clock" style="color: var(--primary);"></i> اختيار الفترة / الساعة الجديدة:
+              <i class="fa-regular fa-clock text-primary"></i> اختيار الفترة / الساعة الجديدة:
             </label>
             <div class="custom-select-wrapper">
-              <select id="move-appt-slot" class="form-control" style="display: none;" required>
+              <select id="move-appt-slot" class="form-control d-none" required>
                 <!-- Populated by JS -->
               </select>
               <button type="button" class="custom-select-btn" id="btn-select-move-appt-slot" data-open-picker="move-appt-slot" data-picker-title="اختيار ميعاد الفترة" style="height: 42px;">
@@ -3011,7 +3011,7 @@
   <div class="modal-backdrop" id="modal-settle-claim">
     <div class="modal-content" style="max-width: 480px;">
       <div class="modal-header">
-        <h3 id="settle-modal-title"><i class="fa-solid fa-money-bill-transfer" style="color: var(--primary);"></i> تسجيل تحصيل مطالبة تأمين</h3>
+        <h3 id="settle-modal-title"><i class="fa-solid fa-money-bill-transfer text-primary"></i> تسجيل تحصيل مطالبة تأمين</h3>
         <button type="button" class="modal-close" data-close-modal="modal-settle-claim">&times;</button>
       </div>
       <form id="form-settle-claim" novalidate>
@@ -3020,10 +3020,10 @@
           <!-- 1. Insurance Company Selection -->
           <div class="form-group" style="margin-bottom: 14px;">
             <label style="font-weight: 700; font-size: 0.88rem; margin-bottom: 6px; display: block; color: var(--text-main);">
-              <i class="fa-solid fa-shield-halved" style="color: var(--primary);"></i> شركة التأمين المحصل منها *
+              <i class="fa-solid fa-shield-halved text-primary"></i> شركة التأمين المحصل منها *
             </label>
             <div class="custom-select-wrapper">
-              <select id="settle-company-select" class="form-control" style="display: none;" required>
+              <select id="settle-company-select" class="form-control d-none" required>
                 <!-- Populated dynamically from insurance companies -->
               </select>
               <button type="button" class="custom-select-btn" id="btn-select-settle-company-select" data-open-picker="settle-company-select" data-picker-title="اختر شركة التأمين" style="height: 42px;">
@@ -3037,13 +3037,13 @@
           <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px;">
             <div class="form-group">
               <label for="settle-claim-period" style="font-weight: 700; font-size: 0.84rem; margin-bottom: 4px; display: block; color: var(--text-main);">
-                <i class="fa-regular fa-calendar" style="color: var(--primary);"></i> شهر / فترة المطالبة *
+                <i class="fa-regular fa-calendar text-primary"></i> شهر / فترة المطالبة *
               </label>
               <input type="text" id="settle-claim-period" class="form-control" placeholder="مثال: مطالبة شهر 09-2026 أو أغسطس 2026" required style="height: 40px; font-size: 0.88rem;">
             </div>
             <div class="form-group">
               <label for="settle-date" style="font-weight: 700; font-size: 0.84rem; margin-bottom: 4px; display: block; color: var(--text-main);">
-                <i class="fa-solid fa-calendar-day" style="color: var(--primary);"></i> تاريخ السداد *
+                <i class="fa-solid fa-calendar-day text-primary"></i> تاريخ السداد *
               </label>
               <input type="text" id="settle-date" readonly class="form-control date-picker-clickable" required style="height: 40px; font-size: 0.88rem; font-weight: 700;" data-open-calendar="settle-date" placeholder="اختر التاريخ...">
             </div>
@@ -3052,7 +3052,7 @@
           <!-- 3. Payment Method: Bank / Cheque vs Cash -->
           <div class="form-group" style="margin-bottom: 14px;">
             <label style="font-weight: 700; font-size: 0.85rem; margin-bottom: 6px; display: block; color: var(--text-main);">
-              <i class="fa-solid fa-wallet" style="color: var(--primary);"></i> طريقة استلام وتسوية المبلغ *
+              <i class="fa-solid fa-wallet text-primary"></i> طريقة استلام وتسوية المبلغ *
             </label>
             <div class="insurance-contract-segmented" style="display: flex; gap: 6px; padding: 4px; background: var(--bg-subtle); border: 1px solid var(--border-color); border-radius: 8px;">
               <label class="segmented-option" style="flex: 1; margin: 0; cursor: pointer;">
@@ -3096,7 +3096,7 @@
                 سبب الاستقطاع / الخصم (إن وجد):
               </label>
               <div class="custom-select-wrapper">
-                <select id="settle-deduction-reason" class="form-control" style="display: none;">
+                <select id="settle-deduction-reason" class="form-control d-none">
                   <option value="لا توجد خصومات" selected>لا توجد خصومات (تحصيل كامل 100%)</option>
                   <option value="ضرائب أرباح تجارية ومنبع">ضرائب أرباح تجارية ومنبع</option>
                   <option value="استقطاعات وغرامات تأخير">استقطاعات وغرامات تأخير</option>
