@@ -47,8 +47,8 @@
   
 
     <!-- Stylesheets -->
-  <link rel="stylesheet" href="css/style.css?v=1.4.26" media="screen">
-  <link rel="stylesheet" href="css/print.css?v=1.4.26" media="print">
+  <link rel="stylesheet" href="css/style.css?v=1.4.27" media="screen">
+  <link rel="stylesheet" href="css/print.css?v=1.4.27" media="print">
 </head>
 <body>
   <script>
@@ -315,35 +315,50 @@
             </div>
           </div>
 
-          <!-- Doctor Personal KPI Stats Grid (Clinical & Patient Counts Only, NO Financials) -->
-          <div class="stats-grid">
-            <div class="stat-box">
-              <div class="stat-icon blue"><i class="fa-solid fa-user-injured"></i></div>
-              <div class="stat-info">
-                <div class="stat-value" id="stat-doc-today-count">0 حالة</div>
-                <div class="stat-label">مرضاك اليوم (زيارات • وحدات)</div>
+          <!-- Doctor Personal KPI Stats Grid (Stacked Horizontal Rows on Mobile, No Text Wrap) -->
+          <div class="stats-grid doc-kpi-stats-grid">
+            <div class="stat-box doc-kpi-box">
+              <div class="doc-kpi-info-group">
+                <div class="stat-icon blue doc-kpi-icon"><i class="fa-solid fa-user-injured"></i></div>
+                <div class="doc-kpi-labels">
+                  <span class="doc-kpi-title">مرضاك اليوم</span>
+                  <span class="doc-kpi-subtitle">زيارات • وحدات</span>
+                </div>
               </div>
+              <div class="doc-kpi-value" id="stat-doc-today-count">0 زيارة • 0 جلسة</div>
             </div>
-            <div class="stat-box">
-              <div class="stat-icon green"><i class="fa-solid fa-calendar-check"></i></div>
-              <div class="stat-info">
-                <div class="stat-value" id="stat-doc-month-count">0 حالة</div>
-                <div class="stat-label">حالات هذا الشهر (زيارات • وحدات)</div>
+
+            <div class="stat-box doc-kpi-box">
+              <div class="doc-kpi-info-group">
+                <div class="stat-icon green doc-kpi-icon"><i class="fa-solid fa-calendar-check"></i></div>
+                <div class="doc-kpi-labels">
+                  <span class="doc-kpi-title">حالات هذا الشهر</span>
+                  <span class="doc-kpi-subtitle">زيارات • وحدات</span>
+                </div>
               </div>
+              <div class="doc-kpi-value" id="stat-doc-month-count">0 زيارة • 0 جلسة</div>
             </div>
-            <div class="stat-box">
-              <div class="stat-icon purple" style="background-color: #f3e8ff; color: #9333ea;"><i class="fa-solid fa-hospital-user"></i></div>
-              <div class="stat-info">
-                <div class="stat-value" id="stat-doc-lifetime-count">0 مريض</div>
-                <div class="stat-label">إجمالي مرضاك (Lifetime)</div>
+
+            <div class="stat-box doc-kpi-box">
+              <div class="doc-kpi-info-group">
+                <div class="stat-icon purple doc-kpi-icon" style="background-color: #f3e8ff; color: #9333ea;"><i class="fa-solid fa-hospital-user"></i></div>
+                <div class="doc-kpi-labels">
+                  <span class="doc-kpi-title">إجمالي مرضاك</span>
+                  <span class="doc-kpi-subtitle">Lifetime</span>
+                </div>
               </div>
+              <div class="doc-kpi-value" id="stat-doc-lifetime-count">0 مريض</div>
             </div>
-            <div class="stat-box">
-              <div class="stat-icon amber"><i class="fa-solid fa-shield-halved"></i></div>
-              <div class="stat-info">
-                <div class="stat-value" id="stat-doc-types-ratio">-</div>
-                <div class="stat-label">توزيع الحالات (هذا الشهر)</div>
+
+            <div class="stat-box doc-kpi-box">
+              <div class="doc-kpi-info-group">
+                <div class="stat-icon amber doc-kpi-icon"><i class="fa-solid fa-shield-halved"></i></div>
+                <div class="doc-kpi-labels">
+                  <span class="doc-kpi-title">توزيع الحالات</span>
+                  <span class="doc-kpi-subtitle">هذا الشهر</span>
+                </div>
               </div>
+              <div class="doc-kpi-value" id="stat-doc-types-ratio">-</div>
             </div>
           </div>
 
@@ -480,23 +495,15 @@
 
       <!-- ================= View: Patient Clinical Sheet (شيت العلاج الطبيعي للمريض) ================= -->
       <section id="view-patient-sheet" class="view-section">
-        <!-- Top Action Bar (One sleek row on mobile) -->
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; gap: 8px;">
-          <div style="display: flex; align-items: center; gap: 8px;">
-            <button type="button" class="btn btn-outline btn-sm" id="btn-back-to-patients-top" title="رجوع لسجل المرضى" style="padding: 6px 10px;">
+        <!-- Top Action Bar (Clean, Uncluttered Mobile Header) -->
+        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px;">
+          <div style="display: flex; align-items: center; gap: 10px;">
+            <button type="button" class="btn btn-outline btn-sm" id="btn-back-to-patients-top" title="رجوع لسجل المرضى" style="padding: 6px 12px; font-weight: 700;">
               <i class="fa-solid fa-arrow-right"></i> <span>رجوع</span>
             </button>
-            <h2 style="font-size: 1.15rem; font-weight: 800; color: var(--text-main); margin: 0;">
-              <i class="fa-solid fa-file-waveform text-primary"></i> شيت المريض
+            <h2 style="font-size: 1.15rem; font-weight: 800; color: var(--text-main); margin: 0; display: flex; align-items: center; gap: 8px;">
+              <i class="fa-solid fa-file-waveform text-primary"></i> <span>شيت المريض</span>
             </h2>
-          </div>
-          <div style="display: flex; gap: 8px;">
-            <button type="button" class="btn btn-outline btn-sm" id="btn-print-insurance-letter" style="padding: 6px 12px; font-weight: 700; display: none;">
-              <i class="fa-solid fa-file-shield"></i> خطاب تجديد تأمين
-            </button>
-            <button type="button" class="btn btn-primary btn-sm btn-print-sheet" id="btn-print-sheet-top" style="padding: 6px 12px; font-weight: 700;">
-              <i class="fa-solid fa-print"></i> طباعة Wi-Fi
-            </button>
           </div>
         </div>
 
@@ -548,17 +555,25 @@
             <!-- Populated dynamically -->
           </div>
 
-          <!-- 4. Footer: Last Update & Sessions Button -->
-          <div class="pcm-footer-row">
-            <div class="pcm-update-time">
-              <i class="fa-solid fa-clock-rotate-left"></i>
-              <span>آخر تحديث: <strong id="sheet-last-update-text">-</strong></span>
-            </div>
+          <!-- 4. Clinical & Insurance Action Strip (Directly attached to session & approval tracking) -->
+          <div class="pcm-sessions-action-row">
             <button type="button" class="btn btn-outline btn-sm pcm-sessions-btn" id="btn-view-patient-sessions">
               <i class="fa-solid fa-calendar-check" style="color: var(--primary);"></i>
               <span>سجل الجلسات</span>
               <span class="badge" id="sheet-sessions-badge-count">0 جلسة</span>
             </button>
+            <button type="button" class="btn btn-outline btn-sm pcm-insurance-letter-btn" id="btn-print-insurance-letter" style="display: none;">
+              <i class="fa-solid fa-file-shield"></i>
+              <span>خطاب تجديد تأمين</span>
+            </button>
+          </div>
+
+          <!-- 5. Footer: Last Update Timestamp -->
+          <div class="pcm-footer-row">
+            <div class="pcm-update-time">
+              <i class="fa-solid fa-clock-rotate-left"></i>
+              <span>آخر تحديث: <strong id="sheet-last-update-text">-</strong></span>
+            </div>
           </div>
         </div>
 
@@ -1642,7 +1657,7 @@
         <div class="admin-system-footer no-print" style="margin-top: 32px; margin-bottom: 35px; text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px;">
           <div style="display: inline-flex; align-items: center; gap: 8px; background: var(--bg-surface); border: 1.5px solid var(--border-color); padding: 7px 18px; border-radius: 999px; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);">
             <span style="width: 8px; height: 8px; border-radius: 50%; background-color: var(--success); display: inline-block; box-shadow: 0 0 6px var(--success);"></span>
-            <span style="font-weight: 800; font-size: 0.88rem; color: var(--text-main);">نظام ASCPT — الإصدار 1.4.26</span>
+            <span style="font-weight: 800; font-size: 0.88rem; color: var(--text-main);">نظام ASCPT — الإصدار 1.4.27</span>
             <span class="badge badge-primary" style="font-size: 0.72rem; padding: 2px 10px; border-radius: 999px; font-weight: 800;">إصدار معتمد</span>
           </div>
           <div style="font-size: 0.76rem; color: var(--text-muted); font-weight: 700;">
@@ -2839,7 +2854,7 @@
   </div>
 
 <!-- Main Application Script (ES Module) -->
-  <script type="module" src="js/app.js?v=1.4.26"></script>
+  <script type="module" src="js/app.js?v=1.4.27"></script>
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
