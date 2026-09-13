@@ -121,8 +121,8 @@
   
 
     <!-- Stylesheets -->
-  <link rel="stylesheet" href="css/style.css?v=1.4.84" media="screen">
-  <link rel="stylesheet" href="css/print.css?v=1.4.84" media="print">
+  <link rel="stylesheet" href="css/style.css?v=1.4.85" media="screen">
+  <link rel="stylesheet" href="css/print.css?v=1.4.85" media="print">
 </head>
 <body>
   <script>
@@ -655,7 +655,7 @@
           <div class="top-scrollbar-wrapper no-print" id="patients-top-scroll-wrap" style="display: none; overflow-x: auto; overflow-y: hidden; height: 12px; margin-bottom: 6px; border-radius: 4px; background: var(--bg-subtle);">
             <div class="top-scrollbar-dummy" id="patients-top-scroll-dummy" style="height: 1px;"></div>
           </div>
-          <div class="table-responsive" id="patients-table-container" style="display: none;">
+          <div class="table-responsive desktop-only-table" id="patients-table-container" style="display: none;">
             <table class="data-table" id="patients-data-table">
               <thead>
                 <tr>
@@ -1073,7 +1073,7 @@
                 </button>
               </div>
             </div>
-            <div class="table-responsive" id="sessions-table-container" style="display: none;">
+            <div class="table-responsive desktop-only-table" id="sessions-table-container" style="display: none;">
               <table class="data-table" id="sessions-today-table">
                 <thead>
                   <tr>
@@ -2062,7 +2062,7 @@
         <div class="admin-system-footer no-print" style="margin-top: 32px; margin-bottom: 35px; text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px;">
           <div style="display: inline-flex; align-items: center; gap: 8px; background: var(--bg-surface); border: 1.5px solid var(--border-color); padding: 7px 18px; border-radius: 999px; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);">
             <span style="width: 8px; height: 8px; border-radius: 50%; background-color: var(--success); display: inline-block; box-shadow: 0 0 6px var(--success);"></span>
-            <span style="font-weight: 800; font-size: 0.88rem; color: var(--text-main);">نظام ASCPT — الإصدار 1.4.84</span>
+            <span style="font-weight: 800; font-size: 0.88rem; color: var(--text-main);">نظام ASCPT — الإصدار 1.4.85</span>
             <span class="badge badge-primary" style="font-size: 0.72rem; padding: 2px 10px; border-radius: 999px; font-weight: 800;">إصدار معتمد</span>
           </div>
           <div style="font-size: 0.76rem; color: var(--text-muted); font-weight: 700;">
@@ -3913,7 +3913,7 @@
   </div>
 
 <!-- Main Application Script (ES Module) -->
-  <script type="module" src="js/app.js?v=1.4.84"></script>
+  <script type="module" src="js/app.js?v=1.4.85"></script>
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {

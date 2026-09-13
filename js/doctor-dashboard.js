@@ -210,6 +210,15 @@ export class DoctorDashboardManager {
           </td>
         </tr>
       `;
+      const mobCont = document.getElementById('doctor-personal-mobile-cards');
+      if (mobCont) {
+        mobCont.innerHTML = `
+          <div class="empty-state-card" style="text-align: center; padding: 28px 20px; color: var(--text-muted); background: var(--bg-surface); border-radius: 14px; border: 1.5px dashed var(--border-color);">
+            <i class="fa-solid fa-folder-open" style="font-size: 1.8rem; margin-bottom: 8px; display: block; color: #cbd5e1;"></i>
+            لا توجد جلسات مسجلة لك في هذا النطاق.
+          </div>
+        `;
+      }
       return;
     }
 
