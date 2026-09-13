@@ -146,6 +146,28 @@ export class FinanceManager {
     }
 
     // Event Delegation: Daily Expenses Table
+    const dailySetMob = document.getElementById('daily-settlements-mobile-cards');
+    if (dailySetMob) {
+      dailySetMob.addEventListener('click', async (e) => {
+        const btn = e.target.closest('.btn-delete-settlement');
+        if (btn) {
+          const sid = btn.getAttribute('data-settlement-id');
+          await this.deleteSettlement(sid);
+        }
+      });
+    }
+
+    const mSetMob = document.getElementById('monthly-settlements-mobile-cards');
+    if (mSetMob) {
+      mSetMob.addEventListener('click', async (e) => {
+        const btn = e.target.closest('.btn-delete-settlement');
+        if (btn) {
+          const sid = btn.getAttribute('data-settlement-id');
+          await this.deleteSettlement(sid);
+        }
+      });
+    }
+
     const expensesTbody = document.getElementById('finance-expenses-tbody');
     if (expensesTbody) {
       expensesTbody.addEventListener('click', (e) => {
@@ -792,7 +814,7 @@ export class FinanceManager {
             <td style="font-size: 0.85rem;">${escapeHTML(s.claimPeriod || '-')}</td>
             <td style="font-weight: 700;">${(parseFloat(s.grossAmount) || 0).toLocaleString('en-US')}</td>
             <td style="color: var(--danger); font-size: 0.85rem;">
-              ${(parseFloat(s.deductions) || 0) > 0 ? `${(parseFloat(s.deductions) || 0).toLocaleString('en-US')} ج.م (${escapeHTML(s.deductionReason || '')})` : '-'}
+              ${(parseFloat(s.deductions) || 0) > 0 ? `${(parseFloat(s.deductions) || 0).toLocaleString('en-US')} (${escapeHTML(s.deductionReason || '')})` : '-'}
             </td>
             <td style="font-weight: 800; color: var(--success); font-size: 0.95rem;">${(parseFloat(s.netAmount) || 0).toLocaleString('en-US')}</td>
             <td>
@@ -811,6 +833,56 @@ export class FinanceManager {
             </td>
           </tr>
         `).join('');
+
+        const dailySetMob = document.getElementById('daily-settlements-mobile-cards');
+        if (dailySetMob) {
+          dailySetMob.innerHTML = todaySettlements.map(s => {
+            const safeComp = escapeHTML(s.companyName);
+            const safePeriod = escapeHTML(s.claimPeriod || '-');
+            const gross = (parseFloat(s.grossAmount) || 0).toLocaleString('en-US');
+            const ded = parseFloat(s.deductions) || 0;
+            const net = (parseFloat(s.netAmount) || 0).toLocaleString('en-US');
+            const isCash = s.paymentMethod === 'cash';
+            const payBadge = isCash
+              ? `<span class="badge badge-cash"><i class="fa-solid fa-money-bill-wave"></i> نقداً بالدرج</span>`
+              : `<span class="badge badge-direct"><i class="fa-solid fa-building-columns"></i> تحويل بنكي</span>`;
+
+            return `
+              <div class="hero-styled-card" style="margin-bottom: 8px;">
+                <div class="hsc-top">
+                  <div class="hsc-patient-meta">
+                    <div class="hsc-avatar" style="background: rgba(2, 132, 199, 0.12); color: var(--primary);">
+                      <i class="fa-solid fa-file-invoice-dollar"></i>
+                    </div>
+                    <div class="hsc-name-box">
+                      <span class="hsc-patient-name">${safeComp}</span>
+                      <span class="hsc-doc-sub"><i class="fa-regular fa-calendar"></i> ${safePeriod}</span>
+                    </div>
+                  </div>
+                  <div class="hsc-amount-box">
+                    <span class="hsc-amount-val" style="color: var(--success); font-size: 1.15rem; font-weight: 900;">${net} <small>ج.م</small></span>
+                  </div>
+                </div>
+
+                <div class="hsc-badges-row">
+                  ${payBadge}
+                  ${ded > 0 ? `<span class="badge badge-danger"><i class="fa-solid fa-tag"></i> خصم: ${ded.toLocaleString('en-US')} ج.م</span>` : ''}
+                </div>
+
+                <div class="hsc-divider" style="margin: 8px 0;"></div>
+
+                <div style="display: flex; justify-content: space-between; align-items: center; font-size: 0.78rem; color: var(--text-muted);">
+                  <div>الأصلي: <strong>${gross} ج.م</strong> • المسجل: ${escapeHTML(s.recordedBy || '-')}</div>
+                  ${canDel ? `
+                    <button type="button" class="btn btn-outline btn-sm btn-delete-record btn-delete-settlement" style="color: var(--danger); border-color: rgba(239, 68, 68, 0.3); padding: 3px 8px; font-size: 0.74rem;" data-settlement-id="${s.id}">
+                      <i class="fa-solid fa-trash"></i> حذف
+                    </button>
+                  ` : ''}
+                </div>
+              </div>
+            `;
+          }).join('');
+        }
       } else {
         dailySetCard.style.display = 'none';
         dailySetTbody.innerHTML = '';
@@ -1405,9 +1477,11 @@ export class FinanceManager {
       mSetBadge.textContent = `صافي: ${totalSettlementsNet.toLocaleString('en-US')} ج.م ${totalSettlementsDeductions > 0 ? `(استقطاعات: ${totalSettlementsDeductions.toLocaleString('en-US')} ج.م)` : ''}`;
     }
 
+    const mSetMob = document.getElementById('monthly-settlements-mobile-cards');
     if (mSetTbody) {
       if (monthSettlements.length === 0) {
         mSetTbody.innerHTML = `<tr><td colspan="9" style="text-align: center; color: var(--text-muted); padding: 20px;">لا توجد تحصيلات مطالبات مسجلة لهذا الشهر حتى الآن.</td></tr>`;
+        if (mSetMob) mSetMob.innerHTML = `<div style="text-align: center; color: var(--text-muted); padding: 20px; font-size: 0.85rem;">لا توجد تحصيلات مطالبات مسجلة لهذا الشهر حتى الآن.</div>`;
       } else {
         const canDel = RolesManager.canDeleteFinance(auth.getCurrentUser());
         mSetTbody.innerHTML = monthSettlements.map(s => `
@@ -1417,7 +1491,7 @@ export class FinanceManager {
             <td style="font-size: 0.85rem;">${escapeHTML(s.claimPeriod || '-')}</td>
             <td style="font-weight: 700;">${(parseFloat(s.grossAmount) || 0).toLocaleString('en-US')}</td>
             <td style="color: var(--danger); font-size: 0.85rem;">
-              ${(parseFloat(s.deductions) || 0) > 0 ? `${(parseFloat(s.deductions) || 0).toLocaleString('en-US')} ج.م (${escapeHTML(s.deductionReason || '')})` : '-'}
+              ${(parseFloat(s.deductions) || 0) > 0 ? `${(parseFloat(s.deductions) || 0).toLocaleString('en-US')} (${escapeHTML(s.deductionReason || '')})` : '-'}
             </td>
             <td style="font-weight: 800; color: var(--success); font-size: 0.95rem;">${(parseFloat(s.netAmount) || 0).toLocaleString('en-US')}</td>
             <td>
@@ -1426,7 +1500,7 @@ export class FinanceManager {
                 ${s.paymentMethod === 'cash' ? 'نقداً بالدرج' : 'تحويل بنكي / شيك'}
               </span>
             </td>
-            <td style="font-size: 0.8rem; color: var(--text-muted);">${escapeHTML(s.recordedBy || '-')}</td>
+            <td class="no-print" style="font-size: 0.8rem; color: var(--text-muted);">${escapeHTML(s.recordedBy || '-')}</td>
             <td class="no-print">
               ${canDel ? `
                 <button type="button" class="btn btn-outline btn-sm btn-delete-record btn-delete-settlement" style="color: var(--danger);" data-settlement-id="${s.id}" title="حذف حركة التحصيل">
@@ -1436,6 +1510,55 @@ export class FinanceManager {
             </td>
           </tr>
         `).join('');
+
+        if (mSetMob) {
+          mSetMob.innerHTML = monthSettlements.map(s => {
+            const safeComp = escapeHTML(s.companyName);
+            const safePeriod = escapeHTML(s.claimPeriod || '-');
+            const gross = (parseFloat(s.grossAmount) || 0).toLocaleString('en-US');
+            const ded = parseFloat(s.deductions) || 0;
+            const net = (parseFloat(s.netAmount) || 0).toLocaleString('en-US');
+            const isCash = s.paymentMethod === 'cash';
+            const payBadge = isCash
+              ? `<span class="badge badge-cash"><i class="fa-solid fa-money-bill-wave"></i> نقداً بالدرج</span>`
+              : `<span class="badge badge-direct"><i class="fa-solid fa-building-columns"></i> تحويل بنكي</span>`;
+
+            return `
+              <div class="hero-styled-card" style="margin-bottom: 8px;">
+                <div class="hsc-top">
+                  <div class="hsc-patient-meta">
+                    <div class="hsc-avatar" style="background: rgba(16, 185, 129, 0.12); color: var(--success);">
+                      <i class="fa-solid fa-receipt"></i>
+                    </div>
+                    <div class="hsc-name-box">
+                      <span class="hsc-patient-name">${safeComp}</span>
+                      <span class="hsc-doc-sub"><i class="fa-solid fa-calendar-day"></i> ${escapeHTML(s.settlementDate || '')} • ${safePeriod}</span>
+                    </div>
+                  </div>
+                  <div class="hsc-amount-box">
+                    <span class="hsc-amount-val" style="color: var(--success); font-size: 1.15rem; font-weight: 900;">${net} <small>ج.م</small></span>
+                  </div>
+                </div>
+
+                <div class="hsc-badges-row">
+                  ${payBadge}
+                  ${ded > 0 ? `<span class="badge badge-danger"><i class="fa-solid fa-tag"></i> خصم: ${ded.toLocaleString('en-US')} ج.م</span>` : ''}
+                </div>
+
+                <div class="hsc-divider" style="margin: 8px 0;"></div>
+
+                <div style="display: flex; justify-content: space-between; align-items: center; font-size: 0.78rem; color: var(--text-muted);">
+                  <div>الأصلي: <strong>${gross} ج.م</strong> • المسجل: ${escapeHTML(s.recordedBy || '-')}</div>
+                  ${canDel ? `
+                    <button type="button" class="btn btn-outline btn-sm btn-delete-record btn-delete-settlement" style="color: var(--danger); border-color: rgba(239, 68, 68, 0.3); padding: 3px 8px; font-size: 0.74rem;" data-settlement-id="${s.id}">
+                      <i class="fa-solid fa-trash"></i> حذف
+                    </button>
+                  ` : ''}
+                </div>
+              </div>
+            `;
+          }).join('');
+        }
       }
     }
 

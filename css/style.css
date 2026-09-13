@@ -8935,3 +8935,26 @@ body.role-receptionist #dashboard-admin-view {
   background: var(--primary) !important;
   color: #ffffff !important;
 }
+
+/* ==========================================================================
+   MOBILE-FIRST CARDS-ONLY POLICY (v1.4.65)
+   Completely remove table toggle buttons and enforce 100% cards on mobile
+   ========================================================================== */
+@media screen and (max-width: 991px) {
+  .desktop-only,
+  .view-mode-toggle-group,
+  #patients-view-mode-toggle,
+  #sessions-view-mode-toggle {
+    display: none !important;
+  }
+
+  #patients-table-container,
+  #sessions-table-container {
+    display: none !important;
+  }
+
+  #patients-mobile-cards,
+  #sessions-today-mobile-cards {
+    display: grid !important;
+  }
+}

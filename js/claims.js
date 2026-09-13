@@ -219,6 +219,34 @@ export class ClaimsManager {
       });
     });
 
+    // Event Delegation for Claims Ledger Cards & Table
+    const ledgerMob = document.getElementById('claims-ledger-mobile-cards');
+    if (ledgerMob) {
+      ledgerMob.addEventListener('click', async (e) => {
+        const settleBtn = e.target.closest('.btn-settle-ledger-claim');
+        if (settleBtn) {
+          const claimId = settleBtn.getAttribute('data-claim-id');
+          const claim = this.claimsLedgerData.find(c => c.id === claimId);
+          if (claim) this.openSettleClaim(claim);
+          return;
+        }
+
+        const loadBtn = e.target.closest('.btn-load-ledger-claim');
+        if (loadBtn) {
+          const claimId = loadBtn.getAttribute('data-claim-id');
+          await this.loadClaimIntoEditor(claimId);
+          return;
+        }
+
+        const delBtn = e.target.closest('.btn-delete-ledger-claim');
+        if (delBtn) {
+          const claimId = delBtn.getAttribute('data-claim-id');
+          await this.deleteClaim(claimId);
+          return;
+        }
+      });
+    }
+
     // Event Delegation for Claims Ledger Table
     const ledgerTbody = document.getElementById('claims-ledger-tbody');
     if (ledgerTbody) {
@@ -1186,6 +1214,87 @@ export class ClaimsManager {
         </tr>
       `;
     }).join('');
+
+    const mobLedger = document.getElementById('claims-ledger-mobile-cards');
+    if (mobLedger) {
+      if (filtered.length === 0) {
+        mobLedger.innerHTML = `<div style="text-align: center; color: var(--text-muted); padding: 20px; font-size: 0.85rem;">لا توجد مطالبات تأمين مسجلة مطابقة للبحث.</div>`;
+      } else {
+        mobLedger.innerHTML = filtered.map(c => {
+          const safeId = escapeHTML(c.id);
+          const safeCode = escapeHTML(c.claimCode || 'CLM-SYS');
+          const safeCompany = escapeHTML(c.companyName);
+          const safePeriod = `من ${escapeHTML(c.startDate || '')} إلى ${escapeHTML(c.endDate || '')}`;
+          const safePatientsCount = escapeHTML(c.totalPatients || 0);
+          const safeSessionsCount = escapeHTML(c.totalSessions || 0);
+          const safeAmount = (parseFloat(c.totalAmount) || 0).toLocaleString('en-US');
+          const safeDate = escapeHTML(c.claimDate || (c.createdAt ? c.createdAt.slice(0, 10) : ''));
+
+          let statusBadge = '';
+          if (c.status === 'settled') {
+            statusBadge = `<span class="badge" style="background: #dcfce7; color: #15803d; border: 1px solid #bbf7d0; font-weight: 800; font-size: 0.78rem;"><i class="fa-solid fa-circle-check"></i> تم التحصيل</span>`;
+          } else if (c.status === 'partial') {
+            const ded = (parseFloat(c.deductions) || 0).toLocaleString('en-US');
+            statusBadge = `<span class="badge" style="background: #e0e7ff; color: #3730a3; border: 1px solid #c7d2fe; font-weight: 800; font-size: 0.78rem;"><i class="fa-solid fa-hand-holding-dollar"></i> تحصيل جزئي (${ded} ج.م استقطاع)</span>`;
+          } else {
+            statusBadge = `<span class="badge" style="background: #fef3c7; color: #b45309; border: 1px solid #fde68a; font-weight: 800; font-size: 0.78rem;"><i class="fa-solid fa-clock"></i> قيد التحصيل</span>`;
+          }
+
+          let settledDisplay = '';
+          if (c.status === 'settled' || c.status === 'partial') {
+            const netSettled = (parseFloat(c.settledAmount) || 0).toLocaleString('en-US');
+            settledDisplay = `<div style="font-size: 0.8rem; color: var(--success); font-weight: 800; margin-top: 4px;">المحصل: ${netSettled} ج.م <span style="font-size: 0.72rem; color: var(--text-muted); font-weight: normal;">(${escapeHTML(c.settledDate || '')})</span></div>`;
+          }
+
+          return `
+            <div class="hero-styled-card" style="margin-bottom: 10px;">
+              <div class="hsc-top">
+                <div class="hsc-patient-meta">
+                  <div class="hsc-avatar" style="background: rgba(2, 132, 199, 0.12); color: var(--primary);">
+                    <i class="fa-solid fa-building-shield"></i>
+                  </div>
+                  <div class="hsc-name-box">
+                    <span class="hsc-patient-name">${safeCompany}</span>
+                    <span class="hsc-doc-sub"><i class="fa-solid fa-hashtag"></i> ${safeCode} • ${safeDate}</span>
+                  </div>
+                </div>
+                <div class="hsc-amount-box">
+                  <span class="hsc-amount-val" style="color: var(--primary); font-size: 1.15rem; font-weight: 900;">${safeAmount} <small>ج.م</small></span>
+                </div>
+              </div>
+
+              <div class="hsc-badges-row">
+                ${statusBadge}
+                <span class="badge badge-role-doctor" style="font-weight: 700;">${safePatientsCount} مريض • ${safeSessionsCount} جلسة</span>
+              </div>
+
+              ${settledDisplay}
+
+              <div class="hsc-divider" style="margin: 8px 0;"></div>
+
+              <div style="display: flex; justify-content: space-between; align-items: center; gap: 8px;">
+                <div style="font-size: 0.76rem; color: var(--text-muted);">
+                  <i class="fa-regular fa-calendar"></i> ${safePeriod}
+                </div>
+                <div style="display: flex; gap: 6px;">
+                  <button type="button" class="btn btn-outline btn-sm btn-settle-ledger-claim" data-claim-id="${safeId}" style="color: var(--primary); border-color: var(--primary); padding: 4px 10px; font-size: 0.78rem; font-weight: 700;">
+                    <i class="fa-solid fa-money-bill-transfer"></i> تحصيل
+                  </button>
+                  <button type="button" class="btn btn-outline btn-sm btn-load-ledger-claim" data-claim-id="${safeId}" style="padding: 4px 8px; font-size: 0.78rem;" title="فتح وعرض المطالبة">
+                    <i class="fa-solid fa-eye"></i>
+                  </button>
+                  ${canDelete ? `
+                    <button type="button" class="btn btn-outline btn-sm btn-delete-ledger-claim" data-claim-id="${safeId}" style="color: var(--danger); border-color: rgba(239, 68, 68, 0.3); padding: 4px 8px; font-size: 0.78rem;" title="حذف المطالبة">
+                      <i class="fa-solid fa-trash"></i>
+                    </button>
+                  ` : ''}
+                </div>
+              </div>
+            </div>
+          `;
+        }).join('');
+      }
+    }
   }
 
   async saveCurrentClaim() {
