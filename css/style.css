@@ -5305,17 +5305,18 @@ body::-webkit-scrollbar,
 @media screen and (max-width: 767px) {
   #finance-top-actions {
     display: grid !important;
-    grid-template-columns: repeat(2, 1fr) !important;
+    grid-template-columns: repeat(3, 1fr) !important;
     gap: 8px !important;
     width: 100% !important;
-    margin-top: 10px !important;
+    margin-top: 4px !important;
+    margin-bottom: 12px !important;
   }
 
   #finance-top-actions .btn {
-    height: 42px !important;
-    padding: 0 10px !important;
-    font-size: 0.82rem !important;
-    border-radius: 12px !important;
+    height: 40px !important;
+    padding: 0 6px !important;
+    font-size: 0.78rem !important;
+    border-radius: 10px !important;
     justify-content: center !important;
     white-space: nowrap !important;
   }
@@ -8319,7 +8320,7 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 /* ==========================================================================
-   COMPACT SMART SESSION & EXAMINATION FORM (v1.4.57)
+   COMPACT SMART SESSION & EXAMINATION FORM (v1.4.58)
    ========================================================================== */
 
 /* 1. Mode Switcher (جلسة vs كشف) */
@@ -8648,7 +8649,7 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 /* ========================================================
-   Instant Zero-Flicker Role-Based UI Gatekeeper (v1.4.57)
+   Instant Zero-Flicker Role-Based UI Gatekeeper (v1.4.58)
    Pre-paint protection for doctor / receptionist / admin
    ======================================================== */
 html.role-doctor #dashboard-admin-view,
@@ -8694,7 +8695,7 @@ body.role-receptionist #dashboard-admin-view {
 }
 
 /* ========================================================
-   Modern Financial Cockpit & Analytics Suite (v1.4.57)
+   Modern Financial Cockpit & Analytics Suite (v1.4.58)
    ======================================================== */
 .financial-cockpit-card {
   margin-bottom: 16px;
@@ -8786,7 +8787,7 @@ body.role-receptionist #dashboard-admin-view {
 }
 
 /* ========================================================
-   Insurance Claims Actions Hub at Bottom (v1.4.57)
+   Insurance Claims Actions Hub at Bottom (v1.4.58)
    ======================================================== */
 #card-claim-actions-hub {
   margin-top: 8px;
@@ -8801,7 +8802,7 @@ body.role-receptionist #dashboard-admin-view {
   }
 }
 
-/* Dedicated Cohesive Container for Claim Patients (v1.4.57) */
+/* Dedicated Cohesive Container for Claim Patients (v1.4.58) */
 #card-claim-patients-wrap {
   background: var(--bg-surface) !important;
   border: 1.5px solid var(--border-color) !important;
@@ -8829,7 +8830,7 @@ body.role-receptionist #dashboard-admin-view {
 
 
 /* ==========================================================================
-   UNIVERSAL MODERN RESPONSIVE CARDS GRID (v1.4.57)
+   UNIVERSAL MODERN RESPONSIVE CARDS GRID (v1.4.58)
    Replaces cramped tables with responsive card grids (3 or 2 columns)
    ========================================================================== */
 .patients-grid-container {
@@ -8862,7 +8863,7 @@ body.role-receptionist #dashboard-admin-view {
 }
 
 /* ==========================================================================
-   APPOINTMENTS 2-COLUMN CARDS GRID (v1.4.57)
+   APPOINTMENTS 2-COLUMN CARDS GRID (v1.4.58)
    Replaces the legacy weekly matrix table on all screen sizes
    ========================================================================== */
 .appt-timeline-grid-container {
@@ -8890,7 +8891,7 @@ body.role-receptionist #dashboard-admin-view {
 }
 
 /* ==========================================================================
-   VIEW MODE TOGGLE GROUP (Cards vs Table v1.4.57)
+   VIEW MODE TOGGLE GROUP (Cards vs Table v1.4.58)
    ========================================================================== */
 .view-mode-toggle-group {
   display: inline-flex !important;
