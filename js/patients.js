@@ -2153,7 +2153,7 @@ export class PatientsManager {
     document.getElementById('p-print-address').textContent = p.address || '-';
     document.getElementById('p-print-doctor').textContent = p.doctor;
     document.getElementById('p-print-billing').textContent = p.billing === 'cash' 
-      ? 'نقدي (Cash)' 
+      ? 'سداد نقدي' 
       : `${p.insuranceCompany || 'تأمين'} (${p.contractType === 'direct' ? 'تعاقد مباشر' : 'تعاقد غير مباشر'})`;
 
     // 2. Diagnosis

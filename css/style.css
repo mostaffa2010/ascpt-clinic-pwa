@@ -8322,7 +8322,7 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 /* ==========================================================================
-   COMPACT SMART SESSION & EXAMINATION FORM (v1.4.49)
+   COMPACT SMART SESSION & EXAMINATION FORM (v1.4.50)
    ========================================================================== */
 
 /* 1. Mode Switcher (جلسة vs كشف) */
@@ -8651,7 +8651,7 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 /* ========================================================
-   Instant Zero-Flicker Role-Based UI Gatekeeper (v1.4.49)
+   Instant Zero-Flicker Role-Based UI Gatekeeper (v1.4.50)
    Pre-paint protection for doctor / receptionist / admin
    ======================================================== */
 html.role-doctor #dashboard-admin-view,
@@ -8697,7 +8697,7 @@ body.role-receptionist #dashboard-admin-view {
 }
 
 /* ========================================================
-   Modern Financial Cockpit & Analytics Suite (v1.4.49)
+   Modern Financial Cockpit & Analytics Suite (v1.4.50)
    ======================================================== */
 .financial-cockpit-card {
   margin-bottom: 16px;

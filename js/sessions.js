@@ -486,7 +486,7 @@ export class SessionsManager {
               <i class="fa-solid fa-money-bill-wave"></i>
             </div>
             <div>
-              <div class="pay-title">كشف نقدي مباشر (Cash)</div>
+              <div class="pay-title">كشف نقدي مباشر</div>
               <div class="pay-sub">يتم تحصيل سعر الكشف نقداً وتوريده لخزينة المركز</div>
             </div>
           </div>
@@ -624,7 +624,7 @@ export class SessionsManager {
               </div>
               <div>
                 <div class="pay-title">
-                  سداد نقدي مباشر (Cash)
+                  سداد نقدي مباشر
                 </div>
                 <div class="pay-sub">
                   المريض غير خاضع لأي تعاقد تأميني

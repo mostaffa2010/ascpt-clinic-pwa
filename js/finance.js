@@ -1557,7 +1557,7 @@ export class FinanceManager {
         const categories = {};
         allSessions.forEach(s => {
           if (s.payType === 'cash') {
-            const key = 'نقدي (Cash)';
+            const key = 'سداد نقدي';
             if (!categories[key]) categories[key] = { name: key, type: 'سداد نقدي مباشر', count: 0 };
             categories[key].count++;
           } else {
@@ -1605,7 +1605,7 @@ export class FinanceManager {
         const categories = {};
         allSessions.forEach(s => {
           if (s.payType === 'cash') {
-            const key = 'نقدي (Cash)';
+            const key = 'سداد نقدي';
             if (!categories[key]) categories[key] = { name: key, type: 'سداد نقدي مباشر', count: 0 };
             categories[key].count++;
           } else {

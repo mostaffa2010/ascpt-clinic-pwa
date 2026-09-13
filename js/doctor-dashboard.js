@@ -32,7 +32,7 @@ export class DoctorDashboardManager {
     const titles = {
       today: 'جلسات مرضاك اليوم',
       month: 'حالات وجلسات هذا الشهر',
-      lifetime: 'سجل جميع مرضاك (Lifetime)'
+      lifetime: 'سجل جميع مرضاك'
     };
     const titleEl = document.getElementById('doc-table-title');
     if (titleEl) titleEl.textContent = titles[filterType] || 'جلسات مرضاك';

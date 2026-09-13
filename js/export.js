@@ -128,7 +128,7 @@ export class ExportManager {
         }
 
         XLSX.writeFile(wb, `تقرير_PhysioFlow_اليومي_${dateStr}.xlsx`);
-        this.app.showToast('تم تصدير تقرير اليوم (Excel) بنجاح');
+        this.app.showToast('تم تصدير تقرير اليوم بنجاح');
         return;
       }
 
@@ -199,7 +199,7 @@ export class ExportManager {
       // بيانات شركات التأمين والنقدي
       const catMap = {};
       allSessions.forEach(s => {
-        const key = s.payType === 'cash' ? 'نقدي (Cash)' : (s.insuranceName || 'شركة تأمين');
+        const key = s.payType === 'cash' ? 'سداد نقدي' : (s.insuranceName || 'شركة تأمين');
         const type = s.payType === 'cash' ? 'نقدي مباشر' : (s.contractType === 'direct' ? 'تعاقد مباشر' : 'تعاقد غير مباشر');
         if (!catMap[key]) catMap[key] = { name: key, type, count: 0 };
         catMap[key].count++;
@@ -272,7 +272,7 @@ export class ExportManager {
         }
 
         XLSX.writeFile(wb, `تقرير_PhysioFlow_الشهري_${monthStr}.xlsx`);
-        this.app.showToast('تم تصدير التقرير الشهري (Excel) بنجاح');
+        this.app.showToast('تم تصدير التقرير الشهري بنجاح');
         return;
       }
 
@@ -306,7 +306,7 @@ export class ExportManager {
     a.click();
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
-    this.app.showToast('تم تصدير الملف (Excel CSV) بنجاح');
+    this.app.showToast('تم تصدير الملف بنجاح');
   }
 
   printReport() {
