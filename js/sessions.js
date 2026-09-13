@@ -22,7 +22,11 @@ export class SessionsManager {
     this.examType = 'cash'; // 'cash' | 'contract'
     this.selectedPatient = null;
     this.currentPage = 1;
-    this.pageSize = 10;
+    this.pageSize = 12;
+    this.viewMode = 'cards';
+    try {
+      this.viewMode = localStorage.getItem('ascpt_sessions_view_mode') || 'cards';
+    } catch (_) {}
     this.newlyAddedSessionId = null;
     window.sessionsManager = this;
   }
@@ -53,6 +57,13 @@ export class SessionsManager {
     // Quick Date Buttons
     document.getElementById('btn-quick-sess-today')?.addEventListener('click', () => this.setDateQuick('today'));
     document.getElementById('btn-quick-sess-yesterday')?.addEventListener('click', () => this.setDateQuick('yesterday'));
+
+    // View Mode Toggle (Cards vs Table v1.4.57)
+    document.getElementById('sessions-view-mode-toggle')?.addEventListener('click', (e) => {
+      const btn = e.target.closest('.btn-view-mode');
+      if (!btn) return;
+      this.setViewMode(btn.getAttribute('data-view-mode'));
+    });
 
     // Mode Switcher (Session vs Examination)
     document.getElementById('btn-mode-session')?.addEventListener('click', () => this.setEntryMode('session'));
@@ -1551,6 +1562,37 @@ export class SessionsManager {
           }
         });
       }
+    }
+    this.applyViewModeUI();
+  }
+
+  setViewMode(mode) {
+    this.viewMode = mode;
+    try { localStorage.setItem('ascpt_sessions_view_mode', mode); } catch (_) {}
+    this.applyViewModeUI();
+  }
+
+  applyViewModeUI() {
+    const isCards = (this.viewMode === 'cards');
+    const tableContainer = document.getElementById('sessions-table-container');
+    const cardsContainer = document.getElementById('sessions-today-mobile-cards');
+    const toggleGroup = document.getElementById('sessions-view-mode-toggle');
+
+    if (tableContainer && cardsContainer) {
+      if (isCards) {
+        tableContainer.style.display = 'none';
+        cardsContainer.style.display = 'grid';
+      } else {
+        tableContainer.style.display = 'block';
+        cardsContainer.style.display = 'none';
+      }
+    }
+
+    if (toggleGroup) {
+      toggleGroup.querySelectorAll('.btn-view-mode').forEach(btn => {
+        const active = (btn.getAttribute('data-view-mode') === this.viewMode);
+        btn.classList.toggle('active', active);
+      });
     }
   }
 

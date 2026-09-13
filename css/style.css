@@ -3579,8 +3579,9 @@ body {
    Handcrafted Mobile Cards matching the Hero Banner aesthetic
    ======================================================== */
 @media screen and (min-width: 992px) {
-  .mobile-only-cards-container {
-    display: none;
+  .mobile-only-cards-container,
+  .appt-timeline-container {
+    display: none !important;
   }
 }
 
@@ -3925,11 +3926,13 @@ body {
 }
 
 /* ================= Mobile Appointments Timeline (v1.4.0-beta.7) ================= */
-.appt-timeline-container {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  width: 100%;
+@media screen and (max-width: 991px) {
+  .appt-timeline-container {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 12px !important;
+    width: 100% !important;
+  }
 }
 
 .appt-slot-card {
@@ -6363,8 +6366,6 @@ body::-webkit-scrollbar,
    ========================================================================== */
 @media screen and (max-width: 991px) {
   /* v1.4.0-beta.31: Eliminate Inner Scroll Traps - Natural Viewport Flow */
-  #sessions-today-mobile-cards,
-  #patients-mobile-cards,
   #doctor-personal-mobile-cards,
   #finance-report-mobile-cards,
   #dashboard-recent-mobile-cards,
@@ -6382,8 +6383,6 @@ body::-webkit-scrollbar,
   }
 
   /* CRITICAL: Never shrink cards! Keep full normal card dimensions, padding, and all details */
-  #sessions-today-mobile-cards > *,
-  #patients-mobile-cards > *,
   #doctor-personal-mobile-cards > *,
   #finance-report-mobile-cards > *,
   #dashboard-recent-mobile-cards > * {
@@ -8320,7 +8319,7 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 /* ==========================================================================
-   COMPACT SMART SESSION & EXAMINATION FORM (v1.4.55)
+   COMPACT SMART SESSION & EXAMINATION FORM (v1.4.57)
    ========================================================================== */
 
 /* 1. Mode Switcher (جلسة vs كشف) */
@@ -8649,7 +8648,7 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 /* ========================================================
-   Instant Zero-Flicker Role-Based UI Gatekeeper (v1.4.55)
+   Instant Zero-Flicker Role-Based UI Gatekeeper (v1.4.57)
    Pre-paint protection for doctor / receptionist / admin
    ======================================================== */
 html.role-doctor #dashboard-admin-view,
@@ -8695,7 +8694,7 @@ body.role-receptionist #dashboard-admin-view {
 }
 
 /* ========================================================
-   Modern Financial Cockpit & Analytics Suite (v1.4.55)
+   Modern Financial Cockpit & Analytics Suite (v1.4.57)
    ======================================================== */
 .financial-cockpit-card {
   margin-bottom: 16px;
@@ -8787,7 +8786,7 @@ body.role-receptionist #dashboard-admin-view {
 }
 
 /* ========================================================
-   Insurance Claims Actions Hub at Bottom (v1.4.55)
+   Insurance Claims Actions Hub at Bottom (v1.4.57)
    ======================================================== */
 #card-claim-actions-hub {
   margin-top: 8px;
@@ -8802,7 +8801,7 @@ body.role-receptionist #dashboard-admin-view {
   }
 }
 
-/* Dedicated Cohesive Container for Claim Patients (v1.4.55) */
+/* Dedicated Cohesive Container for Claim Patients (v1.4.57) */
 #card-claim-patients-wrap {
   background: var(--bg-surface) !important;
   border: 1.5px solid var(--border-color) !important;
@@ -8826,4 +8825,112 @@ body.role-receptionist #dashboard-admin-view {
   #card-claim-patients-wrap {
     padding: 12px 10px !important;
   }
+}
+
+
+/* ==========================================================================
+   UNIVERSAL MODERN RESPONSIVE CARDS GRID (v1.4.57)
+   Replaces cramped tables with responsive card grids (3 or 2 columns)
+   ========================================================================== */
+.patients-grid-container {
+  display: grid !important;
+  grid-template-columns: repeat(auto-fill, minmax(330px, 1fr)) !important;
+  gap: 16px !important;
+  width: 100% !important;
+  box-sizing: border-box !important;
+}
+
+@media screen and (max-width: 768px) {
+  .patients-grid-container {
+    grid-template-columns: 1fr !important;
+    gap: 12px !important;
+    padding: 4px 2px 14px 2px !important;
+  }
+}
+
+.patients-grid-container .hero-styled-card {
+  margin-bottom: 0 !important;
+  box-sizing: border-box !important;
+  display: flex !important;
+  flex-direction: column !important;
+  justify-content: space-between !important;
+}
+
+.patients-grid-container .mobile-pagination-bar {
+  grid-column: 1 / -1 !important;
+  margin-top: 10px !important;
+}
+
+/* ==========================================================================
+   APPOINTMENTS 2-COLUMN CARDS GRID (v1.4.57)
+   Replaces the legacy weekly matrix table on all screen sizes
+   ========================================================================== */
+.appt-timeline-grid-container {
+  display: grid !important;
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  gap: 16px !important;
+  width: 100% !important;
+  box-sizing: border-box !important;
+}
+
+@media screen and (max-width: 860px) {
+  .appt-timeline-grid-container {
+    grid-template-columns: 1fr !important;
+    gap: 12px !important;
+  }
+}
+
+.appt-timeline-grid-container .appt-slot-card {
+  margin: 0 !important;
+  height: 100% !important;
+  box-sizing: border-box !important;
+  display: flex !important;
+  flex-direction: column !important;
+  justify-content: space-between !important;
+}
+
+/* ==========================================================================
+   VIEW MODE TOGGLE GROUP (Cards vs Table v1.4.57)
+   ========================================================================== */
+.view-mode-toggle-group {
+  display: inline-flex !important;
+  align-items: center !important;
+  background: var(--bg-subtle) !important;
+  padding: 3px !important;
+  border-radius: 10px !important;
+  border: 1.5px solid var(--border-color) !important;
+  gap: 3px !important;
+  box-sizing: border-box !important;
+}
+
+.view-mode-toggle-group .btn-view-mode {
+  border: none !important;
+  background: transparent !important;
+  color: var(--text-muted) !important;
+  font-weight: 700 !important;
+  font-size: 0.78rem !important;
+  padding: 5px 12px !important;
+  border-radius: 7px !important;
+  cursor: pointer !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+  transition: all 0.15s ease !important;
+  line-height: 1 !important;
+}
+
+.view-mode-toggle-group .btn-view-mode:hover {
+  color: var(--text-main) !important;
+}
+
+.view-mode-toggle-group .btn-view-mode.active {
+  background: var(--primary) !important;
+  color: #ffffff !important;
+  font-weight: 800 !important;
+  box-shadow: 0 2px 6px rgba(2, 132, 199, 0.25) !important;
+}
+
+[data-theme="dark"] .view-mode-toggle-group .btn-view-mode.active {
+  background: var(--primary) !important;
+  color: #ffffff !important;
 }

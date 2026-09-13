@@ -30,7 +30,7 @@
       })();
     </script>
     <style>
-      /* Zero-Flicker Pre-Paint Gatekeeper (v1.4.55) */
+      /* Zero-Flicker Pre-Paint Gatekeeper (v1.4.57) */
       html.role-doctor #dashboard-admin-view,
       body.role-doctor #dashboard-admin-view,
       html.role-doctor .bottom-nav [data-view="sessions"],
@@ -102,8 +102,8 @@
   
 
     <!-- Stylesheets -->
-  <link rel="stylesheet" href="css/style.css?v=1.4.55" media="screen">
-  <link rel="stylesheet" href="css/print.css?v=1.4.55" media="print">
+  <link rel="stylesheet" href="css/style.css?v=1.4.57" media="screen">
+  <link rel="stylesheet" href="css/print.css?v=1.4.57" media="print">
 </head>
 <body>
   <script>
@@ -538,16 +538,28 @@
               </button>
             </div>
 
-            <!-- Row 3: Compact Sort Segmented Toggle & Add Patient Button Side-by-Side -->
-            <div style="display: flex; gap: 8px; width: 100%; align-items: center; justify-content: space-between;">
-              <!-- Compact Sort Segmented Toggle -->
-              <div class="patients-sort-segmented" style="height: 38px;">
-                <button type="button" class="sort-seg-btn active" id="btn-sort-recent" data-sort="recent" title="ترتيب زمني: أحدث من تم تسجيلهم أولاً">
-                  <i class="fa-solid fa-clock-rotate-left"></i> <span>الأحدث</span>
-                </button>
-                <button type="button" class="sort-seg-btn" id="btn-sort-alphabetical" data-sort="alphabetical" title="ترتيب أبجدي من الألف إلى الياء">
-                  <i class="fa-solid fa-arrow-down-a-z"></i> <span>أبجدياً</span>
-                </button>
+            <!-- Row 3: Sort Segmented Toggle & View Mode Toggle & Add Patient Button (v1.4.57) -->
+            <div style="display: flex; gap: 8px; width: 100%; align-items: center; justify-content: space-between; flex-wrap: wrap;">
+              <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+                <!-- Compact Sort Segmented Toggle -->
+                <div class="patients-sort-segmented" style="height: 38px;">
+                  <button type="button" class="sort-seg-btn active" id="btn-sort-recent" data-sort="recent" title="ترتيب زمني: أحدث من تم تسجيلهم أولاً">
+                    <i class="fa-solid fa-clock-rotate-left"></i> <span>الأحدث</span>
+                  </button>
+                  <button type="button" class="sort-seg-btn" id="btn-sort-alphabetical" data-sort="alphabetical" title="ترتيب أبجدي من الألف إلى الياء">
+                    <i class="fa-solid fa-arrow-down-a-z"></i> <span>أبجدياً</span>
+                  </button>
+                </div>
+
+                <!-- View Mode Switcher: Cards vs Table (v1.4.57) -->
+                <div class="view-mode-toggle-group no-print" id="patients-view-mode-toggle" style="height: 38px;">
+                  <button type="button" class="btn-view-mode active" data-view-mode="cards" title="عرض كروت متجاوبة (Grid)">
+                    <i class="fa-solid fa-table-cells-large"></i> <span>كروت</span>
+                  </button>
+                  <button type="button" class="btn-view-mode" data-view-mode="table" title="عرض جدول كلاسيكي">
+                    <i class="fa-solid fa-table-list"></i> <span>جدول</span>
+                  </button>
+                </div>
               </div>
 
               <!-- Add Patient Button -->
@@ -564,7 +576,7 @@
           <div class="top-scrollbar-wrapper no-print" id="patients-top-scroll-wrap" style="display: none; overflow-x: auto; overflow-y: hidden; height: 12px; margin-bottom: 6px; border-radius: 4px; background: var(--bg-subtle);">
             <div class="top-scrollbar-dummy" id="patients-top-scroll-dummy" style="height: 1px;"></div>
           </div>
-          <div class="table-responsive desktop-only-table" id="patients-table-container">
+          <div class="table-responsive" id="patients-table-container" style="display: none;">
             <table class="data-table" id="patients-data-table">
               <thead>
                 <tr>
@@ -583,8 +595,8 @@
               </tbody>
             </table>
           </div>
-          <!-- Handcrafted Dedicated Mobile Cards for Patients -->
-          <div id="patients-mobile-cards" class="mobile-only-cards-container"></div>
+          <!-- Dedicated Modern Cards Grid for Patients (v1.4.57) -->
+          <div id="patients-mobile-cards" class="patients-grid-container" style="padding: 10px 12px;"></div>
         </div>
       </section>
 
@@ -601,7 +613,7 @@
           </h2>
         </div>
 
-        <!-- Patient Clinical Record Header Card (Clean, Modern & Uncluttered v1.4.55) -->
+        <!-- Patient Clinical Record Header Card (Clean, Modern & Uncluttered v1.4.57) -->
         <div class="card patient-clinical-main-card gender-male" id="patient-clinical-card">
           <!-- 1. Patient Name (Standalone, Full-Width) -->
           <div class="pcm-name-bar">
@@ -776,7 +788,7 @@
           <!-- Form: Log New Session or Examination -->
           <div class="card">
             <div class="card-header" style="padding: 0 0 10px 0; border-bottom: none; display: block; width: 100%;">
-              <!-- Streamlined Compact Mode Switcher (v1.4.55) -->
+              <!-- Streamlined Compact Mode Switcher (v1.4.57) -->
               <div class="session-mode-segmented-compact">
                 <button type="button" id="btn-mode-session" class="session-mode-compact-btn active">
                   <i class="fa-solid fa-bolt"></i>
@@ -926,17 +938,28 @@
             </form>
           </div>
 
-          <!-- Table of Today's Sessions -->
+          <!-- Table / Cards of Today's Sessions (v1.4.57) -->
           <div class="card" id="card-sessions-today">
-            <div class="card-header" style="display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-wrap: nowrap;">
-              <div class="card-title" style="margin: 0; display: flex; align-items: center; gap: 6px; font-size: 0.95rem; white-space: nowrap;">
-                <i class="fa-solid fa-list-check text-primary"></i>
-                <span>سجل جلسات:</span>
-                <span id="sessions-table-date-label" class="badge" style="background: #e0f2fe; color: #0284c7; font-size: 0.82rem; font-weight: 800; white-space: nowrap;">اليوم</span>
+            <div class="card-header" style="display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap;">
+              <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+                <div class="card-title" style="margin: 0; display: flex; align-items: center; gap: 6px; font-size: 0.95rem; white-space: nowrap;">
+                  <i class="fa-solid fa-list-check text-primary"></i>
+                  <span>سجل جلسات:</span>
+                  <span id="sessions-table-date-label" class="badge" style="background: #e0f2fe; color: #0284c7; font-size: 0.82rem; font-weight: 800; white-space: nowrap;">اليوم</span>
+                </div>
+                <span class="badge badge-cash" id="sessions-today-count-badge" style="flex-shrink: 0; white-space: nowrap; font-size: 0.82rem; padding: 4px 10px; font-weight: 800;">0 جلسة</span>
               </div>
-              <span class="badge badge-cash" id="sessions-today-count-badge" style="flex-shrink: 0; white-space: nowrap; font-size: 0.82rem; padding: 4px 10px; font-weight: 800;">0 جلسة</span>
+              <!-- View Mode Toggle: Cards vs Table (v1.4.57) -->
+              <div class="view-mode-toggle-group no-print" id="sessions-view-mode-toggle" style="height: 34px;">
+                <button type="button" class="btn-view-mode active" data-view-mode="cards" title="عرض كروت متجاوبة (Grid)">
+                  <i class="fa-solid fa-table-cells-large"></i> <span>كروت</span>
+                </button>
+                <button type="button" class="btn-view-mode" data-view-mode="table" title="عرض جدول كلاسيكي">
+                  <i class="fa-solid fa-table-list"></i> <span>جدول</span>
+                </button>
+              </div>
             </div>
-            <div class="table-responsive desktop-only-table" id="sessions-table-container">
+            <div class="table-responsive" id="sessions-table-container" style="display: none;">
               <table class="data-table" id="sessions-today-table">
                 <thead>
                   <tr>
@@ -955,8 +978,8 @@
                 </tbody>
               </table>
             </div>
-            <!-- Handcrafted Dedicated Mobile Cards for Sessions -->
-            <div id="sessions-today-mobile-cards" class="mobile-only-cards-container"></div>
+            <!-- Dedicated Modern Cards Grid for Sessions (v1.4.57) -->
+            <div id="sessions-today-mobile-cards" class="patients-grid-container" style="padding: 10px 12px;"></div>
           </div>
         </div>
       </section>
@@ -1042,7 +1065,7 @@
           </div>
         </div>
 
-        <!-- Unified Financial Cockpit & Cash Safe Hub (Modernized v1.4.55) -->
+        <!-- Unified Financial Cockpit & Cash Safe Hub (Modernized v1.4.57) -->
         <div class="card no-print financial-cockpit-card" id="card-cash-drawer-glance">
           <div class="cash-drawer-top-row">
             <div class="cash-drawer-brand">
@@ -1191,7 +1214,7 @@
 
         <!-- ================= CONTENT B: MONTHLY REPORT ================= -->
         <div id="finance-monthly-content" style="display: none;">
-          <!-- Monthly Operating Profit & Margin Cockpit (v1.4.55) -->
+          <!-- Monthly Operating Profit & Margin Cockpit (v1.4.57) -->
           <div class="card no-print" id="card-monthly-profit-glance" style="margin-bottom: 16px;">
             <div class="cash-drawer-top-row">
               <div class="cash-drawer-brand">
@@ -1319,7 +1342,7 @@
             </div>
           </div>
 
-          <!-- Monthly Expenses Categorical Distribution Card (v1.4.55) -->
+          <!-- Monthly Expenses Categorical Distribution Card (v1.4.57) -->
           <div class="card" id="card-monthly-expenses-categories" style="margin-bottom: 16px;">
             <div class="card-header" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
               <span class="card-title"><i class="fa-solid fa-chart-pie" style="color: var(--danger);"></i> توزيع المصروفات الشهرية حسب البنود</span>
@@ -1382,7 +1405,7 @@
 
           <!-- ================= 3. Insurance Claims & Attendance Cards (مطالبات شركات التأمين وبطاقات التردد) ================= -->
           <div id="finance-claims-content" style="display: none;">
-            <!-- Control Panel (Modern Medical Form Style v1.4.55) -->
+            <!-- Control Panel (Modern Medical Form Style v1.4.57) -->
             <div class="card" id="card-claim-settings" style="margin-bottom: 16px; border: 1.5px solid var(--border-color); background: var(--bg-surface); padding: 16px 18px; border-radius: 18px;">
               <div class="card-header" style="border-bottom: 1px solid var(--border-color); padding-bottom: 10px; margin-bottom: 14px; display: flex; justify-content: space-between; align-items: center; gap: 10px;">
                 <div style="display: flex; align-items: center; gap: 8px;">
@@ -1506,7 +1529,7 @@
               </div>
             </div>
 
-            <!-- 1. Patients Table & Cards (Placed in Dedicated Cohesive Container v1.4.55) -->
+            <!-- 1. Patients Table & Cards (Placed in Dedicated Cohesive Container v1.4.57) -->
             <div class="card" id="card-claim-patients-wrap">
               <div class="card-header">
                 <div style="display: flex; align-items: center; gap: 8px;">
@@ -1566,7 +1589,7 @@
               <div id="claim-patients-mobile-cards" class="mobile-only-cards-container" style="padding: 10px 12px;"></div>
             </div>
 
-            <!-- 2. Grand Summary Stats Banner (Located directly UNDER Patients Cards v1.4.55) -->
+            <!-- 2. Grand Summary Stats Banner (Located directly UNDER Patients Cards v1.4.57) -->
             <div class="stats-grid" id="claim-kpi-stats-grid" style="margin-bottom: 16px; width: 100%;">
               <div class="stat-box">
                 <div class="stat-icon blue"><i class="fa-solid fa-users"></i></div>
@@ -1591,7 +1614,7 @@
               </div>
             </div>
 
-            <!-- 3. Action & Printing Hub (Located at BOTTOM v1.4.55) -->
+            <!-- 3. Action & Printing Hub (Located at BOTTOM v1.4.57) -->
             <div class="card" id="card-claim-actions-hub" style="margin-bottom: 16px; border: 1.5px solid var(--border-color); background: var(--bg-surface); padding: 14px 16px;">
               <div class="card-header" style="border-bottom: 1px solid var(--border-color); padding-bottom: 8px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center;">
                 <span class="card-title" style="font-size: 1rem; font-weight: 800; color: var(--text-main);">
@@ -1692,14 +1715,14 @@
         <div class="card" id="card-main-appointments-schedule">
           <div class="card-header" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; padding: 12px 16px;">
             <div style="display: flex; align-items: center; gap: 10px;">
-              <span class="card-title" style="margin: 0;"><i class="fa-solid fa-table-cells text-primary"></i> مواعيد أطباء المركز</span>
+              <span class="card-title" style="margin: 0;"><i class="fa-solid fa-calendar-days text-primary"></i> مواعيد أطباء المركز</span>
               <button type="button" class="btn btn-outline btn-sm" id="btn-add-new-slot" style="color: var(--primary); border-color: var(--primary); font-weight: 800; font-size: 0.78rem; padding: 4px 10px; border-radius: 8px; cursor: pointer;">
                 <i class="fa-solid fa-plus"></i> إضافة موعد جديد
               </button>
             </div>
             <span class="badge" style="background: #e0f2fe; color: #0284c7; font-weight: 800; font-size: 0.8rem;" id="appt-bed-count-badge">سعة المواعيد: ٦ أسرة لكل موعد</span>
           </div>
-          <div class="table-responsive">
+          <div style="padding: 14px 16px;">
             <div id="appointments-grid"><!-- Populated by JS --></div>
           </div>
         </div>
@@ -1895,7 +1918,7 @@
         <div class="admin-system-footer no-print" style="margin-top: 32px; margin-bottom: 35px; text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px;">
           <div style="display: inline-flex; align-items: center; gap: 8px; background: var(--bg-surface); border: 1.5px solid var(--border-color); padding: 7px 18px; border-radius: 999px; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);">
             <span style="width: 8px; height: 8px; border-radius: 50%; background-color: var(--success); display: inline-block; box-shadow: 0 0 6px var(--success);"></span>
-            <span style="font-weight: 800; font-size: 0.88rem; color: var(--text-main);">نظام ASCPT — الإصدار 1.4.55</span>
+            <span style="font-weight: 800; font-size: 0.88rem; color: var(--text-main);">نظام ASCPT — الإصدار 1.4.57</span>
             <span class="badge badge-primary" style="font-size: 0.72rem; padding: 2px 10px; border-radius: 999px; font-weight: 800;">إصدار معتمد</span>
           </div>
           <div style="font-size: 0.76rem; color: var(--text-muted); font-weight: 700;">
@@ -1934,7 +1957,7 @@
 
   <!-- ================= Modals ================= -->
 
-  <!-- Modal 1: Add / Edit Patient (Modern Medical Form v1.4.55) -->
+  <!-- Modal 1: Add / Edit Patient (Modern Medical Form v1.4.57) -->
   <div class="modal-backdrop" id="modal-patient">
     <div class="modal-content modal-patient-modern">
       <div class="modal-header">
@@ -2957,7 +2980,7 @@
     </div>
   </div>
 
-    <!-- Modal: Attendance Card Customization (بطاقة تردد المريض v1.4.55) -->
+    <!-- Modal: Attendance Card Customization (بطاقة تردد المريض v1.4.57) -->
   <div class="modal-backdrop" id="modal-attendance-card" style="z-index: 230;">
     <div class="modal-content modal-patient-modern" style="max-width: 520px; border-radius: 18px; padding: 0; overflow: hidden;">
       <div class="modal-header" style="border-bottom: 1.5px solid var(--border-color); padding: 14px 18px; background: var(--bg-surface);">
@@ -3187,7 +3210,7 @@
   </div>
 
 <!-- Main Application Script (ES Module) -->
-  <script type="module" src="js/app.js?v=1.4.55"></script>
+  <script type="module" src="js/app.js?v=1.4.57"></script>
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
@@ -3373,7 +3396,7 @@
     </div>
   </div>
 
-  <!-- Modal: Settle Insurance Claim (تسجيل تحصيل مطالبة تأمين v1.4.55) -->
+  <!-- Modal: Settle Insurance Claim (تسجيل تحصيل مطالبة تأمين v1.4.57) -->
   <div class="modal-backdrop" id="modal-settle-claim">
     <div class="modal-content modal-patient-modern" style="max-width: 520px; border-radius: 18px; padding: 0; overflow: hidden;">
       <div class="modal-header" style="border-bottom: 1.5px solid var(--border-color); padding: 14px 18px; background: var(--bg-surface);">

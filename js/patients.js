@@ -17,7 +17,11 @@ export class PatientsManager {
     this.currentContractType = "direct";
     this.sortBy = localStorage.getItem('ascpt_patient_sort') || 'recent';
     this.currentPage = 1;
-    this.pageSize = 10;
+    this.pageSize = 12;
+    this.viewMode = 'cards';
+    try {
+      this.viewMode = localStorage.getItem('ascpt_patients_view_mode') || 'cards';
+    } catch (_) {}
     this.newlyAddedPatientId = null;
     this.pendingPromptPatientId = null;
     this.chipsEditMode = {
@@ -53,6 +57,13 @@ export class PatientsManager {
     // Sort Toggle Buttons (Recent vs Alphabetical)
     document.getElementById('btn-sort-recent')?.addEventListener('click', () => this.setSort('recent'));
     document.getElementById('btn-sort-alphabetical')?.addEventListener('click', () => this.setSort('alphabetical'));
+
+    // View Mode Toggle (Cards vs Table v1.4.57)
+    document.getElementById('patients-view-mode-toggle')?.addEventListener('click', (e) => {
+      const btn = e.target.closest('.btn-view-mode');
+      if (!btn) return;
+      this.setViewMode(btn.getAttribute('data-view-mode'));
+    });
 
     // Post-Registration Action Prompt Handlers
     document.getElementById('btn-prompt-record-session')?.addEventListener('click', async () => {
@@ -880,6 +891,7 @@ export class PatientsManager {
         });
       }
     }
+    this.applyViewModeUI();
   }
 
 
@@ -1509,6 +1521,39 @@ export class PatientsManager {
 
   // ================= Clinical Patient Sheet =================
   // ================= Top & Bottom Horizontal Scroll Synchronization =================
+  setViewMode(mode) {
+    this.viewMode = mode;
+    try { localStorage.setItem('ascpt_patients_view_mode', mode); } catch (_) {}
+    this.applyViewModeUI();
+  }
+
+  applyViewModeUI() {
+    const isCards = (this.viewMode === 'cards');
+    const tableContainer = document.getElementById('patients-table-container');
+    const cardsContainer = document.getElementById('patients-mobile-cards');
+    const topWrap = document.getElementById('patients-top-scroll-wrap');
+    const toggleGroup = document.getElementById('patients-view-mode-toggle');
+
+    if (tableContainer && cardsContainer) {
+      if (isCards) {
+        tableContainer.style.display = 'none';
+        cardsContainer.style.display = 'grid';
+        if (topWrap) topWrap.style.display = 'none';
+      } else {
+        tableContainer.style.display = 'block';
+        cardsContainer.style.display = 'none';
+        setTimeout(() => this.setupScrollSync(), 50);
+      }
+    }
+
+    if (toggleGroup) {
+      toggleGroup.querySelectorAll('.btn-view-mode').forEach(btn => {
+        const active = (btn.getAttribute('data-view-mode') === this.viewMode);
+        btn.classList.toggle('active', active);
+      });
+    }
+  }
+
   setupScrollSync() {
     const topWrap = document.getElementById('patients-top-scroll-wrap');
     const container = document.getElementById('patients-table-container') || document.querySelector('#view-patients .table-responsive');
