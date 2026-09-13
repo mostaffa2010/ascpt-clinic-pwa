@@ -627,7 +627,7 @@ export class SessionsManager {
           </div>
         `;
         if (amountLabel) amountLabel.textContent = 'نسبة التحمل المدفوعة بالدرج (ج.م) *';
-        if (amountInput && !this.editingSessionId) amountInput.value = '0';
+        if (amountInput && !this.editingSessionId) { amountInput.value = ''; amountInput.placeholder = '0'; }
       } else {
         paymentContainer.innerHTML = `
           <div class="payment-info-box-cash">
@@ -1272,6 +1272,8 @@ export class SessionsManager {
     this.renderBodyPartsChips([]);
     const chkSpecial = document.getElementById('session-is-special');
     if (chkSpecial) chkSpecial.checked = false;
+    const amtInput = document.getElementById('session-amount-paid');
+    if (amtInput) amtInput.value = '';
     const countEl = document.getElementById('selected-parts-count');
     if (countEl) countEl.textContent = '0';
     const insF = document.getElementById('session-insurance-fields');

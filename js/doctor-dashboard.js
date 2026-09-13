@@ -116,6 +116,52 @@ export class DoctorDashboardManager {
       ratioEl.textContent = `${cashCount} نقدي • ${insCount} تأمين`;
     }
 
+    // 5. Monthly Earnings Calculation (KPI Card 5 - Cumulative for this month)
+    const docList = await db.getDoctorsList();
+    const docInfo = docList.find(d => d.uid === docUid || (d.name && user.name && d.name.trim() === user.name.trim())) || user;
+    const regRate = typeof docInfo.regularSessionRate === 'number' ? docInfo.regularSessionRate : (user.regularSessionRate || 0);
+    const specRate = typeof docInfo.specialSessionRate === 'number' ? docInfo.specialSessionRate : (user.specialSessionRate || 0);
+
+    let monthRegularCount = 0;
+    let monthSpecialCount = 0;
+
+    monthSessions.forEach(s => {
+      if (s.entryType === 'examination') return;
+      const isSpec = Boolean(s.isSpecial || s.sessionPricingType === 'special');
+      const count = s.bodyPartsCount || 1;
+      if (isSpec) {
+        monthSpecialCount += count;
+      } else {
+        monthRegularCount += count;
+      }
+    });
+
+    const monthRegularDues = monthRegularCount * regRate;
+    const monthSpecialDues = monthSpecialCount * specRate;
+    const totalMonthEarnings = monthRegularDues + monthSpecialDues;
+
+    const earningsTotalEl = document.getElementById('stat-doc-earnings-total');
+    const earningsRegEl = document.getElementById('stat-doc-earnings-regular');
+    const earningsSpecEl = document.getElementById('stat-doc-earnings-special');
+    const formulaHintEl = document.getElementById('stat-doc-earnings-formula-hint');
+
+    if (earningsTotalEl) {
+      earningsTotalEl.textContent = `${totalMonthEarnings.toLocaleString('en-US')} ج.م`;
+    }
+    if (earningsRegEl) {
+      earningsRegEl.textContent = `${monthRegularCount} جلسة (${monthRegularDues.toLocaleString('en-US')} ج.م)`;
+    }
+    if (earningsSpecEl) {
+      earningsSpecEl.textContent = `${monthSpecialCount} جلسة (${monthSpecialDues.toLocaleString('en-US')} ج.م)`;
+    }
+    if (formulaHintEl) {
+      if (regRate > 0 || specRate > 0) {
+        formulaHintEl.textContent = `حساب الأتعاب: سعر الجلسة العادية ${regRate} ج.م • سعر الجلسة الخاصة ${specRate} ج.م`;
+      } else {
+        formulaHintEl.innerHTML = `<span style="color: var(--text-muted);"><i class="fa-solid fa-circle-info"></i> لم يتم تحديد أسعار الجلسات بعد من قِبل إدارة المركز</span>`;
+      }
+    }
+
     this.renderTable();
   }
 

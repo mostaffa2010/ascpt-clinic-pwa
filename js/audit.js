@@ -292,8 +292,8 @@ export class AuditAndAdminManager {
 
     if (modalNameEl) modalNameEl.textContent = userName;
     if (modalUidInp) modalUidInp.value = userId;
-    if (regInp) regInp.value = regularRate;
-    if (specInp) specInp.value = specialRate;
+    if (regInp) regInp.value = regularRate > 0 ? regularRate : '';
+    if (specInp) specInp.value = specialRate > 0 ? specialRate : '';
 
     const radios = document.querySelectorAll('input[name="doctor-shift-choice"]');
     radios.forEach(r => {
