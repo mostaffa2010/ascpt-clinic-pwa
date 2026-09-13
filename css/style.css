@@ -9210,3 +9210,12 @@ html, body {
   overflow: hidden;
   text-overflow: ellipsis;
 }
+
+/* ==========================================================================
+   DOCTOR ROLE SECURITY GATEKEEPING (v1.4.74)
+   Completely hide quick session button from treating doctors in Patients list
+   ========================================================================== */
+html.role-doctor .btn-quick-attend,
+body.role-doctor .btn-quick-attend {
+  display: none !important;
+}

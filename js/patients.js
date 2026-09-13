@@ -816,9 +816,11 @@ export class PatientsManager {
               <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 6px; flex-shrink: 0;">
                 <div>${billingBadge}</div>
                 <div style="display: flex; align-items: center; gap: 5px;">
-                  <button type="button" class="btn btn-quick-attend" onclick="patientsManager.quickLogSession('${safeId}')" title="تسجيل جلسة سريعة لهذا المريض">
-                    <i class="fa-solid fa-bolt"></i> <span>جلسة</span>
-                  </button>
+                  ${!isDoctor ? `
+                    <button type="button" class="btn btn-quick-attend" onclick="patientsManager.quickLogSession('${safeId}')" title="تسجيل جلسة سريعة لهذا المريض">
+                      <i class="fa-solid fa-bolt"></i> <span>جلسة</span>
+                    </button>
+                  ` : ''}
                   ${canAccessSheet ? `
                     <button type="button" class="btn btn-hero-sheet btn-patient-sheet-action" onclick="patientsManager.openPatientSheet('${safeId}')" title="فتح الشيت الطبي">
                       <i class="fa-solid fa-file-waveform"></i> <span>الشيت</span>
@@ -898,6 +900,11 @@ export class PatientsManager {
   // ================= 1-Tap Quick Attendance & Smart WhatsApp Action Sheet =================
   quickLogSession(patientId) {
     if (!patientId) return;
+    const user = auth.getCurrentUser();
+    if (user && user.role === 'doctor') {
+      this.app.showAlert('تسجيل الجلسات متاح لموظفي الاستقبال والإدارة فقط.', 'صلاحية الاستقبال', 'warning');
+      return;
+    }
     this.app.switchView('sessions');
     setTimeout(() => {
       if (this.app.sessionsManager) {
