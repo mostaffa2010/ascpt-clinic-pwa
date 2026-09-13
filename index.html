@@ -47,8 +47,8 @@
   
 
     <!-- Stylesheets -->
-  <link rel="stylesheet" href="css/style.css?v=1.4.42" media="screen">
-  <link rel="stylesheet" href="css/print.css?v=1.4.42" media="print">
+  <link rel="stylesheet" href="css/style.css?v=1.4.43" media="screen">
+  <link rel="stylesheet" href="css/print.css?v=1.4.43" media="print">
 </head>
 <body>
   <script>
@@ -511,7 +511,7 @@
           </h2>
         </div>
 
-        <!-- Patient Clinical Record Header Card (Clean, Modern & Uncluttered v1.4.42) -->
+        <!-- Patient Clinical Record Header Card (Clean, Modern & Uncluttered v1.4.43) -->
         <div class="card patient-clinical-main-card gender-male" id="patient-clinical-card">
           <!-- 1. Patient Name (Standalone, Full-Width) -->
           <div class="pcm-name-bar">
@@ -685,151 +685,151 @@
         <div class="split-screen">
           <!-- Form: Log New Session or Examination -->
           <div class="card">
-            <div class="card-header" style="padding: 0 0 12px 0; border-bottom: none; display: block; width: 100%;">
-              <!-- Interactive Dual Mode Action Cards (v1.4.0) -->
-              <div class="session-mode-pills-wrap">
-                <button type="button" id="btn-mode-session" class="session-mode-pill-btn active">
-                  <div class="smp-icon blue">
-                    <i class="fa-solid fa-user-clock"></i>
-                  </div>
-                  <div class="smp-text">
-                    <span class="smp-title" id="label-mode-session">تسجيل جلسة</span>
-                    <span class="smp-sub">جلسة علاج طبيعي</span>
-                  </div>
-                  <div class="smp-badge">
-                    <i class="fa-solid fa-circle-check"></i>
-                  </div>
+            <div class="card-header" style="padding: 0 0 10px 0; border-bottom: none; display: block; width: 100%;">
+              <!-- Streamlined Compact Mode Switcher (v1.4.43) -->
+              <div class="session-mode-segmented-compact">
+                <button type="button" id="btn-mode-session" class="session-mode-compact-btn active">
+                  <i class="fa-solid fa-bolt"></i>
+                  <span id="label-mode-session">تسجيل جلسة</span>
                 </button>
-
-                <button type="button" id="btn-mode-exam" class="session-mode-pill-btn">
-                  <div class="smp-icon teal">
-                    <i class="fa-solid fa-stethoscope"></i>
-                  </div>
-                  <div class="smp-text">
-                    <span class="smp-title" id="label-mode-exam">تسجيل كشف</span>
-                    <span class="smp-sub">فحص وتقييم أولي</span>
-                  </div>
-                  <div class="smp-badge">
-                    <i class="fa-solid fa-circle-check"></i>
-                  </div>
+                <button type="button" id="btn-mode-exam" class="session-mode-compact-btn">
+                  <i class="fa-solid fa-stethoscope"></i>
+                  <span id="label-mode-exam">تسجيل كشف</span>
                 </button>
               </div>
             </div>
+
             <form id="form-log-session" novalidate>
               <input type="hidden" id="session-edit-id" value="">
-              <div class="form-grid">
-                <!-- Session Date Selection with Quick Today / Yesterday buttons -->
-                <div class="form-group" style="background-color: var(--bg-subtle); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 12px;">
-                  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; flex-wrap: wrap; gap: 6px;">
-                    <label for="session-date" id="session-date-label" style="font-weight: 800; color: var(--primary); font-size: 0.88rem;">
-                      <i class="fa-solid fa-calendar-day"></i> تاريخ الجلسة *
+              
+              <div class="form-grid compact-session-grid">
+                <!-- 1. Inline Compact Date Strip -->
+                <div class="session-compact-date-row">
+                  <div class="scd-date-part">
+                    <label for="session-date" id="session-date-label" class="scd-label">
+                      <i class="fa-solid fa-calendar-day text-primary"></i> <span>تاريخ الجلسة *</span>
                     </label>
-                    <div class="horizontal-date-strip">
-                      <button type="button" id="btn-quick-sess-today" class="date-strip-pill active">اليوم</button>
-                      <button type="button" id="btn-quick-sess-yesterday" class="date-strip-pill">أمس</button>
+                    <div class="scd-input-wrap">
+                      <input type="text" id="session-date" readonly class="form-control date-picker-clickable scd-input" required data-open-calendar="session-date" placeholder="اختر التاريخ...">
+                      <i class="fa-solid fa-calendar-days scd-cal-icon"></i>
                     </div>
                   </div>
-                  <div style="position: relative;">
-                    <input type="text" id="session-date" readonly class="form-control date-picker-clickable" required style="font-weight: 700;" data-open-calendar="session-date" placeholder="اختر تاريخ الجلسة...">
-                    <i class="fa-solid fa-calendar-days" style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--primary); pointer-events: none;"></i>
+                  <div class="horizontal-date-strip scd-pills">
+                    <button type="button" id="btn-quick-sess-today" class="date-strip-pill active">اليوم</button>
+                    <button type="button" id="btn-quick-sess-yesterday" class="date-strip-pill">أمس</button>
                   </div>
                 </div>
 
-                <div class="form-group">
-                  <label>المريض *</label>
+                <!-- 2. Patient Picker -->
+                <div class="form-group form-group-compact">
+                  <label class="compact-label"><i class="fa-solid fa-user text-primary"></i> المريض <span class="required-star">*</span></label>
                   <input type="hidden" id="session-patient-id" required>
                   
-                  <div id="patient-picker-trigger" class="patient-picker-trigger">
-                    <div style="display: flex; align-items: center; gap: 10px;">
-                      <i class="fa-solid fa-user-injured" style="font-size: 1.2rem; color: var(--primary);"></i>
-                      <span id="patient-picker-placeholder" style="font-weight: 700; color: var(--primary); font-size: 0.92rem;">اضغط هنا للبحث واختيار المريض...</span>
+                  <div id="patient-picker-trigger" class="patient-picker-trigger-compact">
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                      <i class="fa-solid fa-user-injured text-primary"></i>
+                      <span id="patient-picker-placeholder">اضغط هنا للبحث واختيار المريض...</span>
                     </div>
                     <i class="fa-solid fa-magnifying-glass text-primary"></i>
                   </div>
 
-                  <div id="selected-patient-box" class="selected-patient-card" style="display: none;">
-                    <div>
-                      <div id="selected-patient-name" style="font-weight: 800; font-size: 1rem; color: var(--text-main);"></div>
-                      <div id="selected-patient-sub" style="font-size: 0.82rem; color: var(--text-muted); margin-top: 3px;"></div>
+                  <div id="selected-patient-box" class="selected-patient-card-compact" style="display: none;">
+                    <div class="spc-info">
+                      <div class="spc-name" id="selected-patient-name">-</div>
+                      <div class="spc-sub" id="selected-patient-sub"></div>
                     </div>
-                    <button type="button" class="btn btn-outline btn-sm" id="btn-change-patient-picker">
+                    <button type="button" class="btn btn-outline btn-sm spc-btn-change" id="btn-change-patient-picker">
                       <i class="fa-solid fa-arrows-rotate"></i> تغيير
                     </button>
                   </div>
                 </div>
 
-                <div class="form-group">
-                  <label for="session-doctor-select">الطبيب المعالج *</label>
+                <!-- 3. Doctor Selector -->
+                <div class="form-group form-group-compact">
+                  <label for="session-doctor-select" class="compact-label"><i class="fa-solid fa-user-doctor text-primary"></i> الطبيب المعالج <span class="required-star">*</span></label>
                   <div class="custom-select-wrapper">
                     <select id="session-doctor-select" class="form-control d-none" required></select>
-                    <button type="button" class="custom-select-btn" id="btn-select-session-doctor-select" data-open-picker="session-doctor-select" data-picker-title="اختر الطبيب المعالج">
+                    <button type="button" class="custom-select-btn compact-select-btn" id="btn-select-session-doctor-select" data-open-picker="session-doctor-select" data-picker-title="اختر الطبيب المعالج">
                       <span class="btn-text">-- اختر الطبيب المعالج --</span>
-                      <i class="fa-solid fa-chevron-down"></i>
+                      <i class="fa-solid fa-chevron-down custom-select-arrow"></i>
                     </button>
                   </div>
                 </div>
 
-                <div class="form-group" id="form-group-body-parts">
-                  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
-                    <label style="margin: 0; font-weight: 800; font-size: 0.88rem; color: var(--text-main);">
-                      <i class="fa-solid fa-bone text-primary"></i> الأعضاء المعالجة في الجلسة *
+                <!-- 4. Body Parts (Sessions Mode) -->
+                <div class="form-group form-group-compact" id="form-group-body-parts">
+                  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                    <label class="compact-label" style="margin: 0;">
+                      <i class="fa-solid fa-bone text-primary"></i> الأعضاء المعالجة في الجلسة <span class="required-star">*</span>
                     </label>
-                    <span id="session-body-parts-badge" class="badge badge-primary" style="font-size: 0.78rem;">0 أعضاء</span>
+                    <span id="session-body-parts-badge" class="badge badge-primary" style="font-size: 0.74rem;">0 أعضاء</span>
                   </div>
-                  <button type="button" class="custom-select-btn" id="btn-open-picker-body-parts" style="min-height: 44px; padding: 8px 12px; display: flex; align-items: center; justify-content: space-between; width: 100%;">
+                  <button type="button" class="custom-select-btn compact-select-btn" id="btn-open-picker-body-parts" style="min-height: 40px; padding: 6px 12px; display: flex; align-items: center; justify-content: space-between; width: 100%;">
                     <div id="session-body-parts-preview" class="multi-select-preview" style="display: flex; flex-wrap: wrap; gap: 4px; align-items: center; flex: 1;">
-                      <span style="color: var(--text-muted); font-size: 0.88rem;">-- اضغط لاختيار وتحديد الأعضاء المعالجة --</span>
+                      <span style="color: var(--text-muted); font-size: 0.85rem;">-- اضغط لاختيار وتحديد الأعضاء المعالجة --</span>
                     </div>
-                    <i class="fa-solid fa-chevron-down custom-select-arrow" style="margin-right: 6px;"></i>
+                    <i class="fa-solid fa-chevron-down custom-select-arrow"></i>
                   </button>
                   <div class="body-parts-chips" id="body-parts-container" style="display: none;"></div>
-                  <div style="font-size: 0.8rem; color: var(--primary); font-weight: bold; margin-top: 5px;">
+                  <div style="font-size: 0.78rem; color: var(--primary); font-weight: bold; margin-top: 4px; display: none;">
                     إجمالي الأعضاء المحددة: <span id="selected-parts-count">0</span>
                   </div>
-                  <small id="body-parts-cash-hint" style="display: none; font-size: 0.75rem; color: var(--text-muted); margin-top: 4px;"></small>
+                  <small id="body-parts-cash-hint" style="display: none; font-size: 0.74rem; color: var(--text-muted); margin-top: 3px;"></small>
                 </div>
 
-                <!-- Examination Type Selector (Shown only in Examination mode) -->
-                <div class="form-group" id="form-group-exam-type" style="display: none; background: var(--bg-subtle); border: 1.5px solid var(--border-color); border-radius: var(--radius-md, 10px); padding: 12px;">
-                  <label style="margin: 0 0 8px 0; font-weight: 800; font-size: 0.88rem; color: var(--text-main); display: block;">
-                    <i class="fa-solid fa-stethoscope text-primary"></i> نوع الكشف المطلوب *
+                <!-- 5. Examination Type Selector (Examination Mode) -->
+                <div class="form-group form-group-compact" id="form-group-exam-type" style="display: none;">
+                  <label class="compact-label">
+                    <i class="fa-solid fa-stethoscope text-primary"></i> نوع الكشف المطلوب <span class="required-star">*</span>
                   </label>
-                  <div class="exam-type-segmented" style="display: flex; gap: 8px;">
-                    <button type="button" class="btn exam-type-btn active" id="btn-exam-type-cash" style="flex: 1; padding: 10px 12px; font-weight: 800; font-size: 0.9rem; border-radius: 9px; display: flex; align-items: center; justify-content: center; gap: 6px; cursor: pointer; transition: all 0.2s;">
+                  <div class="exam-type-segmented-compact">
+                    <button type="button" class="btn exam-type-btn active" id="btn-exam-type-cash">
                       <i class="fa-solid fa-money-bill-wave"></i> <span>كشف نقدي</span>
                     </button>
-                    <button type="button" class="btn exam-type-btn" id="btn-exam-type-contract" style="flex: 1; padding: 10px 12px; font-weight: 800; font-size: 0.9rem; border-radius: 9px; display: flex; align-items: center; justify-content: center; gap: 6px; cursor: pointer; transition: all 0.2s;">
+                    <button type="button" class="btn exam-type-btn" id="btn-exam-type-contract">
                       <i class="fa-solid fa-file-contract"></i> <span>كشف تعاقد</span>
                     </button>
                   </div>
                 </div>
 
-                <!-- Smart Automated Payment Mode Container -->
+                <!-- 6. Payment Mode & Amount (Side-by-Side Compact Flow) -->
                 <input type="hidden" name="session-pay-type" id="session-pay-type-hidden" value="cash">
                 <input type="hidden" name="session-contract-type" id="session-contract-type-hidden" value="direct">
                 <input type="hidden" id="session-insurance-name" value="">
 
-                <div class="form-group">
-                  <label id="session-payment-method-label">نظام وطريقة السداد للجلسة *</label>
-                  <div id="session-payment-method-container">
-                    <div style="background: var(--bg-subtle); border: 1.5px dashed var(--border-color); border-radius: 10px; padding: 14px; text-align: center; color: var(--text-muted); font-size: 0.85rem;">
-                      <i class="fa-solid fa-hand-pointer" style="margin-left: 6px; color: var(--primary);"></i> اختر المريض بالأعلى لتحديد نظام السداد تلقائياً (نقدي / تأمين)
+                <div class="session-compact-pay-row">
+                  <div class="form-group form-group-compact scp-method-col">
+                    <label id="session-payment-method-label" class="compact-label">
+                      <i class="fa-solid fa-credit-card text-primary"></i> نظام السداد <span class="required-star">*</span>
+                    </label>
+                    <div id="session-payment-method-container">
+                      <div class="payment-method-placeholder-compact">
+                        <i class="fa-solid fa-hand-pointer text-primary"></i> <span>يُحدد تلقائياً باختيار المريض</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="form-group form-group-compact scp-amount-col">
+                    <label for="session-amount-paid" id="session-amount-label" class="compact-label">
+                      <i class="fa-solid fa-cash-register text-primary"></i> بالدرج (ج.م) <span class="required-star">*</span>
+                    </label>
+                    <div class="modern-input-wrapper">
+                      <input type="number" id="session-amount-paid" class="form-control modern-input scp-amount-input" value="0" min="0" required inputmode="numeric">
                     </div>
                   </div>
                 </div>
+                <small id="session-amount-help" style="font-size: 0.72rem; color: var(--text-muted); display: block; margin-top: -4px;">في حالة التأمين، ضع مبلغ نسبة التحمل النقدي إن وُجد، أو 0.</small>
 
-                <div class="form-group">
-                  <label for="session-amount-paid" id="session-amount-label">المبلغ المدفوع بالدرج (ج.م) *</label>
-                  <input type="number" id="session-amount-paid" class="form-control" value="0" min="0" required inputmode="numeric">
-                  <small id="session-amount-help" style="font-size: 0.75rem; color: var(--text-muted);">في حالة التأمين، ضع مبلغ نسبة التحمل النقدي إن وُجد، أو 0.</small>
+                <!-- 7. Session Notes -->
+                <div class="form-group form-group-compact" style="margin-top: 2px;">
+                  <div class="modern-input-wrapper">
+                    <i class="fa-regular fa-comment-dots modern-input-icon"></i>
+                    <input type="text" id="session-notes" class="form-control modern-input" style="height: 38px !important; font-size: 0.84rem;" placeholder="ملاحظات الجلسة (اختياري)...">
+                  </div>
                 </div>
 
-                <div class="form-group">
-                  <label for="session-notes" id="session-notes-label">ملاحظات الجلسة (اختياري)</label>
-                  <input type="text" id="session-notes" class="form-control" placeholder="أي ملاحظة بخصوص الجلسة">
-                </div>
-
-                <button type="submit" class="btn btn-primary" id="btn-submit-session" style="margin-top: 10px;">
+                <!-- 8. Submit Button (Normal Document Flow, No Overlapping) -->
+                <button type="submit" class="btn btn-primary btn-submit-session-prominent" id="btn-submit-session">
                   <i class="fa-solid fa-check" id="icon-submit-session"></i> <span id="btn-submit-session-text">حفظ الجلسة</span>
                 </button>
               </div>
@@ -1646,7 +1646,7 @@
         <div class="admin-system-footer no-print" style="margin-top: 32px; margin-bottom: 35px; text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px;">
           <div style="display: inline-flex; align-items: center; gap: 8px; background: var(--bg-surface); border: 1.5px solid var(--border-color); padding: 7px 18px; border-radius: 999px; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);">
             <span style="width: 8px; height: 8px; border-radius: 50%; background-color: var(--success); display: inline-block; box-shadow: 0 0 6px var(--success);"></span>
-            <span style="font-weight: 800; font-size: 0.88rem; color: var(--text-main);">نظام ASCPT — الإصدار 1.4.42</span>
+            <span style="font-weight: 800; font-size: 0.88rem; color: var(--text-main);">نظام ASCPT — الإصدار 1.4.43</span>
             <span class="badge badge-primary" style="font-size: 0.72rem; padding: 2px 10px; border-radius: 999px; font-weight: 800;">إصدار معتمد</span>
           </div>
           <div style="font-size: 0.76rem; color: var(--text-muted); font-weight: 700;">
@@ -1685,7 +1685,7 @@
 
   <!-- ================= Modals ================= -->
 
-  <!-- Modal 1: Add / Edit Patient (Modern Medical Form v1.4.42) -->
+  <!-- Modal 1: Add / Edit Patient (Modern Medical Form v1.4.43) -->
   <div class="modal-backdrop" id="modal-patient">
     <div class="modal-content modal-patient-modern">
       <div class="modal-header">
@@ -2916,7 +2916,7 @@
   </div>
 
 <!-- Main Application Script (ES Module) -->
-  <script type="module" src="js/app.js?v=1.4.42"></script>
+  <script type="module" src="js/app.js?v=1.4.43"></script>
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {

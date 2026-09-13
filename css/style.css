@@ -8298,3 +8298,332 @@ h1, h2, h3, h4, h5, h6 {
   border-color: #38bdf8 !important;
   box-shadow: 0 2px 10px rgba(56, 189, 248, 0.4) !important;
 }
+
+/* ==========================================================================
+   COMPACT SMART SESSION & EXAMINATION FORM (v1.4.43)
+   ========================================================================== */
+
+/* 1. Mode Switcher (جلسة vs كشف) */
+.session-mode-segmented-compact {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  background: var(--bg-subtle);
+  border: 1.5px solid var(--border-color);
+  border-radius: 12px;
+  padding: 4px;
+}
+
+[data-theme="dark"] .session-mode-segmented-compact {
+  background: #1e293b;
+  border-color: #334155;
+}
+
+.session-mode-compact-btn {
+  flex: 1;
+  height: 38px;
+  border: none;
+  background: transparent;
+  border-radius: 9px;
+  font-size: 0.88rem;
+  font-weight: 800;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: all 0.18s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.session-mode-compact-btn.active {
+  background: var(--primary) !important;
+  color: #ffffff !important;
+  box-shadow: 0 2px 8px rgba(2, 132, 199, 0.35);
+}
+
+.session-mode-compact-btn#btn-mode-exam.active {
+  background: #0d9488 !important;
+  box-shadow: 0 2px 8px rgba(13, 148, 136, 0.35);
+}
+
+/* 2. Compact Grid & Groups */
+.compact-session-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.form-group-compact {
+  margin: 0 !important;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.compact-label {
+  font-size: 0.80rem;
+  font-weight: 800;
+  color: var(--text-main);
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  margin: 0;
+}
+
+/* 3. Inline Compact Date Strip */
+.session-compact-date-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  background: var(--bg-subtle);
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+  padding: 6px 12px;
+}
+
+[data-theme="dark"] .session-compact-date-row {
+  background: rgba(15, 23, 42, 0.5);
+  border-color: #334155;
+}
+
+.scd-date-part {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+  min-width: 0;
+}
+
+.scd-label {
+  font-size: 0.80rem;
+  font-weight: 800;
+  color: var(--primary);
+  white-space: nowrap;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.scd-input-wrap {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  flex: 1;
+  max-width: 140px;
+}
+
+.scd-input {
+  height: 32px !important;
+  font-size: 0.82rem !important;
+  font-weight: 800 !important;
+  padding: 0 28px 0 8px !important;
+  border-radius: 7px !important;
+  border: 1px solid var(--border-color) !important;
+  background: var(--bg-surface) !important;
+}
+
+.scd-cal-icon {
+  position: absolute;
+  right: 8px;
+  color: var(--primary);
+  font-size: 0.82rem;
+  pointer-events: none;
+}
+
+.scd-pills {
+  display: inline-flex;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+.scd-pills .date-strip-pill {
+  padding: 4px 10px;
+  font-size: 0.74rem;
+  font-weight: 800;
+  border-radius: 6px;
+}
+
+/* 4. Compact Patient Picker Trigger & Card */
+.patient-picker-trigger-compact {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 12px;
+  height: 42px;
+  background: var(--bg-surface);
+  border: 1.5px dashed var(--primary);
+  border-radius: 10px;
+  cursor: pointer;
+  font-weight: 800;
+  font-size: 0.88rem;
+  color: var(--primary);
+  transition: all 0.18s ease;
+}
+
+.patient-picker-trigger-compact:hover {
+  background: var(--primary-light);
+}
+
+[data-theme="dark"] .patient-picker-trigger-compact {
+  background: #1e293b;
+  border-color: #38bdf8;
+  color: #38bdf8;
+}
+
+.selected-patient-card-compact {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px;
+  background: var(--bg-surface);
+  border: 1.5px solid var(--primary);
+  border-radius: 10px;
+  gap: 8px;
+}
+
+[data-theme="dark"] .selected-patient-card-compact {
+  background: #1e293b;
+  border-color: #38bdf8;
+}
+
+.spc-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+  flex: 1;
+}
+
+.spc-name {
+  font-size: 0.95rem;
+  font-weight: 900;
+  color: var(--text-main);
+  line-height: 1.2;
+}
+
+.spc-sub {
+  font-size: 0.76rem;
+  color: var(--text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.spc-btn-change {
+  flex-shrink: 0;
+  border-radius: 6px;
+  font-size: 0.76rem;
+  padding: 3px 8px;
+}
+
+/* 5. Compact Select Button */
+.compact-select-btn {
+  width: 100% !important;
+  min-height: 40px !important;
+  border-radius: 10px !important;
+  border: 1.5px solid var(--border-color) !important;
+  background: var(--bg-surface) !important;
+  padding: 0 12px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  font-weight: 700 !important;
+  font-size: 0.86rem !important;
+  color: var(--text-main) !important;
+}
+
+[data-theme="dark"] .compact-select-btn {
+  background: #1e293b !important;
+  border-color: #334155 !important;
+}
+
+/* 6. Examination Type Segmented */
+.exam-type-segmented-compact {
+  display: flex;
+  gap: 8px;
+}
+
+.exam-type-segmented-compact .exam-type-btn {
+  flex: 1;
+  height: 38px;
+  border-radius: 8px;
+  font-size: 0.84rem;
+  font-weight: 800;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+/* 7. Compact Pay Row */
+.session-compact-pay-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.scp-method-col {
+  flex: 1.2;
+  min-width: 0;
+}
+
+.scp-amount-col {
+  flex: 0.8;
+  min-width: 100px;
+}
+
+.scp-amount-input {
+  height: 42px !important;
+  font-size: 1.15rem !important;
+  font-weight: 900 !important;
+  color: var(--primary) !important;
+  text-align: center;
+}
+
+.payment-method-placeholder-compact {
+  height: 42px;
+  background: var(--bg-subtle);
+  border: 1.5px dashed var(--border-color);
+  border-radius: 10px;
+  padding: 0 10px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--text-muted);
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+[data-theme="dark"] .payment-method-placeholder-compact {
+  background: #1e293b;
+  border-color: #334155;
+}
+
+/* 8. Prominent Submit Button */
+.btn-submit-session-prominent {
+  width: 100% !important;
+  height: 44px !important;
+  border-radius: 12px !important;
+  font-size: 0.95rem !important;
+  font-weight: 800 !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 8px !important;
+  margin-top: 4px !important;
+  box-shadow: 0 4px 14px rgba(2, 132, 199, 0.3) !important;
+  transition: all 0.18s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+.btn-submit-session-prominent:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 18px rgba(2, 132, 199, 0.4) !important;
+}
+
+.btn-submit-session-prominent:active {
+  transform: scale(0.99);
+}

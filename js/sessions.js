@@ -676,10 +676,10 @@ export class SessionsManager {
       subEl.textContent = `الهاتف: ${patient.phone} | الطبيب: ${patient.doctor} | ${billingTxt}`;
     }
 
-    // Do NOT auto-fill Doctor by default — user must explicitly choose
+    // Auto-fill Doctor from Patient Profile
     const docSelect = document.getElementById('session-doctor-select');
-    if (docSelect && !this.editingSessionId) {
-      docSelect.value = '';
+    if (docSelect && !this.editingSessionId && patient.doctor) {
+      docSelect.value = patient.doctor;
       this.app.updateCustomSelectDisplay('session-doctor-select');
     }
 
@@ -707,8 +707,8 @@ export class SessionsManager {
     const paymentContainer = document.getElementById('session-payment-method-container');
     if (paymentContainer) {
       paymentContainer.innerHTML = `
-        <div style="background: var(--bg-subtle); border: 1.5px dashed var(--border-color); border-radius: 10px; padding: 14px; text-align: center; color: var(--text-muted); font-size: 0.85rem;">
-          <i class="fa-solid fa-hand-pointer" style="margin-left: 6px; color: var(--primary);"></i> اختر المريض بالأعلى لتحديد نظام السداد تلقائياً (نقدي / تأمين)
+        <div class="payment-method-placeholder-compact">
+          <i class="fa-solid fa-hand-pointer text-primary"></i> <span>يُحدد تلقائياً عند اختيار المريض</span>
         </div>
       `;
     }
