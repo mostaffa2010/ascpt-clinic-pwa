@@ -6,7 +6,7 @@
 
 @page {
   size: A4 portrait;
-  margin: 5mm 6mm;
+  margin: 4mm 5mm;
 }
 
 @media print {
@@ -353,23 +353,23 @@
   body:not(.printing-sheet) .print-header {
     display: block !important;
     text-align: center !important;
-    border-bottom: 2px solid #0369a1 !important;
-    padding-bottom: 4px !important;
-    margin-bottom: 8px !important;
+    border-bottom: 1.8px solid #000000 !important;
+    padding-bottom: 3px !important;
+    margin-bottom: 4px !important;
   }
 
   body:not(.printing-sheet) .print-header h1 {
-    font-size: 13pt !important;
-    margin: 0 0 2px 0 !important;
-    color: #0369a1 !important;
-    font-weight: 800 !important;
+    font-size: 11.5pt !important;
+    margin: 0 0 1px 0 !important;
+    color: #000000 !important;
+    font-weight: 900 !important;
   }
 
   body:not(.printing-sheet) .print-header p {
-    margin: 1px 0 !important;
-    font-size: 8pt !important;
-    color: #334155 !important;
-    font-weight: 600 !important;
+    margin: 0.5px 0 !important;
+    font-size: 7.8pt !important;
+    color: #1e293b !important;
+    font-weight: 700 !important;
   }
 
   body:not(.printing-sheet) .card {
@@ -393,34 +393,27 @@
   }
 
   body:not(.printing-sheet) .stats-grid,
-  body:not(.printing-sheet) #finance-kpi-stats-grid,
-  [data-theme="dark"] .stats-grid,
-  [data-theme="dark"] #finance-kpi-stats-grid {
+  body:not(.printing-sheet) #finance-kpi-stats-grid {
     display: flex !important;
     flex-direction: row !important;
-    gap: 6px !important;
-    margin-bottom: 8px !important;
+    gap: 5px !important;
+    margin-bottom: 4px !important;
     width: 100% !important;
     box-sizing: border-box !important;
   }
 
   body:not(.printing-sheet) .stat-box,
-  body:not(.printing-sheet) #finance-kpi-stats-grid .stat-box,
-  body:not(.printing-sheet) #finance-kpi-stats-grid .stat-box.highlight,
-  [data-theme="dark"] .stat-box,
-  [data-theme="dark"] .stat-card,
-  [data-theme="dark"] #finance-kpi-stats-grid .stat-box,
-  [data-theme="dark"] #finance-kpi-stats-grid .stat-box.highlight {
+  body:not(.printing-sheet) #finance-kpi-stats-grid .stat-box {
     flex: 1 1 0px !important;
     min-width: 0 !important;
     width: auto !important;
-    border: 1.2px solid #64748b !important;
+    border: 1.2px solid #000000 !important;
     border-radius: 4px !important;
-    padding: 4px 6px !important;
+    padding: 2px 6px !important;
     box-shadow: none !important;
     display: flex !important;
     align-items: center !important;
-    gap: 6px !important;
+    gap: 4px !important;
     background: #ffffff !important;
     background-color: #ffffff !important;
     color: #000000 !important;
@@ -428,36 +421,23 @@
   }
 
   body:not(.printing-sheet) .stat-icon,
-  body:not(.printing-sheet) #finance-kpi-stats-grid .stat-icon,
-  [data-theme="dark"] .stat-icon,
-  [data-theme="dark"] #finance-kpi-stats-grid .stat-icon {
-    width: 22px !important;
-    height: 22px !important;
-    font-size: 8.5pt !important;
-    border-radius: 4px !important;
-    background: transparent !important;
-    background-color: transparent !important;
+  body:not(.printing-sheet) #finance-kpi-stats-grid .stat-icon {
+    display: none !important;
   }
 
   body:not(.printing-sheet) .stat-info .stat-value,
   body:not(.printing-sheet) #finance-kpi-stats-grid .stat-value,
-  body:not(.printing-sheet) #finance-kpi-stats-grid .stat-info .stat-value,
-  [data-theme="dark"] .stat-info .stat-value,
-  [data-theme="dark"] #finance-kpi-stats-grid .stat-value,
-  [data-theme="dark"] #finance-kpi-stats-grid .stat-info .stat-value {
-    font-size: 9.5pt !important;
-    font-weight: 800 !important;
+  body:not(.printing-sheet) #finance-kpi-stats-grid .stat-info .stat-value {
+    font-size: 9pt !important;
+    font-weight: 900 !important;
     color: #000000 !important;
   }
 
   body:not(.printing-sheet) .stat-info .stat-label,
   body:not(.printing-sheet) #finance-kpi-stats-grid .stat-label,
-  body:not(.printing-sheet) #finance-kpi-stats-grid .stat-info .stat-label,
-  [data-theme="dark"] .stat-info .stat-label,
-  [data-theme="dark"] #finance-kpi-stats-grid .stat-label,
-  [data-theme="dark"] #finance-kpi-stats-grid .stat-info .stat-label {
-    font-size: 7pt !important;
-    color: #334155 !important;
+  body:not(.printing-sheet) #finance-kpi-stats-grid .stat-info .stat-label {
+    font-size: 7.2pt !important;
+    color: #1e293b !important;
     font-weight: 700 !important;
     margin-top: 0 !important;
   }
@@ -465,12 +445,27 @@
   body:not(.printing-sheet) #card-doctors-breakdown {
     width: 100% !important;
     box-sizing: border-box !important;
+    margin-bottom: 4px !important;
+    padding: 0 !important;
+    border: none !important;
+  }
+
+  body:not(.printing-sheet) #card-doctors-breakdown .card-header {
+    padding: 0 0 2px 0 !important;
+    margin-bottom: 3px !important;
+    border-bottom: 1px solid #475569 !important;
+  }
+
+  body:not(.printing-sheet) #card-doctors-breakdown .card-title {
+    font-size: 8pt !important;
+    font-weight: 800 !important;
+    color: #000000 !important;
   }
 
   body:not(.printing-sheet) #doctors-breakdown-container {
     display: flex !important;
     flex-direction: row !important;
-    gap: 6px !important;
+    gap: 4px !important;
     width: 100% !important;
     box-sizing: border-box !important;
   }
@@ -479,12 +474,18 @@
     flex: 1 1 0px !important;
     min-width: 0 !important;
     width: auto !important;
-    padding: 4px 6px !important;
+    padding: 2px 5px !important;
     font-size: 7.5pt !important;
-    border: 1px solid #64748b !important;
+    border: 1.2px solid #000000 !important;
     border-radius: 4px !important;
     font-weight: 700 !important;
+    background: #f8fafc !important;
+    color: #000000 !important;
     box-sizing: border-box !important;
+  }
+
+  body:not(.printing-sheet) #doctors-breakdown-container i.fa-user-doctor {
+    display: none !important;
   }
 
   /* Desktop & Mobile Responsive Table Visibility during Print */
@@ -502,14 +503,20 @@
   body:not(.printing-sheet) #card-finance-daily-expenses,
   body:not(.printing-sheet) #card-monthly-doctors,
   body:not(.printing-sheet) #card-monthly-insurance,
-  body:not(.printing-sheet) #card-monthly-expenses,
-  body:not(.printing-sheet) #card-doctors-breakdown {
-    border: 1px solid #cbd5e1 !important;
+  body:not(.printing-sheet) #card-monthly-expenses {
+    border: none !important;
     box-shadow: none !important;
-    margin-bottom: 10px !important;
-    padding: 8px 10px !important;
-    background: #ffffff !important;
-    page-break-inside: avoid !important;
+    margin-bottom: 4px !important;
+    padding: 0 !important;
+    background: transparent !important;
+  }
+
+  body:not(.printing-sheet) #card-finance-report-sessions {
+    page-break-inside: auto !important;
+  }
+
+  body:not(.printing-sheet) #card-finance-daily-expenses.empty-expenses-print {
+    display: none !important;
   }
 
   body:not(.printing-sheet) .card-header,
@@ -517,13 +524,23 @@
   body:not(.printing-sheet) #card-finance-daily-expenses .card-header,
   body:not(.printing-sheet) #card-monthly-doctors .card-header,
   body:not(.printing-sheet) #card-monthly-insurance .card-header,
-  body:not(.printing-sheet) #card-monthly-expenses .card-header,
-  body:not(.printing-sheet) #card-doctors-breakdown .card-header {
+  body:not(.printing-sheet) #card-monthly-expenses .card-header {
     display: block !important;
-    padding: 0 0 6px 0 !important;
-    margin-bottom: 6px !important;
-    border-bottom: 1.5px solid #0369a1 !important;
+    padding: 0 0 2px 0 !important;
+    margin-bottom: 3px !important;
+    border-bottom: 1.5px solid #000000 !important;
     background: transparent !important;
+  }
+
+  body:not(.printing-sheet) .card-title,
+  body:not(.printing-sheet) #card-finance-report-sessions .card-title,
+  body:not(.printing-sheet) #card-finance-daily-expenses .card-title,
+  body:not(.printing-sheet) #card-monthly-doctors .card-title,
+  body:not(.printing-sheet) #card-monthly-insurance .card-title,
+  body:not(.printing-sheet) #card-monthly-expenses .card-title {
+    font-size: 8.5pt !important;
+    font-weight: 900 !important;
+    color: #000000 !important;
   }
 
   body:not(.printing-sheet) table.data-table,
@@ -532,8 +549,10 @@
     display: table !important;
     width: 100% !important;
     border-collapse: collapse !important;
-    font-size: 7.5pt !important;
+    font-size: 8pt !important;
     background: #ffffff !important;
+    color: #000000 !important;
+    line-height: 1.15 !important;
   }
 
   body:not(.printing-sheet) table.data-table thead,
@@ -552,27 +571,30 @@
   body:not(.printing-sheet) #finance-report-table tr,
   body:not(.printing-sheet) #finance-expenses-table tr {
     display: table-row !important;
-  }
-
-  body:not(.printing-sheet) table.data-table {
-    width: 100% !important;
-    border-collapse: collapse !important;
-    font-size: 7.5pt !important;
+    page-break-inside: avoid !important;
   }
 
   body:not(.printing-sheet) table.data-table th,
-  body:not(.printing-sheet) table.data-table td {
-    border: 1px solid #64748b !important;
-    padding: 3px 6px !important;
+  body:not(.printing-sheet) table.data-table td,
+  body:not(.printing-sheet) #finance-report-table th,
+  body:not(.printing-sheet) #finance-report-table td,
+  body:not(.printing-sheet) #finance-expenses-table th,
+  body:not(.printing-sheet) #finance-expenses-table td {
+    border: 1px solid #334155 !important;
+    padding: 2.5px 5px !important;
     white-space: normal !important;
-    line-height: 1.2 !important;
+    line-height: 1.15 !important;
+    color: #000000 !important;
   }
 
-  body:not(.printing-sheet) table.data-table th {
-    background-color: #e2e8f0 !important;
+  body:not(.printing-sheet) table.data-table th,
+  body:not(.printing-sheet) #finance-report-table th,
+  body:not(.printing-sheet) #finance-expenses-table th {
+    background-color: #f1f5f9 !important;
     color: #000000 !important;
-    font-weight: 800 !important;
-    border: 1.2px solid #475569 !important;
+    font-weight: 900 !important;
+    border: 1.2px solid #000000 !important;
+    text-align: center !important;
   }
 
   body:not(.printing-sheet) .print-footer {
@@ -917,7 +939,7 @@
     image-rendering: -webkit-optimize-contrast;
   }
 
-  /* ================= DARK MODE PRINT NORMALIZATION ================= */
+  /* ================= TOTAL DARK MODE ISOLATION FOR ALL PRINTABLE SHEETS ================= */
   [data-theme="dark"],
   [data-theme="dark"] body,
   [data-theme="dark"] .app-container,
@@ -930,30 +952,54 @@
   [data-theme="dark"] #printable-attendance-cards,
   [data-theme="dark"] #printable-insurance-letter,
   [data-theme="dark"] #printable-cash-receipt,
+  [data-theme="dark"] #printable-medical-statement,
+  [data-theme="dark"] div,
+  [data-theme="dark"] p,
+  [data-theme="dark"] span,
+  [data-theme="dark"] table,
+  [data-theme="dark"] tr,
+  [data-theme="dark"] td,
+  [data-theme="dark"] th {
+    background-image: none !important;
+    box-shadow: none !important;
+    text-shadow: none !important;
+  }
+
+  [data-theme="dark"],
+  [data-theme="dark"] body,
+  [data-theme="dark"] #view-finance,
+  [data-theme="dark"] .printable-doc,
+  [data-theme="dark"] #printable-patient-sheet,
+  [data-theme="dark"] #printable-insurance-claim,
+  [data-theme="dark"] #printable-attendance-cards,
+  [data-theme="dark"] #printable-insurance-letter,
+  [data-theme="dark"] #printable-cash-receipt,
   [data-theme="dark"] #printable-medical-statement {
     background: #ffffff !important;
     background-color: #ffffff !important;
     color: #000000 !important;
   }
 
+  [data-theme="dark"] table th,
   [data-theme="dark"] .data-table th,
-  [data-theme="dark"] table.data-table th {
-    background-color: #e2e8f0 !important;
+  [data-theme="dark"] .claim-print-table th {
+    background-color: #f1f5f9 !important;
     color: #000000 !important;
-    border-color: #475569 !important;
+    border-color: #000000 !important;
   }
 
+  [data-theme="dark"] table td,
   [data-theme="dark"] .data-table td,
-  [data-theme="dark"] table.data-table td {
+  [data-theme="dark"] .claim-print-table td {
     background-color: #ffffff !important;
     color: #000000 !important;
-    border-color: #64748b !important;
+    border-color: #334155 !important;
   }
 
   [data-theme="dark"] .stat-box,
   [data-theme="dark"] .stat-card {
     background-color: #ffffff !important;
-    border-color: #64748b !important;
+    border-color: #000000 !important;
   }
 
   [data-theme="dark"] .stat-info .stat-value {
@@ -961,7 +1007,47 @@
   }
 
   [data-theme="dark"] .stat-info .stat-label {
-    color: #334155 !important;
+    color: #1e293b !important;
+  }
+
+  [data-theme="dark"] .sheet-section-box,
+  [data-theme="dark"] .statement-diagnosis-box,
+  [data-theme="dark"] #ins-print-diagnosis {
+    background-color: #f8fafc !important;
+    color: #000000 !important;
+    border-color: #334155 !important;
+  }
+
+  [data-theme="dark"] .badge {
+    background-color: transparent !important;
+    color: #000000 !important;
+    border-color: #000000 !important;
+  }
+
+  [data-theme="dark"] .badge-cash,
+  [data-theme="dark"] .badge-success {
+    background-color: #f0fdf4 !important;
+    color: #14532d !important;
+    border-color: #166534 !important;
+  }
+
+  [data-theme="dark"] .badge-direct,
+  [data-theme="dark"] .badge-primary {
+    background-color: #f0f9ff !important;
+    color: #075985 !important;
+    border-color: #0369a1 !important;
+  }
+
+  [data-theme="dark"] .badge-indirect {
+    background-color: #faf5ff !important;
+    color: #581c87 !important;
+    border-color: #6b21a8 !important;
+  }
+
+  [data-theme="dark"] .badge-warning {
+    background-color: #fffbeb !important;
+    color: #92400e !important;
+    border-color: #b45309 !important;
   }
 
 }

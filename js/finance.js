@@ -1016,9 +1016,12 @@ export class FinanceManager {
             partsCell = `<span class="badge badge-role-doctor">${count} أعضاء (${parts})</span>`;
           }
 
+          const isSpecial = Boolean(s.isSpecial || s.sessionPricingType === 'special');
+          const specialBadge = isSpecial ? `<span class="badge badge-warning" style="font-size: 0.72rem; padding: 1px 5px; margin-right: 4px; font-weight: 800;"><i class="fa-solid fa-star"></i> خاصة</span>` : '';
+
           return `
             <tr>
-              <td style="font-weight: 700;">${safePatient}</td>
+              <td style="font-weight: 700;">${safePatient} ${specialBadge}</td>
               <td>${safeDoc}</td>
               <td>${payBadge}</td>
               <td>${safeIns === 'شركة' && s.payType === 'cash' ? '-' : safeIns}</td>
@@ -1116,6 +1119,10 @@ export class FinanceManager {
     }
 
     // Daily Expenses Table (Desktop)
+    const expCard = document.getElementById('card-finance-daily-expenses');
+    if (expCard) {
+      expCard.classList.toggle('empty-expenses-print', allExpenses.length === 0);
+    }
     const expTbody = document.getElementById('finance-expenses-tbody');
     if (expTbody) {
       if (allExpenses.length === 0) {
