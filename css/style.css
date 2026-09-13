@@ -9219,3 +9219,76 @@ html.role-doctor .btn-quick-attend,
 body.role-doctor .btn-quick-attend {
   display: none !important;
 }
+
+/* ==========================================================================
+   STANDALONE PASSWORD INPUT GROUPS (v1.4.75)
+   Puts the eye toggle button OUTSIDE the input field to prevent overlap
+   and aligns Arabic text & placeholders naturally to the right
+   ========================================================================== */
+.password-input-group {
+  display: flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  width: 100% !important;
+}
+
+.password-input-group .password-input-field {
+  flex: 1 !important;
+  text-align: right !important;
+  direction: rtl !important;
+  padding: 10px 14px !important;
+  font-size: 0.92rem !important;
+  box-sizing: border-box !important;
+  border-radius: 8px !important;
+  border: 1.5px solid var(--border-color) !important;
+}
+
+.password-input-group .password-input-field:focus,
+.password-input-group .password-input-field:not(:placeholder-shown) {
+  direction: ltr !important;
+  text-align: left !important;
+}
+
+.password-input-group .password-input-field::placeholder {
+  text-align: right !important;
+  direction: rtl !important;
+}
+
+.btn-pwd-eye {
+  width: 44px !important;
+  min-width: 44px !important;
+  height: 42px !important;
+  border-radius: 8px !important;
+  border: 1.5px solid var(--border-color) !important;
+  background: var(--bg-subtle) !important;
+  color: var(--text-muted) !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  cursor: pointer !important;
+  flex-shrink: 0 !important;
+  transition: all 0.15s ease !important;
+  outline: none !important;
+  -webkit-tap-highlight-color: transparent !important;
+}
+
+.btn-pwd-eye:hover {
+  border-color: var(--primary) !important;
+  color: var(--primary) !important;
+  background: rgba(2, 132, 199, 0.08) !important;
+}
+
+.btn-pwd-eye:active {
+  transform: scale(0.96) !important;
+}
+
+[data-theme="dark"] .btn-pwd-eye {
+  background: rgba(30, 41, 59, 0.7) !important;
+  border-color: rgba(56, 189, 248, 0.25) !important;
+  color: #94a3b8 !important;
+}
+
+[data-theme="dark"] .btn-pwd-eye:hover {
+  border-color: var(--primary) !important;
+  color: #38bdf8 !important;
+}
