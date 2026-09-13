@@ -589,40 +589,41 @@ export class ClaimsManager {
         const rowTotal = (item.sessionCount * item.sessionRate) + item.evalFee;
 
         return `
-          <div class="hero-styled-card claim-patient-card-item ${!item.isChecked ? 'is-unchecked' : ''}" style="padding: 14px 16px; margin-bottom: 10px; border-radius: 18px; ${!item.isChecked ? 'opacity: 0.7;' : ''}">
-            <div style="display: flex; align-items: center; justify-content: space-between; gap: 10px;">
-              <div style="display: flex; align-items: center; gap: 10px;">
-                <input type="checkbox" class="claim-patient-check" data-patient-id="${safeId}" style="width: 22px; height: 22px; cursor: pointer; accent-color: var(--primary);" ${rowChecked}>
-                <div>
-                  <div style="font-weight: 800; font-size: 1rem; color: var(--text-main);">${safeName}</div>
-                  <div style="font-size: 0.78rem; color: var(--text-muted); margin-top: 2px;"><i class="fa-solid fa-phone"></i> ${safePhone} • ${safeDoc}</div>
+          <div class="hero-styled-card claim-patient-card-item ${!item.isChecked ? 'is-unchecked' : ''}" style="padding: 10px 12px; margin-bottom: 8px; border-radius: 14px; border: 1.5px solid var(--border-color); background: var(--bg-subtle); ${!item.isChecked ? 'opacity: 0.65;' : ''}">
+            <div style="display: flex; align-items: center; justify-content: space-between; gap: 8px;">
+              <div style="display: flex; align-items: center; gap: 8px; min-width: 0; flex: 1;">
+                <input type="checkbox" class="claim-patient-check" data-patient-id="${safeId}" style="width: 19px; height: 19px; cursor: pointer; accent-color: var(--primary); flex-shrink: 0;" ${rowChecked}>
+                <div style="min-width: 0; flex: 1;">
+                  <div style="font-weight: 800; font-size: 0.92rem; color: var(--text-main); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${safeName}</div>
+                  <div style="font-size: 0.72rem; color: var(--text-muted); margin-top: 1px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;"><i class="fa-solid fa-phone" style="font-size: 0.68rem;"></i> ${safePhone} • ${safeDoc}</div>
                 </div>
               </div>
-              <button type="button" class="btn btn-outline btn-sm btn-open-card-modal" data-patient-id="${safeId}" style="font-size: 0.75rem; padding: 5px 10px; border-radius: 10px; font-weight: 700; white-space: nowrap;">
+              <button type="button" class="btn btn-outline btn-sm btn-open-card-modal" data-patient-id="${safeId}" style="font-size: 0.72rem; padding: 3px 8px; border-radius: 8px; font-weight: 700; white-space: nowrap; flex-shrink: 0;">
                 <i class="fa-solid fa-id-card"></i> بطاقة التردد
               </button>
             </div>
 
-            <div class="hsc-divider" style="margin: 10px 0;"></div>
+            <div class="hsc-divider" style="margin: 8px 0;"></div>
 
-            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; text-align: center;">
-              <div style="background: var(--bg-subtle); border-radius: 10px; padding: 6px 4px; border: 1px solid var(--border-color);">
-                <div style="font-size: 0.72rem; font-weight: 700; color: var(--text-muted); margin-bottom: 2px;">فحص (ج.م)</div>
-                <input type="number" class="form-control claim-patient-input" data-field="evalFee" data-patient-id="${safeId}" value="${item.evalFee}" style="width: 100%; text-align: center; font-weight: 800; font-size: 0.95rem; border: none; background: transparent; padding: 0;">
+            <!-- Compact Triple Input Grid (v1.4.54) -->
+            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; text-align: center;">
+              <div style="background: var(--bg-surface); border-radius: 8px; padding: 4px 2px; border: 1px solid var(--border-color);">
+                <div style="font-size: 0.68rem; font-weight: 700; color: var(--text-muted); margin-bottom: 1px;">فحص</div>
+                <input type="number" class="form-control claim-patient-input" data-field="evalFee" data-patient-id="${safeId}" value="${item.evalFee}" style="width: 100%; text-align: center; font-weight: 800; font-size: 0.86rem; height: 24px; border: none; background: transparent; padding: 0; color: var(--text-main);" inputmode="numeric">
               </div>
-              <div style="background: var(--bg-subtle); border-radius: 10px; padding: 6px 4px; border: 1px solid var(--border-color);">
-                <div style="font-size: 0.72rem; font-weight: 700; color: var(--text-muted); margin-bottom: 2px;">الجلسات</div>
-                <input type="number" class="form-control claim-patient-input" data-field="sessionCount" data-patient-id="${safeId}" value="${item.sessionCount}" style="width: 100%; text-align: center; font-weight: 800; font-size: 0.95rem; border: none; background: transparent; padding: 0;">
+              <div style="background: var(--bg-surface); border-radius: 8px; padding: 4px 2px; border: 1px solid var(--border-color);">
+                <div style="font-size: 0.68rem; font-weight: 700; color: var(--text-muted); margin-bottom: 1px;">الجلسات</div>
+                <input type="number" class="form-control claim-patient-input" data-field="sessionCount" data-patient-id="${safeId}" value="${item.sessionCount}" style="width: 100%; text-align: center; font-weight: 800; font-size: 0.86rem; height: 24px; border: none; background: transparent; padding: 0; color: var(--text-main);" inputmode="numeric">
               </div>
-              <div style="background: var(--bg-subtle); border-radius: 10px; padding: 6px 4px; border: 1px solid var(--border-color);">
-                <div style="font-size: 0.72rem; font-weight: 700; color: var(--text-muted); margin-bottom: 2px;">سعر الجلسة</div>
-                <input type="number" class="form-control claim-patient-input" data-field="sessionRate" data-patient-id="${safeId}" value="${item.sessionRate}" style="width: 100%; text-align: center; font-weight: 800; font-size: 0.95rem; border: none; background: transparent; padding: 0;">
+              <div style="background: var(--bg-surface); border-radius: 8px; padding: 4px 2px; border: 1px solid var(--border-color);">
+                <div style="font-size: 0.68rem; font-weight: 700; color: var(--text-muted); margin-bottom: 1px;">سعر الجلسة</div>
+                <input type="number" class="form-control claim-patient-input" data-field="sessionRate" data-patient-id="${safeId}" value="${item.sessionRate}" style="width: 100%; text-align: center; font-weight: 800; font-size: 0.86rem; height: 24px; border: none; background: transparent; padding: 0; color: var(--text-main);" inputmode="numeric">
               </div>
             </div>
 
-            <div style="display: flex; align-items: center; justify-content: space-between; margin-top: 10px; padding-top: 8px; border-top: 1px dashed var(--border-color);">
-              <span style="font-size: 0.8rem; font-weight: 700; color: var(--text-muted);">إجمالي مستحقات المريض:</span>
-              <span style="font-size: 1.05rem; font-weight: 800; color: var(--success);">${rowTotal.toLocaleString('en-US')} ج.م</span>
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-top: 8px; padding-top: 6px; border-top: 1px dashed var(--border-color);">
+              <span style="font-size: 0.74rem; font-weight: 700; color: var(--text-muted);">إجمالي مستحقات المريض:</span>
+              <span style="font-size: 0.94rem; font-weight: 800; color: var(--success);">${rowTotal.toLocaleString('en-US')} ج.م</span>
             </div>
           </div>
         `;

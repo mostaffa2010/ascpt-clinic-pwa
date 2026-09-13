@@ -3610,7 +3610,6 @@ body {
   #card-monthly-expenses,
   #finance-daily-settlements-card,
   #card-monthly-settlements,
-  #card-claim-patients-wrap,
   #claims-ledger-card,
   #card-admin-staff-list,
   #card-admin-audit-log {
@@ -3636,7 +3635,6 @@ body {
   #card-monthly-expenses .card-header,
   #finance-daily-settlements-card .card-header,
   #card-monthly-settlements .card-header,
-  #card-claim-patients-wrap .card-header,
   #claims-ledger-card .card-header,
   #card-admin-staff-list .card-header,
   #card-admin-audit-log .card-header {
@@ -8322,7 +8320,7 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 /* ==========================================================================
-   COMPACT SMART SESSION & EXAMINATION FORM (v1.4.53)
+   COMPACT SMART SESSION & EXAMINATION FORM (v1.4.54)
    ========================================================================== */
 
 /* 1. Mode Switcher (جلسة vs كشف) */
@@ -8651,7 +8649,7 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 /* ========================================================
-   Instant Zero-Flicker Role-Based UI Gatekeeper (v1.4.53)
+   Instant Zero-Flicker Role-Based UI Gatekeeper (v1.4.54)
    Pre-paint protection for doctor / receptionist / admin
    ======================================================== */
 html.role-doctor #dashboard-admin-view,
@@ -8697,7 +8695,7 @@ body.role-receptionist #dashboard-admin-view {
 }
 
 /* ========================================================
-   Modern Financial Cockpit & Analytics Suite (v1.4.53)
+   Modern Financial Cockpit & Analytics Suite (v1.4.54)
    ======================================================== */
 .financial-cockpit-card {
   margin-bottom: 16px;
@@ -8789,7 +8787,7 @@ body.role-receptionist #dashboard-admin-view {
 }
 
 /* ========================================================
-   Insurance Claims Actions Hub at Bottom (v1.4.53)
+   Insurance Claims Actions Hub at Bottom (v1.4.54)
    ======================================================== */
 #card-claim-actions-hub {
   margin-top: 8px;
@@ -8800,6 +8798,32 @@ body.role-receptionist #dashboard-admin-view {
 
 @media screen and (max-width: 767px) {
   #card-claim-actions-hub {
+    padding: 12px 10px !important;
+  }
+}
+
+/* Dedicated Cohesive Container for Claim Patients (v1.4.54) */
+#card-claim-patients-wrap {
+  background: var(--bg-surface) !important;
+  border: 1.5px solid var(--border-color) !important;
+  border-radius: 18px !important;
+  padding: 16px 14px !important;
+  margin-bottom: 16px !important;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04) !important;
+}
+
+#card-claim-patients-wrap .card-header {
+  border-bottom: 1px solid var(--border-color) !important;
+  padding: 0 0 10px 0 !important;
+  margin-bottom: 12px !important;
+  background: transparent !important;
+  display: flex !important;
+  justify-content: space-between !important;
+  align-items: center !important;
+}
+
+@media screen and (max-width: 767px) {
+  #card-claim-patients-wrap {
     padding: 12px 10px !important;
   }
 }
