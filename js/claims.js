@@ -66,14 +66,12 @@ export class ClaimsManager {
     const endEl = document.getElementById('claim-end-date');
     const claimDateEl = document.getElementById('claim-doc-date');
 
-    const defDates = this._getDefaultMonthDates();
+    if (startEl) startEl.value = '';
+    if (endEl) endEl.value = '';
+    if (claimDateEl) claimDateEl.value = '';
 
-    if (startEl) startEl.value = defDates.start;
-    if (endEl) endEl.value = defDates.end;
-    if (claimDateEl) claimDateEl.value = defDates.today;
-
-    this.startDate = defDates.start;
-    this.endDate = defDates.end;
+    this.startDate = '';
+    this.endDate = '';
   }
 
   async populateCompaniesDropdown() {
@@ -370,18 +368,17 @@ export class ClaimsManager {
     const defaultRateInput = document.getElementById('claim-default-session-rate');
     const defaultEvalInput = document.getElementById('claim-default-eval-fee');
 
-    this.currentCompany = compSelect?.value || this.currentCompany || '';
-    const defDates = this._getDefaultMonthDates();
-    this.startDate = startInput?.value || this.startDate || defDates.start;
-    this.endDate = endInput?.value || this.endDate || defDates.end;
+    this.currentCompany = compSelect?.value ? compSelect.value.trim() : (this.currentCompany || '');
+    this.startDate = startInput?.value ? startInput.value.trim() : '';
+    this.endDate = endInput?.value ? endInput.value.trim() : '';
 
     if (!this.currentCompany) {
       await this.app.showAlert('يرجى اختيار شركة التأمين أولاً من القائمة.', 'بيانات ناقصة', 'warning');
       return;
     }
 
-    const defaultRate = parseFloat(defaultRateInput?.value) || 120;
-    const defaultEval = parseFloat(defaultEvalInput?.value) || 150;
+    const defaultRate = parseFloat(defaultRateInput?.value) || 0;
+    const defaultEval = parseFloat(defaultEvalInput?.value) || 0;
 
     const allPatients = await db.getPatients();
     const allSessions = await db.getSessions();
@@ -407,10 +404,13 @@ export class ClaimsManager {
     this.claimPatientsData = companyPatients.map(p => {
       // Sessions for this patient in selected date range
       const patientSessions = allSessions.filter(s => {
-        return s.patientId === p.id && s.date >= this.startDate && s.date <= this.endDate;
+        if (s.patientId !== p.id) return false;
+        if (this.startDate && s.date < this.startDate) return false;
+        if (this.endDate && s.date > this.endDate) return false;
+        return true;
       });
 
-      const sessionCount = patientSessions.length > 0 ? patientSessions.length : 12;
+      const sessionCount = patientSessions.length;
       const isChecked = false; // غير محدد افتراضياً حتى يبحث الطبيب ويحدد براحته
       const total = (sessionCount * defaultRate) + defaultEval;
 
@@ -450,7 +450,14 @@ export class ClaimsManager {
 
     const stripText = document.getElementById('claim-summary-strip-text');
     if (stripText) {
-      stripText.innerHTML = `شركة: <strong style="color: var(--primary);">${escapeHTML(this.currentCompany)}</strong> • من <strong>${escapeHTML(this.startDate)}</strong> إلى <strong>${escapeHTML(this.endDate)}</strong> • سعر الجلسة: <strong>${defaultRate} ج.م</strong> • تقييم: <strong>${defaultEval} ج.م</strong>`;
+      const parts = [];
+      parts.push(`شركة: <strong style="color: var(--primary);">${escapeHTML(this.currentCompany)}</strong>`);
+      if (this.startDate || this.endDate) {
+        parts.push(`الفترة: <strong>${escapeHTML(this.startDate || 'البداية')}</strong> إلى <strong>${escapeHTML(this.endDate || 'الآن')}</strong>`);
+      }
+      if (defaultRate > 0) parts.push(`سعر الجلسة: <strong>${defaultRate} ج.م</strong>`);
+      if (defaultEval > 0) parts.push(`تقييم: <strong>${defaultEval} ج.م</strong>`);
+      stripText.innerHTML = parts.join(' • ');
     }
     this.toggleClaimSettings(false);
     if (this.app && this.app.showToast) {
@@ -1223,8 +1230,8 @@ export class ClaimsManager {
     const totalAmount = checkedItems.reduce((acc, curr) => acc + (parseFloat(curr.total) || 0), 0);
     const claimDate = document.getElementById('claim-doc-date')?.value || new Date().toISOString().slice(0, 10);
     const taxNumber = document.getElementById('claim-tax-number')?.value.trim() || '';
-    const sessionRate = parseFloat(document.getElementById('claim-default-session-rate')?.value) || 120;
-    const evalFee = parseFloat(document.getElementById('claim-default-eval-fee')?.value) || 150;
+    const sessionRate = parseFloat(document.getElementById('claim-default-session-rate')?.value) || 0;
+    const evalFee = parseFloat(document.getElementById('claim-default-eval-fee')?.value) || 0;
 
     const claimData = {
       claimCode,
@@ -1317,8 +1324,8 @@ export class ClaimsManager {
     if (endEl) endEl.value = claim.endDate;
     if (claimDateEl) claimDateEl.value = claim.claimDate || '';
     if (taxEl) taxEl.value = claim.taxNumber || '';
-    if (rateEl) rateEl.value = claim.defaultSessionRate || 120;
-    if (evalEl) evalEl.value = claim.defaultEvalFee || 150;
+    if (rateEl) rateEl.value = (claim.defaultSessionRate !== undefined && claim.defaultSessionRate !== null) ? claim.defaultSessionRate : '';
+    if (evalEl) evalEl.value = (claim.defaultEvalFee !== undefined && claim.defaultEvalFee !== null) ? claim.defaultEvalFee : '';
 
     if (Array.isArray(claim.patientsData) && claim.patientsData.length > 0) {
       this.claimPatientsData = claim.patientsData.map(p => ({
