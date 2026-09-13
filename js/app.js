@@ -83,6 +83,7 @@ import { DoctorDashboardManager } from './doctor-dashboard.js';
 import { AppointmentsManager } from './appointments.js';
 import { ExportManager } from './export.js';
 import { AuditAndAdminManager } from './audit.js';
+import { RolesManager } from './roles.js';
 
 class App {
   constructor() {
@@ -453,33 +454,43 @@ class App {
     });
 
     // Close Auth Modal buttons
-    // ================= User Profile Feature (v1.4.70) =================
+    // ================= User Profile Feature (v1.4.71) =================
     const openUserProfileModal = () => {
-      const user = auth.getCurrentUser();
-      if (!user) {
-        auth.showLoginModal();
-        return;
-      }
+      try {
+        const user = auth.getCurrentUser() || window.__ASCPT_INITIAL_USER;
+        if (!user) {
+          auth.showLoginModal();
+          return;
+        }
 
-      const nameEl = document.getElementById('profile-modal-user-name');
-      const roleEl = document.getElementById('profile-modal-user-role');
-      const emailEl = document.getElementById('profile-modal-user-email');
-      const avatarIcon = document.getElementById('profile-modal-avatar-icon');
+        const nameEl = document.getElementById('profile-modal-user-name');
+        const roleEl = document.getElementById('profile-modal-user-role');
+        const emailEl = document.getElementById('profile-modal-user-email');
+        const avatarIcon = document.getElementById('profile-modal-avatar-icon');
 
-      if (nameEl) nameEl.textContent = user.name || 'مستخدم النظام';
-      if (emailEl) emailEl.textContent = user.email || '-';
-      if (roleEl) {
-        roleEl.textContent = RolesManager.getRoleLabel(user.role);
-        roleEl.className = `badge badge-role-${user.role}`;
-      }
-      if (avatarIcon) {
-        if (user.role === 'doctor') avatarIcon.className = 'fa-solid fa-user-doctor';
-        else if (user.role === 'admin') avatarIcon.className = 'fa-solid fa-shield-halved';
-        else avatarIcon.className = 'fa-solid fa-user-tie';
-      }
+        if (nameEl) nameEl.textContent = user.name || 'مستخدم النظام';
+        if (emailEl) emailEl.textContent = user.email || '-';
+        if (roleEl) {
+          const rMap = { admin: 'مدير المركز', doctor: 'طبيب معالج', receptionist: 'سكرتارية / استقبال' };
+          const label = (typeof RolesManager !== 'undefined' && RolesManager.getRoleLabel)
+            ? RolesManager.getRoleLabel(user.role)
+            : (rMap[user.role] || user.role || 'طبيب');
+          roleEl.textContent = label;
+          roleEl.className = `badge badge-role-${user.role || 'doctor'}`;
+        }
+        if (avatarIcon) {
+          if (user.role === 'doctor') avatarIcon.className = 'fa-solid fa-user-doctor';
+          else if (user.role === 'admin') avatarIcon.className = 'fa-solid fa-shield-halved';
+          else avatarIcon.className = 'fa-solid fa-user-tie';
+        }
 
-      this.openModal('modal-user-profile');
+        this.openModal('modal-user-profile');
+      } catch (err) {
+        console.error('Error opening user profile modal:', err);
+        this.openModal('modal-user-profile');
+      }
     };
+    this.openUserProfileModal = openUserProfileModal;
 
     document.getElementById('user-status-pill-box')?.addEventListener('click', (e) => {
       e.preventDefault();

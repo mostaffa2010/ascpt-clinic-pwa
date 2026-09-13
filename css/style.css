@@ -9042,3 +9042,19 @@ html, body {
   background: rgba(2, 132, 199, 0.05) !important;
   transform: translateY(-1px);
 }
+
+#user-status-pill-box,
+#sidebar-user-profile-trigger {
+  -webkit-user-select: none !important;
+  user-select: none !important;
+  -webkit-touch-callout: none !important;
+  cursor: pointer !important;
+  outline: none !important;
+}
+
+#user-status-pill-box *,
+#sidebar-user-profile-trigger * {
+  -webkit-user-select: none !important;
+  user-select: none !important;
+  pointer-events: none !important;
+}
