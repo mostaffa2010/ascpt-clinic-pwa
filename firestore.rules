@@ -73,11 +73,16 @@ service cloud.firestore {
         ) ||
         (
           isDoctor() &&
-          request.resource.data.name == resource.data.name &&
-          request.resource.data.phone == resource.data.phone &&
-          request.resource.data.billing == resource.data.billing
+          (!('name' in request.resource.data) || !('name' in resource.data) || request.resource.data.name == resource.data.name) &&
+          (!('phone' in request.resource.data) || !('phone' in resource.data) || request.resource.data.phone == resource.data.phone) &&
+          (!('billing' in request.resource.data) || !('billing' in resource.data) || request.resource.data.billing == resource.data.billing)
         )
       );
+
+      // ================= 2.أ. Patient Images Subcollection =================
+      match /images/{imageId} {
+        allow read, write: if isUserActive();
+      }
     }
 
     // ================= 3. Sessions =================
@@ -109,6 +114,11 @@ service cloud.firestore {
         isAdmin() || isReceptionist() ||
         (isDoctor() && resource.data.doctorUid == request.auth.uid)
       );
+    }
+
+    // ================= 4.ب. Doctor Shift Overrides =================
+    match /shift_overrides/{overrideId} {
+      allow read, write: if isUserActive();
     }
 
     // ================= 5. Clinical Options & Insurance Companies =================

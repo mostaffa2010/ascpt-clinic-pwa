@@ -3112,7 +3112,7 @@ export class PatientsManager {
     const origH = img.naturalHeight || img.height;
 
     // Scale to medical standard high-res: max 1500px
-    const maxDim = 1500;
+    const maxDim = 1200;
     let scale = 1;
     if (Math.max(origW, origH) > maxDim) {
       scale = maxDim / Math.max(origW, origH);
@@ -3142,9 +3142,9 @@ export class PatientsManager {
     ctx.drawImage(img, -fullW / 2, -fullH / 2, fullW, fullH);
     ctx.restore();
 
-    let dataUrl = exportCanvas.toDataURL('image/webp', 0.82);
+    let dataUrl = exportCanvas.toDataURL('image/webp', 0.75);
     if (!dataUrl.startsWith('data:image/webp')) {
-      dataUrl = exportCanvas.toDataURL('image/jpeg', 0.82);
+      dataUrl = exportCanvas.toDataURL('image/jpeg', 0.75);
     }
     return dataUrl;
   }

@@ -979,14 +979,48 @@ class FirestoreDatabaseService {
     await this.syncAndSeedCloudOptions();
   }
 
-  // ================= 11. Patient Medical Imaging & Lab Reports (v1.4.78) =================
+  // ================= 11. Patient Medical Imaging & Lab Reports (v1.4.81) =================
   async getPatientImages(patientId) {
     this.ensureConnected();
     if (!patientId) return [];
     try {
-      const snap = await getDocs(collection(firestoreDb, 'patients', patientId, 'images'));
-      const list = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-      return list.sort((a, b) => (b.createdAt || '').localeCompare(a.createdAt || ''));
+      const imageMap = new Map();
+
+      // 1. Primary: Fetch from dedicated Subcollection 'patients/{patientId}/images'
+      try {
+        const snap = await getDocs(collection(firestoreDb, 'patients', patientId, 'images'));
+        snap.docs.forEach((d) => {
+          imageMap.set(d.id, { id: d.id, ...d.data() });
+        });
+      } catch (subErr) {
+        console.warn('Subcollection images fetch notice:', subErr.message);
+      }
+
+      // 2. Legacy fallback: Read from parent patient document (imagingFiles or clinicalSheet.images)
+      try {
+        const pSnap = await getDoc(doc(firestoreDb, 'patients', patientId));
+        if (pSnap.exists()) {
+          const pData = pSnap.data();
+          if (Array.isArray(pData.imagingFiles)) {
+            pData.imagingFiles.forEach((img) => {
+              if (img && img.id && !imageMap.has(img.id)) {
+                imageMap.set(img.id, img);
+              }
+            });
+          }
+          if (pData.clinicalSheet && Array.isArray(pData.clinicalSheet.images)) {
+            pData.clinicalSheet.images.forEach((img) => {
+              if (img && img.id && !imageMap.has(img.id)) {
+                imageMap.set(img.id, img);
+              }
+            });
+          }
+        }
+      } catch (docErr) {
+        console.warn('Patient document imagingFiles fetch notice:', docErr.message);
+      }
+
+      return Array.from(imageMap.values()).sort((a, b) => (b.createdAt || '').localeCompare(a.createdAt || ''));
     } catch (err) {
       console.error('getPatientImages error:', err);
       return [];
@@ -996,9 +1030,10 @@ class FirestoreDatabaseService {
   async addPatientImage(patientId, imageData) {
     this.ensureConnected();
     if (!patientId) throw new Error('patientId is required');
-    const ref = doc(collection(firestoreDb, 'patients', patientId, 'images'));
+
+    const imageId = 'img_' + Date.now() + '_' + Math.random().toString(36).substring(2, 8);
     const payload = {
-      id: ref.id,
+      id: imageId,
       patientId,
       title: imageData.title || 'أشعة / تحليل',
       category: imageData.category || 'other',
@@ -1008,14 +1043,70 @@ class FirestoreDatabaseService {
       createdBy: imageData.createdBy || '',
       createdByUid: imageData.createdByUid || ''
     };
-    await setDoc(ref, payload);
-    return payload;
+
+    // 1. Primary: Save directly to subcollection 'patients/{patientId}/images/{imageId}'
+    // This perfectly matches Firestore Security Rule: match /images/{imageId} { allow read, write: if isUserActive(); }
+    // and completely prevents hitting the 1MB Firestore document limit on the main patient record!
+    try {
+      const imgDocRef = doc(firestoreDb, 'patients', patientId, 'images', imageId);
+      await setDoc(imgDocRef, payload);
+      return payload;
+    } catch (err) {
+      console.warn('Subcollection image write notice, attempting fallback to document array:', err.message);
+      // 2. Fallback: If subcollection write fails, try updating patient document directly
+      try {
+        const pRef = doc(firestoreDb, 'patients', patientId);
+        const pSnap = await getDoc(pRef);
+        if (pSnap.exists()) {
+          const currentList = Array.isArray(pSnap.data().imagingFiles) ? pSnap.data().imagingFiles : [];
+          const updatedList = [payload, ...currentList].slice(0, 20);
+          await updateDoc(pRef, {
+            imagingFiles: updatedList,
+            lastUpdatedAt: new Date().toISOString(),
+            lastUpdatedBy: imageData.createdBy || 'طاقم المركز'
+          });
+          return payload;
+        }
+      } catch (fallbackErr) {
+        console.error('addPatientImage fallback error:', fallbackErr);
+      }
+      throw err;
+    }
   }
 
   async deletePatientImage(patientId, imageId) {
     this.ensureConnected();
     if (!patientId || !imageId) return;
-    await deleteDoc(doc(firestoreDb, 'patients', patientId, 'images', imageId));
+
+    try {
+      // 1. Delete from subcollection
+      try {
+        await deleteDoc(doc(firestoreDb, 'patients', patientId, 'images', imageId));
+      } catch (subErr) {
+        console.warn('Subcollection image delete notice:', subErr.message);
+      }
+
+      // 2. Also remove from patient document imagingFiles if it was saved there (legacy cleanup)
+      try {
+        const pRef = doc(firestoreDb, 'patients', patientId);
+        const pSnap = await getDoc(pRef);
+        if (pSnap.exists()) {
+          const currentList = Array.isArray(pSnap.data().imagingFiles) ? pSnap.data().imagingFiles : [];
+          if (currentList.some((img) => img.id === imageId)) {
+            const updatedList = currentList.filter((img) => img.id !== imageId);
+            await updateDoc(pRef, {
+              imagingFiles: updatedList,
+              lastUpdatedAt: new Date().toISOString()
+            });
+          }
+        }
+      } catch (docErr) {
+        console.warn('Patient document imagingFiles delete notice:', docErr.message);
+      }
+    } catch (err) {
+      console.error('deletePatientImage error:', err);
+      throw err;
+    }
   }
 }
 
