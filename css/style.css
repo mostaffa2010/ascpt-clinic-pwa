@@ -3579,24 +3579,47 @@ body {
    PREMIUM HERO-STYLED MOBILE CARDS (v1.4.0-beta.6)
    Handcrafted Mobile Cards matching the Hero Banner aesthetic
    ======================================================== */
-@media screen and (min-width: 992px) {
+/* Universal Responsive Cards Grid Architecture (All Screens v1.4.86) */
+.desktop-only-table {
+  display: none !important;
+}
+
+.mobile-only-cards-container,
+.universal-cards-grid {
+  display: grid !important;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)) !important;
+  gap: 14px !important;
+  width: 100% !important;
+  box-sizing: border-box !important;
+}
+
+@media screen and (max-width: 768px) {
   .mobile-only-cards-container,
-  .appt-timeline-container {
-    display: none !important;
+  .universal-cards-grid {
+    grid-template-columns: 1fr !important;
+    gap: 12px !important;
   }
 }
 
-@media screen and (max-width: 991px) {
-  .desktop-only-table {
-    display: none !important;
-  }
+.mobile-only-cards-container .hero-styled-card,
+.universal-cards-grid .hero-styled-card {
+  margin-bottom: 0 !important;
+  box-sizing: border-box !important;
+  display: flex !important;
+  flex-direction: column !important;
+  justify-content: space-between !important;
+}
 
-  .mobile-only-cards-container {
-    display: flex !important;
-    flex-direction: column !important;
-    gap: 12px !important;
-    width: 100% !important;
-  }
+.mobile-only-cards-container .empty-state-card,
+.mobile-only-cards-container > div[style*="text-align: center"],
+.mobile-only-cards-container .mobile-pagination-bar,
+.mobile-only-cards-container .expenses-compact-list,
+.universal-cards-grid .empty-state-card,
+.universal-cards-grid .mobile-pagination-bar {
+  grid-column: 1 / -1 !important;
+}
+
+@media screen and (max-width: 991px) {
 
   /* Reset outer box styling on mobile across all modules */
   #card-dashboard-recent,
