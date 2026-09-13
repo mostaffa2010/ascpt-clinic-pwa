@@ -9058,3 +9058,155 @@ html, body {
   user-select: none !important;
   pointer-events: none !important;
 }
+
+/* ==========================================================================
+   DOCTOR DASHBOARD HERO KPI CARDS (v1.4.73)
+   Vertical Metric Stack: spacious, clean typography, 0 wrapping issues
+   ========================================================================== */
+.doc-kpi-grid {
+  display: grid !important;
+  grid-template-columns: repeat(2, 1fr) !important;
+  gap: 12px !important;
+  width: 100% !important;
+  margin-bottom: 16px !important;
+  box-sizing: border-box !important;
+}
+
+@media screen and (min-width: 992px) {
+  .doc-kpi-grid {
+    grid-template-columns: repeat(4, 1fr) !important;
+    gap: 16px !important;
+  }
+}
+
+.doc-kpi-card {
+  background: var(--bg-surface);
+  border: 1.5px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  box-shadow: var(--shadow-sm);
+  box-sizing: border-box;
+  min-height: 114px;
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+:root:not([data-theme="dark"]) .doc-kpi-card {
+  background: linear-gradient(145deg, #ffffff 0%, #f8fafc 100%);
+  border-color: rgba(226, 232, 240, 0.95);
+  box-shadow: 0 4px 14px rgba(15, 23, 42, 0.04);
+}
+
+[data-theme="dark"] .doc-kpi-card {
+  background: linear-gradient(145deg, #1e293b 0%, #0f172a 100%);
+  border-color: rgba(56, 189, 248, 0.18);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25);
+}
+
+.doc-kpi-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+  border-color: rgba(2, 132, 199, 0.4);
+}
+
+/* 1. Top row of card */
+.dkc-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  margin-bottom: 6px;
+}
+
+.dkc-title {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  line-height: 1.2;
+}
+
+.dkc-mini-icon {
+  width: 30px;
+  height: 30px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.85rem;
+  flex-shrink: 0;
+}
+
+.dkc-mini-icon.blue { background: rgba(2, 132, 199, 0.12); color: var(--primary); }
+.dkc-mini-icon.green { background: rgba(16, 185, 129, 0.12); color: var(--success); }
+.dkc-mini-icon.purple { background: rgba(139, 92, 246, 0.12); color: #8b5cf6; }
+.dkc-mini-icon.amber { background: rgba(245, 158, 11, 0.12); color: var(--warning); }
+
+/* 2. Metric Value (Hero Number) */
+.dkc-metric {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  margin-bottom: 4px;
+}
+
+.dkc-value {
+  font-size: 1.85rem;
+  font-weight: 900;
+  color: var(--text-main);
+  line-height: 1;
+  letter-spacing: -0.5px;
+  font-family: 'Cairo', system-ui, sans-serif;
+}
+
+.dkc-unit {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--text-muted);
+}
+
+/* 3. Breakdown Row for Card 4 (Cash & Insurance) */
+.dkc-breakdown-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 4px;
+  flex-wrap: nowrap;
+}
+
+.dkc-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 8px;
+  border-radius: 6px;
+  font-size: 0.74rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.dkc-pill.cash {
+  background: rgba(16, 185, 129, 0.12);
+  color: var(--success);
+  border: 1px solid rgba(16, 185, 129, 0.25);
+}
+
+.dkc-pill.ins {
+  background: rgba(2, 132, 199, 0.12);
+  color: var(--primary);
+  border: 1px solid rgba(2, 132, 199, 0.25);
+}
+
+/* 4. Subtitle / Context Pill at bottom */
+.dkc-sub {
+  font-size: 0.73rem;
+  color: var(--text-muted);
+  font-weight: 600;
+  line-height: 1.2;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}

@@ -76,33 +76,47 @@ export class DoctorDashboardManager {
 
     // 1. Today's sessions for this doctor
     const todaySessions = this.docSessions.filter(s => s.date === todayStr);
-    const todayCountEl = document.getElementById('stat-doc-today-count');
-    if (todayCountEl) {
-      const todayCredited = todaySessions.reduce((acc, s) => {
-        if (s.entryType === 'examination') return acc + 1;
-        return acc + (s.bodyPartsCount || 1);
-      }, 0);
-      todayCountEl.textContent = `${todaySessions.length} زيارة • ${todayCredited} جلسة`;
+    const todayCredited = todaySessions.reduce((acc, s) => {
+      if (s.entryType === 'examination') return acc + 1;
+      return acc + (s.bodyPartsCount || 1);
+    }, 0);
+
+    const todayNumEl = document.getElementById('stat-doc-today-num');
+    const todaySubEl = document.getElementById('stat-doc-today-sub');
+    if (todayNumEl) todayNumEl.textContent = todayCredited;
+    if (todaySubEl) {
+      todaySubEl.textContent = todaySessions.length > 0 ? `من ${todaySessions.length} زيارة مريض` : 'لا توجد زيارات اليوم';
     }
+    const todayCountEl = document.getElementById('stat-doc-today-count');
+    if (todayCountEl) todayCountEl.textContent = `${todaySessions.length} زيارة • ${todayCredited} جلسة`;
 
     // 2. This month's sessions
     const monthSessions = this.docSessions.filter(s => s.date && s.date.startsWith(currentMonth));
-    const monthCountEl = document.getElementById('stat-doc-month-count');
-    if (monthCountEl) {
-      const monthCredited = monthSessions.reduce((acc, s) => {
-        if (s.entryType === 'examination') return acc + 1;
-        return acc + (s.bodyPartsCount || 1);
-      }, 0);
-      monthCountEl.textContent = `${monthSessions.length} زيارة • ${monthCredited} جلسة`;
+    const monthCredited = monthSessions.reduce((acc, s) => {
+      if (s.entryType === 'examination') return acc + 1;
+      return acc + (s.bodyPartsCount || 1);
+    }, 0);
+
+    const monthNumEl = document.getElementById('stat-doc-month-num');
+    const monthSubEl = document.getElementById('stat-doc-month-sub');
+    if (monthNumEl) monthNumEl.textContent = monthCredited;
+    if (monthSubEl) {
+      monthSubEl.textContent = monthSessions.length > 0 ? `من ${monthSessions.length} زيارة مريض` : 'لا توجد جلسات هذا الشهر';
     }
+    const monthCountEl = document.getElementById('stat-doc-month-count');
+    if (monthCountEl) monthCountEl.textContent = `${monthSessions.length} زيارة • ${monthCredited} جلسة`;
 
     // 3. Lifetime patients treated by this doctor
     const treatedPatientIds = new Set(this.docSessions.map(s => s.patientId));
     this.docPatients.forEach(p => treatedPatientIds.add(p.id));
+
+    const patientsNumEl = document.getElementById('stat-doc-patients-num');
+    const patientsSubEl = document.getElementById('stat-doc-patients-sub');
+    if (patientsNumEl) patientsNumEl.textContent = treatedPatientIds.size;
+    if (patientsSubEl) patientsSubEl.textContent = 'ملفات مسجلة باسمك';
+
     const lifetimeCountEl = document.getElementById('stat-doc-lifetime-count');
-    if (lifetimeCountEl) {
-      lifetimeCountEl.textContent = `${treatedPatientIds.size} مريض`;
-    }
+    if (lifetimeCountEl) lifetimeCountEl.textContent = `${treatedPatientIds.size} مريض`;
 
     // 4. Case breakdown (Cash vs Insurance) for this doctor
     let cashCount = 0;
@@ -111,10 +125,14 @@ export class DoctorDashboardManager {
       if (s.payType === 'cash') cashCount++;
       else insCount++;
     });
+
+    const cashValEl = document.getElementById('stat-doc-cash-val');
+    const insValEl = document.getElementById('stat-doc-ins-val');
+    if (cashValEl) cashValEl.textContent = cashCount;
+    if (insValEl) insValEl.textContent = insCount;
+
     const ratioEl = document.getElementById('stat-doc-types-ratio');
-    if (ratioEl) {
-      ratioEl.textContent = `${cashCount} نقدي • ${insCount} تأمين`;
-    }
+    if (ratioEl) ratioEl.textContent = `${cashCount} نقدي • ${insCount} تأمين`;
 
     // 5. Monthly Earnings Calculation (KPI Card 5 - Cumulative for this month)
     const docList = await db.getDoctorsList();
