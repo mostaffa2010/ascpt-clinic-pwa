@@ -15,7 +15,7 @@ import {
 import { firestoreDb, firebaseAuth } from './firebase-init.js';
 import { auth } from './auth.js';
 import { RolesManager } from './roles.js';
-import { escapeHTML, initStackDeck } from './utils.js';
+import { escapeHTML, initStackDeck, getShiftLabel } from './utils.js';
 
 export class AuditAndAdminManager {
   constructor(app) {
@@ -34,6 +34,20 @@ export class AuditAndAdminManager {
       formAddUser.addEventListener('submit', (e) => this.handleAddUser(e));
     }
 
+    const roleSelect = document.getElementById('newuser-role');
+    const shiftGroup = document.getElementById('form-group-newuser-shift');
+    if (roleSelect && shiftGroup) {
+      const toggleShift = () => {
+        shiftGroup.style.display = (roleSelect.value === 'doctor') ? 'block' : 'none';
+      };
+      roleSelect.addEventListener('change', toggleShift);
+      toggleShift();
+    }
+
+    document.getElementById('btn-save-doctor-shift')?.addEventListener('click', () => {
+      this.handleSaveDoctorShift();
+    });
+
     const usersTbody = document.getElementById('admin-users-tbody');
     if (usersTbody) {
       usersTbody.addEventListener('click', async (e) => {
@@ -42,6 +56,15 @@ export class AuditAndAdminManager {
           const userId = btnDelete.getAttribute('data-user-id');
           const userName = btnDelete.getAttribute('data-user-name');
           await this.deleteUser(userId, userName);
+          return;
+        }
+
+        const btnShift = e.target.closest('.btn-change-doctor-shift');
+        if (btnShift) {
+          const userId = btnShift.getAttribute('data-user-id');
+          const userName = btnShift.getAttribute('data-user-name');
+          const currentShift = btnShift.getAttribute('data-current-shift') || 'sat_mon_wed';
+          this.openChangeShiftModal(userId, userName, currentShift);
           return;
         }
 
@@ -63,6 +86,15 @@ export class AuditAndAdminManager {
           const userId = btnDelete.getAttribute('data-user-id');
           const userName = btnDelete.getAttribute('data-user-name');
           await this.deleteUser(userId, userName);
+          return;
+        }
+
+        const btnShift = e.target.closest('.btn-change-doctor-shift');
+        if (btnShift) {
+          const userId = btnShift.getAttribute('data-user-id');
+          const userName = btnShift.getAttribute('data-user-name');
+          const currentShift = btnShift.getAttribute('data-current-shift') || 'sat_mon_wed';
+          this.openChangeShiftModal(userId, userName, currentShift);
           return;
         }
 
@@ -95,6 +127,8 @@ export class AuditAndAdminManager {
     const email = emailInput?.value?.trim().toLowerCase();
     const password = passwordInput?.value;
     const role = roleInput?.value || 'doctor';
+    const shiftInput = document.getElementById('newuser-shift');
+    const shift = (role === 'doctor') ? (shiftInput?.value || 'sat_mon_wed') : null;
 
     if (!name || name.length < 2) {
       await this.app.showAlert('يرجى إدخال اسم صحيح للموظف (حرفين على الأقل).', 'بيانات غير مكتملة', 'warning');
@@ -135,7 +169,7 @@ export class AuditAndAdminManager {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${idToken}`
         },
-        body: JSON.stringify({ name, email, password, role })
+        body: JSON.stringify({ name, email, password, role, shift })
       });
 
       const result = await response.json();
@@ -239,6 +273,65 @@ export class AuditAndAdminManager {
       await this.app.showAlert(err.message || 'فشل حذف الموظف.', 'خطأ', 'danger');
     }
   }
+  openChangeShiftModal(userId, userName, currentShift) {
+    const modalNameEl = document.getElementById('shift-modal-doctor-name');
+    const modalUidInp = document.getElementById('shift-modal-target-uid');
+    if (modalNameEl) modalNameEl.textContent = userName;
+    if (modalUidInp) modalUidInp.value = userId;
+
+    const radios = document.querySelectorAll('input[name="doctor-shift-choice"]');
+    radios.forEach(r => {
+      r.checked = (r.value === currentShift);
+    });
+
+    this.app.openModal('modal-change-doctor-shift');
+  }
+
+  async handleSaveDoctorShift() {
+    const modalUidInp = document.getElementById('shift-modal-target-uid');
+    const targetUid = modalUidInp?.value;
+    if (!targetUid) return;
+
+    const selectedRadio = document.querySelector('input[name="doctor-shift-choice"]:checked');
+    const shift = selectedRadio?.value || 'sat_mon_wed';
+    const btnSave = document.getElementById('btn-save-doctor-shift');
+    const origHtml = btnSave ? btnSave.innerHTML : '';
+    if (btnSave) {
+      btnSave.disabled = true;
+      btnSave.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> جاري الحفظ...';
+    }
+
+    try {
+      if (!firebaseAuth.currentUser) {
+        throw new Error('جلسة تسجيل الدخول منتهية.');
+      }
+      const idToken = await firebaseAuth.currentUser.getIdToken(true);
+      const res = await fetch('/api/admin/users', {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${idToken}`
+        },
+        body: JSON.stringify({ targetUid, shift })
+      });
+      const result = await res.json();
+      if (!res.ok) throw new Error(result.error || 'فشل تحديث الشفت.');
+
+      this.app.closeModal('modal-change-doctor-shift');
+      this.app.showToast('تم تحديث جدول شفت الطبيب بنجاح');
+      await this.loadUsers();
+      await this.app.populateDoctorDropdowns?.();
+      await this.loadAuditLogs();
+    } catch (err) {
+      await this.app.showAlert(err.message, 'خطأ في التحديث', 'danger');
+    } finally {
+      if (btnSave) {
+        btnSave.disabled = false;
+        btnSave.innerHTML = origHtml;
+      }
+    }
+  }
+
 
   async loadUsers() {
     const tbody = document.getElementById('admin-users-tbody');
@@ -277,11 +370,26 @@ export class AuditAndAdminManager {
           const safeRole = escapeHTML(u.role || 'doctor');
           const roleLabel = escapeHTML(RolesManager.getRoleLabel(u.role));
 
+          let shiftDisplay = '<span style="color: var(--text-muted); font-size: 0.8rem; font-weight: 600;">دوام إداري</span>';
+          if (u.role === 'doctor') {
+            const sKey = u.shift || 'sat_mon_wed';
+            const sLabel = getShiftLabel(sKey);
+            const sIcon = sKey === 'sat_mon_wed' ? 'fa-calendar-days' : (sKey === 'sun_tue_thu' ? 'fa-calendar-week' : 'fa-calendar-check');
+            shiftDisplay = `
+              <button type="button" class="btn btn-outline btn-sm btn-change-doctor-shift" data-user-id="${escapeHTML(u.id)}" data-user-name="${safeName}" data-current-shift="${sKey}" style="border-radius: 6px; padding: 4px 10px; font-size: 0.78rem; font-weight: 700; color: var(--primary); border-color: var(--border-color); display: inline-flex; align-items: center; gap: 6px;" title="اضغط لتعديل شفت الطبيب">
+                <i class="fa-solid ${sIcon}"></i>
+                <span>${escapeHTML(sLabel)}</span>
+                <i class="fa-solid fa-pencil" style="font-size: 0.68rem; opacity: 0.7;"></i>
+              </button>
+            `;
+          }
+
           return `
             <tr>
               <td style="font-weight: 700;">${safeName}</td>
               <td dir="ltr" style="text-align: right;">${safeEmail}</td>
               <td><span class="badge badge-role-${safeRole}">${roleLabel}</span></td>
+              <td>${shiftDisplay}</td>
               <td>
                 ${!isSelf ? `
                   <div style="display: flex; gap: 6px; align-items: center;">
@@ -343,6 +451,16 @@ export class AuditAndAdminManager {
                 </span>
               </div>
 
+              ${u.role === 'doctor' ? `
+                <div style="margin-top: 10px; display: flex; align-items: center; justify-content: space-between; background: var(--bg-subtle); padding: 8px 12px; border-radius: 8px; border: 1px solid var(--border-color);">
+                  <div style="font-size: 0.76rem; color: var(--text-muted); font-weight: 700;">
+                    <i class="fa-solid fa-calendar-days text-primary"></i> الشفت: <strong style="color: var(--text-main);">${escapeHTML(getShiftLabel(u.shift || 'sat_mon_wed'))}</strong>
+                  </div>
+                  <button type="button" class="btn btn-outline btn-sm btn-change-doctor-shift" data-user-id="${escapeHTML(u.id)}" data-user-name="${safeName}" data-current-shift="${u.shift || 'sat_mon_wed'}" style="padding: 2px 8px; font-size: 0.74rem; font-weight: 700;">
+                    <i class="fa-solid fa-pencil"></i> تعديل
+                  </button>
+                </div>
+              ` : ''}
               <div class="hsc-divider" style="margin: 12px 0 10px 0;"></div>
 
               <div style="display: flex; align-items: center; justify-content: space-between; gap: 8px;">

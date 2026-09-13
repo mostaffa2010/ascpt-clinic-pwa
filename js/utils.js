@@ -431,3 +431,58 @@ export function getDoctorColor(identifier) {
   const index = Math.abs(hash) % PALETTE.length;
   return PALETTE[index];
 }
+
+/**
+ * Returns human-readable label for a doctor shift identifier.
+ * @param {string} shiftKey - 'sat_mon_wed' | 'sun_tue_thu' | 'all'
+ * @returns {string} Human-readable shift description
+ */
+export function getShiftLabel(shiftKey) {
+  switch (shiftKey) {
+    case 'sat_mon_wed':
+      return 'السبت / الاثنين / الأربعاء';
+    case 'sun_tue_thu':
+      return 'الأحد / الثلاثاء / الخميس';
+    case 'all':
+      return 'طوال أيام الأسبوع';
+    default:
+      return 'السبت / الاثنين / الأربعاء';
+  }
+}
+
+/**
+ * Determines the clinical shift key for a given YYYY-MM-DD date string based on day of week.
+ * Saturday (6), Monday (1), Wednesday (3) -> 'sat_mon_wed'
+ * Sunday (0), Tuesday (2), Thursday (4) -> 'sun_tue_thu'
+ * Friday (5) -> 'friday'
+ * @param {string} dateStr - 'YYYY-MM-DD'
+ * @returns {string|null}
+ */
+export function getDayShiftKey(dateStr) {
+  if (!dateStr || typeof dateStr !== 'string') return null;
+  const parts = dateStr.split('-').map(Number);
+  if (parts.length < 3) return null;
+  const [year, month, day] = parts;
+  const d = new Date(year, month - 1, day);
+  const dayOfWeek = d.getDay(); // 0: Sun, 1: Mon, 2: Tue, 3: Wed, 4: Thu, 5: Fri, 6: Sat
+  if (dayOfWeek === 6 || dayOfWeek === 1 || dayOfWeek === 3) {
+    return 'sat_mon_wed';
+  } else if (dayOfWeek === 0 || dayOfWeek === 2 || dayOfWeek === 4) {
+    return 'sun_tue_thu';
+  } else {
+    return 'friday';
+  }
+}
+
+/**
+ * Checks whether a doctor is officially scheduled on duty for a given date.
+ * @param {string} doctorShift - Doctor's assigned shift
+ * @param {string} dateStr - Target date 'YYYY-MM-DD'
+ * @returns {boolean}
+ */
+export function isDoctorOnDuty(doctorShift, dateStr) {
+  if (!doctorShift || doctorShift === 'all') return true;
+  const dayShift = getDayShiftKey(dateStr);
+  if (!dayShift || dayShift === 'friday') return true;
+  return doctorShift === dayShift;
+}

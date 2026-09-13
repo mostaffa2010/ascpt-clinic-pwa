@@ -129,7 +129,7 @@ export default async function handler(req, res) {
 
   // ================= POST: Create Staff User (Doctor or Receptionist ONLY) =================
   if (req.method === 'POST') {
-    const { name, email, password, role } = req.body;
+    const { name, email, password, role, shift } = req.body;
 
     if (!name || typeof name !== 'string' || name.trim().length < 2 || name.trim().length > 100) {
       return res.status(400).json({ error: 'اسم الموظف مطلوب ويجب أن يكون بين 2 و 100 حرف.' });
@@ -163,21 +163,29 @@ export default async function handler(req, res) {
         displayName: name.trim()
       });
 
+      let doctorShift = null;
+      if (role === 'doctor') {
+        const allowedShifts = ['sat_mon_wed', 'sun_tue_thu', 'all'];
+        doctorShift = (shift && allowedShifts.includes(shift)) ? shift : 'sat_mon_wed';
+      }
+
       const userDocData = {
         uid: createdUserRecord.uid,
         id: createdUserRecord.uid,
         name: name.trim(),
         email: email.trim().toLowerCase(),
         role,
+        shift: doctorShift,
         active: true,
         createdAt: FieldValue.serverTimestamp(),
         createdBy: callerUid,
         createdByName: callerName
       };
 
+      const shiftDesc = role === 'doctor' ? ` (شفت: ${doctorShift === 'sat_mon_wed' ? 'السبت/الاثنين/الأربعاء' : doctorShift === 'sun_tue_thu' ? 'الأحد/الثلاثاء/الخميس' : 'طوال الأسبوع'})` : '';
       const auditLogData = {
         actionType: 'إنشاء حساب موظف',
-        description: `تم إنشاء حساب جديد للموظف: ${name.trim()} بدور: ${role} (${email.trim().toLowerCase()})`,
+        description: `تم إنشاء حساب جديد للموظف: ${name.trim()} بدور: ${role}${shiftDesc} (${email.trim().toLowerCase()})`,
         userId: callerUid,
         userName: callerName,
         userRole: 'admin',
@@ -213,6 +221,7 @@ export default async function handler(req, res) {
           name: name.trim(),
           email: email.trim().toLowerCase(),
           role,
+          shift: doctorShift,
           active: true
         }
       });
@@ -226,7 +235,7 @@ export default async function handler(req, res) {
 
   // ================= PATCH: Update Status or Reset Password =================
   if (req.method === 'PATCH') {
-    const { targetUid, active, password } = req.body;
+    const { targetUid, active, password, shift } = req.body;
 
     if ('role' in req.body) {
       return res.status(400).json({ error: 'تعديل الأدوار والصلاحيات غير مسموح به عبر هذه الواجهة.' });
@@ -268,6 +277,42 @@ export default async function handler(req, res) {
           timestampRaw: Date.now()
         });
         return res.status(200).json({ success: true, targetUid, passwordReset: true });
+      }
+
+      // 2. Shift Update for Doctors
+      if (shift !== undefined) {
+        const allowedShifts = ['sat_mon_wed', 'sun_tue_thu', 'all'];
+        if (!allowedShifts.includes(shift)) {
+          return res.status(400).json({ error: 'قيمة الشفت غير صالحة. متاح فقط: السبت/الاثنين/الأربعاء أو الأحد/الثلاثاء/الخميس أو طوال الأسبوع.' });
+        }
+        if (targetData?.role !== 'doctor') {
+          return res.status(400).json({ error: 'تعديل الشفت متاح فقط للأطباء المعالجين.' });
+        }
+
+        await firestore.collection('users').doc(targetUid).update({
+          shift,
+          updatedAt: FieldValue.serverTimestamp(),
+          updatedBy: callerUid
+        });
+
+        const shiftLabels = {
+          'sat_mon_wed': 'السبت / الاثنين / الأربعاء',
+          'sun_tue_thu': 'الأحد / الثلاثاء / الخميس',
+          'all': 'طوال أيام الأسبوع'
+        };
+
+        await firestore.collection('audit_logs').add({
+          actionType: 'تعديل شفت الطبيب',
+          description: `قام المدير بتعديل شفت الطبيب: ${targetData.name || targetUid} إلى: ${shiftLabels[shift]} (UID: ${targetUid})`,
+          userId: callerUid,
+          userName: callerName,
+          userRole: 'admin',
+          targetUid,
+          timestamp: new Date().toISOString(),
+          timestampRaw: Date.now()
+        });
+
+        return res.status(200).json({ success: true, targetUid, shift });
       }
 
       if (typeof active !== 'boolean') {

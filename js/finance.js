@@ -1,4 +1,5 @@
-import { escapeHTML, getLocalDateStr, initStackDeck } from './utils.js';
+import { escapeHTML, getLocalDateStr, initStackDeck, isDoctorOnDuty, getShiftLabel } from './utils.js';
+import { CLINIC_CONFIG } from './clinic-config.js';
 // ========================================================
 // ASCPT - Daily & Monthly Financial & Statistical Reports
 // ========================================================
@@ -728,8 +729,27 @@ export class FinanceManager {
   async loadDailyReport() {
     const allSessions = await db.getSessions(this.currentDate);
     const allExpenses = await db.getExpenses(this.currentDate);
-    const rawDoctors = await db.getDoctors();
-    const doctors = Array.from(new Set(rawDoctors.map(d => (d || '').trim().replace(/\s+/g, ' ')))).filter(Boolean);
+    const doctorObjects = await db.getDoctorsList();
+
+    // Exclude Clinic Director from treating doctors breakdown
+    const directorName = CLINIC_CONFIG.director?.name ? CLINIC_CONFIG.director.name.trim().replace(/\s+/g, ' ') : '';
+    const treatingDoctors = doctorObjects.filter(d => d.role === 'doctor' && d.name !== directorName);
+
+    // Active daily doctors for today's shift:
+    // A doctor appears in today's daily sheet if:
+    // 1. Today is their assigned shift (e.g. Sat/Mon/Wed vs Sun/Tue/Thu), OR
+    // 2. They actually conducted sessions on this date (exchange/coverage)
+    const activeDailyDoctorObjects = treatingDoctors.filter(d => {
+      const hasSessionsToday = allSessions.some(s => s.doctor === d.name || s.doctorUid === d.uid);
+      const onDuty = isDoctorOnDuty(d.shift, this.currentDate);
+      return onDuty || hasSessionsToday;
+    });
+
+    // Fallback: If no doctors matched, use unique doctors with sessions or all treating doctors
+    const doctors = (activeDailyDoctorObjects.length > 0
+      ? activeDailyDoctorObjects.map(d => d.name)
+      : Array.from(new Set(allSessions.map(s => s.doctor).filter(Boolean))))
+      .filter(d => d !== directorName);
 
     let filteredSessions = allSessions;
     if (this.selectedDoctor !== 'all') {
@@ -828,24 +848,30 @@ export class FinanceManager {
     // Doctors Breakdown Cards (Desktop Flex)
     const docContainer = document.getElementById('doctors-breakdown-container');
     if (docContainer) {
-      docContainer.innerHTML = doctors.map(doc => {
-        const docSessions = allSessions.filter(s => s.doctor === doc);
-        const patientCount = docSessions.length;
-        const creditedSessions = docSessions.reduce((acc, s) => {
-          if (s.entryType === 'examination') return acc + 1;
-          return acc + (s.bodyPartsCount || 1);
-        }, 0);
+      if (doctors.length === 0) {
+        docContainer.innerHTML = `<div style="color: var(--text-muted); font-size: 0.85rem; padding: 6px;">لا توجد جلسات أو أطباء مسجلين لهذا اليوم.</div>`;
+      } else {
+        docContainer.innerHTML = doctors.map(doc => {
+          const docObj = treatingDoctors.find(d => d.name === doc);
+          const shiftText = docObj?.shift ? getShiftLabel(docObj.shift) : '';
+          const docSessions = allSessions.filter(s => s.doctor === doc || (docObj && s.doctorUid === docObj.uid));
+          const patientCount = docSessions.length;
+          const creditedSessions = docSessions.reduce((acc, s) => {
+            if (s.entryType === 'examination') return acc + 1;
+            return acc + (s.bodyPartsCount || 1);
+          }, 0);
 
-        return `
-          <div style="background-color: var(--bg-subtle); border: 1px solid var(--border-color); padding: 10px 16px; border-radius: var(--radius-md); display: flex; align-items: center; gap: 10px;">
-            <i class="fa-solid fa-user-doctor" style="color: var(--primary);"></i>
-            <div>
-              <div style="font-weight: 700; font-size: 0.9rem;">${escapeHTML(doc)}</div>
-              <div style="font-size: 0.8rem; color: var(--text-muted);">${patientCount} مريض - ${creditedSessions} جلسة</div>
+          return `
+            <div style="background-color: var(--bg-subtle); border: 1px solid var(--border-color); padding: 8px 14px; border-radius: var(--radius-md); display: flex; align-items: center; gap: 10px;">
+              <i class="fa-solid fa-user-doctor" style="color: var(--primary); font-size: 1.1rem;"></i>
+              <div>
+                <div style="font-weight: 700; font-size: 0.88rem;">${escapeHTML(doc)} ${shiftText ? `<span style="font-size: 0.72rem; color: var(--text-muted); font-weight: 600;">(${escapeHTML(shiftText)})</span>` : ''}</div>
+                <div style="font-size: 0.8rem; color: var(--text-muted); font-weight: 700;">${patientCount} مريض - ${creditedSessions} جلسة</div>
+              </div>
             </div>
-          </div>
-        `;
-      }).join('');
+          `;
+        }).join('');
+      }
     }
 
     // Doctors Breakdown Stack Deck (Mobile)

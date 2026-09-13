@@ -262,19 +262,24 @@ class FirestoreDatabaseService {
           const norm = u.name.trim().replace(/\s+/g, ' ');
           const uid = u.uid || u.id;
           if (norm && uid && !doctorMap.has(uid)) {
-            doctorMap.set(uid, { uid, name: norm });
+            doctorMap.set(uid, {
+              uid,
+              name: norm,
+              role: u.role,
+              shift: u.shift || (u.role === 'doctor' ? 'sat_mon_wed' : 'all')
+            });
           }
         });
 
       if (doctorMap.size === 0 && CLINIC_CONFIG.director?.name) {
         const dirNorm = CLINIC_CONFIG.director.name.trim().replace(/\s+/g, ' ');
-        doctorMap.set('director', { uid: 'director', name: dirNorm });
+        doctorMap.set('director', { uid: 'director', name: dirNorm, role: 'admin', shift: 'all' });
       }
 
       return Array.from(doctorMap.values());
     } catch (err) {
       console.error('Firestore getDoctorsList error:', err);
-      return CLINIC_CONFIG.director?.name ? [{ uid: 'director', name: CLINIC_CONFIG.director.name.trim().replace(/\s+/g, ' ') }] : [];
+      return CLINIC_CONFIG.director?.name ? [{ uid: 'director', name: CLINIC_CONFIG.director.name.trim().replace(/\s+/g, ' '), role: 'admin', shift: 'all' }] : [];
     }
   }
 
