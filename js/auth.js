@@ -8,7 +8,10 @@ import {
   signInWithEmailAndPassword,
   signOut,
   onAuthStateChanged,
-  sendPasswordResetEmail
+  sendPasswordResetEmail,
+  updatePassword,
+  reauthenticateWithCredential,
+  EmailAuthProvider
 } from 'https://www.gstatic.com/firebasejs/12.18.0/firebase-auth.js';
 import {
   doc,
@@ -308,6 +311,67 @@ class AuthService {
     } catch (err) {
       console.error('Password reset error:', err);
       throw new Error(this.mapAuthError(err));
+    }
+  }
+
+  async changePassword(currentPassword, newPassword) {
+    if (!isConfigured || !firebaseAuth) {
+      throw new Error('خدمة المصادقة غير مهيأة.');
+    }
+    const user = firebaseAuth.currentUser;
+    if (!user || !user.email) {
+      throw new Error('يجب تسجيل الدخول أولاً لتغيير كلمة المرور.');
+    }
+    if (!currentPassword) {
+      throw new Error('يرجى إدخال كلمة المرور الحالية.');
+    }
+    if (!newPassword || newPassword.length < 6) {
+      throw new Error('كلمة المرور الجديدة يجب ألا تقل عن 6 أحرف أو أرقام.');
+    }
+    if (currentPassword === newPassword) {
+      throw new Error('كلمة المرور الجديدة مطابقة للقديمة، يرجى اختيار كلمة مرور مختلفة.');
+    }
+
+    // 1. Re-authenticate user with current password for security
+    try {
+      const credential = EmailAuthProvider.credential(user.email, currentPassword);
+      await reauthenticateWithCredential(user, credential);
+    } catch (reauthErr) {
+      console.error('Reauthentication error:', reauthErr);
+      if (reauthErr.code === 'auth/wrong-password' || reauthErr.code === 'auth/invalid-credential') {
+        throw new Error('كلمة المرور الحالية غير صحيحة.');
+      } else if (reauthErr.code === 'auth/too-many-requests') {
+        throw new Error('تم حظر المحاولات مؤقتاً لتكرار كلمة السر بالخطأ. يرجى الانتظار والمحاولة لاحقاً.');
+      } else if (reauthErr.code === 'auth/network-request-failed') {
+        throw new Error('تعذر الاتصال بخوادم Firebase، يرجى التحقق من اتصال الإنترنت.');
+      }
+      throw new Error(this.mapAuthError(reauthErr));
+    }
+
+    // 2. Update password in Firebase Auth
+    try {
+      await updatePassword(user, newPassword);
+
+      // 3. Log audit action
+      try {
+        if (window.db && typeof window.db.logAudit === 'function') {
+          await window.db.logAudit(
+            'تغيير كلمة المرور',
+            `قام المستخدم (${this.currentUser?.name || user.email}) بتغيير كلمة المرور الخاصة بحسابه بنجاح`,
+            this.currentUser
+          );
+        }
+      } catch (_) {}
+
+      return true;
+    } catch (updateErr) {
+      console.error('Update password error:', updateErr);
+      if (updateErr.code === 'auth/weak-password') {
+        throw new Error('كلمة المرور الجديدة ضعيفة (يجب ألا تقل عن 6 خانات).');
+      } else if (updateErr.code === 'auth/requires-recent-login') {
+        throw new Error('انتهت صلاحية الجلسة، يرجى تسجيل الخروج وتسجيل الدخول مرة أخرى والمحاولة.');
+      }
+      throw new Error(this.mapAuthError(updateErr));
     }
   }
 

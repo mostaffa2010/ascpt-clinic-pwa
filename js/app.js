@@ -453,6 +453,127 @@ class App {
     });
 
     // Close Auth Modal buttons
+    // ================= Change Password Feature (v1.4.67) =================
+    const openChangePwdModal = () => {
+      const user = auth.getCurrentUser();
+      if (!user) {
+        this.showAlert('يرجى تسجيل الدخول أولاً لتتمكن من تغيير كلمة المرور.', 'تنبيه', 'warning');
+        return;
+      }
+      const form = document.getElementById('form-change-password');
+      if (form) form.reset();
+      const errBox = document.getElementById('change-pwd-error');
+      if (errBox) {
+        errBox.textContent = '';
+        errBox.style.display = 'none';
+      }
+      document.querySelectorAll('#modal-change-password .btn-toggle-pwd-visibility').forEach(btn => {
+        const targetId = btn.getAttribute('data-target');
+        const input = document.getElementById(targetId);
+        if (input) input.type = 'password';
+        const icon = btn.querySelector('i');
+        if (icon) icon.className = 'fa-solid fa-eye';
+      });
+
+      this.openModal('modal-change-password');
+      setTimeout(() => {
+        document.getElementById('change-pwd-current')?.focus();
+      }, 150);
+    };
+
+    document.querySelectorAll('.btn-open-change-password').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.preventDefault();
+        openChangePwdModal();
+      });
+    });
+
+    document.getElementById('btn-close-change-pwd-modal')?.addEventListener('click', () => {
+      this.closeModal('modal-change-password');
+    });
+    document.getElementById('btn-cancel-change-pwd')?.addEventListener('click', () => {
+      this.closeModal('modal-change-password');
+    });
+
+    document.querySelectorAll('#modal-change-password .btn-toggle-pwd-visibility').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const targetId = btn.getAttribute('data-target');
+        const input = document.getElementById(targetId);
+        if (input) {
+          const isPass = (input.type === 'password');
+          input.type = isPass ? 'text' : 'password';
+          const icon = btn.querySelector('i');
+          if (icon) {
+            icon.className = isPass ? 'fa-solid fa-eye-slash' : 'fa-solid fa-eye';
+          }
+        }
+      });
+    });
+
+    const formChangePwd = document.getElementById('form-change-password');
+    if (formChangePwd) {
+      formChangePwd.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const currentPass = document.getElementById('change-pwd-current')?.value;
+        const newPass = document.getElementById('change-pwd-new')?.value;
+        const confirmPass = document.getElementById('change-pwd-confirm')?.value;
+        const errBox = document.getElementById('change-pwd-error');
+        const submitBtn = document.getElementById('btn-submit-change-pwd');
+        const submitText = document.getElementById('btn-submit-change-pwd-text');
+
+        const showErr = (msg) => {
+          if (errBox) {
+            errBox.textContent = msg;
+            errBox.style.display = 'block';
+          }
+        };
+
+        if (errBox) {
+          errBox.textContent = '';
+          errBox.style.display = 'none';
+        }
+
+        if (!currentPass) {
+          showErr('يرجى إدخال كلمة المرور الحالية.');
+          document.getElementById('change-pwd-current')?.focus();
+          return;
+        }
+
+        if (!newPass || newPass.length < 6) {
+          showErr('كلمة المرور الجديدة يجب ألا تقل عن 6 أحرف أو أرقام.');
+          document.getElementById('change-pwd-new')?.focus();
+          return;
+        }
+
+        if (newPass !== confirmPass) {
+          showErr('كلمة المرور الجديدة غير متطابقة مع خانة التأكيد.');
+          document.getElementById('change-pwd-confirm')?.focus();
+          return;
+        }
+
+        if (currentPass === newPass) {
+          showErr('كلمة المرور الجديدة مطابقة تماماً لكلمة المرور الحالية. يرجى اختيار كلمة مرور مختلفة.');
+          document.getElementById('change-pwd-new')?.focus();
+          return;
+        }
+
+        try {
+          if (submitBtn) submitBtn.disabled = true;
+          if (submitText) submitText.textContent = 'جاري التحديث...';
+
+          await auth.changePassword(currentPass, newPass);
+
+          this.closeModal('modal-change-password');
+          this.showToast('تم تغيير كلمة المرور بنجاح!', 'success');
+        } catch (err) {
+          showErr(err.message || 'تعذر تغيير كلمة المرور، يرجى التأكد من البيانات.');
+        } finally {
+          if (submitBtn) submitBtn.disabled = false;
+          if (submitText) submitText.textContent = 'تحديث كلمة المرور';
+        }
+      });
+    }
+
     document.getElementById('btn-close-auth-modal')?.addEventListener('click', () => auth.hideLoginModal());
     document.getElementById('btn-cancel-login')?.addEventListener('click', () => auth.hideLoginModal());
 
