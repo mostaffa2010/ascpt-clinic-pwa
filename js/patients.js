@@ -17,6 +17,19 @@ export class PatientsManager {
     this.currentContractType = "direct";
     this.sortBy = localStorage.getItem('ascpt_patient_sort') || 'recent';
     this.currentPage = 1;
+
+    // Medical Imaging & Polish Studio & Lightbox (v1.4.78)
+    this.currentPatientImages = [];
+    this.polishQueue = [];
+    this.currentPolishIndex = 0;
+    this.polishRotation = 0;
+    this.polishBrightness = 100;
+    this.polishContrast = 100;
+    this.polishPreset = 'normal';
+    this.currentPolishImageObj = null;
+    this.lightboxIndex = 0;
+    this.lightboxZoom = 1;
+    this.lightboxRotation = 0;
     this.pageSize = 12;
     this.viewMode = 'cards';
     try {
@@ -310,6 +323,66 @@ export class PatientsManager {
         e.target.value = e.target.value.replace(/[^0-9]/g, '');
       });
     }
+
+    // Medical Imaging Event Listeners (v1.4.78)
+    document.getElementById('btn-trigger-add-imaging')?.addEventListener('click', () => {
+      document.getElementById('imaging-file-input')?.click();
+    });
+
+    document.getElementById('imaging-file-input')?.addEventListener('change', (e) => {
+      this.handleImagingFilesSelected(e);
+    });
+
+    // Polish Studio Controls
+    document.getElementById('btn-polish-rotate-left')?.addEventListener('click', () => this.rotatePolish(-90));
+    document.getElementById('btn-polish-rotate-right')?.addEventListener('click', () => this.rotatePolish(90));
+    document.getElementById('btn-polish-reset')?.addEventListener('click', () => this.resetPolish());
+    document.getElementById('btn-polish-save-current')?.addEventListener('click', () => this.saveCurrentPolishedImage());
+    document.getElementById('btn-polish-skip-or-cancel')?.addEventListener('click', () => this.skipOrCancelPolish());
+
+    document.querySelectorAll('.polish-preset-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        this.setPolishPreset(btn.dataset.preset);
+      });
+    });
+
+    document.getElementById('polish-contrast-slider')?.addEventListener('input', (e) => {
+      this.polishContrast = parseInt(e.target.value, 10);
+      const valEl = document.getElementById('polish-contrast-val');
+      if (valEl) valEl.textContent = `${this.polishContrast}%`;
+      this.renderPolishCanvas();
+    });
+
+    document.getElementById('polish-brightness-slider')?.addEventListener('input', (e) => {
+      this.polishBrightness = parseInt(e.target.value, 10);
+      const valEl = document.getElementById('polish-brightness-val');
+      if (valEl) valEl.textContent = `${this.polishBrightness}%`;
+      this.renderPolishCanvas();
+    });
+
+    // Lightbox Controls
+    document.getElementById('btn-lightbox-close')?.addEventListener('click', () => this.closeLightbox());
+    document.getElementById('btn-lightbox-next')?.addEventListener('click', () => this.lightboxNext());
+    document.getElementById('btn-lightbox-prev')?.addEventListener('click', () => this.lightboxPrev());
+    document.getElementById('btn-lightbox-zoom-in')?.addEventListener('click', () => this.lightboxZoomIn());
+    document.getElementById('btn-lightbox-zoom-out')?.addEventListener('click', () => this.lightboxZoomOut());
+    document.getElementById('btn-lightbox-zoom-reset')?.addEventListener('click', () => this.lightboxZoomReset());
+    document.getElementById('btn-lightbox-rotate')?.addEventListener('click', () => this.lightboxRotate());
+
+    this.setupLightboxTouch();
+
+    window.addEventListener('keydown', (e) => {
+      const lb = document.getElementById('modal-image-lightbox');
+      if (lb && lb.style.display !== 'none') {
+        if (e.key === 'ArrowLeft') {
+          this.lightboxNext();
+        } else if (e.key === 'ArrowRight') {
+          this.lightboxPrev();
+        } else if (e.key === 'Escape') {
+          this.closeLightbox();
+        }
+      }
+    });
 
     // Modal Add Clinical Option Form Submit
     const formAddOption = document.getElementById('form-add-clinical-option');
@@ -1748,6 +1821,9 @@ export class PatientsManager {
     // 7. Switch View
     this.app.switchView('patient-sheet');
     setTimeout(() => this.setupSheetTextareas(), 60);
+
+    // 8. Load and Render Patient Medical Imaging (v1.4.78)
+    this.loadAndRenderPatientImages(p.id);
   }
 
   setupSheetTextareas() {
@@ -2530,4 +2606,554 @@ export class PatientsManager {
       document.body.classList.remove('printing-statement');
     }, 1500);
   }
+
+  // ================= 12. Medical Imaging, Polish Studio & Lightbox (v1.4.78) =================
+  async loadAndRenderPatientImages(patientId) {
+    const grid = document.getElementById('sheet-imaging-gallery-grid');
+    const badge = document.getElementById('sheet-imaging-count-badge');
+    if (!grid) return;
+
+    try {
+      this.currentPatientImages = await db.getPatientImages(patientId);
+      if (badge) {
+        badge.textContent = `${this.currentPatientImages.length} صورة`;
+      }
+
+      if (this.currentPatientImages.length === 0) {
+        grid.innerHTML = `
+          <div class="imaging-gallery-empty" style="grid-column: 1 / -1;">
+            <div style="width: 48px; height: 48px; border-radius: 50%; background: var(--primary-light); color: var(--primary); display: inline-flex; align-items: center; justify-content: center; font-size: 1.3rem; margin-bottom: 8px;">
+              <i class="fa-solid fa-images"></i>
+            </div>
+            <div style="font-weight: 800; font-size: 0.95rem; color: var(--text-main);">لا توجد أشعات أو تحاليل مرفقة للمريض بعد</div>
+            <div style="font-size: 0.78rem; margin-top: 4px;">اضغط على زر <strong>"إضافة أشعة / تحليل"</strong> لتصوير أو رفع مستندات وأشعات المريض مع خاصية التوضيح.</div>
+          </div>
+        `;
+        return;
+      }
+
+      const CATEGORY_MAP = {
+        mri: { label: 'رنين مغناطيسي (MRI)', cls: 'badge-cat-mri' },
+        xray: { label: 'أشعة عادية (X-Ray)', cls: 'badge-cat-xray' },
+        ct: { label: 'أشعة مقطعية (CT)', cls: 'badge-cat-ct' },
+        sonar: { label: 'سونار / دوبلر', cls: 'badge-cat-sonar' },
+        lab: { label: 'تحليل دم ومختبر', cls: 'badge-cat-lab' },
+        report: { label: 'تقرير طبي', cls: 'badge-cat-report' },
+        other: { label: 'مستند / أخرى', cls: 'badge-cat-other' }
+      };
+
+      grid.innerHTML = this.currentPatientImages.map((img, idx) => {
+        const catInfo = CATEGORY_MAP[img.category] || CATEGORY_MAP.other;
+        const dateStr = img.createdAt ? new Date(img.createdAt).toLocaleDateString('ar-EG-u-nu-latn') : '';
+        const safeTitle = (img.title || catInfo.label).replace(/"/g, '&quot;');
+        const safeId = img.id;
+
+        return `
+          <div class="imaging-card" data-index="${idx}" title="${safeTitle} - اضغط للعرض بالشاشة الكاملة">
+            <div class="imaging-card-thumb-wrap">
+              <span class="imaging-card-badge ${catInfo.cls}">${catInfo.label.split(' ')[0]}</span>
+              <button type="button" class="imaging-card-delete-btn" data-image-id="${safeId}" title="حذف الصورة">
+                <i class="fa-solid fa-trash"></i>
+              </button>
+              <img src="${img.dataUrl}" alt="${safeTitle}" class="imaging-card-thumb" loading="lazy">
+            </div>
+            <div class="imaging-card-meta">
+              <div class="imaging-card-title">${safeTitle}</div>
+              <div class="imaging-card-date"><i class="fa-regular fa-calendar" style="opacity: 0.6;"></i> ${dateStr}</div>
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      // Attach click delegates
+      if (!grid._hasDelegates) {
+        grid._hasDelegates = true;
+        grid.addEventListener('click', async (e) => {
+          const delBtn = e.target.closest('.imaging-card-delete-btn');
+          if (delBtn) {
+            e.preventDefault();
+            e.stopPropagation();
+            const imgId = delBtn.getAttribute('data-image-id');
+            await this.handleDeletePatientImage(imgId);
+            return;
+          }
+
+          const card = e.target.closest('.imaging-card');
+          if (card) {
+            const index = parseInt(card.getAttribute('data-index'), 10);
+            this.openLightbox(index);
+          }
+        });
+      }
+    } catch (err) {
+      console.error('loadAndRenderPatientImages error:', err);
+    }
+  }
+
+  async handleDeletePatientImage(imageId) {
+    if (!this.currentSheetPatient || !imageId) return;
+    const confirmed = await this.app.showConfirm('هل أنت متأكد من رغبتك في حذف هذه الأشعة / الصورة من شيت المريض؟', 'تأكيد الحذف');
+    if (!confirmed) return;
+
+    try {
+      await db.deletePatientImage(this.currentSheetPatient.id, imageId);
+      this.app.showToast('تم حذف الصورة من شيت المريض');
+      await this.loadAndRenderPatientImages(this.currentSheetPatient.id);
+    } catch (err) {
+      this.app.showAlert('تعذر حذف الصورة: ' + err.message, 'خطأ', 'danger');
+    }
+  }
+
+  handleImagingFilesSelected(e) {
+    const files = Array.from(e.target.files || []);
+    e.target.value = ''; // Reset input to allow selecting same files if needed
+    if (!files.length) return;
+
+    this.polishQueue = files;
+    this.currentPolishIndex = 0;
+    this.loadPolishQueueItem();
+  }
+
+  loadPolishQueueItem() {
+    if (this.currentPolishIndex >= this.polishQueue.length) {
+      this.app.closeModal('modal-image-polish');
+      this.app.showToast('تم الانتهاء من حفظ جميع الصور المختارة');
+      if (this.currentSheetPatient) {
+        this.loadAndRenderPatientImages(this.currentSheetPatient.id);
+      }
+      return;
+    }
+
+    const file = this.polishQueue[this.currentPolishIndex];
+    const reader = new FileReader();
+
+    reader.onload = (evt) => {
+      const img = new Image();
+      img.onload = () => {
+        this.currentPolishImageObj = img;
+        this.polishRotation = 0;
+        this.polishBrightness = 100;
+        this.polishContrast = 100;
+        this.polishPreset = 'normal';
+
+        // Update UI
+        const badge = document.getElementById('polish-queue-badge');
+        if (badge) {
+          badge.textContent = `صورة ${this.currentPolishIndex + 1} من ${this.polishQueue.length}`;
+        }
+
+        const titleInp = document.getElementById('polish-title-input');
+        if (titleInp) titleInp.value = '';
+
+        const catSelect = document.getElementById('polish-category-select');
+        if (catSelect) catSelect.value = 'mri';
+
+        const bSlider = document.getElementById('polish-brightness-slider');
+        const cSlider = document.getElementById('polish-contrast-slider');
+        if (bSlider) bSlider.value = '100';
+        if (cSlider) cSlider.value = '100';
+        const bVal = document.getElementById('polish-brightness-val');
+        const cVal = document.getElementById('polish-contrast-val');
+        if (bVal) bVal.textContent = '100%';
+        if (cVal) cVal.textContent = '100%';
+
+        document.querySelectorAll('.polish-preset-btn').forEach(btn => {
+          btn.classList.toggle('active', btn.dataset.preset === 'normal');
+        });
+
+        const saveBtnText = document.getElementById('polish-save-btn-text');
+        if (saveBtnText) {
+          saveBtnText.textContent = (this.currentPolishIndex === this.polishQueue.length - 1)
+            ? 'حفظ الصورة للشيت'
+            : 'حفظ والتالي';
+        }
+
+        this.renderPolishCanvas();
+        this.app.openModal('modal-image-polish');
+      };
+      img.src = evt.target.result;
+    };
+
+    reader.readAsDataURL(file);
+  }
+
+  renderPolishCanvas() {
+    const canvas = document.getElementById('polish-canvas');
+    if (!canvas || !this.currentPolishImageObj) return;
+
+    const img = this.currentPolishImageObj;
+    const ctx = canvas.getContext('2d');
+
+    const rot = (this.polishRotation % 360 + 360) % 360;
+    const isSideways = (rot === 90 || rot === 270);
+
+    const origW = img.naturalWidth || img.width;
+    const origH = img.naturalHeight || img.height;
+
+    // Display max preview size: up to 700px for responsive rendering
+    const maxPrev = 700;
+    let scale = 1;
+    if (Math.max(origW, origH) > maxPrev) {
+      scale = maxPrev / Math.max(origW, origH);
+    }
+    const drawW = Math.round(origW * scale);
+    const drawH = Math.round(origH * scale);
+
+    canvas.width = isSideways ? drawH : drawW;
+    canvas.height = isSideways ? drawW : drawH;
+
+    ctx.save();
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    // Apply Filter string
+    let filterStr = `brightness(${this.polishBrightness}%) contrast(${this.polishContrast}%)`;
+    if (this.polishPreset === 'xray') {
+      filterStr += ` grayscale(100%) contrast(155%) brightness(108%)`;
+    } else if (this.polishPreset === 'scanner') {
+      filterStr += ` grayscale(100%) contrast(220%) brightness(125%)`;
+    } else if (this.polishPreset === 'invert') {
+      filterStr += ` invert(100%) contrast(130%) grayscale(100%)`;
+    }
+    ctx.filter = filterStr;
+
+    // Center and rotate
+    ctx.translate(canvas.width / 2, canvas.height / 2);
+    ctx.rotate((rot * Math.PI) / 180);
+    ctx.drawImage(img, -drawW / 2, -drawH / 2, drawW, drawH);
+    ctx.restore();
+  }
+
+  setPolishPreset(preset) {
+    this.polishPreset = preset;
+    document.querySelectorAll('.polish-preset-btn').forEach(btn => {
+      btn.classList.toggle('active', btn.dataset.preset === preset);
+    });
+
+    const bSlider = document.getElementById('polish-brightness-slider');
+    const cSlider = document.getElementById('polish-contrast-slider');
+    const bVal = document.getElementById('polish-brightness-val');
+    const cVal = document.getElementById('polish-contrast-val');
+
+    if (preset === 'xray') {
+      this.polishContrast = 145;
+      this.polishBrightness = 105;
+    } else if (preset === 'scanner') {
+      this.polishContrast = 190;
+      this.polishBrightness = 120;
+    } else if (preset === 'invert') {
+      this.polishContrast = 130;
+      this.polishBrightness = 100;
+    } else {
+      this.polishContrast = 100;
+      this.polishBrightness = 100;
+    }
+
+    if (bSlider) bSlider.value = String(this.polishBrightness);
+    if (cSlider) cSlider.value = String(this.polishContrast);
+    if (bVal) bVal.textContent = `${this.polishBrightness}%`;
+    if (cVal) cVal.textContent = `${this.polishContrast}%`;
+
+    this.renderPolishCanvas();
+  }
+
+  rotatePolish(deg) {
+    this.polishRotation = (this.polishRotation + deg + 360) % 360;
+    this.renderPolishCanvas();
+  }
+
+  resetPolish() {
+    this.polishRotation = 0;
+    this.setPolishPreset('normal');
+  }
+
+  getPolishedExportDataUrl() {
+    const img = this.currentPolishImageObj;
+    if (!img) return null;
+
+    const rot = (this.polishRotation % 360 + 360) % 360;
+    const isSideways = (rot === 90 || rot === 270);
+
+    const origW = img.naturalWidth || img.width;
+    const origH = img.naturalHeight || img.height;
+
+    // Scale to medical standard high-res: max 1500px
+    const maxDim = 1500;
+    let scale = 1;
+    if (Math.max(origW, origH) > maxDim) {
+      scale = maxDim / Math.max(origW, origH);
+    }
+    const fullW = Math.round(origW * scale);
+    const fullH = Math.round(origH * scale);
+
+    const exportCanvas = document.createElement('canvas');
+    exportCanvas.width = isSideways ? fullH : fullW;
+    exportCanvas.height = isSideways ? fullW : fullH;
+
+    const ctx = exportCanvas.getContext('2d');
+    ctx.save();
+
+    let filterStr = `brightness(${this.polishBrightness}%) contrast(${this.polishContrast}%)`;
+    if (this.polishPreset === 'xray') {
+      filterStr += ` grayscale(100%) contrast(155%) brightness(108%)`;
+    } else if (this.polishPreset === 'scanner') {
+      filterStr += ` grayscale(100%) contrast(220%) brightness(125%)`;
+    } else if (this.polishPreset === 'invert') {
+      filterStr += ` invert(100%) contrast(130%) grayscale(100%)`;
+    }
+    ctx.filter = filterStr;
+
+    ctx.translate(exportCanvas.width / 2, exportCanvas.height / 2);
+    ctx.rotate((rot * Math.PI) / 180);
+    ctx.drawImage(img, -fullW / 2, -fullH / 2, fullW, fullH);
+    ctx.restore();
+
+    let dataUrl = exportCanvas.toDataURL('image/webp', 0.82);
+    if (!dataUrl.startsWith('data:image/webp')) {
+      dataUrl = exportCanvas.toDataURL('image/jpeg', 0.82);
+    }
+    return dataUrl;
+  }
+
+  async saveCurrentPolishedImage() {
+    if (!this.currentSheetPatient) {
+      this.app.showAlert('يرجى اختيار مريض أولاً.', 'تنبيه', 'warning');
+      return;
+    }
+
+    const saveBtn = document.getElementById('btn-polish-save-current');
+    if (saveBtn) saveBtn.disabled = true;
+
+    try {
+      const dataUrl = this.getPolishedExportDataUrl();
+      if (!dataUrl) throw new Error('تعذر معالجة الصورة');
+
+      const catVal = document.getElementById('polish-category-select')?.value || 'other';
+      const titleVal = document.getElementById('polish-title-input')?.value.trim() || '';
+      const currentUser = auth.getCurrentUser();
+
+      await db.addPatientImage(this.currentSheetPatient.id, {
+        category: catVal,
+        title: titleVal,
+        dataUrl,
+        createdBy: currentUser?.name || 'الطبيب المعالج',
+        createdByUid: currentUser?.uid || ''
+      });
+
+      this.app.showToast('تم حفظ الصورة بنجاح');
+      this.currentPolishIndex++;
+      this.loadPolishQueueItem();
+    } catch (err) {
+      this.app.showAlert('تعذر حفظ الصورة: ' + err.message, 'خطأ', 'danger');
+    } finally {
+      if (saveBtn) saveBtn.disabled = false;
+    }
+  }
+
+  skipOrCancelPolish() {
+    this.currentPolishIndex++;
+    if (this.currentPolishIndex >= this.polishQueue.length) {
+      this.app.closeModal('modal-image-polish');
+      if (this.currentSheetPatient) {
+        this.loadAndRenderPatientImages(this.currentSheetPatient.id);
+      }
+    } else {
+      this.loadPolishQueueItem();
+    }
+  }
+
+  // ================= Lightbox Viewer Methods =================
+  openLightbox(index) {
+    if (!this.currentPatientImages || this.currentPatientImages.length === 0) return;
+    this.lightboxIndex = Math.max(0, Math.min(index, this.currentPatientImages.length - 1));
+    this.lightboxZoom = 1;
+    this.lightboxRotation = 0;
+
+    const overlay = document.getElementById('modal-image-lightbox');
+    if (overlay) {
+      overlay.style.display = 'flex';
+      this.updateLightboxDisplay();
+    }
+  }
+
+  closeLightbox() {
+    const overlay = document.getElementById('modal-image-lightbox');
+    if (overlay) {
+      overlay.style.display = 'none';
+    }
+  }
+
+  updateLightboxDisplay() {
+    if (!this.currentPatientImages || !this.currentPatientImages[this.lightboxIndex]) return;
+
+    const img = this.currentPatientImages[this.lightboxIndex];
+    const CATEGORY_MAP = {
+      mri: 'رنين مغناطيسي (MRI)',
+      xray: 'أشعة عادية (X-Ray)',
+      ct: 'أشعة مقطعية (CT)',
+      sonar: 'سونار / دوبلر',
+      lab: 'تحليل دم ومختبر',
+      report: 'تقرير طبي',
+      other: 'مستند / أخرى'
+    };
+
+    const catLabel = CATEGORY_MAP[img.category] || CATEGORY_MAP.other;
+    const catBadge = document.getElementById('lightbox-category-badge');
+    if (catBadge) catBadge.textContent = catLabel;
+
+    const titleEl = document.getElementById('lightbox-patient-title');
+    if (titleEl) {
+      titleEl.textContent = this.currentSheetPatient ? `أشعة المريض: ${this.currentSheetPatient.name}` : 'أشعة المريض';
+    }
+
+    const notesEl = document.getElementById('lightbox-notes-text');
+    if (notesEl) {
+      const dateStr = img.createdAt ? new Date(img.createdAt).toLocaleDateString('ar-EG-u-nu-latn') : '';
+      const notes = img.title ? `${img.title} • ` : '';
+      notesEl.textContent = `${notes}تاريخ الإضافة: ${dateStr}`;
+    }
+
+    const counter = document.getElementById('lightbox-counter-badge');
+    if (counter) {
+      counter.textContent = `صورة ${this.lightboxIndex + 1} من ${this.currentPatientImages.length}`;
+    }
+
+    const mainImg = document.getElementById('lightbox-img');
+    if (mainImg) {
+      mainImg.src = img.dataUrl;
+      this.applyLightboxTransform();
+    }
+
+    const downloadLink = document.getElementById('btn-lightbox-download');
+    if (downloadLink) {
+      downloadLink.href = img.dataUrl;
+      downloadLink.download = `${img.category || 'scan'}-${this.lightboxIndex + 1}.webp`;
+    }
+
+    this.renderLightboxFilmstrip();
+  }
+
+  applyLightboxTransform() {
+    const mainImg = document.getElementById('lightbox-img');
+    if (mainImg) {
+      mainImg.style.transform = `scale(${this.lightboxZoom}) rotate(${this.lightboxRotation}deg)`;
+    }
+  }
+
+  renderLightboxFilmstrip() {
+    const strip = document.getElementById('lightbox-filmstrip-bar');
+    if (!strip) return;
+
+    strip.innerHTML = this.currentPatientImages.map((img, idx) => {
+      const isAct = idx === this.lightboxIndex ? 'active' : '';
+      return `
+        <div class="lightbox-filmstrip-item ${isAct}" data-strip-index="${idx}">
+          <img src="${img.dataUrl}" alt="Thumb ${idx + 1}">
+        </div>
+      `;
+    }).join('');
+
+    // Click handler for filmstrip items
+    strip.querySelectorAll('.lightbox-filmstrip-item').forEach(item => {
+      item.addEventListener('click', () => {
+        const idx = parseInt(item.getAttribute('data-strip-index'), 10);
+        this.lightboxIndex = idx;
+        this.lightboxZoom = 1;
+        this.lightboxRotation = 0;
+        this.updateLightboxDisplay();
+      });
+    });
+
+    // Scroll active thumbnail into view
+    const activeItem = strip.querySelector('.lightbox-filmstrip-item.active');
+    if (activeItem) {
+      activeItem.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+    }
+  }
+
+  lightboxNext() {
+    if (!this.currentPatientImages || this.currentPatientImages.length <= 1) return;
+    this.lightboxIndex = (this.lightboxIndex + 1) % this.currentPatientImages.length;
+    this.lightboxZoom = 1;
+    this.lightboxRotation = 0;
+    this.updateLightboxDisplay();
+  }
+
+  lightboxPrev() {
+    if (!this.currentPatientImages || this.currentPatientImages.length <= 1) return;
+    this.lightboxIndex = (this.lightboxIndex - 1 + this.currentPatientImages.length) % this.currentPatientImages.length;
+    this.lightboxZoom = 1;
+    this.lightboxRotation = 0;
+    this.updateLightboxDisplay();
+  }
+
+  lightboxZoomIn() {
+    this.lightboxZoom = Math.min(this.lightboxZoom + 0.35, 4.0);
+    this.applyLightboxTransform();
+  }
+
+  lightboxZoomOut() {
+    this.lightboxZoom = Math.max(this.lightboxZoom - 0.35, 0.6);
+    this.applyLightboxTransform();
+  }
+
+  lightboxZoomReset() {
+    this.lightboxZoom = 1;
+    this.lightboxRotation = 0;
+    this.applyLightboxTransform();
+  }
+
+  lightboxRotate() {
+    this.lightboxRotation = (this.lightboxRotation + 90) % 360;
+    this.applyLightboxTransform();
+  }
+
+  setupLightboxTouch() {
+    const stage = document.getElementById('lightbox-stage');
+    if (!stage || stage._hasTouch) return;
+    stage._hasTouch = true;
+
+    let startX = 0;
+    let startY = 0;
+    let startTime = 0;
+
+    stage.addEventListener('touchstart', (e) => {
+      if (e.touches.length === 1) {
+        startX = e.touches[0].screenX;
+        startY = e.touches[0].screenY;
+        startTime = Date.now();
+      }
+    }, { passive: true });
+
+    stage.addEventListener('touchend', (e) => {
+      if (e.changedTouches.length === 1) {
+        const endX = e.changedTouches[0].screenX;
+        const endY = e.changedTouches[0].screenY;
+        const diffX = endX - startX;
+        const diffY = endY - startY;
+        const elapsed = Date.now() - startTime;
+
+        // Check if horizontal swipe and not slow drag
+        if (Math.abs(diffX) > 40 && Math.abs(diffY) < 70 && elapsed < 800) {
+          if (diffX < 0) {
+            // Swiped left
+            this.lightboxNext();
+          } else {
+            // Swiped right
+            this.lightboxPrev();
+          }
+        }
+      }
+    }, { passive: true });
+
+    // Desktop mouse wheel zoom
+    stage.addEventListener('wheel', (e) => {
+      e.preventDefault();
+      if (e.deltaY < 0) {
+        this.lightboxZoomIn();
+      } else {
+        this.lightboxZoomOut();
+      }
+    }, { passive: false });
+  }
+
 }

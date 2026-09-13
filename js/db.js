@@ -978,6 +978,45 @@ class FirestoreDatabaseService {
     this.insuranceCompaniesCache = null;
     await this.syncAndSeedCloudOptions();
   }
+
+  // ================= 11. Patient Medical Imaging & Lab Reports (v1.4.78) =================
+  async getPatientImages(patientId) {
+    this.ensureConnected();
+    if (!patientId) return [];
+    try {
+      const snap = await getDocs(collection(firestoreDb, 'patients', patientId, 'images'));
+      const list = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      return list.sort((a, b) => (b.createdAt || '').localeCompare(a.createdAt || ''));
+    } catch (err) {
+      console.error('getPatientImages error:', err);
+      return [];
+    }
+  }
+
+  async addPatientImage(patientId, imageData) {
+    this.ensureConnected();
+    if (!patientId) throw new Error('patientId is required');
+    const ref = doc(collection(firestoreDb, 'patients', patientId, 'images'));
+    const payload = {
+      id: ref.id,
+      patientId,
+      title: imageData.title || 'أشعة / تحليل',
+      category: imageData.category || 'other',
+      notes: imageData.notes || '',
+      dataUrl: imageData.dataUrl,
+      createdAt: new Date().toISOString(),
+      createdBy: imageData.createdBy || '',
+      createdByUid: imageData.createdByUid || ''
+    };
+    await setDoc(ref, payload);
+    return payload;
+  }
+
+  async deletePatientImage(patientId, imageId) {
+    this.ensureConnected();
+    if (!patientId || !imageId) return;
+    await deleteDoc(doc(firestoreDb, 'patients', patientId, 'images', imageId));
+  }
 }
 
 export const db = new FirestoreDatabaseService();
