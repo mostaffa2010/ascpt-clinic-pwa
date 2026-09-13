@@ -372,7 +372,7 @@ export class FinanceManager {
     }
 
     const dedInput = document.getElementById('settle-deductions');
-    if (dedInput) dedInput.value = '0';
+    if (dedInput) dedInput.value = '';
 
     const refInput = document.getElementById('settle-ref-number');
     if (refInput) refInput.value = '';
