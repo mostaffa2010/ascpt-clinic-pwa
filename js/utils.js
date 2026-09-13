@@ -106,7 +106,7 @@ export function initStackDeck(config) {
       card.style.transition = animate ? springTransition : 'none';
 
       if (diff === 0) {
-        // Active front card
+        // Active front card: perfectly centered, clean, zero ghost background
         card.style.transform = 'translate3d(0, 0, 0) scale(1)';
         card.style.zIndex = '12';
         card.style.opacity = '1';
@@ -114,41 +114,14 @@ export function initStackDeck(config) {
         card.style.pointerEvents = 'auto';
         card.classList.add('is-active-card');
         card.classList.remove('is-peeking-card', 'is-passed-card', 'is-hidden-card');
-      } else if (diff === 1) {
-        // First peeking card on the left
-        card.style.transform = 'translate3d(-18px, 0, 0) scale(0.96)';
-        card.style.zIndex = '10';
-        card.style.opacity = '0.88';
-        card.style.visibility = 'visible';
-        card.style.pointerEvents = 'auto';
-        card.classList.add('is-peeking-card');
-        card.classList.remove('is-active-card', 'is-passed-card', 'is-hidden-card');
-      } else if (diff === 2) {
-        // Second peeking card further to the left
-        card.style.transform = 'translate3d(-34px, 0, 0) scale(0.92)';
-        card.style.zIndex = '8';
-        card.style.opacity = '0.72';
-        card.style.visibility = 'visible';
-        card.style.pointerEvents = 'auto';
-        card.classList.add('is-peeking-card');
-        card.classList.remove('is-active-card', 'is-passed-card', 'is-hidden-card');
-      } else if (diff > 2) {
-        // Hidden cards ahead in the stack (culled from GPU render tree)
-        card.style.transform = 'translate3d(-48px, 0, 0) scale(0.88)';
+      } else {
+        // Inactive cards: smoothly hidden without peeking ghost background borders
+        card.style.transform = diff > 0 ? 'translate3d(-24px, 0, 0) scale(0.95)' : 'translate3d(100%, 0, 0) scale(0.95)';
         card.style.zIndex = '4';
         card.style.opacity = '0';
         card.style.visibility = 'hidden';
         card.style.pointerEvents = 'none';
         card.classList.add('is-hidden-card');
-        card.classList.remove('is-active-card', 'is-peeking-card', 'is-passed-card');
-      } else {
-        // Passed cards exited to the right
-        card.style.transform = 'translate3d(120%, 0, 0) scale(0.95)';
-        card.style.zIndex = '4';
-        card.style.opacity = '0';
-        card.style.visibility = 'hidden';
-        card.style.pointerEvents = 'none';
-        card.classList.add('is-passed-card', 'is-hidden-card');
         card.classList.remove('is-active-card', 'is-peeking-card');
       }
     }

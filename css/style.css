@@ -3596,20 +3596,31 @@ body {
     width: 100% !important;
   }
 
-  /* Reset outer box styling on mobile */
+  /* Reset outer box styling on mobile across all modules */
   #card-dashboard-recent,
   #card-sessions-today,
   #card-patients-directory,
   #card-doctor-personal-sessions,
   #card-doctor-appointments-schedule,
-  #card-main-appointments-schedule {
+  #card-main-appointments-schedule,
+  #card-finance-report-sessions,
+  #card-finance-daily-expenses,
+  #card-monthly-doctors,
+  #card-monthly-insurance,
+  #card-monthly-expenses,
+  #finance-daily-settlements-card,
+  #card-monthly-settlements,
+  #card-claim-patients-wrap,
+  #claims-ledger-card,
+  #card-admin-staff-list,
+  #card-admin-audit-log {
     background: transparent !important;
     border: none !important;
     box-shadow: none !important;
     backdrop-filter: none !important;
     -webkit-backdrop-filter: none !important;
     padding: 0 !important;
-    margin-bottom: 14px !important;
+    margin-bottom: 16px !important;
   }
 
   #card-dashboard-recent .card-header,
@@ -3617,8 +3628,19 @@ body {
   #card-patients-directory .card-header,
   #card-doctor-personal-sessions .card-header,
   #card-doctor-appointments-schedule .card-header,
-  #card-main-appointments-schedule .card-header {
-    padding: 4px 2px 12px 2px !important;
+  #card-main-appointments-schedule .card-header,
+  #card-finance-report-sessions .card-header,
+  #card-finance-daily-expenses .card-header,
+  #card-monthly-doctors .card-header,
+  #card-monthly-insurance .card-header,
+  #card-monthly-expenses .card-header,
+  #finance-daily-settlements-card .card-header,
+  #card-monthly-settlements .card-header,
+  #card-claim-patients-wrap .card-header,
+  #claims-ledger-card .card-header,
+  #card-admin-staff-list .card-header,
+  #card-admin-audit-log .card-header {
+    padding: 4px 2px 10px 2px !important;
     border-bottom: none !important;
     background: transparent !important;
   }
@@ -4955,20 +4977,20 @@ body {
 .doc-stack-container {
   position: relative;
   width: 100%;
-  min-height: 240px;
-  perspective: 1200px;
+  min-height: 190px;
+  perspective: none;
   touch-action: pan-y;
   user-select: none;
   -webkit-user-select: none;
   box-sizing: border-box;
-  padding-left: 38px;
+  padding-left: 0 !important;
 }
 
 .doc-stack-card {
   position: absolute;
   top: 0;
-  left: 38px;
-  right: 0;
+  left: 0 !important;
+  right: 0 !important;
   border-radius: 20px;
   box-sizing: border-box;
   cursor: pointer;
@@ -8300,7 +8322,7 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 /* ==========================================================================
-   COMPACT SMART SESSION & EXAMINATION FORM (v1.4.43)
+   COMPACT SMART SESSION & EXAMINATION FORM (v1.4.44)
    ========================================================================== */
 
 /* 1. Mode Switcher (جلسة vs كشف) */
