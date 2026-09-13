@@ -790,11 +790,11 @@ export class FinanceManager {
           <tr>
             <td style="font-weight: 800; color: var(--text-main);">${escapeHTML(s.companyName)}</td>
             <td style="font-size: 0.85rem;">${escapeHTML(s.claimPeriod || '-')}</td>
-            <td style="font-weight: 700;">${(parseFloat(s.grossAmount) || 0).toLocaleString('en-US')} ج.م</td>
+            <td style="font-weight: 700;">${(parseFloat(s.grossAmount) || 0).toLocaleString('en-US')}</td>
             <td style="color: var(--danger); font-size: 0.85rem;">
               ${(parseFloat(s.deductions) || 0) > 0 ? `${(parseFloat(s.deductions) || 0).toLocaleString('en-US')} ج.م (${escapeHTML(s.deductionReason || '')})` : '-'}
             </td>
-            <td style="font-weight: 800; color: var(--success); font-size: 0.95rem;">${(parseFloat(s.netAmount) || 0).toLocaleString('en-US')} ج.م</td>
+            <td style="font-weight: 800; color: var(--success); font-size: 0.95rem;">${(parseFloat(s.netAmount) || 0).toLocaleString('en-US')}</td>
             <td>
               <span class="badge ${s.paymentMethod === 'cash' ? 'badge-cash' : 'badge-direct'}">
                 <i class="fa-solid ${s.paymentMethod === 'cash' ? 'fa-money-bill-wave' : 'fa-building-columns'}"></i>
@@ -1027,7 +1027,7 @@ export class FinanceManager {
               <td>${safeIns === 'شركة' && s.payType === 'cash' ? '-' : safeIns}</td>
               <td class="no-print">${contractLabel}</td>
               <td>${partsCell}</td>
-              <td style="font-weight: 700; color: var(--success);">${safeAmount} ج.م</td>
+              <td style="font-weight: 700; color: var(--success);">${safeAmount}</td>
               <td class="no-print" style="font-size: 0.8rem; color: var(--text-muted);">${safeRecBy}</td>
               <td class="no-print">
                 <div style="display: flex; gap: 4px;">
@@ -1131,7 +1131,7 @@ export class FinanceManager {
         expTbody.innerHTML = allExpenses.map(e => `
           <tr>
             <td style="font-weight: 600;">${escapeHTML(e.title)}</td>
-            <td style="font-weight: 700; color: var(--danger);">${escapeHTML(e.amount)} ج.م</td>
+            <td style="font-weight: 700; color: var(--danger);">${escapeHTML(e.amount)}</td>
             <td style="font-size: 0.8rem; color: var(--text-muted);">${escapeHTML(e.recordedBy)}</td>
             <td style="font-size: 0.8rem; color: var(--text-muted);">${e.time}</td>
             <td class="no-print">
@@ -1269,7 +1269,7 @@ export class FinanceManager {
                     : `<span class="badge badge-indirect"><i class="fa-solid fa-handshake"></i> ${safeIns}</span>`)}
               </td>
               <td>${safeCount}</td>
-              <td style="font-weight: 700; color: var(--success);">${safeAmount} ج.م</td>
+              <td style="font-weight: 700; color: var(--success);">${safeAmount}</td>
               <td style="font-size: 0.8rem; color: var(--text-muted);">${safeRecAt}</td>
               <td class="cell-action">
                 ${s.patientId ? `
@@ -1415,11 +1415,11 @@ export class FinanceManager {
             <td style="font-weight: 700;">${escapeHTML(s.settlementDate || '-')}</td>
             <td style="font-weight: 800; color: var(--text-main);">${escapeHTML(s.companyName)}</td>
             <td style="font-size: 0.85rem;">${escapeHTML(s.claimPeriod || '-')}</td>
-            <td style="font-weight: 700;">${(parseFloat(s.grossAmount) || 0).toLocaleString('en-US')} ج.م</td>
+            <td style="font-weight: 700;">${(parseFloat(s.grossAmount) || 0).toLocaleString('en-US')}</td>
             <td style="color: var(--danger); font-size: 0.85rem;">
               ${(parseFloat(s.deductions) || 0) > 0 ? `${(parseFloat(s.deductions) || 0).toLocaleString('en-US')} ج.م (${escapeHTML(s.deductionReason || '')})` : '-'}
             </td>
-            <td style="font-weight: 800; color: var(--success); font-size: 0.95rem;">${(parseFloat(s.netAmount) || 0).toLocaleString('en-US')} ج.م</td>
+            <td style="font-weight: 800; color: var(--success); font-size: 0.95rem;">${(parseFloat(s.netAmount) || 0).toLocaleString('en-US')}</td>
             <td>
               <span class="badge ${s.paymentMethod === 'cash' ? 'badge-cash' : 'badge-direct'}">
                 <i class="fa-solid ${s.paymentMethod === 'cash' ? 'fa-money-bill-wave' : 'fa-building-columns'}"></i>
@@ -1779,7 +1779,7 @@ export class FinanceManager {
             <tr>
               <td>${safeDate}</td>
               <td style="font-weight: 600;">${safeTitle}</td>
-              <td style="font-weight: 700; color: var(--danger);">${safeAmount} ج.م</td>
+              <td style="font-weight: 700; color: var(--danger);">${safeAmount}</td>
               <td style="font-size: 0.8rem; color: var(--text-muted);">${safeRecBy}</td>
               <td class="no-print" style="text-align: center;">
                 ${canDelFinance ? `
