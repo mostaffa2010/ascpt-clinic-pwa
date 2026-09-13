@@ -453,7 +453,60 @@ class App {
     });
 
     // Close Auth Modal buttons
-    // ================= Change Password Feature (v1.4.67) =================
+    // ================= User Profile Feature (v1.4.70) =================
+    const openUserProfileModal = () => {
+      const user = auth.getCurrentUser();
+      if (!user) {
+        auth.showLoginModal();
+        return;
+      }
+
+      const nameEl = document.getElementById('profile-modal-user-name');
+      const roleEl = document.getElementById('profile-modal-user-role');
+      const emailEl = document.getElementById('profile-modal-user-email');
+      const avatarIcon = document.getElementById('profile-modal-avatar-icon');
+
+      if (nameEl) nameEl.textContent = user.name || 'مستخدم النظام';
+      if (emailEl) emailEl.textContent = user.email || '-';
+      if (roleEl) {
+        roleEl.textContent = RolesManager.getRoleLabel(user.role);
+        roleEl.className = `badge badge-role-${user.role}`;
+      }
+      if (avatarIcon) {
+        if (user.role === 'doctor') avatarIcon.className = 'fa-solid fa-user-doctor';
+        else if (user.role === 'admin') avatarIcon.className = 'fa-solid fa-shield-halved';
+        else avatarIcon.className = 'fa-solid fa-user-tie';
+      }
+
+      this.openModal('modal-user-profile');
+    };
+
+    document.getElementById('user-status-pill-box')?.addEventListener('click', (e) => {
+      e.preventDefault();
+      openUserProfileModal();
+    });
+
+    document.getElementById('sidebar-user-profile-trigger')?.addEventListener('click', (e) => {
+      e.preventDefault();
+      openUserProfileModal();
+    });
+
+    document.getElementById('btn-close-user-profile-modal')?.addEventListener('click', () => {
+      this.closeModal('modal-user-profile');
+    });
+    document.getElementById('btn-close-profile-footer')?.addEventListener('click', () => {
+      this.closeModal('modal-user-profile');
+    });
+
+    document.getElementById('btn-profile-change-pwd')?.addEventListener('click', (e) => {
+      e.preventDefault();
+      this.closeModal('modal-user-profile');
+      setTimeout(() => {
+        openChangePwdModal();
+      }, 120);
+    });
+
+    // ================= Change Password Feature (v1.4.67) ================
     const openChangePwdModal = () => {
       const user = auth.getCurrentUser();
       if (!user) {

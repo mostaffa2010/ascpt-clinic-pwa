@@ -9022,3 +9022,23 @@ html, body {
     touch-action: pan-x pan-y !important;
   }
 }
+
+/* ==========================================================================
+   USER PROFILE MODAL & INTERACTIVE TRIGGERS (v1.4.70)
+   ========================================================================== */
+#user-status-pill-box:hover {
+  border-color: var(--primary) !important;
+  background: var(--bg-subtle) !important;
+  transform: translateY(-1px);
+  transition: all 0.15s ease;
+}
+
+#sidebar-user-profile-trigger:hover {
+  background: rgba(2, 132, 199, 0.08) !important;
+}
+
+#btn-profile-change-pwd:hover {
+  border-color: var(--primary) !important;
+  background: rgba(2, 132, 199, 0.05) !important;
+  transform: translateY(-1px);
+}
