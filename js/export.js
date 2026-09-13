@@ -311,6 +311,11 @@ export class ExportManager {
 
   printReport() {
     try {
+      const toast = document.getElementById('toast-notification');
+      if (toast) {
+        toast.classList.remove('show');
+        toast.style.display = 'none';
+      }
       const meta = this.financeManager.getDataForExport();
       const metaEl = document.getElementById('print-report-meta');
       const subEl = document.getElementById('print-report-subtitle');

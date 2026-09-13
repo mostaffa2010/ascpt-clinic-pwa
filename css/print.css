@@ -68,6 +68,13 @@
   }
 
   /* Universal hide for common interactive UI elements */
+  th.no-print,
+  td.no-print,
+  table th.no-print,
+  table td.no-print,
+  .data-table th.no-print,
+  .data-table td.no-print,
+  [class*="no-print"],
   nav,
   .sidebar,
   .bottom-nav,
@@ -83,6 +90,13 @@
   .sandbox-banner,
   #pwa-install-banner,
   .toast-box,
+  #toast-notification,
+  .toast-capsule,
+  .toast,
+  [id*="toast"],
+  [class*="toast"],
+  #finance-header-title,
+  #view-finance > div:first-child,
   .card-header button,
   .finance-mode-segmented,
   .horizontal-date-strip,

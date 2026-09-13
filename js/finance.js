@@ -801,7 +801,7 @@ export class FinanceManager {
                 ${s.paymentMethod === 'cash' ? 'نقداً بالدرج' : 'تحويل بنكي / شيك'}
               </span>
             </td>
-            <td style="font-size: 0.8rem; color: var(--text-muted);">${escapeHTML(s.recordedBy || '-')}</td>
+            <td class="no-print" style="font-size: 0.8rem; color: var(--text-muted);">${escapeHTML(s.recordedBy || '-')}</td>
             <td class="no-print">
               ${canDel ? `
                 <button type="button" class="btn btn-outline btn-sm btn-delete-record btn-delete-settlement" style="color: var(--danger);" data-settlement-id="${s.id}" title="حذف حركة التحصيل">
@@ -1025,10 +1025,10 @@ export class FinanceManager {
               <td>${safeDoc}</td>
               <td>${payBadge}</td>
               <td>${safeIns === 'شركة' && s.payType === 'cash' ? '-' : safeIns}</td>
-              <td>${contractLabel}</td>
+              <td class="no-print">${contractLabel}</td>
               <td>${partsCell}</td>
               <td style="font-weight: 700; color: var(--success);">${safeAmount} ج.م</td>
-              <td style="font-size: 0.8rem; color: var(--text-muted);">${safeRecBy}</td>
+              <td class="no-print" style="font-size: 0.8rem; color: var(--text-muted);">${safeRecBy}</td>
               <td class="no-print">
                 <div style="display: flex; gap: 4px;">
                   <button type="button" class="btn btn-outline btn-sm btn-edit-session" data-session-id="${safeId}" title="تعديل بيانات الجلسة">
