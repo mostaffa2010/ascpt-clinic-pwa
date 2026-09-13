@@ -866,6 +866,8 @@ export class FinanceManager {
           const cashCount = docSessions.filter(s => s.payType === 'cash').length;
           const insCount = docSessions.filter(s => s.payType === 'insurance').length;
           const cleanDoc = (escapeHTML(doc)).replace(/^د\.\s*/, '');
+          const totalDailyPatients = allSessions.length;
+          const pct = totalDailyPatients > 0 ? ((patientCount / totalDailyPatients) * 100).toFixed(1) : 0;
 
           return `
             <div class="hero-styled-card doc-stack-card ${index === 0 ? 'is-active-card' : 'is-peeking-card'}" data-stack-index="${index}">
