@@ -121,8 +121,8 @@
   
 
     <!-- Stylesheets -->
-  <link rel="stylesheet" href="css/style.css?v=1.4.82" media="screen">
-  <link rel="stylesheet" href="css/print.css?v=1.4.82" media="print">
+  <link rel="stylesheet" href="css/style.css?v=1.4.83" media="screen">
+  <link rel="stylesheet" href="css/print.css?v=1.4.83" media="print">
 </head>
 <body>
   <script>
@@ -2062,7 +2062,7 @@
         <div class="admin-system-footer no-print" style="margin-top: 32px; margin-bottom: 35px; text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px;">
           <div style="display: inline-flex; align-items: center; gap: 8px; background: var(--bg-surface); border: 1.5px solid var(--border-color); padding: 7px 18px; border-radius: 999px; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);">
             <span style="width: 8px; height: 8px; border-radius: 50%; background-color: var(--success); display: inline-block; box-shadow: 0 0 6px var(--success);"></span>
-            <span style="font-weight: 800; font-size: 0.88rem; color: var(--text-main);">نظام ASCPT — الإصدار 1.4.82</span>
+            <span style="font-weight: 800; font-size: 0.88rem; color: var(--text-main);">نظام ASCPT — الإصدار 1.4.83</span>
             <span class="badge badge-primary" style="font-size: 0.72rem; padding: 2px 10px; border-radius: 999px; font-weight: 800;">إصدار معتمد</span>
           </div>
           <div style="font-size: 0.76rem; color: var(--text-muted); font-weight: 700;">
@@ -2716,113 +2716,121 @@
 
       <!-- Scrollable Body -->
       <div class="modal-body polish-modal-body">
-        <!-- Left: Image Canvas Viewport -->
-        <div class="polish-viewport-card">
-          <div class="polish-canvas-wrapper" id="polish-canvas-wrapper">
-            <canvas id="polish-canvas"></canvas>
-            <!-- Interactive Crop Box Overlay (Visible during crop mode) -->
-            <div id="polish-crop-box" class="polish-crop-box" style="display: none;">
-              <div class="crop-grid-lines"></div>
-              <div class="crop-handle crop-handle-tl" data-handle="tl"></div>
-              <div class="crop-handle crop-handle-tr" data-handle="tr"></div>
-              <div class="crop-handle crop-handle-bl" data-handle="bl"></div>
-              <div class="crop-handle crop-handle-br" data-handle="br"></div>
-              <div class="crop-drag-bar" id="crop-drag-bar"></div>
-            </div>
+        <!-- 1. Top Category Selector: Prominent, full-width, always visible above the image (v1.4.83) -->
+        <div class="polish-category-top-banner" style="width: 100%; background: var(--bg-subtle); padding: 10px 14px; border-radius: 12px; border: 1.5px solid var(--border-color); box-sizing: border-box;">
+          <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px;">
+            <label style="font-weight: 800; font-size: 0.84rem; margin: 0; display: flex; align-items: center; gap: 6px; color: var(--text-main);">
+              <i class="fa-solid fa-tags text-primary"></i> نوع الأشعة / المستند:
+            </label>
+            <span id="polish-selected-cat-badge" class="badge badge-cat-xray" style="font-size: 0.76rem; font-weight: 800;">أشعة عادية (X-Ray)</span>
           </div>
-
-          <!-- Standard Toolbar (Rotate, Crop, Reset) -->
-          <div id="polish-standard-toolbar" style="margin-top: 8px; display: flex; gap: 6px; z-index: 2; flex-wrap: wrap; justify-content: center;">
-            <button type="button" class="btn btn-outline btn-sm" id="btn-polish-crop" style="background: rgba(56, 189, 248, 0.12); color: #38bdf8; border-color: rgba(56, 189, 248, 0.35); font-size: 0.78rem; padding: 5px 12px; font-weight: 700;" title="قص وتحديد جزء من الصورة">
-              <i class="fa-solid fa-crop-simple"></i> قص الصورة
-            </button>
-            <button type="button" class="btn btn-outline btn-sm" id="btn-polish-rotate-left" style="background: rgba(255,255,255,0.08); color: #fff; border-color: rgba(255,255,255,0.2); font-size: 0.78rem; padding: 5px 10px;" title="تدوير يسار 90°">
-              <i class="fa-solid fa-rotate-left"></i>
-            </button>
-            <button type="button" class="btn btn-outline btn-sm" id="btn-polish-rotate-right" style="background: rgba(255,255,255,0.08); color: #fff; border-color: rgba(255,255,255,0.2); font-size: 0.78rem; padding: 5px 10px;" title="تدوير يمين 90°">
-              <i class="fa-solid fa-rotate-right"></i> تدوير 90°
-            </button>
-            <button type="button" class="btn btn-outline btn-sm" id="btn-polish-reset" style="background: rgba(255,255,255,0.08); color: #f87171; border-color: rgba(239,68,68,0.3); font-size: 0.78rem; padding: 5px 10px;" title="إعادة تعيين للصورة الأصلية">
-              <i class="fa-solid fa-arrows-rotate"></i> الأصلية
-            </button>
+          <div class="polish-category-chips" id="polish-category-chips" style="display: flex; flex-wrap: wrap; gap: 6px;">
+            <button type="button" class="btn-cat-chip active" data-cat="xray"><i class="fa-solid fa-bone"></i> عادية (X-Ray)</button>
+            <button type="button" class="btn-cat-chip" data-cat="mri"><i class="fa-solid fa-magnet"></i> رنين (MRI)</button>
+            <button type="button" class="btn-cat-chip" data-cat="ct"><i class="fa-solid fa-circle-notch"></i> مقطعية (CT)</button>
+            <button type="button" class="btn-cat-chip" data-cat="sonar"><i class="fa-solid fa-wave-square"></i> سونار</button>
+            <button type="button" class="btn-cat-chip" data-cat="lab"><i class="fa-solid fa-vial"></i> تحليل</button>
+            <button type="button" class="btn-cat-chip" data-cat="report"><i class="fa-solid fa-file-medical"></i> تقرير</button>
+            <button type="button" class="btn-cat-chip" data-cat="other"><i class="fa-solid fa-file"></i> أخرى</button>
           </div>
-
-          <!-- Active Crop Toolbar (Visible during crop mode) -->
-          <div id="polish-crop-toolbar" style="display: none; margin-top: 8px; gap: 8px; z-index: 2; flex-wrap: wrap; justify-content: center;">
-            <button type="button" class="btn btn-primary btn-sm" id="btn-apply-crop" style="font-size: 0.8rem; font-weight: 800; padding: 5px 14px;">
-              <i class="fa-solid fa-check"></i> تطبيق القص
-            </button>
-            <button type="button" class="btn btn-outline btn-sm" id="btn-cancel-crop" style="color: #f87171; border-color: rgba(239, 68, 68, 0.4); font-size: 0.8rem; padding: 5px 12px;">
-              <i class="fa-solid fa-xmark"></i> إلغاء القص
-            </button>
-          </div>
+          <select id="polish-category-select" style="display: none;">
+            <option value="xray" selected>أشعة عادية (X-Ray)</option>
+            <option value="mri">رنين مغناطيسي (MRI)</option>
+            <option value="ct">أشعة مقطعية (CT Scan)</option>
+            <option value="sonar">سونار / دوبلر (Ultrasound)</option>
+            <option value="lab">تحليل دم ومختبر (Lab Test)</option>
+            <option value="report">تقرير طبي وكشف استشاري</option>
+            <option value="other">مستند / صورة أخرى</option>
+          </select>
         </div>
 
-        <!-- Right: Processing & Metadata Form Controls -->
-        <div class="polish-controls-card" style="display: flex; flex-direction: column; gap: 12px;">
-          <!-- Category Selection -->
-          <div class="form-group" style="margin-bottom: 0;">
-            <label style="font-weight: 800; font-size: 0.84rem; margin-bottom: 6px; display: block;">نوع الأشعة / المستند *</label>
-            <div class="polish-category-chips" id="polish-category-chips" style="display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 6px;">
-              <button type="button" class="btn-cat-chip" data-cat="xray"><i class="fa-solid fa-bone"></i> عادية (X-Ray)</button>
-              <button type="button" class="btn-cat-chip" data-cat="mri"><i class="fa-solid fa-magnet"></i> رنين (MRI)</button>
-              <button type="button" class="btn-cat-chip" data-cat="ct"><i class="fa-solid fa-circle-notch"></i> مقطعية (CT)</button>
-              <button type="button" class="btn-cat-chip" data-cat="sonar"><i class="fa-solid fa-wave-square"></i> سونار</button>
-              <button type="button" class="btn-cat-chip" data-cat="lab"><i class="fa-solid fa-vial"></i> تحليل</button>
-              <button type="button" class="btn-cat-chip" data-cat="report"><i class="fa-solid fa-file-medical"></i> تقرير</button>
-              <button type="button" class="btn-cat-chip" data-cat="other"><i class="fa-solid fa-file"></i> أخرى</button>
-            </div>
-            <select id="polish-category-select" class="form-control" style="font-size: 0.85rem; font-weight: 700; display: none;">
-              <option value="xray" selected>أشعة عادية (X-Ray)</option>
-              <option value="mri">رنين مغناطيسي (MRI)</option>
-              <option value="ct">أشعة مقطعية (CT Scan)</option>
-              <option value="sonar">سونار / دوبلر (Ultrasound)</option>
-              <option value="lab">تحليل دم ومختبر (Lab Test)</option>
-              <option value="report">تقرير طبي وكشف استشاري</option>
-              <option value="other">مستند / صورة أخرى</option>
-            </select>
-          </div>
-
-          <!-- Title / Note -->
-          <div class="form-group" style="margin-bottom: 0;">
-            <label style="font-weight: 800; font-size: 0.84rem; margin-bottom: 4px; display: block;">ملاحظة أو وصف توضيحي</label>
-            <input type="text" id="polish-title-input" class="form-control" placeholder="مثال: رنين الفقرات العنقية C4-C5..." dir="auto" style="font-size: 0.85rem;">
-          </div>
-
-          <!-- Quick Presets -->
-          <div>
-            <label style="font-weight: 800; font-size: 0.84rem; margin-bottom: 6px; display: block;">فلاتر التوضيح السريعة (Presets)</label>
-            <div class="polish-presets-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px;">
-              <button type="button" class="btn btn-outline btn-sm polish-preset-btn active" data-preset="normal">
-                <i class="fa-solid fa-image"></i> الأصلية
-              </button>
-              <button type="button" class="btn btn-outline btn-sm polish-preset-btn" data-preset="xray">
-                <i class="fa-solid fa-bone"></i> وضوح الأشعة
-              </button>
-              <button type="button" class="btn btn-outline btn-sm polish-preset-btn" data-preset="scanner">
-                <i class="fa-solid fa-file-lines"></i> سكانر تقارير
-              </button>
-              <button type="button" class="btn btn-outline btn-sm polish-preset-btn" data-preset="invert">
-                <i class="fa-solid fa-circle-half-stroke"></i> عكس سلبي
-              </button>
-            </div>
-          </div>
-
-          <!-- Sliders: Contrast & Brightness -->
-          <div style="background: var(--bg-subtle); padding: 10px 12px; border-radius: 8px; border: 1px solid var(--border-color); display: flex; flex-direction: column; gap: 8px;">
-            <div>
-              <div style="display: flex; justify-content: space-between; font-size: 0.78rem; font-weight: 700; margin-bottom: 2px;">
-                <span>التباين (Contrast)</span>
-                <span id="polish-contrast-val">100%</span>
+        <!-- 2. Studio Workspace Grid (Viewport + Controls) -->
+        <div class="polish-studio-grid" style="display: flex; flex-direction: column; gap: 12px; width: 100%;">
+          <!-- Image Canvas Viewport -->
+          <div class="polish-viewport-card">
+            <div class="polish-canvas-wrapper" id="polish-canvas-wrapper">
+              <canvas id="polish-canvas"></canvas>
+              <!-- Interactive Crop Box Overlay (Visible during crop mode) -->
+              <div id="polish-crop-box" class="polish-crop-box" style="display: none;">
+                <div class="crop-grid-lines"></div>
+                <div class="crop-handle crop-handle-tl" data-handle="tl"></div>
+                <div class="crop-handle crop-handle-tr" data-handle="tr"></div>
+                <div class="crop-handle crop-handle-bl" data-handle="bl"></div>
+                <div class="crop-handle crop-handle-br" data-handle="br"></div>
+                <div class="crop-drag-bar" id="crop-drag-bar"></div>
               </div>
-              <input type="range" id="polish-contrast-slider" min="50" max="250" value="100" style="width: 100%; accent-color: var(--primary);">
             </div>
+
+            <!-- Standard Toolbar (Rotate, Crop, Reset) -->
+            <div id="polish-standard-toolbar" style="margin-top: 8px; display: flex; gap: 6px; z-index: 2; flex-wrap: wrap; justify-content: center;">
+              <button type="button" class="btn btn-outline btn-sm" id="btn-polish-crop" style="background: rgba(56, 189, 248, 0.12); color: #38bdf8; border-color: rgba(56, 189, 248, 0.35); font-size: 0.78rem; padding: 5px 12px; font-weight: 700;" title="قص وتحديد جزء من الصورة">
+                <i class="fa-solid fa-crop-simple"></i> قص الصورة
+              </button>
+              <button type="button" class="btn btn-outline btn-sm" id="btn-polish-rotate-left" style="background: rgba(255,255,255,0.08); color: #fff; border-color: rgba(255,255,255,0.2); font-size: 0.78rem; padding: 5px 10px;" title="تدوير يسار 90°">
+                <i class="fa-solid fa-rotate-left"></i>
+              </button>
+              <button type="button" class="btn btn-outline btn-sm" id="btn-polish-rotate-right" style="background: rgba(255,255,255,0.08); color: #fff; border-color: rgba(255,255,255,0.2); font-size: 0.78rem; padding: 5px 10px;" title="تدوير يمين 90°">
+                <i class="fa-solid fa-rotate-right"></i> تدوير 90°
+              </button>
+              <button type="button" class="btn btn-outline btn-sm" id="btn-polish-reset" style="background: rgba(255,255,255,0.08); color: #f87171; border-color: rgba(239,68,68,0.3); font-size: 0.78rem; padding: 5px 10px;" title="إعادة تعيين للصورة الأصلية">
+                <i class="fa-solid fa-arrows-rotate"></i> الأصلية
+              </button>
+            </div>
+
+            <!-- Active Crop Toolbar (Visible during crop mode) -->
+            <div id="polish-crop-toolbar" style="display: none; margin-top: 8px; gap: 8px; z-index: 2; flex-wrap: wrap; justify-content: center;">
+              <button type="button" class="btn btn-primary btn-sm" id="btn-apply-crop" style="font-size: 0.8rem; font-weight: 800; padding: 5px 14px;">
+                <i class="fa-solid fa-check"></i> تطبيق القص
+              </button>
+              <button type="button" class="btn btn-outline btn-sm" id="btn-cancel-crop" style="color: #f87171; border-color: rgba(239, 68, 68, 0.4); font-size: 0.8rem; padding: 5px 12px;">
+                <i class="fa-solid fa-xmark"></i> إلغاء القص
+              </button>
+            </div>
+          </div>
+
+          <!-- Controls: Note, Presets, Adjustments -->
+          <div class="polish-controls-card" style="display: flex; flex-direction: column; gap: 12px;">
+            <!-- Title / Note -->
+            <div class="form-group" style="margin-bottom: 0;">
+              <label style="font-weight: 800; font-size: 0.84rem; margin-bottom: 4px; display: block;">ملاحظة أو وصف توضيحي</label>
+              <input type="text" id="polish-title-input" class="form-control" placeholder="مثال: رنين الفقرات العنقية C4-C5..." dir="auto" style="font-size: 0.85rem;">
+            </div>
+
+            <!-- Quick Presets -->
             <div>
-              <div style="display: flex; justify-content: space-between; font-size: 0.78rem; font-weight: 700; margin-bottom: 2px;">
-                <span>الإضاءة (Brightness)</span>
-                <span id="polish-brightness-val">100%</span>
+              <label style="font-weight: 800; font-size: 0.84rem; margin-bottom: 6px; display: block;">فلاتر التوضيح السريعة (Presets)</label>
+              <div class="polish-presets-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px;">
+                <button type="button" class="btn btn-outline btn-sm polish-preset-btn active" data-preset="normal">
+                  <i class="fa-solid fa-image"></i> الأصلية
+                </button>
+                <button type="button" class="btn btn-outline btn-sm polish-preset-btn" data-preset="xray">
+                  <i class="fa-solid fa-bone"></i> وضوح الأشعة
+                </button>
+                <button type="button" class="btn btn-outline btn-sm polish-preset-btn" data-preset="scanner">
+                  <i class="fa-solid fa-file-lines"></i> سكانر تقارير
+                </button>
+                <button type="button" class="btn btn-outline btn-sm polish-preset-btn" data-preset="invert">
+                  <i class="fa-solid fa-circle-half-stroke"></i> عكس سلبي
+                </button>
               </div>
-              <input type="range" id="polish-brightness-slider" min="50" max="180" value="100" style="width: 100%; accent-color: var(--primary);">
+            </div>
+
+            <!-- Sliders: Contrast & Brightness -->
+            <div style="background: var(--bg-subtle); padding: 10px 12px; border-radius: 8px; border: 1px solid var(--border-color); display: flex; flex-direction: column; gap: 8px;">
+              <div>
+                <div style="display: flex; justify-content: space-between; font-size: 0.78rem; font-weight: 700; margin-bottom: 2px;">
+                  <span>التباين (Contrast)</span>
+                  <span id="polish-contrast-val">100%</span>
+                </div>
+                <input type="range" id="polish-contrast-slider" min="50" max="250" value="100" style="width: 100%; accent-color: var(--primary);">
+              </div>
+              <div>
+                <div style="display: flex; justify-content: space-between; font-size: 0.78rem; font-weight: 700; margin-bottom: 2px;">
+                  <span>الإضاءة (Brightness)</span>
+                  <span id="polish-brightness-val">100%</span>
+                </div>
+                <input type="range" id="polish-brightness-slider" min="50" max="180" value="100" style="width: 100%; accent-color: var(--primary);">
+              </div>
             </div>
           </div>
         </div>
@@ -3905,7 +3913,7 @@
   </div>
 
 <!-- Main Application Script (ES Module) -->
-  <script type="module" src="js/app.js?v=1.4.82"></script>
+  <script type="module" src="js/app.js?v=1.4.83"></script>
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {

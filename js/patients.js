@@ -2885,6 +2885,24 @@ export class PatientsManager {
     document.querySelectorAll('.btn-cat-chip').forEach(btn => {
       btn.classList.toggle('active', btn.dataset.cat === cat);
     });
+
+    const CATEGORY_MAP = {
+      mri: { label: 'رنين مغناطيسي (MRI)', cls: 'badge-cat-mri' },
+      xray: { label: 'أشعة عادية (X-Ray)', cls: 'badge-cat-xray' },
+      ct: { label: 'أشعة مقطعية (CT)', cls: 'badge-cat-ct' },
+      sonar: { label: 'سونار / دوبلر', cls: 'badge-cat-sonar' },
+      lab: { label: 'تحليل دم ومختبر', cls: 'badge-cat-lab' },
+      report: { label: 'تقرير طبي', cls: 'badge-cat-report' },
+      other: { label: 'مستند / أخرى', cls: 'badge-cat-other' }
+    };
+
+    const catInfo = CATEGORY_MAP[cat] || CATEGORY_MAP.other;
+    const topBadge = document.getElementById('polish-selected-cat-badge');
+    if (topBadge) {
+      topBadge.textContent = catInfo.label;
+      topBadge.className = `badge ${catInfo.cls}`;
+    }
+
     if (cat === 'xray' && this.polishPreset === 'normal') {
       this.setPolishPreset('xray');
     }
