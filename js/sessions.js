@@ -405,7 +405,9 @@ export class SessionsManager {
       btnSession.style.boxShadow = '';
     }
 
+    const specialGroup = document.getElementById('form-group-special-session');
     if (bodyPartsGroup) bodyPartsGroup.style.display = isExam ? 'none' : 'block';
+    if (specialGroup) specialGroup.style.display = isExam ? 'none' : 'block';
     if (examTypeGroup) examTypeGroup.style.display = isExam ? 'block' : 'none';
 
     if (dateLabel) {
@@ -836,10 +838,14 @@ export class SessionsManager {
       } catch (_) {}
     }
 
+    const isSpecial = (this.entryMode === 'session') && Boolean(document.getElementById('session-is-special')?.checked);
+
     const sessionData = {
       id: this.editingSessionId || null,
       entryType: this.entryMode, // 'session' | 'examination'
       examType: this.entryMode === 'examination' ? this.examType : null,
+      isSpecial,
+      sessionPricingType: isSpecial ? 'special' : 'regular',
       date: sessionDateVal,
       patientId: this.selectedPatientId,
       patientName,
@@ -869,9 +875,10 @@ export class SessionsManager {
         ? `تعديل بيانات كشف المريض ${patientName} بتاريخ ${sessionDateVal} (${this.examType === 'contract' ? 'كشف تعاقد: ' + insuranceName : 'كشف نقدي'} - مسدد: ${amountPaid} ج.م)`
         : `تسجيل كشف للمريض ${patientName} مع ${doctor} بتاريخ ${sessionDateVal} (${this.examType === 'contract' ? 'كشف تعاقد: ' + insuranceName : 'كشف نقدي'} - مسدد: ${amountPaid} ج.م)`;
     } else {
+      const specialNote = isSpecial ? ' [جلسة خاصة]' : '';
       auditDesc = isEdit
-        ? `تعديل بيانات جلسة المريض ${patientName} بتاريخ ${sessionDateVal} (مسدد: ${amountPaid} ج.م)`
-        : `تسجيل جلسة للمريض ${patientName} مع ${doctor} بتاريخ ${sessionDateVal} (${selectedParts.length} أعضاء: ${selectedParts.join('، ')} - مسدد: ${amountPaid} ج.م)`;
+        ? `تعديل بيانات جلسة${specialNote} للمريض ${patientName} بتاريخ ${sessionDateVal} (مسدد: ${amountPaid} ج.م)`
+        : `تسجيل جلسة${specialNote} للمريض ${patientName} مع ${doctor} بتاريخ ${sessionDateVal} (${selectedParts.length} أعضاء: ${selectedParts.join('، ')} - مسدد: ${amountPaid} ج.م)`;
     }
 
     try { await db.logAudit(auditAction, auditDesc, currentUser); } catch (_) {}
@@ -1215,9 +1222,13 @@ export class SessionsManager {
       this.app.updateCustomSelectDisplay('session-doctor-select');
     }
 
-    // 5. Select body parts
+    // 5. Select body parts & special case
     const savedParts = s.bodyParts || [];
     this.renderBodyPartsChips(savedParts);
+    const chkSpecial = document.getElementById('session-is-special');
+    if (chkSpecial) {
+      chkSpecial.checked = Boolean(s.isSpecial || s.sessionPricingType === 'special');
+    }
 
     // 6. Payment
     const payRadios = document.querySelectorAll('input[name="session-pay-type"]');
@@ -1259,6 +1270,8 @@ export class SessionsManager {
     const dateInput = document.getElementById('session-date');
     if (dateInput) dateInput.value = this.currentSessionDate;
     this.renderBodyPartsChips([]);
+    const chkSpecial = document.getElementById('session-is-special');
+    if (chkSpecial) chkSpecial.checked = false;
     const countEl = document.getElementById('selected-parts-count');
     if (countEl) countEl.textContent = '0';
     const insF = document.getElementById('session-insurance-fields');
@@ -1406,11 +1419,13 @@ export class SessionsManager {
         partsCell = `<span class="badge badge-role-doctor" title="${safeParts}">${escapeHTML(s.bodyPartsCount)} أعضاء (${safePartsShort}${s.bodyParts && s.bodyParts.length > 2 ? '...' : ''})</span>`;
       }
 
+      const isSpecialSession = Boolean(s.isSpecial || s.sessionPricingType === 'special');
       const examTag = isExam ? `<span class="badge" style="background: #ede9fe; color: #6d28d9; font-size: 0.72rem; padding: 1px 6px; margin-right: 6px; border-radius: 4px; font-weight: 800;"><i class="fa-solid fa-stethoscope"></i> كشف</span>` : '';
+      const specialBadge = (!isExam && isSpecialSession) ? `<span class="badge" style="background: rgba(245, 158, 11, 0.15); color: #b45309; border: 1px solid rgba(245, 158, 11, 0.35); font-size: 0.72rem; padding: 1px 6px; margin-right: 6px; border-radius: 4px; font-weight: 800;"><i class="fa-solid fa-star"></i> خاصة</span>` : '';
 
       return `
         <tr>
-          <td style="font-weight: 700;">${safePatient} ${examTag}</td>
+          <td style="font-weight: 700;">${safePatient} ${examTag}${specialBadge}</td>
           <td style="text-align: center; white-space: nowrap;">${sessionNumBadge}</td>
           <td>${safeDoc}</td>
           <td>${payBadge}</td>
@@ -1509,6 +1524,7 @@ export class SessionsManager {
             <div class="hsc-badges-row">
               ${sessionNumBadge}
               ${payBadge}
+              ${(!isExam && (s.isSpecial || s.sessionPricingType === 'special')) ? `<span class="badge" style="background: rgba(245, 158, 11, 0.15); color: #b45309; border: 1px solid rgba(245, 158, 11, 0.35); font-size: 0.74rem; font-weight: 800;"><i class="fa-solid fa-star"></i> خاصة</span>` : ''}
             </div>
 
             <div class="hsc-divider" style="margin: 10px 0 12px 0;"></div>

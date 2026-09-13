@@ -30,7 +30,7 @@
       })();
     </script>
     <style>
-      /* Zero-Flicker Pre-Paint Gatekeeper (v1.4.59) */
+      /* Zero-Flicker Pre-Paint Gatekeeper (v1.4.60) */
       html.role-doctor #dashboard-admin-view,
       body.role-doctor #dashboard-admin-view,
       html.role-doctor .bottom-nav [data-view="sessions"],
@@ -102,8 +102,8 @@
   
 
     <!-- Stylesheets -->
-  <link rel="stylesheet" href="css/style.css?v=1.4.59" media="screen">
-  <link rel="stylesheet" href="css/print.css?v=1.4.59" media="print">
+  <link rel="stylesheet" href="css/style.css?v=1.4.60" media="screen">
+  <link rel="stylesheet" href="css/print.css?v=1.4.60" media="print">
 </head>
 <body>
   <script>
@@ -538,7 +538,7 @@
               </button>
             </div>
 
-            <!-- Row 3: Sort Segmented Toggle & View Mode Toggle & Add Patient Button (v1.4.59) -->
+            <!-- Row 3: Sort Segmented Toggle & View Mode Toggle & Add Patient Button (v1.4.60) -->
             <div style="display: flex; gap: 8px; width: 100%; align-items: center; justify-content: space-between; flex-wrap: wrap;">
               <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
                 <!-- Compact Sort Segmented Toggle -->
@@ -551,7 +551,7 @@
                   </button>
                 </div>
 
-                <!-- View Mode Switcher: Cards vs Table (v1.4.59) -->
+                <!-- View Mode Switcher: Cards vs Table (v1.4.60) -->
                 <div class="view-mode-toggle-group no-print" id="patients-view-mode-toggle" style="height: 38px;">
                   <button type="button" class="btn-view-mode active" data-view-mode="cards" title="عرض كروت متجاوبة (Grid)">
                     <i class="fa-solid fa-table-cells-large"></i> <span>كروت</span>
@@ -595,7 +595,7 @@
               </tbody>
             </table>
           </div>
-          <!-- Dedicated Modern Cards Grid for Patients (v1.4.59) -->
+          <!-- Dedicated Modern Cards Grid for Patients (v1.4.60) -->
           <div id="patients-mobile-cards" class="patients-grid-container" style="padding: 10px 12px;"></div>
         </div>
       </section>
@@ -613,7 +613,7 @@
           </h2>
         </div>
 
-        <!-- Patient Clinical Record Header Card (Clean, Modern & Uncluttered v1.4.59) -->
+        <!-- Patient Clinical Record Header Card (Clean, Modern & Uncluttered v1.4.60) -->
         <div class="card patient-clinical-main-card gender-male" id="patient-clinical-card">
           <!-- 1. Patient Name (Standalone, Full-Width) -->
           <div class="pcm-name-bar">
@@ -788,7 +788,7 @@
           <!-- Form: Log New Session or Examination -->
           <div class="card">
             <div class="card-header" style="padding: 0 0 10px 0; border-bottom: none; display: block; width: 100%;">
-              <!-- Streamlined Compact Mode Switcher (v1.4.59) -->
+              <!-- Streamlined Compact Mode Switcher (v1.4.60) -->
               <div class="session-mode-segmented-compact">
                 <button type="button" id="btn-mode-session" class="session-mode-compact-btn active">
                   <i class="fa-solid fa-bolt"></i>
@@ -879,6 +879,22 @@
                   <small id="body-parts-cash-hint" style="display: none; font-size: 0.74rem; color: var(--text-muted); margin-top: 3px;"></small>
                 </div>
 
+                <!-- Special Case Checkbox (v1.4.60) -->
+                <div class="form-group form-group-compact" id="form-group-special-session" style="margin-top: 4px; margin-bottom: 8px;">
+                  <label class="custom-control custom-checkbox" style="display: flex; align-items: center; gap: 10px; padding: 9px 12px; background: rgba(245, 158, 11, 0.09); border: 1.5px dashed #f59e0b; border-radius: 8px; cursor: pointer; user-select: none;">
+                    <input type="checkbox" id="session-is-special" style="width: 18px; height: 18px; accent-color: #d97706; cursor: pointer; flex-shrink: 0;">
+                    <div style="flex: 1;">
+                      <div style="font-size: 0.86rem; font-weight: 800; color: #b45309; display: flex; align-items: center; gap: 6px;">
+                        <i class="fa-solid fa-star" style="font-size: 0.8rem;"></i>
+                        <span>جلسة خاصة / تأهيل تخصصي (جنف، شلل نصفي، إلخ)</span>
+                      </div>
+                      <div style="font-size: 0.74rem; color: var(--text-muted); margin-top: 1px;">
+                        تحديد الجلسة كجلسة خاصة لاحتساب سعر الجلسة الخاصة للطبيب المعالج
+                      </div>
+                    </div>
+                  </label>
+                </div>
+
                 <!-- 5. Examination Type Selector (Examination Mode) -->
                 <div class="form-group form-group-compact" id="form-group-exam-type" style="display: none;">
                   <label class="compact-label">
@@ -938,7 +954,7 @@
             </form>
           </div>
 
-          <!-- Table / Cards of Today's Sessions (v1.4.59) -->
+          <!-- Table / Cards of Today's Sessions (v1.4.60) -->
           <div class="card" id="card-sessions-today">
             <div class="card-header" style="display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap;">
               <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
@@ -949,7 +965,7 @@
                 </div>
                 <span class="badge badge-cash" id="sessions-today-count-badge" style="flex-shrink: 0; white-space: nowrap; font-size: 0.82rem; padding: 4px 10px; font-weight: 800;">0 جلسة</span>
               </div>
-              <!-- View Mode Toggle: Cards vs Table (v1.4.59) -->
+              <!-- View Mode Toggle: Cards vs Table (v1.4.60) -->
               <div class="view-mode-toggle-group no-print" id="sessions-view-mode-toggle" style="height: 34px;">
                 <button type="button" class="btn-view-mode active" data-view-mode="cards" title="عرض كروت متجاوبة (Grid)">
                   <i class="fa-solid fa-table-cells-large"></i> <span>كروت</span>
@@ -978,7 +994,7 @@
                 </tbody>
               </table>
             </div>
-            <!-- Dedicated Modern Cards Grid for Sessions (v1.4.59) -->
+            <!-- Dedicated Modern Cards Grid for Sessions (v1.4.60) -->
             <div id="sessions-today-mobile-cards" class="patients-grid-container" style="padding: 10px 12px;"></div>
           </div>
         </div>
@@ -992,7 +1008,7 @@
           </div>
         </div>
 
-        <!-- Mode Toggle Tabs (Daily vs Monthly vs Claims) - Elevated above action buttons (v1.4.59) -->
+        <!-- Mode Toggle Tabs (Daily vs Monthly vs Claims) - Elevated above action buttons (v1.4.60) -->
         <div class="no-print finance-mode-segmented" style="margin-bottom: 12px;">
           <button type="button" class="btn btn-primary btn-sm" id="btn-mode-daily">
             <i class="fa-solid fa-calendar-day"></i> <span class="tab-label-full">التقرير اليومي</span><span class="tab-label-short">اليومي</span>
@@ -1005,7 +1021,7 @@
           </button>
         </div>
 
-        <!-- Action Buttons (Expense, Excel, Print) - Placed under the mode tabs (v1.4.59) -->
+        <!-- Action Buttons (Expense, Excel, Print) - Placed under the mode tabs (v1.4.60) -->
         <div class="no-print" id="finance-top-actions" style="margin-bottom: 14px;">
           <button type="button" class="btn btn-outline" id="btn-add-expense" style="height: 42px; padding: 0 16px; border-color: var(--danger); color: var(--danger); font-weight: 700; display: inline-flex; align-items: center; gap: 6px;">
             <i class="fa-solid fa-minus-circle"></i> <span>تسجيل مصروف</span>
@@ -1062,7 +1078,7 @@
           </div>
         </div>
 
-        <!-- Unified Financial Cockpit & Cash Safe Hub (Modernized v1.4.59) -->
+        <!-- Unified Financial Cockpit & Cash Safe Hub (Modernized v1.4.60) -->
         <div class="card no-print financial-cockpit-card" id="card-cash-drawer-glance">
           <div class="cash-drawer-top-row">
             <div class="cash-drawer-brand">
@@ -1211,7 +1227,7 @@
 
         <!-- ================= CONTENT B: MONTHLY REPORT ================= -->
         <div id="finance-monthly-content" style="display: none;">
-          <!-- Monthly Operating Profit & Margin Cockpit (v1.4.59) -->
+          <!-- Monthly Operating Profit & Margin Cockpit (v1.4.60) -->
           <div class="card no-print" id="card-monthly-profit-glance" style="margin-bottom: 16px;">
             <div class="cash-drawer-top-row">
               <div class="cash-drawer-brand">
@@ -1339,7 +1355,7 @@
             </div>
           </div>
 
-          <!-- Monthly Expenses Categorical Distribution Card (v1.4.59) -->
+          <!-- Monthly Expenses Categorical Distribution Card (v1.4.60) -->
           <div class="card" id="card-monthly-expenses-categories" style="margin-bottom: 16px;">
             <div class="card-header" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
               <span class="card-title"><i class="fa-solid fa-chart-pie" style="color: var(--danger);"></i> توزيع المصروفات الشهرية حسب البنود</span>
@@ -1402,7 +1418,7 @@
 
           <!-- ================= 3. Insurance Claims & Attendance Cards (مطالبات شركات التأمين وبطاقات التردد) ================= -->
           <div id="finance-claims-content" style="display: none;">
-            <!-- Control Panel (Modern Medical Form Style v1.4.59) -->
+            <!-- Control Panel (Modern Medical Form Style v1.4.60) -->
             <div class="card" id="card-claim-settings" style="margin-bottom: 16px; border: 1.5px solid var(--border-color); background: var(--bg-surface); padding: 16px 18px; border-radius: 18px;">
               <div class="card-header" style="border-bottom: 1px solid var(--border-color); padding-bottom: 10px; margin-bottom: 14px; display: flex; justify-content: space-between; align-items: center; gap: 10px;">
                 <div style="display: flex; align-items: center; gap: 8px;">
@@ -1526,7 +1542,7 @@
               </div>
             </div>
 
-            <!-- 1. Patients Table & Cards (Placed in Dedicated Cohesive Container v1.4.59) -->
+            <!-- 1. Patients Table & Cards (Placed in Dedicated Cohesive Container v1.4.60) -->
             <div class="card" id="card-claim-patients-wrap">
               <div class="card-header">
                 <div style="display: flex; align-items: center; gap: 8px;">
@@ -1586,7 +1602,7 @@
               <div id="claim-patients-mobile-cards" class="mobile-only-cards-container" style="padding: 10px 12px;"></div>
             </div>
 
-            <!-- 2. Grand Summary Stats Banner (Located directly UNDER Patients Cards v1.4.59) -->
+            <!-- 2. Grand Summary Stats Banner (Located directly UNDER Patients Cards v1.4.60) -->
             <div class="stats-grid" id="claim-kpi-stats-grid" style="margin-bottom: 16px; width: 100%;">
               <div class="stat-box">
                 <div class="stat-icon blue"><i class="fa-solid fa-users"></i></div>
@@ -1611,7 +1627,7 @@
               </div>
             </div>
 
-            <!-- 3. Action & Printing Hub (Located at BOTTOM v1.4.59) -->
+            <!-- 3. Action & Printing Hub (Located at BOTTOM v1.4.60) -->
             <div class="card" id="card-claim-actions-hub" style="margin-bottom: 16px; border: 1.5px solid var(--border-color); background: var(--bg-surface); padding: 14px 16px;">
               <div class="card-header" style="border-bottom: 1px solid var(--border-color); padding-bottom: 8px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center;">
                 <span class="card-title" style="font-size: 1rem; font-weight: 800; color: var(--text-main);">
@@ -1847,6 +1863,18 @@
                     </button>
                   </div>
                 </div>
+                <div class="form-group" id="form-group-newuser-rates">
+                  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+                    <div>
+                      <label style="font-size: 0.8rem; font-weight: 700;">أجر الجلسة العادية (ج.م) *</label>
+                      <input type="number" id="newuser-regular-rate" class="form-control" placeholder="مثال: 50" min="0" value="0">
+                    </div>
+                    <div>
+                      <label style="font-size: 0.8rem; font-weight: 700;">أجر الجلسة الخاصة (ج.م) *</label>
+                      <input type="number" id="newuser-special-rate" class="form-control" placeholder="مثال: 80" min="0" value="0">
+                    </div>
+                  </div>
+                </div>
                 <button type="submit" class="btn btn-primary" style="margin-top: 8px; width: 100%; height: 44px; font-size: 0.95rem; font-weight: 800;">
                   <i class="fa-solid fa-plus"></i> إنشاء الحساب
                 </button>
@@ -1866,7 +1894,7 @@
                     <th>الاسم</th>
                     <th>اسم المستخدم</th>
                     <th>الدور</th>
-                    <th>الشفت ومواعيد العمل</th>
+                    <th>الشفت والأتعاب</th>
                     <th>إجراء</th>
                   </tr>
                 </thead>
@@ -1930,7 +1958,7 @@
         <div class="admin-system-footer no-print" style="margin-top: 32px; margin-bottom: 35px; text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px;">
           <div style="display: inline-flex; align-items: center; gap: 8px; background: var(--bg-surface); border: 1.5px solid var(--border-color); padding: 7px 18px; border-radius: 999px; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);">
             <span style="width: 8px; height: 8px; border-radius: 50%; background-color: var(--success); display: inline-block; box-shadow: 0 0 6px var(--success);"></span>
-            <span style="font-weight: 800; font-size: 0.88rem; color: var(--text-main);">نظام ASCPT — الإصدار 1.4.59</span>
+            <span style="font-weight: 800; font-size: 0.88rem; color: var(--text-main);">نظام ASCPT — الإصدار 1.4.60</span>
             <span class="badge badge-primary" style="font-size: 0.72rem; padding: 2px 10px; border-radius: 999px; font-weight: 800;">إصدار معتمد</span>
           </div>
           <div style="font-size: 0.76rem; color: var(--text-muted); font-weight: 700;">
@@ -1969,7 +1997,7 @@
 
   <!-- ================= Modals ================= -->
 
-  <!-- Modal 1: Add / Edit Patient (Modern Medical Form v1.4.59) -->
+  <!-- Modal 1: Add / Edit Patient (Modern Medical Form v1.4.60) -->
   <div class="modal-backdrop" id="modal-patient">
     <div class="modal-content modal-patient-modern">
       <div class="modal-header">
@@ -2620,7 +2648,7 @@
   <div class="modal-backdrop" id="modal-change-doctor-shift">
     <div class="modal-content" style="max-width: 440px;">
       <div class="modal-header">
-        <h3 style="display: flex; align-items: center; gap: 8px;"><i class="fa-solid fa-calendar-days text-primary"></i> تعديل شفت الطبيب المعالج</h3>
+        <h3 style="display: flex; align-items: center; gap: 8px;"><i class="fa-solid fa-user-doctor text-primary"></i> تعديل شفت وأسعار جلسات الطبيب</h3>
         <button type="button" class="modal-close" data-close-modal="modal-change-doctor-shift">&times;</button>
       </div>
       <div class="modal-body" style="padding: 16px 20px;">
@@ -2653,11 +2681,22 @@
             </div>
           </label>
         </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 14px; padding-top: 12px; border-top: 1px solid var(--border-color);">
+          <div>
+            <label style="display: block; font-size: 0.82rem; font-weight: 800; margin-bottom: 4px;">أجر الجلسة العادية (ج.م):</label>
+            <input type="number" id="shift-modal-regular-rate" class="form-control" placeholder="0" min="0" value="0" style="font-weight: 700;">
+          </div>
+          <div>
+            <label style="display: block; font-size: 0.82rem; font-weight: 800; margin-bottom: 4px;">أجر الجلسة الخاصة (ج.م):</label>
+            <input type="number" id="shift-modal-special-rate" class="form-control" placeholder="0" min="0" value="0" style="font-weight: 700;">
+          </div>
+        </div>
       </div>
       <div class="modal-footer" style="justify-content: flex-end; gap: 8px;">
         <button type="button" class="btn btn-outline btn-sm" data-close-modal="modal-change-doctor-shift">إلغاء</button>
         <button type="button" class="btn btn-primary btn-sm" id="btn-save-doctor-shift" style="font-weight: 800; padding: 0 16px; height: 36px;">
-          <i class="fa-solid fa-check"></i> حفظ الشفت
+          <i class="fa-solid fa-check"></i> حفظ الإعدادات
         </button>
       </div>
     </div>
@@ -3039,7 +3078,7 @@
     </div>
   </div>
 
-    <!-- Modal: Attendance Card Customization (بطاقة تردد المريض v1.4.59) -->
+    <!-- Modal: Attendance Card Customization (بطاقة تردد المريض v1.4.60) -->
   <div class="modal-backdrop" id="modal-attendance-card" style="z-index: 230;">
     <div class="modal-content modal-patient-modern" style="max-width: 520px; border-radius: 18px; padding: 0; overflow: hidden;">
       <div class="modal-header" style="border-bottom: 1.5px solid var(--border-color); padding: 14px 18px; background: var(--bg-surface);">
@@ -3269,7 +3308,7 @@
   </div>
 
 <!-- Main Application Script (ES Module) -->
-  <script type="module" src="js/app.js?v=1.4.59"></script>
+  <script type="module" src="js/app.js?v=1.4.60"></script>
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
@@ -3455,7 +3494,7 @@
     </div>
   </div>
 
-  <!-- Modal: Settle Insurance Claim (تسجيل تحصيل مطالبة تأمين v1.4.59) -->
+  <!-- Modal: Settle Insurance Claim (تسجيل تحصيل مطالبة تأمين v1.4.60) -->
   <div class="modal-backdrop" id="modal-settle-claim">
     <div class="modal-content modal-patient-modern" style="max-width: 520px; border-radius: 18px; padding: 0; overflow: hidden;">
       <div class="modal-header" style="border-bottom: 1.5px solid var(--border-color); padding: 14px 18px; background: var(--bg-surface);">

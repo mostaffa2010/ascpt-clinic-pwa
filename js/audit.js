@@ -36,12 +36,15 @@ export class AuditAndAdminManager {
 
     const roleSelect = document.getElementById('newuser-role');
     const shiftGroup = document.getElementById('form-group-newuser-shift');
-    if (roleSelect && shiftGroup) {
-      const toggleShift = () => {
-        shiftGroup.style.display = (roleSelect.value === 'doctor') ? 'block' : 'none';
+    const ratesGroup = document.getElementById('form-group-newuser-rates');
+    if (roleSelect) {
+      const toggleDoctorFields = () => {
+        const isDoc = (roleSelect.value === 'doctor');
+        if (shiftGroup) shiftGroup.style.display = isDoc ? 'block' : 'none';
+        if (ratesGroup) ratesGroup.style.display = isDoc ? 'block' : 'none';
       };
-      roleSelect.addEventListener('change', toggleShift);
-      toggleShift();
+      roleSelect.addEventListener('change', toggleDoctorFields);
+      toggleDoctorFields();
     }
 
     document.getElementById('btn-save-doctor-shift')?.addEventListener('click', () => {
@@ -64,7 +67,9 @@ export class AuditAndAdminManager {
           const userId = btnShift.getAttribute('data-user-id');
           const userName = btnShift.getAttribute('data-user-name');
           const currentShift = btnShift.getAttribute('data-current-shift') || 'sat_mon_wed';
-          this.openChangeShiftModal(userId, userName, currentShift);
+          const regRate = parseFloat(btnShift.getAttribute('data-regular-rate')) || 0;
+          const specRate = parseFloat(btnShift.getAttribute('data-special-rate')) || 0;
+          this.openChangeShiftModal(userId, userName, currentShift, regRate, specRate);
           return;
         }
 
@@ -94,7 +99,9 @@ export class AuditAndAdminManager {
           const userId = btnShift.getAttribute('data-user-id');
           const userName = btnShift.getAttribute('data-user-name');
           const currentShift = btnShift.getAttribute('data-current-shift') || 'sat_mon_wed';
-          this.openChangeShiftModal(userId, userName, currentShift);
+          const regRate = parseFloat(btnShift.getAttribute('data-regular-rate')) || 0;
+          const specRate = parseFloat(btnShift.getAttribute('data-special-rate')) || 0;
+          this.openChangeShiftModal(userId, userName, currentShift, regRate, specRate);
           return;
         }
 
@@ -129,6 +136,10 @@ export class AuditAndAdminManager {
     const role = roleInput?.value || 'doctor';
     const shiftInput = document.getElementById('newuser-shift');
     const shift = (role === 'doctor') ? (shiftInput?.value || 'sat_mon_wed') : null;
+    const regRateInput = document.getElementById('newuser-regular-rate');
+    const specRateInput = document.getElementById('newuser-special-rate');
+    const regularSessionRate = (role === 'doctor') ? (parseFloat(regRateInput?.value) || 0) : null;
+    const specialSessionRate = (role === 'doctor') ? (parseFloat(specRateInput?.value) || 0) : null;
 
     if (!name || name.length < 2) {
       await this.app.showAlert('يرجى إدخال اسم صحيح للموظف (حرفين على الأقل).', 'بيانات غير مكتملة', 'warning');
@@ -169,7 +180,7 @@ export class AuditAndAdminManager {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${idToken}`
         },
-        body: JSON.stringify({ name, email, password, role, shift })
+        body: JSON.stringify({ name, email, password, role, shift, regularSessionRate, specialSessionRate })
       });
 
       const result = await response.json();
@@ -273,11 +284,16 @@ export class AuditAndAdminManager {
       await this.app.showAlert(err.message || 'فشل حذف الموظف.', 'خطأ', 'danger');
     }
   }
-  openChangeShiftModal(userId, userName, currentShift) {
+  openChangeShiftModal(userId, userName, currentShift, regularRate = 0, specialRate = 0) {
     const modalNameEl = document.getElementById('shift-modal-doctor-name');
     const modalUidInp = document.getElementById('shift-modal-target-uid');
+    const regInp = document.getElementById('shift-modal-regular-rate');
+    const specInp = document.getElementById('shift-modal-special-rate');
+
     if (modalNameEl) modalNameEl.textContent = userName;
     if (modalUidInp) modalUidInp.value = userId;
+    if (regInp) regInp.value = regularRate;
+    if (specInp) specInp.value = specialRate;
 
     const radios = document.querySelectorAll('input[name="doctor-shift-choice"]');
     radios.forEach(r => {
@@ -294,6 +310,11 @@ export class AuditAndAdminManager {
 
     const selectedRadio = document.querySelector('input[name="doctor-shift-choice"]:checked');
     const shift = selectedRadio?.value || 'sat_mon_wed';
+    const regInp = document.getElementById('shift-modal-regular-rate');
+    const specInp = document.getElementById('shift-modal-special-rate');
+    const regularSessionRate = Math.max(0, parseFloat(regInp?.value) || 0);
+    const specialSessionRate = Math.max(0, parseFloat(specInp?.value) || 0);
+
     const btnSave = document.getElementById('btn-save-doctor-shift');
     const origHtml = btnSave ? btnSave.innerHTML : '';
     if (btnSave) {
@@ -312,13 +333,13 @@ export class AuditAndAdminManager {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${idToken}`
         },
-        body: JSON.stringify({ targetUid, shift })
+        body: JSON.stringify({ targetUid, shift, regularSessionRate, specialSessionRate })
       });
       const result = await res.json();
-      if (!res.ok) throw new Error(result.error || 'فشل تحديث الشفت.');
+      if (!res.ok) throw new Error(result.error || 'فشل تحديث بيانات الطبيب.');
 
       this.app.closeModal('modal-change-doctor-shift');
-      this.app.showToast('تم تحديث جدول شفت الطبيب بنجاح');
+      this.app.showToast('تم تحديث شفت وأسعار جلسات الطبيب بنجاح');
       await this.loadUsers();
       await this.app.populateDoctorDropdowns?.();
       await this.loadAuditLogs();
@@ -375,11 +396,19 @@ export class AuditAndAdminManager {
             const sKey = u.shift || 'sat_mon_wed';
             const sLabel = getShiftLabel(sKey);
             const sIcon = sKey === 'sat_mon_wed' ? 'fa-calendar-days' : (sKey === 'sun_tue_thu' ? 'fa-calendar-week' : 'fa-calendar-check');
+            const regRate = typeof u.regularSessionRate === 'number' ? u.regularSessionRate : 0;
+            const specRate = typeof u.specialSessionRate === 'number' ? u.specialSessionRate : 0;
             shiftDisplay = `
-              <button type="button" class="btn btn-outline btn-sm btn-change-doctor-shift" data-user-id="${escapeHTML(u.id)}" data-user-name="${safeName}" data-current-shift="${sKey}" style="border-radius: 6px; padding: 4px 10px; font-size: 0.78rem; font-weight: 700; color: var(--primary); border-color: var(--border-color); display: inline-flex; align-items: center; gap: 6px;" title="اضغط لتعديل شفت الطبيب">
-                <i class="fa-solid ${sIcon}"></i>
-                <span>${escapeHTML(sLabel)}</span>
-                <i class="fa-solid fa-pencil" style="font-size: 0.68rem; opacity: 0.7;"></i>
+              <button type="button" class="btn btn-outline btn-sm btn-change-doctor-shift" data-user-id="${escapeHTML(u.id)}" data-user-name="${safeName}" data-current-shift="${sKey}" data-regular-rate="${regRate}" data-special-rate="${specRate}" style="border-radius: 6px; padding: 5px 8px; font-size: 0.78rem; text-align: right; color: var(--text-main); border-color: var(--border-color); display: inline-flex; align-items: center; justify-content: space-between; gap: 8px; min-width: 175px;" title="اضغط لتعديل الشفت وأسعار الجلسات">
+                <div>
+                  <div style="font-weight: 800; color: var(--primary); display: flex; align-items: center; gap: 5px;">
+                    <i class="fa-solid ${sIcon}"></i> <span>${escapeHTML(sLabel)}</span>
+                  </div>
+                  <div style="font-size: 0.72rem; color: var(--text-muted); margin-top: 2px;">
+                    عادية: <strong style="color: var(--text-main);">${regRate} ج.م</strong> • خاصة: <strong style="color: #b45309;">${specRate} ج.م</strong>
+                  </div>
+                </div>
+                <i class="fa-solid fa-pencil" style="font-size: 0.68rem; opacity: 0.7; color: var(--primary);"></i>
               </button>
             `;
           }
@@ -452,13 +481,18 @@ export class AuditAndAdminManager {
               </div>
 
               ${u.role === 'doctor' ? `
-                <div style="margin-top: 10px; display: flex; align-items: center; justify-content: space-between; background: var(--bg-subtle); padding: 8px 12px; border-radius: 8px; border: 1px solid var(--border-color);">
-                  <div style="font-size: 0.76rem; color: var(--text-muted); font-weight: 700;">
-                    <i class="fa-solid fa-calendar-days text-primary"></i> الشفت: <strong style="color: var(--text-main);">${escapeHTML(getShiftLabel(u.shift || 'sat_mon_wed'))}</strong>
+                <div style="margin-top: 10px; background: var(--bg-subtle); padding: 8px 12px; border-radius: 8px; border: 1px solid var(--border-color);">
+                  <div style="display: flex; align-items: center; justify-content: space-between;">
+                    <div style="font-size: 0.76rem; color: var(--text-muted); font-weight: 700;">
+                      <i class="fa-solid fa-calendar-days text-primary"></i> الشفت: <strong style="color: var(--text-main);">${escapeHTML(getShiftLabel(u.shift || 'sat_mon_wed'))}</strong>
+                    </div>
+                    <button type="button" class="btn btn-outline btn-sm btn-change-doctor-shift" data-user-id="${escapeHTML(u.id)}" data-user-name="${safeName}" data-current-shift="${u.shift || 'sat_mon_wed'}" data-regular-rate="${typeof u.regularSessionRate === 'number' ? u.regularSessionRate : 0}" data-special-rate="${typeof u.specialSessionRate === 'number' ? u.specialSessionRate : 0}" style="padding: 2px 8px; font-size: 0.74rem; font-weight: 700;">
+                      <i class="fa-solid fa-pencil"></i> تعديل
+                    </button>
                   </div>
-                  <button type="button" class="btn btn-outline btn-sm btn-change-doctor-shift" data-user-id="${escapeHTML(u.id)}" data-user-name="${safeName}" data-current-shift="${u.shift || 'sat_mon_wed'}" style="padding: 2px 8px; font-size: 0.74rem; font-weight: 700;">
-                    <i class="fa-solid fa-pencil"></i> تعديل
-                  </button>
+                  <div style="font-size: 0.72rem; color: var(--text-muted); margin-top: 4px; border-top: 1px dashed var(--border-color); padding-top: 4px;">
+                    أجر الجلسة: <strong style="color: var(--text-main);">${typeof u.regularSessionRate === 'number' ? u.regularSessionRate : 0} ج.م (عادية)</strong> • <strong style="color: #b45309;">${typeof u.specialSessionRate === 'number' ? u.specialSessionRate : 0} ج.م (خاصة)</strong>
+                  </div>
                 </div>
               ` : ''}
               <div class="hsc-divider" style="margin: 12px 0 10px 0;"></div>

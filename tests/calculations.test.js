@@ -41,3 +41,42 @@ assert.equal(getShiftLabel('sun_tue_thu'), 'الأحد / الثلاثاء / ال
 assert.equal(getShiftLabel('all'), 'طوال أيام الأسبوع');
 
 console.log('✓ All 12 shift and calculation assertions passed successfully!');
+
+// 4. Doctor Session Pricing Calculation Tests
+function calculateDoctorDues(sessions, regularRate, specialRate) {
+  let regularCount = 0;
+  let specialCount = 0;
+
+  sessions.forEach(s => {
+    // Examinations are not treated as regular therapy sessions unless configured,
+    // only active physical therapy sessions count toward doctor session rates
+    if (s.entryType === 'examination') return;
+
+    const isSpec = Boolean(s.isSpecial || s.sessionPricingType === 'special');
+    const count = s.bodyPartsCount || 1;
+    if (isSpec) {
+      specialCount += count;
+    } else {
+      regularCount += count;
+    }
+  });
+
+  const totalDues = (regularCount * regularRate) + (specialCount * specialRate);
+  return { regularCount, specialCount, totalDues };
+}
+
+const testSessions = [
+  { entryType: 'session', isSpecial: false, bodyPartsCount: 1 },
+  { entryType: 'session', isSpecial: false, bodyPartsCount: 2 },
+  { entryType: 'session', isSpecial: true, bodyPartsCount: 1 },
+  { entryType: 'session', isSpecial: true, bodyPartsCount: 1 },
+  { entryType: 'examination', isSpecial: false, bodyPartsCount: 0 }
+];
+
+const duesResult = calculateDoctorDues(testSessions, 50, 80);
+assert.equal(duesResult.regularCount, 3, 'Regular sessions count should be 3');
+assert.equal(duesResult.specialCount, 2, 'Special sessions count should be 2');
+assert.equal(duesResult.totalDues, (3 * 50) + (2 * 80), 'Total dues should be 310 EGP');
+assert.equal(duesResult.totalDues, 310);
+
+console.log('✓ All Doctor Dues and Session Pricing assertions passed successfully!');

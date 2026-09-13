@@ -266,7 +266,9 @@ class FirestoreDatabaseService {
               uid,
               name: norm,
               role: u.role,
-              shift: u.shift || (u.role === 'doctor' ? 'sat_mon_wed' : 'all')
+              shift: u.shift || (u.role === 'doctor' ? 'sat_mon_wed' : 'all'),
+              regularSessionRate: typeof u.regularSessionRate === 'number' ? u.regularSessionRate : 0,
+              specialSessionRate: typeof u.specialSessionRate === 'number' ? u.specialSessionRate : 0
             });
           }
         });
