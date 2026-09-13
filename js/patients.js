@@ -2247,6 +2247,8 @@ export class PatientsManager {
     document.getElementById('ins-letter-company').value = p.insuranceCompany || '';
     document.getElementById('ins-letter-diagnosis').value = sheet.diagnosis || '';
     document.getElementById('ins-letter-sessions').value = '';
+    const notesInp = document.getElementById('ins-letter-notes');
+    if (notesInp) notesInp.value = '';
 
     this.app.openModal('modal-insurance-letter');
   }
@@ -2260,6 +2262,7 @@ export class PatientsManager {
     const diagnosis = document.getElementById('ins-letter-diagnosis')?.value.trim();
     const sessionsRaw = document.getElementById('ins-letter-sessions')?.value.trim();
     const sessionCount = parseInt(sessionsRaw, 10);
+    const notes = document.getElementById('ins-letter-notes')?.value.trim() || '';
 
     if (!diagnosis) {
       this.app.showAlert('يرجى كتابة التشخيص.', 'بيانات مطلوبة', 'warning');
@@ -2284,6 +2287,7 @@ export class PatientsManager {
         insuranceCompany: p.insuranceCompany || '',
         diagnosis,
         sessionCount,
+        notes,
         issuedBy: currentUser?.name || '',
         createdByUid: currentUser?.uid || ''
       });
@@ -2294,6 +2298,18 @@ export class PatientsManager {
       document.getElementById('ins-print-diagnosis').textContent = diagnosis;
       document.getElementById('ins-print-sessions').textContent = sessionCount;
       document.getElementById('ins-print-date').textContent = `تحريراً في: ${todayLabel}`;
+
+      const notesContainer = document.getElementById('ins-print-notes-container');
+      const notesEl = document.getElementById('ins-print-notes');
+      if (notesContainer && notesEl) {
+        if (notes) {
+          notesEl.textContent = notes;
+          notesContainer.style.display = 'block';
+        } else {
+          notesEl.textContent = '';
+          notesContainer.style.display = 'none';
+        }
+      }
 
       // Gender-correct wording when known; falls back to the neutral
       // slash form for older patient records saved before this field existed.

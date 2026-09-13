@@ -9292,3 +9292,10 @@ body.role-doctor .btn-quick-attend {
   border-color: var(--primary) !important;
   color: #38bdf8 !important;
 }
+
+/* Insurance Renewal Letter Form Controls (v1.4.77) */
+#ins-letter-diagnosis,
+#ins-letter-notes {
+  unicode-bidi: plaintext;
+  text-align: start;
+}
