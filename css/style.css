@@ -8241,3 +8241,60 @@ h1, h2, h3, h4, h5, h6 {
   background: rgba(16, 185, 129, 0.12) !important;
   border-color: #10b981 !important;
 }
+
+/* Quick Chips Deck for Insurance Companies (v1.4.42) */
+.insurance-quick-chips-deck {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.ins-quick-chip {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+  padding: 6px 12px !important;
+  background: var(--bg-surface) !important;
+  border: 1.5px solid var(--border-color) !important;
+  border-radius: 999px !important;
+  font-size: 0.82rem !important;
+  font-weight: 700 !important;
+  color: var(--text-main) !important;
+  cursor: pointer !important;
+  transition: all 0.18s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  user-select: none !important;
+  -webkit-user-select: none !important;
+}
+
+.ins-quick-chip:hover {
+  border-color: var(--primary) !important;
+  background: var(--primary-light) !important;
+  transform: translateY(-1px);
+}
+
+.ins-quick-chip.selected {
+  background: #0284c7 !important;
+  color: #ffffff !important;
+  border-color: #0284c7 !important;
+  box-shadow: 0 2px 8px rgba(2, 132, 199, 0.35) !important;
+}
+
+[data-theme="dark"] .ins-quick-chip {
+  background: #1e293b !important;
+  border-color: #334155 !important;
+  color: #e2e8f0 !important;
+}
+
+[data-theme="dark"] .ins-quick-chip:hover {
+  background: rgba(56, 189, 248, 0.15) !important;
+  border-color: #38bdf8 !important;
+  color: #38bdf8 !important;
+}
+
+[data-theme="dark"] .ins-quick-chip.selected {
+  background: #0284c7 !important;
+  color: #ffffff !important;
+  border-color: #38bdf8 !important;
+  box-shadow: 0 2px 10px rgba(56, 189, 248, 0.4) !important;
+}

@@ -946,6 +946,43 @@ export class PatientsManager {
   renderInsuranceChips(contractType, containerId) {
     const container = document.getElementById(containerId);
     if (container) { container.innerHTML = ''; container.style.display = 'none'; }
+    this.renderInsuranceQuickChips();
+  }
+
+  renderInsuranceQuickChips(contractType = null) {
+    const cType = contractType || this.currentContractType || 'direct';
+    const container = document.getElementById('p-insurance-quick-chips');
+    if (!container) return;
+
+    const companies = db.getInsuranceCompanies(cType) || [];
+    const currentVal = document.getElementById('p-insurance-company')?.value || '';
+
+    // Show top 8 companies as quick chips
+    const quickList = companies.slice(0, 8);
+    if (currentVal && !quickList.includes(currentVal)) {
+      quickList.unshift(currentVal);
+    }
+
+    container.innerHTML = quickList.map(comp => {
+      const isSel = (comp === currentVal);
+      return `
+        <button type="button" class="ins-quick-chip ${isSel ? 'selected' : ''}" data-company="${escapeHTML(comp)}" data-contract="${cType}">
+          <i class="fa-solid ${isSel ? 'fa-circle-check' : 'fa-building-shield'}"></i>
+          <span>${escapeHTML(comp)}</span>
+        </button>
+      `;
+    }).join('');
+
+    // Attach click listeners to chips
+    container.querySelectorAll('.ins-quick-chip').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        const compName = btn.getAttribute('data-company');
+        const contract = btn.getAttribute('data-contract') || cType;
+        this.selectInsuranceCompany(contract, compName);
+      });
+    });
   }
 
   selectInsuranceCompany(contractType, compName) {
@@ -955,28 +992,17 @@ export class PatientsManager {
     if (input) input.value = compName;
 
     const preview = document.getElementById('p-selected-ins-preview');
-    if (preview) preview.textContent = `المختارة: ${compName}`;
+    if (preview) {
+      preview.innerHTML = `<span class="badge badge-success" style="font-size:0.75rem; padding: 2px 8px; border-radius: 999px;"><i class="fa-solid fa-check"></i> ${escapeHTML(compName)}</span>`;
+    }
 
     const btnText = document.getElementById('p-insurance-btn-text');
     if (btnText) {
       const cLabel = contractType === 'direct' ? 'تعاقد مباشر' : 'تعاقد غير مباشر';
-      btnText.innerHTML = `<strong>${escapeHTML(compName)}</strong> <span class="badge" style="font-size:0.72rem; margin-right:6px; background:rgba(56,189,248,0.15); color:var(--primary); padding:1px 6px; border-radius:4px;">${cLabel}</span>`;
+      btnText.innerHTML = `المختارة: <strong>${escapeHTML(compName)}</strong> (${cLabel}) - اضغط للتغيير`;
     }
 
-    document.querySelectorAll('#p-ins-direct-container .insurance-company-card, #p-ins-indirect-container .insurance-company-card').forEach(btn => {
-      const isMatch = (btn.getAttribute('data-company') === compName);
-      btn.classList.toggle('selected', isMatch);
-      let check = btn.querySelector('.ins-check-icon');
-      if (isMatch) {
-        if (!check) {
-          const checkIcon = document.createElement('i');
-          checkIcon.className = 'fa-solid fa-check ins-check-icon';
-          btn.appendChild(checkIcon);
-        }
-      } else {
-        if (check) check.remove();
-      }
-    });
+    this.renderInsuranceQuickChips(contractType);
   }
 
   onContractTypeChanged(contractType) {
@@ -985,6 +1011,7 @@ export class PatientsManager {
     const indirectCont = document.getElementById('p-ins-indirect-container');
     if (directCont) directCont.style.display = 'none';
     if (indirectCont) indirectCont.style.display = 'none';
+    this.renderInsuranceQuickChips(contractType);
   }
 
   toggleInsuranceEditMode() {
@@ -1137,7 +1164,8 @@ export class PatientsManager {
     const insPrev = document.getElementById('p-selected-ins-preview');
     if (insPrev) insPrev.textContent = '';
     const insBtnText = document.getElementById('p-insurance-btn-text');
-    if (insBtnText) insBtnText.textContent = '-- اضغط لاختيار شركة التأمين --';
+    if (insBtnText) insBtnText.textContent = 'بحث في كل الشركات أو إضافة شركة جديدة...';
+    this.renderInsuranceQuickChips('direct');
     document.querySelectorAll('#p-ins-direct-container .insurance-company-card, #p-ins-indirect-container .insurance-company-card').forEach(btn => {
       btn.classList.remove('selected');
     });
@@ -1203,7 +1231,8 @@ export class PatientsManager {
         this.selectInsuranceCompany(cType, p.insuranceCompany);
       } else {
         const insBtnText = document.getElementById('p-insurance-btn-text');
-        if (insBtnText) insBtnText.textContent = '-- اضغط لاختيار شركة التأمين --';
+        if (insBtnText) insBtnText.textContent = 'بحث في كل الشركات أو إضافة شركة جديدة...';
+    this.renderInsuranceQuickChips('direct');
       }
       const contractRadios = document.querySelectorAll('input[name="p-contract-type"]');
       contractRadios.forEach(r => { r.checked = (r.value === cType); });

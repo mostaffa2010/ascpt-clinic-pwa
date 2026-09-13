@@ -531,8 +531,8 @@ class FirestoreDatabaseService {
   // ================= 7. Insurance Companies =================
   getInsuranceCompanies(contractType = 'direct') {
     const defaults = {
-      direct: ['أكسا (AXA)', 'أليانز (Allianz)', 'ميتلايف (MetLife)', 'بوبا (Bupa)', 'عناية الرعاية الصحية (Enaya)'],
-      indirect: ['نكست كير (NextCare)', 'مصر للتأمين', 'ايجي كير', 'المهندس للتأمين']
+      direct: ['سوميد', 'أبوقير للأسمدة', 'أكسا (AXA)', 'أليانز (Allianz)', 'ميتلايف (MetLife)', 'بوبا (Bupa)', 'عناية الرعاية الصحية (Enaya)'],
+      indirect: ['أموك', 'نكست كير (NextCare)', 'مصر للتأمين', 'ايجي كير', 'المهندس للتأمين']
     };
 
     if (this.insuranceCompaniesCache && this.insuranceCompaniesCache[contractType]) {
