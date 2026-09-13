@@ -184,8 +184,8 @@ export class DoctorDashboardManager {
   }
 
   renderTable() {
-    const tbody = document.getElementById('doctor-personal-tbody');
-    if (!tbody) return;
+    const mobileContainer = document.getElementById('doctor-personal-mobile-cards');
+    if (!mobileContainer) return;
 
     const todayStr = getLocalDateStr();
     const currentMonth = todayStr.substring(0, 7);

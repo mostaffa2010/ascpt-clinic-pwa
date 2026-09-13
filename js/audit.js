@@ -357,7 +357,7 @@ export class AuditAndAdminManager {
   async loadUsers() {
     const tbody = document.getElementById('admin-users-tbody');
     const mobContainer = document.getElementById('admin-users-mobile-cards');
-    if (!tbody && !mobContainer) return;
+    if (!mobContainer) return;
 
     let users = [];
     if (firestoreDb) {
@@ -561,7 +561,7 @@ export class AuditAndAdminManager {
   async loadAuditLogs() {
     const tbody = document.getElementById('audit-log-tbody');
     const mobLogs = document.getElementById('audit-log-mobile-cards');
-    if (!tbody && !mobLogs) return;
+    if (!mobLogs) return;
 
     // Automatic 60-day audit log purge in background
     try { await db.purgeOldAuditLogs(); } catch (_) {}

@@ -1290,7 +1290,6 @@ export class SessionsManager {
       return timeB.localeCompare(timeA);
     });
     this.sessions = sessions;
-    const tbody = document.getElementById('sessions-today-tbody');
     const mobileCardsContainer = document.getElementById('sessions-today-mobile-cards');
     const badge = document.getElementById('sessions-today-count-badge');
     
@@ -1306,10 +1305,11 @@ export class SessionsManager {
       }
     }
 
-    if (!tbody) return;
+    if (!mobileCardsContainer) return;
 
     if (sessions.length === 0) {
-      tbody.innerHTML = `<tr><td colspan="8" style="text-align: center; color: var(--text-muted); padding: 36px 20px;">
+      const tbody = document.getElementById('sessions-today-tbody');
+      if (tbody) tbody.innerHTML = `<tr><td colspan="8" style="text-align: center; color: var(--text-muted); padding: 36px 20px;">
         <i class="fa-solid fa-calendar-check" style="font-size: 1.8rem; color: var(--text-muted); margin-bottom: 8px; display: block;"></i>
         لا توجد حركات أو جلسات مسجلة لهذا التاريخ حتى الآن.
       </td></tr>`;
@@ -1592,13 +1592,8 @@ export class SessionsManager {
 
   applyViewModeUI() {
     this.viewMode = 'cards';
-    const tableContainer = document.getElementById('sessions-table-container');
     const cardsContainer = document.getElementById('sessions-today-mobile-cards');
-    const toggleGroup = document.getElementById('sessions-view-mode-toggle');
-
-    if (tableContainer) tableContainer.style.display = 'none';
     if (cardsContainer) cardsContainer.style.display = 'grid';
-    if (toggleGroup) toggleGroup.style.display = 'none';
   }
 
   async deleteSession(sessionId) {

@@ -603,9 +603,8 @@ export class PatientsManager {
   }
 
   renderPatients() {
-    const tbody = document.getElementById('patients-tbody');
     const mobileContainer = document.getElementById('patients-mobile-cards');
-    if (!tbody) return;
+    if (!mobileContainer) return;
 
     const rawSearch = document.getElementById('patient-search-input')?.value.trim() || '';
     const filterType = document.getElementById('patient-filter-type')?.value || 'all';
@@ -1648,15 +1647,8 @@ export class PatientsManager {
 
   applyViewModeUI() {
     this.viewMode = 'cards';
-    const tableContainer = document.getElementById('patients-table-container');
     const cardsContainer = document.getElementById('patients-mobile-cards');
-    const topWrap = document.getElementById('patients-top-scroll-wrap');
-    const toggleGroup = document.getElementById('patients-view-mode-toggle');
-
-    if (tableContainer) tableContainer.style.display = 'none';
     if (cardsContainer) cardsContainer.style.display = 'grid';
-    if (topWrap) topWrap.style.display = 'none';
-    if (toggleGroup) toggleGroup.style.display = 'none';
   }
 
   setupScrollSync() {

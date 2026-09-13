@@ -511,8 +511,8 @@ export class ClaimsManager {
   }
 
   renderPatientsTable() {
-    const tbody = document.getElementById('claim-patients-tbody');
-    if (!tbody) return;
+    const mobContainer = document.getElementById('claim-patients-mobile-cards');
+    if (!mobContainer) return;
 
     if (this.claimPatientsData.length === 0) {
       tbody.innerHTML = `<tr><td colspan="8" style="text-align: center; padding: 24px; color: var(--text-muted);">اضغط على زر "استخراج وعرض مرضى الشركة" لعرض القائمة.</td></tr>`;
