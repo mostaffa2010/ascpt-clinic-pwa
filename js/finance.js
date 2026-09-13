@@ -655,7 +655,7 @@ export class FinanceManager {
       const title = document.getElementById('finance-header-title');
       const sub = document.getElementById('finance-header-sub');
       if (title) title.innerHTML = '<i class="fa-solid fa-calculator" style="color: var(--primary);"></i> الحسابات والتقرير اليومي';
-      if (sub) sub.textContent = 'متابعة الإيرادات والمصروفات والتقارير اليومية والشهرية الذكية';
+      if (sub) sub.style.display = 'none';
       this.loadDailyReport();
     } else if (mode === 'monthly') {
       if (btnDaily) btnDaily.className = 'btn btn-outline btn-sm';
@@ -673,7 +673,7 @@ export class FinanceManager {
       const title = document.getElementById('finance-header-title');
       const sub = document.getElementById('finance-header-sub');
       if (title) title.innerHTML = '<i class="fa-solid fa-chart-pie" style="color: var(--primary);"></i> التقرير الشهري الشامل';
-      if (sub) sub.textContent = 'متابعة أداء أطباء المركز وتوزيع جهات التأمين والمصروفات الشهرية';
+      if (sub) sub.style.display = 'none';
       this.loadMonthlyReport();
     } else if (mode === 'claims') {
       if (btnDaily) btnDaily.className = 'btn btn-outline btn-sm';
@@ -698,7 +698,7 @@ export class FinanceManager {
       const title = document.getElementById('finance-header-title');
       const sub = document.getElementById('finance-header-sub');
       if (title) title.innerHTML = '<i class="fa-solid fa-file-invoice-dollar" style="color: var(--primary);"></i> مطالبات شركات التأمين وبطاقات التردد';
-      if (sub) sub.textContent = 'إعداد وتجهيز مطالبات مستحقات المركز لدى شركات التأمين وبطاقات التردد الرسمية';
+      if (sub) sub.style.display = 'none';
 
       // Mode switched to claims cleanly without premature alert
       setTimeout(() => {
