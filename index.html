@@ -16,8 +16,63 @@
             if (meta) meta.setAttribute("content", "#0b1120");
           }
         } catch (e) {}
+
+        try {
+          const raw = localStorage.getItem("ascpt_cached_user");
+          if (raw) {
+            const user = JSON.parse(raw);
+            if (user && user.active && user.role) {
+              document.documentElement.classList.add("role-" + user.role);
+              window.__ASCPT_INITIAL_USER = user;
+            }
+          }
+        } catch (e) {}
       })();
     </script>
+    <style>
+      /* Zero-Flicker Pre-Paint Gatekeeper (v1.4.47) */
+      html.role-doctor #dashboard-admin-view,
+      body.role-doctor #dashboard-admin-view,
+      html.role-doctor .bottom-nav [data-view="sessions"],
+      body.role-doctor .bottom-nav [data-view="sessions"],
+      html.role-doctor .bottom-nav [data-view="finance"],
+      body.role-doctor .bottom-nav [data-view="finance"],
+      html.role-doctor .bottom-nav [data-view="appointments"],
+      body.role-doctor .bottom-nav [data-view="appointments"],
+      html.role-doctor .sidebar .nav-link[data-view="sessions"],
+      body.role-doctor .sidebar .nav-link[data-view="sessions"],
+      html.role-doctor .sidebar .nav-link[data-view="finance"],
+      body.role-doctor .sidebar .nav-link[data-view="finance"],
+      html.role-doctor .sidebar .nav-link[data-view="appointments"],
+      body.role-doctor .sidebar .nav-link[data-view="appointments"],
+      html.role-doctor .admin-only,
+      body.role-doctor .admin-only,
+      html.role-doctor #btn-open-add-patient,
+      body.role-doctor #btn-open-add-patient {
+        display: none !important;
+      }
+
+      html.role-doctor #dashboard-doctor-view,
+      body.role-doctor #dashboard-doctor-view {
+        display: block !important;
+      }
+
+      html.role-receptionist #dashboard-doctor-view,
+      body.role-receptionist #dashboard-doctor-view,
+      html.role-receptionist .admin-only,
+      body.role-receptionist .admin-only,
+      html.role-receptionist .sidebar .nav-link[data-view="admin"],
+      body.role-receptionist .sidebar .nav-link[data-view="admin"],
+      html.role-receptionist .bottom-nav [data-view="admin"],
+      body.role-receptionist .bottom-nav [data-view="admin"] {
+        display: none !important;
+      }
+
+      html.role-receptionist #dashboard-admin-view,
+      body.role-receptionist #dashboard-admin-view {
+        display: block !important;
+      }
+    </style>
     
     <title>مركز الإسكندرية التخصصي للعلاج الطبيعي (ASCPT)</title>
 
@@ -47,13 +102,16 @@
   
 
     <!-- Stylesheets -->
-  <link rel="stylesheet" href="css/style.css?v=1.4.46" media="screen">
-  <link rel="stylesheet" href="css/print.css?v=1.4.46" media="print">
+  <link rel="stylesheet" href="css/style.css?v=1.4.47" media="screen">
+  <link rel="stylesheet" href="css/print.css?v=1.4.47" media="print">
 </head>
 <body>
   <script>
     if (localStorage.getItem('ascpt_has_session') !== 'true') {
       document.body.classList.add('not-authenticated');
+    }
+    if (window.__ASCPT_INITIAL_USER && window.__ASCPT_INITIAL_USER.role) {
+      document.body.classList.add('role-' + window.__ASCPT_INITIAL_USER.role);
     }
   </script>
 
@@ -79,7 +137,14 @@
       <div class="user-badge" id="user-status-pill-box" title="المستخدم الحالي">
         <span class="status-dot" id="net-status-dot"></span>
         <i class="fa-solid fa-user-doctor" style="color: var(--primary); font-size: 0.9rem;"></i>
-        <span id="header-user-display" style="white-space: nowrap;">تسجيل الدخول</span>
+        <span id="header-user-display" style="white-space: nowrap;"></span>
+        <script>
+          (function() {
+            var u = window.__ASCPT_INITIAL_USER;
+            var el = document.getElementById('header-user-display');
+            if (el) el.textContent = (u && u.name) ? u.name : 'تسجيل الدخول';
+          })();
+        </script>
       </div>
 
       <!-- Admin Quick Button (Header) -->
@@ -148,8 +213,21 @@
               <i class="fa-solid fa-user-doctor"></i>
             </div>
             <div style="overflow: hidden; flex: 1; min-width: 0;">
-              <div id="sidebar-user-name" style="font-weight: 800; font-size: 0.88rem; color: var(--text-main); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">غير مسجل</div>
-              <div id="sidebar-user-role" class="badge" style="font-size: 0.72rem; padding: 2px 8px; margin-top: 2px; display: inline-block;">زائر</div>
+              <div id="sidebar-user-name" style="font-weight: 800; font-size: 0.88rem; color: var(--text-main); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;"></div>
+              <div id="sidebar-user-role" class="badge" style="font-size: 0.72rem; padding: 2px 8px; margin-top: 2px; display: inline-block;"></div>
+              <script>
+                (function() {
+                  var u = window.__ASCPT_INITIAL_USER;
+                  var sN = document.getElementById('sidebar-user-name');
+                  var sR = document.getElementById('sidebar-user-role');
+                  if (sN) sN.textContent = (u && u.name) ? u.name : 'غير مسجل';
+                  if (sR) {
+                    var rMap = { admin: 'مدير المركز', doctor: 'طبيب معالج', receptionist: 'سكرتارية / استقبال' };
+                    sR.textContent = u ? (rMap[u.role] || u.role) : 'زائر';
+                    if (u) sR.className = 'badge badge-role-' + u.role;
+                  }
+                })();
+              </script>
             </div>
           </div>
 
@@ -299,6 +377,18 @@
               <div class="hero-greeting-pill">
                 <span class="hero-greeting-icon"><i class="fa-solid fa-stethoscope"></i></span>
                 <span id="doc-hero-greeting">طاب يومك يا دكتور</span>
+                <script>
+                  (function() {
+                    var u = window.__ASCPT_INITIAL_USER;
+                    if (u && u.name) {
+                      var h = new Date().getHours();
+                      var gt = (h >= 5 && h < 12) ? 'صباح الخير' : (h >= 12 && h < 17 ? 'مساء الخير' : 'مساء النور');
+                      var clName = (u.name || '').replace(/^د\.\s*/, '');
+                      var dEl = document.getElementById('doc-hero-greeting');
+                      if (dEl) dEl.textContent = gt + '، د. ' + clName;
+                    }
+                  })();
+                </script>
               </div>
               <h2 class="hero-banner-title">لوحة متابعة الطبيب المعالج</h2>
               <p class="hero-banner-sub">متابعة الحالات الطبية وسجل جلساتك السريرية</p>
@@ -511,7 +601,7 @@
           </h2>
         </div>
 
-        <!-- Patient Clinical Record Header Card (Clean, Modern & Uncluttered v1.4.46) -->
+        <!-- Patient Clinical Record Header Card (Clean, Modern & Uncluttered v1.4.47) -->
         <div class="card patient-clinical-main-card gender-male" id="patient-clinical-card">
           <!-- 1. Patient Name (Standalone, Full-Width) -->
           <div class="pcm-name-bar">
@@ -686,7 +776,7 @@
           <!-- Form: Log New Session or Examination -->
           <div class="card">
             <div class="card-header" style="padding: 0 0 10px 0; border-bottom: none; display: block; width: 100%;">
-              <!-- Streamlined Compact Mode Switcher (v1.4.46) -->
+              <!-- Streamlined Compact Mode Switcher (v1.4.47) -->
               <div class="session-mode-segmented-compact">
                 <button type="button" id="btn-mode-session" class="session-mode-compact-btn active">
                   <i class="fa-solid fa-bolt"></i>
@@ -1646,7 +1736,7 @@
         <div class="admin-system-footer no-print" style="margin-top: 32px; margin-bottom: 35px; text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px;">
           <div style="display: inline-flex; align-items: center; gap: 8px; background: var(--bg-surface); border: 1.5px solid var(--border-color); padding: 7px 18px; border-radius: 999px; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);">
             <span style="width: 8px; height: 8px; border-radius: 50%; background-color: var(--success); display: inline-block; box-shadow: 0 0 6px var(--success);"></span>
-            <span style="font-weight: 800; font-size: 0.88rem; color: var(--text-main);">نظام ASCPT — الإصدار 1.4.46</span>
+            <span style="font-weight: 800; font-size: 0.88rem; color: var(--text-main);">نظام ASCPT — الإصدار 1.4.47</span>
             <span class="badge badge-primary" style="font-size: 0.72rem; padding: 2px 10px; border-radius: 999px; font-weight: 800;">إصدار معتمد</span>
           </div>
           <div style="font-size: 0.76rem; color: var(--text-muted); font-weight: 700;">
@@ -1685,7 +1775,7 @@
 
   <!-- ================= Modals ================= -->
 
-  <!-- Modal 1: Add / Edit Patient (Modern Medical Form v1.4.46) -->
+  <!-- Modal 1: Add / Edit Patient (Modern Medical Form v1.4.47) -->
   <div class="modal-backdrop" id="modal-patient">
     <div class="modal-content modal-patient-modern">
       <div class="modal-header">
@@ -2916,7 +3006,7 @@
   </div>
 
 <!-- Main Application Script (ES Module) -->
-  <script type="module" src="js/app.js?v=1.4.46"></script>
+  <script type="module" src="js/app.js?v=1.4.47"></script>
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {

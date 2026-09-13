@@ -8322,7 +8322,7 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 /* ==========================================================================
-   COMPACT SMART SESSION & EXAMINATION FORM (v1.4.46)
+   COMPACT SMART SESSION & EXAMINATION FORM (v1.4.47)
    ========================================================================== */
 
 /* 1. Mode Switcher (جلسة vs كشف) */
@@ -8648,4 +8648,50 @@ h1, h2, h3, h4, h5, h6 {
 
 .btn-submit-session-prominent:active {
   transform: scale(0.99);
+}
+
+/* ========================================================
+   Instant Zero-Flicker Role-Based UI Gatekeeper (v1.4.47)
+   Pre-paint protection for doctor / receptionist / admin
+   ======================================================== */
+html.role-doctor #dashboard-admin-view,
+body.role-doctor #dashboard-admin-view,
+html.role-doctor .bottom-nav [data-view="sessions"],
+body.role-doctor .bottom-nav [data-view="sessions"],
+html.role-doctor .bottom-nav [data-view="finance"],
+body.role-doctor .bottom-nav [data-view="finance"],
+html.role-doctor .bottom-nav [data-view="appointments"],
+body.role-doctor .bottom-nav [data-view="appointments"],
+html.role-doctor .sidebar .nav-link[data-view="sessions"],
+body.role-doctor .sidebar .nav-link[data-view="sessions"],
+html.role-doctor .sidebar .nav-link[data-view="finance"],
+body.role-doctor .sidebar .nav-link[data-view="finance"],
+html.role-doctor .sidebar .nav-link[data-view="appointments"],
+body.role-doctor .sidebar .nav-link[data-view="appointments"],
+html.role-doctor .admin-only,
+body.role-doctor .admin-only,
+html.role-doctor #btn-open-add-patient,
+body.role-doctor #btn-open-add-patient {
+  display: none !important;
+}
+
+html.role-doctor #dashboard-doctor-view,
+body.role-doctor #dashboard-doctor-view {
+  display: block !important;
+}
+
+html.role-receptionist #dashboard-doctor-view,
+body.role-receptionist #dashboard-doctor-view,
+html.role-receptionist .admin-only,
+body.role-receptionist .admin-only,
+html.role-receptionist .sidebar .nav-link[data-view="admin"],
+body.role-receptionist .sidebar .nav-link[data-view="admin"],
+html.role-receptionist .bottom-nav [data-view="admin"],
+body.role-receptionist .bottom-nav [data-view="admin"] {
+  display: none !important;
+}
+
+html.role-receptionist #dashboard-admin-view,
+body.role-receptionist #dashboard-admin-view {
+  display: block !important;
 }

@@ -20,12 +20,24 @@ export class RolesManager {
   }
 
   static applyPermissions(currentUser) {
-    const role = currentUser ? currentUser.role : ROLES.ADMIN;
-    const body = document.body;
+    if (!currentUser) {
+      try {
+        const raw = localStorage.getItem('ascpt_cached_user');
+        if (raw) currentUser = JSON.parse(raw);
+      } catch (_) {}
+    }
 
-    // تفعيل Body Class لدعم الحجب الصارم عبر CSS فورياً
+    const role = currentUser ? currentUser.role : null;
+    const body = document.body;
+    const docEl = document.documentElement;
+
+    // تفعيل Body & HTML Class لدعم الحجب الصارم عبر CSS فورياً
     body.classList.remove('role-admin', 'role-doctor', 'role-receptionist');
-    body.classList.add('role-' + role);
+    docEl.classList.remove('role-admin', 'role-doctor', 'role-receptionist');
+    if (role) {
+      body.classList.add('role-' + role);
+      docEl.classList.add('role-' + role);
+    }
 
     // 1. التحكم في أشرطة التنقل (Sidebar & Mobile Bottom Nav)
     // الطبيب المعالج: يرى "الرئيسية (الخاصة بحالاته)" و "سجل المرضى العام" فقط
@@ -37,9 +49,12 @@ export class RolesManager {
       } else if (role === ROLES.RECEPTIONIST) {
         // السكرتارية ترى الرئيسية، المرضى، الجلسات، الحسابات (وتُحجب لوحة المدير فقط)
         item.style.setProperty('display', view === 'admin' ? 'none' : 'flex', 'important');
-      } else {
+      } else if (role === ROLES.ADMIN) {
         // المدير يرى كل شيء
         item.style.setProperty('display', 'flex', 'important');
+      } else {
+        // زائر غير مسجل: إخفاء الجلسات والحسابات الحساسة
+        item.style.setProperty('display', (view === 'dashboard' || view === 'patients') ? 'flex' : 'none', 'important');
       }
     });
 
@@ -48,14 +63,14 @@ export class RolesManager {
     const doctorDashboard = document.getElementById('dashboard-doctor-view');
 
     if (role === ROLES.DOCTOR) {
-      if (adminDashboard) adminDashboard.style.display = 'none';
-      if (doctorDashboard) doctorDashboard.style.display = 'block';
+      if (adminDashboard) adminDashboard.style.setProperty('display', 'none', 'important');
+      if (doctorDashboard) doctorDashboard.style.setProperty('display', 'block', 'important');
       if (window.doctorDashboardManager) {
         window.doctorDashboardManager.render();
       }
     } else {
-      if (adminDashboard) adminDashboard.style.display = 'block';
-      if (doctorDashboard) doctorDashboard.style.display = 'none';
+      if (adminDashboard) adminDashboard.style.setProperty('display', 'block', 'important');
+      if (doctorDashboard) doctorDashboard.style.setProperty('display', 'none', 'important');
     }
 
     // 3. حماية التنقل: توجيه الطبيب للرئيسية إذا كان يقف على شاشة محجوبة (الحسابات/الجلسات/المدير)

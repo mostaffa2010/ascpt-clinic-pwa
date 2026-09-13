@@ -138,6 +138,15 @@ class AuthService {
   async init(onUserChanged) {
     this.onUserChanged = onUserChanged;
 
+    // Fast-path: immediately apply cached user before waiting for Firebase network listener
+    if (this.currentUser && this.currentUser.active) {
+      try {
+        document.body.classList.remove('not-authenticated');
+        document.documentElement.classList.remove('not-authenticated');
+        this.updateUI();
+      } catch (_) {}
+    }
+
     if (!isConfigured || !firebaseAuth) {
       console.warn('ASCPT Auth Notice: Firebase configuration is missing.');
       document.body.classList.add('not-authenticated');
@@ -372,12 +381,12 @@ class AuthService {
   }
 
   updateUI() {
-    const user = this.currentUser;
+    const user = this.currentUser || this.getCachedUser();
     const headerDisplay = document.getElementById('header-user-display');
     const sidebarName = document.getElementById('sidebar-user-name');
     const sidebarRole = document.getElementById('sidebar-user-role');
 
-    if (user) {
+    if (user && user.name) {
       const roleText = RolesManager.getRoleLabel(user.role);
       if (headerDisplay) headerDisplay.textContent = user.name;
       if (sidebarName) sidebarName.textContent = user.name;

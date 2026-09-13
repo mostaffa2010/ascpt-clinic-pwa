@@ -112,6 +112,17 @@ class App {
   }
 
   async init() {
+    // 0. تفعيل مبكر وفوري لبيانات المستخدم والصلاحيات بدون أي تأخير
+    const initialUser = auth.getCurrentUser();
+    if (initialUser) {
+      try {
+        auth.updateUI();
+        RolesManager.applyPermissions(initialUser);
+      } catch (e) {
+        console.warn('Early role sync notice:', e);
+      }
+    }
+
     // 1. تفعيل PWA والوضع الليلي
     PWAManager.init();
     this.initTheme();
