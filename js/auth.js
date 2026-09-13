@@ -20,9 +20,16 @@ import { RolesManager, ROLES } from './roles.js';
 
 class AuthService {
   constructor() {
-    this.currentUser = null;
+    this.currentUser = this.getCachedUser();
     this.onUserChanged = null;
     this.isInitialized = false;
+
+    // Zero-Delay UI Unlock at 0ms: Render logged-in state immediately if session is cached
+    if (this.currentUser && this.currentUser.active) {
+      try {
+        document.body.classList.remove('not-authenticated');
+      } catch (_) {}
+    }
   }
 
   getCachedUser() {
@@ -154,8 +161,12 @@ class AuthService {
 
           if (this.onUserChanged) this.onUserChanged(this.currentUser);
 
-          if (window.app && typeof window.app.showToast === 'function') {
-            window.app.showToast(`مرحباً بك: ${this.currentUser.name} (${RolesManager.getRoleLabel(this.currentUser.role)})`);
+          // Only show welcome toast ONCE per session to prevent repetitive toast loops
+          if (!sessionStorage.getItem('ascpt_welcome_shown')) {
+            sessionStorage.setItem('ascpt_welcome_shown', 'true');
+            if (window.app && typeof window.app.showToast === 'function') {
+              window.app.showToast(`مرحباً بك: ${this.currentUser.name} (${RolesManager.getRoleLabel(this.currentUser.role)})`);
+            }
           }
         } catch (err) {
           console.error('Auth verification notice:', err.message);
@@ -199,6 +210,7 @@ class AuthService {
       } else {
         this.currentUser = null;
         localStorage.removeItem('ascpt_has_session');
+      sessionStorage.removeItem('ascpt_welcome_shown');
     this.setCachedUser(null);
         document.body.classList.add('not-authenticated');
         this.updateUI();
@@ -292,6 +304,7 @@ class AuthService {
 
   async logout() {
     localStorage.removeItem('ascpt_has_session');
+      sessionStorage.removeItem('ascpt_welcome_shown');
     this.setCachedUser(null);
     try {
       if (firebaseAuth) {

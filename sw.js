@@ -1,25 +1,25 @@
 // ========================================================
 // ASCPT - Service Worker & Offline PWA Cache Engine
 // Alexandria Specialized Center for Physical Therapy
-// Version: 1.4.45 (Cache: ascpt-clinic-v1.4.45)
+// Version: 1.4.46 (Cache: ascpt-clinic-v1.4.46)
 // True Offline Navigation & Fault-Tolerant Cache Architecture
 // ========================================================
 
-const CACHE_NAME = 'ascpt-clinic-v1.4.45';
+const CACHE_NAME = 'ascpt-clinic-v1.4.46';
 
 // Core App Shell assets required for offline rendering
 const APP_SHELL_ASSETS = [
   '/',
   '/index.html',
   '/manifest.json',
-  '/css/style.css?v=1.4.45',
+  '/css/style.css?v=1.4.46',
   '/css/print.css',
-  '/css/print.css?v=1.4.45',
+  '/css/print.css?v=1.4.46',
   '/icons/icon-192.png',
   '/icons/icon-512.png',
   '/assets/vendor/xlsx/xlsx.full.min.js',
   '/js/app.js',
-  '/js/app.js?v=1.4.45',
+  '/js/app.js?v=1.4.46',
   '/js/auth.js',
   '/js/db.js',
   '/js/doctor-dashboard.js',
@@ -99,34 +99,36 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // A. Navigation Requests (PWA launch, URL navigation, refresh, or offline startup)
-  if (event.request.mode === 'navigate' || url.endsWith('/index.html')) {
+  // A. Navigation Requests (Fast Launch < 100ms: Stale-While-Revalidate like Facebook & Native Apps)
+  if (event.request.mode === 'navigate' || url.endsWith('/index.html') || url.endsWith('/')) {
     event.respondWith(
       (async () => {
-        try {
-          // If network is available, fetch and keep offline cache updated
-          const networkResponse = await fetch(event.request);
+        const cache = await caches.open(CACHE_NAME);
+        const cachedPage = (await cache.match('/index.html')) || (await cache.match('/'));
+
+        // Background silent revalidation: fetch newest version from network without blocking UI
+        const fetchPromise = fetch(event.request).then(async (networkResponse) => {
           if (networkResponse && networkResponse.status === 200) {
             const copy = networkResponse.clone();
-            const cache = await caches.open(CACHE_NAME);
-            cache.put('/index.html', copy.clone());
-            cache.put('/', copy.clone());
+            await cache.put('/index.html', copy.clone());
+            await cache.put('/', copy.clone());
           }
           return networkResponse;
-        } catch (networkError) {
-          // Device is OFFLINE (e.g. Wi-Fi turned off): serve cached index.html immediately!
-          const cache = await caches.open(CACHE_NAME);
-          const cachedPage = (await cache.match('/index.html')) ||
-                             (await cache.match('/')) ||
-                             (await cache.match(event.request));
-          if (cachedPage) {
-            return cachedPage;
-          }
-          return new Response('Offline - ASCPT Clinic', {
-            status: 503,
-            headers: { 'Content-Type': 'text/plain; charset=utf-8' }
-          });
+        }).catch(() => null);
+
+        // Instant launch from device storage if cached
+        if (cachedPage) {
+          return cachedPage;
         }
+
+        // First launch or cache miss: wait for network
+        const networkResponse = await fetchPromise;
+        if (networkResponse) return networkResponse;
+
+        return new Response('Offline - ASCPT Clinic', {
+          status: 503,
+          headers: { 'Content-Type': 'text/plain; charset=utf-8' }
+        });
       })()
     );
     return;
