@@ -160,6 +160,8 @@ export class ClaimsManager {
     }
 
     document.getElementById('btn-load-claim-patients')?.addEventListener('click', () => this.loadCompanyPatients());
+    document.getElementById('btn-toggle-claim-settings')?.addEventListener('click', () => this.toggleClaimSettings());
+    document.getElementById('btn-reopen-claim-settings')?.addEventListener('click', () => this.toggleClaimSettings(true));
     document.getElementById('btn-save-claim')?.addEventListener('click', () => this.saveCurrentClaim());
     document.getElementById('btn-settle-claim-action')?.addEventListener('click', () => this.openSettleClaim());
     const bClaim = document.getElementById('btn-print-claim-statement'); if (bClaim) bClaim.onclick = (e) => { e.preventDefault(); e.stopPropagation(); this.printClaimStatement(); };
@@ -323,6 +325,31 @@ export class ClaimsManager {
     }
   }
 
+  toggleClaimSettings(forceOpen) {
+    const body = document.getElementById('claim-settings-body');
+    const strip = document.getElementById('claim-settings-summary-strip');
+    const btn = document.getElementById('btn-toggle-claim-settings');
+    const icon = document.getElementById('icon-toggle-claim-settings');
+    const text = document.getElementById('text-toggle-claim-settings');
+
+    if (!body) return;
+
+    const isCurrentlyHidden = (body.style.display === 'none');
+    const shouldOpen = (forceOpen !== undefined) ? forceOpen : isCurrentlyHidden;
+
+    if (shouldOpen) {
+      body.style.display = 'block';
+      if (strip) strip.style.display = 'none';
+      if (icon) icon.className = 'fa-solid fa-chevron-up';
+      if (text) text.textContent = 'طي الإعدادات';
+    } else {
+      body.style.display = 'none';
+      if (strip) strip.style.display = 'flex';
+      if (icon) icon.className = 'fa-solid fa-chevron-down';
+      if (text) text.textContent = 'إظهار الإعدادات';
+    }
+  }
+
   async loadCompanyPatients() {
     const compSelect = document.getElementById('claim-company-select');
     const startInput = document.getElementById('claim-start-date');
@@ -403,6 +430,16 @@ export class ClaimsManager {
 
     this.renderPatientsTable();
     this.recalcGrandTotals();
+
+    // Show toggle button, update summary strip, and collapse form (v1.4.48)
+    const btnToggle = document.getElementById('btn-toggle-claim-settings');
+    if (btnToggle) btnToggle.style.display = 'inline-flex';
+
+    const stripText = document.getElementById('claim-summary-strip-text');
+    if (stripText) {
+      stripText.innerHTML = `شركة: <strong style="color: var(--primary);">${escapeHTML(this.currentCompany)}</strong> • من <strong>${escapeHTML(this.startDate)}</strong> إلى <strong>${escapeHTML(this.endDate)}</strong> • سعر الجلسة: <strong>${defaultRate} ج.م</strong> • تقييم: <strong>${defaultEval} ج.م</strong>`;
+    }
+    this.toggleClaimSettings(false);
     if (this.app && this.app.showToast) {
       this.app.showToast(`تم استخراج ${this.claimPatientsData.length} مريض لشركة ${this.currentCompany}`);
     }

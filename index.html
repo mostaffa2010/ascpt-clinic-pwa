@@ -30,7 +30,7 @@
       })();
     </script>
     <style>
-      /* Zero-Flicker Pre-Paint Gatekeeper (v1.4.47) */
+      /* Zero-Flicker Pre-Paint Gatekeeper (v1.4.48) */
       html.role-doctor #dashboard-admin-view,
       body.role-doctor #dashboard-admin-view,
       html.role-doctor .bottom-nav [data-view="sessions"],
@@ -102,8 +102,8 @@
   
 
     <!-- Stylesheets -->
-  <link rel="stylesheet" href="css/style.css?v=1.4.47" media="screen">
-  <link rel="stylesheet" href="css/print.css?v=1.4.47" media="print">
+  <link rel="stylesheet" href="css/style.css?v=1.4.48" media="screen">
+  <link rel="stylesheet" href="css/print.css?v=1.4.48" media="print">
 </head>
 <body>
   <script>
@@ -601,7 +601,7 @@
           </h2>
         </div>
 
-        <!-- Patient Clinical Record Header Card (Clean, Modern & Uncluttered v1.4.47) -->
+        <!-- Patient Clinical Record Header Card (Clean, Modern & Uncluttered v1.4.48) -->
         <div class="card patient-clinical-main-card gender-male" id="patient-clinical-card">
           <!-- 1. Patient Name (Standalone, Full-Width) -->
           <div class="pcm-name-bar">
@@ -776,7 +776,7 @@
           <!-- Form: Log New Session or Examination -->
           <div class="card">
             <div class="card-header" style="padding: 0 0 10px 0; border-bottom: none; display: block; width: 100%;">
-              <!-- Streamlined Compact Mode Switcher (v1.4.47) -->
+              <!-- Streamlined Compact Mode Switcher (v1.4.48) -->
               <div class="session-mode-segmented-compact">
                 <button type="button" id="btn-mode-session" class="session-mode-compact-btn active">
                   <i class="fa-solid fa-bolt"></i>
@@ -1044,62 +1044,56 @@
           </div>
         </div>
 
-        <!-- Financial Safe Cash Drawer Glance Card (Reconciliation Hub) -->
-        <div class="card no-print" id="card-cash-drawer-glance">
+        <!-- Unified Financial Cockpit & Cash Safe Hub (Modernized v1.4.48) -->
+        <div class="card no-print financial-cockpit-card" id="card-cash-drawer-glance">
           <div class="cash-drawer-top-row">
             <div class="cash-drawer-brand">
               <div class="cash-drawer-icon-wrap">
                 <i class="fa-solid fa-vault"></i>
               </div>
               <div class="cash-drawer-title-box">
-                <div class="title">العهدة النقدية الفعلية بالدرج</div>
-                <div class="subtitle">صافي النقدية المتاحة لتسليم الوردية</div>
+                <div class="title" id="cockpit-main-title">العهدة النقدية الفعلية بالدرج (Cash Drawer)</div>
+                <div class="subtitle" id="cockpit-main-sub">صافي النقدية المطابقة لتسليم الوردية والخزينة اليومية</div>
               </div>
             </div>
             <div class="cash-drawer-status-pill">
               <i class="fa-solid fa-shield-halved"></i>
-              <span>الخزينة النقدية</span>
+              <span>مطابقة الخزينة</span>
             </div>
           </div>
 
           <div class="cash-drawer-hero-metric">
             <div class="cash-drawer-amount-text" id="drawer-net-cash-display">0 ج.م</div>
+            <span id="rep-net-cash" style="display: none;">0 ج.م</span>
           </div>
 
           <div class="cash-drawer-formula-box">
             <i class="fa-solid fa-calculator"></i>
             <span id="drawer-calc-breakdown">المقبوضات النقدية (0 ج.م) − المصروفات (0 ج.م)</span>
           </div>
-        </div>
 
-        <!-- Financial KPI Summary Cards -->
-        <div class="stats-grid" id="finance-kpi-stats-grid">
-          <div class="stat-box">
-            <div class="stat-icon blue"><i class="fa-solid fa-users"></i></div>
-            <div class="stat-info">
-              <div class="stat-value" id="rep-total-patients">0</div>
-              <div class="stat-label" id="rep-total-patients-label">مرضى اليوم</div>
+          <!-- Integrated Non-Redundant Triple Metrics -->
+          <div class="cockpit-sub-metrics-grid" id="finance-kpi-stats-grid">
+            <div class="cockpit-metric-item green">
+              <div class="c-icon"><i class="fa-solid fa-arrow-down-long"></i></div>
+              <div class="c-info">
+                <span class="c-label">المقبوضات النقدية (Cash In)</span>
+                <span class="c-val" id="rep-total-cash">0 ج.م</span>
+              </div>
             </div>
-          </div>
-          <div class="stat-box">
-            <div class="stat-icon green"><i class="fa-solid fa-arrow-down"></i></div>
-            <div class="stat-info">
-              <div class="stat-value" id="rep-total-cash">0 ج.م</div>
-              <div class="stat-label">المقبوضات النقدية</div>
+            <div class="cockpit-metric-item red">
+              <div class="c-icon"><i class="fa-solid fa-arrow-up-long"></i></div>
+              <div class="c-info">
+                <span class="c-label">المصروفات اليومية (Cash Out)</span>
+                <span class="c-val" id="rep-total-expenses">0 ج.م</span>
+              </div>
             </div>
-          </div>
-          <div class="stat-box">
-            <div class="stat-icon red"><i class="fa-solid fa-arrow-up"></i></div>
-            <div class="stat-info">
-              <div class="stat-value" id="rep-total-expenses">0 ج.م</div>
-              <div class="stat-label">المصروفات</div>
-            </div>
-          </div>
-          <div class="stat-box">
-            <div class="stat-icon amber"><i class="fa-solid fa-vault"></i></div>
-            <div class="stat-info">
-              <div class="stat-value" id="rep-net-cash">0 ج.م</div>
-              <div class="stat-label" id="rep-net-cash-label">صافي النقدية بالدرج</div>
+            <div class="cockpit-metric-item blue">
+              <div class="c-icon"><i class="fa-solid fa-users"></i></div>
+              <div class="c-info">
+                <span class="c-label" id="rep-total-patients-label">مرضى اليوم (زيارات)</span>
+                <span class="c-val" id="rep-total-patients">0</span>
+              </div>
             </div>
           </div>
         </div>
@@ -1199,6 +1193,58 @@
 
         <!-- ================= CONTENT B: MONTHLY REPORT ================= -->
         <div id="finance-monthly-content" style="display: none;">
+          <!-- Monthly Operating Profit & Margin Cockpit (v1.4.48) -->
+          <div class="card no-print" id="card-monthly-profit-glance" style="margin-bottom: 16px;">
+            <div class="cash-drawer-top-row">
+              <div class="cash-drawer-brand">
+                <div class="cash-drawer-icon-wrap" style="background: rgba(16, 185, 129, 0.12); color: var(--success);">
+                  <i class="fa-solid fa-chart-line"></i>
+                </div>
+                <div class="cash-drawer-title-box">
+                  <div class="title">صافي الدخل التشغيلي للمركز (Monthly Net Margin)</div>
+                  <div class="subtitle">المعادلة: (إيرادات الجلسات النقدية + تحصيلات التأمين الموردة) − إجمالي المصروفات</div>
+                </div>
+              </div>
+              <div class="cash-drawer-status-pill" id="monthly-margin-status-pill" style="background: rgba(16, 185, 129, 0.12); color: var(--success); border: 1px solid rgba(16, 185, 129, 0.25);">
+                <i class="fa-solid fa-scale-balanced"></i>
+                <span id="monthly-margin-pct">هامش التشغيل: 0%</span>
+              </div>
+            </div>
+
+            <div class="cash-drawer-hero-metric">
+              <div class="cash-drawer-amount-text" id="monthly-net-profit-display" style="color: var(--success);">0 ج.م</div>
+            </div>
+
+            <div class="cash-drawer-formula-box">
+              <i class="fa-solid fa-calculator"></i>
+              <span id="monthly-calc-breakdown">إجمالي الدخل المورد (0 ج.م) − المصروفات (0 ج.م)</span>
+            </div>
+
+            <div class="cockpit-sub-metrics-grid" style="margin-top: 14px;">
+              <div class="cockpit-metric-item green">
+                <div class="c-icon"><i class="fa-solid fa-wallet"></i></div>
+                <div class="c-info">
+                  <span class="c-label">إيراد الجلسات النقدي</span>
+                  <span class="c-val" id="monthly-cash-income-val">0 ج.م</span>
+                </div>
+              </div>
+              <div class="cockpit-metric-item blue">
+                <div class="c-icon"><i class="fa-solid fa-money-bill-transfer"></i></div>
+                <div class="c-info">
+                  <span class="c-label">تحصيلات التأمين المستلمة</span>
+                  <span class="c-val" id="monthly-settlements-income-val">0 ج.م</span>
+                </div>
+              </div>
+              <div class="cockpit-metric-item red">
+                <div class="c-icon"><i class="fa-solid fa-receipt"></i></div>
+                <div class="c-info">
+                  <span class="c-label">إجمالي مصروفات الشهر</span>
+                  <span class="c-val" id="monthly-total-expenses-val">0 ج.م</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
           <!-- Doctors Performance Table -->
           <div class="card" id="card-monthly-doctors" style="margin-bottom: 16px;">
             <div class="card-header">
@@ -1276,6 +1322,30 @@
             </div>
           </div>
 
+          <!-- Monthly Expenses Categorical Distribution Card (v1.4.48) -->
+          <div class="card" id="card-monthly-expenses-categories" style="margin-bottom: 16px;">
+            <div class="card-header" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
+              <span class="card-title"><i class="fa-solid fa-chart-pie" style="color: var(--danger);"></i> توزيع المصروفات الشهرية حسب البنود</span>
+              <span class="badge badge-cash" id="monthly-expense-categories-count-badge" style="background: rgba(239, 68, 68, 0.12); color: var(--danger); font-size: 0.8rem; font-weight: 800;">0 بنود</span>
+            </div>
+            <div class="table-responsive desktop-only-table">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>بند المصروف</th>
+                    <th>عدد الحركات</th>
+                    <th>إجمالي المنصرف</th>
+                    <th>النسبة من المصروفات</th>
+                  </tr>
+                </thead>
+                <tbody id="monthly-expenses-categories-tbody">
+                  <!-- Rendered dynamically -->
+                </tbody>
+              </table>
+            </div>
+            <div id="monthly-expenses-categories-mobile" class="mobile-only-cards-container"></div>
+          </div>
+
           <!-- Monthly Expenses Table -->
           <div class="card" id="card-monthly-expenses">
             <div class="card-header">
@@ -1315,55 +1385,73 @@
 
           <!-- ================= 3. Insurance Claims & Attendance Cards (مطالبات شركات التأمين وبطاقات التردد) ================= -->
           <div id="finance-claims-content" style="display: none;">
-            <!-- Control Panel -->
-            <div class="card" style="margin-bottom: 16px; border: 1.5px solid var(--border-color); background: var(--bg-surface);">
-              <div class="card-header" style="border-bottom: 1px solid var(--border-color); padding-bottom: 8px; margin-bottom: 12px;">
+            <!-- Control Panel (Collapsible Smart Engine v1.4.48) -->
+            <div class="card" id="card-claim-settings" style="margin-bottom: 16px; border: 1.5px solid var(--border-color); background: var(--bg-surface);">
+              <div class="card-header" style="border-bottom: 1px solid var(--border-color); padding-bottom: 8px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center;">
                 <span class="card-title" style="font-size: 1.05rem; color: var(--primary); font-weight: 800;">
                   <i class="fa-solid fa-sliders"></i> إعداد بيانات مطالبة شركة التأمين
                 </span>
+                <button type="button" class="btn btn-outline btn-sm" id="btn-toggle-claim-settings" style="display: none; font-size: 0.8rem; font-weight: 700; padding: 4px 10px; border-radius: 8px;" title="طي أو فتح الإعدادات">
+                  <i class="fa-solid fa-chevron-up" id="icon-toggle-claim-settings"></i> <span id="text-toggle-claim-settings">طي الإعدادات</span>
+                </button>
               </div>
-              <div class="form-grid" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px;">
-                <div class="form-group">
-                  <label for="claim-company-select" style="font-weight: 800;">شركة التأمين *</label>
-                  <div class="custom-select-wrapper">
-                    <select id="claim-company-select" style="display: none;">
-                      <!-- Populated dynamically -->
-                    </select>
-                    <button type="button" class="custom-select-btn" id="btn-select-claim-company-select" data-open-picker="claim-company-select" data-picker-title="اختر شركة التأمين">
-                      <span class="btn-text">-- اضغط هنا لاختيار شركة التأمين --</span>
-                      <i class="fa-solid fa-chevron-down"></i>
-                    </button>
+
+              <!-- Collapsed Summary Strip (Visible when settings are collapsed) -->
+              <div id="claim-settings-summary-strip" style="display: none; padding: 8px 12px; background: var(--bg-subtle); border-radius: 10px; margin-bottom: 8px; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap;">
+                <div style="display: flex; align-items: center; gap: 8px; font-size: 0.86rem;">
+                  <i class="fa-solid fa-building-shield" style="color: var(--primary);"></i>
+                  <span id="claim-summary-strip-text" style="font-weight: 700; color: var(--text-main);"></span>
+                </div>
+                <button type="button" class="btn btn-outline btn-sm" id="btn-reopen-claim-settings" style="font-size: 0.78rem; font-weight: 700; padding: 3px 10px; border-radius: 6px;">
+                  <i class="fa-solid fa-pen-to-square"></i> تعديل المعايير
+                </button>
+              </div>
+
+              <!-- Expandable Settings Body -->
+              <div id="claim-settings-body">
+                <div class="form-grid" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px;">
+                  <div class="form-group">
+                    <label for="claim-company-select" style="font-weight: 800;">شركة التأمين *</label>
+                    <div class="custom-select-wrapper">
+                      <select id="claim-company-select" style="display: none;">
+                        <!-- Populated dynamically -->
+                      </select>
+                      <button type="button" class="custom-select-btn" id="btn-select-claim-company-select" data-open-picker="claim-company-select" data-picker-title="اختر شركة التأمين">
+                        <span class="btn-text">-- اضغط هنا لاختيار شركة التأمين --</span>
+                        <i class="fa-solid fa-chevron-down"></i>
+                      </button>
+                    </div>
+                  </div>
+                  <div class="form-group">
+                    <label for="claim-start-date" style="font-weight: 800;">من تاريخ *</label>
+                    <input type="text" id="claim-start-date" readonly class="form-control date-picker-clickable" value="2026-08-01" data-open-calendar="claim-start-date">
+                  </div>
+                  <div class="form-group">
+                    <label for="claim-end-date" style="font-weight: 800;">إلى تاريخ *</label>
+                    <input type="text" id="claim-end-date" readonly class="form-control date-picker-clickable" value="2026-08-31" data-open-calendar="claim-end-date">
+                  </div>
+                  <div class="form-group">
+                    <label for="claim-default-session-rate" style="font-weight: 800;">سعر الجلسة الافتراضي (ج.م)</label>
+                    <input type="number" id="claim-default-session-rate" class="form-control" value="120" style="font-weight: 700; text-align: center;">
+                  </div>
+                  <div class="form-group">
+                    <label for="claim-default-eval-fee" style="font-weight: 800;">فحص وتقييم افتراضي (ج.م)</label>
+                    <input type="number" id="claim-default-eval-fee" class="form-control" value="150" style="font-weight: 700; text-align: center;">
+                  </div>
+                  <div class="form-group">
+                    <label for="claim-tax-number" style="font-weight: 800;">رقم البطاقة الضريبية</label>
+                    <input type="text" id="claim-tax-number" class="form-control" value="" placeholder="رقم البطاقة الضريبية (اختياري)" style="font-weight: 700;">
+                  </div>
+                  <div class="form-group">
+                    <label for="claim-doc-date" style="font-weight: 800;">تحريراً في (تاريخ المطالبة)</label>
+                    <input type="text" id="claim-doc-date" readonly class="form-control date-picker-clickable" value="2026-08-31" data-open-calendar="claim-doc-date">
                   </div>
                 </div>
-                <div class="form-group">
-                  <label for="claim-start-date" style="font-weight: 800;">من تاريخ *</label>
-                  <input type="text" id="claim-start-date" readonly class="form-control date-picker-clickable" value="2026-08-01" data-open-calendar="claim-start-date">
+                <div style="margin-top: 14px; display: flex; justify-content: flex-end;">
+                  <button type="button" class="btn btn-primary" id="btn-load-claim-patients" style="font-weight: 800; padding: 8px 18px;">
+                    <i class="fa-solid fa-magnifying-glass"></i> استخراج وعرض مرضى الشركة
+                  </button>
                 </div>
-                <div class="form-group">
-                  <label for="claim-end-date" style="font-weight: 800;">إلى تاريخ *</label>
-                  <input type="text" id="claim-end-date" readonly class="form-control date-picker-clickable" value="2026-08-31" data-open-calendar="claim-end-date">
-                </div>
-                <div class="form-group">
-                  <label for="claim-default-session-rate" style="font-weight: 800;">سعر الجلسة الافتراضي (ج.م)</label>
-                  <input type="number" id="claim-default-session-rate" class="form-control" value="120" style="font-weight: 700; text-align: center;">
-                </div>
-                <div class="form-group">
-                  <label for="claim-default-eval-fee" style="font-weight: 800;">فحص وتقييم افتراضي (ج.م)</label>
-                  <input type="number" id="claim-default-eval-fee" class="form-control" value="150" style="font-weight: 700; text-align: center;">
-                </div>
-                <div class="form-group">
-                  <label for="claim-tax-number" style="font-weight: 800;">رقم البطاقة الضريبية</label>
-                  <input type="text" id="claim-tax-number" class="form-control" value="" placeholder="رقم البطاقة الضريبية (اختياري)" style="font-weight: 700;">
-                </div>
-                <div class="form-group">
-                  <label for="claim-doc-date" style="font-weight: 800;">تحريراً في (تاريخ المطالبة)</label>
-                  <input type="text" id="claim-doc-date" readonly class="form-control date-picker-clickable" value="2026-08-31" data-open-calendar="claim-doc-date">
-                </div>
-              </div>
-              <div style="margin-top: 14px; display: flex; justify-content: flex-end;">
-                <button type="button" class="btn btn-primary" id="btn-load-claim-patients" style="font-weight: 800; padding: 8px 18px;">
-                  <i class="fa-solid fa-magnifying-glass"></i> استخراج وعرض مرضى الشركة
-                </button>
               </div>
             </div>
 
@@ -1736,7 +1824,7 @@
         <div class="admin-system-footer no-print" style="margin-top: 32px; margin-bottom: 35px; text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px;">
           <div style="display: inline-flex; align-items: center; gap: 8px; background: var(--bg-surface); border: 1.5px solid var(--border-color); padding: 7px 18px; border-radius: 999px; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);">
             <span style="width: 8px; height: 8px; border-radius: 50%; background-color: var(--success); display: inline-block; box-shadow: 0 0 6px var(--success);"></span>
-            <span style="font-weight: 800; font-size: 0.88rem; color: var(--text-main);">نظام ASCPT — الإصدار 1.4.47</span>
+            <span style="font-weight: 800; font-size: 0.88rem; color: var(--text-main);">نظام ASCPT — الإصدار 1.4.48</span>
             <span class="badge badge-primary" style="font-size: 0.72rem; padding: 2px 10px; border-radius: 999px; font-weight: 800;">إصدار معتمد</span>
           </div>
           <div style="font-size: 0.76rem; color: var(--text-muted); font-weight: 700;">
@@ -1775,7 +1863,7 @@
 
   <!-- ================= Modals ================= -->
 
-  <!-- Modal 1: Add / Edit Patient (Modern Medical Form v1.4.47) -->
+  <!-- Modal 1: Add / Edit Patient (Modern Medical Form v1.4.48) -->
   <div class="modal-backdrop" id="modal-patient">
     <div class="modal-content modal-patient-modern">
       <div class="modal-header">
@@ -3006,7 +3094,7 @@
   </div>
 
 <!-- Main Application Script (ES Module) -->
-  <script type="module" src="js/app.js?v=1.4.47"></script>
+  <script type="module" src="js/app.js?v=1.4.48"></script>
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {

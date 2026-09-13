@@ -896,6 +896,9 @@ export class FinanceManager {
                   </div>
                 </div>
               </div>
+              <div style="width: 100%; height: 6px; background: var(--bg-subtle); border-radius: 999px; overflow: hidden; margin-top: 10px;">
+                <div style="width: ${pct}%; height: 100%; background: var(--primary); border-radius: 999px;"></div>
+              </div>
             </div>
           `;
         }).join('');
@@ -1312,15 +1315,53 @@ export class FinanceManager {
     const netProfit = totalIncome - totalExpenses;
 
     // Update KPI UI
-    document.getElementById('rep-total-patients').textContent = totalPatients;
-    document.getElementById('rep-total-cash').textContent = `${totalIncome.toLocaleString('en-US')} ج.م`;
-    document.getElementById('rep-total-expenses').textContent = `${totalExpenses.toLocaleString('en-US')} ج.م`;
+    const repPatients = document.getElementById('rep-total-patients');
+    if (repPatients) repPatients.textContent = totalPatients;
+    const repCash = document.getElementById('rep-total-cash');
+    if (repCash) repCash.textContent = `${totalIncome.toLocaleString('en-US')} ج.م`;
+    const repExp = document.getElementById('rep-total-expenses');
+    if (repExp) repExp.textContent = `${totalExpenses.toLocaleString('en-US')} ج.م`;
     
     const netCashEl = document.getElementById('rep-net-cash');
     if (netCashEl) {
       netCashEl.textContent = `${netProfit.toLocaleString('en-US')} ج.م`;
       netCashEl.style.color = netProfit >= 0 ? 'var(--success)' : 'var(--danger)';
     }
+
+    // Update Monthly Operating Profit Glance Cockpit (v1.4.48)
+    const marginPct = totalIncome > 0 ? ((netProfit / totalIncome) * 100).toFixed(1) : 0;
+    const mProfitEl = document.getElementById('monthly-net-profit-display');
+    const mCalcEl = document.getElementById('monthly-calc-breakdown');
+    const mMarginPct = document.getElementById('monthly-margin-pct');
+    const mCashVal = document.getElementById('monthly-cash-income-val');
+    const mSetVal = document.getElementById('monthly-settlements-income-val');
+    const mExpVal = document.getElementById('monthly-total-expenses-val');
+    const mPill = document.getElementById('monthly-margin-status-pill');
+
+    if (mProfitEl) {
+      mProfitEl.textContent = `${netProfit.toLocaleString('en-US')} ج.م`;
+      mProfitEl.style.color = netProfit >= 0 ? 'var(--success)' : 'var(--danger)';
+    }
+    if (mCalcEl) {
+      mCalcEl.textContent = `المقبوضات والتحصيلات (${totalIncome.toLocaleString('en-US')} ج.م) − المصروفات (${totalExpenses.toLocaleString('en-US')} ج.م)`;
+    }
+    if (mMarginPct) {
+      mMarginPct.textContent = `هامش التشغيل: ${marginPct}%`;
+    }
+    if (mPill) {
+      if (netProfit >= 0) {
+        mPill.style.background = 'rgba(16, 185, 129, 0.12)';
+        mPill.style.color = 'var(--success)';
+        mPill.style.borderColor = 'rgba(16, 185, 129, 0.25)';
+      } else {
+        mPill.style.background = 'rgba(239, 68, 68, 0.12)';
+        mPill.style.color = 'var(--danger)';
+        mPill.style.borderColor = 'rgba(239, 68, 68, 0.25)';
+      }
+    }
+    if (mCashVal) mCashVal.textContent = `${totalSessionsIncome.toLocaleString('en-US')} ج.م`;
+    if (mSetVal) mSetVal.textContent = `${totalSettlementsNet.toLocaleString('en-US')} ج.م`;
+    if (mExpVal) mExpVal.textContent = `${totalExpenses.toLocaleString('en-US')} ج.م`;
 
     // Render Monthly Settlements Table
     const mSetTbody = document.getElementById('monthly-settlements-tbody');
@@ -1456,6 +1497,9 @@ export class FinanceManager {
                   </div>
                 </div>
               </div>
+              <div style="width: 100%; height: 6px; background: var(--bg-subtle); border-radius: 999px; overflow: hidden; margin-top: 10px;">
+                <div style="width: ${pct}%; height: 100%; background: var(--primary); border-radius: 999px;"></div>
+              </div>
             </div>
           `;
         }).join('');
@@ -1532,7 +1576,14 @@ export class FinanceManager {
               <td style="font-weight: 700;">${safeName}</td>
               <td><span class="badge ${item.type.includes('نقدي') ? 'badge-cash' : (item.type.includes('غير مباشر') ? 'badge-indirect' : 'badge-direct')}"><i class="fa-solid ${item.type.includes('نقدي') ? 'fa-money-bill' : (item.type.includes('غير مباشر') ? 'fa-handshake' : 'fa-file-contract')}"></i> ${safeType}</span></td>
               <td style="font-weight: 800; color: var(--primary); font-size: 0.95rem;">${item.count} حالة</td>
-              <td style="font-weight: 700;">${pct}%</td>
+              <td>
+                <div style="display: flex; align-items: center; gap: 8px;">
+                  <span style="font-weight: 700; width: 45px;">${pct}%</span>
+                  <div style="flex: 1; background-color: var(--bg-subtle); height: 8px; border-radius: 4px; overflow: hidden;">
+                    <div style="width: ${pct}%; background-color: ${item.type.includes('نقدي') ? 'var(--success)' : 'var(--primary)'}; height: 100%; border-radius: 4px;"></div>
+                  </div>
+                </div>
+              </td>
             </tr>
           `;
         }).join('');
@@ -1581,6 +1632,95 @@ export class FinanceManager {
               <div style="display: flex; align-items: center; justify-content: space-between; font-size: 0.88rem;">
                 <span style="font-weight: 800; color: var(--primary);">${item.count} حالة مسجلة</span>
                 <span style="font-weight: 800; color: var(--text-muted);">${pct}%</span>
+              </div>
+              <div style="width: 100%; height: 6px; background: var(--bg-subtle); border-radius: 999px; overflow: hidden; margin-top: 8px;">
+                <div style="width: ${pct}%; height: 100%; background: ${item.type.includes('نقدي') ? 'var(--success)' : 'var(--primary)'}; border-radius: 999px;"></div>
+              </div>
+            </div>
+          `;
+        }).join('');
+      }
+    }
+
+    // Render Monthly Expenses Breakdown by Category (v1.4.48)
+    const mExpCatTbody = document.getElementById('monthly-expenses-categories-tbody');
+    const mExpCatMob = document.getElementById('monthly-expenses-categories-mobile');
+    const mExpCatBadge = document.getElementById('monthly-expense-categories-count-badge');
+
+    const expCategories = {};
+    allExpenses.forEach(e => {
+      const cat = (e.title || 'مصروفات عامة').trim();
+      if (!expCategories[cat]) {
+        expCategories[cat] = { name: cat, count: 0, total: 0 };
+      }
+      expCategories[cat].count++;
+      expCategories[cat].total += (parseFloat(e.amount) || 0);
+    });
+    const sortedCats = Object.values(expCategories).sort((a, b) => b.total - a.total);
+
+    if (mExpCatBadge) {
+      mExpCatBadge.textContent = `${sortedCats.length} بنود • ${totalExpenses.toLocaleString('en-US')} ج.م`;
+    }
+
+    if (mExpCatTbody) {
+      if (sortedCats.length === 0) {
+        mExpCatTbody.innerHTML = `<tr><td colspan="4" style="text-align: center; color: var(--text-muted); padding: 20px;">لا توجد مصروفات مسجلة لهذا الشهر.</td></tr>`;
+      } else {
+        mExpCatTbody.innerHTML = sortedCats.map(cat => {
+          const pct = totalExpenses > 0 ? ((cat.total / totalExpenses) * 100).toFixed(1) : 0;
+          return `
+            <tr>
+              <td style="font-weight: 700; color: var(--text-main);">
+                <i class="fa-solid fa-tag" style="color: var(--danger); margin-left: 6px; font-size: 0.85rem;"></i>
+                ${escapeHTML(cat.name)}
+              </td>
+              <td style="font-weight: 700; color: var(--text-muted);">${cat.count} حركات</td>
+              <td style="font-weight: 800; color: var(--danger); font-size: 0.95rem;">${cat.total.toLocaleString('en-US')} ج.م</td>
+              <td>
+                <div style="display: flex; align-items: center; gap: 8px;">
+                  <span style="font-weight: 700; width: 45px;">${pct}%</span>
+                  <div style="flex: 1; background-color: var(--bg-subtle); height: 8px; border-radius: 4px; overflow: hidden;">
+                    <div style="width: ${pct}%; background-color: var(--danger); height: 100%; border-radius: 4px;"></div>
+                  </div>
+                </div>
+              </td>
+            </tr>
+          `;
+        }).join('');
+      }
+    }
+
+    if (mExpCatMob) {
+      if (sortedCats.length === 0) {
+        mExpCatMob.innerHTML = `
+          <div style="background: var(--bg-surface); border: 1.5px dashed var(--border-color); border-radius: 12px; padding: 22px 14px; text-align: center; color: var(--text-muted); margin-bottom: 12px;">
+            <i class="fa-solid fa-receipt" style="font-size: 1.8rem; color: var(--danger); opacity: 0.35; margin-bottom: 8px; display: block;"></i>
+            <div style="font-weight: 700; font-size: 0.88rem; color: var(--text-main); margin-bottom: 3px;">لا توجد مصروفات مسجلة لهذا الشهر حتى الآن</div>
+          </div>
+        `;
+      } else {
+        mExpCatMob.innerHTML = sortedCats.map(cat => {
+          const pct = totalExpenses > 0 ? ((cat.total / totalExpenses) * 100).toFixed(1) : 0;
+          return `
+            <div class="hero-styled-card" style="margin-bottom: 8px;">
+              <div style="display: flex; align-items: center; justify-content: space-between;">
+                <div style="display: flex; align-items: center; gap: 8px;">
+                  <div class="hsc-avatar" style="width: 34px; height: 34px; font-size: 0.9rem; background: rgba(239, 68, 68, 0.12); color: var(--danger);">
+                    <i class="fa-solid fa-tag"></i>
+                  </div>
+                  <div style="font-weight: 800; font-size: 0.95rem; color: var(--text-main);">${escapeHTML(cat.name)}</div>
+                </div>
+                <span class="badge" style="background: rgba(239, 68, 68, 0.12); color: var(--danger); font-weight: 800; font-size: 0.85rem;">
+                  ${cat.total.toLocaleString('en-US')} ج.م
+                </span>
+              </div>
+              <div class="hsc-divider" style="margin: 10px 0;"></div>
+              <div style="display: flex; align-items: center; justify-content: space-between; font-size: 0.82rem;">
+                <span style="color: var(--text-muted);">${cat.count} حركات صرف مسجلة</span>
+                <span style="font-weight: 800; color: var(--text-main);">${pct}% من المصروفات</span>
+              </div>
+              <div style="width: 100%; height: 6px; background: var(--bg-subtle); border-radius: 999px; overflow: hidden; margin-top: 8px;">
+                <div style="width: ${pct}%; height: 100%; background: var(--danger); border-radius: 999px;"></div>
               </div>
             </div>
           `;
