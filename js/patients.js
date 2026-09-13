@@ -26,7 +26,10 @@ export class PatientsManager {
     this.polishBrightness = 100;
     this.polishContrast = 100;
     this.polishPreset = 'normal';
+    this.rawOriginalImageObj = null;
     this.currentPolishImageObj = null;
+    this.isCropMode = false;
+    this.cropBox = null;
     this.lightboxIndex = 0;
     this.lightboxZoom = 1;
     this.lightboxRotation = 0;
@@ -333,12 +336,17 @@ export class PatientsManager {
       this.handleImagingFilesSelected(e);
     });
 
-    // Polish Studio Controls
+    // Polish Studio Controls & Cropper (v1.4.79)
+    document.getElementById('btn-polish-crop')?.addEventListener('click', () => this.startCropMode());
+    document.getElementById('btn-apply-crop')?.addEventListener('click', () => this.applyCrop());
+    document.getElementById('btn-cancel-crop')?.addEventListener('click', () => this.endCropMode());
     document.getElementById('btn-polish-rotate-left')?.addEventListener('click', () => this.rotatePolish(-90));
     document.getElementById('btn-polish-rotate-right')?.addEventListener('click', () => this.rotatePolish(90));
     document.getElementById('btn-polish-reset')?.addEventListener('click', () => this.resetPolish());
     document.getElementById('btn-polish-save-current')?.addEventListener('click', () => this.saveCurrentPolishedImage());
     document.getElementById('btn-polish-skip-or-cancel')?.addEventListener('click', () => this.skipOrCancelPolish());
+
+    this.setupCropBoxDrag();
 
     document.querySelectorAll('.polish-preset-btn').forEach(btn => {
       btn.addEventListener('click', () => {
@@ -2730,11 +2738,13 @@ export class PatientsManager {
     reader.onload = (evt) => {
       const img = new Image();
       img.onload = () => {
+        this.rawOriginalImageObj = img;
         this.currentPolishImageObj = img;
         this.polishRotation = 0;
         this.polishBrightness = 100;
         this.polishContrast = 100;
         this.polishPreset = 'normal';
+        this.endCropMode();
 
         // Update UI
         const badge = document.getElementById('polish-queue-badge');
@@ -2862,8 +2872,233 @@ export class PatientsManager {
   }
 
   resetPolish() {
+    if (this.rawOriginalImageObj) {
+      this.currentPolishImageObj = this.rawOriginalImageObj;
+    }
     this.polishRotation = 0;
+    this.endCropMode();
     this.setPolishPreset('normal');
+    this.renderPolishCanvas();
+    this.app.showToast('تمت استعادة الصورة الأصلية');
+  }
+
+  // ================= Polish Studio Cropper (v1.4.79) =================
+  startCropMode() {
+    if (!this.currentPolishImageObj) return;
+    this.isCropMode = true;
+
+    const canvas = document.getElementById('polish-canvas');
+    const cropBoxEl = document.getElementById('polish-crop-box');
+    const stdToolbar = document.getElementById('polish-standard-toolbar');
+    const cropToolbar = document.getElementById('polish-crop-toolbar');
+
+    if (stdToolbar) stdToolbar.style.display = 'none';
+    if (cropToolbar) cropToolbar.style.display = 'flex';
+    if (cropBoxEl) cropBoxEl.style.display = 'block';
+
+    const cW = canvas.clientWidth || canvas.width || 300;
+    const cH = canvas.clientHeight || canvas.height || 200;
+    const padX = Math.round(cW * 0.08);
+    const padY = Math.round(cH * 0.08);
+
+    this.cropBox = {
+      x: padX,
+      y: padY,
+      w: Math.max(50, cW - padX * 2),
+      h: Math.max(50, cH - padY * 2)
+    };
+
+    this.updateCropBoxDOM();
+  }
+
+  endCropMode() {
+    this.isCropMode = false;
+    const cropBoxEl = document.getElementById('polish-crop-box');
+    const stdToolbar = document.getElementById('polish-standard-toolbar');
+    const cropToolbar = document.getElementById('polish-crop-toolbar');
+
+    if (cropBoxEl) cropBoxEl.style.display = 'none';
+    if (cropToolbar) cropToolbar.style.display = 'none';
+    if (stdToolbar) stdToolbar.style.display = 'flex';
+  }
+
+  updateCropBoxDOM() {
+    const cropBoxEl = document.getElementById('polish-crop-box');
+    if (!cropBoxEl || !this.cropBox) return;
+    cropBoxEl.style.left = `${this.cropBox.x}px`;
+    cropBoxEl.style.top = `${this.cropBox.y}px`;
+    cropBoxEl.style.width = `${this.cropBox.w}px`;
+    cropBoxEl.style.height = `${this.cropBox.h}px`;
+  }
+
+  setupCropBoxDrag() {
+    const cropBoxEl = document.getElementById('polish-crop-box');
+    const canvas = document.getElementById('polish-canvas');
+    if (!cropBoxEl || !canvas || cropBoxEl._hasCropDrag) return;
+    cropBoxEl._hasCropDrag = true;
+
+    let isDragging = false;
+    let dragType = 'move';
+    let startX = 0, startY = 0;
+    let startBox = { x: 0, y: 0, w: 0, h: 0 };
+
+    const onStart = (clientX, clientY, target) => {
+      isDragging = true;
+      const handle = target.closest('.crop-handle');
+      if (handle) {
+        dragType = handle.dataset.handle; // 'tl', 'tr', 'bl', 'br'
+      } else {
+        dragType = 'move';
+      }
+      startX = clientX;
+      startY = clientY;
+      startBox = { ...this.cropBox };
+    };
+
+    const onMove = (clientX, clientY) => {
+      if (!isDragging || !this.cropBox) return;
+      const cW = canvas.clientWidth || canvas.width || 300;
+      const cH = canvas.clientHeight || canvas.height || 200;
+      const dx = clientX - startX;
+      const dy = clientY - startY;
+      const minSize = 35;
+
+      if (dragType === 'move') {
+        const newX = Math.max(0, Math.min(cW - startBox.w, startBox.x + dx));
+        const newY = Math.max(0, Math.min(cH - startBox.h, startBox.y + dy));
+        this.cropBox.x = Math.round(newX);
+        this.cropBox.y = Math.round(newY);
+      } else if (dragType === 'br') {
+        const newW = Math.max(minSize, Math.min(cW - startBox.x, startBox.w + dx));
+        const newH = Math.max(minSize, Math.min(cH - startBox.y, startBox.h + dy));
+        this.cropBox.w = Math.round(newW);
+        this.cropBox.h = Math.round(newH);
+      } else if (dragType === 'bl') {
+        const maxDx = startBox.w - minSize;
+        const clampedDx = Math.max(-startBox.x, Math.min(maxDx, dx));
+        this.cropBox.x = Math.round(startBox.x + clampedDx);
+        this.cropBox.w = Math.round(startBox.w - clampedDx);
+        this.cropBox.h = Math.round(Math.max(minSize, Math.min(cH - startBox.y, startBox.h + dy)));
+      } else if (dragType === 'tr') {
+        const maxDy = startBox.h - minSize;
+        const clampedDy = Math.max(-startBox.y, Math.min(maxDy, dy));
+        this.cropBox.y = Math.round(startBox.y + clampedDy);
+        this.cropBox.h = Math.round(startBox.h - clampedDy);
+        this.cropBox.w = Math.round(Math.max(minSize, Math.min(cW - startBox.x, startBox.w + dx)));
+      } else if (dragType === 'tl') {
+        const maxDx = startBox.w - minSize;
+        const maxDy = startBox.h - minSize;
+        const clampedDx = Math.max(-startBox.x, Math.min(maxDx, dx));
+        const clampedDy = Math.max(-startBox.y, Math.min(maxDy, dy));
+        this.cropBox.x = Math.round(startBox.x + clampedDx);
+        this.cropBox.w = Math.round(startBox.w - clampedDx);
+        this.cropBox.y = Math.round(startBox.y + clampedDy);
+        this.cropBox.h = Math.round(startBox.h - clampedDy);
+      }
+
+      this.updateCropBoxDOM();
+    };
+
+    const onEnd = () => {
+      isDragging = false;
+    };
+
+    // Mouse Listeners
+    cropBoxEl.addEventListener('mousedown', (e) => {
+      e.preventDefault();
+      onStart(e.clientX, e.clientY, e.target);
+    });
+    window.addEventListener('mousemove', (e) => {
+      if (isDragging) {
+        e.preventDefault();
+        onMove(e.clientX, e.clientY);
+      }
+    });
+    window.addEventListener('mouseup', () => {
+      if (isDragging) onEnd();
+    });
+
+    // Touch Listeners
+    cropBoxEl.addEventListener('touchstart', (e) => {
+      if (e.touches.length === 1) {
+        e.preventDefault();
+        onStart(e.touches[0].clientX, e.touches[0].clientY, e.target);
+      }
+    }, { passive: false });
+    window.addEventListener('touchmove', (e) => {
+      if (isDragging && e.touches.length === 1) {
+        e.preventDefault();
+        onMove(e.touches[0].clientX, e.touches[0].clientY);
+      }
+    }, { passive: false });
+    window.addEventListener('touchend', () => {
+      if (isDragging) onEnd();
+    });
+  }
+
+  applyCrop() {
+    const canvas = document.getElementById('polish-canvas');
+    if (!canvas || !this.currentPolishImageObj || !this.cropBox) {
+      this.endCropMode();
+      return;
+    }
+
+    const dispW = canvas.clientWidth || canvas.width;
+    const dispH = canvas.clientHeight || canvas.height;
+
+    // Render un-filtered rotated canvas to extract clean cropped source
+    const rot = (this.polishRotation % 360 + 360) % 360;
+    const isSideways = (rot === 90 || rot === 270);
+    const origW = this.currentPolishImageObj.naturalWidth || this.currentPolishImageObj.width;
+    const origH = this.currentPolishImageObj.naturalHeight || this.currentPolishImageObj.height;
+
+    const maxDim = 1600;
+    let scale = 1;
+    if (Math.max(origW, origH) > maxDim) {
+      scale = maxDim / Math.max(origW, origH);
+    }
+    const drawW = Math.round(origW * scale);
+    const drawH = Math.round(origH * scale);
+
+    const tempCanvas = document.createElement('canvas');
+    tempCanvas.width = isSideways ? drawH : drawW;
+    tempCanvas.height = isSideways ? drawW : drawH;
+    const tempCtx = tempCanvas.getContext('2d');
+
+    tempCtx.translate(tempCanvas.width / 2, tempCanvas.height / 2);
+    tempCtx.rotate((rot * Math.PI) / 180);
+    tempCtx.drawImage(this.currentPolishImageObj, -drawW / 2, -drawH / 2, drawW, drawH);
+
+    // Map screen crop coordinates to temp canvas coordinates
+    const scaleToTempX = tempCanvas.width / dispW;
+    const scaleToTempY = tempCanvas.height / dispH;
+
+    const cropX = Math.max(0, Math.round(this.cropBox.x * scaleToTempX));
+    const cropY = Math.max(0, Math.round(this.cropBox.y * scaleToTempY));
+    const cropW = Math.min(tempCanvas.width - cropX, Math.round(this.cropBox.w * scaleToTempX));
+    const cropH = Math.min(tempCanvas.height - cropY, Math.round(this.cropBox.h * scaleToTempY));
+
+    if (cropW <= 10 || cropH <= 10) {
+      this.endCropMode();
+      return;
+    }
+
+    const cropCanvas = document.createElement('canvas');
+    cropCanvas.width = cropW;
+    cropCanvas.height = cropH;
+    const cropCtx = cropCanvas.getContext('2d');
+    cropCtx.drawImage(tempCanvas, cropX, cropY, cropW, cropH, 0, 0, cropW, cropH);
+
+    const croppedDataUrl = cropCanvas.toDataURL('image/png');
+    const croppedImg = new Image();
+    croppedImg.onload = () => {
+      this.currentPolishImageObj = croppedImg;
+      this.polishRotation = 0; // Rotation is baked into cropped image
+      this.endCropMode();
+      this.renderPolishCanvas();
+      this.app.showToast('تم قص الصورة بنجاح');
+    };
+    croppedImg.src = croppedDataUrl;
   }
 
   getPolishedExportDataUrl() {

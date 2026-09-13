@@ -47,7 +47,7 @@
       })();
     </script>
     <style>
-      /* Zero-Flicker Pre-Paint Gatekeeper (v1.4.78) */
+      /* Zero-Flicker Pre-Paint Gatekeeper (v1.4.79) */
       html.role-doctor .btn-quick-attend,
       body.role-doctor .btn-quick-attend,
       html.role-doctor #dashboard-admin-view,
@@ -121,8 +121,8 @@
   
 
     <!-- Stylesheets -->
-  <link rel="stylesheet" href="css/style.css?v=1.4.78" media="screen">
-  <link rel="stylesheet" href="css/print.css?v=1.4.78" media="print">
+  <link rel="stylesheet" href="css/style.css?v=1.4.79" media="screen">
+  <link rel="stylesheet" href="css/print.css?v=1.4.79" media="print">
 </head>
 <body>
   <script>
@@ -152,7 +152,7 @@
       <span>ASCPT</span>
     </a>
     <div class="header-actions-group">
-      <!-- Doctor Name Badge (Clickable button to open User Profile v1.4.78) -->
+      <!-- Doctor Name Badge (Clickable button to open User Profile v1.4.79) -->
       <button type="button" class="user-badge" id="user-status-pill-box" onclick="if(window.app && typeof window.app.openUserProfileModal==='function') window.app.openUserProfileModal();" style="cursor: pointer; background: var(--bg-subtle); border: 1.5px solid var(--border-color); font-family: inherit; font-size: 0.82rem; font-weight: 700; color: var(--text-main); border-radius: 999px; padding: 4px 10px; display: inline-flex; align-items: center; gap: 6px; -webkit-user-select: none; user-select: none; outline: none; transition: all 0.15s ease;" title="الملف الشخصي وإعدادات الحساب (اضغط للعرض)">
         <span class="status-dot" id="net-status-dot"></span>
         <i class="fa-solid fa-user-doctor" style="color: var(--primary); font-size: 0.9rem;"></i>
@@ -226,7 +226,7 @@
 
       <div class="sidebar-user-box" style="margin-top: auto; padding: 12px 10px; border-top: 1px solid var(--border-color);">
         <div style="background: var(--bg-subtle); border: 1px solid var(--border-color); border-radius: 10px; padding: 12px; display: flex; flex-direction: column; gap: 10px;">
-          <!-- Top Row: User Avatar, Name & Role Badge (Clickable for Profile v1.4.78) -->
+          <!-- Top Row: User Avatar, Name & Role Badge (Clickable for Profile v1.4.79) -->
           <div id="sidebar-user-profile-trigger" onclick="if(window.app && typeof window.app.openUserProfileModal==='function') window.app.openUserProfileModal();" style="display: flex; align-items: center; gap: 10px; width: 100%; cursor: pointer; border-radius: 8px; padding: 2px; transition: background 0.15s ease;" title="الملف الشخصي وإعدادات الحساب (اضغط للعرض)">
             <div style="width: 38px; height: 38px; border-radius: 50%; background: var(--primary-light); color: var(--primary); display: flex; align-items: center; justify-content: center; font-size: 1.05rem; flex-shrink: 0;">
               <i class="fa-solid fa-user-doctor"></i>
@@ -425,7 +425,7 @@
             </div>
           </div>
 
-          <!-- Doctor Personal KPI Stats Grid (Hero Metric Stack v1.4.78) -->
+          <!-- Doctor Personal KPI Stats Grid (Hero Metric Stack v1.4.79) -->
           <div class="doc-kpi-grid">
             <!-- Card 1: Today's Sessions -->
             <div class="doc-kpi-card" id="card-doc-kpi-today">
@@ -484,7 +484,7 @@
             </div>
           </div>
 
-          <!-- Doctor Monthly Earnings KPI Card (Card 5 - Added in v1.4.78) -->
+          <!-- Doctor Monthly Earnings KPI Card (Card 5 - Added in v1.4.79) -->
           <div class="card doc-earnings-kpi-card" id="card-doctor-monthly-earnings" style="margin-top: 14px; background: var(--bg-surface); border: 1.5px solid rgba(16, 185, 129, 0.35); border-radius: var(--radius-lg); padding: 14px 18px; box-shadow: var(--shadow-sm);">
             <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
               <div style="display: flex; align-items: center; gap: 12px;">
@@ -620,7 +620,7 @@
               </button>
             </div>
 
-            <!-- Row 3: Sort Segmented Toggle & View Mode Toggle & Add Patient Button (v1.4.78) -->
+            <!-- Row 3: Sort Segmented Toggle & View Mode Toggle & Add Patient Button (v1.4.79) -->
             <div style="display: flex; gap: 8px; width: 100%; align-items: center; justify-content: space-between; flex-wrap: wrap;">
               <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
                 <!-- Compact Sort Segmented Toggle -->
@@ -633,7 +633,7 @@
                   </button>
                 </div>
 
-                <!-- View Mode Switcher hidden (Cards Grid enforced v1.4.78) -->
+                <!-- View Mode Switcher hidden (Cards Grid enforced v1.4.79) -->
                 <div class="view-mode-toggle-group no-print" id="patients-view-mode-toggle" style="display: none !important;">
                   <button type="button" class="btn-view-mode active" data-view-mode="cards" title="عرض كروت متجاوبة (Grid)">
                     <i class="fa-solid fa-table-cells-large"></i> <span>كروت</span>
@@ -674,7 +674,7 @@
               </tbody>
             </table>
           </div>
-          <!-- Dedicated Modern Cards Grid for Patients (v1.4.78) -->
+          <!-- Dedicated Modern Cards Grid for Patients (v1.4.79) -->
           <div id="patients-mobile-cards" class="patients-grid-container" style="padding: 10px 12px;"></div>
         </div>
       </section>
@@ -692,7 +692,7 @@
           </h2>
         </div>
 
-        <!-- Patient Clinical Record Header Card (Clean, Modern & Uncluttered v1.4.78) -->
+        <!-- Patient Clinical Record Header Card (Clean, Modern & Uncluttered v1.4.79) -->
         <div class="card patient-clinical-main-card gender-male" id="patient-clinical-card">
           <!-- 1. Patient Name (Standalone, Full-Width) -->
           <div class="pcm-name-bar">
@@ -841,7 +841,7 @@
             </div>
           </div>
 
-          <!-- 6. Medical Imaging & Lab Reports (الأشعات والتحاليل والتقارير الطبية v1.4.78) -->
+          <!-- 6. Medical Imaging & Lab Reports (الأشعات والتحاليل والتقارير الطبية v1.4.79) -->
           <div class="card" id="sheet-sec-imaging" style="margin-bottom: 24px;">
             <div class="card-header" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
               <div style="display: flex; align-items: center; gap: 8px;">
@@ -889,7 +889,7 @@
           <!-- Form: Log New Session or Examination -->
           <div class="card">
             <div class="card-header" style="padding: 0 0 10px 0; border-bottom: none; display: block; width: 100%;">
-              <!-- Streamlined Compact Mode Switcher (v1.4.78) -->
+              <!-- Streamlined Compact Mode Switcher (v1.4.79) -->
               <div class="session-mode-segmented-compact">
                 <button type="button" id="btn-mode-session" class="session-mode-compact-btn active">
                   <i class="fa-solid fa-bolt"></i>
@@ -980,7 +980,7 @@
                   <small id="body-parts-cash-hint" style="display: none; font-size: 0.74rem; color: var(--text-muted); margin-top: 3px;"></small>
                 </div>
 
-                <!-- Special Case Checkbox (v1.4.78) -->
+                <!-- Special Case Checkbox (v1.4.79) -->
                 <div class="form-group form-group-compact" id="form-group-special-session" style="margin-top: 4px; margin-bottom: 8px;">
                   <label class="custom-control custom-checkbox" style="display: flex; align-items: center; gap: 10px; padding: 9px 12px; background: rgba(245, 158, 11, 0.09); border: 1.5px dashed #f59e0b; border-radius: 8px; cursor: pointer; user-select: none;">
                     <input type="checkbox" id="session-is-special" style="width: 18px; height: 18px; accent-color: #d97706; cursor: pointer; flex-shrink: 0;">
@@ -1055,7 +1055,7 @@
             </form>
           </div>
 
-          <!-- Table / Cards of Today's Sessions (v1.4.78) -->
+          <!-- Table / Cards of Today's Sessions (v1.4.79) -->
           <div class="card" id="card-sessions-today">
             <div class="card-header" style="display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap;">
               <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
@@ -1066,7 +1066,7 @@
                 </div>
                 <span class="badge badge-cash" id="sessions-today-count-badge" style="flex-shrink: 0; white-space: nowrap; font-size: 0.82rem; padding: 4px 10px; font-weight: 800;">0 جلسة</span>
               </div>
-              <!-- View Mode Toggle hidden (Cards Grid enforced v1.4.78) -->
+              <!-- View Mode Toggle hidden (Cards Grid enforced v1.4.79) -->
               <div class="view-mode-toggle-group no-print" id="sessions-view-mode-toggle" style="display: none !important;">
                 <button type="button" class="btn-view-mode active" data-view-mode="cards" title="عرض كروت متجاوبة (Grid)">
                   <i class="fa-solid fa-table-cells-large"></i> <span>كروت</span>
@@ -1092,7 +1092,7 @@
                 </tbody>
               </table>
             </div>
-            <!-- Dedicated Modern Cards Grid for Sessions (v1.4.78) -->
+            <!-- Dedicated Modern Cards Grid for Sessions (v1.4.79) -->
             <div id="sessions-today-mobile-cards" class="sessions-grid-container" style="padding: 10px 12px;"></div>
           </div>
         </div>
@@ -1106,7 +1106,7 @@
           </div>
         </div>
 
-        <!-- Mode Toggle Tabs (Daily vs Monthly vs Claims) - Elevated above action buttons (v1.4.78) -->
+        <!-- Mode Toggle Tabs (Daily vs Monthly vs Claims) - Elevated above action buttons (v1.4.79) -->
         <div class="no-print finance-mode-segmented" style="margin-bottom: 12px;">
           <button type="button" class="btn btn-primary btn-sm" id="btn-mode-daily">
             <i class="fa-solid fa-calendar-day"></i> <span class="tab-label-full">التقرير اليومي</span><span class="tab-label-short">اليومي</span>
@@ -1119,7 +1119,7 @@
           </button>
         </div>
 
-        <!-- Action Buttons (Expense, Excel, Print) - Placed under the mode tabs (v1.4.78) -->
+        <!-- Action Buttons (Expense, Excel, Print) - Placed under the mode tabs (v1.4.79) -->
         <div class="no-print" id="finance-top-actions" style="margin-bottom: 14px;">
           <button type="button" class="btn btn-outline" id="btn-add-expense" style="height: 42px; padding: 0 16px; border-color: var(--danger); color: var(--danger); font-weight: 700; display: inline-flex; align-items: center; gap: 6px;">
             <i class="fa-solid fa-minus-circle"></i> <span>تسجيل مصروف</span>
@@ -1176,7 +1176,7 @@
           </div>
         </div>
 
-        <!-- Unified Financial Cockpit & Cash Safe Hub (Modernized v1.4.78) -->
+        <!-- Unified Financial Cockpit & Cash Safe Hub (Modernized v1.4.79) -->
         <div class="card no-print financial-cockpit-card" id="card-cash-drawer-glance">
           <div class="cash-drawer-top-row">
             <div class="cash-drawer-brand">
@@ -1326,7 +1326,7 @@
 
         <!-- ================= CONTENT B: MONTHLY REPORT ================= -->
         <div id="finance-monthly-content" style="display: none;">
-          <!-- Monthly Operating Profit & Margin Cockpit (v1.4.78) -->
+          <!-- Monthly Operating Profit & Margin Cockpit (v1.4.79) -->
           <div class="card no-print" id="card-monthly-profit-glance" style="margin-bottom: 16px;">
             <div class="cash-drawer-top-row">
               <div class="cash-drawer-brand">
@@ -1455,7 +1455,7 @@
             <div id="monthly-settlements-mobile-cards" class="mobile-only-cards-container" style="margin-top: 8px;"></div>
           </div>
 
-          <!-- Monthly Expenses Categorical Distribution Card (v1.4.78) -->
+          <!-- Monthly Expenses Categorical Distribution Card (v1.4.79) -->
           <div class="card" id="card-monthly-expenses-categories" style="margin-bottom: 16px;">
             <div class="card-header" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
               <span class="card-title"><i class="fa-solid fa-chart-pie" style="color: var(--danger);"></i> توزيع المصروفات الشهرية حسب البنود</span>
@@ -1518,7 +1518,7 @@
 
           <!-- ================= 3. Insurance Claims & Attendance Cards (مطالبات شركات التأمين وبطاقات التردد) ================= -->
           <div id="finance-claims-content" style="display: none;">
-            <!-- Control Panel (Modern Medical Form Style v1.4.78) -->
+            <!-- Control Panel (Modern Medical Form Style v1.4.79) -->
             <div class="card" id="card-claim-settings" style="margin-bottom: 16px; border: 1.5px solid var(--border-color); background: var(--bg-surface); padding: 16px 18px; border-radius: 18px;">
               <div class="card-header" style="border-bottom: 1px solid var(--border-color); padding-bottom: 10px; margin-bottom: 14px; display: flex; justify-content: space-between; align-items: center; gap: 10px;">
                 <div style="display: flex; align-items: center; gap: 8px;">
@@ -1642,7 +1642,7 @@
               </div>
             </div>
 
-            <!-- 1. Patients Table & Cards (Placed in Dedicated Cohesive Container v1.4.78) -->
+            <!-- 1. Patients Table & Cards (Placed in Dedicated Cohesive Container v1.4.79) -->
             <div class="card" id="card-claim-patients-wrap">
               <div class="card-header">
                 <div style="display: flex; align-items: center; gap: 8px;">
@@ -1702,7 +1702,7 @@
               <div id="claim-patients-mobile-cards" class="mobile-only-cards-container" style="padding: 10px 12px;"></div>
             </div>
 
-            <!-- 2. Grand Summary Stats Banner (Located directly UNDER Patients Cards v1.4.78) -->
+            <!-- 2. Grand Summary Stats Banner (Located directly UNDER Patients Cards v1.4.79) -->
             <div class="stats-grid" id="claim-kpi-stats-grid" style="margin-bottom: 16px; width: 100%;">
               <div class="stat-box">
                 <div class="stat-icon blue"><i class="fa-solid fa-users"></i></div>
@@ -1727,7 +1727,7 @@
               </div>
             </div>
 
-            <!-- 3. Action & Printing Hub (Located at BOTTOM v1.4.78) -->
+            <!-- 3. Action & Printing Hub (Located at BOTTOM v1.4.79) -->
             <div class="card" id="card-claim-actions-hub" style="margin-bottom: 16px; border: 1.5px solid var(--border-color); background: var(--bg-surface); padding: 14px 16px;">
               <div class="card-header" style="border-bottom: 1px solid var(--border-color); padding-bottom: 8px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center;">
                 <span class="card-title" style="font-size: 1rem; font-weight: 800; color: var(--text-main);">
@@ -2062,7 +2062,7 @@
         <div class="admin-system-footer no-print" style="margin-top: 32px; margin-bottom: 35px; text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px;">
           <div style="display: inline-flex; align-items: center; gap: 8px; background: var(--bg-surface); border: 1.5px solid var(--border-color); padding: 7px 18px; border-radius: 999px; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);">
             <span style="width: 8px; height: 8px; border-radius: 50%; background-color: var(--success); display: inline-block; box-shadow: 0 0 6px var(--success);"></span>
-            <span style="font-weight: 800; font-size: 0.88rem; color: var(--text-main);">نظام ASCPT — الإصدار 1.4.78</span>
+            <span style="font-weight: 800; font-size: 0.88rem; color: var(--text-main);">نظام ASCPT — الإصدار 1.4.79</span>
             <span class="badge badge-primary" style="font-size: 0.72rem; padding: 2px 10px; border-radius: 999px; font-weight: 800;">إصدار معتمد</span>
           </div>
           <div style="font-size: 0.76rem; color: var(--text-muted); font-weight: 700;">
@@ -2101,7 +2101,7 @@
 
   <!-- ================= Modals ================= -->
 
-  <!-- Modal 1: Add / Edit Patient (Modern Medical Form v1.4.78) -->
+  <!-- Modal 1: Add / Edit Patient (Modern Medical Form v1.4.79) -->
   <div class="modal-backdrop" id="modal-patient">
     <div class="modal-content modal-patient-modern">
       <div class="modal-header">
@@ -2692,20 +2692,20 @@
     </div>
   </div>
 
-  <!-- Modal: Medical Image Polish & Enhancer Studio (v1.4.78) -->
+  <!-- Modal: Medical Image Polish & Enhancer Studio (v1.4.79) -->
   <div class="modal-backdrop" id="modal-image-polish" style="z-index: 240;">
-    <div class="modal-content modal-polish-studio" style="max-width: 840px; border-radius: 18px; padding: 0; overflow: hidden; background: var(--bg-surface);">
-      <!-- Header -->
-      <div class="modal-header" style="background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%); color: #ffffff; padding: 14px 20px; display: flex; justify-content: space-between; align-items: center;">
+    <div class="modal-content modal-polish-studio" style="max-width: 860px; border-radius: 18px; padding: 0; background: var(--bg-surface);">
+      <!-- Header (Fixed at top) -->
+      <div class="modal-header" style="background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%); color: #ffffff; padding: 12px 18px; display: flex; justify-content: space-between; align-items: center; flex-shrink: 0;">
         <div style="display: flex; align-items: center; gap: 10px;">
           <div style="width: 36px; height: 36px; border-radius: 10px; background: rgba(255, 255, 255, 0.18); display: flex; align-items: center; justify-content: center; font-size: 1.15rem;">
             <i class="fa-solid fa-wand-magic-sparkles"></i>
           </div>
           <div>
-            <h3 style="margin: 0; font-size: 1.1rem; color: #ffffff; font-weight: 800; display: flex; align-items: center; gap: 8px;">
+            <h3 style="margin: 0; font-size: 1.05rem; color: #ffffff; font-weight: 800; display: flex; align-items: center; gap: 8px;">
               معالجة وتوضيح الأشعة والمستندات الطبية
             </h3>
-            <div style="font-size: 0.74rem; opacity: 0.9; color: #e0f2fe;" id="polish-modal-subtitle">تعديل الإضاءة والتباين وإبراز تفاصيل العظام والتقارير</div>
+            <div style="font-size: 0.72rem; opacity: 0.9; color: #e0f2fe;" id="polish-modal-subtitle">قص وتعديل الإضاءة والتباين وإبراز تفاصيل العظام</div>
           </div>
         </div>
         <div style="display: flex; align-items: center; gap: 10px;">
@@ -2714,21 +2714,46 @@
         </div>
       </div>
 
-      <div class="modal-body polish-modal-body" style="padding: 16px; display: grid; grid-template-columns: 1fr 310px; gap: 16px; align-items: start;">
+      <!-- Scrollable Body -->
+      <div class="modal-body polish-modal-body">
         <!-- Left: Image Canvas Viewport -->
-        <div class="polish-viewport-card" style="background: #090d16; border-radius: 12px; border: 1px solid #1e293b; padding: 12px; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 380px; position: relative; overflow: hidden;">
-          <div style="max-width: 100%; max-height: 360px; display: flex; align-items: center; justify-content: center; overflow: hidden;">
-            <canvas id="polish-canvas" style="max-width: 100%; max-height: 360px; object-fit: contain; border-radius: 6px; box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5);"></canvas>
+        <div class="polish-viewport-card">
+          <div class="polish-canvas-wrapper" id="polish-canvas-wrapper">
+            <canvas id="polish-canvas"></canvas>
+            <!-- Interactive Crop Box Overlay (Visible during crop mode) -->
+            <div id="polish-crop-box" class="polish-crop-box" style="display: none;">
+              <div class="crop-grid-lines"></div>
+              <div class="crop-handle crop-handle-tl" data-handle="tl"></div>
+              <div class="crop-handle crop-handle-tr" data-handle="tr"></div>
+              <div class="crop-handle crop-handle-bl" data-handle="bl"></div>
+              <div class="crop-handle crop-handle-br" data-handle="br"></div>
+              <div class="crop-drag-bar" id="crop-drag-bar"></div>
+            </div>
           </div>
-          <div style="margin-top: 10px; display: flex; gap: 8px; z-index: 2; flex-wrap: wrap; justify-content: center;">
-            <button type="button" class="btn btn-outline btn-sm" id="btn-polish-rotate-left" style="background: rgba(255,255,255,0.08); color: #fff; border-color: rgba(255,255,255,0.2); font-size: 0.78rem; padding: 4px 10px;" title="تدوير يسار 90°">
+
+          <!-- Standard Toolbar (Rotate, Crop, Reset) -->
+          <div id="polish-standard-toolbar" style="margin-top: 8px; display: flex; gap: 6px; z-index: 2; flex-wrap: wrap; justify-content: center;">
+            <button type="button" class="btn btn-outline btn-sm" id="btn-polish-crop" style="background: rgba(56, 189, 248, 0.12); color: #38bdf8; border-color: rgba(56, 189, 248, 0.35); font-size: 0.78rem; padding: 5px 12px; font-weight: 700;" title="قص وتحديد جزء من الصورة">
+              <i class="fa-solid fa-crop-simple"></i> قص الصورة
+            </button>
+            <button type="button" class="btn btn-outline btn-sm" id="btn-polish-rotate-left" style="background: rgba(255,255,255,0.08); color: #fff; border-color: rgba(255,255,255,0.2); font-size: 0.78rem; padding: 5px 10px;" title="تدوير يسار 90°">
               <i class="fa-solid fa-rotate-left"></i>
             </button>
-            <button type="button" class="btn btn-outline btn-sm" id="btn-polish-rotate-right" style="background: rgba(255,255,255,0.08); color: #fff; border-color: rgba(255,255,255,0.2); font-size: 0.78rem; padding: 4px 10px;" title="تدوير يمين 90°">
+            <button type="button" class="btn btn-outline btn-sm" id="btn-polish-rotate-right" style="background: rgba(255,255,255,0.08); color: #fff; border-color: rgba(255,255,255,0.2); font-size: 0.78rem; padding: 5px 10px;" title="تدوير يمين 90°">
               <i class="fa-solid fa-rotate-right"></i> تدوير 90°
             </button>
-            <button type="button" class="btn btn-outline btn-sm" id="btn-polish-reset" style="background: rgba(255,255,255,0.08); color: #f87171; border-color: rgba(239,68,68,0.3); font-size: 0.78rem; padding: 4px 10px;" title="إعادة تعيين للتنسيق الأصلي">
+            <button type="button" class="btn btn-outline btn-sm" id="btn-polish-reset" style="background: rgba(255,255,255,0.08); color: #f87171; border-color: rgba(239,68,68,0.3); font-size: 0.78rem; padding: 5px 10px;" title="إعادة تعيين للصورة الأصلية">
               <i class="fa-solid fa-arrows-rotate"></i> الأصلية
+            </button>
+          </div>
+
+          <!-- Active Crop Toolbar (Visible during crop mode) -->
+          <div id="polish-crop-toolbar" style="display: none; margin-top: 8px; gap: 8px; z-index: 2; flex-wrap: wrap; justify-content: center;">
+            <button type="button" class="btn btn-primary btn-sm" id="btn-apply-crop" style="font-size: 0.8rem; font-weight: 800; padding: 5px 14px;">
+              <i class="fa-solid fa-check"></i> تطبيق القص
+            </button>
+            <button type="button" class="btn btn-outline btn-sm" id="btn-cancel-crop" style="color: #f87171; border-color: rgba(239, 68, 68, 0.4); font-size: 0.8rem; padding: 5px 12px;">
+              <i class="fa-solid fa-xmark"></i> إلغاء القص
             </button>
           </div>
         </div>
@@ -2794,10 +2819,10 @@
         </div>
       </div>
 
-      <!-- Footer Actions -->
-      <div class="modal-footer" style="padding: 12px 18px; border-top: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; background: var(--bg-surface);">
+      <!-- Footer Actions (Fixed & Sticky at bottom) -->
+      <div class="modal-footer polish-modal-footer">
         <button type="button" class="btn btn-outline" id="btn-polish-skip-or-cancel">تخطي / إلغاء</button>
-        <button type="button" class="btn btn-primary" id="btn-polish-save-current" style="display: inline-flex; align-items: center; gap: 8px; font-weight: 800;">
+        <button type="button" class="btn btn-primary" id="btn-polish-save-current" style="display: inline-flex; align-items: center; gap: 8px; font-weight: 800; padding: 10px 20px; border-radius: 10px;">
           <i class="fa-solid fa-check"></i>
           <span id="polish-save-btn-text">حفظ الصورة للشيت</span>
         </button>
@@ -2805,7 +2830,7 @@
     </div>
   </div>
 
-  <!-- Modal: Fullscreen Medical Lightbox Viewer (v1.4.78) -->
+  <!-- Modal: Fullscreen Medical Lightbox Viewer (v1.4.79) -->
   <div id="modal-image-lightbox" class="medical-lightbox-overlay" style="display: none;">
     <!-- Top Navigation Bar -->
     <div class="lightbox-top-bar">
@@ -2929,7 +2954,7 @@
     </div>
   </div>
 
-  <!-- Modal: User Profile (v1.4.78) -->
+  <!-- Modal: User Profile (v1.4.79) -->
   <div class="modal-backdrop" id="modal-user-profile" style="z-index: 232;">
     <div class="modal-content" style="max-width: 400px; border-radius: 16px; overflow: hidden; padding: 0; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.15);">
       <!-- Header -->
@@ -2988,7 +3013,7 @@
     </div>
   </div>
 
-  <!-- Modal: Change Password (v1.4.78) -->
+  <!-- Modal: Change Password (v1.4.79) -->
   <div class="modal-backdrop" id="modal-change-password" style="z-index: 235;">
     <div class="modal-content" style="max-width: 440px; border-radius: 14px; overflow: hidden; padding: 0; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);">
       <!-- Header -->
@@ -3118,7 +3143,7 @@
     </div>
   </div>
 
-  <!-- Modal: Shift Coverage Override (v1.4.78) -->
+  <!-- Modal: Shift Coverage Override (v1.4.79) -->
   <div class="modal-backdrop" id="modal-shift-coverage" style="z-index: 230;">
     <div class="modal-content" style="max-width: 440px; border-radius: 14px; overflow: hidden; padding: 0; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);">
       <div class="modal-header" style="background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%); color: #ffffff; padding: 16px 20px; display: flex; justify-content: space-between; align-items: center;">
@@ -3590,7 +3615,7 @@
     </div>
   </div>
 
-    <!-- Modal: Attendance Card Customization (بطاقة تردد المريض v1.4.78) -->
+    <!-- Modal: Attendance Card Customization (بطاقة تردد المريض v1.4.79) -->
   <div class="modal-backdrop" id="modal-attendance-card" style="z-index: 230;">
     <div class="modal-content modal-patient-modern" style="max-width: 520px; border-radius: 18px; padding: 0; overflow: hidden;">
       <div class="modal-header" style="border-bottom: 1.5px solid var(--border-color); padding: 14px 18px; background: var(--bg-surface);">
@@ -3820,7 +3845,7 @@
   </div>
 
 <!-- Main Application Script (ES Module) -->
-  <script type="module" src="js/app.js?v=1.4.78"></script>
+  <script type="module" src="js/app.js?v=1.4.79"></script>
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
@@ -4006,7 +4031,7 @@
     </div>
   </div>
 
-  <!-- Modal: Settle Insurance Claim (تسجيل تحصيل مطالبة تأمين v1.4.78) -->
+  <!-- Modal: Settle Insurance Claim (تسجيل تحصيل مطالبة تأمين v1.4.79) -->
   <div class="modal-backdrop" id="modal-settle-claim">
     <div class="modal-content modal-patient-modern" style="max-width: 520px; border-radius: 18px; padding: 0; overflow: hidden;">
       <div class="modal-header" style="border-bottom: 1.5px solid var(--border-color); padding: 14px 18px; background: var(--bg-surface);">
