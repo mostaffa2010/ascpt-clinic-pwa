@@ -140,6 +140,19 @@ export class ClaimsManager {
       });
     }
 
+    const btnSelectAll = document.getElementById('btn-claim-select-all');
+    if (btnSelectAll) {
+      btnSelectAll.addEventListener('click', () => {
+        const allChecked = this.claimPatientsData.length > 0 && this.claimPatientsData.every(i => i.isChecked);
+        const newCheckedState = !allChecked;
+        this.claimPatientsData.forEach(item => {
+          item.isChecked = newCheckedState;
+        });
+        this.renderPatientsTable();
+        this.recalcGrandTotals();
+      });
+    }
+
     const startInput = document.getElementById('claim-start-date');
     if (startInput) {
       startInput.addEventListener('change', (e) => {
@@ -492,8 +505,27 @@ export class ClaimsManager {
 
     // Sync select-all checkbox with filtered items
     const selectAllCb = document.getElementById('claim-select-all-cb');
+    const allSelected = filtered.length > 0 && filtered.every(i => i.isChecked);
     if (selectAllCb) {
-      selectAllCb.checked = filtered.length > 0 && filtered.every(i => i.isChecked);
+      selectAllCb.checked = allSelected;
+    }
+
+    // Sync select-all button state (v1.4.52)
+    const btnSelectAll = document.getElementById('btn-claim-select-all');
+    const textSelectAll = document.getElementById('text-claim-select-all');
+    const iconSelectAll = document.getElementById('icon-claim-select-all');
+    if (btnSelectAll && textSelectAll && iconSelectAll) {
+      if (allSelected) {
+        textSelectAll.textContent = 'إلغاء تحديد الكل';
+        iconSelectAll.className = 'fa-solid fa-square-minus';
+        btnSelectAll.classList.remove('btn-outline');
+        btnSelectAll.classList.add('btn-primary');
+      } else {
+        textSelectAll.textContent = 'تحديد كل المرضى';
+        iconSelectAll.className = 'fa-solid fa-check-double';
+        btnSelectAll.classList.add('btn-outline');
+        btnSelectAll.classList.remove('btn-primary');
+      }
     }
 
     this.setupScrollSync();
