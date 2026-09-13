@@ -35,6 +35,11 @@ assert.equal(isDoctorOnDuty('all', '2026-09-12'), true, 'Full-time doctor (all) 
 assert.equal(isDoctorOnDuty('sun_tue_thu', '2026-09-13'), true, 'Doctor with sun_tue_thu must be on duty on Sunday');
 assert.equal(isDoctorOnDuty('sat_mon_wed', '2026-09-13'), false, 'Doctor with sat_mon_wed must NOT be on duty on Sunday');
 
+// On Sunday (2026-09-13) with Shift Coverage Overrides
+const sampleOverrides = [{ doctorUid: 'doc_mostafa', date: '2026-09-13', type: 'coverage' }];
+assert.equal(isDoctorOnDuty('sat_mon_wed', '2026-09-13', sampleOverrides, 'doc_mostafa'), true, 'Doctor with sat_mon_wed must be on duty on Sunday if coverage override exists');
+assert.equal(isDoctorOnDuty('sat_mon_wed', '2026-09-13', sampleOverrides, 'other_doc'), false, 'Other sat_mon_wed doctor must remain off duty without override');
+
 // 3. Shift Labels
 assert.equal(getShiftLabel('sat_mon_wed'), 'السبت / الاثنين / الأربعاء');
 assert.equal(getShiftLabel('sun_tue_thu'), 'الأحد / الثلاثاء / الخميس');

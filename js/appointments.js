@@ -5,7 +5,7 @@
 // Time slots represent horizontal rows across all doctors.
 // Slots can now be customized, added, or deleted directly from the UI.
 
-import { escapeHTML, initStackDeck, getDoctorColor, getLocalDateStr } from './utils.js';
+import { escapeHTML, initStackDeck, getDoctorColor, getLocalDateStr, isDoctorOnDuty, getShiftLabel } from './utils.js';
 import { db } from './db.js';
 import { auth } from './auth.js';
 
@@ -75,6 +75,7 @@ export class AppointmentsManager {
     this.slotEditOldKey = null;
     this.movingAppt = null;
     this.doctorApptFilter = 'active'; // 'active' | 'completed'
+    this.shiftOverrides = [];
   }
 
   async init() {
@@ -163,21 +164,41 @@ export class AppointmentsManager {
     }
 
     this.renderSlotQuickChips();
+
+    // Shift Coverage Overrides (v1.4.76)
+    document.getElementById('btn-open-shift-coverage')?.addEventListener('click', () => {
+      this.openShiftCoverageModal();
+    });
+
+    document.getElementById('form-shift-coverage')?.addEventListener('submit', (e) => {
+      this.handleSubmitShiftCoverage(e);
+    });
+
+    document.getElementById('coverage-active-list')?.addEventListener('click', (e) => {
+      const btn = e.target.closest('.btn-delete-coverage');
+      if (btn) {
+        const id = btn.getAttribute('data-override-id');
+        this.handleDeleteShiftCoverage(id);
+      }
+    });
   }
 
   async loadAll() {
-    const [appointments, doctors, patients, slots, sessions] = await Promise.all([
+    const today = getLocalDateStr();
+    const [appointments, doctors, patients, slots, sessions, shiftOverrides] = await Promise.all([
       db.getAppointments(),
       db.getDoctorsList(),
       db.getPatients(),
       db.getAppointmentSlots ? db.getAppointmentSlots() : DEFAULT_APPT_SLOTS,
-      db.getSessions ? db.getSessions() : []
+      db.getSessions ? db.getSessions() : [],
+      db.getShiftOverrides ? db.getShiftOverrides(today) : []
     ]);
     this.appointments = appointments;
     this.doctors = doctors;
     this.patients = patients;
     this.slots = (Array.isArray(slots) && slots.length > 0) ? slots : DEFAULT_APPT_SLOTS;
     this.sessions = sessions || [];
+    this.shiftOverrides = shiftOverrides || [];
   }
 
   getSlotTotalCount(timeSlot) {
@@ -316,6 +337,32 @@ export class AppointmentsManager {
   }
 
   buildDoctorStackedScheduleHTML(doctorUid) {
+    const today = getLocalDateStr();
+    const docObj = (this.doctors || []).find(d => d.uid === doctorUid);
+    const doctorShift = docObj?.shift || 'sat_mon_wed';
+    const shiftOverrides = this.shiftOverrides || [];
+    const onDutyToday = isDoctorOnDuty(doctorShift, today, shiftOverrides, doctorUid);
+
+    if (!onDutyToday) {
+      const shiftName = getShiftLabel(doctorShift);
+      const dayName = new Intl.DateTimeFormat('ar-EG', { weekday: 'long' }).format(new Date());
+      return {
+        html: `
+          <div class="hero-styled-card doc-offduty-schedule-card" style="text-align: center; padding: 36px 20px; margin: 4px 0; border: 1.5px dashed rgba(2, 132, 199, 0.3); background: rgba(2, 132, 199, 0.03);">
+            <div style="width: 58px; height: 58px; border-radius: 50%; background: rgba(2, 132, 199, 0.12); color: var(--primary); display: inline-flex; align-items: center; justify-content: center; font-size: 1.6rem; margin-bottom: 14px;">
+              <i class="fa-solid fa-mug-hot"></i>
+            </div>
+            <div style="font-weight: 800; font-size: 1.15rem; color: var(--text-main);">اليوم (${dayName}) ليس ضمن أيام عملك الرسمية</div>
+            <div style="font-size: 0.86rem; color: var(--text-muted); margin-top: 6px; line-height: 1.6;">
+              شفتك المسجل بالمركز هو: <strong style="color: var(--primary);">${escapeHTML(shiftName)}</strong>.<br>
+              استمتع بيوم إجازتك! ☕ (في حالة النزول كشيفت تغطية استثنائي، يمكن للاستقبال أو الإدارة تفعيل شيفتك لليوم).
+            </div>
+          </div>
+        `,
+        initialIndex: 0
+      };
+    }
+
     const slotsToRender = (this.slots && this.slots.length > 0) ? this.slots : DEFAULT_APPT_SLOTS;
     const completedApptIds = this.getCompletedAppts(doctorUid);
 
@@ -703,12 +750,16 @@ export class AppointmentsManager {
     }
 
     // Populate and sync Doctor Dropdown in modal
+    const today = getLocalDateStr();
     const docSelect = document.getElementById('appt-doctor-select');
+    const warningEl = document.getElementById('appt-doc-shift-warning');
     if (docSelect) {
       docSelect.innerHTML = `<option value="">-- اضغط لاختيار الطبيب المعالج --</option>` + (this.doctors || []).map((d) => {
         const clean = (d.name || '').replace(/^د\.\s*/, '');
         const isSel = (doctorUid && d.uid === doctorUid) ? 'selected' : '';
-        return `<option value="${escapeHTML(d.uid)}" ${isSel}>د. ${escapeHTML(clean)}</option>`;
+        const onDuty = isDoctorOnDuty(d.shift, today, this.shiftOverrides, d.uid);
+        const dutyBadge = onDuty ? '🟢 مناوب اليوم' : '⚪ ليس بشيفت اليوم';
+        return `<option value="${escapeHTML(d.uid)}" ${isSel}>د. ${escapeHTML(clean)} (${dutyBadge})</option>`;
       }).join('');
 
       docSelect.value = doctorUid || '';
@@ -718,6 +769,25 @@ export class AppointmentsManager {
       if (this.app?.updateCustomSelectDisplay) {
         this.app.updateCustomSelectDisplay('appt-doctor-select');
       }
+
+      const updateShiftWarning = (uid) => {
+        if (!warningEl) return;
+        if (!uid) {
+          warningEl.style.display = 'none';
+          return;
+        }
+        const doc = (this.doctors || []).find(d => d.uid === uid);
+        const onDuty = isDoctorOnDuty(doc?.shift, today, this.shiftOverrides, uid);
+        warningEl.style.display = onDuty ? 'none' : 'block';
+      };
+
+      updateShiftWarning(doctorUid);
+      docSelect.onchange = (e) => {
+        this.pendingDoctorUid = e.target.value;
+        const d = (this.doctors || []).find(x => x.uid === e.target.value);
+        this.pendingDoctorName = d ? d.name : '';
+        updateShiftWarning(e.target.value);
+      };
     }
 
     const bodyPartInput = document.getElementById('appt-body-part');
@@ -837,6 +907,25 @@ export class AppointmentsManager {
 
     try {
       const bodyPartVal = document.getElementById('appt-body-part')?.value.trim() || '';
+      const today = getLocalDateStr();
+      const matchedDoc = (this.doctors || []).find(d => d.uid === chosenUid);
+      const onDuty = isDoctorOnDuty(matchedDoc?.shift, today, this.shiftOverrides, chosenUid);
+
+      if (!onDuty && chosenUid) {
+        // Automatically activate shift coverage for this doctor for today
+        try {
+          await db.addShiftOverride({
+            doctorUid: chosenUid,
+            doctorName: chosenName,
+            date: today,
+            type: 'coverage',
+            createdBy: auth.getCurrentUser()?.name || 'الاستقبال'
+          });
+        } catch (covErr) {
+          console.warn('Auto coverage activation notice:', covErr);
+        }
+      }
+
       await db.addAppointment({
         doctorUid: chosenUid,
         doctorName: chosenName,
@@ -847,7 +936,7 @@ export class AppointmentsManager {
         createdBy: auth.getCurrentUser()?.name || ''
       });
       this.app.closeModal('modal-appointment');
-      this.app.showToast('تم حجز الموعد بنجاح');
+      this.app.showToast(!onDuty ? 'تم حجز الموعد وتفعيل تغطية الشيفت للطبيب لليوم بنجاح' : 'تم حجز الموعد بنجاح');
       await this.refreshVisibleGrids();
     } catch (err) {
       this.app.showAlert('تعذر حجز الموعد: ' + err.message, 'خطأ', 'danger');
@@ -1117,6 +1206,124 @@ export class AppointmentsManager {
       await this.refreshVisibleGrids();
     } catch (err) {
       this.app.showAlert('تعذر نقل الموعد: ' + err.message, 'خطأ', 'danger');
+    }
+  }
+
+    // ================= Shift Coverage Management (v1.4.76) =================
+  async openShiftCoverageModal() {
+    const today = getLocalDateStr();
+    const dateInput = document.getElementById('coverage-date-input');
+    if (dateInput) dateInput.value = today;
+
+    // Populate Doctor Select
+    const docSelect = document.getElementById('coverage-doc-select');
+    if (docSelect) {
+      docSelect.innerHTML = `<option value="">-- اضغط لاختيار الطبيب --</option>` + (this.doctors || []).map(d => {
+        const clean = (d.name || '').replace(/^د\.\s*/, '');
+        const shiftLabel = getShiftLabel(d.shift || 'sat_mon_wed');
+        return `<option value="${escapeHTML(d.uid)}">د. ${escapeHTML(clean)} (شفت: ${escapeHTML(shiftLabel)})</option>`;
+      }).join('');
+      if (this.app?.updateCustomSelectDisplay) {
+        this.app.updateCustomSelectDisplay('coverage-doc-select');
+      }
+    }
+
+    const notesInp = document.getElementById('coverage-notes-input');
+    if (notesInp) notesInp.value = '';
+
+    await this.renderCoverageActiveList();
+    this.app.openModal('modal-shift-coverage');
+  }
+
+  async renderCoverageActiveList() {
+    const today = getLocalDateStr();
+    const listEl = document.getElementById('coverage-active-list');
+    const badgeEl = document.getElementById('coverage-active-badge');
+    if (!listEl) return;
+
+    try {
+      const overrides = await db.getShiftOverrides(today);
+      this.shiftOverrides = overrides;
+      if (badgeEl) badgeEl.textContent = `${overrides.length} أطباء`;
+
+      if (overrides.length === 0) {
+        listEl.innerHTML = `<div style="text-align: center; color: var(--text-muted); padding: 12px; font-size: 0.78rem;">لا توجد تغطيات استثنائية مسجلة لهذا اليوم حتى الآن.</div>`;
+        return;
+      }
+
+      listEl.innerHTML = overrides.map(o => {
+        const safeName = escapeHTML(o.doctorName || 'طبيب');
+        const safeBy = escapeHTML(o.createdBy || 'الإدارة');
+        const safeNote = escapeHTML(o.notes || '');
+        const safeId = escapeHTML(o.id);
+        return `
+          <div class="coverage-item" style="display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 8px 10px; border-radius: 8px; background: var(--bg-surface); border: 1px solid var(--border-color); font-size: 0.8rem;">
+            <div style="display: flex; align-items: center; gap: 8px; min-width: 0; flex: 1;">
+              <div style="width: 28px; height: 28px; border-radius: 6px; background: rgba(16, 185, 129, 0.12); color: var(--success); display: flex; align-items: center; justify-content: center; font-size: 0.85rem; flex-shrink: 0;">
+                <i class="fa-solid fa-user-check"></i>
+              </div>
+              <div style="min-width: 0;">
+                <div style="font-weight: 800; color: var(--text-main); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">د. ${safeName}</div>
+                <div style="font-size: 0.7rem; color: var(--text-muted);">${safeNote ? `${safeNote} • ` : ''}المسجل: ${safeBy}</div>
+              </div>
+            </div>
+            <button type="button" class="btn btn-outline btn-sm btn-delete-coverage" data-override-id="${safeId}" style="color: var(--danger); border-color: rgba(239, 68, 68, 0.3); padding: 3px 8px; font-size: 0.72rem; border-radius: 6px; cursor: pointer;" title="إلغاء التغطية">
+              <i class="fa-solid fa-trash"></i>
+            </button>
+          </div>
+        `;
+      }).join('');
+    } catch (err) {
+      listEl.innerHTML = `<div style="color: var(--danger); font-size: 0.76rem; padding: 6px;">تعذر تحميل قائمة التغطيات: ${escapeHTML(err.message)}</div>`;
+    }
+  }
+
+  async handleSubmitShiftCoverage(e) {
+    if (e) e.preventDefault();
+    const docSelect = document.getElementById('coverage-doc-select');
+    const docUid = docSelect?.value;
+    const dateVal = document.getElementById('coverage-date-input')?.value || getLocalDateStr();
+    const notesVal = document.getElementById('coverage-notes-input')?.value.trim() || '';
+
+    if (!docUid) {
+      this.app.showAlert('من فضلك اختر الطبيب المعالج.', 'بيانات ناقصة', 'warning');
+      return;
+    }
+
+    const matchedDoc = (this.doctors || []).find(d => d.uid === docUid);
+    const docName = matchedDoc ? matchedDoc.name : 'طبيب';
+    const currentUser = auth.getCurrentUser();
+
+    try {
+      await db.addShiftOverride({
+        doctorUid: docUid,
+        doctorName: docName,
+        date: dateVal,
+        notes: notesVal,
+        type: 'coverage',
+        createdBy: currentUser?.name || 'الاستقبال'
+      });
+
+      this.app.showToast(`تم تفعيل تغطية الشيفت للدكتور ${docName} بتاريخ ${dateVal}`);
+      await this.renderCoverageActiveList();
+      await this.refreshVisibleGrids();
+    } catch (err) {
+      this.app.showAlert('تعذر حفظ التغطية: ' + err.message, 'خطأ', 'danger');
+    }
+  }
+
+  async handleDeleteShiftCoverage(overrideId) {
+    if (!overrideId) return;
+    const confirmed = await this.app.showConfirm('هل تريد إلغاء تغطية الشيفت لهذا الطبيب؟', 'تأكيد الإلغاء');
+    if (!confirmed) return;
+
+    try {
+      await db.deleteShiftOverride(overrideId);
+      this.app.showToast('تم إلغاء التغطية بنجاح');
+      await this.renderCoverageActiveList();
+      await this.refreshVisibleGrids();
+    } catch (err) {
+      this.app.showAlert('تعذر إلغاء التغطية: ' + err.message, 'خطأ', 'danger');
     }
   }
 

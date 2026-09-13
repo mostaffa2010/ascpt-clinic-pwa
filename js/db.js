@@ -846,6 +846,40 @@ class FirestoreDatabaseService {
     await deleteDoc(doc(firestoreDb, 'appointments', apptId));
   }
 
+  // ================= 9.1 Shift Overrides (Temporary Doctor Coverage) =================
+  async getShiftOverrides(dateStr = null) {
+    this.ensureConnected();
+    try {
+      const snap = await getDocs(collection(firestoreDb, 'shift_overrides'));
+      const all = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
+      if (dateStr) {
+        return all.filter((o) => o.date === dateStr);
+      }
+      return all;
+    } catch (err) {
+      console.warn('getShiftOverrides notice:', err.message);
+      return [];
+    }
+  }
+
+  async addShiftOverride(overrideData) {
+    this.ensureConnected();
+    const docId = `${overrideData.doctorUid}_${overrideData.date}`;
+    const ref = doc(firestoreDb, 'shift_overrides', docId);
+    const payload = {
+      ...overrideData,
+      id: docId,
+      createdAt: new Date().toISOString()
+    };
+    await setDoc(ref, payload);
+    return payload;
+  }
+
+  async deleteShiftOverride(overrideId) {
+    this.ensureConnected();
+    await deleteDoc(doc(firestoreDb, 'shift_overrides', overrideId));
+  }
+
   // ================= 8. Backup & Restore =================
   // NOTE: `users` and `audit_logs` are intentionally excluded from backups.
   // Staff accounts must only ever be created/changed through the vetted

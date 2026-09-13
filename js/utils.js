@@ -480,7 +480,11 @@ export function getDayShiftKey(dateStr) {
  * @param {string} dateStr - Target date 'YYYY-MM-DD'
  * @returns {boolean}
  */
-export function isDoctorOnDuty(doctorShift, dateStr) {
+export function isDoctorOnDuty(doctorShift, dateStr, overrides = [], doctorUid = null) {
+  if (doctorUid && Array.isArray(overrides)) {
+    const hasOverride = overrides.some(o => o.doctorUid === doctorUid && o.date === dateStr);
+    if (hasOverride) return true;
+  }
   if (!doctorShift || doctorShift === 'all') return true;
   const dayShift = getDayShiftKey(dateStr);
   if (!dayShift || dayShift === 'friday') return true;
