@@ -7208,9 +7208,15 @@ h1, h2, h3, h4, h5, h6 {
   color: var(--danger);
 }
 
-/* 4. Truly Fixed Floating Action Bar at Bottom */
+/* 4. Truly Fixed Floating Action Bar at Bottom (Optimized v1.4.84) */
 #view-patient-sheet {
-  padding-bottom: 90px !important;
+  padding-bottom: 0 !important;
+}
+
+@media screen and (min-width: 992px) {
+  #view-patient-sheet {
+    padding-bottom: 45px !important;
+  }
 }
 
 .sheet-bottom-bar-fixed {
