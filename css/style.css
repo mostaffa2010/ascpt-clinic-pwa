@@ -71,6 +71,7 @@ html, body {
   overscroll-behavior-y: none;
   scrollbar-width: none !important;
   -ms-overflow-style: none !important;
+  touch-action: pan-x pan-y;
 }
 
 /* 100% Native App Feel: Completely hide all visual scrollbars across all browsers & PWAs */
@@ -9006,4 +9007,18 @@ body.role-receptionist #dashboard-admin-view {
 #patients-mobile-cards,
 #sessions-today-mobile-cards {
   display: grid !important;
+}
+
+/* ==========================================================================
+   STRICT MOBILE PINCH-TO-ZOOM PREVENTION (v1.4.69)
+   Prevents accidental two-finger zoom while preserving smooth scrolling
+   ========================================================================== */
+html, body {
+  touch-action: pan-x pan-y !important;
+}
+
+@media screen and (max-width: 991px) {
+  html, body, #app, main, .view-section {
+    touch-action: pan-x pan-y !important;
+  }
 }
