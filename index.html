@@ -121,8 +121,8 @@
   
 
     <!-- Stylesheets -->
-  <link rel="stylesheet" href="css/style.css?v=1.4.81" media="screen">
-  <link rel="stylesheet" href="css/print.css?v=1.4.81" media="print">
+  <link rel="stylesheet" href="css/style.css?v=1.4.82" media="screen">
+  <link rel="stylesheet" href="css/print.css?v=1.4.82" media="print">
 </head>
 <body>
   <script>
@@ -2062,7 +2062,7 @@
         <div class="admin-system-footer no-print" style="margin-top: 32px; margin-bottom: 35px; text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px;">
           <div style="display: inline-flex; align-items: center; gap: 8px; background: var(--bg-surface); border: 1.5px solid var(--border-color); padding: 7px 18px; border-radius: 999px; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);">
             <span style="width: 8px; height: 8px; border-radius: 50%; background-color: var(--success); display: inline-block; box-shadow: 0 0 6px var(--success);"></span>
-            <span style="font-weight: 800; font-size: 0.88rem; color: var(--text-main);">نظام ASCPT — الإصدار 1.4.81</span>
+            <span style="font-weight: 800; font-size: 0.88rem; color: var(--text-main);">نظام ASCPT — الإصدار 1.4.82</span>
             <span class="badge badge-primary" style="font-size: 0.72rem; padding: 2px 10px; border-radius: 999px; font-weight: 800;">إصدار معتمد</span>
           </div>
           <div style="font-size: 0.76rem; color: var(--text-muted); font-weight: 700;">
@@ -2762,10 +2762,19 @@
         <div class="polish-controls-card" style="display: flex; flex-direction: column; gap: 12px;">
           <!-- Category Selection -->
           <div class="form-group" style="margin-bottom: 0;">
-            <label style="font-weight: 800; font-size: 0.84rem; margin-bottom: 4px; display: block;">نوع الأشعة / المستند *</label>
-            <select id="polish-category-select" class="form-control" style="font-size: 0.85rem; font-weight: 700;">
-              <option value="mri" selected>رنين مغناطيسي (MRI)</option>
-              <option value="xray">أشعة عادية (X-Ray)</option>
+            <label style="font-weight: 800; font-size: 0.84rem; margin-bottom: 6px; display: block;">نوع الأشعة / المستند *</label>
+            <div class="polish-category-chips" id="polish-category-chips" style="display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 6px;">
+              <button type="button" class="btn-cat-chip" data-cat="xray"><i class="fa-solid fa-bone"></i> عادية (X-Ray)</button>
+              <button type="button" class="btn-cat-chip" data-cat="mri"><i class="fa-solid fa-magnet"></i> رنين (MRI)</button>
+              <button type="button" class="btn-cat-chip" data-cat="ct"><i class="fa-solid fa-circle-notch"></i> مقطعية (CT)</button>
+              <button type="button" class="btn-cat-chip" data-cat="sonar"><i class="fa-solid fa-wave-square"></i> سونار</button>
+              <button type="button" class="btn-cat-chip" data-cat="lab"><i class="fa-solid fa-vial"></i> تحليل</button>
+              <button type="button" class="btn-cat-chip" data-cat="report"><i class="fa-solid fa-file-medical"></i> تقرير</button>
+              <button type="button" class="btn-cat-chip" data-cat="other"><i class="fa-solid fa-file"></i> أخرى</button>
+            </div>
+            <select id="polish-category-select" class="form-control" style="font-size: 0.85rem; font-weight: 700; display: none;">
+              <option value="xray" selected>أشعة عادية (X-Ray)</option>
+              <option value="mri">رنين مغناطيسي (MRI)</option>
               <option value="ct">أشعة مقطعية (CT Scan)</option>
               <option value="sonar">سونار / دوبلر (Ultrasound)</option>
               <option value="lab">تحليل دم ومختبر (Lab Test)</option>
@@ -2830,43 +2839,94 @@
     </div>
   </div>
 
-  <!-- Modal: Fullscreen Medical Lightbox Viewer (v1.4.80) -->
-  <div id="modal-image-lightbox" class="medical-lightbox-overlay" style="display: none;">
-    <!-- Top Navigation Bar -->
-    <div class="lightbox-top-bar">
-      <div class="lightbox-meta" style="min-width: 0; flex: 1;">
-        <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
-          <span id="lightbox-category-badge" class="badge badge-primary">-</span>
-          <h4 id="lightbox-patient-title" style="margin: 0; color: #ffffff; font-size: 0.95rem; font-weight: 800;">أشعة المريض</h4>
+  <!-- Modal: Change Patient Image Category (v1.4.82) -->
+  <div class="modal-backdrop" id="modal-change-image-category" style="z-index: 380;">
+    <div class="modal-content" style="max-width: 440px; border-radius: 16px; padding: 0; overflow: hidden; background: var(--bg-surface);">
+      <div class="modal-header" style="background: var(--primary-gradient); color: #fff; padding: 14px 18px; display: flex; justify-content: space-between; align-items: center;">
+        <h4 style="margin: 0; font-size: 1rem; font-weight: 800; display: flex; align-items: center; gap: 8px;">
+          <i class="fa-solid fa-tags"></i> تعديل تصنيف الأشعة / المستند
+        </h4>
+        <button type="button" class="modal-close" data-close-modal="modal-change-image-category" style="font-size: 1.3rem; background: none; border: none; cursor: pointer; color: #fff;">&times;</button>
+      </div>
+      <div class="modal-body" style="padding: 16px;">
+        <p style="font-size: 0.82rem; color: var(--text-muted); margin: 0 0 12px 0;">اختر التصنيف الطبي الصحيح لهذه الصورة لتحديث البادج وطريقة العرض فوراً:</p>
+        <div class="change-cat-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+          <button type="button" class="btn btn-outline btn-change-cat-choice" data-cat="xray" style="padding: 12px 8px; border-radius: 10px; font-size: 0.85rem; font-weight: 800; display: flex; flex-direction: column; align-items: center; gap: 6px; border: 1.5px solid var(--border-color);">
+            <i class="fa-solid fa-bone" style="font-size: 1.2rem; color: #475569;"></i>
+            <span>أشعة عادية (X-Ray)</span>
+          </button>
+          <button type="button" class="btn btn-outline btn-change-cat-choice" data-cat="mri" style="padding: 12px 8px; border-radius: 10px; font-size: 0.85rem; font-weight: 800; display: flex; flex-direction: column; align-items: center; gap: 6px; border: 1.5px solid var(--border-color);">
+            <i class="fa-solid fa-magnet" style="font-size: 1.2rem; color: #0284c7;"></i>
+            <span>رنين مغناطيسي (MRI)</span>
+          </button>
+          <button type="button" class="btn btn-outline btn-change-cat-choice" data-cat="ct" style="padding: 12px 8px; border-radius: 10px; font-size: 0.85rem; font-weight: 800; display: flex; flex-direction: column; align-items: center; gap: 6px; border: 1.5px solid var(--border-color);">
+            <i class="fa-solid fa-circle-notch" style="font-size: 1.2rem; color: #9333ea;"></i>
+            <span>أشعة مقطعية (CT)</span>
+          </button>
+          <button type="button" class="btn btn-outline btn-change-cat-choice" data-cat="sonar" style="padding: 12px 8px; border-radius: 10px; font-size: 0.85rem; font-weight: 800; display: flex; flex-direction: column; align-items: center; gap: 6px; border: 1.5px solid var(--border-color);">
+            <i class="fa-solid fa-wave-square" style="font-size: 1.2rem; color: #0ea5e9;"></i>
+            <span>سونار / دوبلر</span>
+          </button>
+          <button type="button" class="btn btn-outline btn-change-cat-choice" data-cat="lab" style="padding: 12px 8px; border-radius: 10px; font-size: 0.85rem; font-weight: 800; display: flex; flex-direction: column; align-items: center; gap: 6px; border: 1.5px solid var(--border-color);">
+            <i class="fa-solid fa-vial" style="font-size: 1.2rem; color: #e11d48;"></i>
+            <span>تحليل دم ومختبر</span>
+          </button>
+          <button type="button" class="btn btn-outline btn-change-cat-choice" data-cat="report" style="padding: 12px 8px; border-radius: 10px; font-size: 0.85rem; font-weight: 800; display: flex; flex-direction: column; align-items: center; gap: 6px; border: 1.5px solid var(--border-color);">
+            <i class="fa-solid fa-file-medical" style="font-size: 1.2rem; color: #10b981;"></i>
+            <span>تقرير طبي</span>
+          </button>
         </div>
-        <div id="lightbox-notes-text" style="font-size: 0.75rem; color: #94a3b8; margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 420px;"></div>
+        <button type="button" class="btn btn-outline btn-change-cat-choice" data-cat="other" style="width: 100%; margin-top: 8px; padding: 10px; border-radius: 10px; font-size: 0.85rem; font-weight: 800; display: flex; align-items: center; justify-content: center; gap: 6px; border: 1.5px solid var(--border-color);">
+          <i class="fa-solid fa-file" style="color: #64748b;"></i>
+          <span>مستند / صورة أخرى</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Fullscreen Medical Lightbox Viewer (v1.4.82) -->
+  <div id="modal-image-lightbox" class="medical-lightbox-overlay" style="display: none;">
+    <!-- Top Navigation Bar (Responsive & Clean v1.4.82) -->
+    <div class="lightbox-top-bar">
+      <!-- Main Info & Close Header Row -->
+      <div class="lightbox-header-row">
+        <!-- Right: Patient Info & Category Badge -->
+        <div class="lightbox-meta">
+          <div class="lightbox-meta-main">
+            <span id="lightbox-category-badge" class="badge badge-cat-mri" style="cursor: pointer;" title="اضغط لتعديل تصنيف الأشعة">-</span>
+            <h4 id="lightbox-patient-title" class="lightbox-patient-title">ملف المريض</h4>
+          </div>
+          <div id="lightbox-notes-text" class="lightbox-notes-text"></div>
+        </div>
+
+        <!-- Left: Counter & Close Button -->
+        <div class="lightbox-header-actions">
+          <div class="lightbox-counter" id="lightbox-counter-badge">
+            1 من 1
+          </div>
+          <button type="button" class="lightbox-tool-btn lightbox-tool-close" id="btn-lightbox-close" title="إغلاق (Esc)">
+            <i class="fa-solid fa-xmark"></i>
+          </button>
+        </div>
       </div>
 
-      <!-- Center Counter -->
-      <div class="lightbox-counter" id="lightbox-counter-badge" style="margin: 0 10px;">
-        صورة 1 من 1
-      </div>
-
-      <!-- Right Action Tools -->
+      <!-- Action Tools Row (Dedicated Centered Toolbar) -->
       <div class="lightbox-tools">
         <button type="button" class="lightbox-tool-btn" id="btn-lightbox-zoom-out" title="تصغير">
           <i class="fa-solid fa-magnifying-glass-minus"></i>
         </button>
-        <button type="button" class="lightbox-tool-btn" id="btn-lightbox-zoom-reset" title="إعادة ضبط الحجم">
+        <button type="button" class="lightbox-tool-btn" id="btn-lightbox-zoom-reset" title="إعادة ضبط الحجم 100%">
           <i class="fa-solid fa-arrows-rotate"></i>
         </button>
         <button type="button" class="lightbox-tool-btn" id="btn-lightbox-zoom-in" title="تكبير">
           <i class="fa-solid fa-magnifying-glass-plus"></i>
         </button>
-        <button type="button" class="lightbox-tool-btn" id="btn-lightbox-rotate" title="تدوير">
+        <button type="button" class="lightbox-tool-btn" id="btn-lightbox-rotate" title="تدوير 90°">
           <i class="fa-solid fa-rotate-right"></i>
         </button>
         <a href="#" id="btn-lightbox-download" class="lightbox-tool-btn" download="medical-scan.jpg" title="تحميل الصورة">
           <i class="fa-solid fa-download"></i>
         </a>
-        <button type="button" class="lightbox-tool-btn lightbox-tool-close" id="btn-lightbox-close" title="إغلاق (Esc)">
-          <i class="fa-solid fa-xmark"></i>
-        </button>
       </div>
     </div>
 
@@ -3845,7 +3905,7 @@
   </div>
 
 <!-- Main Application Script (ES Module) -->
-  <script type="module" src="js/app.js?v=1.4.81"></script>
+  <script type="module" src="js/app.js?v=1.4.82"></script>
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {

@@ -9807,3 +9807,204 @@ body.role-doctor .btn-quick-attend {
   height: 100%;
   object-fit: cover;
 }
+
+/* ==========================================================================
+   v1.4.82: Optimized Mobile Lightbox Header & Interactive Medical Category Chips
+   ========================================================================== */
+.lightbox-top-bar {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 8px !important;
+  padding: 10px 14px !important;
+  background: rgba(15, 23, 42, 0.94) !important;
+  backdrop-filter: blur(12px) !important;
+  -webkit-backdrop-filter: blur(12px) !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.12) !important;
+  z-index: 20 !important;
+  box-sizing: border-box !important;
+  width: 100% !important;
+}
+
+.lightbox-header-row {
+  display: flex !important;
+  justify-content: space-between !important;
+  align-items: center !important;
+  width: 100% !important;
+  gap: 8px !important;
+  min-width: 0 !important;
+}
+
+.lightbox-meta {
+  min-width: 0 !important;
+  flex: 1 !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 2px !important;
+  overflow: hidden !important;
+}
+
+.lightbox-meta-main {
+  display: flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  overflow: hidden !important;
+  white-space: nowrap !important;
+}
+
+#lightbox-category-badge {
+  white-space: nowrap !important;
+  flex-shrink: 0 !important;
+  font-size: 0.76rem !important;
+  padding: 3px 8px !important;
+  border-radius: 6px !important;
+  font-weight: 800 !important;
+  cursor: pointer !important;
+  transition: transform 0.15s ease !important;
+}
+
+#lightbox-category-badge:hover {
+  transform: scale(1.05) !important;
+}
+
+.lightbox-patient-title {
+  margin: 0 !important;
+  color: #ffffff !important;
+  font-size: 0.92rem !important;
+  font-weight: 800 !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+}
+
+.lightbox-notes-text {
+  font-size: 0.74rem !important;
+  color: #94a3b8 !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+}
+
+.lightbox-header-actions {
+  display: flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  flex-shrink: 0 !important;
+}
+
+.lightbox-counter {
+  font-size: 0.78rem !important;
+  font-weight: 800 !important;
+  background: rgba(255, 255, 255, 0.12) !important;
+  color: #f1f5f9 !important;
+  padding: 4px 10px !important;
+  border-radius: 999px !important;
+  border: 1px solid rgba(255, 255, 255, 0.2) !important;
+  white-space: nowrap !important;
+  flex-shrink: 0 !important;
+}
+
+.lightbox-tools {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 8px !important;
+  width: 100% !important;
+}
+
+.lightbox-tool-btn {
+  width: 38px !important;
+  height: 38px !important;
+  border-radius: 10px !important;
+  background: rgba(255, 255, 255, 0.08) !important;
+  color: #ffffff !important;
+  border: 1px solid rgba(255, 255, 255, 0.16) !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  font-size: 0.95rem !important;
+  cursor: pointer !important;
+  transition: all 0.15s ease !important;
+  text-decoration: none !important;
+  flex-shrink: 0 !important;
+}
+
+.lightbox-tool-btn:hover {
+  background: rgba(255, 255, 255, 0.2) !important;
+  border-color: rgba(255, 255, 255, 0.35) !important;
+  transform: translateY(-1px) !important;
+}
+
+.lightbox-tool-close {
+  background: rgba(239, 68, 68, 0.25) !important;
+  border-color: rgba(239, 68, 68, 0.4) !important;
+  color: #fca5a5 !important;
+  font-size: 1.1rem !important;
+}
+
+.lightbox-tool-close:hover {
+  background: #ef4444 !important;
+  color: #ffffff !important;
+}
+
+@media screen and (min-width: 769px) {
+  .lightbox-top-bar {
+    flex-direction: row !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    padding: 12px 20px !important;
+    gap: 16px !important;
+  }
+  .lightbox-header-row {
+    width: auto !important;
+    flex: 1 !important;
+  }
+  .lightbox-tools {
+    width: auto !important;
+    justify-content: flex-end !important;
+  }
+}
+
+/* Polish Category Chips */
+.btn-cat-chip {
+  border-radius: 8px !important;
+  font-size: 0.78rem !important;
+  font-weight: 700 !important;
+  padding: 6px 12px !important;
+  border: 1.5px solid var(--border-color) !important;
+  background: var(--bg-surface) !important;
+  color: var(--text-main) !important;
+  cursor: pointer !important;
+  transition: all 0.15s ease !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 5px !important;
+}
+
+.btn-cat-chip:hover {
+  border-color: var(--primary) !important;
+  color: var(--primary) !important;
+}
+
+.btn-cat-chip.active {
+  background: var(--primary) !important;
+  color: #ffffff !important;
+  border-color: var(--primary) !important;
+  box-shadow: 0 2px 8px rgba(2, 132, 199, 0.35) !important;
+}
+
+.imaging-card-badge {
+  cursor: pointer !important;
+  transition: transform 0.15s ease, filter 0.15s ease !important;
+}
+
+.imaging-card-badge:hover {
+  transform: scale(1.08) !important;
+  filter: brightness(1.1) !important;
+}
+
+.btn-change-cat-choice:hover {
+  border-color: var(--primary) !important;
+  background: var(--primary-light) !important;
+  color: var(--primary) !important;
+  transform: translateY(-2px) !important;
+}

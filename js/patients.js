@@ -354,6 +354,37 @@ export class PatientsManager {
       });
     });
 
+    // Polish Category Chips (v1.4.82)
+    document.querySelectorAll('.btn-cat-chip').forEach(btn => {
+      btn.addEventListener('click', () => {
+        this.setPolishCategory(btn.dataset.cat);
+      });
+    });
+
+    // Smart Auto-detection while typing in Polish note / title
+    document.getElementById('polish-title-input')?.addEventListener('input', (e) => {
+      const text = e.target.value.trim();
+      const detected = this.detectCategoryFromText(text);
+      if (detected) {
+        this.setPolishCategory(detected);
+      }
+    });
+
+    // Category changer modal choices
+    document.querySelectorAll('.btn-change-cat-choice').forEach(btn => {
+      btn.addEventListener('click', () => {
+        this.handleChangeCategory(btn.dataset.cat);
+      });
+    });
+
+    // Lightbox category badge click
+    document.getElementById('lightbox-category-badge')?.addEventListener('click', () => {
+      if (this.currentPatientImages && this.currentPatientImages[this.lightboxIndex]) {
+        const curImg = this.currentPatientImages[this.lightboxIndex];
+        this.openChangeCategoryModal(curImg.id, curImg.category);
+      }
+    });
+
     document.getElementById('polish-contrast-slider')?.addEventListener('input', (e) => {
       this.polishContrast = parseInt(e.target.value, 10);
       const valEl = document.getElementById('polish-contrast-val');
@@ -2641,13 +2672,13 @@ export class PatientsManager {
       }
 
       const CATEGORY_MAP = {
-        mri: { label: 'رنين مغناطيسي (MRI)', cls: 'badge-cat-mri' },
-        xray: { label: 'أشعة عادية (X-Ray)', cls: 'badge-cat-xray' },
-        ct: { label: 'أشعة مقطعية (CT)', cls: 'badge-cat-ct' },
-        sonar: { label: 'سونار / دوبلر', cls: 'badge-cat-sonar' },
-        lab: { label: 'تحليل دم ومختبر', cls: 'badge-cat-lab' },
-        report: { label: 'تقرير طبي', cls: 'badge-cat-report' },
-        other: { label: 'مستند / أخرى', cls: 'badge-cat-other' }
+        mri: { label: 'رنين مغناطيسي (MRI)', short: 'رنين MRI', cls: 'badge-cat-mri' },
+        xray: { label: 'أشعة عادية (X-Ray)', short: 'X-Ray عادية', cls: 'badge-cat-xray' },
+        ct: { label: 'أشعة مقطعية (CT)', short: 'CT مقطعية', cls: 'badge-cat-ct' },
+        sonar: { label: 'سونار / دوبلر', short: 'سونار', cls: 'badge-cat-sonar' },
+        lab: { label: 'تحليل دم ومختبر', short: 'تحليل', cls: 'badge-cat-lab' },
+        report: { label: 'تقرير طبي', short: 'تقرير', cls: 'badge-cat-report' },
+        other: { label: 'مستند / أخرى', short: 'أخرى', cls: 'badge-cat-other' }
       };
 
       grid.innerHTML = this.currentPatientImages.map((img, idx) => {
@@ -2659,7 +2690,7 @@ export class PatientsManager {
         return `
           <div class="imaging-card" data-index="${idx}" title="${safeTitle} - اضغط للعرض بالشاشة الكاملة">
             <div class="imaging-card-thumb-wrap">
-              <span class="imaging-card-badge ${catInfo.cls}">${catInfo.label.split(' ')[0]}</span>
+              <span class="imaging-card-badge ${catInfo.cls}" data-image-id="${safeId}" data-current-cat="${img.category || 'other'}" title="اضغط لتعديل تصنيف الأشعة">${catInfo.short || catInfo.label} <i class="fa-solid fa-pen" style="font-size: 0.58rem; opacity: 0.8; margin-right: 2px;"></i></span>
               <button type="button" class="imaging-card-delete-btn" data-image-id="${safeId}" title="حذف الصورة">
                 <i class="fa-solid fa-trash"></i>
               </button>
@@ -2677,6 +2708,16 @@ export class PatientsManager {
       if (!grid._hasDelegates) {
         grid._hasDelegates = true;
         grid.addEventListener('click', async (e) => {
+          const badgeBtn = e.target.closest('.imaging-card-badge');
+          if (badgeBtn) {
+            e.preventDefault();
+            e.stopPropagation();
+            const imgId = badgeBtn.getAttribute('data-image-id');
+            const currentCat = badgeBtn.getAttribute('data-current-cat');
+            this.openChangeCategoryModal(imgId, currentCat);
+            return;
+          }
+
           const delBtn = e.target.closest('.imaging-card-delete-btn');
           if (delBtn) {
             e.preventDefault();
@@ -2755,8 +2796,13 @@ export class PatientsManager {
         const titleInp = document.getElementById('polish-title-input');
         if (titleInp) titleInp.value = '';
 
-        const catSelect = document.getElementById('polish-category-select');
-        if (catSelect) catSelect.value = 'mri';
+        // Auto-detect category from file name or default to xray (v1.4.82)
+        let initialCat = 'xray';
+        if (file && file.name) {
+          const detectedFromFileName = this.detectCategoryFromText(file.name);
+          if (detectedFromFileName) initialCat = detectedFromFileName;
+        }
+        this.setPolishCategory(initialCat);
 
         const bSlider = document.getElementById('polish-brightness-slider');
         const cSlider = document.getElementById('polish-contrast-slider');
@@ -2831,6 +2877,53 @@ export class PatientsManager {
     ctx.rotate((rot * Math.PI) / 180);
     ctx.drawImage(img, -drawW / 2, -drawH / 2, drawW, drawH);
     ctx.restore();
+  }
+
+  setPolishCategory(cat) {
+    const sel = document.getElementById('polish-category-select');
+    if (sel) sel.value = cat;
+    document.querySelectorAll('.btn-cat-chip').forEach(btn => {
+      btn.classList.toggle('active', btn.dataset.cat === cat);
+    });
+    if (cat === 'xray' && this.polishPreset === 'normal') {
+      this.setPolishPreset('xray');
+    }
+  }
+
+  detectCategoryFromText(text) {
+    if (!text) return null;
+    const lower = text.toLowerCase();
+    if (lower.includes('ct') || lower.includes('مقطعي') || lower.includes('اشعة مقطعية') || lower.includes('أشعة مقطعية')) return 'ct';
+    if (lower.includes('mri') || lower.includes('رنين')) return 'mri';
+    if (lower.includes('x-ray') || lower.includes('xray') || lower.includes('عادية') || lower.includes('اشعة عادية') || lower.includes('أشعة عادية')) return 'xray';
+    if (lower.includes('sonar') || lower.includes('سونار') || lower.includes('دوبلر') || lower.includes('ultrasound')) return 'sonar';
+    if (lower.includes('تحليل') || lower.includes('دم') || lower.includes('lab') || lower.includes('مختبر')) return 'lab';
+    if (lower.includes('تقرير') || lower.includes('كشف') || lower.includes('report') || lower.includes('روشتة')) return 'report';
+    return null;
+  }
+
+  openChangeCategoryModal(imageId, currentCat) {
+    this.targetImageIdForCategory = imageId;
+    document.querySelectorAll('.btn-change-cat-choice').forEach(btn => {
+      btn.classList.toggle('active', btn.dataset.cat === currentCat);
+    });
+    this.app.openModal('modal-change-image-category');
+  }
+
+  async handleChangeCategory(newCat) {
+    if (!this.targetImageIdForCategory || !this.currentSheetPatient) return;
+    try {
+      this.app.showToast('جاري تحديث تصنيف الأشعة...');
+      await db.updatePatientImage(this.currentSheetPatient.id, this.targetImageIdForCategory, { category: newCat });
+      this.app.closeModal('modal-change-image-category');
+      this.app.showToast('تم تحديث تصنيف الأشعة بنجاح');
+      await this.loadAndRenderPatientImages(this.currentSheetPatient.id);
+      if (this.currentPatientImages && this.lightboxIndex !== undefined && document.getElementById('modal-image-lightbox')?.style.display === 'flex') {
+        this.updateLightboxDisplay();
+      }
+    } catch (err) {
+      this.app.showAlert('تعذر تحديث تصنيف الأشعة: ' + err.message, 'خطأ', 'danger');
+    }
   }
 
   setPolishPreset(preset) {
@@ -3231,13 +3324,16 @@ export class PatientsManager {
       other: 'مستند / أخرى'
     };
 
-    const catLabel = CATEGORY_MAP[img.category] || CATEGORY_MAP.other;
+    const catInfo = CATEGORY_MAP[img.category] || CATEGORY_MAP.other;
     const catBadge = document.getElementById('lightbox-category-badge');
-    if (catBadge) catBadge.textContent = catLabel;
+    if (catBadge) {
+      catBadge.textContent = catInfo.label || 'مستند / أخرى';
+      catBadge.className = `badge ${catInfo.cls || 'badge-cat-other'}`;
+    }
 
     const titleEl = document.getElementById('lightbox-patient-title');
     if (titleEl) {
-      titleEl.textContent = this.currentSheetPatient ? `أشعة المريض: ${this.currentSheetPatient.name}` : 'أشعة المريض';
+      titleEl.textContent = this.currentSheetPatient ? this.currentSheetPatient.name : 'ملف المريض';
     }
 
     const notesEl = document.getElementById('lightbox-notes-text');
@@ -3249,7 +3345,7 @@ export class PatientsManager {
 
     const counter = document.getElementById('lightbox-counter-badge');
     if (counter) {
-      counter.textContent = `صورة ${this.lightboxIndex + 1} من ${this.currentPatientImages.length}`;
+      counter.textContent = `${this.lightboxIndex + 1} من ${this.currentPatientImages.length}`;
     }
 
     const mainImg = document.getElementById('lightbox-img');

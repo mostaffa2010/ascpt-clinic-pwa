@@ -1074,6 +1074,50 @@ class FirestoreDatabaseService {
     }
   }
 
+  async updatePatientImage(patientId, imageId, updates) {
+    this.ensureConnected();
+    if (!patientId || !imageId || !updates) return false;
+
+    let updated = false;
+
+    // 1. Try updating in subcollection 'patients/{patientId}/images/{imageId}'
+    try {
+      const imgRef = doc(firestoreDb, 'patients', patientId, 'images', imageId);
+      const imgSnap = await getDoc(imgRef);
+      if (imgSnap.exists()) {
+        await updateDoc(imgRef, {
+          ...updates,
+          lastUpdatedAt: new Date().toISOString()
+        });
+        updated = true;
+      }
+    } catch (subErr) {
+      console.warn('Subcollection image update notice:', subErr.message);
+    }
+
+    // 2. Also check / update in parent patient document imagingFiles (for legacy records)
+    try {
+      const pRef = doc(firestoreDb, 'patients', patientId);
+      const pSnap = await getDoc(pRef);
+      if (pSnap.exists()) {
+        const pData = pSnap.data();
+        if (Array.isArray(pData.imagingFiles)) {
+          const list = [...pData.imagingFiles];
+          const idx = list.findIndex((img) => img.id === imageId);
+          if (idx !== -1) {
+            list[idx] = { ...list[idx], ...updates, lastUpdatedAt: new Date().toISOString() };
+            await updateDoc(pRef, { imagingFiles: list, lastUpdatedAt: new Date().toISOString() });
+            updated = true;
+          }
+        }
+      }
+    } catch (docErr) {
+      console.warn('Patient document imagingFiles update notice:', docErr.message);
+    }
+
+    return updated;
+  }
+
   async deletePatientImage(patientId, imageId) {
     this.ensureConnected();
     if (!patientId || !imageId) return;
