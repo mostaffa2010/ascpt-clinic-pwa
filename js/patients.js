@@ -20,7 +20,7 @@ export class PatientsManager {
     this.pageSize = 12;
     this.viewMode = 'cards';
     try {
-      this.viewMode = localStorage.getItem('ascpt_patients_view_mode') || 'cards';
+      localStorage.setItem('ascpt_patients_view_mode', 'cards');
     } catch (_) {}
     this.newlyAddedPatientId = null;
     this.pendingPromptPatientId = null;
@@ -1528,30 +1528,16 @@ export class PatientsManager {
   }
 
   applyViewModeUI() {
-    const isCards = (this.viewMode === 'cards');
+    this.viewMode = 'cards';
     const tableContainer = document.getElementById('patients-table-container');
     const cardsContainer = document.getElementById('patients-mobile-cards');
     const topWrap = document.getElementById('patients-top-scroll-wrap');
     const toggleGroup = document.getElementById('patients-view-mode-toggle');
 
-    if (tableContainer && cardsContainer) {
-      if (isCards) {
-        tableContainer.style.display = 'none';
-        cardsContainer.style.display = 'grid';
-        if (topWrap) topWrap.style.display = 'none';
-      } else {
-        tableContainer.style.display = 'block';
-        cardsContainer.style.display = 'none';
-        setTimeout(() => this.setupScrollSync(), 50);
-      }
-    }
-
-    if (toggleGroup) {
-      toggleGroup.querySelectorAll('.btn-view-mode').forEach(btn => {
-        const active = (btn.getAttribute('data-view-mode') === this.viewMode);
-        btn.classList.toggle('active', active);
-      });
-    }
+    if (tableContainer) tableContainer.style.display = 'none';
+    if (cardsContainer) cardsContainer.style.display = 'grid';
+    if (topWrap) topWrap.style.display = 'none';
+    if (toggleGroup) toggleGroup.style.display = 'none';
   }
 
   setupScrollSync() {

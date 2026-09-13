@@ -25,7 +25,7 @@ export class SessionsManager {
     this.pageSize = 12;
     this.viewMode = 'cards';
     try {
-      this.viewMode = localStorage.getItem('ascpt_sessions_view_mode') || 'cards';
+      localStorage.setItem('ascpt_sessions_view_mode', 'cards');
     } catch (_) {}
     this.newlyAddedSessionId = null;
     window.sessionsManager = this;
@@ -1591,27 +1591,14 @@ export class SessionsManager {
   }
 
   applyViewModeUI() {
-    const isCards = (this.viewMode === 'cards');
+    this.viewMode = 'cards';
     const tableContainer = document.getElementById('sessions-table-container');
     const cardsContainer = document.getElementById('sessions-today-mobile-cards');
     const toggleGroup = document.getElementById('sessions-view-mode-toggle');
 
-    if (tableContainer && cardsContainer) {
-      if (isCards) {
-        tableContainer.style.display = 'none';
-        cardsContainer.style.display = 'grid';
-      } else {
-        tableContainer.style.display = 'block';
-        cardsContainer.style.display = 'none';
-      }
-    }
-
-    if (toggleGroup) {
-      toggleGroup.querySelectorAll('.btn-view-mode').forEach(btn => {
-        const active = (btn.getAttribute('data-view-mode') === this.viewMode);
-        btn.classList.toggle('active', active);
-      });
-    }
+    if (tableContainer) tableContainer.style.display = 'none';
+    if (cardsContainer) cardsContainer.style.display = 'grid';
+    if (toggleGroup) toggleGroup.style.display = 'none';
   }
 
   async deleteSession(sessionId) {
