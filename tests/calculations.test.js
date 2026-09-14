@@ -344,3 +344,71 @@ assert.equal(seniorDues.quadriplegiaCount, 1);
 assert.equal(seniorDues.totalDues, 530, 'Senior total dues should be 530 EGP');
 
 console.log('✓ All 8 Clinical Program & Seniority Dues assertions passed successfully!');
+
+// 10. Version-Doc Pattern Sync Engine Tests (O(1) Real-Time Read Optimization)
+console.log('--- Running Tests: Version-Doc Pattern & Sync Trigger Engine ---');
+
+function createMockSyncListener(initialData) {
+  let lastSeenVersion = null;
+  let isFirstSnapshot = true;
+  let fetchCount = 0;
+  let notifiedData = null;
+
+  function mockFetch(force) {
+    fetchCount++;
+    return Promise.resolve(initialData);
+  }
+
+  // Startup fetch
+  mockFetch(true).then(data => { notifiedData = data; });
+
+  function onSnapshotCallback(snap) {
+    const data = snap.exists ? snap.data : null;
+    const currentVersion = (data && typeof data.patientsVersion === 'number') ? data.patientsVersion : 0;
+
+    if (isFirstSnapshot) {
+      isFirstSnapshot = false;
+      lastSeenVersion = currentVersion;
+      return;
+    }
+
+    if (lastSeenVersion !== currentVersion) {
+      lastSeenVersion = currentVersion;
+      mockFetch(true).then(res => { notifiedData = res; });
+    }
+  }
+
+  return {
+    getLastSeen: () => lastSeenVersion,
+    getFetchCount: () => fetchCount,
+    getNotifiedData: () => notifiedData,
+    triggerSnapshot: onSnapshotCallback
+  };
+}
+
+const mockPatientsData = [{ id: 'p1', name: 'أحمد' }, { id: 'p2', name: 'محمود' }];
+const syncTest = createMockSyncListener(mockPatientsData);
+
+// 1. On startup, initial fetch executed immediately
+assert.equal(syncTest.getFetchCount(), 1, 'Initial fetch must run on attach');
+
+// 2. Initial snapshot arrives with version 5 -> records version, does not double-fetch
+syncTest.triggerSnapshot({ exists: true, data: { patientsVersion: 5 } });
+assert.equal(syncTest.getLastSeen(), 5, 'Last seen version must update to 5');
+assert.equal(syncTest.getFetchCount(), 1, 'Initial snapshot must not trigger duplicate fetch');
+
+// 3. Redundant snapshot with same version (reconnect / tab refresh) -> NO fetch!
+syncTest.triggerSnapshot({ exists: true, data: { patientsVersion: 5 } });
+assert.equal(syncTest.getFetchCount(), 1, 'Identical version must cost 0 collection refetches');
+
+// 4. Remote write increments version to 6 -> triggers exactly 1 refetch!
+syncTest.triggerSnapshot({ exists: true, data: { patientsVersion: 6 } });
+assert.equal(syncTest.getLastSeen(), 6, 'Last seen version must update to 6');
+assert.equal(syncTest.getFetchCount(), 2, 'New version must trigger refetch');
+
+// 5. Missing doc fallback handles gracefully
+const emptyDocSync = createMockSyncListener([]);
+emptyDocSync.triggerSnapshot({ exists: false, data: null });
+assert.equal(emptyDocSync.getLastSeen(), 0, 'Missing syncVersion doc should default to version 0');
+
+console.log('✓ All 5 Version-Doc Sync Trigger assertions passed successfully!');

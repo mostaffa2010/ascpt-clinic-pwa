@@ -17,7 +17,8 @@ import {
   orderBy,
   limit,
   where,
-  writeBatch
+  writeBatch,
+  increment
 } from 'https://www.gstatic.com/firebasejs/12.18.0/firebase-firestore.js';
 
 import { firestoreDb, isConfigured } from './firebase-init.js';
@@ -189,6 +190,10 @@ class FirestoreDatabaseService {
     this._settlementsLastFetch = 0;
     this._lettersCache = new Map();
 
+    // Version-Doc Tracking for Zero-Cost Real-Time Sync
+    this._lastSeenPatientsVersion = null;
+    this._lastSeenAppointmentsVersion = null;
+
     // Advanced Scoped Caches for Zero-Cost Reads
     this._sessionsByDateCache = new Map();
     this._sessionsByPatientCache = new Map();
@@ -224,6 +229,8 @@ class FirestoreDatabaseService {
     this._settlementsCache = null;
     this._settlementsLastFetch = 0;
     this._lettersCache.clear();
+    this._lastSeenPatientsVersion = null;
+    this._lastSeenAppointmentsVersion = null;
     this._sessionsByDateCache.clear();
     this._sessionsByPatientCache.clear();
     this._expensesByDateCache.clear();
@@ -322,22 +329,41 @@ class FirestoreDatabaseService {
     }
   }
 
-  // Real-time multi-device sync for patients directory
+  // Real-time zero-cost sync for patients directory via meta/syncVersion trigger doc
   subscribeToPatients(callback) {
     if (!this.isCloud) return () => {};
     try {
-      const q = collection(firestoreDb, 'patients');
-      return onSnapshot(q, (snap) => {
-        const list = snap.docs.map(d => ({ ...d.data(), id: d.id }));
-        const sorted = list.sort((a, b) => {
-          const tA = a.createdAt || a.lastUpdatedAt || '';
-          const tB = b.createdAt || b.lastUpdatedAt || '';
-          return tB.localeCompare(tA);
+      let isFirstSnapshot = true;
+
+      // On first attach, always do one initial fetch to get current data
+      this.getPatients(true)
+        .then((list) => {
+          if (typeof callback === 'function') callback(list);
+        })
+        .catch((err) => {
+          console.warn('subscribeToPatients initial fetch notice:', err);
         });
-        this._patientsCache = sorted;
-        this._patientsLastFetch = Date.now();
-        try { idbCache.set('ascpt_cached_patients', sorted); } catch (_) {}
-        if (typeof callback === 'function') callback(sorted);
+
+      const versionDocRef = doc(firestoreDb, 'meta', 'syncVersion');
+      return onSnapshot(versionDocRef, async (snap) => {
+        const data = snap.exists() ? snap.data() : null;
+        const currentVersion = (data && typeof data.patientsVersion === 'number') ? data.patientsVersion : 0;
+
+        if (isFirstSnapshot) {
+          isFirstSnapshot = false;
+          this._lastSeenPatientsVersion = currentVersion;
+          return;
+        }
+
+        if (this._lastSeenPatientsVersion !== currentVersion) {
+          this._lastSeenPatientsVersion = currentVersion;
+          try {
+            const list = await this.getPatients(true);
+            if (typeof callback === 'function') callback(list);
+          } catch (err) {
+            console.warn('subscribeToPatients refetch notice:', err);
+          }
+        }
       }, (err) => {
         console.warn('subscribeToPatients notice:', err);
       });
@@ -366,6 +392,13 @@ class FirestoreDatabaseService {
 
     try {
       await setDoc(doc(firestoreDb, 'patients', patientId), dataToSave, { merge: true });
+      try {
+        await setDoc(doc(firestoreDb, 'meta', 'syncVersion'), {
+          patientsVersion: increment(1)
+        }, { merge: true });
+      } catch (verErr) {
+        console.warn('Failed to increment patientsVersion:', verErr);
+      }
 
       // Update in-memory cache and sessionStorage in place (0 additional reads)
       if (this._patientsCache) {
@@ -395,6 +428,13 @@ class FirestoreDatabaseService {
     this.ensureConnected();
     try {
       await deleteDoc(doc(firestoreDb, 'patients', patientId));
+      try {
+        await setDoc(doc(firestoreDb, 'meta', 'syncVersion'), {
+          patientsVersion: increment(1)
+        }, { merge: true });
+      } catch (verErr) {
+        console.warn('Failed to increment patientsVersion:', verErr);
+      }
       if (this._patientsCache) {
         this._patientsCache = this._patientsCache.filter(p => p.id !== patientId);
         this._patientsLastFetch = Date.now();
@@ -1592,21 +1632,40 @@ class FirestoreDatabaseService {
     }
   }
 
-  // Real-time zero-cost sync for clinic appointments
+  // Real-time zero-cost sync for clinic appointments via meta/syncVersion trigger doc
   subscribeToAppointments(callback) {
     if (!this.isCloud) return () => {};
     try {
-      const q = collection(firestoreDb, 'appointments');
-      return onSnapshot(q, (snap) => {
-        const list = snap.docs.map(d => ({ ...d.data(), id: d.id }));
-        this._appointmentsCache = list;
-        this._appointmentsLastFetch = Date.now();
-        try {
-          localStorage.setItem('ascpt_cached_appointments', JSON.stringify(list));
-          localStorage.setItem('ascpt_appointments_last_sync', String(Date.now()));
-        } catch (_) {}
-        if (typeof callback === 'function') {
-          callback(list);
+      let isFirstSnapshot = true;
+
+      // On first attach, always do one initial fetch to get current data
+      this.getAppointments(true)
+        .then((list) => {
+          if (typeof callback === 'function') callback(list);
+        })
+        .catch((err) => {
+          console.warn('subscribeToAppointments initial fetch notice:', err);
+        });
+
+      const versionDocRef = doc(firestoreDb, 'meta', 'syncVersion');
+      return onSnapshot(versionDocRef, async (snap) => {
+        const data = snap.exists() ? snap.data() : null;
+        const currentVersion = (data && typeof data.appointmentsVersion === 'number') ? data.appointmentsVersion : 0;
+
+        if (isFirstSnapshot) {
+          isFirstSnapshot = false;
+          this._lastSeenAppointmentsVersion = currentVersion;
+          return;
+        }
+
+        if (this._lastSeenAppointmentsVersion !== currentVersion) {
+          this._lastSeenAppointmentsVersion = currentVersion;
+          try {
+            const list = await this.getAppointments(true);
+            if (typeof callback === 'function') callback(list);
+          } catch (err) {
+            console.warn('subscribeToAppointments refetch notice:', err);
+          }
         }
       }, (err) => {
         console.warn('subscribeToAppointments notice:', err);
@@ -1626,6 +1685,13 @@ class FirestoreDatabaseService {
       createdAt: new Date().toISOString()
     };
     await setDoc(ref, payload);
+    try {
+      await setDoc(doc(firestoreDb, 'meta', 'syncVersion'), {
+        appointmentsVersion: increment(1)
+      }, { merge: true });
+    } catch (verErr) {
+      console.warn('Failed to increment appointmentsVersion:', verErr);
+    }
 
     // Update in-memory cache and localStorage synchronously
     if (!this._appointmentsCache) {
@@ -1648,6 +1714,13 @@ class FirestoreDatabaseService {
       updatedAt: new Date().toISOString()
     };
     await updateDoc(ref, payload);
+    try {
+      await setDoc(doc(firestoreDb, 'meta', 'syncVersion'), {
+        appointmentsVersion: increment(1)
+      }, { merge: true });
+    } catch (verErr) {
+      console.warn('Failed to increment appointmentsVersion:', verErr);
+    }
 
     // Update in-memory cache and localStorage synchronously
     if (this._appointmentsCache) {
@@ -1677,6 +1750,13 @@ class FirestoreDatabaseService {
   async deleteAppointment(apptId) {
     this.ensureConnected();
     await deleteDoc(doc(firestoreDb, 'appointments', apptId));
+    try {
+      await setDoc(doc(firestoreDb, 'meta', 'syncVersion'), {
+        appointmentsVersion: increment(1)
+      }, { merge: true });
+    } catch (verErr) {
+      console.warn('Failed to increment appointmentsVersion:', verErr);
+    }
 
     // Update in-memory cache and localStorage synchronously
     if (this._appointmentsCache) {
