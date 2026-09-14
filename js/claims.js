@@ -1,3 +1,4 @@
+import { CLINIC_CONFIG } from './clinic-config.js';
 import { escapeHTML, getLocalDateStr } from './utils.js';
 // ========================================================
 // PhysioFlow - Insurance Claims & Attendance Cards Module
@@ -957,10 +958,10 @@ export class ClaimsManager {
       return `
         <div class="attendance-card-print-page">
           <div style="text-align: right; line-height: 1.4; border-bottom: 2px solid #000; padding-bottom: 6px; margin-bottom: 16px;">
-            <h2 style="font-size: 13pt; margin: 0; font-weight: 800; color: #0369a1;">مركز الإسكندرية التخصصي للعلاج الطبيعي (ASCPT)</h2>
-            <div style="font-size: 10pt; font-weight: 700; color: var(--text-main);">د. حسني أحمد الجويلي</div>
-            <div style="font-size: 8.5pt; color: #475569;">إستشاري العلاج الطبيعي والتقويم الحركي للعمود الفقري</div>
-            <div style="font-size: 8pt; color: #64748b;">١٧ شارع حسين شيرين - لوران - الإسكندرية | تليفون: 03-5702356 | البريد: algewelyspinecare@yahoo.com</div>
+            <h2 style="font-size: 13pt; margin: 0; font-weight: 800; color: #0369a1;">${CLINIC_CONFIG.brandName} (${CLINIC_CONFIG.abbreviation})</h2>
+            <div style="font-size: 10pt; font-weight: 700; color: var(--text-main);">${CLINIC_CONFIG.director?.name}</div>
+            <div style="font-size: 8.5pt; color: #475569;">${CLINIC_CONFIG.director?.title}</div>
+            <div style="font-size: 8pt; color: #64748b;">${CLINIC_CONFIG.contact?.address} | تليفون: ${CLINIC_CONFIG.contact?.phone} | البريد: ${CLINIC_CONFIG.contact?.email}</div>
           </div>
 
           <div style="text-align: center; margin: 20px 0;">
@@ -995,15 +996,15 @@ export class ClaimsManager {
 
           <div style="display: flex; justify-content: flex-end; margin-top: 50px; padding-left: 20px;">
             <div style="text-align: center;">
-              <div style="font-size: 10.5pt; font-weight: bold;">د. حسني أحمد الجويلي</div>
-              <div style="font-size: 9.5pt; margin-top: 4px; color: var(--text-muted);">إستشاري العلاج الطبيعي والتقويم الحركي للعمود الفقري</div>
+              <div style="font-size: 10.5pt; font-weight: bold;">${CLINIC_CONFIG.director?.name}</div>
+              <div style="font-size: 9.5pt; margin-top: 4px; color: var(--text-muted);">${CLINIC_CONFIG.director?.title}</div>
               <div style="margin-top: 35px; border-bottom: 1.5px solid #000; width: 150px;"></div>
             </div>
           </div>
 
           <div style="margin-top: 60px; border-top: 1px solid #777; padding-top: 8px; text-align: center; font-size: 8.5pt; color: #444; line-height: 1.5;">
-            <div style="font-weight: 700;">مركز الإسكندرية التخصصي للعلاج الطبيعي (ASCPT)</div>
-            <div>١٧ شارع حسين شيرين - لوران - الإسكندرية | تليفون: 03-5702356 | البريد: algewelyspinecare@yahoo.com</div>
+            <div style="font-weight: 700;">${CLINIC_CONFIG.brandName} (${CLINIC_CONFIG.abbreviation})</div>
+            <div>${CLINIC_CONFIG.contact?.address} | تليفون: ${CLINIC_CONFIG.contact?.phone} | البريد: ${CLINIC_CONFIG.contact?.email}</div>
           </div>
         </div>
       `;
@@ -1033,7 +1034,7 @@ export class ClaimsManager {
     const claimDate = document.getElementById('claim-doc-date')?.value || getLocalDateStr();
 
     const wsData = [
-      ['مركز الإسكندرية التخصصي للعلاج الطبيعي (ASCPT)'],
+      ['${CLINIC_CONFIG.brandName} (${CLINIC_CONFIG.abbreviation})'],
       [`السادة شركة: ${companyName}`, '', '', `تحريراً في: ${claimDate}`],
       ['بيان بأسماء السادة المحولين'],
       [`رقم البطاقة الضريبية: ${taxNumber}`, '', '', `الفترة: ${this.startDate} إلى ${this.endDate}`],

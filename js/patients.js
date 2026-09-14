@@ -1,3 +1,4 @@
+import { CLINIC_CONFIG } from './clinic-config.js';
 import { escapeHTML, getLocalDateStr, getDoctorColor } from './utils.js';
 // ========================================================
 // PhysioFlow - Patients Management Module
@@ -947,7 +948,7 @@ export class PatientsManager {
               <!-- Right: Address -->
               <div style="display: flex; align-items: center; gap: 5px; font-size: 0.76rem; min-width: 0; flex: 1;">
                 <span class="hsc-meta-text" style="font-size: 0.74rem; gap: 4px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
-                  <i class="fa-solid fa-location-dot" style="color: var(--primary);"></i> ${safeAddress && safeAddress !== '-' ? safeAddress : 'الإسكندرية'}
+                  <i class="fa-solid fa-location-dot" style="color: var(--primary);"></i> ${safeAddress && safeAddress !== '-' ? safeAddress : (CLINIC_CONFIG.contact?.city || 'المركز')}
                 </span>
               </div>
 
@@ -1040,8 +1041,8 @@ export class PatientsManager {
     const btnRenew = document.getElementById('btn-wa-tpl-renew');
     const btnDirect = document.getElementById('btn-wa-tpl-direct');
 
-    const apptMsg = `السلام عليكم ورحمة الله وبركاته أستاذ/ة ${name}،\nنذكركم بموعد جلستكم القادمة مع ${doctor || 'الطبيب المعالج'} بمركز الإسكندرية التخصصي للعلاج الطبيعي.\nنتمنى لكم دوام الصحة والعافية.`;
-    const renewMsg = `السلام عليكم ورحمة الله وبركاته أستاذ/ة ${name}،\nنود إعلامكم باقتراب انتهاء الجلسات المعتمدة من شركة التأمين بمركز الإسكندرية التخصصي، يرجى إحضار أصل تجديد الموافقة لمواصلة الخطة العلاجية دون انقطاع.\nشكراً لتعاونكم معنا.`;
+    const apptMsg = `السلام عليكم ورحمة الله وبركاته أستاذ/ة ${name}،\nنذكركم بموعد جلستكم القادمة مع ${doctor || 'الطبيب المعالج'} ب${CLINIC_CONFIG.brandName}.\nنتمنى لكم دوام الصحة والعافية.`;
+    const renewMsg = `السلام عليكم ورحمة الله وبركاته أستاذ/ة ${name}،\nنود إعلامكم باقتراب انتهاء الجلسات المعتمدة من شركة التأمين ب${CLINIC_CONFIG.shortName}، يرجى إحضار أصل تجديد الموافقة لمواصلة الخطة العلاجية دون انقطاع.\nشكراً لتعاونكم معنا.`;
 
     if (btnAppt) {
       btnAppt.onclick = () => {

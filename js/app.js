@@ -128,6 +128,7 @@ class App {
     // 1. تفعيل PWA والوضع الليلي
     PWAManager.init();
     this.initTheme();
+    this.applyClinicBranding();
     const adminVerEl = document.getElementById('admin-system-version-label');
     if (adminVerEl) {
       adminVerEl.textContent = 'نظام ' + (CLINIC_CONFIG.abbreviation || 'ASCPT') + ' — الإصدار ' + (CLINIC_CONFIG.version || '2.0.0');
@@ -270,6 +271,53 @@ class App {
         icon.style.color = '';
       });
     }
+  }
+
+  applyClinicBranding() {
+    if (typeof CLINIC_CONFIG === 'undefined') return;
+
+    const brandName = CLINIC_CONFIG.brandName || 'المركز التخصصي للعلاج الطبيعي';
+    const shortName = CLINIC_CONFIG.shortName || brandName;
+    const abbreviation = CLINIC_CONFIG.abbreviation || '';
+    const fullBrand = abbreviation ? `${brandName} (${abbreviation})` : brandName;
+    const directorName = CLINIC_CONFIG.director?.name || '';
+    const directorTitle = CLINIC_CONFIG.director?.title || '';
+    const directorFull = directorTitle ? `${directorName} — ${directorTitle}` : directorName;
+    const addr = CLINIC_CONFIG.contact?.address || '';
+    const phone = CLINIC_CONFIG.contact?.phone || '';
+    const email = CLINIC_CONFIG.contact?.email || '';
+
+    let contactParts = [];
+    if (addr) contactParts.push(addr);
+    if (phone) contactParts.push(`تليفون: ${phone}`);
+    if (email) contactParts.push(`البريد: ${email}`);
+    const contactInfo = contactParts.join(' | ');
+
+    let contactShortParts = [];
+    if (addr) contactShortParts.push(addr);
+    if (phone) contactShortParts.push(`تليفون: ${phone}`);
+    const contactShort = contactShortParts.join(' | ');
+
+    // 1. Browser Title
+    document.title = fullBrand;
+
+    // 2. Dynamic DOM elements with data-clinic bindings
+    document.querySelectorAll('[data-clinic="full-brand"]').forEach(el => el.textContent = fullBrand);
+    document.querySelectorAll('[data-clinic="brand-name"]').forEach(el => el.textContent = brandName);
+    document.querySelectorAll('[data-clinic="short-name"]').forEach(el => el.textContent = shortName);
+    document.querySelectorAll('[data-clinic="abbreviation"]').forEach(el => el.textContent = abbreviation);
+    document.querySelectorAll('[data-clinic="brand-title"]').forEach(el => el.textContent = `${abbreviation} Clinic`);
+    document.querySelectorAll('[data-clinic="footer-brand"]').forEach(el => el.textContent = brandName);
+    document.querySelectorAll('[data-clinic="director-name"]').forEach(el => el.textContent = directorName);
+    document.querySelectorAll('[data-clinic="director-full"]').forEach(el => el.textContent = directorFull);
+    document.querySelectorAll('[data-clinic="contact-info"]').forEach(el => el.textContent = contactInfo);
+    document.querySelectorAll('[data-clinic="contact-short"]').forEach(el => el.textContent = contactShort);
+    document.querySelectorAll('[data-clinic="address"]').forEach(el => el.textContent = addr);
+    document.querySelectorAll('[data-clinic="phone"]').forEach(el => el.textContent = phone);
+    document.querySelectorAll('[data-clinic="tagline"]').forEach(el => el.textContent = CLINIC_CONFIG.tagline || '');
+    document.querySelectorAll('[data-clinic="version-badge"]').forEach(el => {
+      el.textContent = `نظام ${abbreviation} — الإصدار ${CLINIC_CONFIG.version || '2.0.0'}`;
+    });
   }
 
   bindNavigation() {

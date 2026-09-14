@@ -17,6 +17,7 @@ export const CLINIC_CONFIG = {
  },
  contact: {
   address: '١٧ شارع حسين شيرين - لوران - الإسكندرية',
+  city: 'الإسكندرية',
   phone: '03-5702356',
   email: 'algewelyspinecare@yahoo.com'
  },
