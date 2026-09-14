@@ -195,3 +195,76 @@ assert.equal(directCompanies.length, 3, 'Should have 3 companies after delete');
 assert.ok(!directCompanies.includes('أكسا (AXA)'));
 
 console.log('✓ All 4 Insurance Companies Sync & Mutation assertions passed successfully!');
+
+// 8. Weekly Working Days & Friday Holiday Exclusion Tests
+console.log('--- Running Tests: Friday Exclusion & Appointment Copy Engine ---');
+
+function isFridayHoliday(dateStr) {
+  return new Date(dateStr + 'T00:00:00').getDay() === 5;
+}
+
+function getWorkWeekDays(curDateStr) {
+  const cur = new Date(curDateStr + 'T00:00:00');
+  const dayOfWeek = cur.getDay();
+  const diffToSat = (dayOfWeek + 1) % 7;
+  const sat = new Date(cur);
+  sat.setDate(cur.getDate() - diffToSat);
+
+  const days = [];
+  for (let i = 0; i < 6; i++) {
+    const d = new Date(sat);
+    d.setDate(sat.getDate() + i);
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    days.push(`${y}-${m}-${day}`);
+  }
+  return days;
+}
+
+// 1. Friday Detection
+assert.equal(isFridayHoliday('2026-09-18'), true, '2026-09-18 must be detected as Friday holiday');
+assert.equal(isFridayHoliday('2026-09-14'), false, '2026-09-14 (Monday) is not Friday');
+assert.equal(isFridayHoliday('2026-09-12'), false, '2026-09-12 (Saturday) is not Friday');
+
+// 2. Week working days must have exactly 6 days (excluding Friday)
+const sep14Week = getWorkWeekDays('2026-09-14');
+assert.equal(sep14Week.length, 6, 'Work week must have exactly 6 days');
+assert.equal(sep14Week[0], '2026-09-12', 'First day of week is Saturday 2026-09-12');
+assert.equal(sep14Week[5], '2026-09-17', 'Last day of week is Thursday 2026-09-17');
+assert.ok(!sep14Week.includes('2026-09-18'), 'Friday 2026-09-18 must be strictly excluded from working week strip');
+
+// 3. Appointment Copy Simulation
+function copyAppointmentToDates(origAppt, targetDates) {
+  return targetDates
+    .filter(d => !isFridayHoliday(d))
+    .map(targetDate => ({
+      ...origAppt,
+      id: `copy_${targetDate}_${origAppt.id}`,
+      date: targetDate,
+      copiedFromId: origAppt.id,
+      status: 'scheduled'
+    }));
+}
+
+const origAppt = {
+  id: 'appt_mon_1',
+  patientId: 'p_101',
+  patientName: 'محمد عبد الفتاح',
+  doctorUid: 'doc_mostafa',
+  doctorName: 'د. مصطفى محمود',
+  timeSlot: '16:30',
+  date: '2026-09-14',
+  status: 'completed'
+};
+
+const copied = copyAppointmentToDates(origAppt, ['2026-09-12', '2026-09-16', '2026-09-18']);
+assert.equal(copied.length, 2, 'Friday must be skipped, copying to Saturday and Wednesday only');
+assert.equal(copied[0].date, '2026-09-12');
+assert.equal(copied[0].patientName, 'محمد عبد الفتاح');
+assert.equal(copied[0].doctorName, 'د. مصطفى محمود');
+assert.equal(copied[0].timeSlot, '16:30');
+assert.equal(copied[0].status, 'scheduled', 'Copied appointment must reset to scheduled status');
+assert.equal(copied[1].date, '2026-09-16');
+
+console.log('✓ All 6 Friday Exclusion & Appointment Copy assertions passed successfully!');

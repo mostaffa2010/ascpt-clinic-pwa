@@ -10300,3 +10300,92 @@ body.role-doctor .btn-quick-attend {
   from { transform: translateY(100%); }
   to { transform: translateY(0); }
 }
+
+
+/* ================= Appointment Copy / Duplicate Styles ================= */
+.appt-chip-copy {
+  background: none;
+  border: none;
+  color: var(--primary);
+  font-size: 0.8rem;
+  line-height: 1;
+  cursor: pointer;
+  padding: 2px 4px;
+  border-radius: 4px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s ease;
+}
+.appt-chip-copy:hover {
+  background: rgba(2, 132, 199, 0.18);
+  transform: scale(1.1);
+}
+:root:not([data-theme="dark"]) .appt-slot-card .appt-chip-copy {
+  background: #e0f2fe;
+  color: #0284c7;
+  border: 1px solid #bae6fd;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+[data-theme="dark"] .appt-slot-card .appt-chip-copy {
+  background: rgba(56, 189, 248, 0.15);
+  color: #38bdf8;
+  border: 1px solid rgba(56, 189, 248, 0.3);
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.copy-day-pill {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 6px;
+  border-radius: 12px;
+  border: 1.5px solid var(--border-color);
+  background: var(--bg-surface);
+  cursor: pointer;
+  transition: all 0.15s ease;
+  user-select: none;
+  text-align: center;
+  gap: 3px;
+}
+.copy-day-pill:hover:not(.is-current) {
+  border-color: var(--primary);
+  background: var(--primary-light);
+}
+.copy-day-pill.active {
+  border-color: var(--primary);
+  background: var(--primary-light);
+  box-shadow: 0 0 0 1px var(--primary);
+}
+.copy-day-pill.is-current {
+  opacity: 0.55;
+  background: var(--bg-subtle);
+  border-style: dashed;
+  cursor: not-allowed;
+}
+.copy-day-pill .cdp-name {
+  font-weight: 800;
+  font-size: 0.86rem;
+  color: var(--text-main);
+}
+.copy-day-pill .cdp-date {
+  font-size: 0.74rem;
+  color: var(--text-muted);
+}
+.copy-day-pill .cdp-tag {
+  font-size: 0.65rem;
+  padding: 2px 7px;
+  border-radius: 999px;
+  margin-top: 2px;
+}

@@ -109,6 +109,27 @@ export class AppointmentsManager {
       this.handleConfirmMoveAppointment();
     });
 
+    // Bind Copy Appointment Actions & Presets
+    document.getElementById('form-copy-appointment')?.addEventListener('submit', (e) => {
+      e.preventDefault();
+      this.handleConfirmCopyAppointment();
+    });
+
+    document.getElementById('btn-copy-shift-sat-mon-wed')?.addEventListener('click', () => {
+      this.setCopyShiftSelection([0, 2, 4]); // السبت (0)، الاثنين (2)، الأربعاء (4)
+    });
+
+    document.getElementById('btn-copy-shift-sun-tue-thu')?.addEventListener('click', () => {
+      this.setCopyShiftSelection([1, 3, 5]); // الأحد (1)، الثلاثاء (3)، الخميس (5)
+    });
+
+    document.getElementById('btn-appt-sheet-copy')?.addEventListener('click', () => {
+      const a = this.selectedApptForAction;
+      this.app.closeModal('modal-appt-actions');
+      if (a) this.openCopyModal(a.id);
+    });
+
+
     document.getElementById('btn-add-new-slot')?.addEventListener('click', () => this.openAddSlotModal());
 
     // Slot Edit Form Controls
@@ -295,6 +316,10 @@ export class AppointmentsManager {
   navigateDay(delta) {
     const cur = new Date(this.selectedDate + 'T00:00:00');
     cur.setDate(cur.getDate() + delta);
+    // Skip Friday automatically when moving through days
+    if (cur.getDay() === 5) {
+      cur.setDate(cur.getDate() + (delta >= 0 ? 1 : -1));
+    }
     this.changeSelectedDate(getLocalDateStr(cur));
   }
 
@@ -322,11 +347,12 @@ export class AppointmentsManager {
     const sat = new Date(cur);
     sat.setDate(cur.getDate() - diffToSat);
 
-    const arabicDays = ['السبت', 'الأحد', 'الاثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة'];
+    // 6 working days: Saturday through Thursday (Friday is official weekly holiday)
+    const arabicDays = ['السبت', 'الأحد', 'الاثنين', 'الثلاثاء', 'الأربعاء', 'الخميس'];
     const days = [];
     const todayStr = getLocalDateStr();
 
-    for (let i = 0; i < 7; i++) {
+    for (let i = 0; i < 6; i++) {
       const d = new Date(sat);
       d.setDate(sat.getDate() + i);
       const dateStr = getLocalDateStr(d);
@@ -355,6 +381,11 @@ export class AppointmentsManager {
     // Update Stats Pill
     const statsPill = document.getElementById('appt-day-stats-pill');
     if (statsPill) {
+      const isFri = new Date(this.selectedDate + 'T00:00:00').getDay() === 5;
+      if (isFri) {
+        statsPill.innerHTML = `<span style="color: var(--danger); font-weight: 800;"><i class="fa-solid fa-calendar-xmark"></i> عطلة المركز الأسبوعية (المركز مغلق)</span>`;
+        return;
+      }
       const curAppts = this.getAppointmentsForDate(this.selectedDate);
       const total = curAppts.filter(a => a.status !== 'cancelled').length;
       const attended = curAppts.filter(a => a.status === 'attended').length;
@@ -801,6 +832,27 @@ export class AppointmentsManager {
   }
 
   buildGridHTML(doctorsToShow, isDoctorReadOnly = false) {
+    // Check if Friday: Official weekly clinic holiday
+    const isFridayHoliday = new Date(this.selectedDate + 'T00:00:00').getDay() === 5;
+    if (isFridayHoliday) {
+      return `
+        <div class="hero-styled-card" style="text-align: center; padding: 48px 20px; margin: 18px 0; border: 2px dashed rgba(56, 189, 248, 0.35); background: var(--bg-surface); border-radius: 18px;">
+          <div style="width: 68px; height: 68px; border-radius: 50%; background: rgba(56, 189, 248, 0.12); color: var(--primary); display: inline-flex; align-items: center; justify-content: center; font-size: 2rem; margin-bottom: 16px;">
+            <i class="fa-solid fa-mug-hot"></i>
+          </div>
+          <h3 style="font-weight: 800; font-size: 1.3rem; color: var(--text-main); margin: 0 0 8px 0;">يوم الجمعة عطلة أسبوعية للمركز</h3>
+          <p style="font-size: 0.92rem; color: var(--text-muted); max-width: 440px; margin: 0 auto 16px auto; line-height: 1.6;">
+            مركز الإسكندرية التخصصي مغلق يوم الجمعة، ولا توجد مواعيد أو جلسات علاجية مجدولة في هذا اليوم.
+          </p>
+          <div style="display: flex; justify-content: center; gap: 8px;">
+            <span class="badge" style="background: rgba(239, 68, 68, 0.1); color: var(--danger); border: 1px solid rgba(239, 68, 68, 0.3); font-weight: 800; padding: 6px 18px; border-radius: 999px; font-size: 0.85rem;">
+              <i class="fa-solid fa-ban"></i> الحجز مغلق
+            </span>
+          </div>
+        </div>
+      `;
+    }
+
     if (!doctorsToShow || doctorsToShow.length === 0) {
       return `<div style="padding: 20px; text-align: center; color: var(--text-muted);">لا يوجد دكاترة مسجلين حالياً في طاقم العمل.</div>`;
     }
@@ -893,6 +945,9 @@ export class AppointmentsManager {
                                 ${statusBadge}
                                 ${!isDoctorReadOnly ? `
                                 <div class="appt-chip-actions">
+                                  <button type="button" class="appt-chip-copy" data-copy-appt="${escapeHTML(a.id)}" title="نسخ الموعد ليوم آخر">
+                                    <i class="fa-regular fa-copy"></i>
+                                  </button>
                                   <button type="button" class="appt-chip-move" data-move-appt="${escapeHTML(a.id)}" title="نقل الموعد">
                                     <i class="fa-solid fa-arrow-right-arrow-left"></i>
                                   </button>
@@ -1100,6 +1155,14 @@ export class AppointmentsManager {
       return;
     }
 
+    // 2.6 Copy appointment to other days
+    const copyBtn = e.target.closest('[data-copy-appt]');
+    if (copyBtn) {
+      e.stopPropagation();
+      this.openCopyModal(copyBtn.getAttribute('data-copy-appt'));
+      return;
+    }
+
     // 2.7 Open Action Sheet for appointment
     const apptActionTrigger = e.target.closest('[data-appt-action-id]');
     if (apptActionTrigger) {
@@ -1123,6 +1186,11 @@ export class AppointmentsManager {
 
   // ================= Add Appointment Modal =================
   openAddModal(doctorUid, doctorName, timeSlot) {
+    // Check if Friday
+    if (new Date(this.selectedDate + 'T00:00:00').getDay() === 5) {
+      this.app.showAlert('يوم الجمعة عطلة رسمية بالمركز، لا يمكن حجز مواعيد في هذا اليوم.', 'عطلة أسبوعية', 'warning');
+      return;
+    }
     this.pendingDoctorUid = doctorUid || null;
     this.pendingDoctorName = doctorName || null;
     this.pendingTimeSlot = timeSlot;
@@ -1728,3 +1796,173 @@ export class AppointmentsManager {
     }
   }
 }
+
+
+  // ================= Copy / Duplicate Appointment Modal =================
+  openCopyModal(apptId) {
+    const appt = (this.appointments || []).find(a => a.id === apptId) || this.selectedApptForAction;
+    if (!appt) return;
+
+    this.copyingAppt = appt;
+    const nameEl = document.getElementById('copy-appt-patient-name');
+    if (nameEl) nameEl.textContent = appt.patientName || 'مريض';
+
+    const currentSlotObj = (this.slots || []).find(s => s.key === appt.timeSlot);
+    const slotLabel = currentSlotObj ? currentSlotObj.label : appt.timeSlot;
+    const origDate = appt.date || this.selectedDate || getLocalDateStr();
+
+    const infoEl = document.getElementById('copy-appt-current-info');
+    if (infoEl) {
+      infoEl.textContent = `الموعد الأصلي: د. ${appt.doctorName || '-'} • الساعة ${slotLabel} (${origDate})`;
+    }
+
+    // Populate Doctors Dropdown
+    const docSel = document.getElementById('copy-appt-doctor');
+    if (docSel) {
+      docSel.innerHTML = (this.doctors || []).map(d => `
+        <option value="${escapeHTML(d.uid)}" data-name="${escapeHTML(d.name)}" ${d.uid === appt.doctorUid ? 'selected' : ''}>
+          ${escapeHTML(d.name)}
+        </option>
+      `).join('');
+    }
+
+    // Populate Slots Dropdown
+    const slotSel = document.getElementById('copy-appt-slot');
+    if (slotSel) {
+      const slotsToUse = (this.slots && this.slots.length > 0) ? this.slots : DEFAULT_APPT_SLOTS;
+      slotSel.innerHTML = slotsToUse.map(s => `
+        <option value="${escapeHTML(s.key)}" ${s.key === appt.timeSlot ? 'selected' : ''}>
+          ${escapeHTML(s.label)}
+        </option>
+      `).join('');
+    }
+
+    // Render 6 working days of the week (Saturday to Thursday)
+    const cur = new Date(origDate + 'T00:00:00');
+    const dayOfWeek = cur.getDay(); // 0: Sun, 1: Mon, ... 6: Sat
+    const diffToSat = (dayOfWeek + 1) % 7;
+    const sat = new Date(cur);
+    sat.setDate(cur.getDate() - diffToSat);
+
+    const arabicDays = ['السبت', 'الأحد', 'الاثنين', 'الثلاثاء', 'الأربعاء', 'الخميس'];
+    const gridEl = document.getElementById('copy-appt-days-grid');
+    if (gridEl) {
+      gridEl.innerHTML = '';
+      for (let i = 0; i < 6; i++) {
+        const d = new Date(sat);
+        d.setDate(sat.getDate() + i);
+        const dateStr = getLocalDateStr(d);
+        const isCurrent = (dateStr === origDate);
+
+        const pill = document.createElement('div');
+        pill.className = `copy-day-pill ${isCurrent ? 'is-current' : ''}`;
+        pill.dataset.date = dateStr;
+        pill.dataset.dayIndex = String(i);
+        pill.innerHTML = `
+          <span class="cdp-name">${arabicDays[i]}</span>
+          <span class="cdp-date">${d.getDate()}/${d.getMonth() + 1}</span>
+          ${isCurrent 
+            ? '<span class="badge badge-sm cdp-tag" style="background: var(--border-color); color: var(--text-muted);">الموعد الأصلي</span>'
+            : '<span class="badge badge-sm cdp-tag cdp-status-badge" style="display: none; background: var(--primary); color: #fff;"><i class="fa-solid fa-check"></i> تم التحديد</span>'
+          }
+        `;
+
+        if (!isCurrent) {
+          pill.addEventListener('click', () => {
+            pill.classList.toggle('active');
+            const statusBadge = pill.querySelector('.cdp-status-badge');
+            if (statusBadge) {
+              statusBadge.style.display = pill.classList.contains('active') ? 'inline-flex' : 'none';
+            }
+          });
+        }
+
+        gridEl.appendChild(pill);
+      }
+    }
+
+    this.app.openModal('modal-copy-appointment');
+  }
+
+  setCopyShiftSelection(dayIndices) {
+    const gridEl = document.getElementById('copy-appt-days-grid');
+    if (!gridEl) return;
+    const pills = gridEl.querySelectorAll('.copy-day-pill');
+    pills.forEach(p => {
+      if (p.classList.contains('is-current')) return;
+      const idx = parseInt(p.dataset.dayIndex, 10);
+      const shouldSelect = dayIndices.includes(idx);
+      p.classList.toggle('active', shouldSelect);
+      const statusBadge = p.querySelector('.cdp-status-badge');
+      if (statusBadge) {
+        statusBadge.style.display = shouldSelect ? 'inline-flex' : 'none';
+      }
+    });
+  }
+
+  async handleConfirmCopyAppointment() {
+    if (!this.copyingAppt) return;
+    const gridEl = document.getElementById('copy-appt-days-grid');
+    const selectedPills = gridEl ? gridEl.querySelectorAll('.copy-day-pill.active') : [];
+
+    const targetDates = Array.from(selectedPills).map(p => p.dataset.date).filter(Boolean);
+
+    if (targetDates.length === 0) {
+      this.app.showAlert('من فضلك اختر يوماً واحداً على الأقل لنسخ الموعد إليه.', 'تحديد الأيام', 'warning');
+      return;
+    }
+
+    const docSel = document.getElementById('copy-appt-doctor');
+    const slotSel = document.getElementById('copy-appt-slot');
+    const chosenDocUid = docSel ? docSel.value : this.copyingAppt.doctorUid;
+    const chosenDocName = docSel?.options[docSel.selectedIndex]?.getAttribute('data-name') || this.copyingAppt.doctorName;
+    const chosenSlot = slotSel ? slotSel.value : this.copyingAppt.timeSlot;
+
+    const btnSubmit = document.getElementById('btn-submit-copy-appt');
+    if (btnSubmit) btnSubmit.disabled = true;
+
+    let createdCount = 0;
+    try {
+      for (const targetDate of targetDates) {
+        // Double check Friday
+        if (new Date(targetDate + 'T00:00:00').getDay() === 5) continue;
+
+        // Avoid exact duplicate
+        const alreadyExists = (this.appointments || []).some(a =>
+          a.patientId === this.copyingAppt.patientId &&
+          a.date === targetDate &&
+          a.timeSlot === chosenSlot &&
+          a.status !== 'cancelled'
+        );
+        if (alreadyExists) continue;
+
+        await db.addAppointment({
+          doctorUid: chosenDocUid,
+          doctorName: chosenDocName,
+          timeSlot: chosenSlot,
+          patientId: this.copyingAppt.patientId,
+          patientName: this.copyingAppt.patientName,
+          date: targetDate,
+          bodyPart: this.copyingAppt.bodyPart || '',
+          status: 'scheduled',
+          copiedFromId: this.copyingAppt.id,
+          createdBy: auth.getCurrentUser()?.name || 'الاستقبال'
+        });
+        createdCount++;
+      }
+
+      this.app.closeModal('modal-copy-appointment');
+      if (createdCount > 0) {
+        this.app.showToast(`تم نسخ موعد ${this.copyingAppt.patientName} بنجاح إلى (${createdCount} أيام)!`);
+      } else {
+        this.app.showToast(`الموعد مسجل بالفعل في الأيام المختارة.`);
+      }
+      this.copyingAppt = null;
+      await this.refreshVisibleGrids();
+    } catch (err) {
+      console.error('Error copying appointment:', err);
+      this.app.showAlert('تعذر نسخ الموعد: ' + err.message, 'خطأ', 'danger');
+    } finally {
+      if (btnSubmit) btnSubmit.disabled = false;
+    }
+  }
