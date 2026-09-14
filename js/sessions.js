@@ -1,4 +1,4 @@
-import { escapeHTML, getLocalDateStr } from './utils.js';
+import { escapeHTML, getLocalDateStr, getLatestTherapySession } from './utils.js';
 // ========================================================
 // PhysioFlow - Daily Sessions & Check-in Module
 // ========================================================
@@ -441,6 +441,9 @@ export class SessionsManager {
     } else {
       if (this.selectedPatient) {
         this.updateSessionPaymentUI(this.selectedPatient);
+        if (!this.editingSessionId) {
+          this.autoRestoreLastSessionSettings(this.selectedPatient);
+        }
       } else {
         const paymentContainer = document.getElementById('session-payment-method-container');
         if (paymentContainer) {
@@ -689,28 +692,104 @@ export class SessionsManager {
       subEl.textContent = `الهاتف: ${patient.phone} | الطبيب: ${patient.doctor} | ${billingTxt}`;
     }
 
-    // Auto-fill Doctor from Patient Profile
-    const docSelect = document.getElementById('session-doctor-select');
-    if (docSelect && !this.editingSessionId && patient.doctor) {
-      docSelect.value = patient.doctor;
-      this.app.updateCustomSelectDisplay('session-doctor-select');
-    }
-
     this.selectedPatient = patient;
 
     if (this.entryMode === 'examination') {
+      const docSelect = document.getElementById('session-doctor-select');
+      if (docSelect && !this.editingSessionId && patient.doctor) {
+        docSelect.value = patient.doctor;
+        this.app.updateCustomSelectDisplay('session-doctor-select');
+      }
       const isIns = Boolean(patient.billing === 'insurance' || (patient.insuranceCompany && String(patient.insuranceCompany).trim().length > 0));
       this.setExamType(isIns ? 'contract' : 'cash');
     } else {
       this.updateSessionPaymentUI(patient);
+      if (!this.editingSessionId) {
+        await this.autoRestoreLastSessionSettings(patient);
+      }
     }
 
     this.updateBodyPartsCount();
     this.app.closeModal('modal-patient-picker');
   }
 
+  async autoRestoreLastSessionSettings(patient) {
+    if (!patient || !patient.id) return;
+    try {
+      const allSessions = await db.getSessionsForPatient(patient.id);
+      const lastSession = getLatestTherapySession(allSessions);
+
+      if (lastSession) {
+        // 1. Doctor: restore doctor from last session if available, fallback to patient.doctor
+        const docToSelect = lastSession.doctor || patient.doctor;
+        const docSelect = document.getElementById('session-doctor-select');
+        if (docSelect && docToSelect) {
+          docSelect.value = docToSelect;
+          this.app.updateCustomSelectDisplay('session-doctor-select');
+        }
+
+        // 2. Body Parts: restore array of body parts
+        const savedParts = Array.isArray(lastSession.bodyParts) ? lastSession.bodyParts : [];
+        this.renderBodyPartsChips(savedParts);
+
+        // 3. Special Session Checkbox
+        const chkSpecial = document.getElementById('session-is-special');
+        if (chkSpecial) {
+          chkSpecial.checked = Boolean(lastSession.isSpecial || lastSession.sessionPricingType === 'special');
+        }
+
+        // 4. Amount Paid: restore last session's amount paid
+        const amountInput = document.getElementById('session-amount-paid');
+        if (amountInput && lastSession.amountPaid !== undefined && lastSession.amountPaid !== null && lastSession.amountPaid !== '') {
+          amountInput.value = lastSession.amountPaid;
+        }
+
+        // 5. Notes: restore last session's notes
+        const notesInput = document.getElementById('session-notes');
+        if (notesInput) {
+          notesInput.value = lastSession.notes || '';
+        }
+
+        if (typeof this.app?.showToast === 'function') {
+          const partsCount = savedParts.length;
+          const countText = partsCount === 1 ? 'عضو واحد' : partsCount === 2 ? 'عضوان' : `${partsCount} أعضاء`;
+          this.app.showToast(`تم استرجاع إعدادات آخر جلسة للمريض تلقائياً (${countText})`, 'info');
+        }
+      } else {
+        // Patient has no previous physical therapy sessions -> Default clean state
+        const docSelect = document.getElementById('session-doctor-select');
+        if (docSelect && patient.doctor) {
+          docSelect.value = patient.doctor;
+          this.app.updateCustomSelectDisplay('session-doctor-select');
+        }
+        this.renderBodyPartsChips([]);
+        const chkSpecial = document.getElementById('session-is-special');
+        if (chkSpecial) chkSpecial.checked = false;
+        const notesInput = document.getElementById('session-notes');
+        if (notesInput) notesInput.value = '';
+        const amountInput = document.getElementById('session-amount-paid');
+        if (amountInput) {
+          if (patient.billing === 'insurance') {
+            amountInput.value = '';
+            amountInput.placeholder = '0';
+          } else {
+            amountInput.value = '';
+          }
+        }
+      }
+    } catch (err) {
+      console.warn('Error in autoRestoreLastSessionSettings:', err);
+      const docSelect = document.getElementById('session-doctor-select');
+      if (docSelect && patient?.doctor) {
+        docSelect.value = patient.doctor;
+        this.app.updateCustomSelectDisplay('session-doctor-select');
+      }
+    }
+  }
+
   resetPatientSelection() {
     this.selectedPatientId = null;
+    this.selectedPatient = null;
     document.getElementById('session-patient-id').value = '';
     const trigger = document.getElementById('patient-picker-trigger');
     const selectedBox = document.getElementById('selected-patient-box');
@@ -731,6 +810,21 @@ export class SessionsManager {
     if (payTypeInput) payTypeInput.value = 'cash';
     const insNameInput = document.getElementById('session-insurance-name');
     if (insNameInput) insNameInput.value = '';
+
+    if (!this.editingSessionId) {
+      this.renderBodyPartsChips([]);
+      const chkSpecial = document.getElementById('session-is-special');
+      if (chkSpecial) chkSpecial.checked = false;
+      const amtInput = document.getElementById('session-amount-paid');
+      if (amtInput) amtInput.value = '';
+      const notesInput = document.getElementById('session-notes');
+      if (notesInput) notesInput.value = '';
+      const docSelect = document.getElementById('session-doctor-select');
+      if (docSelect) {
+        docSelect.value = '';
+        this.app.updateCustomSelectDisplay('session-doctor-select');
+      }
+    }
   }
 
   async handleSaveSession(e) {

@@ -490,3 +490,15 @@ export function isDoctorOnDuty(doctorShift, dateStr, overrides = [], doctorUid =
   if (!dayShift || dayShift === 'friday') return true;
   return doctorShift === dayShift;
 }
+
+/**
+ * Extracts the latest physical therapy session from a list of patient sessions,
+ * ignoring examinations.
+ * @param {Array} sessions - List of session records for the patient
+ * @returns {Object|null} The latest physical therapy session object or null
+ */
+export function getLatestTherapySession(sessions) {
+  if (!Array.isArray(sessions) || sessions.length === 0) return null;
+  const therapySessions = sessions.filter(s => s.entryType === 'session' || !s.entryType);
+  return therapySessions.length > 0 ? therapySessions[0] : null;
+}

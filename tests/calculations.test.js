@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { getDayShiftKey, isDoctorOnDuty, getShiftLabel } from '../js/utils.js';
+import { getDayShiftKey, isDoctorOnDuty, getShiftLabel, getLatestTherapySession } from '../js/utils.js';
 
 console.log('--- Running ASCPT Unit Tests: Calculations & Shift Engine ---');
 
@@ -85,3 +85,27 @@ assert.equal(duesResult.totalDues, (3 * 50) + (2 * 80), 'Total dues should be 31
 assert.equal(duesResult.totalDues, 310);
 
 console.log('✓ All Doctor Dues and Session Pricing assertions passed successfully!');
+
+// 5. Patient Last Session Auto-Restore Logic Tests
+console.log('--- Running Tests: Patient Last Session Auto-Restore ---');
+
+const mockPatientSessions = [
+  { id: 's3', entryType: 'examination', doctor: 'د. حسني أحمد الجويلي', date: '2026-09-14', amountPaid: 200, notes: 'كشف دوري' },
+  { id: 's2', entryType: 'session', doctor: 'د. مصطفى محمود', bodyParts: ['الفقرات العنقية', 'الكتف الأيمن'], isSpecial: true, amountPaid: 150, notes: 'تحسن في المدى الحركي', date: '2026-09-13' },
+  { id: 's1', entryType: 'session', doctor: 'د. حسني أحمد الجويلي', bodyParts: ['الفقرات العنقية'], isSpecial: false, amountPaid: 100, notes: 'جلسة أولى', date: '2026-09-10' }
+];
+
+const latestTherapy = getLatestTherapySession(mockPatientSessions);
+assert.ok(latestTherapy, 'Must find a therapy session');
+assert.equal(latestTherapy.id, 's2', 'Must pick latest therapy session s2, ignoring s3 examination');
+assert.equal(latestTherapy.doctor, 'د. مصطفى محمود');
+assert.equal(latestTherapy.bodyParts.length, 2);
+assert.equal(latestTherapy.isSpecial, true);
+assert.equal(latestTherapy.amountPaid, 150);
+assert.equal(latestTherapy.notes, 'تحسن في المدى الحركي');
+
+// Empty sessions list test
+assert.equal(getLatestTherapySession([]), null, 'Empty list must return null');
+assert.equal(getLatestTherapySession([{ entryType: 'examination' }]), null, 'Only examinations list must return null');
+
+console.log('✓ All 8 Last Session Auto-Restore assertions passed successfully!');
