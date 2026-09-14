@@ -150,7 +150,7 @@ export class AuditAndAdminManager {
 
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!email || !emailRegex.test(email)) {
-      await this.app.showAlert('يرجى إدخال بريد إلكتروني صحيح (مثال: staff@ascpt.clinic).', 'بريد إلكتروني غير صالح', 'warning');
+      await this.app.showAlert('يرجى إدخال بريد إلكتروني صحيح (مثال: staff@clinic.com).', 'بريد إلكتروني غير صالح', 'warning');
       emailInput?.focus();
       return;
     }

@@ -396,7 +396,7 @@ class AuthService {
     const code = err?.code || '';
     const errorMap = {
       'auth/invalid-credential': 'البريد الإلكتروني أو كلمة السر غير صحيحة. يرجى التأكد من البيانات.',
-      'auth/user-not-found': 'لا يوجد حساب مسجل بهذا البريد الإلكتروني. يرجى التأكد من كتابة الإيميل بشكل صحيح (مثال: admin@ascpt.clinic).',
+      'auth/user-not-found': 'لا يوجد حساب مسجل بهذا البريد الإلكتروني. يرجى التأكد من كتابة الإيميل بشكل صحيح (مثال: admin@clinic.com).',
       'auth/wrong-password': 'كلمة السر غير صحيحة.',
       'auth/invalid-email': 'صيغة البريد الإلكتروني غير صالحة.',
       'auth/user-disabled': 'تم تعطيل هذا الحساب من قبل إدارة المركز.',
