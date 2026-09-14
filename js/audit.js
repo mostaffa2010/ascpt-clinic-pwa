@@ -1,10 +1,18 @@
 // ========================================================
-// ASCPT - Staff User Management & Audit Trail Module (v1.4.96)
-// Authoritative Supabase PostgreSQL Integration
+// ASCPT - Staff User Management & Audit Trail Module
+// Production Architecture: Exclusively Server-Controlled via Backend Admin SDK
+// Endpoint: /api/admin/users
 // ========================================================
 
-import { supabase } from './clinic-config.js';
-import { db } from './db.js';
+import {
+  getDocs,
+  collection,
+  query,
+  orderBy,
+  limit
+} from 'https://www.gstatic.com/firebasejs/12.18.0/firebase-firestore.js';
+
+import { firestoreDb, firebaseAuth } from './firebase-init.js';
 import { auth } from './auth.js';
 import { RolesManager } from './roles.js';
 import { escapeHTML, initStackDeck, getShiftLabel } from './utils.js';
@@ -16,191 +24,180 @@ export class AuditAndAdminManager {
 
   async init() {
     this.bindEvents();
+    await this.loadUsers();
+    await this.loadAuditLogs();
   }
 
   bindEvents() {
-    const formCreateUser = document.getElementById('form-add-user') || document.getElementById('form-admin-create-user');
-    if (formCreateUser) {
-      formCreateUser.addEventListener('submit', (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        this.handleCreateUser(e);
-      });
+    const formAddUser = document.getElementById('form-add-user');
+    if (formAddUser) {
+      formAddUser.addEventListener('submit', (e) => this.handleAddUser(e));
     }
 
-    const btnSubmit = document.getElementById('btn-admin-submit-create-user');
-    if (btnSubmit) {
-      btnSubmit.addEventListener('click', (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        this.handleCreateUser(e);
-      });
-    }
-
-    const roleSelect = document.getElementById('newuser-role') || document.getElementById('admin-new-user-role');
+    const roleSelect = document.getElementById('newuser-role');
+    const shiftGroup = document.getElementById('form-group-newuser-shift');
+    const ratesGroup = document.getElementById('form-group-newuser-rates');
     if (roleSelect) {
-      roleSelect.addEventListener('change', () => {
-        const isDoctor = roleSelect.value === 'doctor';
-        const shiftGroup = document.getElementById('form-group-newuser-shift');
-        const ratesGroup = document.getElementById('form-group-newuser-rates');
-        const docFields = document.getElementById('admin-doctor-extra-fields');
-        if (shiftGroup) shiftGroup.style.display = isDoctor ? 'block' : 'none';
-        if (ratesGroup) ratesGroup.style.display = isDoctor ? 'block' : 'none';
-        if (docFields) docFields.style.display = isDoctor ? 'grid' : 'none';
+      const toggleDoctorFields = () => {
+        const isDoc = (roleSelect.value === 'doctor');
+        if (shiftGroup) shiftGroup.style.display = isDoc ? 'block' : 'none';
+        if (ratesGroup) ratesGroup.style.display = isDoc ? 'block' : 'none';
+      };
+      roleSelect.addEventListener('change', toggleDoctorFields);
+      toggleDoctorFields();
+    }
+
+    document.getElementById('btn-save-doctor-shift')?.addEventListener('click', () => {
+      this.handleSaveDoctorShift();
+    });
+
+    const usersTbody = document.getElementById('admin-users-tbody');
+    if (usersTbody) {
+      usersTbody.addEventListener('click', async (e) => {
+        const btnDelete = e.target.closest('.btn-delete-user');
+        if (btnDelete) {
+          const userId = btnDelete.getAttribute('data-user-id');
+          const userName = btnDelete.getAttribute('data-user-name');
+          await this.deleteUser(userId, userName);
+          return;
+        }
+
+        const btnShift = e.target.closest('.btn-change-doctor-shift');
+        if (btnShift) {
+          const userId = btnShift.getAttribute('data-user-id');
+          const userName = btnShift.getAttribute('data-user-name');
+          const currentShift = btnShift.getAttribute('data-current-shift') || 'sat_mon_wed';
+          const regRate = parseFloat(btnShift.getAttribute('data-regular-rate')) || 0;
+          const specRate = parseFloat(btnShift.getAttribute('data-special-rate')) || 0;
+          this.openChangeShiftModal(userId, userName, currentShift, regRate, specRate);
+          return;
+        }
+
+        const btnPass = e.target.closest('.btn-reset-password');
+        if (btnPass) {
+          const userId = btnPass.getAttribute('data-user-id');
+          const userName = btnPass.getAttribute('data-user-name');
+          await this.resetUserPassword(userId, userName);
+          return;
+        }
       });
     }
 
-    const searchInput = document.getElementById('audit-search-input');
-    if (searchInput) {
-      searchInput.addEventListener('input', () => this.filterAuditLogs());
-    }
-
-    const filterAction = document.getElementById('audit-filter-action');
-    if (filterAction) {
-      filterAction.addEventListener('change', () => this.filterAuditLogs());
-    }
-
-    const btnPurge = document.getElementById('btn-admin-purge-audit');
-    if (btnPurge) {
-      btnPurge.addEventListener('click', () => this.handlePurgeAudit());
-    }
-
-    // Card delegators for staff list
     const usersMob = document.getElementById('admin-users-mobile-cards');
     if (usersMob) {
-      usersMob.addEventListener('click', (e) => {
-        const resetBtn = e.target.closest('.btn-reset-user-password');
-        if (resetBtn) {
-          const uid = resetBtn.getAttribute('data-user-id');
-          const name = resetBtn.getAttribute('data-user-name');
-          if (uid) this.resetUserPassword(uid, name);
+      usersMob.addEventListener('click', async (e) => {
+        const btnDelete = e.target.closest('.btn-delete-user');
+        if (btnDelete) {
+          const userId = btnDelete.getAttribute('data-user-id');
+          const userName = btnDelete.getAttribute('data-user-name');
+          await this.deleteUser(userId, userName);
           return;
         }
 
-        const toggleBtn = e.target.closest('.btn-toggle-user-status');
-        if (toggleBtn) {
-          const uid = toggleBtn.getAttribute('data-user-id');
-          const name = toggleBtn.getAttribute('data-user-name');
-          const currentActive = toggleBtn.getAttribute('data-current-status') === 'true';
-          if (uid) this.toggleUserStatus(uid, name, currentActive);
+        const btnShift = e.target.closest('.btn-change-doctor-shift');
+        if (btnShift) {
+          const userId = btnShift.getAttribute('data-user-id');
+          const userName = btnShift.getAttribute('data-user-name');
+          const currentShift = btnShift.getAttribute('data-current-shift') || 'sat_mon_wed';
+          const regRate = parseFloat(btnShift.getAttribute('data-regular-rate')) || 0;
+          const specRate = parseFloat(btnShift.getAttribute('data-special-rate')) || 0;
+          this.openChangeShiftModal(userId, userName, currentShift, regRate, specRate);
           return;
         }
 
-        const deleteBtn = e.target.closest('.btn-delete-staff-user');
-        if (deleteBtn) {
-          const uid = deleteBtn.getAttribute('data-user-id');
-          const name = deleteBtn.getAttribute('data-user-name');
-          if (uid) this.deleteUser(uid, name);
+        const btnPass = e.target.closest('.btn-reset-password');
+        if (btnPass) {
+          const userId = btnPass.getAttribute('data-user-id');
+          const userName = btnPass.getAttribute('data-user-name');
+          await this.resetUserPassword(userId, userName);
           return;
-        }
-
-        const shiftBtn = e.target.closest('.btn-change-doctor-shift');
-        if (shiftBtn) {
-          const uid = shiftBtn.getAttribute('data-user-id');
-          const name = shiftBtn.getAttribute('data-user-name');
-          const currentShift = shiftBtn.getAttribute('data-current-shift') || 'sat_mon_wed';
-          const regRate = parseFloat(shiftBtn.getAttribute('data-regular-rate')) || 0;
-          const specRate = parseFloat(shiftBtn.getAttribute('data-special-rate')) || 0;
-          if (uid) this.openDoctorRateModal(uid, name, currentShift, regRate, specRate);
         }
       });
     }
   }
 
-  async handleCreateUser(e) {
-    if (e) {
-      try { e.preventDefault(); } catch (_) {}
-      try { e.stopPropagation(); } catch (_) {}
+  async handleAddUser(e) {
+    e.preventDefault();
+    const currentUser = auth.getCurrentUser();
+    if (!RolesManager.canManageUsers(currentUser)) {
+      await this.app.showAlert('عذراً، هذه الصلاحية لمدير المركز فقط.', 'تنبيه', 'warning');
+      return;
     }
 
-    const nameInput = document.getElementById('newuser-name') || document.getElementById('admin-new-user-name');
-    const emailInput = document.getElementById('newuser-email') || document.getElementById('admin-new-user-email');
-    const passwordInput = document.getElementById('newuser-password') || document.getElementById('admin-new-user-password');
-    const roleSelect = document.getElementById('newuser-role') || document.getElementById('admin-new-user-role');
-    const shiftSelect = document.getElementById('newuser-shift') || document.getElementById('admin-new-doctor-shift');
-    const regRateInput = document.getElementById('newuser-regular-rate') || document.getElementById('admin-new-doctor-rate-regular');
-    const specRateInput = document.getElementById('newuser-special-rate') || document.getElementById('admin-new-doctor-rate-special');
+    const nameInput = document.getElementById('newuser-name');
+    const emailInput = document.getElementById('newuser-email');
+    const passwordInput = document.getElementById('newuser-password');
+    const roleInput = document.getElementById('newuser-role');
+    const btnSubmit = e.target.querySelector('button[type="submit"]') || document.querySelector('#form-add-user button[type="submit"]');
 
-    const name = nameInput?.value.trim();
-    const email = emailInput?.value.trim().toLowerCase();
+    const name = nameInput?.value?.trim();
+    const email = emailInput?.value?.trim().toLowerCase();
     const password = passwordInput?.value;
-    const role = roleSelect?.value || 'doctor';
-    const shift = (role === 'doctor' && shiftSelect) ? shiftSelect.value : null;
-    const regularSessionRate = (role === 'doctor' && regRateInput) ? parseFloat(regRateInput.value) || 0 : null;
-    const specialSessionRate = (role === 'doctor' && specRateInput) ? parseFloat(specRateInput.value) || 0 : null;
+    const role = roleInput?.value || 'doctor';
+    const shiftInput = document.getElementById('newuser-shift');
+    const shift = (role === 'doctor') ? (shiftInput?.value || 'sat_mon_wed') : null;
+    const regRateInput = document.getElementById('newuser-regular-rate');
+    const specRateInput = document.getElementById('newuser-special-rate');
+    const regularSessionRate = (role === 'doctor') ? (parseFloat(regRateInput?.value) || 0) : null;
+    const specialSessionRate = (role === 'doctor') ? (parseFloat(specRateInput?.value) || 0) : null;
 
-    if (!name || !email || !password || !role) {
-      await this.app.showAlert('يرجى ملء جميع الحقول الإلزامية لإنشاء الحساب.', 'بيانات ناقصة', 'warning');
+    if (!name || name.length < 2) {
+      await this.app.showAlert('يرجى إدخال اسم صحيح للموظف (حرفين على الأقل).', 'بيانات غير مكتملة', 'warning');
+      nameInput?.focus();
       return;
     }
 
-    if (password.length < 6) {
-      await this.app.showAlert('كلمة المرور يجب ألا تقل عن 6 أحرف.', 'كلمة مرور ضعيفة', 'warning');
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!email || !emailRegex.test(email)) {
+      await this.app.showAlert('يرجى إدخال بريد إلكتروني صحيح (مثال: staff@ascpt.clinic).', 'بريد إلكتروني غير صالح', 'warning');
+      emailInput?.focus();
       return;
     }
 
-    const btnSubmit = document.getElementById('btn-admin-submit-create-user');
-    const origBtnHtml = btnSubmit ? btnSubmit.innerHTML : '';
+    if (!password || password.length < 6) {
+      await this.app.showAlert('كلمة المرور يجب ألا تقل عن 6 خانات/أحرف لضمان الأمان.', 'كلمة المرور قصيرة', 'warning');
+      passwordInput?.focus();
+      return;
+    }
+
+    const origBtnHtml = btnSubmit ? btnSubmit.innerHTML : '<i class="fa-solid fa-plus"></i> إنشاء الحساب';
     if (btnSubmit) {
       btnSubmit.disabled = true;
-      btnSubmit.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> <span>جاري إنشاء الحساب...</span>';
+      btnSubmit.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> <span>جاري إنشاء الحساب عبر الخادم...</span>';
     }
 
     try {
-      let authUid = null;
-      try {
-        const { data: authData, error: authErr } = await supabase.auth.signUp({
-          email,
-          password,
-          options: { data: { name, role } }
-        });
-        if (!authErr && authData?.user?.id) {
-          authUid = authData.user.id;
-        }
-      } catch (authException) {
-        console.warn('Auth signUp warning:', authException);
+      // 1. Obtain verified Firebase ID Token from currently authenticated Admin
+      if (!firebaseAuth.currentUser) {
+        throw new Error('جلسة تسجيل الدخول منتهية، يرجى إعادة تسجيل الدخول.');
+      }
+      const idToken = await firebaseAuth.currentUser.getIdToken(true);
+
+      // 2. Invoke trusted backend serverless endpoint
+      const response = await fetch('/api/admin/users', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${idToken}`
+        },
+        body: JSON.stringify({ name, email, password, role, shift, regularSessionRate, specialSessionRate })
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.error || 'فشل إنشاء الحساب عبر الخادم.');
       }
 
-      const finalUserId = authUid || ('u_' + Date.now() + '_' + Math.random().toString(36).substring(2, 7));
-      const now = new Date().toISOString();
-
-      const profileData = {
-        id: finalUserId,
-        name,
-        email,
-        role,
-        is_active: true,
-        data: {
-          id: finalUserId,
-          uid: finalUserId,
-          name,
-          email,
-          role,
-          shift: role === 'doctor' ? (shift || 'sat_mon_wed') : null,
-          regularSessionRate: role === 'doctor' ? (regularSessionRate || 0) : null,
-          specialSessionRate: role === 'doctor' ? (specialSessionRate || 0) : null,
-          active: true,
-          createdAt: now
-        }
-      };
-
-      const { error: profErr } = await supabase.from('profiles').upsert(profileData);
-      if (profErr) {
-        throw new Error('فشل تسجيل الموظف في قاعدة البيانات: ' + profErr.message);
-      }
-
-      // Log audit
-      const shiftDesc = (role === 'doctor' && shift) ? ` (شفت: ${shift === 'sat_mon_wed' ? 'السبت/الاثنين/الأربعاء' : shift === 'sun_tue_thu' ? 'الأحد/الثلاثاء/الخميس' : 'طوال الأسبوع'})` : '';
-      await db.logAudit('إنشاء حساب موظف', `تم إنشاء حساب للموظف: ${name} بدور: ${RolesManager.getRoleLabel(role)}${shiftDesc} (${email})`, auth.getCurrentUser());
-
+      // 3. Clear form inputs on verified success
       if (nameInput) nameInput.value = '';
       if (emailInput) emailInput.value = '';
       if (passwordInput) passwordInput.value = '';
-      if (regRateInput) regRateInput.value = '';
-      if (specRateInput) specRateInput.value = '';
 
       this.app.showToast(`تم إنشاء وتوثيق حساب ${name} بنجاح كـ (${RolesManager.getRoleLabel(role)})`);
 
+      // 4. Reload verified users directory and doctor dropdowns
+      if (db.invalidateAllCaches) db.invalidateAllCaches();
       await this.app.populateDoctorDropdowns();
       await this.loadUsers();
       await this.loadAuditLogs();
@@ -216,119 +213,153 @@ export class AuditAndAdminManager {
   }
 
   async resetUserPassword(userId, userName) {
-    this.app.showToast(`لإعادة تعيين كلمة مرور (${userName})، يمكن للموظف استخدام رابط الاستعادة أو من لوحة Supabase.`);
-  }
-
-  async toggleUserStatus(userId, userName, currentActive) {
-    const actionText = currentActive ? 'تعطيل' : 'تنشيط';
-    const confirmed = await this.app.showConfirm(
-      `هل أنت متأكد من رغبتك في ${actionText} حساب الموظف (${userName})؟`,
-      `تأكيد ${actionText} الحساب`
+    const newPass = await this.app.showPrompt(
+      `أدخل كلمة المرور الجديدة للموظف (${userName}):\n(يجب ألا تقل عن 6 خانات)`,
+      'تعيين كلمة مرور جديدة',
+      '6 أحرف على الأقل',
+      true
     );
-    if (!confirmed) return;
+    if (!newPass) return;
+    if (newPass.length < 6) {
+      await this.app.showAlert('كلمة المرور يجب ألا تقل عن 6 خانات/أحرف.', 'خطأ', 'warning');
+      return;
+    }
 
     try {
-      const newActive = !currentActive;
-      const { data: existing } = await supabase.from('profiles').select('*').eq('id', userId).single();
-      const updatedData = { ...(existing?.data || {}), active: newActive };
-
-      const { error } = await supabase.from('profiles').update({
-        is_active: newActive,
-        data: updatedData
-      }).eq('id', userId);
-
-      if (error) throw error;
-
-      await db.logAudit(actionText + ' حساب موظف', `قام المدير بـ${actionText} حساب الموظف: ${userName}`, auth.getCurrentUser());
-
-      this.app.showToast(`تم ${actionText} حساب ${userName} بنجاح.`);
-      await this.app.populateDoctorDropdowns();
-      await this.loadUsers();
+      if (!firebaseAuth.currentUser) {
+        throw new Error('جلسة تسجيل الدخول منتهية.');
+      }
+      const idToken = await firebaseAuth.currentUser.getIdToken(true);
+      const res = await fetch('/api/admin/users', {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${idToken}`
+        },
+        body: JSON.stringify({ targetUid: userId, password: newPass })
+      });
+      const result = await res.json();
+      if (!res.ok) throw new Error(result.error || 'فشل تغيير كلمة المرور.');
+      this.app.showToast(`تم تعيين كلمة مرور جديدة للموظف (${userName}) بنجاح 🔑`);
       await this.loadAuditLogs();
     } catch (err) {
-      console.error('Failed to toggle user status:', err);
-      await this.app.showAlert('تعذر تغيير حالة الحساب: ' + err.message, 'خطأ', 'danger');
+      await this.app.showAlert(err.message, 'خطأ', 'danger');
     }
   }
 
   async deleteUser(userId, userName) {
     const confirmed = await this.app.showConfirm(
-      `تحذير: هل أنت متأكد من حذف حساب (${userName}) نهائياً؟ هذا الإجراء لا يمكن التراجع عنه.`,
-      'تأكيد الحذف النهائي للموظف'
+      `هل أنت متأكد من حذف حساب الموظف: (${userName}) نهائياً من النظام؟`,
+      'تأكيد الحذف النهائي'
     );
+
     if (!confirmed) return;
 
     try {
-      const { error } = await supabase.from('profiles').delete().eq('id', userId);
-      if (error) throw error;
+      if (!firebaseAuth.currentUser) {
+        throw new Error('جلسة تسجيل الدخول منتهية.');
+      }
+      const idToken = await firebaseAuth.currentUser.getIdToken(true);
 
-      await db.logAudit('حذف موظف', `قام المدير بحذف حساب الموظف: ${userName} نهائياً`, auth.getCurrentUser());
+      const response = await fetch('/api/admin/users', {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${idToken}`
+        },
+        body: JSON.stringify({ targetUid: userId })
+      });
 
-      this.app.showToast(`تم حذف حساب ${userName} بنجاح.`);
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.error || 'فشل حذف الموظف من الخادم.');
+      }
+
+      this.app.showToast(`تم حذف حساب ${userName} نهائياً.`);
+      if (db.invalidateAllCaches) db.invalidateAllCaches();
       await this.app.populateDoctorDropdowns();
       await this.loadUsers();
       await this.loadAuditLogs();
     } catch (err) {
-      console.error('Failed to delete staff user:', err);
-      await this.app.showAlert('تعذر حذف الحساب: ' + err.message, 'خطأ', 'danger');
+      console.error('User deletion error:', err);
+      await this.app.showAlert(err.message || 'فشل حذف الموظف.', 'خطأ', 'danger');
+    }
+  }
+  openChangeShiftModal(userId, userName, currentShift, regularRate = 0, specialRate = 0) {
+    const modalNameEl = document.getElementById('shift-modal-doctor-name');
+    const modalUidInp = document.getElementById('shift-modal-target-uid');
+    const regInp = document.getElementById('shift-modal-regular-rate');
+    const specInp = document.getElementById('shift-modal-special-rate');
+
+    if (modalNameEl) modalNameEl.textContent = userName;
+    if (modalUidInp) modalUidInp.value = userId;
+    if (regInp) regInp.value = regularRate > 0 ? regularRate : '';
+    if (specInp) specInp.value = specialRate > 0 ? specialRate : '';
+
+    const radios = document.querySelectorAll('input[name="doctor-shift-choice"]');
+    radios.forEach(r => {
+      r.checked = (r.value === currentShift);
+    });
+
+    this.app.openModal('modal-change-doctor-shift');
+  }
+
+  async handleSaveDoctorShift() {
+    const modalUidInp = document.getElementById('shift-modal-target-uid');
+    const targetUid = modalUidInp?.value;
+    if (!targetUid) return;
+
+    const selectedRadio = document.querySelector('input[name="doctor-shift-choice"]:checked');
+    const shift = selectedRadio?.value || 'sat_mon_wed';
+    const regInp = document.getElementById('shift-modal-regular-rate');
+    const specInp = document.getElementById('shift-modal-special-rate');
+    const regularSessionRate = Math.max(0, parseFloat(regInp?.value) || 0);
+    const specialSessionRate = Math.max(0, parseFloat(specInp?.value) || 0);
+
+    const btnSave = document.getElementById('btn-save-doctor-shift');
+    const origHtml = btnSave ? btnSave.innerHTML : '';
+    if (btnSave) {
+      btnSave.disabled = true;
+      btnSave.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> جاري الحفظ...';
+    }
+
+    try {
+      if (!firebaseAuth.currentUser) {
+        throw new Error('جلسة تسجيل الدخول منتهية.');
+      }
+      const idToken = await firebaseAuth.currentUser.getIdToken(true);
+      const res = await fetch('/api/admin/users', {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${idToken}`
+        },
+        body: JSON.stringify({ targetUid, shift, regularSessionRate, specialSessionRate })
+      });
+      const result = await res.json();
+      if (!res.ok) throw new Error(result.error || 'فشل تحديث بيانات الطبيب.');
+
+      this.app.closeModal('modal-change-doctor-shift');
+      this.app.showToast('تم تحديث شفت وأسعار جلسات الطبيب بنجاح');
+      await this.loadUsers();
+      await this.app.populateDoctorDropdowns?.();
+      await this.loadAuditLogs();
+    } catch (err) {
+      await this.app.showAlert(err.message, 'خطأ في التحديث', 'danger');
+    } finally {
+      if (btnSave) {
+        btnSave.disabled = false;
+        btnSave.innerHTML = origHtml;
+      }
     }
   }
 
-  openDoctorRateModal(userId, userName, currentShift, regRate, specRate) {
-    const nameEl = document.getElementById('modal-doctor-rate-name');
-    const idInput = document.getElementById('modal-doctor-rate-uid');
-    const shiftSelect = document.getElementById('modal-doctor-rate-shift');
-    const regInput = document.getElementById('modal-doctor-rate-regular');
-    const specInput = document.getElementById('modal-doctor-rate-special');
-
-    if (nameEl) nameEl.textContent = userName;
-    if (idInput) idInput.value = userId;
-    if (shiftSelect) shiftSelect.value = currentShift;
-    if (regInput) regInput.value = regRate;
-    if (specInput) specInput.value = specRate;
-
-    this.app.openModal('modal-doctor-rate');
-
-    const form = document.getElementById('form-doctor-rate-update');
-    if (form) {
-      form.onsubmit = async (e) => {
-        e.preventDefault();
-        const newShift = shiftSelect ? shiftSelect.value : currentShift;
-        const newReg = regInput ? (parseFloat(regInput.value) || 0) : 0;
-        const newSpec = specInput ? (parseFloat(specInput.value) || 0) : 0;
-
-        try {
-          const { data: existing } = await supabase.from('profiles').select('*').eq('id', userId).single();
-          const updatedData = {
-            ...(existing?.data || {}),
-            shift: newShift,
-            regularSessionRate: newReg,
-            specialSessionRate: newSpec
-          };
-
-          const { error } = await supabase.from('profiles').update({
-            data: updatedData
-          }).eq('id', userId);
-
-          if (error) throw error;
-
-          await db.logAudit('تعديل إعدادات الطبيب', `تعديل شفت وتسعيرة الطبيب: ${userName}`, auth.getCurrentUser());
-
-          this.app.closeModal('modal-doctor-rate');
-          this.app.showToast(`تم تحديث شفت وتسعيرة جلسات الطبيب (${userName}) بنجاح.`);
-          await this.app.populateDoctorDropdowns();
-          await this.loadUsers();
-          await this.loadAuditLogs();
-        } catch (err) {
-          await this.app.showAlert('تعذر تحديث تسعيرة الطبيب: ' + err.message, 'خطأ', 'danger');
-        }
-      };
-    }
-  }
 
   async loadUsers() {
+    const tbody = document.getElementById('admin-users-tbody');
     const mobContainer = document.getElementById('admin-users-mobile-cards');
-    if (!mobContainer) return;
+    if (!tbody && !mobContainer) return;
 
     let users = [];
     try {
@@ -347,162 +378,290 @@ export class AuditAndAdminManager {
     if (doctorsCountEl) doctorsCountEl.textContent = users.filter(u => u.role === 'doctor').length;
     if (staffCountEl) staffCountEl.textContent = users.filter(u => u.role === 'receptionist' || u.role === 'admin').length;
 
-    if (users.length === 0) {
-      mobContainer.innerHTML = `
-        <div class="empty-state-card" style="text-align: center; padding: 28px 20px; color: var(--text-muted); background: var(--bg-surface); border-radius: 14px; border: 1.5px dashed var(--border-color);">
-          <i class="fa-solid fa-users-slash" style="font-size: 1.8rem; margin-bottom: 8px; display: block; color: #cbd5e1;"></i>
-          لا يوجد أطباء أو موظفين مسجلين حالياً.
-        </div>
-      `;
-      return;
+    // Desktop Table
+    if (tbody) {
+      if (users.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="4" style="text-align: center; color: var(--text-muted); padding: 20px;">لا يوجد أطباء أو موظفين مسجلين حالياً. استخدم النموذج أعلاه لإنشاء حساب جديد.</td></tr>`;
+      } else {
+        tbody.innerHTML = users.map(u => {
+          const isSelf = currentUser && (currentUser.uid === u.id || currentUser.id === u.id || currentUser.email === u.email);
+          const safeName = escapeHTML(u.name || 'موظف');
+          const safeEmail = escapeHTML(u.email || '-');
+          const safeRole = escapeHTML(u.role || 'doctor');
+          const roleLabel = escapeHTML(RolesManager.getRoleLabel(u.role));
+
+          let shiftDisplay = '<span style="color: var(--text-muted); font-size: 0.8rem; font-weight: 600;">دوام إداري</span>';
+          if (u.role === 'doctor') {
+            const sKey = u.shift || 'sat_mon_wed';
+            const sLabel = getShiftLabel(sKey);
+            const sIcon = sKey === 'sat_mon_wed' ? 'fa-calendar-days' : (sKey === 'sun_tue_thu' ? 'fa-calendar-week' : 'fa-calendar-check');
+            const regRate = typeof u.regularSessionRate === 'number' ? u.regularSessionRate : 0;
+            const specRate = typeof u.specialSessionRate === 'number' ? u.specialSessionRate : 0;
+            shiftDisplay = `
+              <button type="button" class="btn btn-outline btn-sm btn-change-doctor-shift" data-user-id="${escapeHTML(u.id)}" data-user-name="${safeName}" data-current-shift="${sKey}" data-regular-rate="${regRate}" data-special-rate="${specRate}" style="border-radius: 6px; padding: 5px 8px; font-size: 0.78rem; text-align: right; color: var(--text-main); border-color: var(--border-color); display: inline-flex; align-items: center; justify-content: space-between; gap: 8px; min-width: 175px;" title="اضغط لتعديل الشفت وأسعار الجلسات">
+                <div>
+                  <div style="font-weight: 800; color: var(--primary); display: flex; align-items: center; gap: 5px;">
+                    <i class="fa-solid ${sIcon}"></i> <span>${escapeHTML(sLabel)}</span>
+                  </div>
+                  <div style="font-size: 0.72rem; color: var(--text-muted); margin-top: 2px;">
+                    عادية: <strong style="color: var(--text-main);">${regRate} ج.م</strong> • خاصة: <strong style="color: #b45309;">${specRate} ج.م</strong>
+                  </div>
+                </div>
+                <i class="fa-solid fa-pencil" style="font-size: 0.68rem; opacity: 0.7; color: var(--primary);"></i>
+              </button>
+            `;
+          }
+
+          return `
+            <tr>
+              <td style="font-weight: 700;">${safeName}</td>
+              <td dir="ltr" style="text-align: right;">${safeEmail}</td>
+              <td><span class="badge badge-role-${safeRole}">${roleLabel}</span></td>
+              <td>${shiftDisplay}</td>
+              <td>
+                ${!isSelf ? `
+                  <div style="display: flex; gap: 6px; align-items: center;">
+                    <button type="button" class="btn btn-outline btn-sm btn-reset-password" style="color: var(--primary); border-radius: 6px; padding: 4px 8px;" data-user-id="${escapeHTML(u.id)}" data-user-name="${safeName}" title="إعادة تعيين كلمة المرور">
+                      <i class="fa-solid fa-key"></i>
+                    </button>
+                    <button type="button" class="btn btn-outline btn-sm btn-delete-user" style="color: var(--danger); border-radius: 6px; padding: 4px 8px;" data-user-id="${escapeHTML(u.id)}" data-user-name="${safeName}" title="حذف المستخدم نهائياً">
+                      <i class="fa-solid fa-trash"></i>
+                    </button>
+                  </div>
+                ` : '<span style="font-size: 0.8rem; color: var(--text-muted); font-weight: 700;">حسابك الحالي</span>'}
+              </td>
+            </tr>
+          `;
+        }).join('');
+      }
     }
 
-    mobContainer.innerHTML = users.map(u => {
-      const isSelf = currentUser && (currentUser.uid === u.id || currentUser.id === u.id || currentUser.email === u.email);
-      const safeName = escapeHTML(u.name || 'موظف');
-      const safeEmail = escapeHTML(u.email || '-');
-      const roleLabel = escapeHTML(RolesManager.getRoleLabel(u.role));
+    // Mobile Stack Deck
+    if (mobContainer) {
+      if (users.length === 0) {
+        mobContainer.innerHTML = `<div class="hero-styled-card" style="text-align: center; color: var(--text-muted); padding: 25px;">لا يوجد أطباء أو موظفين مسجلين حالياً.</div>`;
+      } else {
+        const cardsHTML = users.map((u, index) => {
+          const isSelf = currentUser && (currentUser.uid === u.id || currentUser.id === u.id || currentUser.email === u.email);
+          const safeName = escapeHTML(u.name || 'موظف');
+          const safeEmail = escapeHTML(u.email || '-');
+          const safeRole = escapeHTML(u.role || 'doctor');
+          const roleLabel = escapeHTML(RolesManager.getRoleLabel(u.role));
 
-      let shiftDisplay = '<span style="color: var(--text-muted); font-size: 0.8rem; font-weight: 600;">دوام إداري</span>';
-      if (u.role === 'doctor') {
-        const sKey = u.shift || u.data?.shift || 'sat_mon_wed';
-        const sLabel = getShiftLabel(sKey);
-        const sIcon = sKey === 'sat_mon_wed' ? 'fa-calendar-days' : (sKey === 'sun_tue_thu' ? 'fa-calendar-week' : 'fa-calendar-check');
-        const regRate = typeof u.regularSessionRate === 'number' ? u.regularSessionRate : (u.data?.regularSessionRate || 0);
-        const specRate = typeof u.specialSessionRate === 'number' ? u.specialSessionRate : (u.data?.specialSessionRate || 0);
-        shiftDisplay = `
-          <button type="button" class="btn btn-outline btn-sm btn-change-doctor-shift" data-user-id="${escapeHTML(u.id)}" data-user-name="${safeName}" data-current-shift="${sKey}" data-regular-rate="${regRate}" data-special-rate="${specRate}" style="border-radius: 6px; padding: 5px 8px; font-size: 0.78rem; text-align: right; color: var(--text-main); border-color: var(--border-color); display: inline-flex; align-items: center; justify-content: space-between; gap: 8px;" title="تعديل الشفت">
-            <div>
-              <div style="font-weight: 800; color: var(--primary); display: flex; align-items: center; gap: 5px;">
-                <i class="fa-solid ${sIcon}"></i> <span>${escapeHTML(sLabel)}</span>
+          let avatarIcon = 'fa-user-doctor';
+          let avatarColorClass = 'blue';
+          if (safeRole === 'admin') {
+            avatarIcon = 'fa-user-shield';
+            avatarColorClass = 'purple';
+          } else if (safeRole === 'receptionist') {
+            avatarIcon = 'fa-user-tie';
+            avatarColorClass = 'amber';
+          }
+
+          return `
+            <div class="hero-styled-card doc-stack-card ${index === 0 ? 'is-active-card' : 'is-peeking-card'}" data-stack-index="${index}">
+              <div style="display: flex; align-items: center; justify-content: space-between; gap: 10px;">
+                <div style="display: flex; align-items: center; gap: 10px; min-width: 0;">
+                  <div class="stat-icon ${avatarColorClass}" style="width: 40px; height: 40px; border-radius: 12px; font-size: 1.1rem; flex-shrink: 0; display: flex; align-items: center; justify-content: center;">
+                    <i class="fa-solid ${avatarIcon}"></i>
+                  </div>
+                  <div style="min-width: 0;">
+                    <div style="font-weight: 800; font-size: 0.98rem; color: var(--text-main); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                      ${safeName}
+                    </div>
+                    <div dir="ltr" style="font-size: 0.78rem; color: var(--text-muted); text-align: right; margin-top: 1px;">
+                      <i class="fa-regular fa-envelope" style="font-size: 0.72rem;"></i> ${safeEmail}
+                    </div>
+                  </div>
+                </div>
+                <span class="badge badge-role-${safeRole}" style="font-size: 0.76rem; padding: 4px 10px; border-radius: 999px; flex-shrink: 0;">
+                  ${roleLabel}
+                </span>
               </div>
-              <div style="font-size: 0.72rem; color: var(--text-muted); margin-top: 2px;">
-                عادية: <strong style="color: var(--text-main);">${regRate} ج.م</strong> • خاصة: <strong style="color: #b45309;">${specRate} ج.م</strong>
+
+              ${u.role === 'doctor' ? `
+                <div style="margin-top: 10px; background: var(--bg-subtle); padding: 8px 12px; border-radius: 8px; border: 1px solid var(--border-color);">
+                  <div style="display: flex; align-items: center; justify-content: space-between;">
+                    <div style="font-size: 0.76rem; color: var(--text-muted); font-weight: 700;">
+                      <i class="fa-solid fa-calendar-days text-primary"></i> الشفت: <strong style="color: var(--text-main);">${escapeHTML(getShiftLabel(u.shift || 'sat_mon_wed'))}</strong>
+                    </div>
+                    <button type="button" class="btn btn-outline btn-sm btn-change-doctor-shift" data-user-id="${escapeHTML(u.id)}" data-user-name="${safeName}" data-current-shift="${u.shift || 'sat_mon_wed'}" data-regular-rate="${typeof u.regularSessionRate === 'number' ? u.regularSessionRate : 0}" data-special-rate="${typeof u.specialSessionRate === 'number' ? u.specialSessionRate : 0}" style="padding: 2px 8px; font-size: 0.74rem; font-weight: 700;">
+                      <i class="fa-solid fa-pencil"></i> تعديل
+                    </button>
+                  </div>
+                  <div style="font-size: 0.72rem; color: var(--text-muted); margin-top: 4px; border-top: 1px dashed var(--border-color); padding-top: 4px;">
+                    أجر الجلسة: <strong style="color: var(--text-main);">${typeof u.regularSessionRate === 'number' ? u.regularSessionRate : 0} ج.م (عادية)</strong> • <strong style="color: #b45309;">${typeof u.specialSessionRate === 'number' ? u.specialSessionRate : 0} ج.م (خاصة)</strong>
+                  </div>
+                </div>
+              ` : ''}
+              <div class="hsc-divider" style="margin: 12px 0 10px 0;"></div>
+
+              <div style="display: flex; align-items: center; justify-content: space-between; gap: 8px;">
+                ${!isSelf ? `
+                  <div style="display: flex; gap: 8px; width: 100%;">
+                    <button type="button" class="btn btn-outline btn-sm btn-reset-password" style="flex: 1; border-radius: 10px; height: 36px; font-size: 0.82rem; font-weight: 700; color: var(--primary);" data-user-id="${escapeHTML(u.id)}" data-user-name="${safeName}">
+                      <i class="fa-solid fa-key"></i> كلمة المرور
+                    </button>
+                    <button type="button" class="btn btn-outline btn-sm btn-delete-user" style="border-radius: 10px; height: 36px; padding: 0 14px; font-size: 0.82rem; font-weight: 700; color: var(--danger); border-color: rgba(239, 68, 68, 0.3);" data-user-id="${escapeHTML(u.id)}" data-user-name="${safeName}">
+                      <i class="fa-solid fa-trash"></i> حذف
+                    </button>
+                  </div>
+                ` : `
+                  <div style="width: 100%; text-align: center; font-size: 0.82rem; font-weight: 800; color: #34d399; background: rgba(16, 185, 129, 0.14); border: 1px solid rgba(16, 185, 129, 0.3); padding: 7px 12px; border-radius: 10px;">
+                    <i class="fa-solid fa-circle-check"></i> حسابك الحالي المسجل
+                  </div>
+                `}
               </div>
             </div>
-            <i class="fa-solid fa-pen-to-square" style="color: var(--primary); font-size: 0.8rem;"></i>
-          </button>
-        `;
-      }
+          `;
+        }).join('');
 
-      return `
-        <div class="hero-styled-card" style="border-right: 4px solid ${u.role === 'admin' ? 'var(--primary)' : (u.role === 'doctor' ? '#10b981' : '#f59e0b')};">
-          <div class="hsc-top">
-            <div class="hsc-patient-meta">
-              <div class="hsc-avatar" style="background: rgba(2, 132, 199, 0.12); color: var(--primary);">
-                <i class="fa-solid ${u.role === 'doctor' ? 'fa-user-doctor' : (u.role === 'admin' ? 'fa-user-shield' : 'fa-user-tie')}"></i>
-              </div>
-              <div class="hsc-name-box">
-                <span class="hsc-patient-name" style="font-size: 0.95rem;">${safeName}</span>
-                <span class="hsc-doc-sub" style="color: var(--text-muted); font-size: 0.78rem;">${safeEmail}</span>
-              </div>
-            </div>
-            <div>
-              <span class="badge" style="background: ${u.role === 'admin' ? 'rgba(2, 132, 199, 0.15)' : (u.role === 'doctor' ? 'rgba(16, 185, 129, 0.15)' : 'rgba(245, 158, 11, 0.15)')}; color: ${u.role === 'admin' ? 'var(--primary)' : (u.role === 'doctor' ? '#10b981' : '#d97706')}; font-weight: 800; font-size: 0.78rem;">
-                ${roleLabel}
+        const dotsHTML = users.map((_, i) => `<span class="doc-dot ${i === 0 ? 'active' : ''}" data-dot-index="${i}"></span>`).join('');
+
+        mobContainer.innerHTML = `
+          <div class="doc-stack-wrapper">
+            <div class="doc-stack-header-bar">
+              <span style="font-size: 0.86rem; font-weight: 800; color: var(--text-main);">
+                <i class="fa-solid fa-users" style="color: var(--primary); margin-left: 5px;"></i> ${users.length} موظفين بالفريق
               </span>
+              <div style="display: flex; align-items: center; gap: 8px;">
+                ${users.length > 1 ? `
+                  <span id="admin-stack-counter" style="font-size: 0.78rem; font-weight: 800; color: var(--primary); background: rgba(2, 132, 199, 0.12); padding: 2px 10px; border-radius: 999px;">1 من ${users.length}</span>
+                  <button type="button" class="btn btn-outline btn-sm" id="btn-toggle-admin-stack" style="font-size: 0.75rem; padding: 3px 9px; border-radius: 8px; height: 28px;" title="تبديل بين التراكم والقائمة">
+                    <i class="fa-solid fa-list" id="icon-admin-stack-toggle"></i>
+                  </button>
+                ` : ''}
+              </div>
             </div>
-          </div>
-
-          <div class="hsc-divider" style="margin: 10px 0;"></div>
-
-          <div class="hsc-bottom" style="align-items: center; justify-content: space-between;">
-            <div>
-              ${shiftDisplay}
+            <div class="doc-stack-container" id="admin-stack-container">
+              ${cardsHTML}
             </div>
-            <div class="hsc-actions">
-              ${!isSelf ? `
-                <button type="button" class="btn btn-outline btn-sm btn-icon-action btn-toggle-user-status" data-user-id="${escapeHTML(u.id)}" data-user-name="${safeName}" data-current-status="${u.active}" style="color: ${u.active ? 'var(--warning)' : 'var(--success)'}; width: 28px; height: 28px; padding: 0; display: inline-flex; align-items: center; justify-content: center; border-radius: 50%;" title="${u.active ? 'تعطيل الحساب' : 'تنشيط الحساب'}">
-                  <i class="fa-solid ${u.active ? 'fa-ban' : 'fa-check'}"></i>
+            ${users.length > 1 ? `
+              <div class="doc-stack-nav-bar" id="admin-stack-nav-bar">
+                <button type="button" class="doc-stack-nav-btn" id="btn-admin-stack-prev">
+                  <i class="fa-solid fa-chevron-right"></i> السابق
                 </button>
-                <button type="button" class="btn btn-outline btn-sm btn-icon-action btn-delete-staff-user" data-user-id="${escapeHTML(u.id)}" data-user-name="${safeName}" style="color: var(--danger); border-color: rgba(239, 68, 68, 0.35); width: 28px; height: 28px; padding: 0; display: inline-flex; align-items: center; justify-content: center; border-radius: 50%;" title="حذف نهائي">
-                  <i class="fa-solid fa-trash"></i>
+                <div class="doc-stack-dots" id="admin-stack-dots">
+                  ${dotsHTML}
+                </div>
+                <button type="button" class="doc-stack-nav-btn" id="btn-admin-stack-next">
+                  التالي <i class="fa-solid fa-chevron-left"></i>
                 </button>
-              ` : `
-                <span style="font-size: 0.72rem; font-weight: 700; color: var(--text-muted); background: var(--bg-subtle); padding: 3px 8px; border-radius: 6px;">حسابك الحالي</span>
-              `}
-            </div>
+              </div>
+            ` : ''}
           </div>
-        </div>
-      `;
-    }).join('');
+        `;
+
+        this.initStackDeck('admin-stack');
+      }
+    }
   }
 
   async loadAuditLogs() {
-    const mobContainer = document.getElementById('audit-log-mobile-cards');
-    const counterEl = document.getElementById('stat-admin-audit-count');
-    if (!mobContainer) return;
+    const tbody = document.getElementById('audit-log-tbody');
+    const mobLogs = document.getElementById('audit-log-mobile-cards');
+    if (!tbody && !mobLogs) return;
+
+    // Automatic 60-day audit log purge in background
+    try { await db.purgeOldAuditLogs(); } catch (_) {}
 
     let logs = [];
     try {
       logs = await db.getAuditLogs(50);
     } catch (err) {
-      console.error('Error loading audit logs:', err);
+      console.warn('Error loading audit logs:', err.message);
     }
 
-    if (counterEl) counterEl.textContent = logs.length;
+    // Update KPI Stat
+    const auditCountEl = document.getElementById('stat-admin-audit-count');
+    if (auditCountEl) auditCountEl.textContent = logs.length;
 
-    if (logs.length === 0) {
-      mobContainer.innerHTML = `
-        <div class="empty-state-card" style="text-align: center; padding: 28px 20px; color: var(--text-muted); background: var(--bg-surface); border-radius: 14px; border: 1.5px dashed var(--border-color);">
-          <i class="fa-solid fa-shield-halved" style="font-size: 1.8rem; margin-bottom: 8px; display: block; color: #cbd5e1;"></i>
-          سجل العمليات فارغ حالياً.
-        </div>
-      `;
-      return;
+    // Desktop Table
+    if (tbody) {
+      if (logs.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="5" style="text-align: center; color: var(--text-muted); padding: 20px;">لا توجد سجلات تدقيق مسجلة حتى الآن.</td></tr>`;
+      } else {
+        tbody.innerHTML = logs.map(l => `
+          <tr>
+            <td style="font-weight: 700;">${escapeHTML(l.userName)}</td>
+            <td><span class="badge badge-role-${escapeHTML(l.userRole)}">${escapeHTML(RolesManager.getRoleLabel(l.userRole))}</span></td>
+            <td><span class="badge badge-direct">${escapeHTML(l.actionType)}</span></td>
+            <td>${escapeHTML(l.description)}</td>
+            <td style="font-size: 0.8rem; color: var(--text-muted);">${escapeHTML(l.timestamp)}</td>
+          </tr>
+        `).join('');
+      }
     }
 
-    mobContainer.innerHTML = logs.map(l => {
-      const safeAction = escapeHTML(l.action || 'عملية');
-      const safeDetails = escapeHTML(l.details || '-');
-      const safeUser = escapeHTML(l.userName || 'طاقم المركز');
-      const safeTime = l.timestamp ? new Date(l.timestamp).toLocaleString('ar-EG-u-nu-latn') : '-';
+    // Mobile Timeline
+    if (mobLogs) {
+      if (logs.length === 0) {
+        mobLogs.innerHTML = `<div class="hero-styled-card" style="text-align: center; color: var(--text-muted); padding: 25px;">لا توجد حركات رقابة مسجلة حتى الآن.</div>`;
+      } else {
+        const hasMoreAudit = logs.length > 6;
+        mobLogs.innerHTML = `
+          <div class="audit-mobile-timeline">
+            ${logs.map((l, idx) => {
+              const safeName = escapeHTML(l.userName);
+              const safeRole = escapeHTML(l.userRole);
+              const roleLabel = escapeHTML(RolesManager.getRoleLabel(l.userRole));
+              const safeAction = escapeHTML(l.actionType);
+              const safeDesc = escapeHTML(l.description);
+              const safeTime = escapeHTML(l.timestamp);
 
-      return `
-        <div class="hero-styled-card">
-          <div class="hsc-top" style="margin-bottom: 6px;">
-            <span class="badge" style="background: rgba(2, 132, 199, 0.12); color: var(--primary); font-weight: 800; font-size: 0.8rem;">
-              <i class="fa-solid fa-shield-halved"></i> ${safeAction}
-            </span>
-            <span style="font-size: 0.76rem; color: var(--text-muted);">${safeTime}</span>
+              return `
+                <div class="audit-mobile-item ${idx >= 6 ? 'audit-item-collapsed' : ''}" style="${idx >= 6 ? 'display: none;' : ''}">
+                  <div style="display: flex; align-items: center; justify-content: space-between; gap: 8px;">
+                    <span class="badge badge-direct" style="font-size: 0.76rem; font-weight: 800; padding: 3px 8px; border-radius: 6px;">
+                      ${safeAction}
+                    </span>
+                    <span style="font-size: 0.74rem; color: var(--text-muted); font-weight: 600;">
+                      <i class="fa-regular fa-clock" style="font-size: 0.7rem;"></i> ${safeTime}
+                    </span>
+                  </div>
+                  <div style="font-weight: 700; font-size: 0.88rem; color: var(--text-main); margin: 6px 0;">
+                    ${safeDesc}
+                  </div>
+                  <div style="display: flex; align-items: center; gap: 6px; font-size: 0.78rem; color: var(--text-muted);">
+                    <i class="fa-solid fa-user-pen" style="color: var(--primary);"></i>
+                    <span style="font-weight: 700; color: var(--text-main);">${safeName}</span>
+                    <span>•</span>
+                    <span class="badge badge-role-${safeRole}" style="font-size: 0.68rem; padding: 2px 6px;">${roleLabel}</span>
+                  </div>
+                </div>
+              `;
+            }).join('')}
+            ${hasMoreAudit ? `
+              <button type="button" class="btn-toggle-audit-more btn btn-outline btn-sm" data-expanded="false" style="width: 100%; border-radius: 12px; margin-top: 6px; padding: 8px; font-size: 0.82rem; font-weight: 700; color: var(--primary); border-color: var(--primary); display: flex; align-items: center; justify-content: center; gap: 6px;">
+                <span>عرض باقي الحركات (${logs.length - 6}+)</span>
+                <i class="fa-solid fa-chevron-down"></i>
+              </button>
+            ` : ''}
           </div>
-          <div style="font-size: 0.86rem; color: var(--text-main); margin-bottom: 8px; font-weight: 600;">
-            ${safeDetails}
-          </div>
-          <div style="font-size: 0.78rem; color: var(--text-muted);">
-            <i class="fa-solid fa-user-check"></i> منفذ العملية: <strong>${safeUser}</strong>
-          </div>
-        </div>
-      `;
-    }).join('');
+        `;
+
+        if (hasMoreAudit) {
+          mobLogs.querySelector('.btn-toggle-audit-more')?.addEventListener('click', (ev) => {
+            const btn = ev.currentTarget;
+            const isExp = btn.getAttribute('data-expanded') === 'true';
+            const hiddenLogs = mobLogs.querySelectorAll('.audit-item-collapsed');
+            if (isExp) {
+              hiddenLogs.forEach(r => r.style.display = 'none');
+              btn.setAttribute('data-expanded', 'false');
+              btn.innerHTML = `<span>عرض باقي الحركات (${logs.length - 6}+)</span> <i class="fa-solid fa-chevron-down"></i>`;
+            } else {
+              hiddenLogs.forEach(r => r.style.display = 'block');
+              btn.setAttribute('data-expanded', 'true');
+              btn.innerHTML = `<span>عرض أقل</span> <i class="fa-solid fa-chevron-up"></i>`;
+            }
+          });
+        }
+      }
+    }
   }
 
-  async filterAuditLogs() {
-    const searchVal = (document.getElementById('audit-search-input')?.value || '').trim().toLowerCase();
-    const actionVal = document.getElementById('audit-filter-action')?.value || 'all';
-
-    const cards = document.querySelectorAll('#audit-log-mobile-cards .hero-styled-card');
-    cards.forEach(c => {
-      const text = c.textContent.toLowerCase();
-      const matchSearch = !searchVal || text.includes(searchVal);
-      const matchAction = actionVal === 'all' || text.includes(actionVal.toLowerCase());
-      c.style.display = (matchSearch && matchAction) ? 'block' : 'none';
-    });
-  }
-
-  async handlePurgeAudit() {
-    const confirmed = await this.app.showConfirm(
-      'هل أنت متأكد من تنظيف وأرشفة العمليات القديمة (الأقدم من 90 يوماً)؟',
-      'تأكيد تنظيف السجل'
-    );
-    if (!confirmed) return;
-
-    try {
-      await db.purgeOldAuditLogs();
-      this.app.showToast('تم تنظيف سجل العمليات القديمة بنجاح.');
-      await this.loadAuditLogs();
-    } catch (err) {
-      this.app.showAlert('تعذر تنظيف السجل: ' + err.message, 'خطأ', 'danger');
-    }
+  // ================= 3D Stack Deck Handler (Admin Staff Members) =================
+  initStackDeck(prefix) {
+    initStackDeck(prefix);
   }
 }

@@ -1306,11 +1306,10 @@ export class SessionsManager {
       }
     }
 
-    if (!mobileCardsContainer) return;
+    if (!tbody) return;
 
     if (sessions.length === 0) {
-      const tbody = document.getElementById('sessions-today-tbody');
-      if (tbody) tbody.innerHTML = `<tr><td colspan="8" style="text-align: center; color: var(--text-muted); padding: 36px 20px;">
+      tbody.innerHTML = `<tr><td colspan="8" style="text-align: center; color: var(--text-muted); padding: 36px 20px;">
         <i class="fa-solid fa-calendar-check" style="font-size: 1.8rem; color: var(--text-muted); margin-bottom: 8px; display: block;"></i>
         لا توجد حركات أو جلسات مسجلة لهذا التاريخ حتى الآن.
       </td></tr>`;
@@ -1356,7 +1355,7 @@ export class SessionsManager {
     });
 
     // 1. Render Desktop Table
-    if (tbody) tbody.innerHTML = sessions.map(s => {
+    tbody.innerHTML = sessions.map(s => {
       const isNewlyAdded = Boolean(s.id && s.id === this.newlyAddedSessionId);
       const rowHighlightClass = isNewlyAdded ? 'session-row-newly-added' : '';
       const safeId = escapeHTML(s.id);
@@ -1593,8 +1592,13 @@ export class SessionsManager {
 
   applyViewModeUI() {
     this.viewMode = 'cards';
+    const tableContainer = document.getElementById('sessions-table-container');
     const cardsContainer = document.getElementById('sessions-today-mobile-cards');
+    const toggleGroup = document.getElementById('sessions-view-mode-toggle');
+
+    if (tableContainer) tableContainer.style.display = 'none';
     if (cardsContainer) cardsContainer.style.display = 'grid';
+    if (toggleGroup) toggleGroup.style.display = 'none';
   }
 
   async deleteSession(sessionId) {

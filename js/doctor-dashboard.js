@@ -184,8 +184,8 @@ export class DoctorDashboardManager {
   }
 
   renderTable() {
-    const mobileContainer = document.getElementById('doctor-personal-mobile-cards');
-    if (!mobileContainer) return;
+    const tbody = document.getElementById('doctor-personal-tbody');
+    if (!tbody) return;
 
     const todayStr = getLocalDateStr();
     const currentMonth = todayStr.substring(0, 7);
@@ -202,8 +202,17 @@ export class DoctorDashboardManager {
     }
 
     if (displayList.length === 0) {
-      if (mobileContainer) {
-        mobileContainer.innerHTML = `
+      tbody.innerHTML = `
+        <tr>
+          <td colspan="6" style="text-align: center; color: var(--text-muted); padding: 24px;">
+            <i class="fa-solid fa-folder-open" style="font-size: 1.5rem; margin-bottom: 8px; display: block; color: #cbd5e1;"></i>
+            لا توجد جلسات مسجلة لك في هذا النطاق.
+          </td>
+        </tr>
+      `;
+      const mobCont = document.getElementById('doctor-personal-mobile-cards');
+      if (mobCont) {
+        mobCont.innerHTML = `
           <div class="empty-state-card" style="text-align: center; padding: 28px 20px; color: var(--text-muted); background: var(--bg-surface); border-radius: 14px; border: 1.5px dashed var(--border-color);">
             <i class="fa-solid fa-folder-open" style="font-size: 1.8rem; margin-bottom: 8px; display: block; color: #cbd5e1;"></i>
             لا توجد جلسات مسجلة لك في هذا النطاق.
@@ -213,8 +222,56 @@ export class DoctorDashboardManager {
       return;
     }
 
+    const mobileContainer = document.getElementById('doctor-personal-mobile-cards');
+
     // 1. Render Desktop Table
-    
+    tbody.innerHTML = displayList.map(s => {
+      let billingBadge = '';
+      if (s.payType === 'cash') {
+        billingBadge = `<span class="badge badge-cash"><i class="fa-solid fa-money-bill"></i> نقدي</span>`;
+      } else if (s.contractType === 'direct') {
+        billingBadge = `<span class="badge badge-direct"><i class="fa-solid fa-file-contract"></i> ${escapeHTML(s.insuranceName || 'شركة')} (مباشر)</span>`;
+      } else {
+        billingBadge = `<span class="badge badge-indirect"><i class="fa-solid fa-handshake"></i> ${escapeHTML(s.insuranceName || 'شركة')} (غير مباشر)</span>`;
+      }
+
+      const isExam = (s.entryType === 'examination');
+      let partsDisplay = '';
+      if (isExam) {
+        partsDisplay = `<span class="badge" style="background: var(--bg-subtle); color: var(--primary); border: 1px solid var(--border-color); font-weight: 800; font-size: 0.76rem; padding: 3px 8px;"><i class="fa-solid fa-stethoscope"></i> فحص سريري / كشف (1 جلسة)</span>`;
+      } else {
+        const parts = Array.isArray(s.bodyParts) ? s.bodyParts.join('، ') : (s.bodyParts || '-');
+        const unitCount = s.bodyPartsCount || 1;
+        const unitWord = unitCount === 1 ? 'جلسة' : unitCount === 2 ? 'جلستان' : 'جلسات';
+        partsDisplay = `<span class="badge" style="background: #e0f2fe; color: #0369a1; border: 1px solid #bae6fd; font-weight: 800; font-size: 0.76rem; padding: 2px 6px; margin-left: 6px;">${unitCount} ${unitWord}</span> ${escapeHTML(parts)}`;
+      }
+
+      const timeDisplay = s.recordedAt || '';
+      const dateDisplay = s.date || '';
+      const safePatientId = escapeHTML(s.patientId || '');
+
+      return `
+        <tr>
+          <td style="font-weight: 800; color: var(--text-main); cursor: pointer;" onclick="patientsManager.openPatientSheet('${safePatientId}')" title="اضغط لفتح الشيت الطبي">
+            <i class="fa-solid fa-user-injured" style="color: var(--primary); margin-left: 6px;"></i>
+            ${escapeHTML(s.patientName)}
+          </td>
+          <td>${billingBadge}</td>
+          <td style="font-size: 0.85rem; color: var(--text-muted);">${partsDisplay}</td>
+          <td style="font-size: 0.85rem; color: var(--text-muted); white-space: nowrap;">
+            <bdi dir="ltr">${escapeHTML(dateDisplay)}</bdi> ${timeDisplay ? `• ${escapeHTML(timeDisplay)}` : ''}
+          </td>
+          <td style="font-size: 0.82rem; color: var(--text-muted); max-width: 180px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+            ${escapeHTML(s.notes || '-')}
+          </td>
+          <td style="text-align: center;">
+            <button type="button" class="btn btn-primary btn-sm" onclick="patientsManager.openPatientSheet('${safePatientId}')" style="padding: 4px 10px; font-weight: 700; white-space: nowrap;">
+              <i class="fa-solid fa-file-waveform"></i> الشيت الطبي
+            </button>
+          </td>
+        </tr>
+      `;
+    }).join('');
 
     // 2. Render Handcrafted Mobile Cards
     if (mobileContainer) {

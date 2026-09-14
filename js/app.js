@@ -1,7 +1,7 @@
 // ================= Global Bulletproof Event-Driven Lock on window.print =================
 if (typeof window !== 'undefined' && !window.__print_lock_installed) {
   window.__print_lock_installed = true;
-  const _origPrint = (typeof window.print === 'function') ? window.print.bind(window) : () => {};
+  const _origPrint = window.print.bind(window);
   let _isPrintingNow = false;
 
   window.print = function() {
@@ -110,8 +110,6 @@ class App {
     window.auditManager = this.auditManager;
     window.claimsManager = this.claimsManager;
     window.doctorDashboardManager = this.doctorDashboardManager;
-    window.switchAppView = (view) => this.switchView(view);
-    window.switchView = (view) => this.switchView(view);
   }
 
   async init() {
@@ -311,17 +309,7 @@ class App {
       }
     }
 
-    if (this.currentView === viewName && !isBackNavigation) {
-      if (viewName === 'patients' && this.patientsManager) this.patientsManager.loadPatients();
-      if (viewName === 'sessions' && this.sessionsManager) this.sessionsManager.loadTodaySessions();
-      if (viewName === 'finance' && this.financeManager) this.financeManager.loadDailyReport();
-      if (viewName === 'appointments' && this.appointmentsManager) this.appointmentsManager.render();
-      if (viewName === 'admin' && this.auditManager) {
-        this.auditManager.loadUsers();
-        this.auditManager.loadAuditLogs();
-      }
-      return;
-    }
+    if (this.currentView === viewName && !isBackNavigation) return;
 
     if (!isBackNavigation) {
       const depth = (history.state?.depth || 0) + 1;
@@ -412,8 +400,6 @@ class App {
       }
     };
 
-    window.__doLogin = handleLoginAction;
-    window.handleLoginAction = handleLoginAction;
     if (formLogin) {
       formLogin.addEventListener('submit', handleLoginAction);
     }
@@ -1761,12 +1747,8 @@ class App {
 function startApp() {
   if (window.__ascpt_app_started) return;
   window.__ascpt_app_started = true;
-  try {
-    const appInstance = new App();
-    appInstance.init().catch(err => console.error('App init error:', err));
-  } catch (err) {
-    console.error('Fatal startApp error:', err);
-  }
+  const appInstance = new App();
+  appInstance.init();
 }
 
 if (document.readyState === 'loading') {

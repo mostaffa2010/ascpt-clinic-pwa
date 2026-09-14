@@ -1,21 +1,87 @@
 // ========================================================
-// ASCPT - Authoritative Supabase PostgreSQL Data Access Layer (v1.4.88)
-// Single Source of Truth: Supabase PostgreSQL + Local Storage Persistence
-// Unlimited High-Speed Queries, Zero Per-Read Billing
+// ASCPT - Authoritative Cloud Firestore Data Access Layer
+// Single Source of Truth: Firestore + Built-in IndexedDB Persistence
+// No Parallel LocalStorage Fallback for Authoritative Clinical Records
 // ========================================================
 
-import { supabase, isConfigured } from './clinic-config.js';
+import {
+  collection,
+  doc,
+  getDocs,
+  getDoc,
+  setDoc,
+  updateDoc,
+  deleteDoc,
+  query,
+  orderBy,
+  limit,
+  where,
+  writeBatch
+} from 'https://www.gstatic.com/firebasejs/12.18.0/firebase-firestore.js';
+
+import { firestoreDb, isConfigured } from './firebase-init.js';
 import { CLINIC_CONFIG } from './clinic-config.js';
 
-class SupabaseDatabaseService {
+class FirestoreDatabaseService {
   constructor() {
     this.purgeLegacyDemoStorage();
     this.clinicalOptionsCache = null;
     this.insuranceCompaniesCache = null;
+    this._optionsLoaded = false;
+
+    // High-performance Zero-Cost in-memory data store (prevents redundant Firestore billing)
+    this._patientsCache = null;
+    this._patientsLastFetch = 0;
+    this._sessionsCache = null;
+    this._sessionsLastFetch = 0;
+    this._expensesCache = null;
+    this._expensesLastFetch = 0;
+    this._usersCache = null;
+    this._usersLastFetch = 0;
+    this._appointmentsCache = null;
+    this._appointmentsLastFetch = 0;
+    this._auditCache = null;
+    this._auditLastFetch = 0;
+    this._shiftOverridesCache = null;
+    this._shiftOverridesLastFetch = 0;
+    this._claimsCache = null;
+    this._claimsLastFetch = 0;
+    this._settlementsCache = null;
+    this._settlementsLastFetch = 0;
+    this._lettersCache = new Map();
+
+    // Cache TTL in ms (2 minutes for high-velocity operational records, 5 mins for users)
+    this.CACHE_TTL = 120000;
+    this.USERS_CACHE_TTL = 300000;
+
+    this.syncAndSeedCloudOptions();
+  }
+
+  invalidateAllCaches() {
+    this._patientsCache = null;
+    this._patientsLastFetch = 0;
+    this._sessionsCache = null;
+    this._sessionsLastFetch = 0;
+    this._expensesCache = null;
+    this._expensesLastFetch = 0;
+    this._usersCache = null;
+    this._usersLastFetch = 0;
+    this._appointmentsCache = null;
+    this._appointmentsLastFetch = 0;
+    this._auditCache = null;
+    this._auditLastFetch = 0;
+    this._shiftOverridesCache = null;
+    this._shiftOverridesLastFetch = 0;
+    this._claimsCache = null;
+    this._claimsLastFetch = 0;
+    this._settlementsCache = null;
+    this._settlementsLastFetch = 0;
+    this._lettersCache.clear();
+    console.log('ASCPT: All in-memory database caches invalidated.');
   }
 
   get isCloud() {
-    return isConfigured && Boolean(supabase);
+    return isConfigured && Boolean(firestoreDb);
   }
 
   purgeLegacyDemoStorage() {
@@ -33,7 +99,9 @@ class SupabaseDatabaseService {
       'pc_claim_treatments',
       'ascpt_patients',
       'ascpt_sessions',
-      'ascpt_expenses'
+      'ascpt_expenses',
+      'ascpt_users',
+      'ascpt_audit'
     ];
     legacyKeys.forEach(k => {
       try { localStorage.removeItem(k); } catch (_) {}
@@ -42,1013 +110,1008 @@ class SupabaseDatabaseService {
 
   ensureConnected() {
     if (!this.isCloud) {
-      throw new Error('قاعدة البيانات السحابية Supabase غير متصلة.');
-    }
-  }
-
-  cacheLocal(key, data) {
-    try {
-      localStorage.setItem(`ascpt_cache_${key}`, JSON.stringify(data));
-    } catch (_) {}
-  }
-
-  getCachedLocal(key) {
-    try {
-      const raw = localStorage.getItem(`ascpt_cache_${key}`);
-      return raw ? JSON.parse(raw) : null;
-    } catch (_) {
-      return null;
+      throw new Error('قاعدة البيانات السحابية غير متصلة.');
     }
   }
 
   // ================= 1. Patients Management =================
-  async getPatients() {
+  async getPatients(forceRefresh = false) {
     this.ensureConnected();
+    const now = Date.now();
+    if (!forceRefresh && this._patientsCache && (now - this._patientsLastFetch < this.CACHE_TTL)) {
+      return [...this._patientsCache];
+    }
     try {
-      const { data, error } = await supabase
-        .from('patients')
-        .select('*')
-        .order('created_at', { ascending: false });
-
-      if (error) throw error;
-
-      const list = (data || []).map(row => ({
-        ...(row.data || {}),
-        id: row.id,
-        name: row.name || row.data?.name || 'بدون اسم',
-        billing: row.data?.billing || row.pay_type || 'cash',
-        doctor: row.data?.doctor || row.attending_doctor || '',
-        address: row.data?.address || '',
-        phone: row.phone ?? row.data?.phone ?? '',
-        gender: row.gender ?? row.data?.gender ?? '',
-        age: row.age ?? row.data?.age ?? '',
-        diagnosis: row.diagnosis ?? row.data?.diagnosis ?? '',
-        referral: row.referral ?? row.data?.referral ?? '',
-        attendingDoctor: row.attending_doctor || row.data?.attendingDoctor || row.data?.doctor || '',
-        payType: row.pay_type || row.data?.payType || 'cash',
-        contractType: row.contract_type || row.data?.contractType || '',
-        insuranceCompany: row.insurance_company || row.data?.insuranceCompany || row.data?.insuranceName || '',
-        insuranceNumber: row.insurance_number || row.data?.insuranceNumber || '',
-        approvedSessions: row.approved_sessions ?? row.data?.approvedSessions,
-        currentApprovalStartDate: row.current_approval_start_date ?? row.data?.currentApprovalStartDate ?? '',
-        currentApprovalEndDate: row.current_approval_end_date ?? row.data?.currentApprovalEndDate ?? '',
-        isActive: row.is_active !== false && row.data?.isActive !== false,
-        createdAt: row.created_at || row.data?.createdAt,
-        lastUpdatedAt: row.last_updated_at || row.data?.lastUpdatedAt
-      }));
-
-      this.cacheLocal('patients', list);
-
-      return list.sort((a, b) => {
+      const snap = await getDocs(collection(firestoreDb, 'patients'));
+      const list = snap.docs.map(d => ({ ...d.data(), id: d.id }));
+      const sorted = list.sort((a, b) => {
         const tA = a.createdAt || a.lastUpdatedAt || '';
         const tB = b.createdAt || b.lastUpdatedAt || '';
         return tB.localeCompare(tA);
       });
+      this._patientsCache = sorted;
+      this._patientsLastFetch = now;
+      return [...sorted];
     } catch (err) {
-      console.warn('Supabase getPatients warning:', err.message);
-      const cached = this.getCachedLocal('patients');
-      if (cached) return cached;
-      throw new Error('تعذر تحميل سجل المرضى من قاعدة البيانات: ' + err.message);
+      if (this._patientsCache) {
+        console.warn('Returning cached patients due to fetch notice:', err.message);
+        return [...this._patientsCache];
+      }
+      console.error('Firestore getPatients error:', err);
+      throw new Error('تعذر تحميل سجل المرضى من قاعدة البيانات.');
     }
   }
 
   async savePatient(patientData, currentUser) {
     this.ensureConnected();
-    const patientId = patientData.id || ('p_' + Date.now() + '_' + Math.random().toString(36).substring(2, 7));
-    const now = new Date().toISOString();
+    const isEdit = Boolean(patientData.id);
+    const patientId = patientData.id || doc(collection(firestoreDb, 'patients')).id;
 
-    const payload = {
+    const dataToSave = {
       ...patientData,
       id: patientId,
-      lastUpdatedAt: now,
+      lastUpdatedAt: new Date().toISOString(),
       lastUpdatedBy: currentUser?.name || 'طاقم المركز'
     };
-    if (!payload.createdAt) payload.createdAt = now;
 
-    const row = {
-      id: patientId,
-      name: payload.name || 'بدون اسم',
-      phone: payload.phone || '',
-      gender: payload.gender || '',
-      age: String(payload.age || ''),
-      diagnosis: payload.diagnosis || '',
-      referral: payload.referral || '',
-      attending_doctor: payload.attendingDoctor || payload.doctor || '',
-      pay_type: payload.payType || 'cash',
-      contract_type: payload.contractType || '',
-      insurance_company: payload.insuranceCompany || payload.insuranceName || '',
-      insurance_number: payload.insuranceNumber || '',
-      approved_sessions: parseInt(payload.approvedSessions) || null,
-      current_approval_start_date: payload.currentApprovalStartDate || '',
-      current_approval_end_date: payload.currentApprovalEndDate || '',
-      is_active: payload.isActive !== false,
-      created_at: payload.createdAt,
-      last_updated_at: now,
-      data: payload
-    };
-
-    const { error } = await supabase.from('patients').upsert(row);
-    if (error) {
-      console.error('Supabase savePatient error:', error);
-      throw new Error('فشل حفظ بيانات المريض: ' + error.message);
+    if (!isEdit) {
+      dataToSave.createdAt = new Date().toISOString();
+      dataToSave.createdBy = currentUser?.name || 'استقبال المركز';
     }
 
-    return payload;
+    try {
+      await setDoc(doc(firestoreDb, 'patients', patientId), dataToSave, { merge: true });
+
+      // Update in-memory cache in place (0 additional reads)
+      if (this._patientsCache) {
+        const idx = this._patientsCache.findIndex(p => p.id === patientId);
+        if (idx !== -1) {
+          this._patientsCache[idx] = { ...this._patientsCache[idx], ...dataToSave };
+        } else {
+          this._patientsCache.unshift(dataToSave);
+        }
+        this._patientsLastFetch = Date.now();
+      }
+
+      return { status: isEdit ? 'updated' : 'created', id: patientId };
+    } catch (err) {
+      console.error('Firestore savePatient error:', err);
+      throw new Error('فشل حفظ بيانات المريض في قاعدة البيانات.');
+    }
   }
 
   async deletePatient(patientId) {
     this.ensureConnected();
     try {
-      const { error } = await supabase.from('patients').delete().eq('id', patientId);
-      if (error) throw error;
+      await deleteDoc(doc(firestoreDb, 'patients', patientId));
+      if (this._patientsCache) {
+        this._patientsCache = this._patientsCache.filter(p => p.id !== patientId);
+        this._patientsLastFetch = Date.now();
+      }
       return true;
     } catch (err) {
-      console.error('Supabase deletePatient error:', err);
-      throw new Error('فشل حذف ملف المريض من قاعدة البيانات: ' + err.message);
+      console.error('Firestore deletePatient error:', err);
+      throw new Error('فشل حذف ملف المريض من قاعدة البيانات.');
     }
   }
 
   // ================= 2. Sessions Management =================
-  async getSessions(filterDate = null) {
+  async getSessions(filterDate = null, forceRefresh = false) {
     this.ensureConnected();
+    const now = Date.now();
+    if (!forceRefresh && this._sessionsCache && (now - this._sessionsLastFetch < this.CACHE_TTL)) {
+      return this._filterAndSortSessions(this._sessionsCache, filterDate);
+    }
     try {
-      let q = supabase.from('sessions').select('*');
-      if (filterDate) {
-        if (filterDate.length === 7) {
-          q = q.like('date', `${filterDate}%`);
-        } else {
-          q = q.eq('date', filterDate);
-        }
-      }
-
-      const { data, error } = await q.order('date', { ascending: false });
-      if (error) throw error;
-
-      let sessions = (data || []).map(row => ({
-        ...(row.data || {}),
-        id: row.id,
-        patientId: row.patient_id || row.data?.patientId,
-        patientName: row.patient_name || row.data?.patientName,
-        doctor: row.doctor || row.data?.doctor,
-        doctorUid: row.doctor_uid || row.data?.doctorUid,
-        date: row.date || row.data?.date,
-        time: row.time || row.data?.time,
-        entryType: row.entry_type || row.data?.entryType || 'session',
-        examType: row.exam_type || row.data?.examType,
-        payType: row.pay_type || row.data?.payType || 'cash',
-        contractType: row.contract_type || row.data?.contractType,
-        insuranceName: row.insurance_name || row.data?.insuranceName,
-        amountPaid: Number(row.amount_paid ?? row.data?.amountPaid ?? 0),
-        doctorShare: Number(row.doctor_share ?? row.data?.doctorShare ?? 0),
-        bodyPartsCount: parseInt(row.body_parts_count ?? row.data?.bodyPartsCount ?? 1),
-        isSpecial: Boolean(row.is_special ?? row.data?.isSpecial),
-        sessionPricingType: row.session_pricing_type || row.data?.sessionPricingType || 'regular',
-        sessionNumber: parseInt(row.session_number ?? row.data?.sessionNumber ?? 1),
-        approvedSessionsTotal: parseInt(row.approved_sessions_total ?? row.data?.approvedSessionsTotal ?? 12),
-        recordedBy: row.recorded_by || row.data?.recordedBy,
-        recordedAt: row.recorded_at || row.data?.recordedAt,
-        shiftId: row.shift_id || row.data?.shiftId,
-        createdAt: row.created_at || row.data?.createdAt
-      }));
-
-      return sessions.sort((a, b) => {
-        const dateComp = (b.date || '').localeCompare(a.date || '');
-        if (dateComp !== 0) return dateComp;
-        const timeA = a.createdAt || a.recordedAt || '';
-        const timeB = b.createdAt || b.recordedAt || '';
-        return timeB.localeCompare(timeA);
-      });
+      const q = query(collection(firestoreDb, 'sessions'), orderBy('date', 'desc'));
+      const snap = await getDocs(q);
+      const sessions = snap.docs.map(d => ({ ...d.data(), id: d.id }));
+      this._sessionsCache = sessions;
+      this._sessionsLastFetch = now;
+      return this._filterAndSortSessions(sessions, filterDate);
     } catch (err) {
-      console.error('Supabase getSessions error:', err);
+      if (this._sessionsCache) {
+        console.warn('Returning cached sessions due to network notice:', err.message);
+        return this._filterAndSortSessions(this._sessionsCache, filterDate);
+      }
+      console.error('Firestore getSessions error:', err);
       throw new Error('تعذر جلب سجل الجلسات من قاعدة البيانات.');
     }
   }
 
+  _filterAndSortSessions(sessionsList, filterDate) {
+    let sessions = [...sessionsList];
+    if (filterDate) {
+      if (filterDate.length === 7) {
+        sessions = sessions.filter(s => s.date && s.date.startsWith(filterDate));
+      } else {
+        sessions = sessions.filter(s => s.date === filterDate);
+      }
+    }
+
+    return sessions.sort((a, b) => {
+      const dateComp = (b.date || '').localeCompare(a.date || '');
+      if (dateComp !== 0) return dateComp;
+      const timeA = a.createdAt || a.recordedAt || '';
+      const timeB = b.createdAt || b.recordedAt || '';
+      return timeB.localeCompare(timeA);
+    });
+  }
+
   async saveSession(sessionData, currentUser) {
     this.ensureConnected();
-    const sessionId = sessionData.id || ('sess_' + Date.now() + '_' + Math.random().toString(36).substring(2, 7));
-    const now = new Date();
-    const timeStr = now.toLocaleTimeString('ar-EG-u-nu-latn', { hour: '2-digit', minute: '2-digit', hour12: true });
+    const isEdit = Boolean(sessionData.id);
+    const sessionId = sessionData.id || doc(collection(firestoreDb, 'sessions')).id;
 
-    const payload = {
+    const dataToSave = {
       ...sessionData,
       id: sessionId,
       lastEditedBy: currentUser?.name || 'مستخدم المركز',
-      lastEditedAt: timeStr,
-      lastEditedAtISO: now.toISOString()
-    };
-    if (!payload.createdAt) payload.createdAt = now.toISOString();
-    if (!payload.recordedAt) payload.recordedAt = timeStr;
-    if (!payload.recordedBy) payload.recordedBy = currentUser?.name || 'طاقم المركز';
-
-    const row = {
-      id: sessionId,
-      patient_id: payload.patientId || null,
-      patient_name: payload.patientName || '',
-      doctor: payload.doctor || '',
-      doctor_uid: payload.doctorUid || '',
-      date: payload.date || '',
-      time: payload.time || payload.recordedAt || timeStr,
-      entry_type: payload.entryType || 'session',
-      exam_type: payload.examType || null,
-      pay_type: payload.payType || 'cash',
-      contract_type: payload.contractType || '',
-      insurance_name: payload.insuranceName || '',
-      amount_paid: Number(payload.amountPaid || 0),
-      doctor_share: Number(payload.doctorShare || 0),
-      body_parts_count: parseInt(payload.bodyPartsCount) || 1,
-      is_special: Boolean(payload.isSpecial),
-      session_pricing_type: payload.sessionPricingType || 'regular',
-      session_number: parseInt(payload.sessionNumber) || null,
-      approved_sessions_total: parseInt(payload.approvedSessionsTotal) || null,
-      recorded_by: payload.recordedBy || '',
-      recorded_at: payload.recordedAt || timeStr,
-      shift_id: payload.shiftId || '',
-      created_at: payload.createdAt,
-      data: payload
+      lastEditedAt: new Date().toLocaleTimeString('ar-EG-u-nu-latn', { hour: '2-digit', minute: '2-digit' })
     };
 
-    const { error } = await supabase.from('sessions').upsert(row);
-    if (error) {
-      console.error('Supabase saveSession error:', error);
-      throw new Error('فشل تسجيل الجلسة في قاعدة البيانات: ' + error.message);
+    if (!isEdit) {
+      dataToSave.recordedAt = new Date().toLocaleTimeString('ar-EG-u-nu-latn', { hour: '2-digit', minute: '2-digit' });
+      dataToSave.recordedBy = currentUser?.name || 'استقبال المركز';
+      dataToSave.createdAt = new Date().toISOString();
     }
 
-    return payload;
+    try {
+      await setDoc(doc(firestoreDb, 'sessions', sessionId), dataToSave, { merge: true });
+
+      if (this._sessionsCache) {
+        const idx = this._sessionsCache.findIndex(s => s.id === sessionId);
+        if (idx !== -1) {
+          this._sessionsCache[idx] = { ...this._sessionsCache[idx], ...dataToSave };
+        } else {
+          this._sessionsCache.unshift(dataToSave);
+        }
+        this._sessionsLastFetch = Date.now();
+      }
+
+      return dataToSave;
+    } catch (err) {
+      console.error('Firestore saveSession error:', err);
+      throw new Error('فشل حفظ حركة الجلسة في قاعدة البيانات.');
+    }
   }
 
   async deleteSession(sessionId) {
     this.ensureConnected();
     try {
-      const { error } = await supabase.from('sessions').delete().eq('id', sessionId);
-      if (error) throw error;
+      await deleteDoc(doc(firestoreDb, 'sessions', sessionId));
+      if (this._sessionsCache) {
+        this._sessionsCache = this._sessionsCache.filter(s => s.id !== sessionId);
+        this._sessionsLastFetch = Date.now();
+      }
       return true;
     } catch (err) {
-      console.error('Supabase deleteSession error:', err);
-      throw new Error('فشل حذف الجلسة من قاعدة البيانات: ' + err.message);
+      console.error('Firestore deleteSession error:', err);
+      throw new Error('فشل حذف الجلسة من قاعدة البيانات.');
     }
   }
 
   // ================= 3. Expenses Management =================
-  async getExpenses(filterDate = null) {
+  async getExpenses(filterDate = null, forceRefresh = false) {
     this.ensureConnected();
-    try {
-      let q = supabase.from('expenses').select('*');
-      if (filterDate) {
-        if (filterDate.length === 7) {
-          q = q.like('date', `${filterDate}%`);
-        } else {
-          q = q.eq('date', filterDate);
-        }
-      }
-
-      const { data, error } = await q.order('date', { ascending: false });
-      if (error) throw error;
-
-      let expenses = (data || []).map(row => ({
-        ...(row.data || {}),
-        id: row.id,
-        date: row.date,
-        time: row.time || row.data?.time,
-        category: row.category || row.data?.category || 'عام',
-        description: row.description || row.data?.description || '',
-        amount: Number(row.amount ?? row.data?.amount ?? 0),
-        recordedBy: row.recorded_by || row.data?.recordedBy || '',
-        shiftId: row.shift_id || row.data?.shiftId || '',
-        createdAt: row.created_at || row.data?.createdAt
-      }));
-
-      return expenses.sort((a, b) => (b.date || '').localeCompare(a.date || ''));
-    } catch (err) {
-      console.error('Supabase getExpenses error:', err);
-      throw new Error('تعذر جلب سجل المصروفات من قاعدة البيانات.');
+    const now = Date.now();
+    if (!forceRefresh && this._expensesCache && (now - this._expensesLastFetch < this.CACHE_TTL)) {
+      return this._filterExpenses(this._expensesCache, filterDate);
     }
+    try {
+      const q = query(collection(firestoreDb, 'expenses'), orderBy('date', 'desc'));
+      const snap = await getDocs(q);
+      const expenses = snap.docs.map(d => ({ ...d.data(), id: d.id }));
+      this._expensesCache = expenses;
+      this._expensesLastFetch = now;
+      return this._filterExpenses(expenses, filterDate);
+    } catch (err) {
+      if (this._expensesCache) {
+        return this._filterExpenses(this._expensesCache, filterDate);
+      }
+      console.warn('Firestore getExpenses notice:', err.message);
+      return [];
+    }
+  }
+
+  _filterExpenses(expensesList, filterDate) {
+    let expenses = [...expensesList];
+    if (filterDate) {
+      if (filterDate.length === 7) {
+        return expenses.filter(e => e.date && e.date.startsWith(filterDate));
+      }
+      return expenses.filter(e => e.date === filterDate);
+    }
+    return expenses;
   }
 
   async saveExpense(expenseData, currentUser) {
     this.ensureConnected();
-    const expenseId = expenseData.id || ('exp_' + Date.now() + '_' + Math.random().toString(36).substring(2, 7));
-    const now = new Date();
-    const timeStr = now.toLocaleTimeString('ar-EG-u-nu-latn', { hour: '2-digit', minute: '2-digit', hour12: true });
-
-    const payload = {
+    const expenseId = expenseData.id || doc(collection(firestoreDb, 'expenses')).id;
+    const dataToSave = {
       ...expenseData,
       id: expenseId,
-      time: timeStr
-    };
-    if (!payload.createdAt) payload.createdAt = now.toISOString();
-    if (!payload.recordedBy) payload.recordedBy = currentUser?.name || 'طاقم المركز';
-
-    const row = {
-      id: expenseId,
-      date: payload.date || '',
-      time: payload.time || timeStr,
-      category: payload.category || 'عام',
-      description: payload.description || '',
-      amount: Number(payload.amount || 0),
-      recorded_by: payload.recordedBy || '',
-      shift_id: payload.shiftId || '',
-      created_at: payload.createdAt,
-      data: payload
+      time: new Date().toLocaleTimeString('ar-EG-u-nu-latn', { hour: '2-digit', minute: '2-digit' }),
+      recordedBy: currentUser?.name || 'مدير المركز',
+      createdAt: new Date().toISOString()
     };
 
-    const { error } = await supabase.from('expenses').upsert(row);
-    if (error) {
-      console.error('Supabase saveExpense error:', error);
-      throw new Error('فشل تسجيل المصروف في قاعدة البيانات: ' + error.message);
+    try {
+      await setDoc(doc(firestoreDb, 'expenses', expenseId), dataToSave, { merge: true });
+      if (this._expensesCache) {
+        const idx = this._expensesCache.findIndex(e => e.id === expenseId);
+        if (idx !== -1) {
+          this._expensesCache[idx] = { ...this._expensesCache[idx], ...dataToSave };
+        } else {
+          this._expensesCache.unshift(dataToSave);
+        }
+        this._expensesLastFetch = Date.now();
+      }
+      return dataToSave;
+    } catch (err) {
+      console.error('Firestore saveExpense error:', err);
+      throw new Error('فشل حفظ المصروف في قاعدة البيانات.');
     }
-
-    return payload;
   }
 
   async deleteExpense(expenseId) {
     this.ensureConnected();
     try {
-      const { error } = await supabase.from('expenses').delete().eq('id', expenseId);
-      if (error) throw error;
+      await deleteDoc(doc(firestoreDb, 'expenses', expenseId));
+      if (this._expensesCache) {
+        this._expensesCache = this._expensesCache.filter(e => e.id !== expenseId);
+        this._expensesLastFetch = Date.now();
+      }
       return true;
     } catch (err) {
-      console.error('Supabase deleteExpense error:', err);
-      throw new Error('فشل حذف بند المصروفات من قاعدة البيانات.');
+      console.error('Firestore deleteExpense error:', err);
+      throw new Error('فشل حذف المصروف.');
     }
   }
 
-  // ================= 4. Users & Staff Management =================
-  async getUsers() {
+  // ================= 4. Users & Doctors Directory =================
+  async getUsers(forceRefresh = false) {
     this.ensureConnected();
+    const now = Date.now();
+    if (!forceRefresh && this._usersCache && (now - this._usersLastFetch < this.USERS_CACHE_TTL)) {
+      return [...this._usersCache];
+    }
     try {
-      const { data, error } = await supabase.from('profiles').select('*').order('name');
-      if (error) throw error;
-      return (data || []).map(row => ({
-        ...(row.data || {}),
-        id: row.id,
-        email: row.email,
-        name: row.name,
-        role: row.role,
-        active: row.is_active !== false && row.data?.active !== false,
-        doctorSharePercentage: row.doctor_share_percentage || row.data?.doctorSharePercentage || 0,
-        createdAt: row.created_at
-      }));
+      const snap = await getDocs(collection(firestoreDb, 'users'));
+      const list = snap.docs.map(d => ({ ...d.data(), id: d.id }));
+      this._usersCache = list;
+      this._usersLastFetch = now;
+      return [...list];
     } catch (err) {
-      console.error('Supabase getUsers error:', err);
+      if (this._usersCache) return [...this._usersCache];
+      console.error('Firestore getUsers error:', err);
       return [];
     }
   }
 
-  async getDoctorsList() {
+  async getDoctorsList(forceRefresh = false) {
+    this.ensureConnected();
     try {
-      const users = await this.getUsers();
-      const activeDoctors = users
-        .filter(u => u.role === 'doctor' && u.active !== false)
-        .map(u => ({
-          uid: u.id,
-          id: u.id,
-          name: u.name,
-          role: u.role,
-          shift: u.shift || u.data?.shift || 'sat_mon_wed',
-          regularSessionRate: u.regularSessionRate || u.data?.regularSessionRate || 0,
-          specialSessionRate: u.specialSessionRate || u.data?.specialSessionRate || 0
-        }));
+      const users = await this.getUsers(forceRefresh);
+      const doctorMap = new Map();
 
-      if (activeDoctors.length > 0) {
-        return activeDoctors;
+      users
+        .filter(u => (u.role === 'doctor' || u.role === 'admin') && u.active !== false && u.name)
+        .forEach(u => {
+          const norm = u.name.trim().replace(/\s+/g, ' ');
+          const uid = u.uid || u.id;
+          if (norm && uid && !doctorMap.has(uid)) {
+            doctorMap.set(uid, {
+              uid,
+              name: norm,
+              role: u.role,
+              shift: u.shift || (u.role === 'doctor' ? 'sat_mon_wed' : 'all'),
+              regularSessionRate: typeof u.regularSessionRate === 'number' ? u.regularSessionRate : 0,
+              specialSessionRate: typeof u.specialSessionRate === 'number' ? u.specialSessionRate : 0
+            });
+          }
+        });
+
+      if (doctorMap.size === 0 && CLINIC_CONFIG.director?.name) {
+        const dirNorm = CLINIC_CONFIG.director.name.trim().replace(/\s+/g, ' ');
+        doctorMap.set('director', { uid: 'director', name: dirNorm, role: 'admin', shift: 'all' });
       }
-    } catch (_) {}
 
-    return [
-      { uid: 'admin_hosny', id: 'admin_hosny', name: 'د. حسني أحمد الجويلي', role: 'admin', shift: 'all' }
-    ];
+      return Array.from(doctorMap.values());
+    } catch (err) {
+      console.error('Firestore getDoctorsList error:', err);
+      return CLINIC_CONFIG.director?.name ? [{ uid: 'director', name: CLINIC_CONFIG.director.name.trim().replace(/\s+/g, ' '), role: 'admin', shift: 'all' }] : [];
+    }
   }
 
-  async getDoctors() {
-    return this.getDoctorsList();
+  async getDoctors(forceRefresh = false) {
+    const list = await this.getDoctorsList(forceRefresh);
+    return list.map(d => d.name);
   }
 
   // ================= 5. Audit Trail =================
-  async getAuditLogs(limitCount = 50) {
+  async getAuditLogs(limitCount = 50, forceRefresh = false) {
     this.ensureConnected();
+    const now = Date.now();
+    if (!forceRefresh && this._auditCache && (now - this._auditLastFetch < this.CACHE_TTL)) {
+      return [...this._auditCache].slice(0, limitCount);
+    }
     try {
-      const { data, error } = await supabase
-        .from('audit_logs')
-        .select('*')
-        .order('timestamp', { ascending: false })
-        .limit(limitCount);
-
-      if (error) throw error;
-      return (data || []).map(row => ({
-        ...(row.data || {}),
-        id: row.id,
-        action: row.action,
-        details: row.details,
-        userName: row.user_name || row.data?.userName || '',
-        userUid: row.user_uid || row.data?.userUid || '',
-        timestamp: row.timestamp || row.data?.timestamp
-      }));
+      const q = query(
+        collection(firestoreDb, 'audit_logs'),
+        orderBy('timestampRaw', 'desc'),
+        limit(limitCount)
+      );
+      const snap = await getDocs(q);
+      const list = snap.docs.map(d => ({ ...d.data(), id: d.id }));
+      this._auditCache = list;
+      this._auditLastFetch = now;
+      return [...list];
     } catch (err) {
-      console.error('Supabase getAuditLogs error:', err);
+      if (this._auditCache) return [...this._auditCache].slice(0, limitCount);
+      console.warn('Firestore getAuditLogs error:', err.message);
       return [];
     }
   }
 
   async purgeOldAuditLogs() {
-    this.ensureConnected();
-    try {
-      const ninetyDaysAgo = new Date();
-      ninetyDaysAgo.setDate(ninetyDaysAgo.getDate() - 90);
-      const iso = ninetyDaysAgo.toISOString();
+    if (!this.isCloud) return;
+    const lastPurge = parseInt(localStorage.getItem('ascpt_last_audit_purge') || '0', 10);
+    // Only run once every 24 hours to eliminate repeated background read/delete calls
+    if (Date.now() - lastPurge < 86400000) return;
 
-      await supabase.from('audit_logs').delete().lt('timestamp', iso);
-    } catch (_) {}
+    try {
+      localStorage.setItem('ascpt_last_audit_purge', String(Date.now()));
+      const sixtyDaysAgo = Date.now() - (60 * 24 * 60 * 60 * 1000);
+      const q = query(
+        collection(firestoreDb, 'audit_logs'),
+        where('timestampRaw', '<', sixtyDaysAgo),
+        limit(100)
+      );
+      const snap = await getDocs(q);
+      if (snap.empty) return;
+
+      const batch = writeBatch(firestoreDb);
+      snap.docs.forEach(d => {
+        batch.delete(d.ref);
+      });
+      await batch.commit();
+      console.log(`ASCPT Audit: Automatically purged ${snap.docs.length} audit logs older than 60 days.`);
+    } catch (e) {
+      console.warn('Audit purge notice:', e.message);
+    }
   }
 
   async logAudit(actionType, description, user) {
     if (!this.isCloud) return;
-    const logId = 'log_' + Date.now() + '_' + Math.random().toString(36).substring(2, 6);
-    const now = new Date().toISOString();
+    const logId = 'log-' + Date.now() + '-' + Math.random().toString(36).substr(2, 5);
+    const currentUser = (typeof auth !== 'undefined' && auth.getCurrentUser) ? auth.getCurrentUser() : null;
+    const uid = user?.uid || user?.id || currentUser?.uid;
+    const name = user?.name || currentUser?.name || 'مستخدم المركز';
+    const role = user?.role || currentUser?.role || 'staff';
 
-    const row = {
+    if (!uid) return;
+
+    const logData = {
       id: logId,
-      action: actionType,
-      details: description,
-      user_name: user?.name || 'طاقم المركز',
-      user_uid: user?.uid || user?.id || '',
-      timestamp: now,
-      data: {
-        action: actionType,
-        details: description,
-        userName: user?.name || 'طاقم المركز',
-        userUid: user?.uid || user?.id || '',
-        timestamp: now
-      }
+      actionType: String(actionType || 'إجراء'),
+      description: String(description || ''),
+      userId: uid,
+      userName: name,
+      userRole: role,
+      timestamp: new Date().toLocaleString('ar-EG-u-nu-latn'),
+      timestampRaw: Date.now()
     };
 
     try {
-      await supabase.from('audit_logs').insert(row);
-    } catch (_) {}
-  }
-
-
-  getClinicalOptions(category) {
-    if (this.clinicalOptionsCache && this.clinicalOptionsCache[category]) {
-      return this.clinicalOptionsCache[category];
+      await setDoc(doc(firestoreDb, 'audit_logs', logId), logData);
+      if (this._auditCache) {
+        this._auditCache.unshift(logData);
+        if (this._auditCache.length > 100) this._auditCache.pop();
+        this._auditLastFetch = Date.now();
+      }
+    } catch (err) {
+      console.warn('Audit logging notice:', err.message);
     }
-    const defaults = {
-      body_parts: ['الرقبة', 'الفقرات القطنية', 'الكتف الأيمن', 'الكتف الأيسر', 'الركبة اليمنى', 'الركبة اليسرى', 'الكاحل', 'المرفق'],
-      expense_categories: ['إيجار المركز', 'كهرباء ومياه وغاز', 'أدوات ومستهلكات طبية', 'صيانة وأجهزة', 'نظافة وضيافة', 'أدوات مكتبية ومطبوعات', 'مرتبات وأجور', 'مصاريف إدارية وحكومية', 'إنترنت واتصالات', 'أخرى'],
-      appointment_slots: [
-        { key: 'slot_1', label: '10:00 ص - 11:00 ص' },
-        { key: 'slot_2', label: '11:00 ص - 12:00 م' },
-        { key: 'slot_3', label: '12:00 م - 01:00 م' },
-        { key: 'slot_4', label: '01:00 م - 02:00 م' },
-        { key: 'slot_5', label: '05:00 م - 06:00 م' },
-        { key: 'slot_6', label: '06:00 م - 07:00 م' },
-        { key: 'slot_7', label: '07:00 م - 08:00 م' },
-        { key: 'slot_8', label: '08:00 م - 09:00 م' }
-      ]
-    };
-    return defaults[category] || [];
-  }
-
-  getInsuranceCompanies(contractType) {
-    if (this.insuranceCompaniesCache && this.insuranceCompaniesCache[contractType]) {
-      return this.insuranceCompaniesCache[contractType];
-    }
-    const defaults = {
-      direct: ['نقابة المهندسين', 'نقابة المحامين', 'شركة البترول', 'الكهرباء', 'مصر للتأمين'],
-      indirect: ['نكست كير (NextCare)', 'ميد نت (MedNet)', 'أكسا (AXA)', 'جلوب ميد (GlobeMed)', 'برايم هيلث (Prime Health)']
-    };
-    return defaults[contractType] || [];
   }
 
   // ================= 6. Clinical Options =================
-  async syncAndSeedCloudOptions() {
-    if (!this.isCloud) return;
-    try {
-      const { data, error } = await supabase.from('clinical_options').select('*');
-      if (error || !data || data.length === 0) return;
+  getClinicalOptions(category) {
+    const defaults = {
+      modality: [
+        'TENS (كهرباء تسكينية)',
+        'Ultrasound (موجات صوتية)',
+        'كمادات ساخنة (Hot Pack)',
+        'كمادات باردة / ثلج (Cryotherapy)',
+        'الشد الفقري (Traction)',
+        'ليزر علاجي (Laser Therapy)',
+        'موجات تصادمية (Shockwave)',
+        'أشعة تحت الحمراء (Infrared)',
+        'كؤوس هواء (Cupping)'
+      ],
+      procedure: [
+        'تحريك المفاصل (Joint Mobilization)',
+        'تحرير اللفافة العضلية (Myofascial Release)',
+        'تدليك علاجي عميق (Deep Tissue Massage)',
+        'إطالات عضلية (Muscle Stretching)',
+        'الإبر الجافة (Dry Needling)',
+        'الأشرطة اللاصقة الحركية (Kinesio Taping)'
+      ],
+      exercise: [
+        'تمارين التقوية العضلية (Strengthening)',
+        'تمارين المدى الحركي (Range of Motion)',
+        'تمارين التوازن والاتزان الحركي (Balance & Proprioception)',
+        'تمارين عضلات الجذع (Core Stability)',
+        'تمارين تصحيح القوام (Postural Correction)',
+        'برنامج التمارين المنزلية (Home Exercise Program)'
+      ],
+      body_parts: [
+        'الرقبة',
+        'أسفل الظهر',
+        'الكتف',
+        'الركبة',
+        'الكاحل والقدم',
+        'الكوع والرسغ',
+        'مفصل الفخذ / الحوض',
+        'عضو آخر'
+      ],
+      expense_categories: [
+        'مستلزمات وأدوات طبية',
+        'صيانة أجهزة وزيوت',
+        'فواتير وكهرباء ومياه',
+        'أدوات ومواد نظافة',
+        'ضيافة وبوفيه',
+        'أجور ومرتبات',
+        'إيجار المركز',
+        'مطبوعات وأدوات مكتبية',
+        'مصروفات نثرية / أخرى'
+      ]
+    };
 
-      const map = {};
-      data.forEach(row => {
-        map[row.id] = row.items || row.data?.items || [];
-      });
-      this.clinicalOptionsCache = map;
+    if (this.clinicalOptionsCache && this.clinicalOptionsCache[category]) {
+      return this.clinicalOptionsCache[category];
+    }
+    return defaults[category] || [];
+  }
+
+  async syncAndSeedCloudOptions() {
+    if (!this.isCloud || this._optionsLoaded) return;
+
+    // Fast-path: try local storage cache first to save 7 reads on page load!
+    try {
+      const storedClinical = localStorage.getItem('ascpt_cached_clinical_options');
+      const storedIns = localStorage.getItem('ascpt_cached_insurance_companies');
+      if (storedClinical && storedIns) {
+        this.clinicalOptionsCache = JSON.parse(storedClinical);
+        this.insuranceCompaniesCache = JSON.parse(storedIns);
+        this._optionsLoaded = true;
+        return;
+      }
     } catch (_) {}
+
+    const defaults = {
+      modality: [
+        'TENS (كهرباء تسكينية)',
+        'Ultrasound (موجات صوتية)',
+        'كمادات ساخنة (Hot Pack)',
+        'كمادات باردة / ثلج (Cryotherapy)',
+        'الشد الفقري (Traction)',
+        'ليزر علاجي (Laser Therapy)',
+        'موجات تصادمية (Shockwave)',
+        'أشعة تحت الحمراء (Infrared)',
+        'كؤوس هواء (Cupping)'
+      ],
+      procedure: [
+        'تحريك المفاصل (Joint Mobilization)',
+        'تحرير اللفافة العضلية (Myofascial Release)',
+        'تدليك علاجي عميق (Deep Tissue Massage)',
+        'إطالات عضلية (Muscle Stretching)',
+        'الإبر الجافة (Dry Needling)',
+        'الأشرطة اللاصقة الحركية (Kinesio Taping)'
+      ],
+      exercise: [
+        'تمارين التقوية العضلية (Strengthening)',
+        'تمارين المدى الحركي (Range of Motion)',
+        'تمارين التوازن والاتزان الحركي (Balance & Proprioception)',
+        'تمارين عضلات الجذع (Core Stability)',
+        'تمارين تصحيح القوام (Postural Correction)',
+        'برنامج التمارين المنزلية (Home Exercise Program)'
+      ],
+      body_parts: [
+        'الرقبة',
+        'أسفل الظهر',
+        'الكتف',
+        'الركبة',
+        'الكاحل والقدم',
+        'الكوع والرسغ',
+        'مفصل الفخذ / الحوض',
+        'عضو آخر'
+      ]
+    };
+
+    const insuranceDefaults = {
+      direct: ['أكسا (AXA)', 'أليانز (Allianz)', 'ميتلايف (MetLife)', 'بوبا (Bupa)', 'عناية الرعاية الصحية (Enaya)'],
+      indirect: ['نكست كير (NextCare)', 'مصر للتأمين', 'ايجي كير', 'المهندس للتأمين']
+    };
+
+    this.clinicalOptionsCache = this.clinicalOptionsCache || {};
+    this.insuranceCompaniesCache = this.insuranceCompaniesCache || {};
+
+    // 1. Seed & Sync Clinical Options (modality, procedure, exercise)
+    for (const cat of ['modality', 'procedure', 'exercise', 'body_parts', 'expense_categories']) {
+      try {
+        const docRef = doc(firestoreDb, 'clinical_options', cat);
+        const snap = await getDoc(docRef);
+        if (snap.exists() && Array.isArray(snap.data().items) && snap.data().items.length > 0) {
+          this.clinicalOptionsCache[cat] = snap.data().items;
+        } else {
+          const defaultItems = defaults[cat] || [];
+          this.clinicalOptionsCache[cat] = defaultItems;
+          await setDoc(docRef, { items: defaultItems }, { merge: true });
+        }
+      } catch (err) {
+        // Fallback to defaults in memory
+        if (!this.clinicalOptionsCache[cat]) {
+          this.clinicalOptionsCache[cat] = defaults[cat] || [];
+        }
+      }
+    }
+
+    // 2. Seed & Sync Insurance Companies (direct, indirect)
+    for (const cType of ['direct', 'indirect']) {
+      try {
+        const docRef = doc(firestoreDb, 'insurance_companies', cType);
+        const snap = await getDoc(docRef);
+        if (snap.exists() && Array.isArray(snap.data().companies) && snap.data().companies.length > 0) {
+          this.insuranceCompaniesCache[cType] = snap.data().companies;
+        } else {
+          const defaultCompanies = insuranceDefaults[cType] || [];
+          this.insuranceCompaniesCache[cType] = defaultCompanies;
+          await setDoc(docRef, { companies: defaultCompanies }, { merge: true });
+        }
+      } catch (err) {
+        if (!this.insuranceCompaniesCache[cType]) {
+          this.insuranceCompaniesCache[cType] = insuranceDefaults[cType] || [];
+        }
+      }
+    }
+
+    try {
+      localStorage.setItem('ascpt_cached_clinical_options', JSON.stringify(this.clinicalOptionsCache));
+      localStorage.setItem('ascpt_cached_insurance_companies', JSON.stringify(this.insuranceCompaniesCache));
+    } catch (_) {}
+
+    this._optionsLoaded = true;
   }
 
   async syncClinicalOptionsFromFirestore() {
-    return this.syncAndSeedCloudOptions();
+    await this.syncAndSeedCloudOptions();
   }
 
   async addClinicalOption(category, name) {
     this.ensureConnected();
-    const cleanName = (name || '').trim();
-    if (!cleanName) return;
-
-    try {
-      const { data } = await supabase.from('clinical_options').select('*').eq('id', category).maybeSingle();
-      let currentItems = data?.items || [];
-      if (!currentItems.includes(cleanName)) {
-        currentItems.push(cleanName);
-        await supabase.from('clinical_options').upsert({
-          id: category,
-          category,
-          items: currentItems,
-          last_updated_at: new Date().toISOString(),
-          data: { items: currentItems }
-        });
-        if (this.clinicalOptionsCache) this.clinicalOptionsCache[category] = currentItems;
-      }
-    } catch (err) {
-      console.error('addClinicalOption error:', err);
-      throw err;
+    const currentList = this.getClinicalOptions(category);
+    if (!currentList.includes(name.trim())) {
+      const updatedList = [...currentList, name.trim()];
+      this.clinicalOptionsCache = this.clinicalOptionsCache || {};
+      this.clinicalOptionsCache[category] = updatedList;
+      await setDoc(doc(firestoreDb, 'clinical_options', category), { items: updatedList }, { merge: true });
+      return updatedList;
     }
+    return currentList;
   }
 
   async deleteClinicalOption(category, name) {
     this.ensureConnected();
-    try {
-      const { data } = await supabase.from('clinical_options').select('*').eq('id', category).maybeSingle();
-      if (!data) return;
-      let currentItems = (data.items || []).filter(item => item !== name);
-      await supabase.from('clinical_options').upsert({
-        id: category,
-        category,
-        items: currentItems,
-        last_updated_at: new Date().toISOString(),
-        data: { items: currentItems }
-      });
-      if (this.clinicalOptionsCache) this.clinicalOptionsCache[category] = currentItems;
-    } catch (err) {
-      console.error('deleteClinicalOption error:', err);
-      throw err;
-    }
+    const currentList = this.getClinicalOptions(category);
+    const updatedList = currentList.filter(item => item !== name.trim());
+    this.clinicalOptionsCache = this.clinicalOptionsCache || {};
+    this.clinicalOptionsCache[category] = updatedList;
+    await setDoc(doc(firestoreDb, 'clinical_options', category), { items: updatedList }, { merge: true });
+    return updatedList;
   }
 
   // ================= 7. Insurance Companies =================
-  async syncInsuranceCompaniesFromFirestore() {
-    if (!this.isCloud) return;
-    try {
-      const { data, error } = await supabase.from('insurance_companies').select('*');
-      if (error || !data) return;
+  getInsuranceCompanies(contractType = 'direct') {
+    const defaults = {
+      direct: ['سوميد', 'أبوقير للأسمدة', 'أكسا (AXA)', 'أليانز (Allianz)', 'ميتلايف (MetLife)', 'بوبا (Bupa)', 'عناية الرعاية الصحية (Enaya)'],
+      indirect: ['أموك', 'نكست كير (NextCare)', 'مصر للتأمين', 'ايجي كير', 'المهندس للتأمين']
+    };
 
-      const cache = {};
-      data.forEach(row => {
-        cache[row.id] = row.data?.list || [];
-      });
-      this.insuranceCompaniesCache = cache;
-    } catch (_) {}
+    if (this.insuranceCompaniesCache && this.insuranceCompaniesCache[contractType]) {
+      return this.insuranceCompaniesCache[contractType];
+    }
+    return defaults[contractType] || [];
+  }
+
+  getAllInsuranceCompaniesWithTypes() {
+    const direct = this.getInsuranceCompanies('direct');
+    const indirect = this.getInsuranceCompanies('indirect');
+    const res = [];
+    direct.forEach(name => res.push({ name, contractType: 'direct', label: `${name} (تعاقد مباشر)` }));
+    indirect.forEach(name => res.push({ name, contractType: 'indirect', label: `${name} (تعاقد غير مباشر)` }));
+    return res;
+  }
+
+  getInsuranceCompaniesList() {
+    return this.getAllInsuranceCompaniesWithTypes();
+  }
+
+  async syncInsuranceCompaniesFromFirestore() {
+    await this.syncAndSeedCloudOptions();
   }
 
   async addInsuranceCompany(contractType, name) {
     this.ensureConnected();
-    const cleanName = (name || '').trim();
-    if (!cleanName) return;
-
-    try {
-      const { data } = await supabase.from('insurance_companies').select('*').eq('id', contractType).maybeSingle();
-      let list = data?.data?.list || [];
-      if (!list.includes(cleanName)) {
-        list.push(cleanName);
-        await supabase.from('insurance_companies').upsert({
-          id: contractType,
-          name: contractType,
-          data: { list },
-          created_at: new Date().toISOString()
-        });
-        if (!this.insuranceCompaniesCache) this.insuranceCompaniesCache = {};
-        this.insuranceCompaniesCache[contractType] = list;
-      }
-    } catch (err) {
-      console.error('addInsuranceCompany error:', err);
-      throw err;
+    const currentList = this.getInsuranceCompanies(contractType);
+    if (!currentList.includes(name.trim())) {
+      const updatedList = [...currentList, name.trim()];
+      this.insuranceCompaniesCache = this.insuranceCompaniesCache || {};
+      this.insuranceCompaniesCache[contractType] = updatedList;
+      await setDoc(doc(firestoreDb, 'insurance_companies', contractType), { companies: updatedList }, { merge: true });
+      return updatedList;
     }
+    return currentList;
   }
 
   async deleteInsuranceCompany(contractType, name) {
     this.ensureConnected();
-    try {
-      const { data } = await supabase.from('insurance_companies').select('*').eq('id', contractType).maybeSingle();
-      if (!data) return;
-      let list = (data.data?.list || []).filter(c => c !== name);
-      await supabase.from('insurance_companies').upsert({
-        id: contractType,
-        name: contractType,
-        data: { list },
-        created_at: new Date().toISOString()
-      });
-      if (this.insuranceCompaniesCache) this.insuranceCompaniesCache[contractType] = list;
-    } catch (err) {
-      console.error('deleteInsuranceCompany error:', err);
-      throw err;
-    }
+    const currentList = this.getInsuranceCompanies(contractType);
+    const updatedList = currentList.filter(item => item !== name.trim());
+    this.insuranceCompaniesCache = this.insuranceCompaniesCache || {};
+    this.insuranceCompaniesCache[contractType] = updatedList;
+    await setDoc(doc(firestoreDb, 'insurance_companies', contractType), { companies: updatedList }, { merge: true });
+    return updatedList;
   }
 
-  // ================= 8. Insurance Letters =================
+  // ================= 10. Insurance Renewal Letters (append-only archive) =================
   async addInsuranceLetter(letterData) {
     this.ensureConnected();
-    const letterId = letterData.id || ('letter_' + Date.now() + '_' + Math.random().toString(36).substring(2, 7));
-    const now = new Date().toISOString();
-
+    const ref = doc(collection(firestoreDb, 'insurance_letters'));
     const payload = {
       ...letterData,
-      id: letterId,
-      createdAt: now
+      id: ref.id,
+      createdAt: new Date().toISOString()
     };
-
-    const row = {
-      id: letterId,
-      patient_id: payload.patientId || null,
-      patient_name: payload.patientName || '',
-      company_name: payload.companyName || '',
-      letter_number: payload.letterNumber || '',
-      start_date: payload.startDate || '',
-      end_date: payload.endDate || '',
-      approved_sessions: parseInt(payload.approvedSessions) || null,
-      consumed_sessions: parseInt(payload.consumedSessions) || 0,
-      created_at: now,
-      data: payload
-    };
-
-    const { error } = await supabase.from('insurance_letters').upsert(row);
-    if (error) throw new Error('فشل حفظ خطاب التأمين: ' + error.message);
+    await setDoc(ref, payload);
     return payload;
   }
 
   async getInsuranceLetters(patientId) {
     this.ensureConnected();
-    try {
-      let q = supabase.from('insurance_letters').select('*');
-      if (patientId) {
-        q = q.eq('patient_id', patientId);
-      }
-      const { data, error } = await q.order('created_at', { ascending: false });
-      if (error) throw error;
-      return (data || []).map(row => ({ ...(row.data || {}), id: row.id }));
-    } catch (err) {
-      console.error('getInsuranceLetters error:', err);
-      return [];
-    }
+    const snap = await getDocs(collection(firestoreDb, 'insurance_letters'));
+    const all = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
+    return patientId ? all.filter((l) => l.patientId === patientId) : all;
   }
 
-  // ================= 9. Insurance Settlements =================
+  // ================= 8. Insurance Claim Settlements =================
   async getInsuranceSettlements(dateStr = null, monthStr = null) {
     this.ensureConnected();
     try {
-      let q = supabase.from('insurance_settlements').select('*');
+      let q;
       if (dateStr) {
-        q = q.eq('date', dateStr);
+        q = query(
+          collection(firestoreDb, 'insurance_settlements'),
+          where('settlementDate', '==', dateStr)
+        );
       } else if (monthStr) {
-        q = q.like('date', `${monthStr}%`);
+        const startOfMonth = `${monthStr}-01`;
+        const endOfMonth = `${monthStr}-31`;
+        q = query(
+          collection(firestoreDb, 'insurance_settlements'),
+          where('settlementDate', '>=', startOfMonth),
+          where('settlementDate', '<=', endOfMonth)
+        );
+      } else {
+        q = query(
+          collection(firestoreDb, 'insurance_settlements'),
+          orderBy('settlementDate', 'desc'),
+          limit(100)
+        );
       }
-      const { data, error } = await q.order('created_at', { ascending: false });
-      if (error) throw error;
-      return (data || []).map(row => ({
-        ...(row.data || {}),
-        id: row.id,
-        amountReceived: Number(row.amount_received ?? row.data?.amountReceived ?? 0)
-      }));
+      const snap = await getDocs(q);
+      const list = snap.docs.map((d) => ({ ...d.data(), id: d.id }));
+      list.sort((a, b) => (b.createdAt || '').localeCompare(a.createdAt || ''));
+      return list;
     } catch (err) {
-      console.error('getInsuranceSettlements error:', err);
+      console.warn('Firestore getInsuranceSettlements error:', err.message);
       return [];
     }
   }
 
   async saveInsuranceSettlement(settlementData, currentUser) {
     this.ensureConnected();
-    const settlementId = settlementData.id || ('stl_' + Date.now() + '_' + Math.random().toString(36).substring(2, 7));
-    const now = new Date();
-    const timeStr = now.toLocaleTimeString('ar-EG-u-nu-latn', { hour: '2-digit', minute: '2-digit', hour12: true });
-
-    const payload = {
+    const settlementId = settlementData.id || doc(collection(firestoreDb, 'insurance_settlements')).id;
+    const dataToSave = {
       ...settlementData,
       id: settlementId,
-      time: timeStr,
+      time: new Date().toLocaleTimeString('ar-EG-u-nu-latn', { hour: '2-digit', minute: '2-digit' }),
       recordedBy: currentUser?.name || 'مدير المركز',
-      createdAt: now.toISOString()
+      createdAt: new Date().toISOString()
     };
 
-    const row = {
-      id: settlementId,
-      claim_id: payload.claimId || null,
-      company_name: payload.companyName || '',
-      amount_received: Number(payload.amountReceived || 0),
-      date: payload.date || '',
-      time: timeStr,
-      created_at: now.toISOString(),
-      data: payload
-    };
-
-    const { error } = await supabase.from('insurance_settlements').upsert(row);
-    if (error) throw new Error('فشل تسجيل تسوية التأمين: ' + error.message);
-    return payload;
+    try {
+      await setDoc(doc(firestoreDb, 'insurance_settlements', settlementId), dataToSave);
+      return dataToSave;
+    } catch (err) {
+      console.error('Save insurance settlement error:', err);
+      throw err;
+    }
   }
 
   async deleteInsuranceSettlement(settlementId) {
     this.ensureConnected();
-    try {
-      const { error } = await supabase.from('insurance_settlements').delete().eq('id', settlementId);
-      if (error) throw error;
-      return true;
-    } catch (err) {
-      console.error('deleteInsuranceSettlement error:', err);
-      throw new Error('فشل حذف تسوية التأمين.');
-    }
+    await deleteDoc(doc(firestoreDb, 'insurance_settlements', settlementId));
   }
 
-  // ================= 10. Insurance Claims =================
+  // ================= 8.أ. Insurance Claims (سجل مطالبات التأمين الصادرة) =================
   async getInsuranceClaims(companyName = null) {
     this.ensureConnected();
     try {
-      let q = supabase.from('insurance_claims').select('*');
-      if (companyName) {
-        q = q.eq('company_name', companyName);
+      let q;
+      if (companyName && companyName !== 'all') {
+        q = query(
+          collection(firestoreDb, 'insurance_claims'),
+          where('companyName', '==', companyName)
+        );
+      } else {
+        q = query(
+          collection(firestoreDb, 'insurance_claims'),
+          orderBy('createdAt', 'desc'),
+          limit(100)
+        );
       }
-      const { data, error } = await q.order('created_at', { ascending: false });
-      if (error) throw error;
-      return (data || []).map(row => ({
-        ...(row.data || {}),
-        id: row.id,
-        totalAmount: Number(row.total_amount ?? row.data?.totalAmount ?? 0)
-      }));
+      const snap = await getDocs(q);
+      const list = snap.docs.map((d) => ({ ...d.data(), id: d.id }));
+      list.sort((a, b) => (b.createdAt || '').localeCompare(a.createdAt || ''));
+      return list;
     } catch (err) {
-      console.error('getInsuranceClaims error:', err);
+      console.warn('Firestore getInsuranceClaims error:', err.message);
       return [];
     }
   }
 
   async saveInsuranceClaim(claimData, currentUser) {
     this.ensureConnected();
-    const claimId = claimData.id || ('claim_' + Date.now() + '_' + Math.random().toString(36).substring(2, 7));
-    const now = new Date().toISOString();
-
-    const payload = {
+    const claimId = claimData.id || doc(collection(firestoreDb, 'insurance_claims')).id;
+    const dataToSave = {
       ...claimData,
       id: claimId,
       recordedBy: currentUser?.name || 'مدير المركز',
       recordedByUid: currentUser?.uid || '',
-      createdAt: claimData.createdAt || now
+      createdAt: claimData.createdAt || new Date().toISOString()
     };
 
-    const row = {
-      id: claimId,
-      claim_number: payload.claimNumber || '',
-      company_name: payload.companyName || '',
-      month: payload.month || '',
-      total_amount: Number(payload.totalAmount || 0),
-      status: payload.status || 'pending',
-      created_at: payload.createdAt,
-      data: payload
-    };
-
-    const { error } = await supabase.from('insurance_claims').upsert(row);
-    if (error) throw new Error('فشل حفظ مطالبة التأمين: ' + error.message);
-    return payload;
+    try {
+      await setDoc(doc(firestoreDb, 'insurance_claims', claimId), dataToSave, { merge: true });
+      return dataToSave;
+    } catch (err) {
+      console.error('Save insurance claim error:', err);
+      throw err;
+    }
   }
 
   async updateInsuranceClaim(claimId, updateData) {
     this.ensureConnected();
     try {
-      const { data: existing } = await supabase.from('insurance_claims').select('*').eq('id', claimId).single();
-      const updatedData = { ...(existing?.data || {}), ...updateData };
-
-      const rowUpdates = {
-        data: updatedData
-      };
-      if (updateData.status) rowUpdates.status = updateData.status;
-      if (updateData.totalAmount !== undefined) rowUpdates.total_amount = Number(updateData.totalAmount);
-
-      const { error } = await supabase.from('insurance_claims').update(rowUpdates).eq('id', claimId);
-      if (error) throw error;
+      await setDoc(doc(firestoreDb, 'insurance_claims', claimId), updateData, { merge: true });
       return true;
     } catch (err) {
-      console.error('updateInsuranceClaim error:', err);
-      throw new Error('فشل تحديث مطالبة التأمين.');
+      console.error('Update insurance claim error:', err);
+      throw err;
     }
   }
 
   async deleteInsuranceClaim(claimId) {
     this.ensureConnected();
-    try {
-      const { error } = await supabase.from('insurance_claims').delete().eq('id', claimId);
-      if (error) throw error;
-      return true;
-    } catch (err) {
-      console.error('deleteInsuranceClaim error:', err);
-      throw new Error('فشل حذف مطالبة التأمين.');
-    }
+    await deleteDoc(doc(firestoreDb, 'insurance_claims', claimId));
   }
 
-  // ================= 11. Appointments Slots =================
+  // ================= 9. Weekly Appointments Schedule & Custom Slots =================
   async getAppointmentSlots() {
     this.ensureConnected();
     try {
-      const { data } = await supabase.from('clinical_options').select('*').eq('id', 'appointment_slots').maybeSingle();
-      if (data?.items && Array.isArray(data.items) && data.items.length > 0) {
-        return data.items;
+      const docRef = doc(firestoreDb, 'clinical_options', 'appointment_slots');
+      const snap = await getDoc(docRef);
+      if (snap.exists() && Array.isArray(snap.data().slots) && snap.data().slots.length > 0) {
+        return snap.data().slots;
       }
-    } catch (_) {}
-
+    } catch (e) {
+      console.warn('getAppointmentSlots notice:', e.message);
+    }
     return [
-      { key: 'slot_1', label: '10:00 ص - 11:00 ص' },
-      { key: 'slot_2', label: '11:00 ص - 12:00 م' },
-      { key: 'slot_3', label: '12:00 م - 01:00 م' },
-      { key: 'slot_4', label: '01:00 م - 02:00 م' },
-      { key: 'slot_5', label: '05:00 م - 06:00 م' },
-      { key: 'slot_6', label: '06:00 م - 07:00 م' },
-      { key: 'slot_7', label: '07:00 م - 08:00 م' },
-      { key: 'slot_8', label: '08:00 م - 09:00 م' }
+      { key: '15:30', label: '٣:٣٠ م' },
+      { key: '16:30', label: '٤:٣٠ م' },
+      { key: '17:30', label: '٥:٣٠ م' },
+      { key: '18:30', label: '٦:٣٠ م' },
+      { key: '19:00', label: '٧:٠٠ م' }
     ];
   }
 
   async saveAppointmentSlots(slots) {
     this.ensureConnected();
-    try {
-      await supabase.from('clinical_options').upsert({
-        id: 'appointment_slots',
-        category: 'appointment_slots',
-        items: slots,
-        last_updated_at: new Date().toISOString(),
-        data: { items: slots }
-      });
-    } catch (err) {
-      console.error('saveAppointmentSlots error:', err);
-      throw new Error('فشل حفظ فترات المواعيد.');
-    }
+    const docRef = doc(firestoreDb, 'clinical_options', 'appointment_slots');
+    await setDoc(docRef, { slots }, { merge: true });
+    return slots;
   }
 
   async updateAppointmentSlot(oldKey, newKey, newLabel) {
-    const slots = await this.getAppointmentSlots();
-    const idx = slots.findIndex(s => s.key === oldKey);
-    if (idx !== -1) {
-      slots[idx] = { key: newKey, label: newLabel };
-      await this.saveAppointmentSlots(slots);
+    this.ensureConnected();
+    let slots = await this.getAppointmentSlots();
+    slots = slots.map(s => s.key === oldKey ? { key: newKey, label: newLabel } : s);
+    slots.sort((a, b) => a.key.localeCompare(b.key));
+    await this.saveAppointmentSlots(slots);
+
+    if (oldKey !== newKey) {
+      try {
+        const appts = await this.getAppointments();
+        const affected = appts.filter(a => a.timeSlot === oldKey);
+        for (const a of affected) {
+          await setDoc(doc(firestoreDb, 'appointments', a.id), { timeSlot: newKey }, { merge: true });
+        }
+      } catch (err) {
+        console.warn('Update affected appts notice:', err.message);
+      }
     }
+    return slots;
   }
 
   async deleteAppointmentSlot(slotKey) {
-    const slots = await this.getAppointmentSlots();
-    const filtered = slots.filter(s => s.key !== slotKey);
-    await this.saveAppointmentSlots(filtered);
+    this.ensureConnected();
+    let slots = await this.getAppointmentSlots();
+    slots = slots.filter(s => s.key !== slotKey);
+    await this.saveAppointmentSlots(slots);
+
+    try {
+      const appts = await this.getAppointments();
+      const affected = appts.filter(a => a.timeSlot === slotKey);
+      for (const a of affected) {
+        await deleteDoc(doc(firestoreDb, 'appointments', a.id));
+      }
+    } catch (err) {
+      console.warn('Delete affected appts notice:', err.message);
+    }
+    return slots;
   }
 
   async addAppointmentSlot(newKey, newLabel) {
-    const slots = await this.getAppointmentSlots();
-    slots.push({ key: newKey, label: newLabel });
-    await this.saveAppointmentSlots(slots);
+    this.ensureConnected();
+    let slots = await this.getAppointmentSlots();
+    if (!slots.some(s => s.key === newKey)) {
+      slots.push({ key: newKey, label: newLabel });
+      slots.sort((a, b) => a.key.localeCompare(b.key));
+      await this.saveAppointmentSlots(slots);
+    }
+    return slots;
   }
 
-  // ================= 12. Appointments =================
-  async getAppointments() {
+    // ================= 9. Weekly Appointments Schedule =================
+  // Fixed recurring weekly template (not tied to specific calendar dates)
+  async getAppointments(forceRefresh = false) {
     this.ensureConnected();
+    const now = Date.now();
+    if (!forceRefresh && this._appointmentsCache && (now - this._appointmentsLastFetch < this.CACHE_TTL)) {
+      return [...this._appointmentsCache];
+    }
     try {
-      const { data, error } = await supabase.from('appointments').select('*').order('date', { ascending: true });
-      if (error) throw error;
-      return (data || []).map(row => ({
-        ...(row.data || {}),
-        id: row.id,
-        patientId: row.patient_id || row.data?.patientId,
-        patientName: row.patient_name || row.data?.patientName,
-        phone: row.phone || row.data?.phone,
-        doctor: row.doctor || row.data?.doctor,
-        date: row.date,
-        time: row.time || row.data?.time,
-        status: row.status || row.data?.status || 'scheduled',
-        notes: row.notes || row.data?.notes || '',
-        createdAt: row.created_at || row.data?.createdAt
-      }));
-    } catch (err) {
-      console.error('Supabase getAppointments error:', err);
+      const snap = await getDocs(collection(firestoreDb, 'appointments'));
+      const list = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
+      this._appointmentsCache = list;
+      this._appointmentsLastFetch = now;
+      return [...list];
+    } catch (e) {
+      if (this._appointmentsCache) return [...this._appointmentsCache];
+      console.warn('getAppointments error:', e.message);
       return [];
     }
   }
 
   async addAppointment(apptData) {
     this.ensureConnected();
-    const apptId = apptData.id || ('appt_' + Date.now() + '_' + Math.random().toString(36).substring(2, 7));
-    const now = new Date().toISOString();
-
+    const ref = doc(collection(firestoreDb, 'appointments'));
     const payload = {
       ...apptData,
-      id: apptId,
-      createdAt: now
+      id: ref.id,
+      createdAt: new Date().toISOString()
     };
-
-    const row = {
-      id: apptId,
-      patient_id: payload.patientId || null,
-      patient_name: payload.patientName || '',
-      phone: payload.phone || '',
-      doctor: payload.doctor || '',
-      date: payload.date || '',
-      time: payload.time || '',
-      status: payload.status || 'scheduled',
-      notes: payload.notes || '',
-      created_at: now,
-      data: payload
-    };
-
-    const { error } = await supabase.from('appointments').upsert(row);
-    if (error) throw new Error('فشل تسجيل الموعد: ' + error.message);
+    await setDoc(ref, payload);
+    if (this._appointmentsCache) {
+      this._appointmentsCache.push(payload);
+      this._appointmentsLastFetch = Date.now();
+    }
     return payload;
   }
 
   async updateAppointment(apptId, updates) {
     this.ensureConnected();
-    try {
-      const { data: existing } = await supabase.from('appointments').select('*').eq('id', apptId).single();
-      const updatedData = { ...(existing?.data || {}), ...updates };
-
-      const rowUpdates = { data: updatedData };
-      if (updates.date) rowUpdates.date = updates.date;
-      if (updates.time) rowUpdates.time = updates.time;
-      if (updates.status) rowUpdates.status = updates.status;
-      if (updates.doctor) rowUpdates.doctor = updates.doctor;
-
-      const { error } = await supabase.from('appointments').update(rowUpdates).eq('id', apptId);
-      if (error) throw error;
-      return true;
-    } catch (err) {
-      console.error('updateAppointment error:', err);
-      throw new Error('فشل تحديث بيانات الموعد.');
+    const ref = doc(firestoreDb, 'appointments', apptId);
+    await updateDoc(ref, {
+      ...updates,
+      updatedAt: new Date().toISOString()
+    });
+    if (this._appointmentsCache) {
+      const idx = this._appointmentsCache.findIndex(a => a.id === apptId);
+      if (idx !== -1) {
+        this._appointmentsCache[idx] = { ...this._appointmentsCache[idx], ...updates };
+      }
+      this._appointmentsLastFetch = Date.now();
     }
+    return { id: apptId, ...updates };
   }
 
   async deleteAppointment(apptId) {
     this.ensureConnected();
-    try {
-      const { error } = await supabase.from('appointments').delete().eq('id', apptId);
-      if (error) throw error;
-      return true;
-    } catch (err) {
-      console.error('deleteAppointment error:', err);
-      throw new Error('فشل حذف الموعد.');
+    await deleteDoc(doc(firestoreDb, 'appointments', apptId));
+    if (this._appointmentsCache) {
+      this._appointmentsCache = this._appointmentsCache.filter(a => a.id !== apptId);
+      this._appointmentsLastFetch = Date.now();
     }
   }
 
-  // ================= 13. Shift Overrides =================
-  async getShiftOverrides(dateStr = null) {
+  // ================= 9.1 Shift Overrides (Temporary Doctor Coverage) =================
+  async getShiftOverrides(dateStr = null, forceRefresh = false) {
     this.ensureConnected();
+    const now = Date.now();
+    if (!forceRefresh && this._shiftOverridesCache && (now - this._shiftOverridesLastFetch < this.CACHE_TTL)) {
+      if (dateStr) return this._shiftOverridesCache.filter((o) => o.date === dateStr);
+      return [...this._shiftOverridesCache];
+    }
     try {
-      let q = supabase.from('shift_overrides').select('*');
+      const snap = await getDocs(collection(firestoreDb, 'shift_overrides'));
+      const all = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
+      this._shiftOverridesCache = all;
+      this._shiftOverridesLastFetch = now;
       if (dateStr) {
-        q = q.eq('date', dateStr);
+        return all.filter((o) => o.date === dateStr);
       }
-      const { data, error } = await q.order('closed_at', { ascending: false });
-      if (error) throw error;
-      return (data || []).map(row => ({
-        ...(row.data || {}),
-        id: row.id,
-        cashCollected: Number(row.cash_collected ?? row.data?.cashCollected ?? 0),
-        expenses: Number(row.expenses ?? row.data?.expenses ?? 0),
-        netCash: Number(row.net_cash ?? row.data?.netCash ?? 0)
-      }));
+      return all;
     } catch (err) {
-      console.error('getShiftOverrides error:', err);
+      if (this._shiftOverridesCache) {
+        if (dateStr) return this._shiftOverridesCache.filter((o) => o.date === dateStr);
+        return [...this._shiftOverridesCache];
+      }
+      console.warn('getShiftOverrides notice:', err.message);
       return [];
     }
   }
 
   async addShiftOverride(overrideData) {
     this.ensureConnected();
-    const docId = overrideData.id || (overrideData.shiftId ? `${overrideData.date}_${overrideData.shiftId}` : `override_${Date.now()}`);
-    const now = new Date().toISOString();
-
+    const docId = `${overrideData.doctorUid}_${overrideData.date}`;
+    const ref = doc(firestoreDb, 'shift_overrides', docId);
     const payload = {
       ...overrideData,
       id: docId,
-      createdAt: now
+      createdAt: new Date().toISOString()
     };
-
-    const row = {
-      id: docId,
-      shift_id: payload.shiftId || '',
-      date: payload.date || '',
-      cash_collected: Number(payload.cashCollected || 0),
-      expenses: Number(payload.expenses || 0),
-      net_cash: Number(payload.netCash || 0),
-      closed_by: payload.closedBy || '',
-      closed_at: payload.closedAt || now,
-      data: payload
-    };
-
-    const { error } = await supabase.from('shift_overrides').upsert(row);
-    if (error) throw new Error('فشل حفظ تسوية الشفت: ' + error.message);
+    await setDoc(ref, payload);
+    if (this._shiftOverridesCache) {
+      const idx = this._shiftOverridesCache.findIndex(o => o.id === docId);
+      if (idx !== -1) {
+        this._shiftOverridesCache[idx] = payload;
+      } else {
+        this._shiftOverridesCache.push(payload);
+      }
+      this._shiftOverridesLastFetch = Date.now();
+    }
     return payload;
   }
 
   async deleteShiftOverride(overrideId) {
     this.ensureConnected();
-    try {
-      const { error } = await supabase.from('shift_overrides').delete().eq('id', overrideId);
-      if (error) throw error;
-      return true;
-    } catch (err) {
-      console.error('deleteShiftOverride error:', err);
-      throw new Error('فشل حذف تسوية الشفت.');
+    await deleteDoc(doc(firestoreDb, 'shift_overrides', overrideId));
+    if (this._shiftOverridesCache) {
+      this._shiftOverridesCache = this._shiftOverridesCache.filter(o => o.id !== overrideId);
+      this._shiftOverridesLastFetch = Date.now();
     }
   }
 
-  // ================= 14. Full Backup & Restore =================
+  // ================= 8. Backup & Restore =================
+  // NOTE: `users` and `audit_logs` are intentionally excluded from backups.
+  // Staff accounts must only ever be created/changed through the vetted
+  // admin API (api/admin/users.js), never by restoring arbitrary JSON, and
+  // restoring old audit entries would corrupt the audit trail's true
+  // chronological order.
   async createFullBackup() {
     this.ensureConnected();
 
@@ -1061,18 +1124,17 @@ class SupabaseDatabaseService {
       this.getInsuranceClaims()
     ]);
 
-    const { data: clinicalData } = await supabase.from('clinical_options').select('*');
+    const clinicalOptionsSnap = await getDocs(collection(firestoreDb, 'clinical_options'));
     const clinicalOptions = {};
-    (clinicalData || []).forEach(d => { clinicalOptions[d.id] = d.items || d.data?.items || []; });
+    clinicalOptionsSnap.forEach((d) => { clinicalOptions[d.id] = d.data(); });
 
-    const { data: insuranceData } = await supabase.from('insurance_companies').select('*');
+    const insuranceSnap = await getDocs(collection(firestoreDb, 'insurance_companies'));
     const insuranceCompanies = {};
-    (insuranceData || []).forEach(d => { insuranceCompanies[d.id] = d.data?.list || []; });
+    insuranceSnap.forEach((d) => { insuranceCompanies[d.id] = d.data(); });
 
     return {
-      backupVersion: 2,
+      backupVersion: 1,
       clinicName: CLINIC_CONFIG?.name || 'ASCPT',
-      database: 'Supabase PostgreSQL',
       timestamp: new Date().toISOString(),
       counts: {
         patients: patients.length,
@@ -1099,54 +1161,94 @@ class SupabaseDatabaseService {
       throw new Error('ملف النسخة الاحتياطية غير صالح أو تالف.');
     }
 
-    if (Array.isArray(data.patients)) {
-      for (const p of data.patients) {
-        await this.savePatient(p);
+    const restoreCollection = async (collectionName, items) => {
+      if (!Array.isArray(items) || items.length === 0) return;
+      let batch = writeBatch(firestoreDb);
+      let opsInBatch = 0;
+      for (const item of items) {
+        if (!item || !item.id) continue; // skip malformed entries defensively
+        batch.set(doc(firestoreDb, collectionName, item.id), item, { merge: true });
+        opsInBatch++;
+        if (opsInBatch >= 450) { // stay safely under Firestore's 500-op batch limit
+          await batch.commit();
+          batch = writeBatch(firestoreDb);
+          opsInBatch = 0;
+        }
+      }
+      if (opsInBatch > 0) {
+        await batch.commit();
+      }
+    };
+
+    await restoreCollection('patients', data.patients);
+    await restoreCollection('sessions', data.sessions);
+    await restoreCollection('expenses', data.expenses);
+    await restoreCollection('appointments', data.appointments);
+    await restoreCollection('insurance_letters', data.insuranceLetters);
+
+    if (data.clinicalOptions && typeof data.clinicalOptions === 'object') {
+      for (const [category, value] of Object.entries(data.clinicalOptions)) {
+        await setDoc(doc(firestoreDb, 'clinical_options', category), value, { merge: true });
       }
     }
-    if (Array.isArray(data.sessions)) {
-      for (const s of data.sessions) {
-        await this.saveSession(s);
+
+    if (data.insuranceCompanies && typeof data.insuranceCompanies === 'object') {
+      for (const [type, value] of Object.entries(data.insuranceCompanies)) {
+        await setDoc(doc(firestoreDb, 'insurance_companies', type), value, { merge: true });
       }
     }
-    if (Array.isArray(data.expenses)) {
-      for (const e of data.expenses) {
-        await this.saveExpense(e);
-      }
-    }
-    if (Array.isArray(data.appointments)) {
-      for (const a of data.appointments) {
-        await this.addAppointment(a);
-      }
-    }
-    if (Array.isArray(data.insuranceLetters)) {
-      for (const l of data.insuranceLetters) {
-        await this.addInsuranceLetter(l);
-      }
-    }
+
+    // Force a fresh read next time options/companies are needed, since the
+    // in-memory caches may now be stale relative to what was just restored.
+    this.invalidateAllCaches();
+    this.clinicalOptionsCache = null;
+    this.insuranceCompaniesCache = null;
+    this._optionsLoaded = false;
+    await this.syncAndSeedCloudOptions();
   }
 
-  // ================= 15. Patient Images & Attachments =================
+  // ================= 11. Patient Medical Imaging & Lab Reports (v1.4.81) =================
   async getPatientImages(patientId) {
     this.ensureConnected();
+    if (!patientId) return [];
     try {
-      const { data, error } = await supabase
-        .from('patient_images')
-        .select('*')
-        .eq('patient_id', patientId)
-        .order('created_at', { ascending: false });
+      const imageMap = new Map();
 
-      if (error) throw error;
-      return (data || []).map(row => ({
-        ...(row.data || {}),
-        id: row.id,
-        patientId: row.patient_id,
-        title: row.title,
-        category: row.category,
-        notes: row.notes,
-        dataUrl: row.data_url || row.data?.dataUrl,
-        createdAt: row.created_at
-      }));
+      // 1. Primary: Fetch from dedicated Subcollection 'patients/{patientId}/images'
+      try {
+        const snap = await getDocs(collection(firestoreDb, 'patients', patientId, 'images'));
+        snap.docs.forEach((d) => {
+          imageMap.set(d.id, { id: d.id, ...d.data() });
+        });
+      } catch (subErr) {
+        console.warn('Subcollection images fetch notice:', subErr.message);
+      }
+
+      // 2. Legacy fallback: Read from parent patient document (imagingFiles or clinicalSheet.images)
+      try {
+        const pSnap = await getDoc(doc(firestoreDb, 'patients', patientId));
+        if (pSnap.exists()) {
+          const pData = pSnap.data();
+          if (Array.isArray(pData.imagingFiles)) {
+            pData.imagingFiles.forEach((img) => {
+              if (img && img.id && !imageMap.has(img.id)) {
+                imageMap.set(img.id, img);
+              }
+            });
+          }
+          if (pData.clinicalSheet && Array.isArray(pData.clinicalSheet.images)) {
+            pData.clinicalSheet.images.forEach((img) => {
+              if (img && img.id && !imageMap.has(img.id)) {
+                imageMap.set(img.id, img);
+              }
+            });
+          }
+        }
+      } catch (docErr) {
+        console.warn('Patient document imagingFiles fetch notice:', docErr.message);
+      }
+
+      return Array.from(imageMap.values()).sort((a, b) => (b.createdAt || '').localeCompare(a.createdAt || ''));
     } catch (err) {
       console.error('getPatientImages error:', err);
       return [];
@@ -1158,8 +1260,6 @@ class SupabaseDatabaseService {
     if (!patientId) throw new Error('patientId is required');
 
     const imageId = 'img_' + Date.now() + '_' + Math.random().toString(36).substring(2, 8);
-    const now = new Date().toISOString();
-
     const payload = {
       id: imageId,
       patientId,
@@ -1167,58 +1267,119 @@ class SupabaseDatabaseService {
       category: imageData.category || 'other',
       notes: imageData.notes || '',
       dataUrl: imageData.dataUrl,
-      createdAt: now,
-      createdBy: imageData.createdBy || ''
+      createdAt: new Date().toISOString(),
+      createdBy: imageData.createdBy || '',
+      createdByUid: imageData.createdByUid || ''
     };
 
-    const row = {
-      id: imageId,
-      patient_id: patientId,
-      title: payload.title,
-      category: payload.category,
-      notes: payload.notes,
-      data_url: payload.dataUrl,
-      created_at: now,
-      created_by: payload.createdBy,
-      data: payload
-    };
-
-    const { error } = await supabase.from('patient_images').upsert(row);
-    if (error) throw new Error('فشل حفظ المستند: ' + error.message);
-    return payload;
+    // 1. Primary: Save directly to subcollection 'patients/{patientId}/images/{imageId}'
+    // This perfectly matches Firestore Security Rule: match /images/{imageId} { allow read, write: if isUserActive(); }
+    // and completely prevents hitting the 1MB Firestore document limit on the main patient record!
+    try {
+      const imgDocRef = doc(firestoreDb, 'patients', patientId, 'images', imageId);
+      await setDoc(imgDocRef, payload);
+      return payload;
+    } catch (err) {
+      console.warn('Subcollection image write notice, attempting fallback to document array:', err.message);
+      // 2. Fallback: If subcollection write fails, try updating patient document directly
+      try {
+        const pRef = doc(firestoreDb, 'patients', patientId);
+        const pSnap = await getDoc(pRef);
+        if (pSnap.exists()) {
+          const currentList = Array.isArray(pSnap.data().imagingFiles) ? pSnap.data().imagingFiles : [];
+          const updatedList = [payload, ...currentList].slice(0, 20);
+          await updateDoc(pRef, {
+            imagingFiles: updatedList,
+            lastUpdatedAt: new Date().toISOString(),
+            lastUpdatedBy: imageData.createdBy || 'طاقم المركز'
+          });
+          return payload;
+        }
+      } catch (fallbackErr) {
+        console.error('addPatientImage fallback error:', fallbackErr);
+      }
+      throw err;
+    }
   }
 
   async updatePatientImage(patientId, imageId, updates) {
     this.ensureConnected();
+    if (!patientId || !imageId || !updates) return false;
+
+    let updated = false;
+
+    // 1. Try updating in subcollection 'patients/{patientId}/images/{imageId}'
     try {
-      const { data: existing } = await supabase.from('patient_images').select('*').eq('id', imageId).single();
-      const updatedData = { ...(existing?.data || {}), ...updates };
-
-      const rowUpdates = { data: updatedData };
-      if (updates.title) rowUpdates.title = updates.title;
-      if (updates.category) rowUpdates.category = updates.category;
-      if (updates.notes !== undefined) rowUpdates.notes = updates.notes;
-
-      const { error } = await supabase.from('patient_images').update(rowUpdates).eq('id', imageId);
-      if (error) throw error;
-      return true;
-    } catch (err) {
-      console.error('updatePatientImage error:', err);
-      throw new Error('فشل تعديل بيانات المستند.');
+      const imgRef = doc(firestoreDb, 'patients', patientId, 'images', imageId);
+      const imgSnap = await getDoc(imgRef);
+      if (imgSnap.exists()) {
+        await updateDoc(imgRef, {
+          ...updates,
+          lastUpdatedAt: new Date().toISOString()
+        });
+        updated = true;
+      }
+    } catch (subErr) {
+      console.warn('Subcollection image update notice:', subErr.message);
     }
+
+    // 2. Also check / update in parent patient document imagingFiles (for legacy records)
+    try {
+      const pRef = doc(firestoreDb, 'patients', patientId);
+      const pSnap = await getDoc(pRef);
+      if (pSnap.exists()) {
+        const pData = pSnap.data();
+        if (Array.isArray(pData.imagingFiles)) {
+          const list = [...pData.imagingFiles];
+          const idx = list.findIndex((img) => img.id === imageId);
+          if (idx !== -1) {
+            list[idx] = { ...list[idx], ...updates, lastUpdatedAt: new Date().toISOString() };
+            await updateDoc(pRef, { imagingFiles: list, lastUpdatedAt: new Date().toISOString() });
+            updated = true;
+          }
+        }
+      }
+    } catch (docErr) {
+      console.warn('Patient document imagingFiles update notice:', docErr.message);
+    }
+
+    return updated;
   }
 
   async deletePatientImage(patientId, imageId) {
     this.ensureConnected();
+    if (!patientId || !imageId) return;
+
     try {
-      const { error } = await supabase.from('patient_images').delete().eq('id', imageId);
-      if (error) throw error;
-      return true;
+      // 1. Delete from subcollection
+      try {
+        await deleteDoc(doc(firestoreDb, 'patients', patientId, 'images', imageId));
+      } catch (subErr) {
+        console.warn('Subcollection image delete notice:', subErr.message);
+      }
+
+      // 2. Also remove from patient document imagingFiles if it was saved there (legacy cleanup)
+      try {
+        const pRef = doc(firestoreDb, 'patients', patientId);
+        const pSnap = await getDoc(pRef);
+        if (pSnap.exists()) {
+          const currentList = Array.isArray(pSnap.data().imagingFiles) ? pSnap.data().imagingFiles : [];
+          if (currentList.some((img) => img.id === imageId)) {
+            const updatedList = currentList.filter((img) => img.id !== imageId);
+            await updateDoc(pRef, {
+              imagingFiles: updatedList,
+              lastUpdatedAt: new Date().toISOString()
+            });
+          }
+        }
+      } catch (docErr) {
+        console.warn('Patient document imagingFiles delete notice:', docErr.message);
+      }
     } catch (err) {
       console.error('deletePatientImage error:', err);
-      throw new Error('فشل حذف المستند.');
+      throw err;
     }
   }
 }
 
-export const db = new SupabaseDatabaseService();
+export const db = new FirestoreDatabaseService();

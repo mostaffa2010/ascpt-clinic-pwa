@@ -605,7 +605,7 @@ export class PatientsManager {
   renderPatients() {
     const tbody = document.getElementById('patients-tbody');
     const mobileContainer = document.getElementById('patients-mobile-cards');
-    if (!mobileContainer) return;
+    if (!tbody) return;
 
     const rawSearch = document.getElementById('patient-search-input')?.value.trim() || '';
     const filterType = document.getElementById('patient-filter-type')?.value || 'all';
@@ -692,7 +692,7 @@ export class PatientsManager {
 
     if (filtered.length === 0) {
       if (this.filterTodayOnly) {
-        if (tbody) tbody.innerHTML = `<tr><td colspan="8" style="text-align: center; color: var(--text-muted); padding: 36px 20px;">
+        tbody.innerHTML = `<tr><td colspan="8" style="text-align: center; color: var(--text-muted); padding: 36px 20px;">
           <i class="fa-solid fa-calendar-xmark" style="font-size: 1.8rem; color: var(--text-muted); margin-bottom: 8px; display: block;"></i>
           لا توجد حالات مسجلة في مواعيد أو جلسات اليوم.<br>
           <button type="button" class="btn btn-outline btn-sm" id="btn-reset-today-filter" style="margin-top: 10px;">
@@ -731,7 +731,7 @@ export class PatientsManager {
             </button>
           </div>
         `;
-        if (tbody) tbody.innerHTML = `<tr><td colspan="8" style="text-align: center; color: var(--text-muted); padding: 30px;">لا يوجد مرضى مطابقين لكلمة البحث: <strong>"${escapeHTML(rawSearch)}"</strong></td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="8" style="text-align: center; color: var(--text-muted); padding: 30px;">لا يوجد مرضى مطابقين لكلمة البحث: <strong>"${escapeHTML(rawSearch)}"</strong></td></tr>`;
         if (mobileContainer) mobileContainer.innerHTML = emptySearchCard;
         return;
       }
@@ -749,7 +749,7 @@ export class PatientsManager {
             </button>
           </div>
         `;
-        if (tbody) tbody.innerHTML = `<tr><td colspan="8" style="text-align: center; color: var(--text-muted); padding: 30px;">لا توجد حالات مسجلة بهذا النظام.</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="8" style="text-align: center; color: var(--text-muted); padding: 30px;">لا توجد حالات مسجلة بهذا النظام.</td></tr>`;
         if (mobileContainer) mobileContainer.innerHTML = emptyFilterCard;
         return;
       }
@@ -766,7 +766,7 @@ export class PatientsManager {
           </button>
         </div>
       `;
-      if (tbody) tbody.innerHTML = `<tr><td colspan="8" style="text-align: center; color: var(--text-muted); padding: 30px;">سجل المرضى فارغ.</td></tr>`;
+      tbody.innerHTML = `<tr><td colspan="8" style="text-align: center; color: var(--text-muted); padding: 30px;">سجل المرضى فارغ.</td></tr>`;
       if (mobileContainer) mobileContainer.innerHTML = emptyAllCard;
       return;
     }
@@ -779,7 +779,7 @@ export class PatientsManager {
     setTimeout(() => this.setupScrollSync(), 50);
 
     // 1. Render Desktop Table
-    if (tbody) tbody.innerHTML = filtered.map(p => {
+    tbody.innerHTML = filtered.map(p => {
       const isNewlyAdded = (p.id && p.id === this.newlyAddedPatientId);
       const rowHighlightClass = isNewlyAdded ? 'patient-row-newly-added' : '';
       let billingBadge = '';
@@ -1648,8 +1648,15 @@ export class PatientsManager {
 
   applyViewModeUI() {
     this.viewMode = 'cards';
+    const tableContainer = document.getElementById('patients-table-container');
     const cardsContainer = document.getElementById('patients-mobile-cards');
+    const topWrap = document.getElementById('patients-top-scroll-wrap');
+    const toggleGroup = document.getElementById('patients-view-mode-toggle');
+
+    if (tableContainer) tableContainer.style.display = 'none';
     if (cardsContainer) cardsContainer.style.display = 'grid';
+    if (topWrap) topWrap.style.display = 'none';
+    if (toggleGroup) toggleGroup.style.display = 'none';
   }
 
   setupScrollSync() {

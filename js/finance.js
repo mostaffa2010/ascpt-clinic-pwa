@@ -1049,9 +1049,9 @@ export class FinanceManager {
 
     if (tbody) {
       if (filteredSessions.length === 0) {
-        if (tbody) tbody.innerHTML = `<tr><td colspan="8" style="text-align: center; color: var(--text-muted); padding: 25px;">لا توجد حركات جلسات مسجلة في هذا التاريخ.</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="8" style="text-align: center; color: var(--text-muted); padding: 25px;">لا توجد حركات جلسات مسجلة في هذا التاريخ.</td></tr>`;
       } else {
-        if (tbody) tbody.innerHTML = filteredSessions.map(s => {
+        tbody.innerHTML = filteredSessions.map(s => {
           const safeId = escapeHTML(s.id);
           const safePatient = escapeHTML(s.patientName);
           const safeDoc = escapeHTML(s.doctor);

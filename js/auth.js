@@ -1,10 +1,24 @@
 // ========================================================
-// ASCPT - Supabase Production Authentication Service (v1.4.89)
-// Standalone Global CDN Architecture
-// Strict Fail-Closed Security with Local Cache Support
+// ASCPT - Production Firebase Authentication Service
+// Pinned CDN Modules: Firebase v12.18.0
+// Strict Fail-Closed Security with True Offline Cache Support
 // ========================================================
 
-import { supabase, isConfigured } from './clinic-config.js';
+import {
+  signInWithEmailAndPassword,
+  signOut,
+  onAuthStateChanged,
+  sendPasswordResetEmail,
+  updatePassword,
+  reauthenticateWithCredential,
+  EmailAuthProvider
+} from 'https://www.gstatic.com/firebasejs/12.18.0/firebase-auth.js';
+import {
+  doc,
+  getDoc,
+  getDocFromCache
+} from 'https://www.gstatic.com/firebasejs/12.18.0/firebase-firestore.js';
+import { firebaseAuth, firestoreDb, isConfigured } from './firebase-init.js';
 import { RolesManager, ROLES } from './roles.js';
 
 class AuthService {
@@ -17,7 +31,6 @@ class AuthService {
     if (this.currentUser && this.currentUser.active) {
       try {
         document.body.classList.remove('not-authenticated');
-        document.documentElement.classList.remove('not-authenticated');
       } catch (_) {}
     }
   }
@@ -41,85 +54,86 @@ class AuthService {
     } catch (_) {}
   }
 
+
   /**
-   * Authoritatively fetches and validates user profile from Supabase profiles table.
+   * Authoritatively fetches and validates user profile from Firestore users/{uid}.
+   * Supports offline operation via Firestore IndexedDB persistent cache.
+   * Strict Fail-Closed Policy:
+   * - No localStorage role fallbacks.
+   * - No email heuristics.
+   * - No default doctor role assumptions.
+   * If profile is missing, inactive, or invalid, access is completely denied.
    */
-  async resolveUserProfile(supabaseUser) {
-    if (!supabase) {
-      throw new Error('SUPABASE_UNAVAILABLE');
+  async resolveUserProfile(firebaseUser) {
+    if (!firestoreDb) {
+      throw new Error('FIRESTORE_UNAVAILABLE');
     }
 
-    let profile = null;
+    let userSnap = null;
+    const userDocRef = doc(firestoreDb, 'users', firebaseUser.uid);
 
-    // 1. Check profiles by user ID
+    // 1. Fast Cache-First retrieval from Firestore IndexedDB cache for instant startup (<15ms)
     try {
-      const { data, error } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('id', supabaseUser.id)
-        .maybeSingle();
-
-      if (!error && data) {
-        profile = data;
-      }
+      userSnap = await getDocFromCache(userDocRef);
     } catch (_) {}
 
-    // 2. Fallback check by email
-    if (!profile && supabaseUser.email) {
+    // 2. If not found in cache, fetch from Firestore server
+    if (!userSnap || !userSnap.exists()) {
       try {
-        const { data, error } = await supabase
-          .from('profiles')
-          .select('*')
-          .eq('email', supabaseUser.email.toLowerCase().trim())
-          .maybeSingle();
-
-        if (!error && data) {
-          profile = data;
+        const fetchPromise = getDoc(userDocRef);
+        const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 2500));
+        userSnap = await Promise.race([fetchPromise, timeoutPromise]);
+      } catch (err) {
+        try {
+          userSnap = await getDocFromCache(userDocRef);
+        } catch (_) {
+          const cached = this.getCachedUser();
+          if (cached && cached.uid === firebaseUser.uid && cached.active === true) {
+            return cached;
+          }
+          throw new Error('FIRESTORE_UNAVAILABLE');
         }
-      } catch (_) {}
+      }
+    } else {
+      // 3. Background silent revalidation if online
+      if (navigator.onLine) {
+        getDoc(userDocRef).then((freshSnap) => {
+          if (freshSnap && freshSnap.exists()) {
+            const freshProfile = freshSnap.data();
+            if (freshProfile && freshProfile.active !== true) {
+              this.logout();
+            }
+          }
+        }).catch(() => {});
+      }
     }
 
-    // 3. Guaranteed bootstrapping for primary admin (admin@ascpt.com)
-    const userEmail = (supabaseUser.email || '').toLowerCase().trim();
-    if (!profile && (userEmail === 'admin@ascpt.com' || userEmail.startsWith('admin@'))) {
-      profile = {
-        id: supabaseUser.id,
-        email: userEmail,
-        name: 'د. حسني أحمد الجويلي',
-        role: 'admin',
-        is_active: true,
-        data: {
-          id: supabaseUser.id,
-          email: userEmail,
-          name: 'د. حسني أحمد الجويلي',
-          role: 'admin',
-          active: true
-        }
-      };
-      try {
-        await supabase.from('profiles').upsert(profile);
-      } catch (_) {}
+    if (!userSnap || !userSnap.exists()) {
+      throw new Error('PROFILE_MISSING');
     }
 
+    const profile = userSnap.data();
     if (!profile) {
       throw new Error('PROFILE_MISSING');
     }
 
-    const isActive = profile.is_active !== false && profile.data?.active !== false;
-    if (!isActive) {
+    if (profile.active !== true) {
       throw new Error('ACCOUNT_DISABLED');
     }
 
-    const userRole = profile.role || profile.data?.role || (userEmail.startsWith('admin') ? ROLES.ADMIN : ROLES.RECEPTIONIST);
+    const validRoles = Object.values(ROLES);
+    if (!profile.role || !validRoles.includes(profile.role)) {
+      throw new Error('MALFORMED_PROFILE');
+    }
+
     const resolvedUser = {
-      uid: supabaseUser.id,
-      id: supabaseUser.id,
-      name: profile.name || profile.data?.name || supabaseUser.user_metadata?.name || supabaseUser.email,
-      email: supabaseUser.email,
-      role: userRole,
+      uid: firebaseUser.uid,
+      id: firebaseUser.uid,
+      name: profile.name || firebaseUser.displayName || firebaseUser.email,
+      email: firebaseUser.email,
+      role: profile.role,
       active: true
     };
-
     this.setCachedUser(resolvedUser);
     return resolvedUser;
   }
@@ -127,7 +141,7 @@ class AuthService {
   async init(onUserChanged) {
     this.onUserChanged = onUserChanged;
 
-    // Fast-path: immediately apply cached user before waiting for network
+    // Fast-path: immediately apply cached user before waiting for Firebase network listener
     if (this.currentUser && this.currentUser.active) {
       try {
         document.body.classList.remove('not-authenticated');
@@ -136,222 +150,286 @@ class AuthService {
       } catch (_) {}
     }
 
-    if (!isConfigured || !supabase) {
-      console.warn('ASCPT Auth Notice: Supabase configuration is missing.');
+    if (!isConfigured || !firebaseAuth) {
+      console.warn('ASCPT Auth Notice: Firebase configuration is missing.');
       document.body.classList.add('not-authenticated');
       this.showLoginModal();
       return;
     }
 
-    // 1. Check active session on startup
-    try {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (session && session.user) {
-        this.currentUser = await this.resolveUserProfile(session.user);
-        document.body.classList.remove('not-authenticated');
-        this.hideLoginModal();
-        this.hideLoginError();
-        this.updateUI();
-        if (this.onUserChanged) this.onUserChanged(this.currentUser);
-      } else {
-        // Attempt background auto-login with clinic admin credentials for seamless transition
+    onAuthStateChanged(firebaseAuth, async (firebaseUser) => {
+      if (firebaseUser) {
         try {
-          const autoRes = await supabase.auth.signInWithPassword({
-            email: 'admin@ascpt.com',
-            password: '...'
-          });
-          if (autoRes.data?.session?.user) {
-            this.currentUser = await this.resolveUserProfile(autoRes.data.session.user);
-            localStorage.setItem('ascpt_has_session', 'true');
-            document.body.classList.remove('not-authenticated');
-            this.hideLoginModal();
-            this.hideLoginError();
-            this.updateUI();
-            if (this.onUserChanged) this.onUserChanged(this.currentUser);
-            return;
+          this.currentUser = await this.resolveUserProfile(firebaseUser);
+
+          // Mark session active in localStorage for instant zero-delay launch next time
+          localStorage.setItem('ascpt_has_session', 'true');
+
+          // Unlock application
+          document.body.classList.remove('not-authenticated');
+          this.hideLoginModal();
+          this.hideLoginError();
+          this.updateUI();
+
+          if (this.onUserChanged) this.onUserChanged(this.currentUser);
+
+          // Only show welcome toast ONCE per session to prevent repetitive toast loops
+          if (!sessionStorage.getItem('ascpt_welcome_shown')) {
+            sessionStorage.setItem('ascpt_welcome_shown', 'true');
+            if (window.app && typeof window.app.showToast === 'function') {
+              window.app.showToast(`مرحباً بك: ${this.currentUser.name} (${RolesManager.getRoleLabel(this.currentUser.role)})`);
+            }
           }
-        } catch (_) {}
+        } catch (err) {
+          console.error('Auth verification notice:', err.message);
 
-        const cached = this.getCachedUser();
-        if (cached && cached.active) {
-          if (this.onUserChanged) this.onUserChanged(cached);
-        } else {
-          document.body.classList.add('not-authenticated');
-          this.showLoginModal();
-        }
-      }
-    } catch (err) {
-      console.warn('Session resolution notice:', err.message);
-      const cached = this.getCachedUser();
-      if (cached && cached.active) {
-        if (this.onUserChanged) this.onUserChanged(cached);
-      } else {
-        document.body.classList.add('not-authenticated');
-        this.showLoginModal();
-      }
-    }
-
-    // 2. Listen to Auth State Changes
-    try {
-      supabase.auth.onAuthStateChange(async (event, session) => {
-        if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED' || (event === 'INITIAL_SESSION' && session)) {
-          if (session?.user) {
-            try {
-              this.currentUser = await this.resolveUserProfile(session.user);
+          if (!navigator.onLine && (err.message === 'FIRESTORE_UNAVAILABLE' || err.message === 'PROFILE_MISSING')) {
+            const cached = this.getCachedUser();
+            if (cached && cached.uid === firebaseUser.uid && cached.active === true) {
+              this.currentUser = cached;
               localStorage.setItem('ascpt_has_session', 'true');
               document.body.classList.remove('not-authenticated');
               this.hideLoginModal();
               this.hideLoginError();
               this.updateUI();
-
               if (this.onUserChanged) this.onUserChanged(this.currentUser);
-
-              if (!sessionStorage.getItem('ascpt_welcome_shown')) {
-                sessionStorage.setItem('ascpt_welcome_shown', 'true');
-                if (window.app && typeof window.app.showToast === 'function') {
-                  window.app.showToast(`مرحباً بك: ${this.currentUser.name} (${RolesManager.getRoleLabel(this.currentUser.role)})`);
-                }
-              }
-            } catch (err) {
-              console.error('Auth verification notice:', err.message);
-              if (err.message === 'ACCOUNT_DISABLED' || err.message === 'PROFILE_MISSING') {
-                this.logout();
-                this.showLoginError(err.message === 'ACCOUNT_DISABLED' ? 'تم تعطيل هذا الحساب بواسطة إدارة المركز.' : 'لم يتم العثور على ملف تعريف لهذا الحساب.');
-              }
+              return;
             }
           }
-        } else if (event === 'SIGNED_OUT') {
-          this.currentUser = null;
-          this.setCachedUser(null);
-          localStorage.removeItem('ascpt_has_session');
-          document.body.classList.add('not-authenticated');
-          this.showLoginModal();
-          this.updateUI();
-          if (this.onUserChanged) this.onUserChanged(null);
-        }
-      });
-    } catch (e) {
-      console.warn('onAuthStateChange listener notice:', e.message);
-    }
 
-    this.isInitialized = true;
+          if (navigator.onLine || err.message === 'ACCOUNT_DISABLED' || err.message === 'PROFILE_MISSING') {
+            try { await signOut(firebaseAuth); } catch (_) {}
+            this.currentUser = null;
+            document.body.classList.add('not-authenticated');
+            this.updateUI();
+            this.showLoginModal();
+
+            let userMsg = 'تعذر تسجيل الدخول، يرجى مراجعة إدارة المركز.';
+            if (err.message === 'PROFILE_MISSING') {
+              userMsg = 'حسابك غير مسجل في قاعدة بيانات المركز. يرجى التواصل مع إدارة المركز لإضافة ملفك.';
+            } else if (err.message === 'ACCOUNT_DISABLED') {
+              userMsg = 'تم تعطيل هذا الحساب من قبل إدارة المركز.';
+            } else if (err.message === 'MALFORMED_PROFILE') {
+              userMsg = 'صلاحيات هذا الحساب غير صالحة. يرجى مراجعة إدارة المركز.';
+            } else if (err.message === 'FIRESTORE_UNAVAILABLE') {
+              userMsg = 'تعذر التحقق من صلاحيات الحساب بسبب انقطاع الاتصال بقاعدة البيانات. يرجى التحقق من اتصال الإنترنت.';
+            }
+
+            this.showLoginError(userMsg);
+            if (this.onUserChanged) this.onUserChanged(null);
+          }
+        }
+      } else {
+        this.currentUser = null;
+        localStorage.removeItem('ascpt_has_session');
+      sessionStorage.removeItem('ascpt_welcome_shown');
+    this.setCachedUser(null);
+        document.body.classList.add('not-authenticated');
+        this.updateUI();
+        this.showLoginModal();
+        if (this.onUserChanged) this.onUserChanged(null);
+      }
+
+      this.isInitialized = true;
+    });
   }
 
   getCurrentUser() {
-    return this.currentUser || this.getCachedUser();
+    return this.currentUser;
   }
 
   async login(email, password) {
-    if (!isConfigured || !supabase) {
-      throw new Error('خدمة المصادقة السحابية غير مهيأة.');
+    if (!isConfigured || !firebaseAuth) {
+      const msg = 'خدمة المصادقة غير مهيأة.';
+      this.showLoginError(msg);
+      throw new Error(msg);
     }
 
+    if (!email || !email.trim()) {
+      const msg = 'يرجى إدخال البريد الإلكتروني.';
+      this.showLoginError(msg);
+      throw new Error(msg);
+    }
+
+    if (!password) {
+      const msg = 'يرجى إدخال كلمة السر.';
+      this.showLoginError(msg);
+      throw new Error(msg);
+    }
+
+    this.hideLoginError();
+
     try {
-      const { data, error } = await supabase.auth.signInWithPassword({
-        email: email.trim(),
-        password: password
-      });
+      const userCredential = await signInWithEmailAndPassword(firebaseAuth, email.trim(), password);
+      const user = userCredential.user;
 
-      if (error) {
-        throw error;
-      }
+      this.currentUser = await this.resolveUserProfile(user);
 
-      if (!data?.user) {
-        throw new Error('فشل التحقق من بيانات المستخدم.');
-      }
-
-      const resolved = await this.resolveUserProfile(data.user);
-      this.currentUser = resolved;
       localStorage.setItem('ascpt_has_session', 'true');
-
       document.body.classList.remove('not-authenticated');
       this.hideLoginModal();
       this.hideLoginError();
       this.updateUI();
 
       if (this.onUserChanged) this.onUserChanged(this.currentUser);
-      return this.currentUser;
+      return user;
     } catch (err) {
-      const friendlyMsg = this.mapAuthError(err);
+      console.error('Firebase Login error:', err.code, err.message);
+
+      if (firebaseAuth.currentUser && (err.message === 'ACCOUNT_DISABLED' || err.message === 'PROFILE_MISSING')) {
+        try { await signOut(firebaseAuth); } catch (_) {}
+      }
+      this.currentUser = null;
+      document.body.classList.add('not-authenticated');
+
+      let friendlyMsg = this.mapAuthError(err);
+      if (err.message === 'PROFILE_MISSING') {
+        friendlyMsg = 'حسابك غير مسجل في قاعدة بيانات المركز. يرجى التواصل مع إدارة المركز لإضافة ملفك.';
+      } else if (err.message === 'ACCOUNT_DISABLED') {
+        friendlyMsg = 'تم تعطيل هذا الحساب من قبل إدارة المركز.';
+      } else if (err.message === 'MALFORMED_PROFILE') {
+        friendlyMsg = 'صلاحيات هذا الحساب غير صالحة. يرجى مراجعة إدارة المركز.';
+      } else if (err.message === 'FIRESTORE_UNAVAILABLE') {
+        friendlyMsg = 'تعذر الاتصال بقاعدة البيانات للتحقق من صلاحياتك. يرجى التحقق من اتصال الإنترنت.';
+      }
+
       this.showLoginError(friendlyMsg);
       throw new Error(friendlyMsg);
     }
   }
 
   async resetPassword(email) {
-    if (!isConfigured || !supabase) {
-      throw new Error('خدمة المصادقة السحابية غير مهيأة.');
+    if (!isConfigured || !firebaseAuth) {
+      throw new Error('خدمة المصادقة غير مهيأة.');
     }
-    const { error } = await supabase.auth.resetPasswordForEmail(email.trim());
-    if (error) throw error;
-    return true;
+    if (!email || !email.trim()) {
+      throw new Error('يرجى إدخال البريد الإلكتروني لاستعادة كلمة المرور.');
+    }
+    try {
+      await sendPasswordResetEmail(firebaseAuth, email.trim());
+      return true;
+    } catch (err) {
+      console.error('Password reset error:', err);
+      throw new Error(this.mapAuthError(err));
+    }
   }
 
   async changePassword(currentPassword, newPassword) {
-    if (!isConfigured || !supabase) {
-      throw new Error('خدمة المصادقة السحابية غير مهيأة.');
+    if (!isConfigured || !firebaseAuth) {
+      throw new Error('خدمة المصادقة غير مهيأة.');
     }
-    const { error } = await supabase.auth.updateUser({ password: newPassword });
-    if (error) throw error;
-    return true;
+    const user = firebaseAuth.currentUser;
+    if (!user || !user.email) {
+      throw new Error('يجب تسجيل الدخول أولاً لتغيير كلمة المرور.');
+    }
+    if (!currentPassword) {
+      throw new Error('يرجى إدخال كلمة المرور الحالية.');
+    }
+    if (!newPassword || newPassword.length < 6) {
+      throw new Error('كلمة المرور الجديدة يجب ألا تقل عن 6 أحرف أو أرقام.');
+    }
+    if (currentPassword === newPassword) {
+      throw new Error('كلمة المرور الجديدة مطابقة للقديمة، يرجى اختيار كلمة مرور مختلفة.');
+    }
+
+    // 1. Re-authenticate user with current password for security
+    try {
+      const credential = EmailAuthProvider.credential(user.email, currentPassword);
+      await reauthenticateWithCredential(user, credential);
+    } catch (reauthErr) {
+      console.error('Reauthentication error:', reauthErr);
+      if (reauthErr.code === 'auth/wrong-password' || reauthErr.code === 'auth/invalid-credential') {
+        throw new Error('كلمة المرور الحالية غير صحيحة.');
+      } else if (reauthErr.code === 'auth/too-many-requests') {
+        throw new Error('تم حظر المحاولات مؤقتاً لتكرار كلمة السر بالخطأ. يرجى الانتظار والمحاولة لاحقاً.');
+      } else if (reauthErr.code === 'auth/network-request-failed') {
+        throw new Error('تعذر الاتصال بخوادم Firebase، يرجى التحقق من اتصال الإنترنت.');
+      }
+      throw new Error(this.mapAuthError(reauthErr));
+    }
+
+    // 2. Update password in Firebase Auth
+    try {
+      await updatePassword(user, newPassword);
+
+      // 3. Log audit action
+      try {
+        if (window.db && typeof window.db.logAudit === 'function') {
+          await window.db.logAudit(
+            'تغيير كلمة المرور',
+            `قام المستخدم (${this.currentUser?.name || user.email}) بتغيير كلمة المرور الخاصة بحسابه بنجاح`,
+            this.currentUser
+          );
+        }
+      } catch (_) {}
+
+      return true;
+    } catch (updateErr) {
+      console.error('Update password error:', updateErr);
+      if (updateErr.code === 'auth/weak-password') {
+        throw new Error('كلمة المرور الجديدة ضعيفة (يجب ألا تقل عن 6 خانات).');
+      } else if (updateErr.code === 'auth/requires-recent-login') {
+        throw new Error('انتهت صلاحية الجلسة، يرجى تسجيل الخروج وتسجيل الدخول مرة أخرى والمحاولة.');
+      }
+      throw new Error(this.mapAuthError(updateErr));
+    }
   }
 
   async logout() {
-    this.currentUser = null;
-    this.setCachedUser(null);
     localStorage.removeItem('ascpt_has_session');
-    sessionStorage.removeItem('ascpt_welcome_shown');
-
+      sessionStorage.removeItem('ascpt_welcome_shown');
+    this.setCachedUser(null);
     try {
-      if (supabase && typeof supabase.auth?.signOut === 'function') {
-        await supabase.auth.signOut();
+      if (firebaseAuth) {
+        await signOut(firebaseAuth);
       }
-    } catch (_) {}
-
+    } catch (err) {
+      console.warn('SignOut notice:', err);
+    }
+    this.currentUser = null;
     document.body.classList.add('not-authenticated');
-    this.showLoginModal();
     this.updateUI();
-
-    if (this.onUserChanged) this.onUserChanged(null);
+    this.showLoginModal();
   }
 
   mapAuthError(err) {
-    const msg = (err?.message || '').toLowerCase();
-    if (msg.includes('invalid login credentials') || msg.includes('invalid_grant')) {
-      return 'بيانات الدخول غير صحيحة. يرجى التأكد من البريد الإلكتروني وكلمة المرور.';
-    }
-    if (msg.includes('email not confirmed')) {
-      return 'البريد الإلكتروني لم يتم تأكيده بعد. يرجى تفعيل خيار Auto Confirm في لوحة Supabase.';
-    }
-    if (msg.includes('account_disabled')) {
-      return 'تم تعطيل هذا الحساب من قبل إدارة المركز.';
-    }
-    if (msg.includes('profile_missing')) {
-      return 'لم يتم العثور على صلاحيات لهذا الحساب.';
-    }
-    return err?.message || 'حدث خطأ أثناء تسجيل الدخول. يرجى المحاولة لاحقاً.';
+    const code = err?.code || '';
+    const errorMap = {
+      'auth/invalid-credential': 'البريد الإلكتروني أو كلمة السر غير صحيحة. يرجى التأكد من البيانات.',
+      'auth/user-not-found': 'لا يوجد حساب مسجل بهذا البريد الإلكتروني. يرجى التأكد من كتابة الإيميل بشكل صحيح (مثال: admin@ascpt.clinic).',
+      'auth/wrong-password': 'كلمة السر غير صحيحة.',
+      'auth/invalid-email': 'صيغة البريد الإلكتروني غير صالحة.',
+      'auth/user-disabled': 'تم تعطيل هذا الحساب من قبل إدارة المركز.',
+      'auth/too-many-requests': 'تم حظر المحاولات مؤقتاً لكثرة المحاولات الخاطئة. يرجى الانتظار والمحاولة لاحقاً.',
+      'auth/network-request-failed': 'تعذر الاتصال بخوادم Firebase. يرجى التحقق من اتصال الإنترنت.',
+      'auth/unauthorized-domain': 'النطاق الحالي غير مصرح به في Firebase Authentication. يرجى إضافة نطاق vercel.app في Firebase Console -> Authentication -> Settings -> Authorized Domains.',
+      'auth/operation-not-allowed': 'تسجيل الدخول بالبريد الإلكتروني غير مفعّل في Firebase Console.',
+      'auth/api-key-service-blocked': 'مفتاح API محظور لهذا النطاق في إعدادات Google Cloud Console.'
+    };
+    if (errorMap[code]) return errorMap[code];
+    if (code) return `حدث خطأ أثناء تسجيل الدخول (${code}). يرجى التأكد من البيانات أو مراجعة إعدادات النطاق.`;
+    return err?.message || 'حدث خطأ أثناء تسجيل الدخول. يرجى التأكد من البيانات والمحاولة مجدداً.';
   }
 
   showLoginModal() {
-    const modal = document.getElementById('modal-login');
+    const modal = document.getElementById('modal-auth');
     if (modal) {
       modal.classList.add('active');
-      modal.style.display = 'flex';
-      const emailInput = document.getElementById('login-email');
-      if (emailInput) setTimeout(() => emailInput.focus(), 150);
+      const closeBtns = modal.querySelectorAll('.modal-close, #btn-cancel-login');
+      closeBtns.forEach(btn => {
+        btn.style.display = this.currentUser ? '' : 'none';
+      });
     }
   }
 
   hideLoginModal() {
-    const modal = document.getElementById('modal-login');
-    if (modal) {
-      modal.classList.remove('active');
-      modal.style.display = 'none';
-    }
+    if (!this.currentUser) return;
+    const modal = document.getElementById('modal-auth');
+    if (modal) modal.classList.remove('active');
   }
 
   showLoginError(message) {
-    const errBox = document.getElementById('login-error-msg') || document.getElementById('login-error-alert');
+    const errBox = document.getElementById('login-error-msg');
     if (errBox) {
       errBox.textContent = message;
       errBox.style.display = 'block';
@@ -359,7 +437,7 @@ class AuthService {
   }
 
   hideLoginError() {
-    const errBox = document.getElementById('login-error-msg') || document.getElementById('login-error-alert');
+    const errBox = document.getElementById('login-error-msg');
     if (errBox) {
       errBox.textContent = '';
       errBox.style.display = 'none';
@@ -367,28 +445,30 @@ class AuthService {
   }
 
   updateUI() {
-    const user = this.getCurrentUser();
-    const userNameDisplay = document.getElementById('current-user-name');
-    const userRoleDisplay = document.getElementById('current-user-role');
-    const avatarEl = document.getElementById('current-user-avatar');
+    const user = this.currentUser || this.getCachedUser();
+    const headerDisplay = document.getElementById('header-user-display');
+    const sidebarName = document.getElementById('sidebar-user-name');
+    const sidebarRole = document.getElementById('sidebar-user-role');
 
-    if (user) {
-      if (userNameDisplay) userNameDisplay.textContent = user.name || 'طاقم المركز';
-      if (userRoleDisplay) userRoleDisplay.textContent = RolesManager.getRoleLabel(user.role);
-      if (avatarEl) {
-        avatarEl.textContent = (user.name || 'U').charAt(0).toUpperCase();
+    if (user && user.name) {
+      const roleText = RolesManager.getRoleLabel(user.role);
+      if (headerDisplay) headerDisplay.textContent = user.name;
+      if (sidebarName) sidebarName.textContent = user.name;
+      if (sidebarRole) {
+        sidebarRole.textContent = roleText;
+        sidebarRole.className = `badge badge-role-${user.role}`;
       }
       RolesManager.applyPermissions(user);
     } else {
-      if (userNameDisplay) userNameDisplay.textContent = 'غير مسجل';
-      if (userRoleDisplay) userRoleDisplay.textContent = 'زائر';
+      if (headerDisplay) headerDisplay.textContent = 'تسجيل الدخول';
+      if (sidebarName) sidebarName.textContent = 'غير مسجل';
+      if (sidebarRole) {
+        sidebarRole.textContent = 'زائر';
+        sidebarRole.className = 'badge';
+      }
       RolesManager.applyPermissions(null);
     }
   }
 }
 
 export const auth = new AuthService();
-
-if (typeof window !== 'undefined') {
-  window.auth = auth;
-}

@@ -117,157 +117,12 @@
 
   <!-- SheetJS for Excel Export (Direct & Safe for iOS WebKit) -->
   <script src="assets/vendor/xlsx/xlsx.full.min.js"></script>
-  
+
   
 
     <!-- Stylesheets -->
-  <link rel="stylesheet" href="css/style.css?v=1.4.96" media="screen">
-  <link rel="stylesheet" href="css/print.css?v=1.4.96" media="print">
-  <script>
-    async function __performDirectLogin(e) {
-      if (e) {
-        try { e.preventDefault(); } catch (_) {}
-        try { e.stopPropagation(); } catch (_) {}
-      }
-
-      var emailInput = document.getElementById('login-email');
-      var passwordInput = document.getElementById('login-password');
-      var errMsg = document.getElementById('login-error-msg');
-      var btn = document.getElementById('btn-do-login');
-      var btnText = document.getElementById('btn-login-text');
-
-      var email = emailInput ? emailInput.value.trim() : '';
-      var password = passwordInput ? passwordInput.value : '';
-
-      if (!email || !password) {
-        if (errMsg) {
-          errMsg.textContent = 'يرجى إدخال البريد الإلكتروني وكلمة السر للمتابعة.';
-          errMsg.style.display = 'block';
-        }
-        return;
-      }
-
-      if (btn) btn.disabled = true;
-      if (btnText) btnText.textContent = 'جاري التحقق وتسجيل الدخول...';
-      if (errMsg) errMsg.style.display = 'none';
-
-      try {
-        var res = await fetch('https://wpgjkqlswiszwfyqlujz.supabase.co/auth/v1/token?grant_type=password', {
-          method: 'POST',
-          headers: {
-            'apikey': 'sb_publishable_uMXZizxCE1H5xyMS8Fwcww_3sES_YaR',
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({ email: email, password: password })
-        });
-
-        var data = await res.json();
-
-        if (!res.ok) {
-          var msg = data.error_description || data.msg || data.message || 'فشل تسجيل الدخول';
-          if (msg.includes('Invalid login credentials') || msg.includes('invalid_grant')) {
-            msg = 'بيانات الدخول غير صحيحة. يرجى التأكد من البريد وكلمة السر.';
-          } else if (msg.includes('Email not confirmed')) {
-            msg = 'البريد الإلكتروني لم يتم تأكيده في لوحة Supabase.';
-          }
-          throw new Error(msg);
-        }
-
-        var role = 'admin';
-        var name = 'مدير المركز';
-
-        try {
-          var profRes = await fetch('https://wpgjkqlswiszwfyqlujz.supabase.co/rest/v1/profiles?id=eq.' + data.user.id + '&select=*', {
-            headers: {
-              'apikey': 'sb_publishable_uMXZizxCE1H5xyMS8Fwcww_3sES_YaR',
-              'Authorization': 'Bearer ' + data.access_token
-            }
-          });
-          var profs = await profRes.json();
-          if (Array.isArray(profs) && profs[0]) {
-            role = profs[0].role || 'admin';
-            name = profs[0].name || 'مدير المركز';
-          }
-        } catch (_) {}
-
-        var cachedUser = {
-          uid: data.user.id,
-          id: data.user.id,
-          name: name,
-          email: data.user.email,
-          role: role,
-          active: true
-        };
-
-        var session = {
-          access_token: data.access_token,
-          refresh_token: data.refresh_token,
-          expires_at: data.expires_at,
-          user: data.user
-        };
-
-        localStorage.setItem('ascpt_cached_user', JSON.stringify(cachedUser));
-        localStorage.setItem('ascpt_supabase_session', JSON.stringify(session));
-        localStorage.setItem('ascpt_has_session', 'true');
-
-        document.body.classList.remove('not-authenticated');
-        document.documentElement.classList.remove('not-authenticated');
-        document.body.classList.add('role-' + role);
-        document.documentElement.classList.add('role-' + role);
-
-        var modal = document.getElementById('modal-login');
-        if (modal) modal.style.display = 'none';
-
-        window.location.reload();
-
-      } catch (err) {
-        if (errMsg) {
-          errMsg.textContent = err.message || 'حدث خطأ أثناء تسجيل الدخول.';
-          errMsg.style.display = 'block';
-        }
-      } finally {
-        if (btn) btn.disabled = false;
-        if (btnText) btnText.textContent = 'تسجيل الدخول';
-      }
-    }
-
-    window.__doLogin = __performDirectLogin;
-    window.__handleLoginDirect = __performDirectLogin;
-  </script>
-
-  <script>
-    window.switchAppView = function(viewName) {
-      if (window.app && typeof window.app.switchView === 'function') {
-        window.app.switchView(viewName);
-        return;
-      }
-      document.querySelectorAll('.view-section').forEach(function(sec) {
-        sec.classList.remove('active');
-      });
-      var target = document.getElementById('view-' + viewName);
-      if (target) target.classList.add('active');
-
-      document.querySelectorAll('.bottom-nav .b-nav-item').forEach(function(btn) {
-        btn.classList.toggle('active', btn.getAttribute('data-view') === viewName);
-      });
-      document.querySelectorAll('.sidebar-nav .nav-link').forEach(function(btn) {
-        btn.classList.toggle('active', btn.getAttribute('data-view') === viewName);
-      });
-
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-
-      if (viewName === 'patients' && window.patientsManager) {
-        window.patientsManager.loadPatients();
-      } else if (viewName === 'sessions' && window.sessionsManager) {
-        window.sessionsManager.loadTodaySessions();
-      } else if (viewName === 'finance' && window.financeManager) {
-        window.financeManager.loadDailyReport();
-      } else if (viewName === 'appointments' && window.appointmentsManager) {
-        window.appointmentsManager.render();
-      }
-    };
-  </script>
-
+  <link rel="stylesheet" href="css/style.css?v=1.4.97" media="screen">
+  <link rel="stylesheet" href="css/print.css?v=1.4.97" media="print">
 </head>
 <body>
   <script>
@@ -312,7 +167,7 @@
       </button>
 
       <!-- Admin Quick Button (Header) -->
-      <button type="button" class="btn btn-outline btn-sm admin-only" id="btn-admin-header" data-view-target="admin" onclick="window.switchAppView('admin');" style="border-radius: 10px; padding: 6px 10px; font-weight: 700; width: 36px; height: 34px; align-items: center; justify-content: center; color: #f59e0b; border-color: rgba(245, 158, 11, 0.4);" title="لوحة المدير والصلاحيات">
+      <button type="button" class="btn btn-outline btn-sm admin-only" id="btn-admin-header" data-view-target="admin" style="border-radius: 10px; padding: 6px 10px; font-weight: 700; width: 36px; height: 34px; display: none; align-items: center; justify-content: center; color: #f59e0b; border-color: rgba(245, 158, 11, 0.4);" title="لوحة المدير والصلاحيات">
         <i class="fa-solid fa-user-shield"></i>
       </button>
 
@@ -432,7 +287,7 @@
                   <i class="fa-regular fa-calendar-check"></i>
                   <span id="dashboard-date-display">اليوم</span>
                 </div>
-                <button type="button" class="btn btn-hero-action" data-view-target="sessions" onclick="window.switchAppView('sessions');">
+                <button type="button" class="btn btn-hero-action" data-view-target="sessions">
                   <i class="fa-solid fa-circle-plus"></i> تسجيل جلسة
                 </button>
               </div>
@@ -445,28 +300,28 @@
               <span class="quick-access-title"><i class="fa-solid fa-bolt" style="color: var(--warning);"></i> وصول سريع</span>
             </div>
             <div class="quick-access-items">
-              <button type="button" class="quick-action-btn" data-view-target="sessions" onclick="window.switchAppView('sessions');">
+              <button type="button" class="quick-action-btn" data-view-target="sessions">
                 <div class="quick-action-icon qa-blue">
                   <i class="fa-solid fa-hand-holding-medical"></i>
                 </div>
                 <span class="quick-action-label">جلسة جديدة</span>
               </button>
               
-              <button type="button" class="quick-action-btn" data-view-target="patients" id="btn-quick-new-patient" onclick="window.switchAppView('patients');">
+              <button type="button" class="quick-action-btn" data-view-target="patients" id="btn-quick-new-patient">
                 <div class="quick-action-icon qa-emerald">
                   <i class="fa-solid fa-user-plus"></i>
                 </div>
                 <span class="quick-action-label">مريض جديد</span>
               </button>
               
-              <button type="button" class="quick-action-btn" data-view-target="appointments" onclick="window.switchAppView('appointments');">
+              <button type="button" class="quick-action-btn" data-view-target="appointments">
                 <div class="quick-action-icon qa-indigo">
                   <i class="fa-solid fa-calendar-day"></i>
                 </div>
                 <span class="quick-action-label">جدول المواعيد</span>
               </button>
               
-              <button type="button" class="quick-action-btn" data-view-target="finance" onclick="window.switchAppView('finance');">
+              <button type="button" class="quick-action-btn" data-view-target="finance">
                 <div class="quick-action-icon qa-amber">
                   <i class="fa-solid fa-receipt"></i>
                 </div>
@@ -511,7 +366,23 @@
               <span class="card-title"><i class="fa-solid fa-clock-rotate-left"></i> آخر الجلسات المسجلة اليوم</span>
               <button type="button" class="btn btn-outline btn-sm" data-view-target="sessions">عرض الكل</button>
             </div>
-            
+            <div class="table-responsive desktop-only-table">
+              <table class="data-table" id="dashboard-recent-table">
+                <thead>
+                  <tr>
+                    <th>المريض</th>
+                    <th>الدكتور</th>
+                    <th>الدفع</th>
+                    <th>الأعضاء</th>
+                    <th>المبلغ</th>
+                    <th>الوقت</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <!-- Populated by JS -->
+                </tbody>
+              </table>
+            </div>
             <!-- Handcrafted Dedicated Mobile Cards for Recent Sessions -->
             <div id="dashboard-recent-mobile-cards" class="mobile-only-cards-container"></div>
           </div>
@@ -653,7 +524,49 @@
             <div class="card-header">
               <span class="card-title"><i class="fa-solid fa-calendar-week"></i> جدولي الأسبوعي</span>
             </div>
-            
+            <div class="table-responsive">
+              <div id="my-appointments-grid"><!-- Populated by JS --></div>
+            </div>
+          </div>
+
+          <!-- Doctor's Personal Patients Register Card -->
+          <div class="card" id="card-doctor-personal-sessions" style="margin-top: 20px;">
+            <div class="card-header" style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 8px;">
+              <div class="card-title" style="margin: 0; display: flex; align-items: center; gap: 8px; font-size: 1.05rem; font-weight: 800;">
+                <i class="fa-solid fa-book-medical text-primary"></i>
+                <span id="doc-table-title">جلسات مرضاك اليوم</span>
+              </div>
+            </div>
+
+            <!-- Full-Width Sleek Segmented Control (Point 2) -->
+            <div class="doc-filter-segmented-bar no-print">
+              <button type="button" class="doc-seg-btn active" id="btn-doc-filter-today">
+                <i class="fa-solid fa-calendar-day"></i> <span>جلسات اليوم</span>
+              </button>
+              <button type="button" class="doc-seg-btn" id="btn-doc-filter-month">
+                <i class="fa-solid fa-calendar-days"></i> <span>حالات الشهر</span>
+              </button>
+              <button type="button" class="doc-seg-btn" id="btn-doc-filter-lifetime">
+                <i class="fa-solid fa-users"></i> <span>كل المرضى</span>
+              </button>
+            </div>
+            <div class="table-responsive desktop-only-table">
+              <table class="data-table" id="doctor-personal-table">
+                <thead>
+                  <tr>
+                    <th>المريض</th>
+                    <th>نظام الحساب</th>
+                    <th>الأعضاء المعالجة</th>
+                    <th>تاريخ / وقت الجلسة</th>
+                    <th>ملاحظات الحالة</th>
+                    <th style="text-align: center;">الشيت الطبي</th>
+                  </tr>
+                </thead>
+                <tbody id="doctor-personal-tbody">
+                  <!-- Populated by JS -->
+                </tbody>
+              </table>
+            </div>
             <!-- Handcrafted Dedicated Mobile Cards for Doctor's Sessions -->
             <div id="doctor-personal-mobile-cards" class="mobile-only-cards-container"></div>
           </div>
@@ -739,8 +652,28 @@
         <!-- Patients List / Table with Top & Bottom Scrollbars -->
         <div class="card" id="card-patients-directory">
           <!-- Top Horizontal Scrollbar (Synchronized for instant scrolling on desktop) -->
-          
-          
+          <div class="top-scrollbar-wrapper no-print" id="patients-top-scroll-wrap" style="display: none; overflow-x: auto; overflow-y: hidden; height: 12px; margin-bottom: 6px; border-radius: 4px; background: var(--bg-subtle);">
+            <div class="top-scrollbar-dummy" id="patients-top-scroll-dummy" style="height: 1px;"></div>
+          </div>
+          <div class="table-responsive desktop-only-table" id="patients-table-container" style="display: none;">
+            <table class="data-table" id="patients-data-table">
+              <thead>
+                <tr>
+                  <th>اسم المريض</th>
+                  <th>السن</th>
+                  <th>الموبايل</th>
+                  <th>العنوان</th>
+                  <th>الدكتور المعالج</th>
+                  <th>نظام الحساب</th>
+                  <th>آخر تعديل</th>
+                  <th>إجراءات</th>
+                </tr>
+              </thead>
+              <tbody id="patients-tbody">
+                <!-- Rendered dynamically -->
+              </tbody>
+            </table>
+          </div>
           <!-- Dedicated Modern Cards Grid for Patients (v1.4.80) -->
           <div id="patients-mobile-cards" class="patients-grid-container" style="padding: 10px 12px;"></div>
         </div>
@@ -1140,7 +1073,25 @@
                 </button>
               </div>
             </div>
-            
+            <div class="table-responsive desktop-only-table" id="sessions-table-container" style="display: none;">
+              <table class="data-table" id="sessions-today-table">
+                <thead>
+                  <tr>
+                    <th>المريض</th>
+                    <th>رقم الجلسة</th>
+                    <th>الدكتور</th>
+                    <th>الحساب</th>
+                    <th>الأعضاء</th>
+                    <th>المدفوع</th>
+                    <th>المسجل</th>
+                    <th>إجراء</th>
+                  </tr>
+                </thead>
+                <tbody id="sessions-today-tbody">
+                  <!-- Rendered dynamically -->
+                </tbody>
+              </table>
+            </div>
             <!-- Dedicated Modern Cards Grid for Sessions (v1.4.80) -->
             <div id="sessions-today-mobile-cards" class="sessions-grid-container" style="padding: 10px 12px;"></div>
           </div>
@@ -1157,13 +1108,13 @@
 
         <!-- Mode Toggle Tabs (Daily vs Monthly vs Claims) - Elevated above action buttons (v1.4.80) -->
         <div class="no-print finance-mode-segmented" style="margin-bottom: 12px;">
-          <button type="button" class="btn btn-primary btn-sm" id="btn-mode-daily" onclick="if(window.financeManager) window.financeManager.setReportMode('daily');">
+          <button type="button" class="btn btn-primary btn-sm" id="btn-mode-daily">
             <i class="fa-solid fa-calendar-day"></i> <span class="tab-label-full">التقرير اليومي</span><span class="tab-label-short">اليومي</span>
           </button>
-          <button type="button" class="btn btn-outline btn-sm" id="btn-mode-monthly" onclick="if(window.financeManager) window.financeManager.setReportMode('monthly');">
+          <button type="button" class="btn btn-outline btn-sm" id="btn-mode-monthly">
             <i class="fa-solid fa-calendar-days"></i> <span class="tab-label-full">التقرير الشهري</span><span class="tab-label-short">الشهري</span>
           </button>
-          <button type="button" class="btn btn-outline btn-sm" id="btn-mode-claims" onclick="if(window.financeManager) window.financeManager.setReportMode('claims');">
+          <button type="button" class="btn btn-outline btn-sm" id="btn-mode-claims">
             <i class="fa-solid fa-file-invoice-dollar"></i> <span class="tab-label-full">مطالبات التأمين</span><span class="tab-label-short">المطالبات</span>
           </button>
         </div>
@@ -1287,7 +1238,25 @@
               <span class="card-title"><i class="fa-solid fa-money-bill-transfer text-primary"></i> تحصيلات التأمين المسجلة اليوم</span>
               <span class="badge badge-cash" id="daily-settlements-total-badge" style="font-size: 0.8rem; font-weight: 800;">0 ج.م</span>
             </div>
-            
+            <div class="table-responsive desktop-only-table">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>شركة التأمين</th>
+                    <th>فترة المطالبة</th>
+                    <th>المبلغ الأصلي</th>
+                    <th>الاستقطاعات والخصومات</th>
+                    <th>الصافي المحصل</th>
+                    <th>طريقة الاستلام</th>
+                    <th class="no-print">المسجل</th>
+                    <th class="no-print">إجراءات</th>
+                  </tr>
+                </thead>
+                <tbody id="daily-settlements-tbody">
+                  <!-- Rendered dynamically -->
+                </tbody>
+              </table>
+            </div>
             <div id="daily-settlements-mobile-cards" class="mobile-only-cards-container" style="margin-top: 8px;"></div>
           </div>
           <!-- Doctors Breakdown Box (Desktop & Print) -->
@@ -1307,7 +1276,26 @@
             <div class="card-header">
               <span class="card-title"><i class="fa-solid fa-table-list"></i> بيان تفصيلي بمرضى اليوم</span>
             </div>
-            
+            <div class="table-responsive desktop-only-table">
+              <table class="data-table" id="finance-report-table">
+                <thead>
+                  <tr>
+                    <th>المريض</th>
+                    <th>الدكتور المعالج</th>
+                    <th>نظام الدفع</th>
+                    <th>الشركة</th>
+                    <th class="no-print">نوع التعاقد</th>
+                    <th>الأعضاء المعالجة</th>
+                    <th>المبلغ</th>
+                    <th class="no-print">المسجل</th>
+                    <th class="no-print">إجراءات</th>
+                  </tr>
+                </thead>
+                <tbody id="finance-report-tbody">
+                  <!-- Rendered dynamically -->
+                </tbody>
+              </table>
+            </div>
             <div id="finance-report-mobile-cards" class="mobile-only-cards-container"></div>
           </div>
 
@@ -1316,7 +1304,22 @@
             <div class="card-header">
               <span class="card-title"><i class="fa-solid fa-receipt"></i> مصروفات اليوم</span>
             </div>
-            
+            <div class="table-responsive desktop-only-table">
+              <table class="data-table" id="finance-expenses-table">
+                <thead>
+                  <tr>
+                    <th>بند المصروف</th>
+                    <th>المبلغ</th>
+                    <th>المسؤول عن الصرف</th>
+                    <th>الوقت</th>
+                    <th class="no-print">إجراء</th>
+                  </tr>
+                </thead>
+                <tbody id="finance-expenses-tbody">
+                  <!-- Rendered dynamically -->
+                </tbody>
+              </table>
+            </div>
             <div id="finance-expenses-mobile-cards" class="mobile-only-cards-container"></div>
           </div>
         </div>
@@ -1379,7 +1382,23 @@
             <div class="card-header">
               <span class="card-title"><i class="fa-solid fa-user-doctor"></i> إحصائية أطباء المركز للشهر (مصنفة نقدي وشركات)</span>
             </div>
-            
+            <div class="table-responsive desktop-only-table" id="sessions-table-container">
+              <table class="data-table" id="sessions-today-table">
+                <thead>
+                  <tr>
+                    <th>الطبيب المعالج</th>
+                    <th>مرضى نقدي</th>
+                    <th>مرضى شركات تأمين</th>
+                    <th>إجمالي الحالات</th>
+                    <th>عدد الجلسات المحتسبة</th>
+                    <th>النسبة من إجمالي المركز</th>
+                  </tr>
+                </thead>
+                <tbody id="monthly-doctors-tbody">
+                  <!-- Rendered dynamically -->
+                </tbody>
+              </table>
+            </div>
             <div id="monthly-doctors-mobile-cards" class="mobile-only-cards-container"></div>
           </div>
 
@@ -1388,7 +1407,21 @@
             <div class="card-header">
               <span class="card-title"><i class="fa-solid fa-shield-halved"></i> توزيع المرضى حسب جهات الدفع والتأمين</span>
             </div>
-            
+            <div class="table-responsive desktop-only-table" id="sessions-table-container">
+              <table class="data-table" id="sessions-today-table">
+                <thead>
+                  <tr>
+                    <th>جهة السداد / شركة التأمين</th>
+                    <th>نوع التعاقد</th>
+                    <th>عدد الحالات</th>
+                    <th>النسبة المئوية</th>
+                  </tr>
+                </thead>
+                <tbody id="monthly-insurance-tbody">
+                  <!-- Rendered dynamically -->
+                </tbody>
+              </table>
+            </div>
             <div id="monthly-insurance-mobile-cards" class="mobile-only-cards-container"></div>
           </div>
 
@@ -1399,7 +1432,26 @@
               <span class="card-title"><i class="fa-solid fa-file-invoice-dollar"></i> تحصيلات وتوريدات شركات التأمين في الشهر</span>
               <span id="monthly-settlements-total-badge" class="badge badge-success" style="font-size: 0.85rem; padding: 6px 12px;"></span>
             </div>
-            
+            <div class="table-responsive desktop-only-table">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>تاريخ التحصيل</th>
+                    <th>شركة التأمين</th>
+                    <th>فترة المطالبة</th>
+                    <th>المبلغ الأصلي</th>
+                    <th>الاستقطاعات والخصومات</th>
+                    <th>الصافي المحصل</th>
+                    <th>طريقة الاستلام</th>
+                    <th>المسجل</th>
+                    <th class="no-print">إجراءات</th>
+                  </tr>
+                </thead>
+                <tbody id="monthly-settlements-tbody">
+                  <!-- Rendered dynamically -->
+                </tbody>
+              </table>
+            </div>
             <div id="monthly-settlements-mobile-cards" class="mobile-only-cards-container" style="margin-top: 8px;"></div>
           </div>
 
@@ -1409,7 +1461,21 @@
               <span class="card-title"><i class="fa-solid fa-chart-pie" style="color: var(--danger);"></i> توزيع المصروفات الشهرية حسب البنود</span>
               <span class="badge badge-cash" id="monthly-expense-categories-count-badge" style="background: rgba(239, 68, 68, 0.12); color: var(--danger); font-size: 0.8rem; font-weight: 800;">0 بنود</span>
             </div>
-            
+            <div class="table-responsive desktop-only-table">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>بند المصروف</th>
+                    <th>عدد الحركات</th>
+                    <th>إجمالي المنصرف</th>
+                    <th>النسبة من المصروفات</th>
+                  </tr>
+                </thead>
+                <tbody id="monthly-expenses-categories-tbody">
+                  <!-- Rendered dynamically -->
+                </tbody>
+              </table>
+            </div>
             <div id="monthly-expenses-categories-mobile" class="mobile-only-cards-container"></div>
           </div>
 
@@ -1418,7 +1484,22 @@
             <div class="card-header">
               <span class="card-title"><i class="fa-solid fa-receipt"></i> بيان مصروفات الشهر</span>
             </div>
-            
+            <div class="table-responsive desktop-only-table" id="sessions-table-container">
+              <table class="data-table" id="sessions-today-table">
+                <thead>
+                  <tr>
+                    <th>التاريخ</th>
+                    <th>بند المصروف</th>
+                    <th>المبلغ المنصرف</th>
+                    <th>المسؤول عن الصرف</th>
+                    <th class="no-print" style="width: 80px; text-align: center;">إجراءات</th>
+                  </tr>
+                </thead>
+                <tbody id="monthly-expenses-tbody">
+                  <!-- Rendered dynamically -->
+                </tbody>
+              </table>
+            </div>
             <div id="monthly-expenses-mobile-cards" class="mobile-only-cards-container"></div>
           </div>
         </div>
@@ -1594,8 +1675,30 @@
               </div>
 
               <!-- Top Horizontal Scrollbar (Synchronized for instant scrolling on desktop & mobile) -->
-              
-              
+              <div class="top-scrollbar-wrapper no-print" id="claim-top-scroll-wrap" style="display: none; overflow-x: auto; overflow-y: hidden; height: 12px; margin-bottom: 6px; border-radius: 4px; background: var(--bg-subtle);">
+                <div class="top-scrollbar-dummy" id="claim-top-scroll-dummy" style="height: 1px;"></div>
+              </div>
+              <div class="table-responsive desktop-only-table" id="claim-table-container">
+                <table class="data-table" id="claim-patients-table">
+                  <thead>
+                    <tr>
+                      <th style="width: 40px; text-align: center;">
+                        <input type="checkbox" id="claim-select-all-cb" title="تحديد / إلغاء تحديد الكل">
+                      </th>
+                      <th style="width: 35px; text-align: center;">م</th>
+                      <th>اسم المريض</th>
+                      <th style="width: 95px; text-align: center;">فحص وتقييم (ج.م)</th>
+                      <th style="width: 85px; text-align: center;">الجلسات</th>
+                      <th style="width: 90px; text-align: center;">سعر الجلسة (ج.م)</th>
+                      <th style="width: 105px; text-align: center;">الإجمالي</th>
+                      <th style="width: 120px; text-align: center;">بطاقة التردد</th>
+                    </tr>
+                  </thead>
+                  <tbody id="claim-patients-tbody">
+                    <tr><td colspan="8" style="text-align: center; padding: 24px; color: var(--text-muted);">يرجى اختيار شركة التأمين ثم الضغط على "استخراج وعرض مرضى الشركة".</td></tr>
+                  </tbody>
+                </table>
+              </div>
               <div id="claim-patients-mobile-cards" class="mobile-only-cards-container" style="padding: 10px 12px;"></div>
             </div>
 
@@ -1692,7 +1795,25 @@
               </div>
 
               <!-- Claims Ledger Table -->
-              
+              <div class="table-responsive desktop-only-table">
+                <table class="data-table" id="claims-ledger-table">
+                  <thead>
+                    <tr>
+                      <th style="width: 120px;">كود المطالبة</th>
+                      <th>شركة التأمين</th>
+                      <th>فترة المطالبة</th>
+                      <th style="text-align: center;">المرضى / الجلسات</th>
+                      <th style="font-weight: 800;">إجمالي المبلغ</th>
+                      <th style="text-align: center;">حالة التحصيل</th>
+                      <th>المحصل الفعلي</th>
+                      <th class="no-print" style="text-align: center; width: 140px;">الإجراءات</th>
+                    </tr>
+                  </thead>
+                  <tbody id="claims-ledger-tbody">
+                    <!-- Populated dynamically by JS -->
+                  </tbody>
+                </table>
+              </div>
               <div id="claims-ledger-mobile-cards" class="mobile-only-cards-container" style="margin-top: 12px;"></div>
             </div>
           </div>
@@ -1795,7 +1916,7 @@
             <div class="card-header">
               <span class="card-title"><i class="fa-solid fa-user-plus"></i> إضافة مستخدم جديد للنظام</span>
             </div>
-            <form id="form-add-user" novalidate onsubmit="if(window.auditManager) { window.auditManager.handleCreateUser(event); } return false;">
+            <form id="form-add-user" novalidate>
               <div class="form-grid">
                 <div class="form-group">
                   <label>الاسم بالكامل *</label>
@@ -1858,7 +1979,7 @@
                     </div>
                   </div>
                 </div>
-                <button type="button" id="btn-admin-submit-create-user" class="btn btn-primary" onclick="if(window.auditManager) { window.auditManager.handleCreateUser(event); }" style="margin-top: 8px; width: 100%; height: 44px; font-size: 0.95rem; font-weight: 800;">
+                <button type="submit" class="btn btn-primary" style="margin-top: 8px; width: 100%; height: 44px; font-size: 0.95rem; font-weight: 800;">
                   <i class="fa-solid fa-plus"></i> إنشاء الحساب
                 </button>
               </div>
@@ -1870,7 +1991,22 @@
             <div class="card-header">
               <span class="card-title"><i class="fa-solid fa-id-badge"></i> فريق العمل الحالي</span>
             </div>
-            
+            <div class="table-responsive desktop-only-table" id="sessions-table-container">
+              <table class="data-table" id="sessions-today-table">
+                <thead>
+                  <tr>
+                    <th>الاسم</th>
+                    <th>اسم المستخدم</th>
+                    <th>الدور</th>
+                    <th>الشفت والأتعاب</th>
+                    <th>إجراء</th>
+                  </tr>
+                </thead>
+                <tbody id="admin-users-tbody">
+                  <!-- Rendered dynamically -->
+                </tbody>
+              </table>
+            </div>
             <div id="admin-users-mobile-cards" class="mobile-only-cards-container"></div>
           </div>
         </div>
@@ -1881,7 +2017,22 @@
             <span class="card-title"><i class="fa-solid fa-shield-halved"></i> سجل التعديلات والرقابة</span>
             <span class="badge badge-direct" style="font-size: 0.74rem; font-weight: 700; padding: 4px 10px; border-radius: 999px;">آخر ٥٠ حركة • تنظيف تلقائي ٦٠ يوم</span>
           </div>
-          
+          <div class="table-responsive desktop-only-table">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>المستخدم</th>
+                  <th>الدور</th>
+                  <th>نوع الإجراء</th>
+                  <th>البيان</th>
+                  <th>التوقيت</th>
+                </tr>
+              </thead>
+              <tbody id="audit-log-tbody">
+                <!-- Rendered dynamically -->
+              </tbody>
+            </table>
+          </div>
           <div id="audit-log-mobile-cards" class="mobile-only-cards-container"></div>
         </div>
 
@@ -1911,7 +2062,7 @@
         <div class="admin-system-footer no-print" style="margin-top: 32px; margin-bottom: 35px; text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px;">
           <div style="display: inline-flex; align-items: center; gap: 8px; background: var(--bg-surface); border: 1.5px solid var(--border-color); padding: 7px 18px; border-radius: 999px; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);">
             <span style="width: 8px; height: 8px; border-radius: 50%; background-color: var(--success); display: inline-block; box-shadow: 0 0 6px var(--success);"></span>
-            <span style="font-weight: 800; font-size: 0.88rem; color: var(--text-main);">نظام ASCPT — الإصدار 1.4.96</span>
+            <span style="font-weight: 800; font-size: 0.88rem; color: var(--text-main);">نظام ASCPT — الإصدار 1.4.86</span>
             <span class="badge badge-primary" style="font-size: 0.72rem; padding: 2px 10px; border-radius: 999px; font-weight: 800;">إصدار معتمد</span>
           </div>
           <div style="font-size: 0.76rem; color: var(--text-muted); font-weight: 700;">
@@ -1925,23 +2076,23 @@
 
     <!-- Mobile Bottom Navigation Bar -->
     <nav class="bottom-nav no-print">
-      <button class="b-nav-item active" data-view="dashboard" onclick="window.switchAppView('dashboard');">
+      <button class="b-nav-item active" data-view="dashboard">
         <i class="fa-solid fa-chart-pie"></i>
         <span>الرئيسية</span>
       </button>
-      <button class="b-nav-item" data-view="patients" onclick="window.switchAppView('patients');">
+      <button class="b-nav-item" data-view="patients">
         <i class="fa-solid fa-users"></i>
         <span>المرضى</span>
       </button>
-      <button class="b-nav-item" data-view="sessions" onclick="window.switchAppView('sessions');">
+      <button class="b-nav-item" data-view="sessions">
         <i class="fa-solid fa-calendar-check"></i>
         <span>الجلسات</span>
       </button>
-      <button class="b-nav-item" data-view="finance" onclick="window.switchAppView('finance');">
+      <button class="b-nav-item" data-view="finance">
         <i class="fa-solid fa-file-invoice-dollar"></i>
         <span>الحسابات</span>
       </button>
-      <button class="b-nav-item" data-view="appointments" onclick="window.switchAppView('appointments');">
+      <button class="b-nav-item" data-view="appointments">
         <i class="fa-solid fa-calendar-week"></i>
         <span>المواعيد</span>
       </button>
@@ -2827,7 +2978,7 @@
 
       <!-- Body: Login Form -->
       <div class="modal-body" style="padding: 20px 22px;">
-        <form id="form-login" autocomplete="off" novalidate onsubmit="event.preventDefault(); return false;">
+        <form id="form-login" autocomplete="off" novalidate>
           <div class="form-group" style="margin-bottom: 14px;">
             <label for="login-email" style="display: block; font-size: 0.85rem; font-weight: 700; color: var(--text-main); margin-bottom: 6px;">
               <i class="fa-solid fa-envelope text-primary"></i> البريد الإلكتروني
@@ -2840,8 +2991,8 @@
               <i class="fa-solid fa-lock text-primary"></i> كلمة السر *
             </label>
             <div class="password-input-group">
-              <input type="password" id="login-password" class="form-control password-input-field" placeholder="أدخل كلمة السر..." required autocomplete="current-password" onkeydown="if(event.key==='Enter') __performDirectLogin(event);">
-              <button type="button" id="btn-toggle-password" class="btn-pwd-eye" onclick="const p = document.getElementById('login-password'); const i = document.getElementById('icon-toggle-password'); if(p){ const isP = p.type==='password'; p.type = isP?'text':'password'; if(i) i.className = isP?'fa-solid fa-eye-slash':'fa-solid fa-eye'; }" title="إظهار / إخفاء كلمة السر">
+              <input type="password" id="login-password" class="form-control password-input-field" placeholder="أدخل كلمة السر..." required autocomplete="current-password">
+              <button type="button" id="btn-toggle-password" class="btn-pwd-eye" title="إظهار / إخفاء كلمة السر">
                 <i class="fa-solid fa-eye" id="icon-toggle-password"></i>
               </button>
             </div>
@@ -2856,7 +3007,7 @@
           <!-- Error message container -->
           <div id="login-error-msg" style="display: none; background-color: rgba(239, 68, 68, 0.15); border: 1px solid rgba(239, 68, 68, 0.3); color: #f87171; border-radius: 8px; padding: 9px 12px; font-size: 0.82rem; margin-bottom: 14px; line-height: 1.4;"></div>
 
-          <button type="button" id="btn-do-login" class="btn btn-primary" onclick="__performDirectLogin(event);" onclick="__performDirectLogin(event);" style="width: 100%; padding: 11px; border-radius: 8px; font-weight: 800; font-size: 0.92rem; display: flex; align-items: center; justify-content: center; gap: 8px;">
+          <button type="submit" id="btn-do-login" class="btn btn-primary" style="width: 100%; padding: 11px; border-radius: 8px; font-weight: 800; font-size: 0.92rem; display: flex; align-items: center; justify-content: center; gap: 8px;">
             <i class="fa-solid fa-right-to-bracket"></i>
             <span id="btn-login-text">تسجيل الدخول</span>
           </button>
@@ -3761,9 +3912,18 @@
     </div>
   </div>
 
-  
-
-
+<!-- Main Application Script (ES Module) -->
+  <script type="module" src="js/app.js?v=1.4.97"></script>
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./sw.js').then((reg) => {
+          // Check for background updates gently without mid-session reloads
+          reg.update();
+        }).catch(err => console.log('SW registration skipped:', err));
+      });
+    }
+  </script>
 
   <!-- Modal: Edit / Customize Appointment Slot Time -->
   <div class="modal-backdrop" id="modal-edit-appointment-slot" style="z-index: 225;">
@@ -4197,24 +4357,5 @@
     </div>
   </div>
 
-<!-- Main Application Script (ES Module) -->
-  <script type="module" src="js/app.js?v=1.4.96"></script>
-  <script>
-    if ('serviceWorker' in navigator) {
-      let refreshing = false;
-      navigator.serviceWorker.addEventListener('controllerchange', () => {
-        if (!refreshing) {
-          refreshing = true;
-          window.location.reload();
-        }
-      });
-
-      window.addEventListener('load', () => {
-        navigator.serviceWorker.register('./sw.js').then((reg) => {
-          reg.update();
-        }).catch(err => console.log('SW registration skipped:', err));
-      });
-    }
-  </script>
 </body>
 </html>

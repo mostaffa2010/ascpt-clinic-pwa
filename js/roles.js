@@ -84,8 +84,7 @@ export class RolesManager {
     // 3. عناصر خاصة بالمدير فقط (Admin Only)
     const adminElements = document.querySelectorAll('.admin-only');
     adminElements.forEach(el => {
-      const displayVal = el.id === 'btn-admin-header' ? 'inline-flex' : (el.classList.contains('nav-link') ? 'flex' : '');
-      el.style.setProperty('display', role === ROLES.ADMIN ? displayVal : 'none', 'important');
+      el.style.setProperty('display', role === ROLES.ADMIN ? '' : 'none', 'important');
     });
 
     // 4. زر إضافة مريض جديد (متاح للاستقبال والمدير فقط، ومخفي تماماً عن الطبيب)

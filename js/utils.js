@@ -45,7 +45,6 @@ export function getLocalDateStr(date = new Date()) {
  * @returns {Object|null} controller
  */
 export function initStackDeck(config) {
-  const rAF = (typeof window !== 'undefined' && window.requestAnimationFrame) ? window.requestAnimationFrame.bind(window) : (cb => setTimeout(cb, 16));
   const prefix = typeof config === 'string' ? config : (config.prefix || 'doc-stack');
   const containerId = typeof config === 'object' && config.containerId ? config.containerId : `${prefix}-container`;
   const container = document.getElementById(containerId);
@@ -91,7 +90,7 @@ export function initStackDeck(config) {
     });
     container.style.minHeight = `${maxHeight + 10}px`;
   };
-  rAF(updateContainerMinHeight);
+  requestAnimationFrame(updateContainerMinHeight);
 
   const springTransition = 'transform 0.28s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.24s ease';
 
@@ -231,7 +230,7 @@ export function initStackDeck(config) {
     if (!isSwipeActive || !activeCard) return;
 
     if (rafId) cancelAnimationFrame(rafId);
-    rafId = rAF(() => {
+    rafId = requestAnimationFrame(() => {
       const containerWidth = container.offsetWidth || 320;
 
       if (deltaX > 0) {
