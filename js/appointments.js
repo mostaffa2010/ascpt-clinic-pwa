@@ -78,10 +78,10 @@ export class AppointmentsManager {
     this.shiftOverrides = [];
     this.selectedDate = getLocalDateStr();
     this.selectedApptForAction = null;
+    this._apptSubscribed = false;
   }
 
   async init() {
-    try { await this.loadAll(); } catch (_) {}
     const grid = document.getElementById('appointments-grid');
     if (grid) grid.addEventListener('click', (e) => this.handleGridClick(e));
 
@@ -370,8 +370,24 @@ export class AppointmentsManager {
     }
   }
 
+  subscribeToUpdates() {
+    if (db.subscribeToAppointments && !this._apptSubscribed) {
+      this._apptSubscribed = true;
+      db.subscribeToAppointments(async () => {
+        const currentUser = auth.getCurrentUser();
+        if (currentUser && currentUser.role === 'doctor') {
+          const docUid = currentUser.uid || currentUser.id;
+          await this.renderForDoctor(docUid);
+        } else {
+          await this.render();
+        }
+      });
+    }
+  }
+
   // ================= Full Grid: every active doctor as a column =================
   async render(forceRefresh = false) {
+    this.subscribeToUpdates();
     const grid = document.getElementById('appointments-grid');
     if (!grid) return;
     try {

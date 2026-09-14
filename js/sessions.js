@@ -28,6 +28,8 @@ export class SessionsManager {
       localStorage.setItem('ascpt_sessions_view_mode', 'cards');
     } catch (_) {}
     this.newlyAddedSessionId = null;
+    this.unsubscribeSessions = null;
+    this._subscribedDate = null;
     window.sessionsManager = this;
   }
 
@@ -1396,7 +1398,23 @@ export class SessionsManager {
   }
 
   async loadTodaySessions() {
+    // Real-time zero-cost listener: subscribe to changes for the selected session date
+    if (db.subscribeToTodaySessions && (!this._subscribedDate || this._subscribedDate !== this.currentSessionDate)) {
+      if (this.unsubscribeSessions) {
+        try { this.unsubscribeSessions(); } catch (_) {}
+      }
+      this._subscribedDate = this.currentSessionDate;
+      this.unsubscribeSessions = db.subscribeToTodaySessions(this.currentSessionDate, async (updatedSessions) => {
+        await this.renderTodaySessionsList(updatedSessions);
+      });
+    }
+
     const sessions = await db.getSessions(this.currentSessionDate);
+    await this.renderTodaySessionsList(sessions);
+  }
+
+  async renderTodaySessionsList(sessionsList) {
+    const sessions = Array.isArray(sessionsList) ? [...sessionsList] : [];
     sessions.sort((a, b) => {
       const timeA = a.createdAt || a.recordedAt || '';
       const timeB = b.createdAt || b.recordedAt || '';
@@ -1446,23 +1464,9 @@ export class SessionsManager {
     const currentUser = auth.getCurrentUser();
     const canDelete = RolesManager.canDelete(currentUser);
 
-    // Preload patients and targeted patient sessions history to compute accurate approval cycle session numbers (Zero-Cost Scoped)
+    // Preload patients from local cache (Zero Firestore reads & Zero N+1 queries)
     const patientsList = await db.getPatients();
     const patientsMap = new Map(patientsList.map(p => [p.id, p]));
-    const uniquePatientIds = Array.from(new Set(sessions.map(s => s.patientId).filter(Boolean)));
-    const patientSessionsHistory = {};
-    await Promise.all(uniquePatientIds.map(async (pid) => {
-      const pSess = await db.getSessionsForPatient(pid);
-      patientSessionsHistory[pid] = pSess.filter(sess => sess.entryType !== 'examination');
-    }));
-
-    Object.keys(patientSessionsHistory).forEach(pid => {
-      patientSessionsHistory[pid].sort((a, b) => {
-        const da = (a.date || '') + ' ' + (a.recordedAt || a.time || '');
-        const db = (b.date || '') + ' ' + (b.recordedAt || b.time || '');
-        return da.localeCompare(db);
-      });
-    });
 
     // 1. Render Desktop Table
     tbody.innerHTML = sessions.map(s => {
@@ -1482,14 +1486,8 @@ export class SessionsManager {
         sessionNumBadge = `<span class="badge badge-examination"><i class="fa-solid fa-stethoscope"></i> كشف</span>`;
       } else {
         const pObj = patientsMap.get(s.patientId);
-        const cycleStart = pObj?.currentApprovalStartDate || '';
-        const approvedTotal = parseInt(pObj?.approvedSessions) || parseInt(s.approvedSessionsTotal) || 12;
-        const hist = patientSessionsHistory[s.patientId] || [];
-        const cycleSessions = (s.payType === 'insurance' && cycleStart)
-          ? hist.filter(h => (h.date || '').localeCompare(cycleStart) >= 0)
-          : hist;
-        let idx = cycleSessions.findIndex(h => h.id === s.id);
-        const sessNum = idx >= 0 ? (idx + 1) : (s.sessionNumber || cycleSessions.length || 1);
+        const approvedTotal = parseInt(s.approvedSessionsTotal) || parseInt(pObj?.approvedSessions) || 12;
+        const sessNum = s.sessionNumber || 1;
 
         if (s.payType === 'insurance') {
           if (sessNum > approvedTotal) {
@@ -1586,14 +1584,8 @@ export class SessionsManager {
           sessionNumBadge = `<span class="badge badge-examination"><i class="fa-solid fa-stethoscope"></i> كشف</span>`;
         } else {
           const pObj = patientsMap.get(s.patientId);
-          const cycleStart = pObj?.currentApprovalStartDate || '';
-          const approvedTotal = parseInt(pObj?.approvedSessions) || parseInt(s.approvedSessionsTotal) || 12;
-          const hist = patientSessionsHistory[s.patientId] || [];
-          const cycleSessions = (s.payType === 'insurance' && cycleStart)
-            ? hist.filter(h => (h.date || '').localeCompare(cycleStart) >= 0)
-            : hist;
-          let idx = cycleSessions.findIndex(h => h.id === s.id);
-          const sessNum = idx >= 0 ? (idx + 1) : (s.sessionNumber || cycleSessions.length || 1);
+          const approvedTotal = parseInt(s.approvedSessionsTotal) || parseInt(pObj?.approvedSessions) || 12;
+          const sessNum = s.sessionNumber || 1;
 
           if (s.payType === 'insurance') {
             sessionNumBadge = `<span class="badge" style="background: rgba(56, 189, 248, 0.15); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.3); font-weight: 800; font-size: 0.78rem;"><i class="fa-solid fa-calendar-check"></i> زيارة ${sessNum} من ${approvedTotal}</span>`;

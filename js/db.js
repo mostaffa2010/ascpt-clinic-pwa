@@ -8,6 +8,7 @@ import {
   collection,
   doc,
   getDocs,
+  onSnapshot,
   getDoc,
   setDoc,
   updateDoc,
@@ -270,69 +271,24 @@ class FirestoreDatabaseService {
     this.ensureConnected();
     const now = Date.now();
 
-    // 1. Fast in-memory cache hit
+    // 1. Fast in-memory cache hit (Zero Firestore reads)
     if (!forceRefresh && this._patientsCache && (now - this._patientsLastFetch < this.PATIENTS_CACHE_TTL)) {
       return [...this._patientsCache];
     }
 
-    // 2. Try IndexedDB persistent cache first (High-capacity async storage)
+    // 2. Try IndexedDB persistent cache (Zero Firestore reads)
     let cachedList = null;
-    let lastSync = null;
     try {
       cachedList = await idbCache.get('ascpt_cached_patients');
-      lastSync = await idbCache.get('ascpt_patients_last_sync');
     } catch (_) {}
 
     if (!forceRefresh && Array.isArray(cachedList) && cachedList.length > 0) {
-      const lastSyncTime = lastSync ? new Date(lastSync).getTime() : 0;
-      // If sync was performed recently (< 15 mins), use local cache with 0 reads!
-      if (now - lastSyncTime < this.PATIENTS_CACHE_TTL) {
-        this._patientsCache = cachedList;
-        this._patientsLastFetch = now;
-        return [...cachedList];
-      }
-
-      // If sync is older, perform highly-efficient INCREMENTAL SYNC (only reads changed documents)
-      try {
-        const q = query(
-          collection(firestoreDb, 'patients'),
-          where('lastUpdatedAt', '>', lastSync || new Date(0).toISOString())
-        );
-        const snap = await getDocs(q);
-        if (snap.empty) {
-          this._patientsCache = cachedList;
-          this._patientsLastFetch = now;
-          try { sessionStorage.setItem('ascpt_patients_last_sync', new Date().toISOString()); } catch (_) {}
-          return [...cachedList];
-        }
-
-        const patientMap = new Map(cachedList.map(p => [p.id, p]));
-        snap.docs.forEach(d => {
-          patientMap.set(d.id, { ...d.data(), id: d.id });
-        });
-
-        const merged = Array.from(patientMap.values()).sort((a, b) => {
-          const tA = a.createdAt || a.lastUpdatedAt || '';
-          const tB = b.createdAt || b.lastUpdatedAt || '';
-          return tB.localeCompare(tA);
-        });
-
-        this._patientsCache = merged;
-        this._patientsLastFetch = now;
-        try {
-          await idbCache.set('ascpt_cached_patients', merged);
-          await idbCache.set('ascpt_patients_last_sync', new Date().toISOString());
-        } catch (_) {}
-        return [...merged];
-      } catch (incErr) {
-        console.warn('Patients incremental sync notice, falling back to local cache:', incErr.message);
-        this._patientsCache = cachedList;
-        this._patientsLastFetch = now;
-        return [...cachedList];
-      }
+      this._patientsCache = cachedList;
+      this._patientsLastFetch = now;
+      return [...cachedList];
     }
 
-    // 3. Full fetch if cache is empty or forceRefresh requested
+    // 3. Fetch from Firestore if cache is empty or forceRefresh explicitly requested
     try {
       const snap = await getDocs(collection(firestoreDb, 'patients'));
       const list = snap.docs.map(d => ({ ...d.data(), id: d.id }));
@@ -345,7 +301,6 @@ class FirestoreDatabaseService {
       this._patientsLastFetch = now;
       try {
         await idbCache.set('ascpt_cached_patients', sorted);
-        await idbCache.set('ascpt_patients_last_sync', new Date().toISOString());
       } catch (_) {}
       return [...sorted];
     } catch (err) {
@@ -355,6 +310,31 @@ class FirestoreDatabaseService {
       }
       console.error('Firestore getPatients error:', err);
       throw new Error('تعذر تحميل سجل المرضى من قاعدة البيانات.');
+    }
+  }
+
+  // Real-time multi-device sync for patients directory
+  subscribeToPatients(callback) {
+    if (!this.isCloud) return () => {};
+    try {
+      const q = collection(firestoreDb, 'patients');
+      return onSnapshot(q, (snap) => {
+        const list = snap.docs.map(d => ({ ...d.data(), id: d.id }));
+        const sorted = list.sort((a, b) => {
+          const tA = a.createdAt || a.lastUpdatedAt || '';
+          const tB = b.createdAt || b.lastUpdatedAt || '';
+          return tB.localeCompare(tA);
+        });
+        this._patientsCache = sorted;
+        this._patientsLastFetch = Date.now();
+        try { idbCache.set('ascpt_cached_patients', sorted); } catch (_) {}
+        if (typeof callback === 'function') callback(sorted);
+      }, (err) => {
+        console.warn('subscribeToPatients notice:', err);
+      });
+    } catch (err) {
+      console.warn('Failed to subscribeToPatients:', err);
+      return () => {};
     }
   }
 
@@ -569,6 +549,32 @@ class FirestoreDatabaseService {
     } catch (err) {
       console.warn('Firestore getSessionById error:', err);
       return null;
+    }
+  }
+
+  // ================= Real-time Session Sync =================
+  subscribeToTodaySessions(dateStr, callback) {
+    if (!this.isCloud) return () => {};
+    const targetDate = dateStr || (new Date().toISOString().substring(0, 10));
+    try {
+      const q = query(
+        collection(firestoreDb, 'sessions'),
+        where('date', '==', targetDate)
+      );
+      return onSnapshot(q, (snap) => {
+        const list = snap.docs.map(d => ({ ...d.data(), id: d.id }));
+        const sorted = this._filterAndSortSessions(list, targetDate);
+        this._sessionsByDateCache.set(targetDate, { data: sorted, time: Date.now() });
+        list.forEach(s => this._sessionDocCache.set(s.id, s));
+        if (typeof callback === 'function') {
+          callback(sorted);
+        }
+      }, (err) => {
+        console.warn('subscribeToTodaySessions notice:', err);
+      });
+    } catch (err) {
+      console.warn('Failed to subscribeToTodaySessions:', err);
+      return () => {};
     }
   }
 
@@ -1032,7 +1038,7 @@ class FirestoreDatabaseService {
 
     this.ensureConnected();
 
-    // Fast-path: immediate memory hydration from local storage
+    // Fast-path: immediate memory hydration from local storage (Zero Firestore Reads)
     try {
       const storedClinical = localStorage.getItem('ascpt_cached_clinical_options');
       const storedIns = localStorage.getItem('ascpt_cached_insurance_companies');
@@ -1041,6 +1047,10 @@ class FirestoreDatabaseService {
       }
       if (storedIns && !this.insuranceCompaniesCache) {
         this.insuranceCompaniesCache = JSON.parse(storedIns);
+      }
+      if (storedClinical && storedIns && !forceRefresh) {
+        this._optionsLoaded = true;
+        return;
       }
     } catch (_) {}
 
@@ -1561,6 +1571,31 @@ class FirestoreDatabaseService {
         }
       } catch (_) {}
       return [];
+    }
+  }
+
+  // Real-time zero-cost sync for clinic appointments
+  subscribeToAppointments(callback) {
+    if (!this.isCloud) return () => {};
+    try {
+      const q = collection(firestoreDb, 'appointments');
+      return onSnapshot(q, (snap) => {
+        const list = snap.docs.map(d => ({ ...d.data(), id: d.id }));
+        this._appointmentsCache = list;
+        this._appointmentsLastFetch = Date.now();
+        try {
+          localStorage.setItem('ascpt_cached_appointments', JSON.stringify(list));
+          localStorage.setItem('ascpt_appointments_last_sync', String(Date.now()));
+        } catch (_) {}
+        if (typeof callback === 'function') {
+          callback(list);
+        }
+      }, (err) => {
+        console.warn('subscribeToAppointments notice:', err);
+      });
+    } catch (err) {
+      console.warn('Failed to subscribeToAppointments:', err);
+      return () => {};
     }
   }
 

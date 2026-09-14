@@ -27,7 +27,6 @@ export class FinanceManager {
     if (monthPicker) monthPicker.value = this.currentMonth;
 
     this.populateExpenseCategoriesDropdown();
-    await this.loadReport();
   }
 
   bindEvents() {

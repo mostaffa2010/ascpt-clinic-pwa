@@ -46,8 +46,7 @@ export class ClaimsManager {
     this.bindEvents();
     this.setDefaultDates();
     this.setupScrollSync();
-    await this.populateCompaniesDropdown();
-    await this.loadClaims();
+    this._dropdownPopulated = false;
   }
 
   _getDefaultMonthDates() {
@@ -410,10 +409,11 @@ export class ClaimsManager {
     const defaultEval = parseFloat(defaultEvalInput?.value) || 0;
 
     const allPatients = await db.getPatients();
-    // Targeted Scoped Query: only fetch sessions within the requested claim date range
-    const allSessions = (this.startDate && this.endDate)
-      ? await db.getSessionsInRange(this.startDate, this.endDate)
-      : await db.getSessions();
+    // Targeted Scoped Query: only fetch sessions within the requested claim date range (Prevents unbounded getSessions)
+    const defaultDates = this._getDefaultMonthDates();
+    const sDate = this.startDate || defaultDates.start;
+    const eDate = this.endDate || defaultDates.end;
+    const allSessions = await db.getSessionsInRange(sDate, eDate);
 
     // Match patients belonging to selected company (flexible matching)
     const companyPatients = allPatients.filter(p => {
@@ -1106,6 +1106,10 @@ export class ClaimsManager {
   // ================= 4. Claims Ledger Management Methods =================
   async loadClaims() {
     try {
+      if (!this._dropdownPopulated) {
+        await this.populateCompaniesDropdown();
+        this._dropdownPopulated = true;
+      }
       this.claimsLedgerData = await db.getInsuranceClaims();
       this.renderClaimsLedgerTable();
     } catch (err) {

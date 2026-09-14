@@ -52,7 +52,6 @@ export class PatientsManager {
   async init() {
     this.bindEvents();
     this.renderAllInsuranceChips();
-    await this.loadPatients();
   }
 
   bindEvents() {
