@@ -501,9 +501,15 @@ export class PatientsManager {
       });
     }
 
-    // If sessions or appointments not loaded yet, fetch them for accurate today counting
-    if (this.app?.sessionsManager && (!this.app.sessionsManager.sessions || this.app.sessionsManager.sessions.length === 0)) {
+    // Pre-load today and current month sessions to populate real-time patient metrics & body parts
+    if (this.app?.sessionsManager) {
       try { await this.app.sessionsManager.loadTodaySessions(); } catch (_) {}
+    }
+    if (db && typeof db.getSessions === 'function') {
+      try {
+        const curMonth = new Date().toISOString().slice(0, 7);
+        await db.getSessions(curMonth);
+      } catch (_) {}
     }
     if (this.app?.appointmentsManager && (!this.app.appointmentsManager.appointments || this.app.appointmentsManager.appointments.length === 0)) {
       try { await this.app.appointmentsManager.loadAll(); } catch (_) {}
@@ -822,11 +828,8 @@ export class PatientsManager {
       const safeAge = escapeHTML(p.age);
       const safePhone = escapeHTML(p.phone);
       const safeAddress = escapeHTML(p.address || '-');
-      let pParts = [];
-      if (Array.isArray(p.bodyParts) && p.bodyParts.length > 0) pParts = p.bodyParts;
-      else if (Array.isArray(p.clinicalSheet?.bodyParts) && p.clinicalSheet.bodyParts.length > 0) pParts = p.clinicalSheet.bodyParts;
-      else if (p.affectedArea) pParts = p.affectedArea.split(/[,،]/).map(s => s.trim()).filter(Boolean);
-      const partsDisplay = pParts.length > 0 ? pParts.join(' • ') : 'لم تحدد الأعضاء';
+      const pParts = this.getPatientBodyParts(p);
+      const partsDisplay = pParts.length > 0 ? pParts.join(' • ') : 'لم تحدد الأعضاء بعد';
       const safeDoctor = escapeHTML(p.doctor || '');
       const safeEditor = escapeHTML(p.lastUpdatedBy || p.createdBy || '-');
       const cleanWaPhone = (p.phone || '').replace(/[^0-9]/g, '').replace(/^0/, '20');
@@ -926,11 +929,8 @@ export class PatientsManager {
         const safeAge = escapeHTML(p.age);
         const safePhone = escapeHTML(p.phone);
         const safeAddress = escapeHTML(p.address || '');
-        let mParts = [];
-        if (Array.isArray(p.bodyParts) && p.bodyParts.length > 0) mParts = p.bodyParts;
-        else if (Array.isArray(p.clinicalSheet?.bodyParts) && p.clinicalSheet.bodyParts.length > 0) mParts = p.clinicalSheet.bodyParts;
-        else if (p.affectedArea) mParts = p.affectedArea.split(/[,،]/).map(s => s.trim()).filter(Boolean);
-        const mobilePartsDisplay = mParts.length > 0 ? mParts.join(' • ') : 'لم تحدد الأعضاء';
+        const mParts = this.getPatientBodyParts(p);
+        const mobilePartsDisplay = mParts.length > 0 ? mParts.join(' • ') : 'لم تحدد الأعضاء بعد';
         const safeDoctor = escapeHTML(p.doctor || '');
         const cleanDocName = (p.doctor || 'طبيب المركز').replace(/^د\.\s*/, '');
         const docColor = getDoctorColor(p.doctorId || p.doctor || 'default');
@@ -1061,6 +1061,41 @@ export class PatientsManager {
     this.applyViewModeUI();
   }
 
+
+  // ================= Dynamic Patient Body Parts Resolution (Two-Way Session Sync) =================
+  getPatientBodyParts(patient) {
+    if (!patient) return [];
+    if (Array.isArray(patient.bodyParts) && patient.bodyParts.length > 0) {
+      return patient.bodyParts;
+    }
+    if (Array.isArray(patient.clinicalSheet?.bodyParts) && patient.clinicalSheet.bodyParts.length > 0) {
+      return patient.clinicalSheet.bodyParts;
+    }
+    if (patient.affectedArea) {
+      const split = patient.affectedArea.split(/[,،]/).map(s => s.trim()).filter(Boolean);
+      if (split.length > 0) return split;
+    }
+
+    // Fallback: look in loaded sessions (today's sessions, month sessions, and session cache)
+    const allAvailableSessions = [];
+    if (this.app?.sessionsManager?.sessions) {
+      allAvailableSessions.push(...this.app.sessionsManager.sessions);
+    }
+    if (typeof db !== 'undefined' && db._sessionDocCache) {
+      allAvailableSessions.push(...db._sessionDocCache.values());
+    }
+
+    const patientSessions = allAvailableSessions.filter(s =>
+      s && s.patientId === patient.id && Array.isArray(s.bodyParts) && s.bodyParts.length > 0
+    );
+
+    if (patientSessions.length > 0) {
+      patientSessions.sort((a, b) => (b.date || '').localeCompare(a.date || ''));
+      return patientSessions[0].bodyParts;
+    }
+
+    return [];
+  }
 
   // ================= Patient Body Parts Multi-Picker Support =================
   updatePatientBodyPartsPreview(selectedParts = []) {
@@ -1421,14 +1456,7 @@ export class PatientsManager {
     this.setGender(p.gender === 'female' ? 'female' : 'male');
     document.getElementById('p-phone').value = p.phone;
     document.getElementById('p-address').value = p.address || '';
-    let initialParts = [];
-    if (Array.isArray(p.bodyParts) && p.bodyParts.length > 0) {
-      initialParts = [...p.bodyParts];
-    } else if (Array.isArray(p.clinicalSheet?.bodyParts) && p.clinicalSheet.bodyParts.length > 0) {
-      initialParts = [...p.clinicalSheet.bodyParts];
-    } else if (p.affectedArea) {
-      initialParts = p.affectedArea.split(/[,،]/).map(s => s.trim()).filter(Boolean);
-    }
+    const initialParts = this.getPatientBodyParts(p);
     this.updatePatientBodyPartsPreview(initialParts);
 
     const progRadios = document.querySelectorAll('input[name="p-program-type"]');

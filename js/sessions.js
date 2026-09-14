@@ -760,8 +760,15 @@ export class SessionsManager {
           this.app.updateCustomSelectDisplay('session-doctor-select');
         }
 
-        // 2. Body Parts: restore array of body parts
-        const savedParts = Array.isArray(lastSession.bodyParts) ? lastSession.bodyParts : [];
+        // 2. Body Parts: restore from patient.bodyParts first (if edited on card), fallback to lastSession
+        let savedParts = [];
+        if (Array.isArray(patient.bodyParts) && patient.bodyParts.length > 0) {
+          savedParts = [...patient.bodyParts];
+        } else if (Array.isArray(lastSession.bodyParts) && lastSession.bodyParts.length > 0) {
+          savedParts = [...lastSession.bodyParts];
+        } else if (patient.affectedArea) {
+          savedParts = patient.affectedArea.split(/[,،]/).map(s => s.trim()).filter(Boolean);
+        }
         this.renderBodyPartsChips(savedParts);
 
         // 3. Special Session Checkbox & Clinical Program
@@ -796,7 +803,13 @@ export class SessionsManager {
           docSelect.value = patient.doctor;
           this.app.updateCustomSelectDisplay('session-doctor-select');
         }
-        this.renderBodyPartsChips([]);
+        let savedParts = [];
+        if (Array.isArray(patient.bodyParts) && patient.bodyParts.length > 0) {
+          savedParts = [...patient.bodyParts];
+        } else if (patient.affectedArea) {
+          savedParts = patient.affectedArea.split(/[,،]/).map(s => s.trim()).filter(Boolean);
+        }
+        this.renderBodyPartsChips(savedParts);
         const chkSpecial = document.getElementById('session-is-special');
         if (chkSpecial) chkSpecial.checked = false;
         const notesInput = document.getElementById('session-notes');
@@ -996,6 +1009,24 @@ export class SessionsManager {
 
     const saveRes = await db.saveSession(sessionData, currentUser);
     this.newlyAddedSessionId = (saveRes && saveRes.id) ? saveRes.id : (sessionData.id || this.editingSessionId);
+
+    // Synchronize session body parts back to patient record if not set
+    if (patient && selectedParts.length > 0) {
+      try {
+        const pCurrentParts = Array.isArray(patient.bodyParts) ? patient.bodyParts : [];
+        if (pCurrentParts.length === 0) {
+          await db.savePatient({
+            ...patient,
+            bodyParts: selectedParts,
+            affectedArea: selectedParts.join('، ')
+          }, currentUser);
+          patient.bodyParts = selectedParts;
+          patient.affectedArea = selectedParts.join('، ');
+        }
+      } catch (pSyncErr) {
+        console.warn('Sync patient body parts notice:', pSyncErr);
+      }
+    }
 
     // Automatic Appointment Sync: Mark matching appointment as attended (v2.0.0)
     try {
