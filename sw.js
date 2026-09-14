@@ -1,24 +1,24 @@
 // ========================================================
 // ASCPT - Service Worker & Offline PWA Cache Engine
 // Alexandria Specialized Center for Physical Therapy
-// Version: 1.4.95 (Cache: ascpt-clinic-v1.4.95)
+// Version: 1.4.96 (Cache: ascpt-clinic-v1.4.96)
 // Network-First for App Shell with Offline Fallback
 // ========================================================
 
-const CACHE_NAME = 'ascpt-clinic-v1.4.95';
+const CACHE_NAME = 'ascpt-clinic-v1.4.96';
 
 const APP_SHELL_ASSETS = [
   '/',
   '/index.html',
   '/manifest.json',
-  '/css/style.css?v=1.4.95',
+  '/css/style.css?v=1.4.96',
   '/css/print.css',
-  '/css/print.css?v=1.4.95',
+  '/css/print.css?v=1.4.96',
   '/icons/icon-192.png',
   '/icons/icon-512.png',
   '/assets/vendor/xlsx/xlsx.full.min.js',
   '/js/app.js',
-  '/js/app.js?v=1.4.95',
+  '/js/app.js?v=1.4.96',
   '/js/auth.js',
   '/js/db.js',
   '/js/doctor-dashboard.js',
@@ -87,8 +87,6 @@ self.addEventListener('fetch', (event) => {
   // Let cloud database APIs pass directly to network
   if (
     url.includes('supabase.co') ||
-    url.includes('firestore.googleapis.com') ||
-    url.includes('identitytoolkit.googleapis.com') ||
     url.includes('/api/')
   ) {
     return;

@@ -416,10 +416,7 @@ class SupabaseDatabaseService {
     } catch (_) {}
 
     return [
-      { uid: 'doc_1', id: 'doc_1', name: 'د. حسني أحمد الجويلي', role: 'doctor', shift: 'all' },
-      { uid: 'doc_2', id: 'doc_2', name: 'د. أحمد مجدي', role: 'doctor', shift: 'sat_mon_wed' },
-      { uid: 'doc_3', id: 'doc_3', name: 'د. سارة عثمان', role: 'doctor', shift: 'sun_tue_thu' },
-      { uid: 'doc_4', id: 'doc_4', name: 'د. كريم عبد العزيز', role: 'doctor', shift: 'sat_mon_wed' }
+      { uid: 'admin_hosny', id: 'admin_hosny', name: 'د. حسني أحمد الجويلي', role: 'admin', shift: 'all' }
     ];
   }
 

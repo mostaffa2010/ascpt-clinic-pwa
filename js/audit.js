@@ -1,5 +1,5 @@
 // ========================================================
-// ASCPT - Staff User Management & Audit Trail Module (v1.4.88)
+// ASCPT - Staff User Management & Audit Trail Module (v1.4.96)
 // Authoritative Supabase PostgreSQL Integration
 // ========================================================
 
@@ -19,19 +19,34 @@ export class AuditAndAdminManager {
   }
 
   bindEvents() {
-    const formCreateUser = document.getElementById('form-admin-create-user');
+    const formCreateUser = document.getElementById('form-add-user') || document.getElementById('form-admin-create-user');
     if (formCreateUser) {
-      formCreateUser.addEventListener('submit', (e) => this.handleCreateUser(e));
+      formCreateUser.addEventListener('submit', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        this.handleCreateUser(e);
+      });
     }
 
-    const roleSelect = document.getElementById('admin-new-user-role');
+    const btnSubmit = document.getElementById('btn-admin-submit-create-user');
+    if (btnSubmit) {
+      btnSubmit.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        this.handleCreateUser(e);
+      });
+    }
+
+    const roleSelect = document.getElementById('newuser-role') || document.getElementById('admin-new-user-role');
     if (roleSelect) {
       roleSelect.addEventListener('change', () => {
         const isDoctor = roleSelect.value === 'doctor';
+        const shiftGroup = document.getElementById('form-group-newuser-shift');
+        const ratesGroup = document.getElementById('form-group-newuser-rates');
         const docFields = document.getElementById('admin-doctor-extra-fields');
-        if (docFields) {
-          docFields.style.display = isDoctor ? 'grid' : 'none';
-        }
+        if (shiftGroup) shiftGroup.style.display = isDoctor ? 'block' : 'none';
+        if (ratesGroup) ratesGroup.style.display = isDoctor ? 'block' : 'none';
+        if (docFields) docFields.style.display = isDoctor ? 'grid' : 'none';
       });
     }
 
@@ -93,19 +108,23 @@ export class AuditAndAdminManager {
   }
 
   async handleCreateUser(e) {
-    e.preventDefault();
-    const nameInput = document.getElementById('admin-new-user-name');
-    const emailInput = document.getElementById('admin-new-user-email');
-    const passwordInput = document.getElementById('admin-new-user-password');
-    const roleSelect = document.getElementById('admin-new-user-role');
-    const shiftSelect = document.getElementById('admin-new-doctor-shift');
-    const regRateInput = document.getElementById('admin-new-doctor-rate-regular');
-    const specRateInput = document.getElementById('admin-new-doctor-rate-special');
+    if (e) {
+      try { e.preventDefault(); } catch (_) {}
+      try { e.stopPropagation(); } catch (_) {}
+    }
+
+    const nameInput = document.getElementById('newuser-name') || document.getElementById('admin-new-user-name');
+    const emailInput = document.getElementById('newuser-email') || document.getElementById('admin-new-user-email');
+    const passwordInput = document.getElementById('newuser-password') || document.getElementById('admin-new-user-password');
+    const roleSelect = document.getElementById('newuser-role') || document.getElementById('admin-new-user-role');
+    const shiftSelect = document.getElementById('newuser-shift') || document.getElementById('admin-new-doctor-shift');
+    const regRateInput = document.getElementById('newuser-regular-rate') || document.getElementById('admin-new-doctor-rate-regular');
+    const specRateInput = document.getElementById('newuser-special-rate') || document.getElementById('admin-new-doctor-rate-special');
 
     const name = nameInput?.value.trim();
     const email = emailInput?.value.trim().toLowerCase();
     const password = passwordInput?.value;
-    const role = roleSelect?.value;
+    const role = roleSelect?.value || 'doctor';
     const shift = (role === 'doctor' && shiftSelect) ? shiftSelect.value : null;
     const regularSessionRate = (role === 'doctor' && regRateInput) ? parseFloat(regRateInput.value) || 0 : null;
     const specialSessionRate = (role === 'doctor' && specRateInput) ? parseFloat(specRateInput.value) || 0 : null;
@@ -128,40 +147,57 @@ export class AuditAndAdminManager {
     }
 
     try {
-      const userId = 'u_' + Date.now() + '_' + Math.random().toString(36).substring(2, 7);
+      let authUid = null;
+      try {
+        const { data: authData, error: authErr } = await supabase.auth.signUp({
+          email,
+          password,
+          options: { data: { name, role } }
+        });
+        if (!authErr && authData?.user?.id) {
+          authUid = authData.user.id;
+        }
+      } catch (authException) {
+        console.warn('Auth signUp warning:', authException);
+      }
+
+      const finalUserId = authUid || ('u_' + Date.now() + '_' + Math.random().toString(36).substring(2, 7));
+      const now = new Date().toISOString();
+
       const profileData = {
-        id: userId,
+        id: finalUserId,
         name,
         email,
         role,
         is_active: true,
         data: {
-          id: userId,
+          id: finalUserId,
+          uid: finalUserId,
           name,
           email,
           role,
-          shift,
-          regularSessionRate,
-          specialSessionRate,
+          shift: role === 'doctor' ? (shift || 'sat_mon_wed') : null,
+          regularSessionRate: role === 'doctor' ? (regularSessionRate || 0) : null,
+          specialSessionRate: role === 'doctor' ? (specialSessionRate || 0) : null,
           active: true,
-          createdAt: new Date().toISOString()
+          createdAt: now
         }
       };
 
-      const { error } = await supabase.from('profiles').upsert(profileData);
-      if (error) throw new Error('فشل تسجيل الموظف: ' + error.message);
+      const { error: profErr } = await supabase.from('profiles').upsert(profileData);
+      if (profErr) {
+        throw new Error('فشل تسجيل الموظف في قاعدة البيانات: ' + profErr.message);
+      }
 
-      try {
-        await supabase.auth.signUp({
-          email,
-          password,
-          options: { data: { name, role } }
-        });
-      } catch (_) {}
+      // Log audit
+      const shiftDesc = (role === 'doctor' && shift) ? ` (شفت: ${shift === 'sat_mon_wed' ? 'السبت/الاثنين/الأربعاء' : shift === 'sun_tue_thu' ? 'الأحد/الثلاثاء/الخميس' : 'طوال الأسبوع'})` : '';
+      await db.logAudit('إنشاء حساب موظف', `تم إنشاء حساب للموظف: ${name} بدور: ${RolesManager.getRoleLabel(role)}${shiftDesc} (${email})`, auth.getCurrentUser());
 
       if (nameInput) nameInput.value = '';
       if (emailInput) emailInput.value = '';
       if (passwordInput) passwordInput.value = '';
+      if (regRateInput) regRateInput.value = '';
+      if (specRateInput) specRateInput.value = '';
 
       this.app.showToast(`تم إنشاء وتوثيق حساب ${name} بنجاح كـ (${RolesManager.getRoleLabel(role)})`);
 
@@ -180,7 +216,7 @@ export class AuditAndAdminManager {
   }
 
   async resetUserPassword(userId, userName) {
-    this.app.showToast(`لإعادة تعيين كلمة مرور (${userName})، يمكنك استخدام البريد المسجل أو تعديلها من لوحة Supabase Authentication.`);
+    this.app.showToast(`لإعادة تعيين كلمة مرور (${userName})، يمكن للموظف استخدام رابط الاستعادة أو من لوحة Supabase.`);
   }
 
   async toggleUserStatus(userId, userName, currentActive) {
@@ -203,7 +239,10 @@ export class AuditAndAdminManager {
 
       if (error) throw error;
 
+      await db.logAudit(actionText + ' حساب موظف', `قام المدير بـ${actionText} حساب الموظف: ${userName}`, auth.getCurrentUser());
+
       this.app.showToast(`تم ${actionText} حساب ${userName} بنجاح.`);
+      await this.app.populateDoctorDropdowns();
       await this.loadUsers();
       await this.loadAuditLogs();
     } catch (err) {
@@ -222,6 +261,8 @@ export class AuditAndAdminManager {
     try {
       const { error } = await supabase.from('profiles').delete().eq('id', userId);
       if (error) throw error;
+
+      await db.logAudit('حذف موظف', `قام المدير بحذف حساب الموظف: ${userName} نهائياً`, auth.getCurrentUser());
 
       this.app.showToast(`تم حذف حساب ${userName} بنجاح.`);
       await this.app.populateDoctorDropdowns();
@@ -271,9 +312,13 @@ export class AuditAndAdminManager {
 
           if (error) throw error;
 
+          await db.logAudit('تعديل إعدادات الطبيب', `تعديل شفت وتسعيرة الطبيب: ${userName}`, auth.getCurrentUser());
+
           this.app.closeModal('modal-doctor-rate');
           this.app.showToast(`تم تحديث شفت وتسعيرة جلسات الطبيب (${userName}) بنجاح.`);
+          await this.app.populateDoctorDropdowns();
           await this.loadUsers();
+          await this.loadAuditLogs();
         } catch (err) {
           await this.app.showAlert('تعذر تحديث تسعيرة الطبيب: ' + err.message, 'خطأ', 'danger');
         }
@@ -320,11 +365,11 @@ export class AuditAndAdminManager {
 
       let shiftDisplay = '<span style="color: var(--text-muted); font-size: 0.8rem; font-weight: 600;">دوام إداري</span>';
       if (u.role === 'doctor') {
-        const sKey = u.shift || 'sat_mon_wed';
+        const sKey = u.shift || u.data?.shift || 'sat_mon_wed';
         const sLabel = getShiftLabel(sKey);
         const sIcon = sKey === 'sat_mon_wed' ? 'fa-calendar-days' : (sKey === 'sun_tue_thu' ? 'fa-calendar-week' : 'fa-calendar-check');
-        const regRate = typeof u.regularSessionRate === 'number' ? u.regularSessionRate : 0;
-        const specRate = typeof u.specialSessionRate === 'number' ? u.specialSessionRate : 0;
+        const regRate = typeof u.regularSessionRate === 'number' ? u.regularSessionRate : (u.data?.regularSessionRate || 0);
+        const specRate = typeof u.specialSessionRate === 'number' ? u.specialSessionRate : (u.data?.specialSessionRate || 0);
         shiftDisplay = `
           <button type="button" class="btn btn-outline btn-sm btn-change-doctor-shift" data-user-id="${escapeHTML(u.id)}" data-user-name="${safeName}" data-current-shift="${sKey}" data-regular-rate="${regRate}" data-special-rate="${specRate}" style="border-radius: 6px; padding: 5px 8px; font-size: 0.78rem; text-align: right; color: var(--text-main); border-color: var(--border-color); display: inline-flex; align-items: center; justify-content: space-between; gap: 8px;" title="تعديل الشفت">
             <div>
@@ -385,6 +430,7 @@ export class AuditAndAdminManager {
 
   async loadAuditLogs() {
     const mobContainer = document.getElementById('audit-log-mobile-cards');
+    const counterEl = document.getElementById('stat-admin-audit-count');
     if (!mobContainer) return;
 
     let logs = [];
@@ -393,6 +439,8 @@ export class AuditAndAdminManager {
     } catch (err) {
       console.error('Error loading audit logs:', err);
     }
+
+    if (counterEl) counterEl.textContent = logs.length;
 
     if (logs.length === 0) {
       mobContainer.innerHTML = `
@@ -430,7 +478,6 @@ export class AuditAndAdminManager {
   }
 
   async filterAuditLogs() {
-    // Audit logs filtering
     const searchVal = (document.getElementById('audit-search-input')?.value || '').trim().toLowerCase();
     const actionVal = document.getElementById('audit-filter-action')?.value || 'all';
 
