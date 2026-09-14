@@ -22,6 +22,135 @@ import {
 import { firestoreDb, isConfigured } from './firebase-init.js';
 import { CLINIC_CONFIG } from './clinic-config.js';
 
+// ========================================================
+// Lightweight Asynchronous IndexedDB Cache Engine
+// Zero-dependency, Non-blocking, Unlimited Storage (> 1GB)
+// With Graceful Fallback to Web Storage / Memory
+// ========================================================
+class AsyncIdbCache {
+  constructor(dbName = 'ascpt_local_store', storeName = 'cache_entries') {
+    this.dbName = dbName;
+    this.storeName = storeName;
+    this._dbPromise = null;
+  }
+
+  _getDb() {
+    if (this._dbPromise) return this._dbPromise;
+    if (typeof window === 'undefined' || !window.indexedDB) {
+      return Promise.resolve(null);
+    }
+    this._dbPromise = new Promise((resolve) => {
+      try {
+        const req = window.indexedDB.open(this.dbName, 1);
+        req.onupgradeneeded = (e) => {
+          const db = e.target.result;
+          if (!db.objectStoreNames.contains(this.storeName)) {
+            db.createObjectStore(this.storeName);
+          }
+        };
+        req.onsuccess = () => resolve(req.result);
+        req.onerror = () => resolve(null);
+      } catch (_) {
+        resolve(null);
+      }
+    });
+    return this._dbPromise;
+  }
+
+  async get(key) {
+    try {
+      const db = await this._getDb();
+      if (!db) return this._fallbackGet(key);
+      return new Promise((resolve) => {
+        try {
+          const tx = db.transaction(this.storeName, 'readonly');
+          const store = tx.objectStore(this.storeName);
+          const req = store.get(key);
+          req.onsuccess = () => {
+            if (req.result !== undefined && req.result !== null) {
+              resolve(req.result);
+            } else {
+              resolve(this._fallbackGet(key));
+            }
+          };
+          req.onerror = () => resolve(this._fallbackGet(key));
+        } catch (_) {
+          resolve(this._fallbackGet(key));
+        }
+      });
+    } catch (_) {
+      return this._fallbackGet(key);
+    }
+  }
+
+  async set(key, value) {
+    try {
+      const db = await this._getDb();
+      if (!db) {
+        this._fallbackSet(key, value);
+        return;
+      }
+      return new Promise((resolve) => {
+        try {
+          const tx = db.transaction(this.storeName, 'readwrite');
+          const store = tx.objectStore(this.storeName);
+          store.put(value, key);
+          tx.oncomplete = () => {
+            this._fallbackSet(key, value);
+            resolve();
+          };
+          tx.onerror = () => {
+            this._fallbackSet(key, value);
+            resolve();
+          };
+        } catch (_) {
+          this._fallbackSet(key, value);
+          resolve();
+        }
+      });
+    } catch (_) {
+      this._fallbackSet(key, value);
+    }
+  }
+
+  async remove(key) {
+    try {
+      const db = await this._getDb();
+      if (db) {
+        const tx = db.transaction(this.storeName, 'readwrite');
+        tx.objectStore(this.storeName).delete(key);
+      }
+    } catch (_) {}
+    this._fallbackRemove(key);
+  }
+
+  _fallbackGet(key) {
+    try {
+      const s = sessionStorage.getItem(key);
+      if (s) return JSON.parse(s);
+    } catch (_) {}
+    try {
+      const l = localStorage.getItem(key);
+      if (l) return JSON.parse(l);
+    } catch (_) {}
+    return null;
+  }
+
+  _fallbackSet(key, value) {
+    try {
+      const str = typeof value === 'string' ? value : JSON.stringify(value);
+      sessionStorage.setItem(key, str);
+    } catch (_) {}
+  }
+
+  _fallbackRemove(key) {
+    try { sessionStorage.removeItem(key); } catch (_) {}
+    try { localStorage.removeItem(key); } catch (_) {}
+  }
+}
+
+const idbCache = new AsyncIdbCache();
+
 class FirestoreDatabaseService {
   constructor() {
     this.purgeLegacyDemoStorage();
@@ -90,6 +219,10 @@ class FirestoreDatabaseService {
     this._expensesByDateCache.clear();
     this._sessionDocCache.clear();
     try {
+      idbCache.remove('ascpt_cached_users');
+      idbCache.remove('ascpt_cached_patients');
+      idbCache.remove('ascpt_patients_last_sync');
+      idbCache.remove('ascpt_cached_appointments');
       localStorage.removeItem('ascpt_cached_users');
       sessionStorage.removeItem('ascpt_cached_patients');
       sessionStorage.removeItem('ascpt_patients_last_sync');
@@ -142,13 +275,12 @@ class FirestoreDatabaseService {
       return [...this._patientsCache];
     }
 
-    // 2. Try session storage cache first (saves 100% reads on page reload)
+    // 2. Try IndexedDB persistent cache first (High-capacity async storage)
     let cachedList = null;
     let lastSync = null;
     try {
-      const raw = sessionStorage.getItem('ascpt_cached_patients');
-      lastSync = sessionStorage.getItem('ascpt_patients_last_sync');
-      if (raw) cachedList = JSON.parse(raw);
+      cachedList = await idbCache.get('ascpt_cached_patients');
+      lastSync = await idbCache.get('ascpt_patients_last_sync');
     } catch (_) {}
 
     if (!forceRefresh && Array.isArray(cachedList) && cachedList.length > 0) {
@@ -188,8 +320,8 @@ class FirestoreDatabaseService {
         this._patientsCache = merged;
         this._patientsLastFetch = now;
         try {
-          sessionStorage.setItem('ascpt_cached_patients', JSON.stringify(merged));
-          sessionStorage.setItem('ascpt_patients_last_sync', new Date().toISOString());
+          await idbCache.set('ascpt_cached_patients', merged);
+          await idbCache.set('ascpt_patients_last_sync', new Date().toISOString());
         } catch (_) {}
         return [...merged];
       } catch (incErr) {
@@ -212,8 +344,8 @@ class FirestoreDatabaseService {
       this._patientsCache = sorted;
       this._patientsLastFetch = now;
       try {
-        sessionStorage.setItem('ascpt_cached_patients', JSON.stringify(sorted));
-        sessionStorage.setItem('ascpt_patients_last_sync', new Date().toISOString());
+        await idbCache.set('ascpt_cached_patients', sorted);
+        await idbCache.set('ascpt_patients_last_sync', new Date().toISOString());
       } catch (_) {}
       return [...sorted];
     } catch (err) {
@@ -258,8 +390,8 @@ class FirestoreDatabaseService {
       }
       try {
         if (this._patientsCache) {
-          sessionStorage.setItem('ascpt_cached_patients', JSON.stringify(this._patientsCache));
-          sessionStorage.setItem('ascpt_patients_last_sync', new Date().toISOString());
+          idbCache.set('ascpt_cached_patients', this._patientsCache);
+          idbCache.set('ascpt_patients_last_sync', new Date().toISOString());
         }
       } catch (_) {}
 
@@ -278,7 +410,7 @@ class FirestoreDatabaseService {
         this._patientsCache = this._patientsCache.filter(p => p.id !== patientId);
         this._patientsLastFetch = Date.now();
         try {
-          sessionStorage.setItem('ascpt_cached_patients', JSON.stringify(this._patientsCache));
+          idbCache.set('ascpt_cached_patients', this._patientsCache);
         } catch (_) {}
       }
       return true;
@@ -666,20 +798,17 @@ class FirestoreDatabaseService {
       return [...this._usersCache];
     }
 
-    // 2. Persistent localStorage check (saves reads across browser reloads)
+    // 2. Persistent IndexedDB check (saves reads across browser reloads)
     if (!forceRefresh) {
       try {
-        const raw = localStorage.getItem('ascpt_cached_users');
-        const lastSync = localStorage.getItem('ascpt_users_last_sync');
-        if (raw && lastSync) {
+        const idbUsers = await idbCache.get('ascpt_cached_users');
+        const lastSync = await idbCache.get('ascpt_users_last_sync');
+        if (idbUsers && lastSync) {
           const syncTime = parseInt(lastSync, 10);
-          if (now - syncTime < this.USERS_CACHE_TTL) {
-            const parsed = JSON.parse(raw);
-            if (Array.isArray(parsed) && parsed.length > 0) {
-              this._usersCache = parsed;
-              this._usersLastFetch = now;
-              return [...parsed];
-            }
+          if (now - syncTime < this.USERS_CACHE_TTL && Array.isArray(idbUsers) && idbUsers.length > 0) {
+            this._usersCache = idbUsers;
+            this._usersLastFetch = now;
+            return [...idbUsers];
           }
         }
       } catch (_) {}
@@ -692,8 +821,8 @@ class FirestoreDatabaseService {
       this._usersCache = list;
       this._usersLastFetch = now;
       try {
-        localStorage.setItem('ascpt_cached_users', JSON.stringify(list));
-        localStorage.setItem('ascpt_users_last_sync', String(now));
+        await idbCache.set('ascpt_cached_users', list);
+        await idbCache.set('ascpt_users_last_sync', String(now));
       } catch (_) {}
       return [...list];
     } catch (err) {
