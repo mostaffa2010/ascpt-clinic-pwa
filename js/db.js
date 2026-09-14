@@ -76,6 +76,9 @@ class SupabaseDatabaseService {
         ...(row.data || {}),
         id: row.id,
         name: row.name || row.data?.name || 'بدون اسم',
+        billing: row.data?.billing || row.pay_type || 'cash',
+        doctor: row.data?.doctor || row.attending_doctor || '',
+        address: row.data?.address || '',
         phone: row.phone ?? row.data?.phone ?? '',
         gender: row.gender ?? row.data?.gender ?? '',
         age: row.age ?? row.data?.age ?? '',
@@ -485,6 +488,39 @@ class SupabaseDatabaseService {
     try {
       await supabase.from('audit_logs').insert(row);
     } catch (_) {}
+  }
+
+
+  getClinicalOptions(category) {
+    if (this.clinicalOptionsCache && this.clinicalOptionsCache[category]) {
+      return this.clinicalOptionsCache[category];
+    }
+    const defaults = {
+      body_parts: ['الرقبة', 'الفقرات القطنية', 'الكتف الأيمن', 'الكتف الأيسر', 'الركبة اليمنى', 'الركبة اليسرى', 'الكاحل', 'المرفق'],
+      expense_categories: ['إيجار المركز', 'كهرباء ومياه وغاز', 'أدوات ومستهلكات طبية', 'صيانة وأجهزة', 'نظافة وضيافة', 'أدوات مكتبية ومطبوعات', 'مرتبات وأجور', 'مصاريف إدارية وحكومية', 'إنترنت واتصالات', 'أخرى'],
+      appointment_slots: [
+        { key: 'slot_1', label: '10:00 ص - 11:00 ص' },
+        { key: 'slot_2', label: '11:00 ص - 12:00 م' },
+        { key: 'slot_3', label: '12:00 م - 01:00 م' },
+        { key: 'slot_4', label: '01:00 م - 02:00 م' },
+        { key: 'slot_5', label: '05:00 م - 06:00 م' },
+        { key: 'slot_6', label: '06:00 م - 07:00 م' },
+        { key: 'slot_7', label: '07:00 م - 08:00 م' },
+        { key: 'slot_8', label: '08:00 م - 09:00 م' }
+      ]
+    };
+    return defaults[category] || [];
+  }
+
+  getInsuranceCompanies(contractType) {
+    if (this.insuranceCompaniesCache && this.insuranceCompaniesCache[contractType]) {
+      return this.insuranceCompaniesCache[contractType];
+    }
+    const defaults = {
+      direct: ['نقابة المهندسين', 'نقابة المحامين', 'شركة البترول', 'الكهرباء', 'مصر للتأمين'],
+      indirect: ['نكست كير (NextCare)', 'ميد نت (MedNet)', 'أكسا (AXA)', 'جلوب ميد (GlobeMed)', 'برايم هيلث (Prime Health)']
+    };
+    return defaults[contractType] || [];
   }
 
   // ================= 6. Clinical Options =================
