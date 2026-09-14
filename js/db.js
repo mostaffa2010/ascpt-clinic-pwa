@@ -1511,6 +1511,14 @@ class FirestoreDatabaseService {
     return { id: apptId, ...updates };
   }
 
+  async updateAppointmentStatus(apptId, status, meta = {}) {
+    return await this.updateAppointment(apptId, {
+      status,
+      ...meta,
+      statusUpdatedAt: new Date().toISOString()
+    });
+  }
+
   async deleteAppointment(apptId) {
     this.ensureConnected();
     await deleteDoc(doc(firestoreDb, 'appointments', apptId));

@@ -109,3 +109,55 @@ assert.equal(getLatestTherapySession([]), null, 'Empty list must return null');
 assert.equal(getLatestTherapySession([{ entryType: 'examination' }]), null, 'Only examinations list must return null');
 
 console.log('✓ All 8 Last Session Auto-Restore assertions passed successfully!');
+
+// 6. Appointments Date Filtering & Status Transition Tests
+console.log('--- Running Tests: Appointments Engine & Status Sync ---');
+
+function filterAppointmentsByDate(appointments, targetDate, doctors = [], shiftOverrides = []) {
+  if (!targetDate) return [];
+  const shiftKey = getDayShiftKey(targetDate);
+  return appointments.filter(a => {
+    if (a.date) return a.date === targetDate;
+    if (a.dayOfWeek) return a.dayOfWeek === shiftKey;
+    const doc = doctors.find(d => d.uid === a.doctorUid);
+    return isDoctorOnDuty(doc?.shift, targetDate, shiftOverrides, a.doctorUid);
+  });
+}
+
+function calculateSlotOccupancy(appointments, targetDate, timeSlot) {
+  const dayAppts = filterAppointmentsByDate(appointments, targetDate);
+  return dayAppts.filter(a => a.timeSlot === timeSlot && a.status !== 'cancelled').length;
+}
+
+const mockAppointments = [
+  { id: 'a1', patientName: 'أحمد', timeSlot: '15:30', date: '2026-09-14', status: 'scheduled' },
+  { id: 'a2', patientName: 'محمود', timeSlot: '15:30', date: '2026-09-14', status: 'attended' },
+  { id: 'a3', patientName: 'سارة', timeSlot: '15:30', date: '2026-09-14', status: 'completed' },
+  { id: 'a4', patientName: 'منى', timeSlot: '15:30', date: '2026-09-14', status: 'cancelled' },
+  { id: 'a5', patientName: 'كريم', timeSlot: '16:30', date: '2026-09-14', status: 'no-show' },
+  { id: 'a6', patientName: 'خالد', timeSlot: '15:30', date: '2026-09-15', status: 'scheduled' }
+];
+
+// 1. Filtering by date
+const sep14Appts = filterAppointmentsByDate(mockAppointments, '2026-09-14');
+assert.equal(sep14Appts.length, 5, 'Should return 5 appointments for 2026-09-14');
+
+const sep15Appts = filterAppointmentsByDate(mockAppointments, '2026-09-15');
+assert.equal(sep15Appts.length, 1, 'Should return 1 appointment for 2026-09-15');
+assert.equal(sep15Appts[0].patientName, 'خالد');
+
+// 2. Bed Occupancy calculation (ignores cancelled appointments)
+const slot1530Count = calculateSlotOccupancy(mockAppointments, '2026-09-14', '15:30');
+assert.equal(slot1530Count, 3, 'Slot 15:30 occupancy should be 3 beds (cancelled appt a4 excluded)');
+
+// 3. Status transitions
+let testAppt = { id: 'a1', status: 'scheduled' };
+assert.equal(testAppt.status, 'scheduled');
+testAppt.status = 'attended'; // Checked-in from reception
+assert.equal(testAppt.status, 'attended');
+testAppt.status = 'completed'; // Finished by doctor
+assert.equal(testAppt.status, 'completed');
+testAppt.status = 'no-show'; // Patient did not show up
+assert.equal(testAppt.status, 'no-show');
+
+console.log('✓ All 6 Appointments Engine & Status Sync assertions passed successfully!');

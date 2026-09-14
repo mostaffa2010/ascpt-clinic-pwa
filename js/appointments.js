@@ -76,6 +76,8 @@ export class AppointmentsManager {
     this.movingAppt = null;
     this.doctorApptFilter = 'active'; // 'active' | 'completed'
     this.shiftOverrides = [];
+    this.selectedDate = getLocalDateStr();
+    this.selectedApptForAction = null;
   }
 
   async init() {
@@ -181,32 +183,180 @@ export class AppointmentsManager {
         this.handleDeleteShiftCoverage(id);
       }
     });
+
+    // Date Strip Navigation Controls (v2.0.0)
+    document.getElementById('btn-appt-prev-day')?.addEventListener('click', () => this.navigateDay(-1));
+    document.getElementById('btn-appt-next-day')?.addEventListener('click', () => this.navigateDay(1));
+    document.getElementById('btn-appt-today')?.addEventListener('click', () => this.changeSelectedDate(getLocalDateStr()));
+
+    const calPicker = document.getElementById('appt-calendar-picker');
+    if (calPicker) {
+      calPicker.value = this.selectedDate;
+      calPicker.addEventListener('change', (e) => {
+        if (e.target.value) this.changeSelectedDate(e.target.value);
+      });
+    }
+
+    document.getElementById('appt-weekday-strip')?.addEventListener('click', (e) => {
+      const pill = e.target.closest('.appt-weekday-pill');
+      if (pill && pill.dataset.date) {
+        this.changeSelectedDate(pill.dataset.date);
+      }
+    });
+
+    // Action Bottom Sheet Buttons (v2.0.0)
+    document.getElementById('btn-appt-sheet-checkin')?.addEventListener('click', () => {
+      if (this.selectedApptForAction) this.handleCheckinFromAppt(this.selectedApptForAction);
+    });
+
+    document.getElementById('btn-appt-sheet-complete')?.addEventListener('click', () => {
+      this.handleStatusUpdateFromSheet('completed');
+    });
+
+    document.getElementById('btn-appt-sheet-noshow')?.addEventListener('click', () => {
+      this.handleStatusUpdateFromSheet('no-show');
+    });
+
+    document.getElementById('btn-appt-sheet-reset-scheduled')?.addEventListener('click', () => {
+      this.handleStatusUpdateFromSheet('scheduled');
+    });
+
+    document.getElementById('btn-appt-sheet-move')?.addEventListener('click', () => {
+      const a = this.selectedApptForAction;
+      this.app.closeModal('modal-appt-actions');
+      if (a) this.openMoveModal(a.id);
+    });
+
+    document.getElementById('btn-appt-sheet-delete')?.addEventListener('click', () => {
+      const a = this.selectedApptForAction;
+      this.app.closeModal('modal-appt-actions');
+      if (a) this.deleteAppointment(a.id);
+    });
   }
 
-  async loadAll() {
-    const today = getLocalDateStr();
+  async loadAll(targetDate = null) {
+    const dateToLoad = targetDate || this.selectedDate || getLocalDateStr();
+    this.selectedDate = dateToLoad;
+
     const [appointments, doctors, patients, slots, sessions, shiftOverrides] = await Promise.all([
       db.getAppointments(),
       db.getDoctorsList(),
       db.getPatients(),
       db.getAppointmentSlots ? db.getAppointmentSlots() : DEFAULT_APPT_SLOTS,
-      db.getSessions ? db.getSessions(today) : [],
-      db.getShiftOverrides ? db.getShiftOverrides(today) : []
+      db.getSessions ? db.getSessions(dateToLoad) : [],
+      db.getShiftOverrides ? db.getShiftOverrides(dateToLoad) : []
     ]);
-    this.appointments = appointments;
-    this.doctors = doctors;
-    this.patients = patients;
+    this.appointments = appointments || [];
+    this.doctors = doctors || [];
+    this.patients = patients || [];
     this.slots = (Array.isArray(slots) && slots.length > 0) ? slots : DEFAULT_APPT_SLOTS;
     this.sessions = sessions || [];
     this.shiftOverrides = shiftOverrides || [];
   }
 
-  getSlotTotalCount(timeSlot) {
-    return this.appointments.filter((a) => a.timeSlot === timeSlot).length;
+  getAppointmentsForDate(dateStr) {
+    if (!dateStr) return [];
+    return (this.appointments || []).filter(a => {
+      // 1. Direct date match
+      if (a.date) {
+        return a.date === dateStr;
+      }
+      // 2. Backward compatibility for legacy appointments without a date
+      const shiftKey = getDayShiftKey(dateStr);
+      if (a.dayOfWeek) {
+        return a.dayOfWeek === shiftKey;
+      }
+      const doc = (this.doctors || []).find(d => d.uid === a.doctorUid);
+      return isDoctorOnDuty(doc?.shift, dateStr, this.shiftOverrides, a.doctorUid);
+    });
   }
 
-  getCellAppointments(doctorUid, timeSlot) {
-    return this.appointments.filter((a) => a.doctorUid === doctorUid && a.timeSlot === timeSlot);
+  getSlotTotalCount(timeSlot, targetDate = this.selectedDate) {
+    const dayAppts = this.getAppointmentsForDate(targetDate);
+    return dayAppts.filter(a => a.timeSlot === timeSlot && a.status !== 'cancelled').length;
+  }
+
+  getCellAppointments(doctorUid, timeSlot, targetDate = this.selectedDate) {
+    const dayAppts = this.getAppointmentsForDate(targetDate);
+    return dayAppts.filter(a => a.doctorUid === doctorUid && a.timeSlot === timeSlot);
+  }
+
+  navigateDay(delta) {
+    const cur = new Date(this.selectedDate + 'T00:00:00');
+    cur.setDate(cur.getDate() + delta);
+    this.changeSelectedDate(getLocalDateStr(cur));
+  }
+
+  async changeSelectedDate(newDate) {
+    if (!newDate) return;
+    this.selectedDate = newDate;
+    const calPicker = document.getElementById('appt-calendar-picker');
+    if (calPicker) calPicker.value = newDate;
+    await this.loadAll(newDate);
+    await this.render();
+    const currentUser = auth.getCurrentUser();
+    if (currentUser && currentUser.role === 'doctor') {
+      const docUid = currentUser.uid || currentUser.id;
+      await this.renderForDoctor(docUid);
+    }
+  }
+
+  renderWeekdayStrip() {
+    const container = document.getElementById('appt-weekday-strip');
+    if (!container) return;
+
+    const cur = new Date(this.selectedDate + 'T00:00:00');
+    const dayOfWeek = cur.getDay(); // 0: Sun, 1: Mon, ... 6: Sat
+    const diffToSat = (dayOfWeek + 1) % 7; // Sat is day 0 of Egyptian work week
+    const sat = new Date(cur);
+    sat.setDate(cur.getDate() - diffToSat);
+
+    const arabicDays = ['السبت', 'الأحد', 'الاثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة'];
+    const days = [];
+    const todayStr = getLocalDateStr();
+
+    for (let i = 0; i < 7; i++) {
+      const d = new Date(sat);
+      d.setDate(sat.getDate() + i);
+      const dateStr = getLocalDateStr(d);
+      const dayAppts = this.getAppointmentsForDate(dateStr);
+      const activeCount = dayAppts.filter(a => a.status !== 'cancelled').length;
+
+      days.push({
+        name: arabicDays[i],
+        dateStr,
+        dayNum: d.getDate(),
+        monthNum: d.getMonth() + 1,
+        count: activeCount,
+        isActive: dateStr === this.selectedDate,
+        isToday: dateStr === todayStr
+      });
+    }
+
+    container.innerHTML = days.map(d => `
+      <button type="button" class="appt-weekday-pill ${d.isActive ? 'active' : ''} ${d.isToday ? 'is-today' : ''}" data-date="${d.dateStr}">
+        <span class="awp-name">${d.name}</span>
+        <span class="awp-date">${d.dayNum}/${d.monthNum}</span>
+        ${d.count > 0 ? `<span class="awp-badge">${d.count}</span>` : ''}
+      </button>
+    `).join('');
+
+    // Update Stats Pill
+    const statsPill = document.getElementById('appt-day-stats-pill');
+    if (statsPill) {
+      const curAppts = this.getAppointmentsForDate(this.selectedDate);
+      const total = curAppts.filter(a => a.status !== 'cancelled').length;
+      const attended = curAppts.filter(a => a.status === 'attended').length;
+      const completed = curAppts.filter(a => a.status === 'completed').length;
+      const noshow = curAppts.filter(a => a.status === 'no-show').length;
+
+      statsPill.innerHTML = `
+        <span style="color: var(--text-main); font-weight: 800;">إجمالي اليوم: ${total}</span>
+        ${attended > 0 ? `<span style="color: var(--primary);">• ${attended} حضر</span>` : ''}
+        ${completed > 0 ? `<span style="color: var(--success);">• ${completed} مكتمل</span>` : ''}
+        ${noshow > 0 ? `<span style="color: var(--danger);">• ${noshow} لم يحضر</span>` : ''}
+      `;
+    }
   }
 
   // ================= Full Grid: every active doctor as a column =================
@@ -214,9 +364,14 @@ export class AppointmentsManager {
     const grid = document.getElementById('appointments-grid');
     if (!grid) return;
     try {
-      await this.loadAll();
+      await this.loadAll(this.selectedDate);
       const currentUser = auth.getCurrentUser();
       const isDoctor = currentUser && currentUser.role === 'doctor';
+      this.renderWeekdayStrip();
+      const calPicker = document.getElementById('appt-calendar-picker');
+      if (calPicker && this.selectedDate) {
+        calPicker.value = this.selectedDate;
+      }
       grid.innerHTML = this.buildGridHTML(this.doctors, isDoctor);
     } catch (err) {
       console.error('Appointments render error:', err);
@@ -235,25 +390,39 @@ export class AppointmentsManager {
     }
   }
 
-  toggleApptCompleted(apptId, doctorUid, patientName) {
-    const today = getLocalDateStr();
-    const key = `ascpt_done_appts_${doctorUid}_${today}`;
+  async toggleApptCompleted(apptId, doctorUid, patientName) {
+    const appt = (this.appointments || []).find(a => a.id === apptId);
+    const isCurrentlyDone = appt ? (appt.status === 'completed') : false;
+    const newStatus = isCurrentlyDone ? 'scheduled' : 'completed';
+
+    // 1. Update Firestore in background
+    try {
+      await db.updateAppointmentStatus(apptId, newStatus, {
+        completedByUid: doctorUid,
+        completedByName: (this.doctors || []).find(d => d.uid === doctorUid)?.name || '',
+        completedAt: new Date().toLocaleTimeString('ar-EG-u-nu-latn', { hour: '2-digit', minute: '2-digit' })
+      });
+      if (appt) appt.status = newStatus;
+    } catch (e) {
+      console.warn('Update status error:', e);
+    }
+
+    // 2. LocalStorage backup
+    const targetDate = this.selectedDate || getLocalDateStr();
+    const key = `ascpt_done_appts_${doctorUid}_${targetDate}`;
     let list = this.getCompletedAppts(doctorUid);
-    const wasCompleted = list.includes(apptId);
-    if (wasCompleted) {
+    if (isCurrentlyDone) {
       list = list.filter(id => id !== apptId);
     } else {
       list.push(apptId);
     }
-    try {
-      localStorage.setItem(key, JSON.stringify(list));
-    } catch (_) {}
+    try { localStorage.setItem(key, JSON.stringify(list)); } catch (_) {}
 
     if (this.app?.showToast) {
       const nameTxt = patientName ? `موعد ${patientName}` : 'موعد المريض';
-      this.app.showToast(wasCompleted ? `تم استرجاع ${nameTxt} للمتبقية` : `تم إنهاء ${nameTxt} بنجاح`);
+      this.app.showToast(isCurrentlyDone ? `تم استرجاع ${nameTxt} للمتبقية` : `تم إنهاء ${nameTxt} بنجاح`);
     }
-    this.renderForDoctor(doctorUid);
+    await this.refreshVisibleGrids();
   }
 
   findClosestSlotIndex(slots) {
@@ -337,11 +506,11 @@ export class AppointmentsManager {
   }
 
   buildDoctorStackedScheduleHTML(doctorUid) {
-    const today = getLocalDateStr();
+    const targetDate = this.selectedDate || getLocalDateStr();
     const docObj = (this.doctors || []).find(d => d.uid === doctorUid);
     const doctorShift = docObj?.shift || 'sat_mon_wed';
     const shiftOverrides = this.shiftOverrides || [];
-    const onDutyToday = isDoctorOnDuty(doctorShift, today, shiftOverrides, doctorUid);
+    const onDutyToday = isDoctorOnDuty(doctorShift, targetDate, shiftOverrides, doctorUid);
 
     if (!onDutyToday) {
       const shiftName = getShiftLabel(doctorShift);
@@ -366,13 +535,13 @@ export class AppointmentsManager {
     const slotsToRender = (this.slots && this.slots.length > 0) ? this.slots : DEFAULT_APPT_SLOTS;
     const completedApptIds = this.getCompletedAppts(doctorUid);
 
-    // All booked slots for this doctor
+    // All booked slots for this doctor for targetDate
     const allSlots = slotsToRender.map((slot) => {
-      const cellAppts = this.getCellAppointments(doctorUid, slot.key);
+      const cellAppts = this.getCellAppointments(doctorUid, slot.key, targetDate);
       if (cellAppts.length === 0) return null;
 
-      const uncompletedAppts = cellAppts.filter(a => !completedApptIds.includes(a.id));
-      const completedAppts = cellAppts.filter(a => completedApptIds.includes(a.id));
+      const uncompletedAppts = cellAppts.filter(a => a.status !== 'completed' && !completedApptIds.includes(a.id));
+      const completedAppts = cellAppts.filter(a => a.status === 'completed' || completedApptIds.includes(a.id));
       const isSlotFullyDone = uncompletedAppts.length === 0;
 
       return {
@@ -659,18 +828,30 @@ export class AppointmentsManager {
                             د. ${escapeHTML(cleanDoc)}:
                           </div>` : ''}
                         <div class="appt-doc-chips-list" style="display: flex; flex-wrap: wrap; gap: 6px;">
-                          ${cellAppts.map((a) => `
-                            <div class="appt-chip" data-appt-id="${escapeHTML(a.id)}">
-                              <span class="appt-chip-patient" ${!isDoctorReadOnly ? `data-move-appt="${escapeHTML(a.id)}"` : ''} title="${!isDoctorReadOnly ? 'اضغط لنقل الموعد' : ''}">${escapeHTML(a.patientName)}</span>
-                              ${!isDoctorReadOnly ? `
-                              <div class="appt-chip-actions">
-                                <button type="button" class="appt-chip-move" data-move-appt="${escapeHTML(a.id)}" title="نقل الموعد">
-                                  <i class="fa-solid fa-arrow-right-arrow-left"></i>
-                                </button>
-                                <button type="button" class="appt-chip-remove" data-remove-appt="${escapeHTML(a.id)}" title="حذف">&times;</button>
-                              </div>` : ''}
-                            </div>
-                          `).join('')}
+                          ${cellAppts.map((a) => {
+                            let statusBadge = '';
+                            if (a.status === 'completed') {
+                              statusBadge = `<span class="badge badge-appt-completed" style="font-size: 0.68rem; padding: 1px 6px; border-radius: 4px;"><i class="fa-solid fa-check"></i> مكتمل</span>`;
+                            } else if (a.status === 'attended') {
+                              statusBadge = `<span class="badge badge-appt-attended" style="font-size: 0.68rem; padding: 1px 6px; border-radius: 4px;"><i class="fa-solid fa-bolt"></i> حضر</span>`;
+                            } else if (a.status === 'no-show') {
+                              statusBadge = `<span class="badge badge-appt-noshow" style="font-size: 0.68rem; padding: 1px 6px; border-radius: 4px;"><i class="fa-solid fa-user-xmark"></i> لم يحضر</span>`;
+                            }
+
+                            return `
+                              <div class="appt-chip clickable" data-appt-action-id="${escapeHTML(a.id)}" title="اضغط لفتح خيارات وتفاصيل الموعد">
+                                <span class="appt-chip-patient">${escapeHTML(a.patientName)}</span>
+                                ${statusBadge}
+                                ${!isDoctorReadOnly ? `
+                                <div class="appt-chip-actions">
+                                  <button type="button" class="appt-chip-move" data-move-appt="${escapeHTML(a.id)}" title="نقل الموعد">
+                                    <i class="fa-solid fa-arrow-right-arrow-left"></i>
+                                  </button>
+                                  <button type="button" class="appt-chip-remove" data-remove-appt="${escapeHTML(a.id)}" title="حذف">&times;</button>
+                                </div>` : ''}
+                              </div>
+                            `;
+                          }).join('')}
                         </div>
                       </div>
                     `).join('')}
@@ -694,6 +875,150 @@ export class AppointmentsManager {
         }).join('')}
       </div>
     `;
+  }
+
+  openApptActionSheet(apptId) {
+    const a = (this.appointments || []).find(x => x.id === apptId);
+    if (!a) return;
+    this.selectedApptForAction = a;
+
+    const patientObj = (this.patients || []).find(p => p.id === a.patientId);
+    const docObj = (this.doctors || []).find(d => d.uid === a.doctorUid);
+
+    const nameEl = document.getElementById('appt-sheet-patient-name');
+    const subEl = document.getElementById('appt-sheet-sub-info');
+    const docEl = document.getElementById('appt-sheet-doc-val');
+    const timeEl = document.getElementById('appt-sheet-time-val');
+    const dateEl = document.getElementById('appt-sheet-date-val');
+    const areaEl = document.getElementById('appt-sheet-area-val');
+    const statusBadgeEl = document.getElementById('appt-sheet-status-badge');
+    const callBtn = document.getElementById('btn-appt-sheet-call');
+    const waBtn = document.getElementById('btn-appt-sheet-whatsapp');
+
+    if (nameEl) nameEl.textContent = a.patientName || 'مريض';
+    if (subEl) {
+      const pPhone = patientObj?.phone || '';
+      const pBilling = patientObj?.billing === 'insurance' ? `تأمين (${patientObj.insuranceCompany || ''})` : 'نقدي';
+      subEl.textContent = `${pBilling}${pPhone ? ` • هاتف: ${pPhone}` : ''}`;
+    }
+
+    if (docEl) docEl.textContent = a.doctorName || docObj?.name || '-';
+    if (timeEl) {
+      const slotObj = (this.slots || []).find(s => s.key === a.timeSlot);
+      timeEl.textContent = slotObj?.label || a.timeSlot || '-';
+    }
+    if (dateEl) {
+      dateEl.textContent = a.date || this.selectedDate || '-';
+    }
+    if (areaEl) {
+      areaEl.textContent = a.bodyPart || patientObj?.clinicalSheet?.affectedArea || 'علاج طبيعي عام';
+    }
+
+    if (statusBadgeEl) {
+      const st = a.status || 'scheduled';
+      if (st === 'completed') {
+        statusBadgeEl.className = 'badge badge-appt-completed';
+        statusBadgeEl.innerHTML = '<i class="fa-solid fa-check"></i> مكتمل';
+      } else if (st === 'attended') {
+        statusBadgeEl.className = 'badge badge-appt-attended';
+        statusBadgeEl.innerHTML = '<i class="fa-solid fa-bolt"></i> تم الحضور / جلسة مسجلة';
+      } else if (st === 'no-show') {
+        statusBadgeEl.className = 'badge badge-appt-noshow';
+        statusBadgeEl.innerHTML = '<i class="fa-solid fa-user-xmark"></i> لم يحضر (No-Show)';
+      } else {
+        statusBadgeEl.className = 'badge badge-primary';
+        statusBadgeEl.innerHTML = '<i class="fa-regular fa-clock"></i> محجوز';
+      }
+    }
+
+    const phone = patientObj?.phone || '';
+    if (callBtn) {
+      if (phone) {
+        callBtn.href = `tel:${phone}`;
+        callBtn.style.display = 'inline-flex';
+      } else {
+        callBtn.style.display = 'none';
+      }
+    }
+    if (waBtn) {
+      if (phone) {
+        const cleanPhone = phone.replace(/\D/g, '');
+        const waNum = cleanPhone.startsWith('0') ? '2' + cleanPhone : cleanPhone;
+        waBtn.href = `https://wa.me/${waNum}`;
+        waBtn.style.display = 'inline-flex';
+      } else {
+        waBtn.style.display = 'none';
+      }
+    }
+
+    this.app.openModal('modal-appt-actions');
+  }
+
+  async handleCheckinFromAppt(appt) {
+    if (!appt) return;
+    this.app.closeModal('modal-appt-actions');
+
+    // 1. Mark as attended in Firestore
+    try {
+      await db.updateAppointmentStatus(appt.id, 'attended', {
+        attendedAt: new Date().toLocaleTimeString('ar-EG-u-nu-latn', { hour: '2-digit', minute: '2-digit' })
+      });
+      appt.status = 'attended';
+    } catch (e) {
+      console.warn('Update attended status notice:', e);
+    }
+
+    // 2. Switch to sessions view
+    this.app.switchView('sessions');
+
+    // 3. Select patient in sessionsManager
+    if (this.app?.sessionsManager?.selectPatient) {
+      await this.app.sessionsManager.selectPatient(appt.patientId);
+
+      // Pre-select doctor if matched
+      if (appt.doctorName) {
+        const docSelect = document.getElementById('session-doctor-select');
+        if (docSelect) {
+          docSelect.value = appt.doctorName;
+          this.app.updateCustomSelectDisplay('session-doctor-select');
+        }
+      }
+    }
+
+    if (this.app?.showToast) {
+      this.app.showToast(`تم فتح تسجيل الجلسة للمريض: ${appt.patientName}`, 'success');
+    }
+  }
+
+  async handleStatusUpdateFromSheet(status) {
+    const appt = this.selectedApptForAction;
+    if (!appt) return;
+    this.app.closeModal('modal-appt-actions');
+
+    try {
+      const meta = {};
+      if (status === 'completed') {
+        meta.completedAt = new Date().toLocaleTimeString('ar-EG-u-nu-latn', { hour: '2-digit', minute: '2-digit' });
+        meta.completedBy = auth.getCurrentUser()?.name || 'الاستقبال';
+      } else if (status === 'no-show') {
+        meta.noShowMarkedAt = new Date().toLocaleTimeString('ar-EG-u-nu-latn', { hour: '2-digit', minute: '2-digit' });
+      }
+
+      await db.updateAppointmentStatus(appt.id, status, meta);
+      appt.status = status;
+
+      const titles = {
+        completed: 'تم إنهاء الجلسة',
+        'no-show': 'تم تحديد الحالة: لم يحضر',
+        scheduled: 'تمت إعادة الحالة إلى محجوز'
+      };
+      if (this.app?.showToast) {
+        this.app.showToast(`${titles[status] || 'تم تحديث الموعد'}: ${appt.patientName}`);
+      }
+      await this.refreshVisibleGrids();
+    } catch (err) {
+      this.app.showAlert('تعذر تحديث حالة الموعد: ' + err.message, 'خطأ', 'danger');
+    }
   }
 
   handleGridClick(e) {
@@ -720,8 +1045,19 @@ export class AppointmentsManager {
     // 2.5 Move / reschedule appointment
     const moveBtn = e.target.closest('[data-move-appt]');
     if (moveBtn) {
+      e.stopPropagation();
       this.openMoveModal(moveBtn.getAttribute('data-move-appt'));
       return;
+    }
+
+    // 2.7 Open Action Sheet for appointment
+    const apptActionTrigger = e.target.closest('[data-appt-action-id]');
+    if (apptActionTrigger) {
+      const apptId = apptActionTrigger.getAttribute('data-appt-action-id');
+      if (apptId) {
+        this.openApptActionSheet(apptId);
+        return;
+      }
     }
 
     // 3. Add appointment
@@ -930,9 +1266,12 @@ export class AppointmentsManager {
         doctorUid: chosenUid,
         doctorName: chosenName,
         timeSlot: this.pendingTimeSlot,
+        date: this.selectedDate,
+        dayOfWeek: getDayShiftKey(this.selectedDate),
         patientId: this.selectedPatientId,
         patientName: this.selectedPatientName,
         bodyPart: bodyPartVal,
+        status: 'scheduled',
         createdBy: auth.getCurrentUser()?.name || ''
       });
       this.app.closeModal('modal-appointment');

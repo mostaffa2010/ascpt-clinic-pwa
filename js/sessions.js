@@ -959,6 +959,26 @@ export class SessionsManager {
 
     const saveRes = await db.saveSession(sessionData, currentUser);
     this.newlyAddedSessionId = (saveRes && saveRes.id) ? saveRes.id : (sessionData.id || this.editingSessionId);
+
+    // Automatic Appointment Sync: Mark matching appointment as attended (v2.0.0)
+    try {
+      if (typeof db.getAppointments === 'function' && typeof db.updateAppointmentStatus === 'function') {
+        const allAppts = await db.getAppointments();
+        const matchedAppt = allAppts.find(a =>
+          a.patientId === this.selectedPatientId &&
+          (a.date === sessionDateVal || !a.date) &&
+          a.status !== 'completed'
+        );
+        if (matchedAppt) {
+          await db.updateAppointmentStatus(matchedAppt.id, 'attended', {
+            attendedAt: new Date().toLocaleTimeString('ar-EG-u-nu-latn', { hour: '2-digit', minute: '2-digit' })
+          });
+          matchedAppt.status = 'attended';
+        }
+      }
+    } catch (syncErr) {
+      console.warn('Sync appointment status notice:', syncErr);
+    }
     this.currentPage = 1;
     
     let auditAction = isEdit ? 'تعديل جلسة' : 'تسجيل جلسة';

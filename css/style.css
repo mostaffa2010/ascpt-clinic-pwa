@@ -10091,3 +10091,186 @@ body.role-doctor .btn-quick-attend {
   color: var(--primary) !important;
   transform: translateY(-2px) !important;
 }
+
+/* ==========================================================================
+   APPOINTMENTS CALENDAR DATE STRIP & ACTION BOTTOM SHEET (v2.0.0)
+   Zero !important policy - uses standard token hierarchy
+   ========================================================================== */
+.appt-date-navigator-bar {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.appt-date-nav-controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.appt-nav-arrow {
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-sm, 8px);
+}
+
+.appt-date-input-wrap {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  flex: 1;
+  max-width: 220px;
+}
+
+.appt-date-input-wrap input {
+  height: 38px;
+  padding-left: 32px;
+  font-weight: 700;
+  font-size: 0.88rem;
+  cursor: pointer;
+}
+
+.appt-date-input-wrap i {
+  position: absolute;
+  left: 10px;
+  pointer-events: none;
+}
+
+.appt-today-pill {
+  height: 38px;
+  padding: 0 16px;
+  font-weight: 800;
+  font-size: 0.85rem;
+  border-radius: var(--radius-sm, 8px);
+}
+
+.appt-weekday-strip {
+  display: flex;
+  gap: 6px;
+  overflow-x: auto;
+  padding-bottom: 4px;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+
+.appt-weekday-strip::-webkit-scrollbar {
+  display: none;
+}
+
+.appt-weekday-pill {
+  flex: 1 0 auto;
+  min-width: 68px;
+  padding: 6px 10px;
+  border-radius: var(--radius-md, 10px);
+  border: 1.5px solid var(--border-color);
+  background: var(--bg-surface);
+  color: var(--text-muted);
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  transition: all 0.15s ease;
+  position: relative;
+  user-select: none;
+}
+
+.appt-weekday-pill .awp-name {
+  font-size: 0.76rem;
+  font-weight: 800;
+}
+
+.appt-weekday-pill .awp-date {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+}
+
+.appt-weekday-pill.is-today .awp-name {
+  color: var(--primary);
+}
+
+.appt-weekday-pill.active {
+  background: var(--primary);
+  border-color: var(--primary);
+  color: #ffffff;
+  box-shadow: 0 2px 8px rgba(2, 132, 199, 0.3);
+}
+
+.appt-weekday-pill.active .awp-date {
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.appt-weekday-pill .awp-badge {
+  font-size: 0.65rem;
+  padding: 1px 5px;
+  border-radius: 999px;
+  background: rgba(2, 132, 199, 0.15);
+  color: var(--primary);
+  font-weight: 800;
+  margin-top: 2px;
+}
+
+.appt-weekday-pill.active .awp-badge {
+  background: #ffffff;
+  color: var(--primary);
+}
+
+/* Appointment Chip Upgrades */
+.appt-chip.clickable {
+  cursor: pointer;
+  transition: transform 0.12s ease, box-shadow 0.12s ease;
+}
+
+.appt-chip.clickable:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+}
+
+.badge-appt-completed {
+  background: rgba(16, 185, 129, 0.15);
+  color: #10b981;
+  border: 1px solid rgba(16, 185, 129, 0.35);
+  font-weight: 800;
+}
+
+.badge-appt-attended {
+  background: rgba(2, 132, 199, 0.15);
+  color: var(--primary);
+  border: 1px solid rgba(2, 132, 199, 0.35);
+  font-weight: 800;
+}
+
+.badge-appt-noshow {
+  background: rgba(239, 68, 68, 0.15);
+  color: #ef4444;
+  border: 1px solid rgba(239, 68, 68, 0.35);
+  font-weight: 800;
+}
+
+/* Mobile Bottom Sheet Responsive Transformation */
+@media screen and (max-width: 640px) {
+  .modal-backdrop:has(.modal-content-bottom-sheet) {
+    align-items: flex-end;
+    padding: 0;
+  }
+
+  .modal-content-bottom-sheet {
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
+    border-top-left-radius: 20px;
+    border-top-right-radius: 20px;
+    max-height: 88vh;
+    animation: sheetSlideUp 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+}
+
+@keyframes sheetSlideUp {
+  from { transform: translateY(100%); }
+  to { transform: translateY(0); }
+}
