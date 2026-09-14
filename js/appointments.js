@@ -5,7 +5,7 @@
 // Time slots represent horizontal rows across all doctors.
 // Slots can now be customized, added, or deleted directly from the UI.
 
-import { escapeHTML, initStackDeck, getDoctorColor, getLocalDateStr, isDoctorOnDuty, getShiftLabel } from './utils.js';
+import { escapeHTML, initStackDeck, getDoctorColor, getLocalDateStr, isDoctorOnDuty, getShiftLabel, getDayShiftKey } from './utils.js';
 import { db } from './db.js';
 import { auth } from './auth.js';
 
