@@ -266,8 +266,11 @@ export class AppointmentsManager {
       if (a.dayOfWeek) {
         return a.dayOfWeek === shiftKey;
       }
-      const doc = (this.doctors || []).find(d => d.uid === a.doctorUid);
-      return isDoctorOnDuty(doc?.shift, dateStr, this.shiftOverrides, a.doctorUid);
+      const doc = (this.doctors || []).find(d =>
+        (a.doctorUid && (d.uid === a.doctorUid || d.id === a.doctorUid)) ||
+        (a.doctorName && (d.name === a.doctorName || a.doctorName.includes(d.name) || d.name.includes(a.doctorName)))
+      );
+      return isDoctorOnDuty(doc?.shift, dateStr, this.shiftOverrides, a.doctorUid || doc?.uid);
     });
   }
 
@@ -278,7 +281,15 @@ export class AppointmentsManager {
 
   getCellAppointments(doctorUid, timeSlot, targetDate = this.selectedDate) {
     const dayAppts = this.getAppointmentsForDate(targetDate);
-    return dayAppts.filter(a => a.doctorUid === doctorUid && a.timeSlot === timeSlot);
+    const docObj = (this.doctors || []).find(d => d.uid === doctorUid || d.id === doctorUid);
+    const docName = docObj?.name || '';
+
+    return dayAppts.filter(a => {
+      if (a.timeSlot !== timeSlot) return false;
+      if (a.doctorUid && (a.doctorUid === doctorUid || (docObj && a.doctorUid === docObj.id))) return true;
+      if (a.doctorName && docName && (a.doctorName === docName || a.doctorName.includes(docName) || docName.includes(a.doctorName))) return true;
+      return false;
+    });
   }
 
   navigateDay(delta) {
@@ -783,7 +794,16 @@ export class AppointmentsManager {
     return `
       <div class="appt-timeline-grid-container">
         ${slotsToRender.map((slot) => {
-          const totalInSlot = this.getSlotTotalCount(slot.key);
+          const currentUser = auth.getCurrentUser();
+          const rawSlotAppts = this.getAppointmentsForDate(this.selectedDate).filter(a => a.timeSlot === slot.key && a.status !== 'cancelled');
+          const slotAppts = (isDoctorReadOnly && currentUser)
+            ? rawSlotAppts.filter(a =>
+                (a.doctorUid && (a.doctorUid === currentUser.uid || a.doctorUid === currentUser.id)) ||
+                (currentUser.name && a.doctorName && (a.doctorName === currentUser.name || a.doctorName.includes(currentUser.name) || currentUser.name.includes(a.doctorName)))
+              )
+            : rawSlotAppts;
+
+          const totalInSlot = slotAppts.length;
           const isFull = totalInSlot >= MAX_BEDS_PER_SLOT;
           const overCapacity = totalInSlot > MAX_BEDS_PER_SLOT;
 
@@ -793,16 +813,28 @@ export class AppointmentsManager {
               ? `<span class="badge badge-cash" style="font-weight: 800;"><i class="fa-solid fa-bed"></i> مكتمل (${totalInSlot}/${MAX_BEDS_PER_SLOT})</span>`
               : `<span class="badge badge-direct" style="font-weight: 800;"><i class="fa-solid fa-bed"></i> ${totalInSlot} من ${MAX_BEDS_PER_SLOT} أسرة</span>`);
 
-          // Only list doctors who actually have appointments in this slot
-          const activeDocAppts = doctorsToShow.map((doc) => {
-            const cellAppts = this.getCellAppointments(doc.uid, slot.key);
-            if (cellAppts.length === 0) return null;
-            const cleanDoc = (doc.name || '').replace(/^د\.\s*/, '');
-            const docColor = getDoctorColor(doc.uid || doc.name);
-            return { doc, cleanDoc, cellAppts, docColor };
-          }).filter(Boolean);
-
-          const isSingleDoc = doctorsToShow.length === 1;
+          // Group slot appointments by doctor dynamically from actual slot appointments
+          const docGroupsMap = new Map();
+          slotAppts.forEach(a => {
+            const docKey = a.doctorUid || a.doctorName || 'general';
+            if (!docGroupsMap.has(docKey)) {
+              const docObj = (this.doctors || []).find(d =>
+                (a.doctorUid && (d.uid === a.doctorUid || d.id === a.doctorUid)) ||
+                (a.doctorName && (d.name === a.doctorName || a.doctorName.includes(d.name) || d.name.includes(a.doctorName)))
+              );
+              const docName = a.doctorName || docObj?.name || 'طبيب المركز';
+              const cleanDoc = docName.replace(/^د\.\s*/, '');
+              const docColor = getDoctorColor(a.doctorUid || docName);
+              docGroupsMap.set(docKey, {
+                doc: docObj,
+                cleanDoc,
+                docColor,
+                cellAppts: []
+              });
+            }
+            docGroupsMap.get(docKey).cellAppts.push(a);
+          });
+          const activeDocAppts = Array.from(docGroupsMap.values());
 
           return `
             <div class="hero-styled-card appt-slot-card">
@@ -822,7 +854,7 @@ export class AppointmentsManager {
                   <div class="appt-chips-wrap">
                     ${activeDocAppts.map(({ cleanDoc, cellAppts, docColor }) => `
                       <div class="appt-active-doc-group">
-                        ${!isSingleDoc ? `
+                        ${true ? `
                           <div class="appt-slot-doc-name" style="color: ${docColor.color}; font-weight: 800; font-size: 0.82rem; margin-bottom: 5px;">
                             <span style="width: 8px; height: 8px; border-radius: 50%; background: ${docColor.color}; display: inline-block; margin-left: 5px;"></span>
                             د. ${escapeHTML(cleanDoc)}:

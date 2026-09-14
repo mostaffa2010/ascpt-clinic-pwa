@@ -10221,6 +10221,32 @@ body.role-doctor .btn-quick-attend {
   color: var(--primary);
 }
 
+.appt-weekday-pill .awp-name {
+  font-size: 0.76rem;
+  font-weight: 800;
+  color: var(--text-main);
+}
+
+.appt-weekday-pill.is-today .awp-name {
+  color: var(--primary);
+}
+
+.appt-weekday-pill.active .awp-name,
+.appt-weekday-pill.active.is-today .awp-name {
+  color: #ffffff !important;
+}
+
+.appt-weekday-pill.active .awp-date,
+.appt-weekday-pill.active.is-today .awp-date {
+  color: rgba(255, 255, 255, 0.95) !important;
+}
+
+.appt-weekday-pill.active .awp-badge,
+.appt-weekday-pill.active.is-today .awp-badge {
+  background: #ffffff !important;
+  color: var(--primary) !important;
+}
+
 /* Appointment Chip Upgrades */
 .appt-chip.clickable {
   cursor: pointer;
