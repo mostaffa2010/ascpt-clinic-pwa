@@ -121,8 +121,8 @@
   
 
     <!-- Stylesheets -->
-  <link rel="stylesheet" href="css/style.css?v=1.4.92" media="screen">
-  <link rel="stylesheet" href="css/print.css?v=1.4.92" media="print">
+  <link rel="stylesheet" href="css/style.css?v=1.4.93" media="screen">
+  <link rel="stylesheet" href="css/print.css?v=1.4.93" media="print">
   <script>
     async function __performDirectLogin(e) {
       if (e) {
@@ -233,6 +233,39 @@
 
     window.__doLogin = __performDirectLogin;
     window.__handleLoginDirect = __performDirectLogin;
+  </script>
+
+  <script>
+    window.switchAppView = function(viewName) {
+      if (window.app && typeof window.app.switchView === 'function') {
+        window.app.switchView(viewName);
+        return;
+      }
+      document.querySelectorAll('.view-section').forEach(function(sec) {
+        sec.classList.remove('active');
+      });
+      var target = document.getElementById('view-' + viewName);
+      if (target) target.classList.add('active');
+
+      document.querySelectorAll('.bottom-nav .b-nav-item').forEach(function(btn) {
+        btn.classList.toggle('active', btn.getAttribute('data-view') === viewName);
+      });
+      document.querySelectorAll('.sidebar-nav .nav-link').forEach(function(btn) {
+        btn.classList.toggle('active', btn.getAttribute('data-view') === viewName);
+      });
+
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+
+      if (viewName === 'patients' && window.patientsManager) {
+        window.patientsManager.loadPatients();
+      } else if (viewName === 'sessions' && window.sessionsManager) {
+        window.sessionsManager.loadTodaySessions();
+      } else if (viewName === 'finance' && window.financeManager) {
+        window.financeManager.loadDailyReport();
+      } else if (viewName === 'appointments' && window.appointmentsManager) {
+        window.appointmentsManager.render();
+      }
+    };
   </script>
 
 </head>
@@ -412,28 +445,28 @@
               <span class="quick-access-title"><i class="fa-solid fa-bolt" style="color: var(--warning);"></i> وصول سريع</span>
             </div>
             <div class="quick-access-items">
-              <button type="button" class="quick-action-btn" data-view-target="sessions">
+              <button type="button" class="quick-action-btn" data-view-target="sessions" onclick="window.switchAppView('sessions');">
                 <div class="quick-action-icon qa-blue">
                   <i class="fa-solid fa-hand-holding-medical"></i>
                 </div>
                 <span class="quick-action-label">جلسة جديدة</span>
               </button>
               
-              <button type="button" class="quick-action-btn" data-view-target="patients" id="btn-quick-new-patient">
+              <button type="button" class="quick-action-btn" data-view-target="patients" id="btn-quick-new-patient" onclick="window.switchAppView('patients');">
                 <div class="quick-action-icon qa-emerald">
                   <i class="fa-solid fa-user-plus"></i>
                 </div>
                 <span class="quick-action-label">مريض جديد</span>
               </button>
               
-              <button type="button" class="quick-action-btn" data-view-target="appointments">
+              <button type="button" class="quick-action-btn" data-view-target="appointments" onclick="window.switchAppView('appointments');">
                 <div class="quick-action-icon qa-indigo">
                   <i class="fa-solid fa-calendar-day"></i>
                 </div>
                 <span class="quick-action-label">جدول المواعيد</span>
               </button>
               
-              <button type="button" class="quick-action-btn" data-view-target="finance">
+              <button type="button" class="quick-action-btn" data-view-target="finance" onclick="window.switchAppView('finance');">
                 <div class="quick-action-icon qa-amber">
                   <i class="fa-solid fa-receipt"></i>
                 </div>
@@ -1878,7 +1911,7 @@
         <div class="admin-system-footer no-print" style="margin-top: 32px; margin-bottom: 35px; text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px;">
           <div style="display: inline-flex; align-items: center; gap: 8px; background: var(--bg-surface); border: 1.5px solid var(--border-color); padding: 7px 18px; border-radius: 999px; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);">
             <span style="width: 8px; height: 8px; border-radius: 50%; background-color: var(--success); display: inline-block; box-shadow: 0 0 6px var(--success);"></span>
-            <span style="font-weight: 800; font-size: 0.88rem; color: var(--text-main);">نظام ASCPT — الإصدار 1.4.92</span>
+            <span style="font-weight: 800; font-size: 0.88rem; color: var(--text-main);">نظام ASCPT — الإصدار 1.4.93</span>
             <span class="badge badge-primary" style="font-size: 0.72rem; padding: 2px 10px; border-radius: 999px; font-weight: 800;">إصدار معتمد</span>
           </div>
           <div style="font-size: 0.76rem; color: var(--text-muted); font-weight: 700;">
@@ -1892,23 +1925,23 @@
 
     <!-- Mobile Bottom Navigation Bar -->
     <nav class="bottom-nav no-print">
-      <button class="b-nav-item active" data-view="dashboard">
+      <button class="b-nav-item active" data-view="dashboard" onclick="window.switchAppView('dashboard');">
         <i class="fa-solid fa-chart-pie"></i>
         <span>الرئيسية</span>
       </button>
-      <button class="b-nav-item" data-view="patients">
+      <button class="b-nav-item" data-view="patients" onclick="window.switchAppView('patients');">
         <i class="fa-solid fa-users"></i>
         <span>المرضى</span>
       </button>
-      <button class="b-nav-item" data-view="sessions">
+      <button class="b-nav-item" data-view="sessions" onclick="window.switchAppView('sessions');">
         <i class="fa-solid fa-calendar-check"></i>
         <span>الجلسات</span>
       </button>
-      <button class="b-nav-item" data-view="finance">
+      <button class="b-nav-item" data-view="finance" onclick="window.switchAppView('finance');">
         <i class="fa-solid fa-file-invoice-dollar"></i>
         <span>الحسابات</span>
       </button>
-      <button class="b-nav-item" data-view="appointments">
+      <button class="b-nav-item" data-view="appointments" onclick="window.switchAppView('appointments');">
         <i class="fa-solid fa-calendar-week"></i>
         <span>المواعيد</span>
       </button>
@@ -3731,7 +3764,7 @@
   
 
 <!-- Main Application Script (ES Module) -->
-  <script type="module" src="js/app.js?v=1.4.92"></script>
+  <script type="module" src="js/app.js?v=1.4.93"></script>
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {

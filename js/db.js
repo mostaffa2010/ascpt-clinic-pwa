@@ -397,8 +397,15 @@ class SupabaseDatabaseService {
       const users = await this.getUsers();
       const activeDoctors = users
         .filter(u => u.role === 'doctor' && u.active !== false)
-        .map(u => u.name)
-        .filter(Boolean);
+        .map(u => ({
+          uid: u.id,
+          id: u.id,
+          name: u.name,
+          role: u.role,
+          shift: u.shift || u.data?.shift || 'sat_mon_wed',
+          regularSessionRate: u.regularSessionRate || u.data?.regularSessionRate || 0,
+          specialSessionRate: u.specialSessionRate || u.data?.specialSessionRate || 0
+        }));
 
       if (activeDoctors.length > 0) {
         return activeDoctors;
@@ -406,10 +413,10 @@ class SupabaseDatabaseService {
     } catch (_) {}
 
     return [
-      'د. حسني أحمد الجويلي',
-      'د. أحمد مجدي',
-      'د. سارة عثمان',
-      'د. كريم عبد العزيز'
+      { uid: 'doc_1', id: 'doc_1', name: 'د. حسني أحمد الجويلي', role: 'doctor', shift: 'all' },
+      { uid: 'doc_2', id: 'doc_2', name: 'د. أحمد مجدي', role: 'doctor', shift: 'sat_mon_wed' },
+      { uid: 'doc_3', id: 'doc_3', name: 'د. سارة عثمان', role: 'doctor', shift: 'sun_tue_thu' },
+      { uid: 'doc_4', id: 'doc_4', name: 'د. كريم عبد العزيز', role: 'doctor', shift: 'sat_mon_wed' }
     ];
   }
 
