@@ -482,6 +482,7 @@ export class AppointmentsManager {
   }
 
   async renderForDoctor(doctorUid) {
+    this.subscribeToUpdates();
     const grid = document.getElementById('my-appointments-grid');
     if (!grid) return;
     try {

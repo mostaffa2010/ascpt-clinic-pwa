@@ -479,7 +479,16 @@ export class PatientsManager {
     }
   }
 
-  async loadPatients() {
+  async loadPatients(forceRefresh = false) {
+    // Real-time zero-cost listener: subscribe to changes across the patients directory
+    if (db.subscribeToPatients && !this._patientsSubscribed) {
+      this._patientsSubscribed = true;
+      db.subscribeToPatients((updatedPatients) => {
+        this.patients = updatedPatients;
+        this.renderPatients();
+      });
+    }
+
     // If sessions or appointments not loaded yet, fetch them for accurate today counting
     if (this.app?.sessionsManager && (!this.app.sessionsManager.sessions || this.app.sessionsManager.sessions.length === 0)) {
       try { await this.app.sessionsManager.loadTodaySessions(); } catch (_) {}
@@ -488,7 +497,7 @@ export class PatientsManager {
       try { await this.app.appointmentsManager.loadAll(); } catch (_) {}
     }
 
-    this.patients = await db.getPatients();
+    this.patients = await db.getPatients(forceRefresh);
     this.renderPatients();
   }
 

@@ -10,6 +10,7 @@ export class DoctorDashboardManager {
   constructor(app) {
     this.app = app;
     this.currentFilter = 'today'; // 'today' | 'month' | 'lifetime'
+    this._sessionsSubscribed = false;
   }
 
   init() {
@@ -52,6 +53,16 @@ export class DoctorDashboardManager {
 
     const todayStr = getLocalDateStr();
     const currentMonth = todayStr.substring(0, 7);
+
+    // Real-time listener for today's activity on doctor dashboard (Instant sync when reception adds sessions)
+    if (db.subscribeToTodaySessions && !this._sessionsSubscribed) {
+      this._sessionsSubscribed = true;
+      db.subscribeToTodaySessions(todayStr, async () => {
+        // Re-render doctor metrics and table automatically when a new session is recorded
+        await this.render();
+      });
+    }
+
     // Scoped query: fetch only current month's sessions (Zero-Cost Scoped)
     const allSessions = await db.getSessions(currentMonth);
     const allPatients = await db.getPatients();

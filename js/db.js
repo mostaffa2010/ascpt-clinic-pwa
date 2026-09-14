@@ -1,3 +1,10 @@
+function getLocalTodayDateStr() {
+  const d = new Date();
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${y}-${m}-${day}`;
+}
 // ========================================================
 // ASCPT - Authoritative Cloud Firestore Data Access Layer
 // Single Source of Truth: Firestore + Built-in IndexedDB Persistence
@@ -555,7 +562,7 @@ class FirestoreDatabaseService {
   // ================= Real-time Session Sync =================
   subscribeToTodaySessions(dateStr, callback) {
     if (!this.isCloud) return () => {};
-    const targetDate = dateStr || (new Date().toISOString().substring(0, 10));
+    const targetDate = dateStr || getLocalTodayDateStr();
     try {
       const q = query(
         collection(firestoreDb, 'sessions'),
@@ -565,6 +572,10 @@ class FirestoreDatabaseService {
         const list = snap.docs.map(d => ({ ...d.data(), id: d.id }));
         const sorted = this._filterAndSortSessions(list, targetDate);
         this._sessionsByDateCache.set(targetDate, { data: sorted, time: Date.now() });
+        // Invalidate month cache so doctor dashboard and finance reflect changes in real-time
+        if (targetDate.length >= 7) {
+          this._sessionsByDateCache.delete(targetDate.substring(0, 7));
+        }
         list.forEach(s => this._sessionDocCache.set(s.id, s));
         if (typeof callback === 'function') {
           callback(sorted);
