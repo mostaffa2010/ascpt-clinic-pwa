@@ -1790,10 +1790,20 @@ export class PatientsManager {
     if (insLetterBtn) insLetterBtn.style.display = (p.billing === 'cash') ? 'none' : 'inline-flex';
 
     if (badgeEl) {
+      const therapySessions = this.currentPatientSessions.filter(s => s.entryType !== 'examination');
+      const examCount = this.currentPatientSessions.length - therapySessions.length;
+      const therapyCount = therapySessions.length;
+
       if (p.billing === 'cash') {
         badgeEl.innerHTML = '<span class="badge badge-cash" style="font-size: 0.78rem; padding: 4px 10px; font-weight: 700; white-space: nowrap; display: inline-flex; align-items: center; gap: 5px;"><i class="fa-solid fa-money-bill-wave"></i> نقدي</span>';
         if (sessBtnText) {
-          sessBtnText.innerHTML = `سجل الجلسات (<strong>${this.currentPatientSessions.length}</strong>)`;
+          if (examCount > 0 && therapyCount > 0) {
+            sessBtnText.innerHTML = `سجل الجلسات (<strong>${therapyCount}</strong> جلسة • <strong>${examCount}</strong> كشف)`;
+          } else if (examCount > 0) {
+            sessBtnText.innerHTML = `سجل الحركات (<strong>${examCount}</strong> كشف)`;
+          } else {
+            sessBtnText.innerHTML = `سجل الجلسات (<strong>${therapyCount}</strong>)`;
+          }
         }
         if (sessBtn) {
           sessBtn.className = 'pcm-sessions-chip';
@@ -1815,7 +1825,8 @@ export class PatientsManager {
           let extraStatus = '';
           if (isCompleted) extraStatus = ' <i class="fa-solid fa-circle-exclamation text-danger" title="اكتملت الموافقة"></i>';
           else if (isNearLimit) extraStatus = ' <i class="fa-solid fa-triangle-exclamation text-warning" title="اقتراب الانتهاء"></i>';
-          sessBtnText.innerHTML = `سجل الجلسات: <strong>${currentCount} من ${approvedTotal}</strong>${extraStatus}`;
+          const examExtra = examCount > 0 ? ` • <strong>${examCount}</strong> كشف` : '';
+          sessBtnText.innerHTML = `سجل الجلسات: <strong>${currentCount} من ${approvedTotal}</strong>${examExtra}${extraStatus}`;
         }
         if (sessBtn) {
           sessBtn.className = 'pcm-sessions-chip';
@@ -2233,7 +2244,7 @@ export class PatientsManager {
         const isExam = (s.entryType === 'examination');
         let sessionBadgeHTML = '';
         if (isExam) {
-          sessionBadgeHTML = `<span class="badge" style="background: rgba(147, 51, 234, 0.16); color: #9333ea; font-weight: 800; font-size: 0.78rem; border: 1px solid rgba(147, 51, 234, 0.35); padding: 3px 10px; border-radius: 999px;"><i class="fa-solid fa-stethoscope"></i> كشف واستشارة</span>`;
+          sessionBadgeHTML = `<span class="badge badge-examination"><i class="fa-solid fa-stethoscope"></i> كشف واستشارة</span>`;
         } else {
           sessionBadgeHTML = `<span class="stc-num-badge">الجلسة #${therapyCounter}</span>`;
           therapyCounter--;
@@ -2261,7 +2272,7 @@ export class PatientsManager {
 
         let partBadgeHTML = '';
         if (isExam) {
-          partBadgeHTML = `<span class="stc-part-pill" style="color: #9333ea; background: rgba(147, 51, 234, 0.1); border: 1px solid rgba(147, 51, 234, 0.25);"><i class="fa-solid fa-stethoscope"></i> فحص وتقييم</span>`;
+          partBadgeHTML = `<span class="stc-part-pill pill-examination"><i class="fa-solid fa-stethoscope"></i> فحص وتقييم</span>`;
         } else {
           const parts = Array.isArray(s.bodyParts) ? s.bodyParts.join('، ') : (s.bodyParts || 'غير محدد');
           partBadgeHTML = `<span class="stc-part-pill"><i class="fa-solid fa-location-crosshairs"></i> ${escapeHTML(parts)}</span>`;

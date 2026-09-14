@@ -1365,7 +1365,7 @@ export class SessionsManager {
 
       let sessionNumBadge = '';
       if (isExam) {
-        sessionNumBadge = `<span class="badge" style="background: #ede9fe; color: #6d28d9; font-weight: 800; font-size: 0.76rem;"><i class="fa-solid fa-stethoscope"></i> كشف</span>`;
+        sessionNumBadge = `<span class="badge badge-examination"><i class="fa-solid fa-stethoscope"></i> كشف</span>`;
       } else {
         const pObj = patientsMap.get(s.patientId);
         const cycleStart = pObj?.currentApprovalStartDate || '';
@@ -1469,7 +1469,7 @@ export class SessionsManager {
 
         let sessionNumBadge = '';
         if (isExam) {
-          sessionNumBadge = `<span class="badge" style="background: rgba(109, 40, 217, 0.18); color: #c4b5fd; font-weight: 800; font-size: 0.78rem; border: 1px solid rgba(109, 40, 217, 0.3);"><i class="fa-solid fa-stethoscope"></i> كشف</span>`;
+          sessionNumBadge = `<span class="badge badge-examination"><i class="fa-solid fa-stethoscope"></i> كشف</span>`;
         } else {
           const pObj = patientsMap.get(s.patientId);
           const cycleStart = pObj?.currentApprovalStartDate || '';
