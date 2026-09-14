@@ -11,6 +11,7 @@ export class DoctorDashboardManager {
     this.app = app;
     this.currentFilter = 'today'; // 'today' | 'month' | 'lifetime'
     this._sessionsSubscribed = false;
+    this._isRendering = false;
   }
 
   init() {
@@ -42,8 +43,11 @@ export class DoctorDashboardManager {
   }
 
   async render() {
-    const user = auth.getCurrentUser();
-    if (!user || user.role !== 'doctor') return;
+    if (this._isRendering) return;
+    this._isRendering = true;
+    try {
+      const user = auth.getCurrentUser();
+      if (!user || user.role !== 'doctor') return;
 
     const docName = user.name;
     const subEl = document.getElementById('doctor-dashboard-sub');
@@ -192,6 +196,9 @@ export class DoctorDashboardManager {
     }
 
     this.renderTable();
+    } finally {
+      this._isRendering = false;
+    }
   }
 
   renderTable() {

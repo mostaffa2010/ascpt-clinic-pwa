@@ -1795,7 +1795,7 @@ export class AppointmentsManager {
       this.app.patientsManager.renderPatients();
     }
   }
-}
+
 
 
   // ================= Copy / Duplicate Appointment Modal =================
@@ -1966,3 +1966,5 @@ export class AppointmentsManager {
       if (btnSubmit) btnSubmit.disabled = false;
     }
   }
+
+}

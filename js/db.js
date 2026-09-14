@@ -1,10 +1,3 @@
-function getLocalTodayDateStr() {
-  const d = new Date();
-  const y = d.getFullYear();
-  const m = String(d.getMonth() + 1).padStart(2, '0');
-  const day = String(d.getDate()).padStart(2, '0');
-  return `${y}-${m}-${day}`;
-}
 // ========================================================
 // ASCPT - Authoritative Cloud Firestore Data Access Layer
 // Single Source of Truth: Firestore + Built-in IndexedDB Persistence
@@ -29,6 +22,15 @@ import {
 
 import { firestoreDb, isConfigured } from './firebase-init.js';
 import { CLINIC_CONFIG } from './clinic-config.js';
+
+function getLocalTodayDateStr() {
+  const d = new Date();
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${y}-${m}-${day}`;
+}
+
 
 // ========================================================
 // Lightweight Asynchronous IndexedDB Cache Engine
