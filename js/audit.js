@@ -141,12 +141,13 @@ export class AuditAndAdminManager {
     const regRateInput = document.getElementById('newuser-regular-rate');
     const scolRateInput = document.getElementById('newuser-scoliosis-rate');
     const hemiRateInput = document.getElementById('newuser-hemiplegia-rate');
-    const pedRateInput = document.getElementById('newuser-pediatric-rate');
+    const quadRateInput = document.getElementById('newuser-quadriplegia-rate') || document.getElementById('newuser-pediatric-rate');
     const specRateInput = document.getElementById('newuser-special-rate');
     const regularSessionRate = (role === 'doctor') ? (parseFloat(regRateInput?.value) || 0) : null;
     const scoliosisRate = (role === 'doctor') ? (parseFloat(scolRateInput?.value) || 0) : null;
     const hemiplegiaRate = (role === 'doctor') ? (parseFloat(hemiRateInput?.value) || 0) : null;
-    const pediatricRate = (role === 'doctor') ? (parseFloat(pedRateInput?.value) || 0) : null;
+    const quadriplegiaRate = (role === 'doctor') ? (parseFloat(quadRateInput?.value) || 0) : null;
+    const pediatricRate = quadriplegiaRate;
     const specialSessionRate = (role === 'doctor') ? (parseFloat(specRateInput?.value) || 0) : null;
 
     if (!name || name.length < 2) {
@@ -188,7 +189,7 @@ export class AuditAndAdminManager {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${idToken}`
         },
-        body: JSON.stringify({ name, email, password, role, shift, seniorityLevel, regularSessionRate, scoliosisRate, hemiplegiaRate, pediatricRate, specialSessionRate })
+        body: JSON.stringify({ name, email, password, role, shift, seniorityLevel, regularSessionRate, scoliosisRate, hemiplegiaRate, quadriplegiaRate, pediatricRate, specialSessionRate })
       });
 
       const result = await response.json();
@@ -324,12 +325,13 @@ export class AuditAndAdminManager {
     const regInp = document.getElementById('shift-modal-regular-rate');
     const scolInp = document.getElementById('shift-modal-scoliosis-rate');
     const hemiInp = document.getElementById('shift-modal-hemiplegia-rate');
-    const pedInp = document.getElementById('shift-modal-pediatric-rate');
+    const quadInp = document.getElementById('shift-modal-quadriplegia-rate') || document.getElementById('shift-modal-pediatric-rate');
     const specInp = document.getElementById('shift-modal-special-rate');
     const regularSessionRate = Math.max(0, parseFloat(regInp?.value) || 0);
     const scoliosisRate = Math.max(0, parseFloat(scolInp?.value) || 0);
     const hemiplegiaRate = Math.max(0, parseFloat(hemiInp?.value) || 0);
-    const pediatricRate = Math.max(0, parseFloat(pedInp?.value) || 0);
+    const quadriplegiaRate = Math.max(0, parseFloat(quadInp?.value) || 0);
+    const pediatricRate = quadriplegiaRate;
     const specialSessionRate = Math.max(0, parseFloat(specInp?.value) || 0);
 
     const btnSave = document.getElementById('btn-save-doctor-shift');
@@ -350,7 +352,7 @@ export class AuditAndAdminManager {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${idToken}`
         },
-        body: JSON.stringify({ targetUid, shift, seniorityLevel, regularSessionRate, scoliosisRate, hemiplegiaRate, pediatricRate, specialSessionRate })
+        body: JSON.stringify({ targetUid, shift, seniorityLevel, regularSessionRate, scoliosisRate, hemiplegiaRate, quadriplegiaRate, pediatricRate, specialSessionRate })
       });
       const result = await res.json();
       if (!res.ok) throw new Error(result.error || 'فشل تحديث بيانات الطبيب.');
@@ -515,7 +517,7 @@ export class AuditAndAdminManager {
                     <div style="font-size: 0.76rem; color: var(--text-muted); font-weight: 700;">
                       <i class="fa-solid fa-calendar-days text-primary"></i> الشفت: <strong style="color: var(--text-main);">${escapeHTML(getShiftLabel(u.shift || 'sat_mon_wed'))}</strong>
                     </div>
-                    <button type="button" class="btn btn-outline btn-sm btn-change-doctor-shift" data-user-id="${escapeHTML(u.id)}" data-user-name="${safeName}" data-current-shift="${u.shift || 'sat_mon_wed'}" data-regular-rate="${typeof u.regularSessionRate === 'number' ? u.regularSessionRate : 0}" data-scoliosis-rate="${typeof u.scoliosisRate === 'number' ? u.scoliosisRate : 0}" data-hemiplegia-rate="${typeof u.hemiplegiaRate === 'number' ? u.hemiplegiaRate : 0}" data-pediatric-rate="${typeof u.pediatricRate === 'number' ? u.pediatricRate : 0}" style="padding: 3px 9px; font-size: 0.74rem; font-weight: 700;">
+                    <button type="button" class="btn btn-outline btn-sm btn-change-doctor-shift" data-user-id="${escapeHTML(u.id)}" data-user-name="${safeName}" data-current-shift="${u.shift || 'sat_mon_wed'}" data-regular-rate="${typeof u.regularSessionRate === 'number' ? u.regularSessionRate : 0}" data-scoliosis-rate="${typeof u.scoliosisRate === 'number' ? u.scoliosisRate : 0}" data-hemiplegia-rate="${typeof u.hemiplegiaRate === 'number' ? u.hemiplegiaRate : 0}" data-quadriplegia-rate="${typeof u.quadriplegiaRate === 'number' ? u.quadriplegiaRate : (typeof u.pediatricRate === 'number' ? u.pediatricRate : 0)}" data-pediatric-rate="${typeof u.quadriplegiaRate === 'number' ? u.quadriplegiaRate : (typeof u.pediatricRate === 'number' ? u.pediatricRate : 0)}" style="padding: 3px 9px; font-size: 0.74rem; font-weight: 700;">
                       <i class="fa-solid fa-pencil"></i> تعديل
                     </button>
                   </div>

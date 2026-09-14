@@ -156,13 +156,14 @@ export class DoctorDashboardManager {
     const regRate = typeof docInfo.regularSessionRate === 'number' ? docInfo.regularSessionRate : 0;
     const scolRate = typeof docInfo.scoliosisRate === 'number' ? docInfo.scoliosisRate : 0;
     const hemiRate = typeof docInfo.hemiplegiaRate === 'number' ? docInfo.hemiplegiaRate : 0;
-    const pedRate = typeof docInfo.pediatricRate === 'number' ? docInfo.pediatricRate : 0;
+    const quadRate = typeof docInfo.quadriplegiaRate === 'number' ? docInfo.quadriplegiaRate : (typeof docInfo.pediatricRate === 'number' ? docInfo.pediatricRate : 0);
+    const pedRate = quadRate;
     const specRate = typeof docInfo.specialSessionRate === 'number' ? docInfo.specialSessionRate : 0;
 
     let monthRegularCount = 0;
     let monthScoliosisCount = 0;
     let monthHemiplegiaCount = 0;
-    let monthPediatricCount = 0;
+    let monthQuadriplegiaCount = 0;
     let monthOtherCount = 0;
 
     monthSessions.forEach(s => {
@@ -173,8 +174,8 @@ export class DoctorDashboardManager {
         monthScoliosisCount += count;
       } else if (pType === 'hemiplegia') {
         monthHemiplegiaCount += count;
-      } else if (pType === 'pediatric') {
-        monthPediatricCount += count;
+      } else if (pType === 'quadriplegia' || pType === 'pediatric') {
+        monthQuadriplegiaCount += count;
       } else if (pType === 'special' || pType === 'custom_special') {
         monthOtherCount += count;
       } else {
@@ -185,10 +186,10 @@ export class DoctorDashboardManager {
     const monthRegularDues = monthRegularCount * regRate;
     const monthScoliosisDues = monthScoliosisCount * scolRate;
     const monthHemiplegiaDues = monthHemiplegiaCount * hemiRate;
-    const monthPediatricDues = monthPediatricCount * pedRate;
+    const monthQuadriplegiaDues = monthQuadriplegiaCount * quadRate;
     const monthOtherDues = monthOtherCount * specRate;
 
-    const totalMonthEarnings = monthRegularDues + monthScoliosisDues + monthHemiplegiaDues + monthPediatricDues + monthOtherDues;
+    const totalMonthEarnings = monthRegularDues + monthScoliosisDues + monthHemiplegiaDues + monthQuadriplegiaDues + monthOtherDues;
 
     const earningsTotalEl = document.getElementById('stat-doc-earnings-total');
     const earningsRegEl = document.getElementById('stat-doc-earnings-regular');
@@ -202,14 +203,14 @@ export class DoctorDashboardManager {
       earningsRegEl.textContent = `عادية: ${monthRegularCount} (${monthRegularDues} ج.م) • Scoliosis: ${monthScoliosisCount} (${monthScoliosisDues} ج.م)`;
     }
     if (earningsSpecEl) {
-      earningsSpecEl.textContent = `Hemiplegia: ${monthHemiplegiaCount} (${monthHemiplegiaDues} ج.م) • أطفال: ${monthPediatricCount} (${monthPediatricDues} ج.م)`;
+      earningsSpecEl.textContent = `Hemiplegia: ${monthHemiplegiaCount} (${monthHemiplegiaDues} ج.م) • Quadriplegia: ${monthQuadriplegiaCount} (${monthQuadriplegiaDues} ج.م)`;
     }
     if (formulaHintEl) {
       const activeRates = [];
       if (regRate > 0) activeRates.push(`عادية: ${regRate} ج.م`);
       if (scolRate > 0) activeRates.push(`Scoliosis: ${scolRate} ج.م`);
       if (hemiRate > 0) activeRates.push(`Hemiplegia: ${hemiRate} ج.م`);
-      if (pedRate > 0) activeRates.push(`أطفال: ${pedRate} ج.م`);
+      if (quadRate > 0) activeRates.push(`Quadriplegia: ${quadRate} ج.م`);
 
       if (activeRates.length > 0) {
         formulaHintEl.innerHTML = `أجر الجلسات: ` + activeRates.join(' • ');
@@ -296,8 +297,8 @@ export class DoctorDashboardManager {
         progTag = `<span class="badge" style="background:rgba(2, 132, 199, 0.15); color:#0284c7; border:1px solid rgba(2, 132, 199, 0.35); font-size:0.7rem; font-weight:800;"><i class="fa-solid fa-arrows-split-up-and-left"></i> Scoliosis</span>`;
       } else if (pType === 'hemiplegia') {
         progTag = `<span class="badge" style="background:rgba(245, 158, 11, 0.15); color:#b45309; border:1px solid rgba(245, 158, 11, 0.35); font-size:0.7rem; font-weight:800;"><i class="fa-solid fa-brain"></i> Hemiplegia</span>`;
-      } else if (pType === 'pediatric') {
-        progTag = `<span class="badge" style="background:rgba(236, 72, 153, 0.15); color:#be185d; border:1px solid rgba(236, 72, 153, 0.35); font-size:0.7rem; font-weight:800;"><i class="fa-solid fa-child"></i> أطفال</span>`;
+      } else if (pType === 'quadriplegia' || pType === 'pediatric') {
+        progTag = `<span class="badge" style="background:rgba(225, 29, 72, 0.15); color:#e11d48; border:1px solid rgba(225, 29, 72, 0.35); font-size:0.7rem; font-weight:800;"><i class="fa-solid fa-wheelchair"></i> Quadriplegia</span>`;
       }
 
       return `

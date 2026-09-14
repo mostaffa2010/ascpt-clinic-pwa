@@ -143,6 +143,20 @@ export class SessionsManager {
       });
     }
 
+    // Program Type Radios: update hint badge
+    const progRadios = document.querySelectorAll('input[name="session-program-type"]');
+    progRadios.forEach(r => {
+      r.addEventListener('change', (e) => {
+        const hint = document.getElementById('session-program-badge-hint');
+        if (hint) {
+          if (e.target.value === 'scoliosis') hint.textContent = 'Scoliosis';
+          else if (e.target.value === 'hemiplegia') hint.textContent = 'Hemiplegia';
+          else if (e.target.value === 'quadriplegia' || e.target.value === 'pediatric') hint.textContent = 'Quadriplegia';
+          else hint.textContent = 'تأهيل عام';
+        }
+      });
+    });
+
     // 3. Toggle Insurance fields on radio change
     const payRadios = document.querySelectorAll('input[name="session-pay-type"]');
     payRadios.forEach(r => {
@@ -715,6 +729,22 @@ export class SessionsManager {
     this.app.closeModal('modal-patient-picker');
   }
 
+  setSessionProgramType(prog = 'regular') {
+    let p = prog;
+    if (p === 'pediatric') p = 'quadriplegia';
+    const radios = document.querySelectorAll('input[name="session-program-type"]');
+    radios.forEach(r => {
+      r.checked = (r.value === p);
+    });
+    const hint = document.getElementById('session-program-badge-hint');
+    if (hint) {
+      if (p === 'scoliosis') hint.textContent = 'Scoliosis';
+      else if (p === 'hemiplegia') hint.textContent = 'Hemiplegia';
+      else if (p === 'quadriplegia') hint.textContent = 'Quadriplegia';
+      else hint.textContent = 'تأهيل عام';
+    }
+  }
+
   async autoRestoreLastSessionSettings(patient) {
     if (!patient || !patient.id) return;
     try {
@@ -734,11 +764,13 @@ export class SessionsManager {
         const savedParts = Array.isArray(lastSession.bodyParts) ? lastSession.bodyParts : [];
         this.renderBodyPartsChips(savedParts);
 
-        // 3. Special Session Checkbox
+        // 3. Special Session Checkbox & Clinical Program
         const chkSpecial = document.getElementById('session-is-special');
         if (chkSpecial) {
           chkSpecial.checked = Boolean(lastSession.isSpecial || lastSession.sessionPricingType === 'special');
         }
+        const prog = lastSession.sessionPricingType || lastSession.programType || patient.programType || 'regular';
+        this.setSessionProgramType(prog);
 
         // 4. Amount Paid: restore last session's amount paid
         const amountInput = document.getElementById('session-amount-paid');
@@ -935,6 +967,8 @@ export class SessionsManager {
     }
 
     const isSpecial = (this.entryMode === 'session') && Boolean(document.getElementById('session-is-special')?.checked);
+    const progRadio = document.querySelector('input[name="session-program-type"]:checked');
+    const selectedProgram = progRadio ? progRadio.value : 'regular';
 
     const sessionData = {
       id: this.editingSessionId || null,
@@ -1345,6 +1379,8 @@ export class SessionsManager {
     if (chkSpecial) {
       chkSpecial.checked = Boolean(s.isSpecial || s.sessionPricingType === 'special');
     }
+    const editProg = s.sessionPricingType || s.programType || (s.isSpecial ? 'special' : 'regular');
+    this.setSessionProgramType(editProg);
 
     // 6. Payment
     const payRadios = document.querySelectorAll('input[name="session-pay-type"]');
@@ -1601,8 +1637,8 @@ export class SessionsManager {
           progBadge = `<span class="badge" style="background: rgba(2, 132, 199, 0.15); color: #0284c7; border: 1px solid rgba(2, 132, 199, 0.35); font-size: 0.72rem; font-weight: 800;"><i class="fa-solid fa-arrows-split-up-and-left"></i> Scoliosis</span>`;
         } else if (pType === 'hemiplegia') {
           progBadge = `<span class="badge" style="background: rgba(245, 158, 11, 0.15); color: #b45309; border: 1px solid rgba(245, 158, 11, 0.35); font-size: 0.72rem; font-weight: 800;"><i class="fa-solid fa-brain"></i> Hemiplegia</span>`;
-        } else if (pType === 'pediatric') {
-          progBadge = `<span class="badge" style="background: rgba(236, 72, 153, 0.15); color: #be185d; border: 1px solid rgba(236, 72, 153, 0.35); font-size: 0.72rem; font-weight: 800;"><i class="fa-solid fa-child"></i> أطفال</span>`;
+        } else if (pType === 'quadriplegia' || pType === 'pediatric') {
+          progBadge = `<span class="badge" style="background: rgba(225, 29, 72, 0.15); color: #e11d48; border: 1px solid rgba(225, 29, 72, 0.35); font-size: 0.72rem; font-weight: 800;"><i class="fa-solid fa-wheelchair"></i> Quadriplegia</span>`;
         } else if (pType === 'special') {
           progBadge = `<span class="badge badge-warning" style="font-size: 0.72rem; font-weight: 800;"><i class="fa-solid fa-star"></i> خاصة</span>`;
         }

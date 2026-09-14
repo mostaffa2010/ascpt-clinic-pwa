@@ -872,7 +872,8 @@ class FirestoreDatabaseService {
               regularSessionRate: typeof u.regularSessionRate === 'number' ? u.regularSessionRate : 0,
               scoliosisRate: typeof u.scoliosisRate === 'number' ? u.scoliosisRate : 0,
               hemiplegiaRate: typeof u.hemiplegiaRate === 'number' ? u.hemiplegiaRate : 0,
-              pediatricRate: typeof u.pediatricRate === 'number' ? u.pediatricRate : 0,
+              quadriplegiaRate: typeof u.quadriplegiaRate === 'number' ? u.quadriplegiaRate : (typeof u.pediatricRate === 'number' ? u.pediatricRate : 0),
+              pediatricRate: typeof u.quadriplegiaRate === 'number' ? u.quadriplegiaRate : (typeof u.pediatricRate === 'number' ? u.pediatricRate : 0),
               specialSessionRate: typeof u.specialSessionRate === 'number' ? u.specialSessionRate : 0
             });
           }

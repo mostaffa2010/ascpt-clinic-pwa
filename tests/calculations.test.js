@@ -276,7 +276,7 @@ function calculateDoctorProgramDues(sessions, docRates) {
   let regularCount = 0;
   let scoliosisCount = 0;
   let hemiplegiaCount = 0;
-  let pediatricCount = 0;
+  let quadriplegiaCount = 0;
   let otherCount = 0;
 
   sessions.forEach(s => {
@@ -287,8 +287,8 @@ function calculateDoctorProgramDues(sessions, docRates) {
       scoliosisCount += count;
     } else if (pType === 'hemiplegia') {
       hemiplegiaCount += count;
-    } else if (pType === 'pediatric') {
-      pediatricCount += count;
+    } else if (pType === 'quadriplegia' || pType === 'pediatric') {
+      quadriplegiaCount += count;
     } else if (pType === 'special') {
       otherCount += count;
     } else {
@@ -296,18 +296,19 @@ function calculateDoctorProgramDues(sessions, docRates) {
     }
   });
 
+  const quadRate = docRates.quadriplegia ?? docRates.pediatric ?? 0;
   const totalDues = 
     (regularCount * (docRates.regular || 0)) +
     (scoliosisCount * (docRates.scoliosis || 0)) +
     (hemiplegiaCount * (docRates.hemiplegia || 0)) +
-    (pediatricCount * (docRates.pediatric || 0)) +
+    (quadriplegiaCount * quadRate) +
     (otherCount * (docRates.special || 0));
 
   return {
     regularCount,
     scoliosisCount,
     hemiplegiaCount,
-    pediatricCount,
+    quadriplegiaCount,
     otherCount,
     totalDues
   };
@@ -318,27 +319,27 @@ const sampleMixedSessions = [
   { entryType: 'session', sessionPricingType: 'regular', bodyPartsCount: 2 }, // 2 units
   { entryType: 'session', sessionPricingType: 'scoliosis', bodyPartsCount: 1 },
   { entryType: 'session', sessionPricingType: 'hemiplegia', bodyPartsCount: 1 },
-  { entryType: 'session', sessionPricingType: 'pediatric', bodyPartsCount: 1 },
+  { entryType: 'session', sessionPricingType: 'quadriplegia', bodyPartsCount: 1 },
   { entryType: 'examination', sessionPricingType: 'regular', bodyPartsCount: 0 } // Exam excluded from therapy rates
 ];
 
 // Test 1: Junior Doctor Rates (Regular 40, Scoliosis 80, Hemiplegia 70, Pediatric 60)
-const juniorRates = { regular: 40, scoliosis: 80, hemiplegia: 70, pediatric: 60 };
+const juniorRates = { regular: 40, scoliosis: 80, hemiplegia: 70, quadriplegia: 60, pediatric: 60 };
 const juniorDues = calculateDoctorProgramDues(sampleMixedSessions, juniorRates);
 assert.equal(juniorDues.regularCount, 3, 'Junior should have 3 regular session units (1 + 2)');
 assert.equal(juniorDues.scoliosisCount, 1, 'Junior should have 1 scoliosis session');
 assert.equal(juniorDues.hemiplegiaCount, 1, 'Junior should have 1 hemiplegia session');
-assert.equal(juniorDues.pediatricCount, 1, 'Junior should have 1 pediatric session');
+assert.equal(juniorDues.quadriplegiaCount, 1, 'Junior should have 1 quadriplegia session');
 // Total = (3 * 40) + (1 * 80) + (1 * 70) + (1 * 60) = 120 + 80 + 70 + 60 = 330 EGP
 assert.equal(juniorDues.totalDues, 330, 'Junior total dues should be 330 EGP');
 
 // Test 2: Senior Doctor Rates (Regular 70, Scoliosis 130, Hemiplegia 100, Pediatric 90)
-const seniorRates = { regular: 70, scoliosis: 130, hemiplegia: 100, pediatric: 90 };
+const seniorRates = { regular: 70, scoliosis: 130, hemiplegia: 100, quadriplegia: 90, pediatric: 90 };
 const seniorDues = calculateDoctorProgramDues(sampleMixedSessions, seniorRates);
 assert.equal(seniorDues.regularCount, 3);
 assert.equal(seniorDues.scoliosisCount, 1);
 assert.equal(seniorDues.hemiplegiaCount, 1);
-assert.equal(seniorDues.pediatricCount, 1);
+assert.equal(seniorDues.quadriplegiaCount, 1);
 // Total = (3 * 70) + (1 * 130) + (1 * 100) + (1 * 90) = 210 + 130 + 100 + 90 = 530 EGP
 assert.equal(seniorDues.totalDues, 530, 'Senior total dues should be 530 EGP');
 

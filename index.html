@@ -121,8 +121,8 @@
   
 
     <!-- Stylesheets -->
-  <link rel="stylesheet" href="css/style.css?v=2.0.7" media="screen">
-  <link rel="stylesheet" href="css/print.css?v=2.0.7" media="print">
+  <link rel="stylesheet" href="css/style.css?v=2.0.8" media="screen">
+  <link rel="stylesheet" href="css/print.css?v=2.0.8" media="print">
 </head>
 <body>
   <script>
@@ -989,8 +989,8 @@
                       <span class="program-pill-btn"><i class="fa-solid fa-brain"></i> Hemiplegia</span>
                     </label>
                     <label class="program-pill-opt">
-                      <input type="radio" name="session-program-type" value="pediatric">
-                      <span class="program-pill-btn"><i class="fa-solid fa-child"></i> أطفال</span>
+                      <input type="radio" name="session-program-type" value="quadriplegia">
+                      <span class="program-pill-btn"><i class="fa-solid fa-wheelchair"></i> Quadriplegia</span>
                     </label>
                   </div>
                 </div>
@@ -1995,8 +1995,8 @@
                       <input type="number" id="newuser-hemiplegia-rate" class="form-control" placeholder="0" min="0" style="height: 38px; font-weight: 700;">
                     </div>
                     <div>
-                      <label style="font-size: 0.76rem; font-weight: 700;">أطفال Pediatric (ج.م):</label>
-                      <input type="number" id="newuser-pediatric-rate" class="form-control" placeholder="0" min="0" style="height: 38px; font-weight: 700;">
+                      <label style="font-size: 0.76rem; font-weight: 700;">Quadriplegia (ج.م):</label>
+                      <input type="number" id="newuser-quadriplegia-rate" class="form-control" placeholder="0" min="0" style="height: 38px; font-weight: 700;">
                     </div>
                   </div>
                   <input type="hidden" id="newuser-special-rate" value="80">
@@ -2069,7 +2069,7 @@
         <div class="admin-system-footer no-print" style="margin-top: 32px; margin-bottom: 35px; text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px;">
           <div style="display: inline-flex; align-items: center; gap: 8px; background: var(--bg-surface); border: 1.5px solid var(--border-color); padding: 7px 18px; border-radius: 999px; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);">
             <span style="width: 8px; height: 8px; border-radius: 50%; background-color: var(--success); display: inline-block; box-shadow: 0 0 6px var(--success);"></span>
-            <span id="admin-system-version-label" data-clinic="version-badge" style="font-weight: 800; font-size: 0.88rem; color: var(--text-main);">نظام ASCPT — الإصدار 2.0.7</span>
+            <span id="admin-system-version-label" data-clinic="version-badge" style="font-weight: 800; font-size: 0.88rem; color: var(--text-main);">نظام ASCPT — الإصدار 2.0.8</span>
             <span class="badge badge-primary" style="font-size: 0.72rem; padding: 2px 10px; border-radius: 999px; font-weight: 800;">إصدار معتمد</span>
           </div>
           <div style="font-size: 0.76rem; color: var(--text-muted); font-weight: 700;">
@@ -2220,8 +2220,8 @@
                 <span class="program-pill-btn"><i class="fa-solid fa-brain"></i> Hemiplegia</span>
               </label>
               <label class="program-pill-opt">
-                <input type="radio" name="p-program-type" value="pediatric">
-                <span class="program-pill-btn"><i class="fa-solid fa-child"></i> أطفال</span>
+                <input type="radio" name="p-program-type" value="quadriplegia">
+                <span class="program-pill-btn"><i class="fa-solid fa-wheelchair"></i> Quadriplegia</span>
               </label>
             </div>
             <div style="font-size: 0.72rem; color: var(--text-muted); margin-top: 3px;">
@@ -3295,8 +3295,8 @@
               <input type="number" id="shift-modal-hemiplegia-rate" class="form-control" placeholder="0" min="0" style="font-weight: 700; height: 38px;">
             </div>
             <div>
-              <label style="display: block; font-size: 0.78rem; font-weight: 700; margin-bottom: 4px;">تأهيل أطفال Pediatric:</label>
-              <input type="number" id="shift-modal-pediatric-rate" class="form-control" placeholder="0" min="0" style="font-weight: 700; height: 38px;">
+              <label style="display: block; font-size: 0.78rem; font-weight: 700; margin-bottom: 4px;">تأهيل Quadriplegia (ج.م):</label>
+              <input type="number" id="shift-modal-quadriplegia-rate" class="form-control" placeholder="0" min="0" style="font-weight: 700; height: 38px;">
             </div>
           </div>
           <input type="hidden" id="shift-modal-special-rate" value="80">
@@ -4013,7 +4013,7 @@
   </div>
 
 <!-- Main Application Script (ES Module) -->
-  <script type="module" src="js/app.js?v=2.0.7"></script>
+  <script type="module" src="js/app.js?v=2.0.8"></script>
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {

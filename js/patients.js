@@ -109,7 +109,8 @@ export class PatientsManager {
 
     // Toggle Insurance Fields in Patient Form
     const progRadios = document.querySelectorAll('input[name="p-program-type"]');
-    progRadios.forEach(r => { r.checked = (r.value === 'regular'); });
+    const pProg = (p.programType === 'pediatric') ? 'quadriplegia' : (p.programType || 'regular');
+    progRadios.forEach(r => { r.checked = (r.value === pProg); });
     const billingRadios = document.querySelectorAll('input[name="p-billing"]');
     billingRadios.forEach(r => {
       r.addEventListener('change', (e) => {
@@ -1362,7 +1363,8 @@ export class PatientsManager {
     this.app.updateCustomSelectDisplay('p-doctor');
 
     const progRadios = document.querySelectorAll('input[name="p-program-type"]');
-    progRadios.forEach(r => { r.checked = (r.value === 'regular'); });
+    const pProg = (p.programType === 'pediatric') ? 'quadriplegia' : (p.programType || 'regular');
+    progRadios.forEach(r => { r.checked = (r.value === pProg); });
     const billingRadios = document.querySelectorAll('input[name="p-billing"]');
     billingRadios.forEach(r => { r.checked = (r.value === p.billing); });
 
@@ -1521,6 +1523,8 @@ export class PatientsManager {
       approvedBodyParts = parseInt(document.getElementById('p-approved-body-parts')?.value) || 1;
     }
 
+    const programType = document.querySelector('input[name="p-program-type"]:checked')?.value || 'regular';
+
     const patientData = {
       id: id || null,
       name,
@@ -1530,6 +1534,7 @@ export class PatientsManager {
       address,
       doctor,
       doctorUid,
+      programType,
       billing,
       insuranceCompany,
       contractType,
