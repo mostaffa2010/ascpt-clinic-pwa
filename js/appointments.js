@@ -190,7 +190,7 @@ export class AppointmentsManager {
       db.getDoctorsList(),
       db.getPatients(),
       db.getAppointmentSlots ? db.getAppointmentSlots() : DEFAULT_APPT_SLOTS,
-      db.getSessions ? db.getSessions() : [],
+      db.getSessions ? db.getSessions(today) : [],
       db.getShiftOverrides ? db.getShiftOverrides(today) : []
     ]);
     this.appointments = appointments;

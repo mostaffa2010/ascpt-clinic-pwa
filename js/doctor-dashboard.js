@@ -50,7 +50,10 @@ export class DoctorDashboardManager {
       subEl.innerHTML = `مرحباً بك يا <strong>${escapeHTML(docName)}</strong> • متابعة حالاتك الطبية وجلساتك السريرية`;
     }
 
-    const allSessions = await db.getSessions();
+    const todayStr = getLocalDateStr();
+    const currentMonth = todayStr.substring(0, 7);
+    // Scoped query: fetch only current month's sessions (Zero-Cost Scoped)
+    const allSessions = await db.getSessions(currentMonth);
     const allPatients = await db.getPatients();
 
     const docUid = user.uid || user.id;
@@ -70,9 +73,6 @@ export class DoctorDashboardManager {
       if (p.doctorUid) return p.doctorUid === docUid;
       return p.doctor && (p.doctor.includes(docName) || docName.includes(p.doctor));
     });
-
-    const todayStr = getLocalDateStr();
-    const currentMonth = todayStr.substring(0, 7);
 
     // 1. Today's sessions for this doctor
     const todaySessions = this.docSessions.filter(s => s.date === todayStr);

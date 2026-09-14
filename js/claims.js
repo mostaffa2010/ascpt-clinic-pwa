@@ -409,7 +409,10 @@ export class ClaimsManager {
     const defaultEval = parseFloat(defaultEvalInput?.value) || 0;
 
     const allPatients = await db.getPatients();
-    const allSessions = await db.getSessions();
+    // Targeted Scoped Query: only fetch sessions within the requested claim date range
+    const allSessions = (this.startDate && this.endDate)
+      ? await db.getSessionsInRange(this.startDate, this.endDate)
+      : await db.getSessions();
 
     // Match patients belonging to selected company (flexible matching)
     const companyPatients = allPatients.filter(p => {

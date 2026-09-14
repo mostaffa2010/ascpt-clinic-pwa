@@ -349,8 +349,13 @@ class App {
     if (viewName === 'patients') this.patientsManager.loadPatients();
     if (viewName === 'admin') {
       if (this.auditManager) {
-        this.auditManager.loadUsers(true);
-        this.auditManager.loadAuditLogs(true);
+        this.auditManager.loadUsers();
+        this.auditManager.loadAuditLogs();
+      }
+    }
+    if (viewName === 'claims') {
+      if (this.claimsManager && typeof this.claimsManager.loadClaims === 'function') {
+        this.claimsManager.loadClaims();
       }
     }
     if (viewName === 'appointments') this.appointmentsManager.render();
@@ -1731,19 +1736,40 @@ class App {
   }
 
   async refreshAll() {
+    // 1. Essential shared directory (served from high-performance cache)
     await this.populateDoctorDropdowns();
-    if (this.patientsManager) await this.patientsManager.loadPatients();
-    if (this.sessionsManager) await this.sessionsManager.loadTodaySessions();
-    if (this.financeManager) await this.financeManager.loadDailyReport();
-    if (this.doctorDashboardManager) await this.doctorDashboardManager.render();
-    if (this.claimsManager && typeof this.claimsManager.loadClaims === 'function') {
-      await this.claimsManager.loadClaims();
-    }
-    if (this.auditManager && typeof this.auditManager.loadUsers === 'function') {
-      await this.auditManager.loadUsers();
-    }
-    if (this.auditManager && typeof this.auditManager.loadAuditLogs === 'function') {
-      await this.auditManager.loadAuditLogs();
+
+    // 2. High-performance Lazy Loading: Refresh ONLY the active view
+    await this.refreshCurrentView();
+  }
+
+  async refreshCurrentView() {
+    const user = auth.getCurrentUser();
+    const viewName = this.currentView || (user?.role === 'doctor' ? 'dashboard' : 'dashboard');
+
+    if (viewName === 'dashboard') {
+      if (user?.role === 'doctor') {
+        if (this.doctorDashboardManager) await this.doctorDashboardManager.render();
+      } else {
+        if (this.financeManager) await this.financeManager.loadDailyReport();
+      }
+    } else if (viewName === 'sessions') {
+      if (this.sessionsManager) await this.sessionsManager.loadTodaySessions();
+    } else if (viewName === 'patients') {
+      if (this.patientsManager) await this.patientsManager.loadPatients();
+    } else if (viewName === 'appointments') {
+      if (this.appointmentsManager) await this.appointmentsManager.render();
+    } else if (viewName === 'finance') {
+      if (this.financeManager) await this.financeManager.loadDailyReport();
+    } else if (viewName === 'claims') {
+      if (this.claimsManager && typeof this.claimsManager.loadClaims === 'function') {
+        await this.claimsManager.loadClaims();
+      }
+    } else if (viewName === 'admin') {
+      if (this.auditManager) {
+        if (typeof this.auditManager.loadUsers === 'function') await this.auditManager.loadUsers();
+        if (typeof this.auditManager.loadAuditLogs === 'function') await this.auditManager.loadAuditLogs();
+      }
     }
   }
 }

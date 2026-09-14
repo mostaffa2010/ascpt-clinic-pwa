@@ -1712,10 +1712,9 @@ export class PatientsManager {
     this.currentSheetPatient = p;
     const sheet = p.clinicalSheet || {};
 
-    // 0. Load Patient Past Sessions
+    // 0. Load Patient Past Sessions (Zero-Cost Scoped Patient Lookup)
     try {
-      const allSessions = await db.getSessions();
-      const pSessions = allSessions.filter(s => s.patientId === p.id || s.patientName === p.name);
+      const pSessions = await db.getSessionsForPatient(p.id);
       pSessions.sort((a, b) => new Date(b.date) - new Date(a.date));
       this.currentPatientSessions = pSessions;
       

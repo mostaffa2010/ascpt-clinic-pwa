@@ -822,7 +822,7 @@ export class SessionsManager {
     let approvedSessionsTotal = null;
     if (this.entryMode === 'session' && patient) {
       try {
-        const allPatientSessions = (await db.getSessions()).filter(x => x.patientId === patient.id && x.entryType !== 'examination');
+        const allPatientSessions = (await db.getSessionsForPatient(patient.id)).filter(x => x.entryType !== 'examination');
         const cycleStart = patient.currentApprovalStartDate || '';
         const cycleSessions = (payType === 'insurance' && cycleStart)
           ? allPatientSessions.filter(x => (x.date || '').localeCompare(cycleStart) >= 0)
@@ -1188,8 +1188,7 @@ export class SessionsManager {
   }
 
   async editSession(sessionId) {
-    const allSessions = await db.getSessions();
-    const s = allSessions.find(item => item.id === sessionId);
+    const s = await db.getSessionById(sessionId);
     if (!s) return;
 
     // 1. Switch to sessions view
@@ -1333,18 +1332,15 @@ export class SessionsManager {
     const currentUser = auth.getCurrentUser();
     const canDelete = RolesManager.canDelete(currentUser);
 
-    // Preload patients and sessions history to compute accurate approval cycle session numbers
+    // Preload patients and targeted patient sessions history to compute accurate approval cycle session numbers (Zero-Cost Scoped)
     const patientsList = await db.getPatients();
     const patientsMap = new Map(patientsList.map(p => [p.id, p]));
-    const allSessions = await db.getSessions();
+    const uniquePatientIds = Array.from(new Set(sessions.map(s => s.patientId).filter(Boolean)));
     const patientSessionsHistory = {};
-    allSessions.forEach(sess => {
-      if (sess.entryType === 'examination') return;
-      const pid = sess.patientId;
-      if (!pid) return;
-      if (!patientSessionsHistory[pid]) patientSessionsHistory[pid] = [];
-      patientSessionsHistory[pid].push(sess);
-    });
+    await Promise.all(uniquePatientIds.map(async (pid) => {
+      const pSess = await db.getSessionsForPatient(pid);
+      patientSessionsHistory[pid] = pSess.filter(sess => sess.entryType !== 'examination');
+    }));
 
     Object.keys(patientSessionsHistory).forEach(pid => {
       patientSessionsHistory[pid].sort((a, b) => {
@@ -1602,8 +1598,7 @@ export class SessionsManager {
   }
 
   async deleteSession(sessionId) {
-    const allSessions = await db.getSessions();
-    const s = allSessions.find(item => item.id === sessionId);
+    const s = await db.getSessionById(sessionId);
     const itemLabel = s?.entryType === 'examination' ? 'الكشف' : 'الجلسة';
     const confirmed = await this.app.showConfirm(`هل أنت متأكد من حذف ${itemLabel} من سجلات اليوم؟`, `تأكيد حذف ${itemLabel}`);
     if (confirmed) {
