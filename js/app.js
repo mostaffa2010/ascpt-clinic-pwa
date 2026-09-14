@@ -1,7 +1,7 @@
 // ================= Global Bulletproof Event-Driven Lock on window.print =================
 if (typeof window !== 'undefined' && !window.__print_lock_installed) {
   window.__print_lock_installed = true;
-  const _origPrint = window.print.bind(window);
+  const _origPrint = (typeof window.print === 'function') ? window.print.bind(window) : () => {};
   let _isPrintingNow = false;
 
   window.print = function() {

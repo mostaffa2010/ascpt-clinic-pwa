@@ -366,3 +366,7 @@ class AuthService {
 }
 
 export const auth = new AuthService();
+
+if (typeof window !== 'undefined') {
+  window.auth = auth;
+}

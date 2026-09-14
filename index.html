@@ -121,8 +121,120 @@
   
 
     <!-- Stylesheets -->
-  <link rel="stylesheet" href="css/style.css?v=1.4.91" media="screen">
-  <link rel="stylesheet" href="css/print.css?v=1.4.91" media="print">
+  <link rel="stylesheet" href="css/style.css?v=1.4.92" media="screen">
+  <link rel="stylesheet" href="css/print.css?v=1.4.92" media="print">
+  <script>
+    async function __performDirectLogin(e) {
+      if (e) {
+        try { e.preventDefault(); } catch (_) {}
+        try { e.stopPropagation(); } catch (_) {}
+      }
+
+      var emailInput = document.getElementById('login-email');
+      var passwordInput = document.getElementById('login-password');
+      var errMsg = document.getElementById('login-error-msg');
+      var btn = document.getElementById('btn-do-login');
+      var btnText = document.getElementById('btn-login-text');
+
+      var email = emailInput ? emailInput.value.trim() : '';
+      var password = passwordInput ? passwordInput.value : '';
+
+      if (!email || !password) {
+        if (errMsg) {
+          errMsg.textContent = 'يرجى إدخال البريد الإلكتروني وكلمة السر للمتابعة.';
+          errMsg.style.display = 'block';
+        }
+        return;
+      }
+
+      if (btn) btn.disabled = true;
+      if (btnText) btnText.textContent = 'جاري التحقق وتسجيل الدخول...';
+      if (errMsg) errMsg.style.display = 'none';
+
+      try {
+        var res = await fetch('https://wpgjkqlswiszwfyqlujz.supabase.co/auth/v1/token?grant_type=password', {
+          method: 'POST',
+          headers: {
+            'apikey': 'sb_publishable_uMXZizxCE1H5xyMS8Fwcww_3sES_YaR',
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ email: email, password: password })
+        });
+
+        var data = await res.json();
+
+        if (!res.ok) {
+          var msg = data.error_description || data.msg || data.message || 'فشل تسجيل الدخول';
+          if (msg.includes('Invalid login credentials') || msg.includes('invalid_grant')) {
+            msg = 'بيانات الدخول غير صحيحة. يرجى التأكد من البريد وكلمة السر.';
+          } else if (msg.includes('Email not confirmed')) {
+            msg = 'البريد الإلكتروني لم يتم تأكيده في لوحة Supabase.';
+          }
+          throw new Error(msg);
+        }
+
+        var role = 'admin';
+        var name = 'مدير المركز';
+
+        try {
+          var profRes = await fetch('https://wpgjkqlswiszwfyqlujz.supabase.co/rest/v1/profiles?id=eq.' + data.user.id + '&select=*', {
+            headers: {
+              'apikey': 'sb_publishable_uMXZizxCE1H5xyMS8Fwcww_3sES_YaR',
+              'Authorization': 'Bearer ' + data.access_token
+            }
+          });
+          var profs = await profRes.json();
+          if (Array.isArray(profs) && profs[0]) {
+            role = profs[0].role || 'admin';
+            name = profs[0].name || 'مدير المركز';
+          }
+        } catch (_) {}
+
+        var cachedUser = {
+          uid: data.user.id,
+          id: data.user.id,
+          name: name,
+          email: data.user.email,
+          role: role,
+          active: true
+        };
+
+        var session = {
+          access_token: data.access_token,
+          refresh_token: data.refresh_token,
+          expires_at: data.expires_at,
+          user: data.user
+        };
+
+        localStorage.setItem('ascpt_cached_user', JSON.stringify(cachedUser));
+        localStorage.setItem('ascpt_supabase_session', JSON.stringify(session));
+        localStorage.setItem('ascpt_has_session', 'true');
+
+        document.body.classList.remove('not-authenticated');
+        document.documentElement.classList.remove('not-authenticated');
+        document.body.classList.add('role-' + role);
+        document.documentElement.classList.add('role-' + role);
+
+        var modal = document.getElementById('modal-login');
+        if (modal) modal.style.display = 'none';
+
+        window.location.reload();
+
+      } catch (err) {
+        if (errMsg) {
+          errMsg.textContent = err.message || 'حدث خطأ أثناء تسجيل الدخول.';
+          errMsg.style.display = 'block';
+        }
+      } finally {
+        if (btn) btn.disabled = false;
+        if (btnText) btnText.textContent = 'تسجيل الدخول';
+      }
+    }
+
+    window.__doLogin = __performDirectLogin;
+    window.__handleLoginDirect = __performDirectLogin;
+  </script>
+
 </head>
 <body>
   <script>
@@ -1766,7 +1878,7 @@
         <div class="admin-system-footer no-print" style="margin-top: 32px; margin-bottom: 35px; text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px;">
           <div style="display: inline-flex; align-items: center; gap: 8px; background: var(--bg-surface); border: 1.5px solid var(--border-color); padding: 7px 18px; border-radius: 999px; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);">
             <span style="width: 8px; height: 8px; border-radius: 50%; background-color: var(--success); display: inline-block; box-shadow: 0 0 6px var(--success);"></span>
-            <span style="font-weight: 800; font-size: 0.88rem; color: var(--text-main);">نظام ASCPT — الإصدار 1.4.91</span>
+            <span style="font-weight: 800; font-size: 0.88rem; color: var(--text-main);">نظام ASCPT — الإصدار 1.4.92</span>
             <span class="badge badge-primary" style="font-size: 0.72rem; padding: 2px 10px; border-radius: 999px; font-weight: 800;">إصدار معتمد</span>
           </div>
           <div style="font-size: 0.76rem; color: var(--text-muted); font-weight: 700;">
@@ -2695,7 +2807,7 @@
               <i class="fa-solid fa-lock text-primary"></i> كلمة السر *
             </label>
             <div class="password-input-group">
-              <input type="password" id="login-password" class="form-control password-input-field" placeholder="أدخل كلمة السر..." required autocomplete="current-password">
+              <input type="password" id="login-password" class="form-control password-input-field" placeholder="أدخل كلمة السر..." required autocomplete="current-password" onkeydown="if(event.key==='Enter') __performDirectLogin(event);">
               <button type="button" id="btn-toggle-password" class="btn-pwd-eye" onclick="const p = document.getElementById('login-password'); const i = document.getElementById('icon-toggle-password'); if(p){ const isP = p.type==='password'; p.type = isP?'text':'password'; if(i) i.className = isP?'fa-solid fa-eye-slash':'fa-solid fa-eye'; }" title="إظهار / إخفاء كلمة السر">
                 <i class="fa-solid fa-eye" id="icon-toggle-password"></i>
               </button>
@@ -2711,7 +2823,7 @@
           <!-- Error message container -->
           <div id="login-error-msg" style="display: none; background-color: rgba(239, 68, 68, 0.15); border: 1px solid rgba(239, 68, 68, 0.3); color: #f87171; border-radius: 8px; padding: 9px 12px; font-size: 0.82rem; margin-bottom: 14px; line-height: 1.4;"></div>
 
-          <button type="button" id="btn-do-login" class="btn btn-primary" onclick="if(window.__doLogin) window.__doLogin();" style="width: 100%; padding: 11px; border-radius: 8px; font-weight: 800; font-size: 0.92rem; display: flex; align-items: center; justify-content: center; gap: 8px;">
+          <button type="button" id="btn-do-login" class="btn btn-primary" onclick="__performDirectLogin(event);" onclick="__performDirectLogin(event);" style="width: 100%; padding: 11px; border-radius: 8px; font-weight: 800; font-size: 0.92rem; display: flex; align-items: center; justify-content: center; gap: 8px;">
             <i class="fa-solid fa-right-to-bracket"></i>
             <span id="btn-login-text">تسجيل الدخول</span>
           </button>
@@ -3616,42 +3728,10 @@
     </div>
   </div>
 
-  <script>
-    window.__doLogin = function() {
-      var email = document.getElementById('login-email')?.value?.trim();
-      var pass = document.getElementById('login-password')?.value;
-      var err = document.getElementById('login-error-msg');
-      var btn = document.getElementById('btn-do-login');
-      var txt = document.getElementById('btn-login-text');
-
-      if (!email || !pass) {
-        if (err) {
-          err.textContent = 'يرجى إدخال البريد الإلكتروني وكلمة السر للمتابعة.';
-          err.style.display = 'block';
-        }
-        return;
-      }
-
-      if (window.auth && typeof window.auth.login === 'function') {
-        if (btn) btn.disabled = true;
-        if (txt) txt.textContent = 'جاري تسجيل الدخول...';
-        if (err) err.style.display = 'none';
-
-        window.auth.login(email, pass).catch(function(e) {
-          if (err) {
-            err.textContent = e.message || 'فشل تسجيل الدخول، يرجى مراجعة البيانات.';
-            err.style.display = 'block';
-          }
-        }).finally(function() {
-          if (btn) btn.disabled = false;
-          if (txt) txt.textContent = 'تسجيل الدخول';
-        });
-      }
-    };
-  </script>
+  
 
 <!-- Main Application Script (ES Module) -->
-  <script type="module" src="js/app.js?v=1.4.91"></script>
+  <script type="module" src="js/app.js?v=1.4.92"></script>
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
