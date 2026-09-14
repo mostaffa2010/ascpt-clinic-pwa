@@ -102,7 +102,7 @@
   .horizontal-date-strip,
   #card-cash-drawer-glance,
   .mobile-only-cards-container,
-  #finance-report-mobile-cards,
+  
   #finance-expenses-mobile-cards,
   #daily-doctors-mobile-deck,
   #monthly-doctors-mobile-deck,
@@ -513,7 +513,7 @@
   }
 
   body:not(.printing-sheet) .card,
-  body:not(.printing-sheet) #card-finance-report-sessions,
+  
   body:not(.printing-sheet) #card-finance-daily-expenses,
   body:not(.printing-sheet) #card-monthly-doctors,
   body:not(.printing-sheet) #card-monthly-insurance,
@@ -525,16 +525,13 @@
     background: transparent !important;
   }
 
-  body:not(.printing-sheet) #card-finance-report-sessions {
-    page-break-inside: auto !important;
-  }
 
   body:not(.printing-sheet) #card-finance-daily-expenses.empty-expenses-print {
     display: none !important;
   }
 
   body:not(.printing-sheet) .card-header,
-  body:not(.printing-sheet) #card-finance-report-sessions .card-header,
+  
   body:not(.printing-sheet) #card-finance-daily-expenses .card-header,
   body:not(.printing-sheet) #card-monthly-doctors .card-header,
   body:not(.printing-sheet) #card-monthly-insurance .card-header,
@@ -547,7 +544,7 @@
   }
 
   body:not(.printing-sheet) .card-title,
-  body:not(.printing-sheet) #card-finance-report-sessions .card-title,
+  
   body:not(.printing-sheet) #card-finance-daily-expenses .card-title,
   body:not(.printing-sheet) #card-monthly-doctors .card-title,
   body:not(.printing-sheet) #card-monthly-insurance .card-title,
@@ -558,7 +555,7 @@
   }
 
   body:not(.printing-sheet) table.data-table,
-  body:not(.printing-sheet) #finance-report-table,
+  
   body:not(.printing-sheet) #finance-expenses-table {
     display: table !important;
     width: 100% !important;
@@ -570,19 +567,19 @@
   }
 
   body:not(.printing-sheet) table.data-table thead,
-  body:not(.printing-sheet) #finance-report-table thead,
+  
   body:not(.printing-sheet) #finance-expenses-table thead {
     display: table-header-group !important;
   }
 
   body:not(.printing-sheet) table.data-table tbody,
-  body:not(.printing-sheet) #finance-report-table tbody,
+  
   body:not(.printing-sheet) #finance-expenses-table tbody {
     display: table-row-group !important;
   }
 
   body:not(.printing-sheet) table.data-table tr,
-  body:not(.printing-sheet) #finance-report-table tr,
+  
   body:not(.printing-sheet) #finance-expenses-table tr {
     display: table-row !important;
     page-break-inside: avoid !important;
@@ -590,8 +587,7 @@
 
   body:not(.printing-sheet) table.data-table th,
   body:not(.printing-sheet) table.data-table td,
-  body:not(.printing-sheet) #finance-report-table th,
-  body:not(.printing-sheet) #finance-report-table td,
+  
   body:not(.printing-sheet) #finance-expenses-table th,
   body:not(.printing-sheet) #finance-expenses-table td {
     border: 1px solid #334155 !important;
@@ -602,7 +598,7 @@
   }
 
   body:not(.printing-sheet) table.data-table th,
-  body:not(.printing-sheet) #finance-report-table th,
+  
   body:not(.printing-sheet) #finance-expenses-table th {
     background-color: #f1f5f9 !important;
     color: #000000 !important;

@@ -818,6 +818,9 @@ export class AppointmentsManager {
   }
 
     initDocStackDeck(initialIndex = 0) {
+    if (typeof window !== 'undefined' && window.innerWidth >= 768) {
+      return; // Display as responsive grid on laptops/large screens
+    }
     initStackDeck({
       prefix: 'doc-stack',
       initialIndex

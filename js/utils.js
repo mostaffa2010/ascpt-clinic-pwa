@@ -53,6 +53,20 @@ export function initStackDeck(config) {
   const cards = Array.from(container.querySelectorAll('.doc-stack-card'));
   if (!cards.length) return null;
 
+  // Large screens & laptops (>= 768px): do not run swipe stack deck, display as responsive grid
+  if (typeof window !== 'undefined' && window.innerWidth >= 768) {
+    cards.forEach(card => {
+      card.style.transform = '';
+      card.style.opacity = '';
+      card.style.visibility = '';
+      card.style.zIndex = '';
+      card.style.pointerEvents = '';
+      card.style.transition = '';
+    });
+    container.style.minHeight = '';
+    return null;
+  }
+
   const initialIndex = typeof config === 'object' && typeof config.initialIndex === 'number'
     ? Math.max(0, Math.min(config.initialIndex, cards.length - 1))
     : 0;
@@ -367,6 +381,23 @@ export function initStackDeck(config) {
       updatePositions(currentIndex, true);
     }
   });
+
+  const onResize = () => {
+    if (typeof window !== 'undefined' && window.innerWidth >= 768) {
+      cards.forEach(c => {
+        c.style.transform = '';
+        c.style.opacity = '';
+        c.style.visibility = '';
+        c.style.zIndex = '';
+        c.style.pointerEvents = '';
+        c.style.transition = '';
+      });
+      container.style.minHeight = '';
+    } else {
+      updatePositions(currentIndex, false);
+    }
+  };
+  window.addEventListener('resize', onResize, { passive: true });
 
   return {
     updatePositions,

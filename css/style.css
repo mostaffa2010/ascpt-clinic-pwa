@@ -3666,7 +3666,7 @@ body {
   #card-doctor-personal-sessions,
   #card-doctor-appointments-schedule,
   #card-main-appointments-schedule,
-  #card-finance-report-sessions,
+  
   #card-finance-daily-expenses,
   #card-monthly-doctors,
   #card-monthly-insurance,
@@ -3691,7 +3691,7 @@ body {
   #card-doctor-personal-sessions .card-header,
   #card-doctor-appointments-schedule .card-header,
   #card-main-appointments-schedule .card-header,
-  #card-finance-report-sessions .card-header,
+  
   #card-finance-daily-expenses .card-header,
   #card-monthly-doctors .card-header,
   #card-monthly-insurance .card-header,
@@ -5768,7 +5768,7 @@ body::-webkit-scrollbar,
 
 /* 2. Unwrap all financial table parent cards on mobile (Eliminates side border lines!) */
 @media screen and (max-width: 767px) {
-  #card-finance-report-sessions,
+  
   #card-finance-daily-expenses,
   #card-finance-daily-doctors,
   #card-monthly-doctors,
@@ -5783,7 +5783,7 @@ body::-webkit-scrollbar,
     margin-bottom: 16px;
   }
 
-  #card-finance-report-sessions .card-header,
+  
   #card-finance-daily-expenses .card-header,
   #card-finance-daily-doctors .card-header,
   #card-monthly-doctors .card-header,
@@ -6098,33 +6098,73 @@ body::-webkit-scrollbar,
   }
 }
 
-/* 2. Doctor Stack Deck Desktop Responsiveness */
+/* 2. Staff Cards & Doctor Appointments Desktop Grid Architecture (v2.0.7)
+   Replaces mobile 3D stack swiping on laptops/large screens with clean side-by-side cards grid (like Sessions screen) */
 @media screen and (min-width: 768px) {
+  #admin-users-mobile-cards,
+  #my-appointments-grid,
+  #daily-doctors-mobile-deck,
+  #monthly-doctors-mobile-cards {
+    display: block !important;
+    width: 100% !important;
+  }
+
+  #daily-doctors-mobile-deck .doc-stack-wrapper,
+  #monthly-doctors-mobile-cards .doc-stack-wrapper,
+  #admin-users-mobile-cards .doc-stack-wrapper,
+  #my-appointments-grid .doc-stack-wrapper {
+    display: block !important;
+    width: 100% !important;
+  }
+
   #daily-doctors-mobile-deck .doc-stack-container,
   #monthly-doctors-mobile-cards .doc-stack-container,
   #admin-users-mobile-cards .doc-stack-container,
   #my-appointments-grid .doc-stack-container {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-    gap: 14px;
-    min-height: auto;
-    perspective: none;
-    padding-left: 0;
+    display: grid !important;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)) !important;
+    gap: 16px !important;
+    min-height: auto !important;
+    perspective: none !important;
+    padding: 4px 0 10px 0 !important;
+    position: static !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
   }
+
   #daily-doctors-mobile-deck .doc-stack-card,
   #monthly-doctors-mobile-cards .doc-stack-card,
   #admin-users-mobile-cards .doc-stack-card,
   #my-appointments-grid .doc-stack-card {
-    position: relative;
-    left: auto;
-    right: auto;
-    transform: none;
-    opacity: 1;
-    visibility: visible;
-    z-index: 1;
-    pointer-events: auto;
-    will-change: auto;
+    position: relative !important;
+    top: auto !important;
+    left: auto !important;
+    right: auto !important;
+    bottom: auto !important;
+    transform: none !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+    z-index: 1 !important;
+    pointer-events: auto !important;
+    will-change: auto !important;
+    box-shadow: var(--shadow-sm) !important;
+    border-color: var(--border-color) !important;
+    cursor: default !important;
+    transition: box-shadow 0.2s ease, border-color 0.2s ease !important;
+    margin-bottom: 0 !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
   }
+
+  #daily-doctors-mobile-deck .doc-stack-card:hover,
+  #monthly-doctors-mobile-cards .doc-stack-card:hover,
+  #admin-users-mobile-cards .doc-stack-card:hover,
+  #my-appointments-grid .doc-stack-card:hover {
+    border-color: rgba(2, 132, 199, 0.4) !important;
+    box-shadow: var(--shadow-md) !important;
+  }
+
+  /* Hide mobile swiping indicators, counters, and navigation bars on desktop */
   #daily-doctors-mobile-deck .doc-stack-nav-bar,
   #monthly-doctors-mobile-cards .doc-stack-nav-bar,
   #admin-users-mobile-cards .doc-stack-nav-bar,
@@ -6133,9 +6173,12 @@ body::-webkit-scrollbar,
   #monthly-doctors-mobile-cards #btn-toggle-monthly-doc-stack,
   #daily-doctors-mobile-deck #daily-doc-stack-counter,
   #monthly-doctors-mobile-cards #monthly-doc-stack-counter,
+  #admin-users-mobile-cards .doc-stack-header-bar,
+  #admin-users-mobile-cards #btn-toggle-admin-stack,
+  #admin-users-mobile-cards #admin-stack-counter,
   #my-appointments-grid #btn-toggle-doc-stack-layout,
   #my-appointments-grid #doc-stack-counter {
-    display: none;
+    display: none !important;
   }
 }
 
@@ -6430,7 +6473,7 @@ body::-webkit-scrollbar,
 @media screen and (max-width: 991px) {
   /* v1.4.0-beta.31: Eliminate Inner Scroll Traps - Natural Viewport Flow */
   #doctor-personal-mobile-cards,
-  #finance-report-mobile-cards,
+  
   #dashboard-recent-mobile-cards,
   #claim-patients-mobile-cards {
     max-height: none !important;
@@ -6447,7 +6490,7 @@ body::-webkit-scrollbar,
 
   /* CRITICAL: Never shrink cards! Keep full normal card dimensions, padding, and all details */
   #doctor-personal-mobile-cards > *,
-  #finance-report-mobile-cards > *,
+  
   #dashboard-recent-mobile-cards > * {
     flex-shrink: 0 !important;
     flex-grow: 0 !important;
@@ -6458,7 +6501,7 @@ body::-webkit-scrollbar,
   [data-theme="dark"] #sessions-today-mobile-cards,
   [data-theme="dark"] #patients-mobile-cards,
   [data-theme="dark"] #doctor-personal-mobile-cards,
-  [data-theme="dark"] #finance-report-mobile-cards,
+  [data-theme="dark"] 
   [data-theme="dark"] #dashboard-recent-mobile-cards {
     scrollbar-color: rgba(56, 189, 248, 0.4) transparent !important;
   }
@@ -6467,7 +6510,7 @@ body::-webkit-scrollbar,
   #sessions-today-mobile-cards::-webkit-scrollbar,
   #patients-mobile-cards::-webkit-scrollbar,
   #doctor-personal-mobile-cards::-webkit-scrollbar,
-  #finance-report-mobile-cards::-webkit-scrollbar,
+  
   #dashboard-recent-mobile-cards::-webkit-scrollbar {
     width: 4px !important;
     display: block !important;
@@ -6476,7 +6519,7 @@ body::-webkit-scrollbar,
   #sessions-today-mobile-cards::-webkit-scrollbar-thumb,
   #patients-mobile-cards::-webkit-scrollbar-thumb,
   #doctor-personal-mobile-cards::-webkit-scrollbar-thumb,
-  #finance-report-mobile-cards::-webkit-scrollbar-thumb,
+  
   #dashboard-recent-mobile-cards::-webkit-scrollbar-thumb {
     background-color: rgba(2, 132, 199, 0.35) !important;
     border-radius: 999px !important;
@@ -6485,7 +6528,7 @@ body::-webkit-scrollbar,
   [data-theme="dark"] #sessions-today-mobile-cards::-webkit-scrollbar-thumb,
   [data-theme="dark"] #patients-mobile-cards::-webkit-scrollbar-thumb,
   [data-theme="dark"] #doctor-personal-mobile-cards::-webkit-scrollbar-thumb,
-  [data-theme="dark"] #finance-report-mobile-cards::-webkit-scrollbar-thumb,
+  [data-theme="dark"] 
   [data-theme="dark"] #dashboard-recent-mobile-cards::-webkit-scrollbar-thumb {
     background-color: rgba(56, 189, 248, 0.4) !important;
   }

@@ -610,7 +610,9 @@ export class AuditAndAdminManager {
           </div>
         `;
 
-        this.initStackDeck('admin-stack');
+        if (window.innerWidth < 768) {
+          this.initStackDeck('admin-stack');
+        }
       }
     }
   }
@@ -720,6 +722,7 @@ export class AuditAndAdminManager {
 
   // ================= 3D Stack Deck Handler (Admin Staff Members) =================
   initStackDeck(prefix) {
+    if (typeof window !== 'undefined' && window.innerWidth >= 768) return;
     initStackDeck(prefix);
   }
 }
