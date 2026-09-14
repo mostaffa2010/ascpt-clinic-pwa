@@ -13,6 +13,7 @@ import {
 } from 'https://www.gstatic.com/firebasejs/12.18.0/firebase-firestore.js';
 
 import { firestoreDb, firebaseAuth } from './firebase-init.js';
+import { db } from './db.js';
 import { auth } from './auth.js';
 import { RolesManager } from './roles.js';
 import { escapeHTML, initStackDeck, getShiftLabel } from './utils.js';
@@ -342,7 +343,8 @@ export class AuditAndAdminManager {
 
       this.app.closeModal('modal-change-doctor-shift');
       this.app.showToast('تم تحديث شفت وأسعار جلسات الطبيب بنجاح');
-      await this.loadUsers();
+      if (db.invalidateAllCaches) db.invalidateAllCaches();
+      await this.loadUsers(true);
       await this.app.populateDoctorDropdowns?.();
       await this.loadAuditLogs();
     } catch (err) {
@@ -356,14 +358,14 @@ export class AuditAndAdminManager {
   }
 
 
-  async loadUsers() {
+  async loadUsers(forceRefresh = false) {
     const tbody = document.getElementById('admin-users-tbody');
     const mobContainer = document.getElementById('admin-users-mobile-cards');
     if (!tbody && !mobContainer) return;
 
     let users = [];
     try {
-      users = await db.getUsers();
+      users = await db.getUsers(forceRefresh);
     } catch (err) {
       console.error('Error loading users:', err);
     }
@@ -557,7 +559,7 @@ export class AuditAndAdminManager {
     }
   }
 
-  async loadAuditLogs() {
+  async loadAuditLogs(forceRefresh = false) {
     const tbody = document.getElementById('audit-log-tbody');
     const mobLogs = document.getElementById('audit-log-mobile-cards');
     if (!tbody && !mobLogs) return;
@@ -567,7 +569,7 @@ export class AuditAndAdminManager {
 
     let logs = [];
     try {
-      logs = await db.getAuditLogs(50);
+      logs = await db.getAuditLogs(50, forceRefresh);
     } catch (err) {
       console.warn('Error loading audit logs:', err.message);
     }

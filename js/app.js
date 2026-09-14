@@ -348,8 +348,10 @@ class App {
     if (viewName === 'sessions') this.sessionsManager.loadTodaySessions();
     if (viewName === 'patients') this.patientsManager.loadPatients();
     if (viewName === 'admin') {
-      this.auditManager.loadUsers();
-      this.auditManager.loadAuditLogs();
+      if (this.auditManager) {
+        this.auditManager.loadUsers(true);
+        this.auditManager.loadAuditLogs(true);
+      }
     }
     if (viewName === 'appointments') this.appointmentsManager.render();
   }
@@ -1736,6 +1738,9 @@ class App {
     if (this.doctorDashboardManager) await this.doctorDashboardManager.render();
     if (this.claimsManager && typeof this.claimsManager.loadClaims === 'function') {
       await this.claimsManager.loadClaims();
+    }
+    if (this.auditManager && typeof this.auditManager.loadUsers === 'function') {
+      await this.auditManager.loadUsers();
     }
     if (this.auditManager && typeof this.auditManager.loadAuditLogs === 'function') {
       await this.auditManager.loadAuditLogs();
