@@ -107,10 +107,19 @@ export class PatientsManager {
       btnViewSessions.addEventListener('click', () => this.openPatientSessionsModal());
     }
 
+    // Body Parts Multi-Picker in Patient Modal
+    document.getElementById('btn-open-patient-body-parts')?.addEventListener('click', () => {
+      this.app.openMultiPicker({
+        category: 'body_parts',
+        title: 'المنطقة أو الأعضاء المعالجة للمريض',
+        currentSelected: this.selectedPatientBodyParts || [],
+        onConfirm: (selected) => {
+          this.updatePatientBodyPartsPreview(selected);
+        }
+      });
+    });
+
     // Toggle Insurance Fields in Patient Form
-    const progRadios = document.querySelectorAll('input[name="p-program-type"]');
-    const pProg = (p.programType === 'pediatric') ? 'quadriplegia' : (p.programType || 'regular');
-    progRadios.forEach(r => { r.checked = (r.value === pProg); });
     const billingRadios = document.querySelectorAll('input[name="p-billing"]');
     billingRadios.forEach(r => {
       r.addEventListener('change', (e) => {
@@ -813,7 +822,11 @@ export class PatientsManager {
       const safeAge = escapeHTML(p.age);
       const safePhone = escapeHTML(p.phone);
       const safeAddress = escapeHTML(p.address || '-');
-      const treatedArea = p.clinicalSheet?.affectedArea || p.affectedArea || p.clinicalSheet?.diagnosis || p.diagnosis || '';
+      let pParts = [];
+      if (Array.isArray(p.bodyParts) && p.bodyParts.length > 0) pParts = p.bodyParts;
+      else if (Array.isArray(p.clinicalSheet?.bodyParts) && p.clinicalSheet.bodyParts.length > 0) pParts = p.clinicalSheet.bodyParts;
+      else if (p.affectedArea) pParts = p.affectedArea.split(/[,،]/).map(s => s.trim()).filter(Boolean);
+      const partsDisplay = pParts.length > 0 ? pParts.join(' • ') : 'لم تحدد الأعضاء';
       const safeDoctor = escapeHTML(p.doctor || '');
       const safeEditor = escapeHTML(p.lastUpdatedBy || p.createdBy || '-');
       const cleanWaPhone = (p.phone || '').replace(/[^0-9]/g, '').replace(/^0/, '20');
@@ -840,7 +853,7 @@ export class PatientsManager {
               data-patient-id="${safeId}"
               onclick="patientsManager.openPatientSheet('${safeId}')"
               title="${canAccessSheet ? 'اضغط لفتح الشيت الطبي' : 'تعديل بيانات المريض'}">
-            <i class="fa-solid ${canAccessSheet ? 'fa-file-waveform' : 'fa-user'}" style="margin-left: 6px;"></i> ${safeName} ${programBadge}
+            <i class="fa-solid ${canAccessSheet ? 'fa-file-waveform' : 'fa-user'}" style="margin-left: 6px;"></i> ${safeName}
           </td>
           <td style="white-space: nowrap;"><span class="badge ${genderBadgeClass}" style="font-size: 0.74rem; padding: 2px 8px;"><i class="${genderIcon}"></i> ${genderText} • ${safeAge} سنة</span></td>
           <td style="white-space: nowrap;">
@@ -849,7 +862,7 @@ export class PatientsManager {
             </a>
           </td>
           <td style="white-space: nowrap;">${safeAddress}</td>
-          <td style="white-space: nowrap;"><span style="font-weight: 700; color: var(--text-main); display: inline-flex; align-items: center; gap: 5px;"><i class="fa-solid fa-bone text-primary" style="font-size: 0.75rem;"></i> ${escapeHTML(treatedArea || 'علاج طبيعي عام')}</span></td>
+          <td style="white-space: nowrap;"><span style="font-weight: 700; color: var(--text-main); display: inline-flex; align-items: center; gap: 5px;"><i class="fa-solid fa-bone text-primary" style="font-size: 0.75rem;"></i> ${escapeHTML(partsDisplay)}</span></td>
           <td style="white-space: nowrap;">${billingBadge}</td>
           <td style="font-size: 0.8rem; color: var(--text-muted); white-space: nowrap;">${safeEditor}</td>
           <td style="white-space: nowrap;">
@@ -913,7 +926,11 @@ export class PatientsManager {
         const safeAge = escapeHTML(p.age);
         const safePhone = escapeHTML(p.phone);
         const safeAddress = escapeHTML(p.address || '');
-        const treatedArea = p.clinicalSheet?.affectedArea || p.affectedArea || p.clinicalSheet?.diagnosis || p.diagnosis || '';
+        let mParts = [];
+        if (Array.isArray(p.bodyParts) && p.bodyParts.length > 0) mParts = p.bodyParts;
+        else if (Array.isArray(p.clinicalSheet?.bodyParts) && p.clinicalSheet.bodyParts.length > 0) mParts = p.clinicalSheet.bodyParts;
+        else if (p.affectedArea) mParts = p.affectedArea.split(/[,،]/).map(s => s.trim()).filter(Boolean);
+        const mobilePartsDisplay = mParts.length > 0 ? mParts.join(' • ') : 'لم تحدد الأعضاء';
         const safeDoctor = escapeHTML(p.doctor || '');
         const cleanDocName = (p.doctor || 'طبيب المركز').replace(/^د\.\s*/, '');
         const docColor = getDoctorColor(p.doctorId || p.doctor || 'default');
@@ -947,14 +964,14 @@ export class PatientsManager {
                 </div>
                 <div style="display: flex; flex-direction: column; gap: 3px; min-width: 0;">
                   <div style="display: flex; align-items: center; gap: 6px; flex-wrap: wrap;">
-                    <span class="hsc-patient-name" style="cursor: pointer; font-size: 0.98rem; font-weight: 800; line-height: 1.35;" onclick="patientsManager.openPatientSheet('${safeId}')" title="اضغط لفتح الشيت الطبي">${safeName}</span> ${programBadge}
+                    <span class="hsc-patient-name" style="cursor: pointer; font-size: 0.98rem; font-weight: 800; line-height: 1.35;" onclick="patientsManager.openPatientSheet('${safeId}')" title="اضغط لفتح الشيت الطبي">${safeName}</span>
                     <span class="badge ${genderBadgeClass}" style="font-size: 0.68rem; padding: 2px 7px; border-radius: 999px;">
                       <i class="${genderIcon}"></i> ${genderText} • ${safeAge} سنة
                     </span>
                   </div>
                   <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-top: 2px;">
                     <span class="patient-area-badge" style="font-size: 0.74rem; padding: 2px 8px; border-radius: 6px; background: var(--bg-subtle); color: var(--text-main); border: 1px solid var(--border-color); display: inline-flex; align-items: center; gap: 5px;">
-                      <i class="fa-solid fa-bone text-primary" style="font-size: 0.72rem;"></i> ${escapeHTML(treatedArea || 'علاج طبيعي عام')}
+                      <i class="fa-solid fa-bone text-primary" style="font-size: 0.72rem;"></i> ${escapeHTML(mobilePartsDisplay)}
                     </span>
                   </div>
                 </div>
@@ -1044,6 +1061,29 @@ export class PatientsManager {
     this.applyViewModeUI();
   }
 
+
+  // ================= Patient Body Parts Multi-Picker Support =================
+  updatePatientBodyPartsPreview(selectedParts = []) {
+    this.selectedPatientBodyParts = Array.isArray(selectedParts) ? [...selectedParts] : [];
+    const previewEl = document.getElementById('patient-body-parts-preview');
+    const badgeEl = document.getElementById('patient-body-parts-badge');
+    const hiddenInp = document.getElementById('p-body-parts');
+
+    if (badgeEl) badgeEl.textContent = `${this.selectedPatientBodyParts.length} أعضاء`;
+    if (hiddenInp) hiddenInp.value = JSON.stringify(this.selectedPatientBodyParts);
+
+    if (previewEl) {
+      if (this.selectedPatientBodyParts.length === 0) {
+        previewEl.innerHTML = `<span style="color: var(--text-muted); font-size: 0.88rem;">-- اضغط لاختيار وتحديد الأعضاء المعالجة --</span>`;
+      } else {
+        previewEl.innerHTML = this.selectedPatientBodyParts.map(part => `
+          <span class="clinical-selected-chip">
+            <i class="fa-solid fa-bone"></i> <span>${escapeHTML(part)}</span>
+          </span>
+        `).join('');
+      }
+    }
+  }
 
   // ================= 1-Tap Quick Attendance & Smart WhatsApp Action Sheet =================
   quickLogSession(patientId) {
@@ -1323,8 +1363,7 @@ export class PatientsManager {
     this.clearPhoneValidation();
     document.getElementById('p-id').value = '';
     this.setGender('male');
-    const pDiag = document.getElementById('p-diagnosis');
-    if (pDiag) pDiag.value = '';
+    this.updatePatientBodyPartsPreview([]);
     const insComp = document.getElementById('p-insurance-company');
     if (insComp) insComp.value = '';
     const insPrev = document.getElementById('p-selected-ins-preview');
@@ -1382,10 +1421,15 @@ export class PatientsManager {
     this.setGender(p.gender === 'female' ? 'female' : 'male');
     document.getElementById('p-phone').value = p.phone;
     document.getElementById('p-address').value = p.address || '';
-    const pDiag = document.getElementById('p-diagnosis');
-    if (pDiag) {
-      pDiag.value = p.diagnosis || p.affectedArea || p.clinicalSheet?.affectedArea || p.clinicalSheet?.diagnosis || '';
+    let initialParts = [];
+    if (Array.isArray(p.bodyParts) && p.bodyParts.length > 0) {
+      initialParts = [...p.bodyParts];
+    } else if (Array.isArray(p.clinicalSheet?.bodyParts) && p.clinicalSheet.bodyParts.length > 0) {
+      initialParts = [...p.clinicalSheet.bodyParts];
+    } else if (p.affectedArea) {
+      initialParts = p.affectedArea.split(/[,،]/).map(s => s.trim()).filter(Boolean);
     }
+    this.updatePatientBodyPartsPreview(initialParts);
 
     const progRadios = document.querySelectorAll('input[name="p-program-type"]');
     const pProg = (p.programType === 'pediatric') ? 'quadriplegia' : (p.programType || 'regular');
@@ -1440,7 +1484,7 @@ export class PatientsManager {
     const gender = document.getElementById('p-gender').value;
     const phone = document.getElementById('p-phone').value.trim();
     const address = document.getElementById('p-address').value.trim();
-    const diagnosis = document.getElementById('p-diagnosis')?.value.trim() || '';
+    const selectedParts = this.selectedPatientBodyParts || [];
     const billing = document.querySelector('input[name="p-billing"]:checked')?.value || 'cash';
 
     // 1. Name Validation (must be at least 2 words and not contain numbers)
@@ -1545,6 +1589,7 @@ export class PatientsManager {
     const existingP = id ? this.patients.find(p => p.id === id) : null;
     const doctor = existingP?.doctor || '';
     const doctorUid = existingP?.doctorUid || '';
+    const partsText = selectedParts.join('، ');
 
     const patientData = {
       id: id || null,
@@ -1555,8 +1600,9 @@ export class PatientsManager {
       address,
       doctor,
       doctorUid,
-      diagnosis,
-      affectedArea: diagnosis || existingP?.affectedArea || '',
+      bodyParts: selectedParts,
+      affectedArea: partsText || existingP?.affectedArea || '',
+      diagnosis: partsText || existingP?.diagnosis || '',
       programType,
       billing,
       insuranceCompany,
@@ -1568,36 +1614,45 @@ export class PatientsManager {
     if (!id && billing === 'insurance') {
       patientData.currentApprovalStartDate = getLocalDateStr();
     } else if (id && billing === 'insurance') {
-      const existingP = this.patients.find(p => p.id === id);
       patientData.currentApprovalStartDate = existingP?.currentApprovalStartDate || getLocalDateStr();
     }
 
-    const isNew = !id;
-    const actionResult = await db.savePatient(patientData, currentUser);
-    const savedId = (actionResult && actionResult.id) ? actionResult.id : (patientData.id || id);
-    const auditDesc = id 
-      ? `تعديل ملف المريض: ${name}`
-      : `تسجيل مريض جديد: ${name} (نظام: ${billing})`;
-      
-    try { await db.logAudit(id ? 'تعديل مريض' : 'إضافة مريض', auditDesc, currentUser); } catch (_) {}
+    try {
+      const isNew = !id;
+      const actionResult = await db.savePatient(patientData, currentUser);
+      const savedId = (actionResult && actionResult.id) ? actionResult.id : (patientData.id || id);
+      const auditDesc = id 
+        ? `تعديل ملف المريض: ${name}`
+        : `تسجيل مريض جديد: ${name} (نظام: ${billing})`;
+        
+      try { await db.logAudit(id ? 'تعديل مريض' : 'إضافة مريض', auditDesc, currentUser); } catch (_) {}
 
-    if (saveBtn) {
-      saveBtn.disabled = false;
-      saveBtn.innerHTML = 'حفظ المريض';
-    }
+      if (saveBtn) {
+        saveBtn.disabled = false;
+        saveBtn.innerHTML = 'حفظ المريض';
+      }
 
-    this.app.closeModal('modal-patient');
-    this.renderAllInsuranceChips();
-    await this.loadPatients();
+      this.app.closeModal('modal-patient');
+      this.renderAllInsuranceChips();
+      await this.loadPatients(true);
+      this.renderPatients();
 
-    if (isNew && savedId) {
-      this.pendingPromptPatientId = savedId;
-      this.newlyAddedPatientId = savedId;
-      const promptName = document.getElementById('action-prompt-patient-name');
-      if (promptName) promptName.textContent = name;
-      this.app.openModal('modal-patient-action-prompt');
-    } else {
-      this.app.showToast('تم تعديل بيانات المريض بنجاح');
+      if (isNew && savedId) {
+        this.pendingPromptPatientId = savedId;
+        this.newlyAddedPatientId = savedId;
+        const promptName = document.getElementById('action-prompt-patient-name');
+        if (promptName) promptName.textContent = name;
+        this.app.openModal('modal-patient-action-prompt');
+      } else {
+        this.app.showToast('تم تعديل بيانات المريض بنجاح');
+      }
+    } catch (err) {
+      console.error('handleSavePatient error:', err);
+      if (saveBtn) {
+        saveBtn.disabled = false;
+        saveBtn.innerHTML = 'حفظ المريض';
+      }
+      await this.app.showAlert('تعذر حفظ بيانات المريض: ' + err.message, 'خطأ في الحفظ', 'danger');
     }
   }
 
