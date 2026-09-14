@@ -1718,10 +1718,19 @@ export class PatientsManager {
       const pSessions = await db.getSessionsForPatient(p.id);
       pSessions.sort((a, b) => new Date(b.date) - new Date(a.date));
       this.currentPatientSessions = pSessions;
+
+      const actualSessions = pSessions.filter(s => s.entryType !== 'examination');
+      const examCount = pSessions.length - actualSessions.length;
       
       const sessBadge = document.getElementById('sheet-sessions-badge-count');
       if (sessBadge) {
-        sessBadge.textContent = `${pSessions.length} جلسة`;
+        if (examCount > 0 && actualSessions.length > 0) {
+          sessBadge.textContent = `${actualSessions.length} جلسة • ${examCount} كشف`;
+        } else if (examCount > 0) {
+          sessBadge.textContent = `${examCount} كشف طبي`;
+        } else {
+          sessBadge.textContent = `${actualSessions.length} جلسة`;
+        }
       }
     } catch (e) {
       this.currentPatientSessions = [];
@@ -2192,8 +2201,19 @@ export class PatientsManager {
     const nameEl = document.getElementById('modal-p-sess-patient-name');
     if (nameEl) nameEl.textContent = p.name;
     
+    const therapySessions = sessions.filter(s => s.entryType !== 'examination');
+    const examCount = sessions.length - therapySessions.length;
+
     const countEl = document.getElementById('modal-p-sess-total-badge');
-    if (countEl) countEl.textContent = `${sessions.length} جلسة`;
+    if (countEl) {
+      if (examCount > 0 && therapySessions.length > 0) {
+        countEl.textContent = `${therapySessions.length} جلسة علاجية • ${examCount} كشف`;
+      } else if (examCount > 0) {
+        countEl.textContent = `${examCount} كشف طبي`;
+      } else {
+        countEl.textContent = `${therapySessions.length} جلسة`;
+      }
+    }
 
     const listEl = document.getElementById('modal-p-sess-list');
     if (!listEl) return;
@@ -2202,13 +2222,23 @@ export class PatientsManager {
       listEl.innerHTML = `
         <div class="stc-empty-box">
           <i class="fa-solid fa-calendar-xmark"></i>
-          <h4>لا توجد جلسات مسجلة لهذا المريض بعد</h4>
-          <p>يتم تسجيل حضور الجلسات من شاشة "تسجيل الجلسات" اليومية</p>
+          <h4>لا توجد حركات مسجلة لهذا المريض بعد</h4>
+          <p>يتم تسجيل حضور الجلسات والكشوفات من شاشة "تسجيل الجلسات" اليومية</p>
         </div>
       `;
     } else {
+      let therapyCounter = therapySessions.length;
+
       listEl.innerHTML = sessions.map((s, idx) => {
-        const sessionNum = sessions.length - idx;
+        const isExam = (s.entryType === 'examination');
+        let sessionBadgeHTML = '';
+        if (isExam) {
+          sessionBadgeHTML = `<span class="badge" style="background: rgba(147, 51, 234, 0.16); color: #9333ea; font-weight: 800; font-size: 0.78rem; border: 1px solid rgba(147, 51, 234, 0.35); padding: 3px 10px; border-radius: 999px;"><i class="fa-solid fa-stethoscope"></i> كشف واستشارة</span>`;
+        } else {
+          sessionBadgeHTML = `<span class="stc-num-badge">الجلسة #${therapyCounter}</span>`;
+          therapyCounter--;
+        }
+
         const isLatest = (idx === 0);
 
         let payBadge = '';
@@ -2220,8 +2250,6 @@ export class PatientsManager {
           payBadge = `<span class="badge badge-indirect" style="font-size: 0.74rem; padding: 3px 8px;"><i class="fa-solid fa-handshake"></i> ${escapeHTML(s.insuranceName || 'تأمين')} (غير مباشر) • ${s.amountPaid || 0} ج.م</span>`;
         }
 
-        const parts = Array.isArray(s.bodyParts) ? s.bodyParts.join('، ') : (s.bodyParts || 'غير محدد');
-
         let dateLabel = s.date;
         try {
           const d = new Date(s.date + 'T00:00:00');
@@ -2231,11 +2259,19 @@ export class PatientsManager {
           }
         } catch (e) {}
 
+        let partBadgeHTML = '';
+        if (isExam) {
+          partBadgeHTML = `<span class="stc-part-pill" style="color: #9333ea; background: rgba(147, 51, 234, 0.1); border: 1px solid rgba(147, 51, 234, 0.25);"><i class="fa-solid fa-stethoscope"></i> فحص وتقييم</span>`;
+        } else {
+          const parts = Array.isArray(s.bodyParts) ? s.bodyParts.join('، ') : (s.bodyParts || 'غير محدد');
+          partBadgeHTML = `<span class="stc-part-pill"><i class="fa-solid fa-location-crosshairs"></i> ${escapeHTML(parts)}</span>`;
+        }
+
         return `
           <div class="session-timeline-card ${isLatest ? 'is-latest' : ''}">
             <div class="stc-header">
               <div class="stc-left-meta">
-                <span class="stc-num-badge">الجلسة #${sessionNum}</span>
+                ${sessionBadgeHTML}
                 ${isLatest ? '<span class="badge badge-success" style="font-size: 0.68rem; padding: 2px 7px;"><i class="fa-solid fa-sparkles"></i> الأحدث</span>' : ''}
                 <div class="stc-datetime">
                   <i class="fa-regular fa-calendar text-primary"></i>
@@ -2251,10 +2287,10 @@ export class PatientsManager {
             <div class="stc-body">
               <div class="stc-doctor">
                 <i class="fa-solid fa-user-doctor text-primary"></i>
-                <span>الطبيب المعالج: <strong>${escapeHTML(s.doctor)}</strong></span>
+                <span>${isExam ? 'طبيب الكشف:' : 'الطبيب المعالج:'} <strong>${escapeHTML(s.doctor)}</strong></span>
               </div>
               <div class="stc-part">
-                <span class="stc-part-pill"><i class="fa-solid fa-location-crosshairs"></i> ${escapeHTML(parts)}</span>
+                ${partBadgeHTML}
               </div>
             </div>
 
