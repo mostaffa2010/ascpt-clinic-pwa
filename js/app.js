@@ -239,7 +239,7 @@ class App {
     const isDark = saved === 'dark' || (!saved && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches);
     this.applyTheme(isDark ? 'dark' : 'light');
 
-    const toggleBtns = document.querySelectorAll('#btn-toggle-theme, #btn-toggle-theme-desktop');
+    const toggleBtns = document.querySelectorAll('#btn-toggle-theme, #btn-toggle-theme-desktop, #btn-profile-toggle-theme');
     toggleBtns.forEach(btn => {
       btn.addEventListener('click', () => this.toggleTheme());
     });
@@ -254,6 +254,8 @@ class App {
   }
 
   applyTheme(theme) {
+    const pIcon = document.getElementById('profile-theme-icon');
+    const pLabel = document.getElementById('profile-theme-label');
     if (theme === 'dark') {
       document.documentElement.setAttribute('data-theme', 'dark');
       const meta = document.querySelector('meta[name="theme-color"]');
@@ -262,6 +264,8 @@ class App {
         icon.className = 'fa-solid fa-sun';
         icon.style.color = '#f59e0b';
       });
+      if (pIcon) { pIcon.className = 'fa-solid fa-sun'; pIcon.style.color = '#f59e0b'; }
+      if (pLabel) pLabel.textContent = 'الوضع النهاري (فاتح)';
     } else {
       document.documentElement.removeAttribute('data-theme');
       const meta = document.querySelector('meta[name="theme-color"]');
@@ -270,6 +274,8 @@ class App {
         icon.className = 'fa-solid fa-moon';
         icon.style.color = '';
       });
+      if (pIcon) { pIcon.className = 'fa-solid fa-moon'; pIcon.style.color = ''; }
+      if (pLabel) pLabel.textContent = 'الوضع الليلي (داكن)';
     }
   }
 
@@ -544,6 +550,12 @@ class App {
           else avatarIcon.className = 'fa-solid fa-user-tie';
         }
 
+        // Admin Panel Button inside profile
+        const btnAdminProfile = document.getElementById('btn-profile-admin-panel');
+        if (btnAdminProfile) {
+          btnAdminProfile.style.display = (user.role === 'admin') ? 'flex' : 'none';
+        }
+
         this.openModal('modal-user-profile');
       } catch (err) {
         console.error('Error opening user profile modal:', err);
@@ -567,6 +579,20 @@ class App {
     });
     document.getElementById('btn-close-profile-footer')?.addEventListener('click', () => {
       this.closeModal('modal-user-profile');
+    });
+
+    document.getElementById('btn-profile-admin-panel')?.addEventListener('click', () => {
+      this.closeModal('modal-user-profile');
+      this.switchView('admin');
+    });
+
+    document.getElementById('btn-profile-logout')?.addEventListener('click', async () => {
+      this.closeModal('modal-user-profile');
+      const confirmed = await this.showConfirm('هل ترغب في تسجيل الخروج من نظام المركز؟', 'تأكيد تسجيل الخروج');
+      if (confirmed) {
+        await auth.logout();
+        this.showToast('تم تسجيل الخروج بنجاح.');
+      }
     });
 
     document.getElementById('btn-profile-change-pwd')?.addEventListener('click', (e) => {

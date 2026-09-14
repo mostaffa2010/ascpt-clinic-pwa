@@ -147,40 +147,26 @@
 
   <!-- Mobile Top Header -->
     <header class="top-header no-print">
-    <a href="#" class="brand-logo" style="display: inline-flex; align-items: center; gap: 8px;">
-      <img src="./icons/icon-192.png" alt="ASCPT Logo" style="width: 28px; height: 28px; border-radius: 6px; object-fit: contain; vertical-align: middle;">
-      <span data-clinic="abbreviation">ASCPT</span>
+    <!-- Right side (Start of RTL): Doctor Identity Pill Button -->
+    <button type="button" class="user-badge" id="user-status-pill-box" onclick="if(window.app && typeof window.app.openUserProfileModal==='function') window.app.openUserProfileModal();" style="cursor: pointer; background: var(--bg-subtle); border: 1.5px solid var(--border-color); font-family: inherit; font-size: 0.82rem; font-weight: 700; color: var(--text-main); border-radius: 999px; padding: 5px 12px; display: inline-flex; align-items: center; gap: 7px; -webkit-user-select: none; user-select: none; outline: none; transition: all 0.15s ease;" title="الملف الشخصي وإعدادات الحساب (اضغط للعرض)">
+      <span class="status-dot" id="net-status-dot"></span>
+      <i class="fa-solid fa-user-doctor" style="color: var(--primary); font-size: 0.9rem;"></i>
+      <span id="header-user-display" style="white-space: nowrap; font-weight: 800;"></span>
+      <i class="fa-solid fa-chevron-down" style="font-size: 0.65rem; color: var(--text-muted); margin-right: 2px;"></i>
+      <script>
+        (function() {
+          var u = window.__ASCPT_INITIAL_USER;
+          var el = document.getElementById('header-user-display');
+          if (el) el.textContent = (u && u.name) ? u.name : 'تسجيل الدخول';
+        })();
+      </script>
+    </button>
+
+    <!-- Left side (End of RTL): Brand Logo & Abbreviation -->
+    <a href="#" class="brand-logo" style="display: inline-flex; align-items: center; gap: 8px; text-decoration: none;">
+      <span data-clinic="abbreviation" style="font-size: 1.05rem; font-weight: 800; color: var(--primary); letter-spacing: 0.3px;">ASCPT</span>
+      <img src="./icons/icon-192.png" alt="Logo" style="width: 28px; height: 28px; border-radius: 6px; object-fit: contain; vertical-align: middle;">
     </a>
-    <div class="header-actions-group">
-      <!-- Doctor Name Badge (Clickable button to open User Profile v1.4.80) -->
-      <button type="button" class="user-badge" id="user-status-pill-box" onclick="if(window.app && typeof window.app.openUserProfileModal==='function') window.app.openUserProfileModal();" style="cursor: pointer; background: var(--bg-subtle); border: 1.5px solid var(--border-color); font-family: inherit; font-size: 0.82rem; font-weight: 700; color: var(--text-main); border-radius: 999px; padding: 4px 10px; display: inline-flex; align-items: center; gap: 6px; -webkit-user-select: none; user-select: none; outline: none; transition: all 0.15s ease;" title="الملف الشخصي وإعدادات الحساب (اضغط للعرض)">
-        <span class="status-dot" id="net-status-dot"></span>
-        <i class="fa-solid fa-user-doctor" style="color: var(--primary); font-size: 0.9rem;"></i>
-        <span id="header-user-display" style="white-space: nowrap;"></span>
-        <script>
-          (function() {
-            var u = window.__ASCPT_INITIAL_USER;
-            var el = document.getElementById('header-user-display');
-            if (el) el.textContent = (u && u.name) ? u.name : 'تسجيل الدخول';
-          })();
-        </script>
-      </button>
-
-      <!-- Admin Quick Button (Header) -->
-      <button type="button" class="btn btn-outline btn-sm admin-only" id="btn-admin-header" data-view-target="admin" style="border-radius: 10px; padding: 6px 10px; font-weight: 700; width: 36px; height: 34px; display: none; align-items: center; justify-content: center; color: #f59e0b; border-color: rgba(245, 158, 11, 0.4);" title="لوحة المدير والصلاحيات">
-        <i class="fa-solid fa-user-shield"></i>
-      </button>
-
-      <!-- Theme Toggle Button (Mobile) -->
-      <button type="button" class="btn btn-outline btn-sm" id="btn-toggle-theme" style="border-radius: 10px; padding: 6px 10px; font-weight: 700; width: 36px; height: 34px; display: inline-flex; align-items: center; justify-content: center;" title="التبديل بين الوضع الليلي والنهاري">
-        <i class="fa-solid fa-moon"></i>
-      </button>
-
-      <!-- Logout / Switch Account Button -->
-      <button type="button" class="btn btn-outline btn-sm" id="btn-logout-mobile" style="border-radius: 10px; padding: 6px 10px; font-weight: 700;" title="تسجيل الخروج / تبديل الحساب" >
-        <i class="fa-solid fa-right-from-bracket"></i>
-      </button>
-    </div>
   </header>
 
   <!-- App Layout -->
@@ -3059,16 +3045,50 @@
           </div>
         </div>
 
-        <!-- Options Card (Currently only Change Password as requested) -->
-        <div>
-          <button type="button" class="btn btn-outline" id="btn-profile-change-pwd" style="width: 100%; display: flex; align-items: center; justify-content: space-between; padding: 13px 16px; border-radius: 12px; font-weight: 800; font-size: 0.92rem; color: var(--text-main); border: 1.5px solid var(--border-color); background: var(--bg-surface); cursor: pointer; transition: all 0.2s ease;">
+        <!-- Profile Action Menu (Consolidated Navigation & Settings) -->
+        <div style="display: flex; flex-direction: column; gap: 8px;">
+          <!-- 1. Admin Panel (Admin Only) -->
+          <button type="button" class="btn btn-outline" id="btn-profile-admin-panel" style="width: 100%; display: none; align-items: center; justify-content: space-between; padding: 11px 14px; border-radius: 12px; font-weight: 800; font-size: 0.88rem; color: #b45309; border: 1.5px solid rgba(245, 158, 11, 0.35); background: rgba(245, 158, 11, 0.08); cursor: pointer; transition: all 0.2s ease;">
             <span style="display: flex; align-items: center; gap: 10px;">
-              <span style="width: 34px; height: 34px; border-radius: 8px; background: rgba(2, 132, 199, 0.12); color: var(--primary); display: flex; align-items: center; justify-content: center; font-size: 1rem; flex-shrink: 0;">
+              <span style="width: 32px; height: 32px; border-radius: 8px; background: rgba(245, 158, 11, 0.18); color: #d97706; display: flex; align-items: center; justify-content: center; font-size: 0.95rem; flex-shrink: 0;">
+                <i class="fa-solid fa-user-shield"></i>
+              </span>
+              <span>لوحة المدير والصلاحيات</span>
+            </span>
+            <i class="fa-solid fa-chevron-left" style="font-size: 0.8rem; opacity: 0.7;"></i>
+          </button>
+
+          <!-- 2. Dark / Light Mode Toggle -->
+          <button type="button" class="btn btn-outline" id="btn-profile-toggle-theme" style="width: 100%; display: flex; align-items: center; justify-content: space-between; padding: 11px 14px; border-radius: 12px; font-weight: 800; font-size: 0.88rem; color: var(--text-main); border: 1.5px solid var(--border-color); background: var(--bg-surface); cursor: pointer; transition: all 0.2s ease;">
+            <span style="display: flex; align-items: center; gap: 10px;">
+              <span style="width: 32px; height: 32px; border-radius: 8px; background: rgba(2, 132, 199, 0.12); color: var(--primary); display: flex; align-items: center; justify-content: center; font-size: 0.95rem; flex-shrink: 0;">
+                <i class="fa-solid fa-moon" id="profile-theme-icon"></i>
+              </span>
+              <span id="profile-theme-label">الوضع الليلي (داكن)</span>
+            </span>
+            <i class="fa-solid fa-chevron-left" style="color: var(--text-muted); font-size: 0.8rem;"></i>
+          </button>
+
+          <!-- 3. Change Password -->
+          <button type="button" class="btn btn-outline" id="btn-profile-change-pwd" style="width: 100%; display: flex; align-items: center; justify-content: space-between; padding: 11px 14px; border-radius: 12px; font-weight: 800; font-size: 0.88rem; color: var(--text-main); border: 1.5px solid var(--border-color); background: var(--bg-surface); cursor: pointer; transition: all 0.2s ease;">
+            <span style="display: flex; align-items: center; gap: 10px;">
+              <span style="width: 32px; height: 32px; border-radius: 8px; background: rgba(2, 132, 199, 0.12); color: var(--primary); display: flex; align-items: center; justify-content: center; font-size: 0.95rem; flex-shrink: 0;">
                 <i class="fa-solid fa-key"></i>
               </span>
-              <span style="font-size: 0.92rem;">تغيير كلمة المرور</span>
+              <span>تغيير كلمة المرور</span>
             </span>
-            <i class="fa-solid fa-chevron-left" style="color: var(--text-muted); font-size: 0.82rem;"></i>
+            <i class="fa-solid fa-chevron-left" style="color: var(--text-muted); font-size: 0.8rem;"></i>
+          </button>
+
+          <!-- 4. Logout / Switch User -->
+          <button type="button" class="btn btn-outline" id="btn-profile-logout" style="width: 100%; display: flex; align-items: center; justify-content: space-between; padding: 11px 14px; border-radius: 12px; font-weight: 800; font-size: 0.88rem; color: #ef4444; border: 1.5px solid rgba(239, 68, 68, 0.3); background: rgba(239, 68, 68, 0.06); cursor: pointer; transition: all 0.2s ease; margin-top: 4px;">
+            <span style="display: flex; align-items: center; gap: 10px;">
+              <span style="width: 32px; height: 32px; border-radius: 8px; background: rgba(239, 68, 68, 0.14); color: #ef4444; display: flex; align-items: center; justify-content: center; font-size: 0.95rem; flex-shrink: 0;">
+                <i class="fa-solid fa-right-from-bracket"></i>
+              </span>
+              <span>تسجيل الخروج / تبديل الحساب</span>
+            </span>
+            <i class="fa-solid fa-arrow-left" style="color: #ef4444; font-size: 0.8rem;"></i>
           </button>
         </div>
       </div>
