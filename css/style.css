@@ -10437,12 +10437,16 @@ body.role-doctor .btn-quick-attend {
 /* ================= Clinical Program & Seniority Tokens (v2.0.5) ================= */
 .program-type-segmented {
   width: 100%;
+  display: grid !important;
+  grid-template-columns: repeat(2, 1fr) !important;
+  gap: 8px !important;
 }
 .program-pill-opt {
   display: block;
   cursor: pointer;
   margin: 0;
   user-select: none;
+  width: 100%;
 }
 .program-pill-opt input {
   display: none;
@@ -10451,17 +10455,22 @@ body.role-doctor .btn-quick-attend {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 5px;
-  padding: 8px 6px;
+  gap: 7px;
+  padding: 10px 8px;
+  min-height: 44px;
   border: 1.5px solid var(--border-color);
   background: var(--bg-surface);
-  border-radius: 10px;
-  font-size: 0.76rem;
+  border-radius: 12px;
+  font-size: 0.82rem;
   font-weight: 800;
   color: var(--text-muted);
   text-align: center;
-  transition: all 0.15s ease;
+  transition: all 0.18s ease;
   white-space: nowrap;
+  box-sizing: border-box;
+}
+.program-pill-btn i {
+  font-size: 0.95rem;
 }
 .program-pill-opt input:checked + .program-pill-btn {
   background: var(--primary-light);
