@@ -2,14 +2,14 @@
 if (typeof window !== 'undefined' && !window.__print_lock_installed) {
   window.__print_lock_installed = true;
   const _origPrint = window.print.bind(window);
-  let _isPrintingNow = false;
+  window._window.__isPrintingNow = false;
 
   window.print = function() {
-    if (_isPrintingNow) {
+    if (window.__isPrintingNow) {
       console.warn('Prevented duplicate window.print() call.');
       return;
     }
-    _isPrintingNow = true;
+    window.__isPrintingNow = true;
 
 
 
@@ -36,7 +36,7 @@ if (typeof window !== 'undefined' && !window.__print_lock_installed) {
     // 3. Restore theme and unlock 1 second AFTER user returns
     const unlock = () => {
       setTimeout(() => {
-        _isPrintingNow = false;
+        window.__isPrintingNow = false;
 
         printBtns.forEach(btn => {
           btn.removeAttribute('disabled');
@@ -941,6 +941,11 @@ class App {
     }
 
     window.addEventListener('popstate', async (event) => {
+      // 0. إذا كانت هناك عملية طباعة جارية، نتجاهل حدث popstate لمنع الخروج أو القفز للرئيسية
+      if (window.__isPrintingNow) {
+        return;
+      }
+
       // 1. إذا كانت هناك أي نافذة منبثقة مفتوحة، نغلق النافذة العلوية الأخيرة فقط
       const activeModals = Array.from(document.querySelectorAll('.modal-backdrop.active:not(#modal-auth)'));
       if (activeModals.length > 0) {
@@ -969,8 +974,10 @@ class App {
             history.pushState({ view: 'dashboard', depth: 0 }, '');
           }
         } else {
-          // العودة للشاشة الرئيسية
-          this.switchView('dashboard', true);
+          // الرجوع الطبيعي بين الشاشات دون قفز مفاجئ للرئيسية
+          if (this.currentView === 'patient-sheet') {
+            this.switchView('patients', true);
+          }
         }
       }
     });

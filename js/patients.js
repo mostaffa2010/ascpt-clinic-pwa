@@ -2416,18 +2416,23 @@ export class PatientsManager {
     const planText = sheet.plannedSessions ? `الخطة: ${sheet.plannedSessions} | ` : '';
     document.getElementById('p-print-notes').textContent = `${planText}${sheet.doctorNotes || 'لا توجد ملاحظات إضافية'}`;
 
-    // 3. Activate print class and trigger print
+    // 3. Activate print class and trigger print with layout stabilization
+    const printEl = document.getElementById('printable-patient-sheet');
+    if (printEl) printEl.style.display = 'block';
     document.body.classList.add('printing-sheet');
+    window.__isPrintingNow = true;
 
-    const cleanPrintClass = () => {
-      document.body.classList.remove('printing-sheet');
-      window.removeEventListener('afterprint', cleanPrintClass);
-    };
-    window.addEventListener('afterprint', cleanPrintClass);
-
-    window.print();
-
-    setTimeout(cleanPrintClass, 2000);
+    setTimeout(() => {
+      window.print();
+      const cleanPrintClass = () => {
+        document.body.classList.remove('printing-sheet');
+        if (printEl) printEl.style.display = 'none';
+        window.removeEventListener('afterprint', cleanPrintClass);
+        setTimeout(() => { window.__isPrintingNow = false; }, 800);
+      };
+      window.addEventListener('afterprint', cleanPrintClass, { once: true });
+      setTimeout(cleanPrintClass, 3000);
+    }, 150);
   }
 
   // ================= Insurance Renewal Letter (A5) =================
@@ -2530,16 +2535,24 @@ export class PatientsManager {
       }
 
       this.app.closeModal('modal-insurance-letter');
+      this.app.closeModal('modal-patient-docs');
 
-      // 3. Trigger print
+      const printEl = document.getElementById('printable-insurance-letter');
+      if (printEl) printEl.style.display = 'block';
       document.body.classList.add('printing-insurance-letter');
-      const cleanPrintClass = () => {
-        document.body.classList.remove('printing-insurance-letter');
-        window.removeEventListener('afterprint', cleanPrintClass);
-      };
-      window.addEventListener('afterprint', cleanPrintClass);
-      window.print();
-      setTimeout(cleanPrintClass, 2000);
+      window.__isPrintingNow = true;
+
+      setTimeout(() => {
+        window.print();
+        const cleanPrintClass = () => {
+          document.body.classList.remove('printing-insurance-letter');
+          if (printEl) printEl.style.display = 'none';
+          window.removeEventListener('afterprint', cleanPrintClass);
+          setTimeout(() => { window.__isPrintingNow = false; }, 800);
+        };
+        window.addEventListener('afterprint', cleanPrintClass, { once: true });
+        setTimeout(cleanPrintClass, 3000);
+      }, 150);
     } catch (err) {
       this.app.showAlert('تعذر حفظ/طباعة الخطاب: ' + err.message, 'خطأ', 'danger');
     }
@@ -2670,11 +2683,24 @@ export class PatientsManager {
     }
 
     this.app.closeModal('modal-cash-receipt');
+    this.app.closeModal('modal-patient-docs');
+
+    const printEl = document.getElementById('printable-cash-receipt');
+    if (printEl) printEl.style.display = 'block';
     document.body.classList.add('printing-receipt');
-    window.print();
+    window.__isPrintingNow = true;
+
     setTimeout(() => {
-      document.body.classList.remove('printing-receipt');
-    }, 1500);
+      window.print();
+      const cleanup = () => {
+        document.body.classList.remove('printing-receipt');
+        if (printEl) printEl.style.display = 'none';
+        window.removeEventListener('afterprint', cleanup);
+        setTimeout(() => { window.__isPrintingNow = false; }, 800);
+      };
+      window.addEventListener('afterprint', cleanup, { once: true });
+      setTimeout(cleanup, 3000);
+    }, 150);
   }
 
   // ================= Medical Statement Methods =================
@@ -2730,11 +2756,24 @@ export class PatientsManager {
     document.getElementById('statement-print-date').textContent = `تحريراً في: ${dateVal}`;
 
     this.app.closeModal('modal-medical-statement');
+    this.app.closeModal('modal-patient-docs');
+
+    const printEl = document.getElementById('printable-medical-statement');
+    if (printEl) printEl.style.display = 'block';
     document.body.classList.add('printing-statement');
-    window.print();
+    window.__isPrintingNow = true;
+
     setTimeout(() => {
-      document.body.classList.remove('printing-statement');
-    }, 1500);
+      window.print();
+      const cleanup = () => {
+        document.body.classList.remove('printing-statement');
+        if (printEl) printEl.style.display = 'none';
+        window.removeEventListener('afterprint', cleanup);
+        setTimeout(() => { window.__isPrintingNow = false; }, 800);
+      };
+      window.addEventListener('afterprint', cleanup, { once: true });
+      setTimeout(cleanup, 3000);
+    }, 150);
   }
 
   // ================= 12. Medical Imaging, Polish Studio & Lightbox (v1.4.78) =================
