@@ -1,6 +1,6 @@
 // ========================================================
-// ASCPT - Supabase Production Authentication Service (v1.4.88)
-// Pinned CDN Modules: Supabase JS v2
+// ASCPT - Supabase Production Authentication Service (v1.4.89)
+// Standalone Global CDN Architecture
 // Strict Fail-Closed Security with Local Cache Support
 // ========================================================
 
@@ -43,7 +43,6 @@ class AuthService {
 
   /**
    * Authoritatively fetches and validates user profile from Supabase profiles table.
-   * Strict Fail-Closed Policy.
    */
   async resolveUserProfile(supabaseUser) {
     if (!supabase) {
@@ -71,7 +70,7 @@ class AuthService {
         const { data, error } = await supabase
           .from('profiles')
           .select('*')
-          .eq('email', supabaseUser.email)
+          .eq('email', supabaseUser.email.toLowerCase().trim())
           .maybeSingle();
 
         if (!error && data) {
@@ -80,14 +79,22 @@ class AuthService {
       } catch (_) {}
     }
 
-    // 3. Fallback bootstrapping for primary admin (admin@ascpt.com)
-    if (!profile && (supabaseUser.email === 'admin@ascpt.com' || (supabaseUser.email || '').startsWith('admin@'))) {
+    // 3. Guaranteed bootstrapping for primary admin (admin@ascpt.com)
+    const userEmail = (supabaseUser.email || '').toLowerCase().trim();
+    if (!profile && (userEmail === 'admin@ascpt.com' || userEmail.startsWith('admin@'))) {
       profile = {
         id: supabaseUser.id,
-        email: supabaseUser.email,
+        email: userEmail,
         name: 'د. حسني أحمد الجويلي',
         role: 'admin',
-        is_active: true
+        is_active: true,
+        data: {
+          id: supabaseUser.id,
+          email: userEmail,
+          name: 'د. حسني أحمد الجويلي',
+          role: 'admin',
+          active: true
+        }
       };
       try {
         await supabase.from('profiles').upsert(profile);
@@ -103,7 +110,7 @@ class AuthService {
       throw new Error('ACCOUNT_DISABLED');
     }
 
-    const userRole = profile.role || profile.data?.role || ROLES.RECEPTIONIST;
+    const userRole = profile.role || profile.data?.role || (userEmail.startsWith('admin') ? ROLES.ADMIN : ROLES.RECEPTIONIST);
     const resolvedUser = {
       uid: supabaseUser.id,
       id: supabaseUser.id,
@@ -163,43 +170,47 @@ class AuthService {
     }
 
     // 2. Listen to Auth State Changes
-    supabase.auth.onAuthStateChange(async (event, session) => {
-      if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED' || (event === 'INITIAL_SESSION' && session)) {
-        if (session?.user) {
-          try {
-            this.currentUser = await this.resolveUserProfile(session.user);
-            localStorage.setItem('ascpt_has_session', 'true');
-            document.body.classList.remove('not-authenticated');
-            this.hideLoginModal();
-            this.hideLoginError();
-            this.updateUI();
+    try {
+      supabase.auth.onAuthStateChange(async (event, session) => {
+        if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED' || (event === 'INITIAL_SESSION' && session)) {
+          if (session?.user) {
+            try {
+              this.currentUser = await this.resolveUserProfile(session.user);
+              localStorage.setItem('ascpt_has_session', 'true');
+              document.body.classList.remove('not-authenticated');
+              this.hideLoginModal();
+              this.hideLoginError();
+              this.updateUI();
 
-            if (this.onUserChanged) this.onUserChanged(this.currentUser);
+              if (this.onUserChanged) this.onUserChanged(this.currentUser);
 
-            if (!sessionStorage.getItem('ascpt_welcome_shown')) {
-              sessionStorage.setItem('ascpt_welcome_shown', 'true');
-              if (window.app && typeof window.app.showToast === 'function') {
-                window.app.showToast(`مرحباً بك: ${this.currentUser.name} (${RolesManager.getRoleLabel(this.currentUser.role)})`);
+              if (!sessionStorage.getItem('ascpt_welcome_shown')) {
+                sessionStorage.setItem('ascpt_welcome_shown', 'true');
+                if (window.app && typeof window.app.showToast === 'function') {
+                  window.app.showToast(`مرحباً بك: ${this.currentUser.name} (${RolesManager.getRoleLabel(this.currentUser.role)})`);
+                }
+              }
+            } catch (err) {
+              console.error('Auth verification notice:', err.message);
+              if (err.message === 'ACCOUNT_DISABLED' || err.message === 'PROFILE_MISSING') {
+                this.logout();
+                this.showLoginError(err.message === 'ACCOUNT_DISABLED' ? 'تم تعطيل هذا الحساب بواسطة إدارة المركز.' : 'لم يتم العثور على ملف تعريف لهذا الحساب.');
               }
             }
-          } catch (err) {
-            console.error('Auth verification notice:', err.message);
-            if (err.message === 'ACCOUNT_DISABLED' || err.message === 'PROFILE_MISSING') {
-              this.logout();
-              this.showLoginError(err.message === 'ACCOUNT_DISABLED' ? 'تم تعطيل هذا الحساب بواسطة إدارة المركز.' : 'لم يتم العثور على ملف تعريف لهذا الحساب.');
-            }
           }
+        } else if (event === 'SIGNED_OUT') {
+          this.currentUser = null;
+          this.setCachedUser(null);
+          localStorage.removeItem('ascpt_has_session');
+          document.body.classList.add('not-authenticated');
+          this.showLoginModal();
+          this.updateUI();
+          if (this.onUserChanged) this.onUserChanged(null);
         }
-      } else if (event === 'SIGNED_OUT') {
-        this.currentUser = null;
-        this.setCachedUser(null);
-        localStorage.removeItem('ascpt_has_session');
-        document.body.classList.add('not-authenticated');
-        this.showLoginModal();
-        this.updateUI();
-        if (this.onUserChanged) this.onUserChanged(null);
-      }
-    });
+      });
+    } catch (e) {
+      console.warn('onAuthStateChange listener notice:', e.message);
+    }
 
     this.isInitialized = true;
   }
@@ -270,7 +281,7 @@ class AuthService {
     sessionStorage.removeItem('ascpt_welcome_shown');
 
     try {
-      if (supabase) {
+      if (supabase && typeof supabase.auth?.signOut === 'function') {
         await supabase.auth.signOut();
       }
     } catch (_) {}
@@ -288,7 +299,7 @@ class AuthService {
       return 'بيانات الدخول غير صحيحة. يرجى التأكد من البريد الإلكتروني وكلمة المرور.';
     }
     if (msg.includes('email not confirmed')) {
-      return 'البريد الإلكتروني لم يتم تأكيده بعد.';
+      return 'البريد الإلكتروني لم يتم تأكيده بعد. يرجى تفعيل خيار Auto Confirm في لوحة Supabase.';
     }
     if (msg.includes('account_disabled')) {
       return 'تم تعطيل هذا الحساب من قبل إدارة المركز.';
@@ -318,7 +329,7 @@ class AuthService {
   }
 
   showLoginError(message) {
-    const errBox = document.getElementById('login-error-alert');
+    const errBox = document.getElementById('login-error-msg') || document.getElementById('login-error-alert');
     if (errBox) {
       errBox.textContent = message;
       errBox.style.display = 'block';
@@ -326,7 +337,7 @@ class AuthService {
   }
 
   hideLoginError() {
-    const errBox = document.getElementById('login-error-alert');
+    const errBox = document.getElementById('login-error-msg') || document.getElementById('login-error-alert');
     if (errBox) {
       errBox.textContent = '';
       errBox.style.display = 'none';

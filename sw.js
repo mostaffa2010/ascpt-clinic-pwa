@@ -1,25 +1,26 @@
 // ========================================================
 // ASCPT - Service Worker & Offline PWA Cache Engine
 // Alexandria Specialized Center for Physical Therapy
-// Version: 1.4.88 (Cache: ascpt-clinic-v1.4.88)
+// Version: 1.4.89 (Cache: ascpt-clinic-v1.4.89)
 // True Offline Navigation & Fault-Tolerant Cache Architecture
 // ========================================================
 
-const CACHE_NAME = 'ascpt-clinic-v1.4.88';
+const CACHE_NAME = 'ascpt-clinic-v1.4.89';
 
 // Core App Shell assets required for offline rendering
 const APP_SHELL_ASSETS = [
   '/',
   '/index.html',
   '/manifest.json',
-  '/css/style.css?v=1.4.88',
+  '/css/style.css?v=1.4.89',
   '/css/print.css',
-  '/css/print.css?v=1.4.88',
+  '/css/print.css?v=1.4.89',
   '/icons/icon-192.png',
   '/icons/icon-512.png',
   '/assets/vendor/xlsx/xlsx.full.min.js',
+  'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2',
   '/js/app.js',
-  '/js/app.js?v=1.4.88',
+  '/js/app.js?v=1.4.89',
   '/js/auth.js',
   '/js/db.js',
   '/js/supabase-init.js',
@@ -92,6 +93,7 @@ self.addEventListener('fetch', (event) => {
   // Let Firebase backend data APIs pass directly to Firebase SDK
   // so Firestore's built-in IndexedDB persistentLocalCache and Auth manage them
   if (
+    url.includes('supabase.co') ||
     url.includes('firestore.googleapis.com') ||
     url.includes('identitytoolkit.googleapis.com') ||
     url.includes('securetoken.googleapis.com') ||
