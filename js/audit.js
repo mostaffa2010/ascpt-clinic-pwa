@@ -406,8 +406,22 @@ export class AuditAndAdminManager {
           const safeRole = escapeHTML(u.role || 'doctor');
           const roleLabel = escapeHTML(RolesManager.getRoleLabel(u.role));
 
-          let shiftDisplay = '<span style="color: var(--text-muted); font-size: 0.8rem; font-weight: 600;">دوام إداري</span>';
-          if (u.role === 'doctor') {
+          let shiftDisplay = '';
+          if (u.role === 'admin') {
+            shiftDisplay = `
+              <div style="font-size: 0.82rem; font-weight: 800; color: #8b5cf6; display: flex; align-items: center; gap: 5px;">
+                <i class="fa-solid fa-shield-halved"></i> <span>إدارة وإشراف المركز</span>
+              </div>
+              <div style="font-size: 0.72rem; color: var(--text-muted); margin-top: 2px;">صلاحية شاملة • طوال الأسبوع</div>
+            `;
+          } else if (u.role === 'receptionist') {
+            shiftDisplay = `
+              <div style="font-size: 0.82rem; font-weight: 800; color: var(--primary); display: flex; align-items: center; gap: 5px;">
+                <i class="fa-solid fa-desktop"></i> <span>استقبال وصالة المركز</span>
+              </div>
+              <div style="font-size: 0.72rem; color: var(--text-muted); margin-top: 2px;">تشغيل يومي • حضور وخزينة</div>
+            `;
+          } else if (u.role === 'doctor') {
             const sKey = u.shift || 'sat_mon_wed';
             const sLabel = getShiftLabel(sKey);
             const sIcon = sKey === 'sat_mon_wed' ? 'fa-calendar-days' : (sKey === 'sun_tue_thu' ? 'fa-calendar-week' : 'fa-calendar-check');
@@ -496,20 +510,48 @@ export class AuditAndAdminManager {
               </div>
 
               ${u.role === 'doctor' ? `
-                <div style="margin-top: 10px; background: var(--bg-subtle); padding: 8px 12px; border-radius: 8px; border: 1px solid var(--border-color);">
+                <div style="margin-top: 10px; background: var(--bg-subtle); padding: 10px 12px; border-radius: 10px; border: 1px solid var(--border-color); min-height: 72px; display: flex; flex-direction: column; justify-content: center;">
                   <div style="display: flex; align-items: center; justify-content: space-between;">
                     <div style="font-size: 0.76rem; color: var(--text-muted); font-weight: 700;">
                       <i class="fa-solid fa-calendar-days text-primary"></i> الشفت: <strong style="color: var(--text-main);">${escapeHTML(getShiftLabel(u.shift || 'sat_mon_wed'))}</strong>
                     </div>
-                    <button type="button" class="btn btn-outline btn-sm btn-change-doctor-shift" data-user-id="${escapeHTML(u.id)}" data-user-name="${safeName}" data-current-shift="${u.shift || 'sat_mon_wed'}" data-regular-rate="${typeof u.regularSessionRate === 'number' ? u.regularSessionRate : 0}" data-special-rate="${typeof u.specialSessionRate === 'number' ? u.specialSessionRate : 0}" style="padding: 2px 8px; font-size: 0.74rem; font-weight: 700;">
+                    <button type="button" class="btn btn-outline btn-sm btn-change-doctor-shift" data-user-id="${escapeHTML(u.id)}" data-user-name="${safeName}" data-current-shift="${u.shift || 'sat_mon_wed'}" data-regular-rate="${typeof u.regularSessionRate === 'number' ? u.regularSessionRate : 0}" data-scoliosis-rate="${typeof u.scoliosisRate === 'number' ? u.scoliosisRate : 0}" data-hemiplegia-rate="${typeof u.hemiplegiaRate === 'number' ? u.hemiplegiaRate : 0}" data-pediatric-rate="${typeof u.pediatricRate === 'number' ? u.pediatricRate : 0}" style="padding: 3px 9px; font-size: 0.74rem; font-weight: 700;">
                       <i class="fa-solid fa-pencil"></i> تعديل
                     </button>
                   </div>
-                  <div style="font-size: 0.72rem; color: var(--text-muted); margin-top: 4px; border-top: 1px dashed var(--border-color); padding-top: 4px;">
-                    أجر الجلسة: <strong style="color: var(--text-main);">${typeof u.regularSessionRate === 'number' ? u.regularSessionRate : 0} ج.م (عادية)</strong> • <strong style="color: #b45309;">${typeof u.specialSessionRate === 'number' ? u.specialSessionRate : 0} ج.م (خاصة)</strong>
+                  <div style="font-size: 0.72rem; color: var(--text-muted); margin-top: 5px; border-top: 1px dashed var(--border-color); padding-top: 5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                    الأجر: <strong style="color: var(--text-main);">${typeof u.regularSessionRate === 'number' && u.regularSessionRate > 0 ? `${u.regularSessionRate} ج.م (عادية)` : 'لم يحدد بعد'}</strong>
                   </div>
                 </div>
-              ` : ''}
+              ` : (u.role === 'admin' ? `
+                <div style="margin-top: 10px; background: var(--bg-subtle); padding: 10px 12px; border-radius: 10px; border: 1px solid var(--border-color); min-height: 72px; display: flex; flex-direction: column; justify-content: center;">
+                  <div style="display: flex; align-items: center; justify-content: space-between;">
+                    <div style="font-size: 0.76rem; color: var(--text-muted); font-weight: 700;">
+                      <i class="fa-solid fa-shield-halved" style="color: #8b5cf6;"></i> نطاق العمل: <strong style="color: var(--text-main);">إدارة وإشراف المركز</strong>
+                    </div>
+                    <span class="badge" style="background: rgba(139, 92, 246, 0.12); color: #8b5cf6; border: 1px solid rgba(139, 92, 246, 0.28); font-size: 0.70rem; font-weight: 800; padding: 2px 8px; border-radius: 6px;">
+                      صلاحيات كاملة
+                    </span>
+                  </div>
+                  <div style="font-size: 0.72rem; color: var(--text-muted); margin-top: 5px; border-top: 1px dashed var(--border-color); padding-top: 5px;">
+                    مسؤوليات: <strong style="color: var(--text-main);">الإدارة الشاملة • التقارير المالية • الموظفين</strong>
+                  </div>
+                </div>
+              ` : `
+                <div style="margin-top: 10px; background: var(--bg-subtle); padding: 10px 12px; border-radius: 10px; border: 1px solid var(--border-color); min-height: 72px; display: flex; flex-direction: column; justify-content: center;">
+                  <div style="display: flex; align-items: center; justify-content: space-between;">
+                    <div style="font-size: 0.76rem; color: var(--text-muted); font-weight: 700;">
+                      <i class="fa-solid fa-desktop text-primary"></i> نطاق العمل: <strong style="color: var(--text-main);">استقبال وصالة المركز</strong>
+                    </div>
+                    <span class="badge" style="background: rgba(245, 158, 11, 0.12); color: #b45309; border: 1px solid rgba(245, 158, 11, 0.28); font-size: 0.70rem; font-weight: 800; padding: 2px 8px; border-radius: 6px;">
+                      تشغيل يومي
+                    </span>
+                  </div>
+                  <div style="font-size: 0.72rem; color: var(--text-muted); margin-top: 5px; border-top: 1px dashed var(--border-color); padding-top: 5px;">
+                    مهام: <strong style="color: var(--text-main);">تسجيل المرضى • الحضور اليومي • الخزينة</strong>
+                  </div>
+                </div>
+              `)}
               <div class="hsc-divider" style="margin: 12px 0 10px 0;"></div>
 
               <div style="display: flex; align-items: center; justify-content: space-between; gap: 8px;">

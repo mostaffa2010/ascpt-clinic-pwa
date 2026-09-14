@@ -153,11 +153,11 @@ export class DoctorDashboardManager {
     const docList = await db.getDoctorsList();
     const docInfo = docList.find(d => d.uid === docUid || (d.name && user.name && d.name.trim() === user.name.trim())) || user;
     const isSenior = (docInfo.seniorityLevel === 'senior' || user.seniorityLevel === 'senior');
-    const regRate = typeof docInfo.regularSessionRate === 'number' ? docInfo.regularSessionRate : (isSenior ? 70 : 40);
-    const scolRate = typeof docInfo.scoliosisRate === 'number' ? docInfo.scoliosisRate : (isSenior ? 130 : 80);
-    const hemiRate = typeof docInfo.hemiplegiaRate === 'number' ? docInfo.hemiplegiaRate : (isSenior ? 100 : 70);
-    const pedRate = typeof docInfo.pediatricRate === 'number' ? docInfo.pediatricRate : (isSenior ? 90 : 60);
-    const specRate = typeof docInfo.specialSessionRate === 'number' ? docInfo.specialSessionRate : (isSenior ? 100 : 70);
+    const regRate = typeof docInfo.regularSessionRate === 'number' ? docInfo.regularSessionRate : 0;
+    const scolRate = typeof docInfo.scoliosisRate === 'number' ? docInfo.scoliosisRate : 0;
+    const hemiRate = typeof docInfo.hemiplegiaRate === 'number' ? docInfo.hemiplegiaRate : 0;
+    const pedRate = typeof docInfo.pediatricRate === 'number' ? docInfo.pediatricRate : 0;
+    const specRate = typeof docInfo.specialSessionRate === 'number' ? docInfo.specialSessionRate : 0;
 
     let monthRegularCount = 0;
     let monthScoliosisCount = 0;
@@ -205,8 +205,17 @@ export class DoctorDashboardManager {
       earningsSpecEl.textContent = `Hemiplegia: ${monthHemiplegiaCount} (${monthHemiplegiaDues} ج.م) • أطفال: ${monthPediatricCount} (${monthPediatricDues} ج.م)`;
     }
     if (formulaHintEl) {
-      const tierTitle = isSenior ? 'أخصائي أول (Senior)' : 'طبيب ممارس (Junior)';
-      formulaHintEl.innerHTML = `مستوى الطبيب: <strong>${tierTitle}</strong> • عادية: ${regRate} ج.م • Scoliosis: ${scolRate} ج.م • Hemiplegia: ${hemiRate} ج.م • أطفال: ${pedRate} ج.م`;
+      const activeRates = [];
+      if (regRate > 0) activeRates.push(`عادية: ${regRate} ج.م`);
+      if (scolRate > 0) activeRates.push(`Scoliosis: ${scolRate} ج.م`);
+      if (hemiRate > 0) activeRates.push(`Hemiplegia: ${hemiRate} ج.م`);
+      if (pedRate > 0) activeRates.push(`أطفال: ${pedRate} ج.م`);
+
+      if (activeRates.length > 0) {
+        formulaHintEl.innerHTML = `أجر الجلسات: ` + activeRates.join(' • ');
+      } else {
+        formulaHintEl.innerHTML = `<span style="color: var(--text-muted);"><i class="fa-solid fa-circle-info"></i> لم يتم تحديد أسعار الجلسات بعد من قِبل إدارة المركز</span>`;
+      }
     }
 
     this.renderTable();
