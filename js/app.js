@@ -2,7 +2,7 @@
 if (typeof window !== 'undefined' && !window.__print_lock_installed) {
   window.__print_lock_installed = true;
   const _origPrint = window.print.bind(window);
-  window._window.__isPrintingNow = false;
+  window.__isPrintingNow = false;
 
   window.print = function() {
     if (window.__isPrintingNow) {
@@ -977,6 +977,8 @@ class App {
           // الرجوع الطبيعي بين الشاشات دون قفز مفاجئ للرئيسية
           if (this.currentView === 'patient-sheet') {
             this.switchView('patients', true);
+          } else {
+            this.switchView('dashboard', true);
           }
         }
       }

@@ -2420,7 +2420,6 @@ export class PatientsManager {
     const printEl = document.getElementById('printable-patient-sheet');
     if (printEl) printEl.style.display = 'block';
     document.body.classList.add('printing-sheet');
-    window.__isPrintingNow = true;
 
     setTimeout(() => {
       window.print();
@@ -2428,7 +2427,6 @@ export class PatientsManager {
         document.body.classList.remove('printing-sheet');
         if (printEl) printEl.style.display = 'none';
         window.removeEventListener('afterprint', cleanPrintClass);
-        setTimeout(() => { window.__isPrintingNow = false; }, 800);
       };
       window.addEventListener('afterprint', cleanPrintClass, { once: true });
       setTimeout(cleanPrintClass, 3000);
@@ -2540,7 +2538,6 @@ export class PatientsManager {
       const printEl = document.getElementById('printable-insurance-letter');
       if (printEl) printEl.style.display = 'block';
       document.body.classList.add('printing-insurance-letter');
-      window.__isPrintingNow = true;
 
       setTimeout(() => {
         window.print();
@@ -2548,7 +2545,6 @@ export class PatientsManager {
           document.body.classList.remove('printing-insurance-letter');
           if (printEl) printEl.style.display = 'none';
           window.removeEventListener('afterprint', cleanPrintClass);
-          setTimeout(() => { window.__isPrintingNow = false; }, 800);
         };
         window.addEventListener('afterprint', cleanPrintClass, { once: true });
         setTimeout(cleanPrintClass, 3000);
@@ -2688,7 +2684,6 @@ export class PatientsManager {
     const printEl = document.getElementById('printable-cash-receipt');
     if (printEl) printEl.style.display = 'block';
     document.body.classList.add('printing-receipt');
-    window.__isPrintingNow = true;
 
     setTimeout(() => {
       window.print();
@@ -2696,7 +2691,6 @@ export class PatientsManager {
         document.body.classList.remove('printing-receipt');
         if (printEl) printEl.style.display = 'none';
         window.removeEventListener('afterprint', cleanup);
-        setTimeout(() => { window.__isPrintingNow = false; }, 800);
       };
       window.addEventListener('afterprint', cleanup, { once: true });
       setTimeout(cleanup, 3000);
@@ -2761,7 +2755,6 @@ export class PatientsManager {
     const printEl = document.getElementById('printable-medical-statement');
     if (printEl) printEl.style.display = 'block';
     document.body.classList.add('printing-statement');
-    window.__isPrintingNow = true;
 
     setTimeout(() => {
       window.print();
@@ -2769,7 +2762,6 @@ export class PatientsManager {
         document.body.classList.remove('printing-statement');
         if (printEl) printEl.style.display = 'none';
         window.removeEventListener('afterprint', cleanup);
-        setTimeout(() => { window.__isPrintingNow = false; }, 800);
       };
       window.addEventListener('afterprint', cleanup, { once: true });
       setTimeout(cleanup, 3000);
