@@ -650,6 +650,7 @@ export class PatientsManager {
         const normPhone = (p.phone || '').replace(/[^0-9]/g, '');
         const normComp = this.normalizeArabic(p.insuranceCompany || '');
         const normDoc = this.normalizeArabic(p.doctor || '');
+        const normArea = this.normalizeArabic(p.clinicalSheet?.affectedArea || p.affectedArea || p.clinicalSheet?.diagnosis || p.diagnosis || '');
         const normAddr = this.normalizeArabic(p.address || '');
 
         matchSearch = 
@@ -657,6 +658,7 @@ export class PatientsManager {
           (cleanDigits.length > 0 && normPhone.includes(cleanDigits)) ||
           normComp.includes(normSearch) ||
           normDoc.includes(normSearch) ||
+          normArea.includes(normSearch) ||
           normAddr.includes(normSearch);
       }
 
@@ -811,7 +813,8 @@ export class PatientsManager {
       const safeAge = escapeHTML(p.age);
       const safePhone = escapeHTML(p.phone);
       const safeAddress = escapeHTML(p.address || '-');
-      const safeDoctor = escapeHTML(p.doctor);
+      const treatedArea = p.clinicalSheet?.affectedArea || p.affectedArea || p.clinicalSheet?.diagnosis || p.diagnosis || '';
+      const safeDoctor = escapeHTML(p.doctor || '');
       const safeEditor = escapeHTML(p.lastUpdatedBy || p.createdBy || '-');
       const cleanWaPhone = (p.phone || '').replace(/[^0-9]/g, '').replace(/^0/, '20');
       const isFemale = (p.gender === 'female');
@@ -846,7 +849,7 @@ export class PatientsManager {
             </a>
           </td>
           <td style="white-space: nowrap;">${safeAddress}</td>
-          <td style="white-space: nowrap;"><span style="font-weight: 600; color: var(--text-main);">${safeDoctor}</span></td>
+          <td style="white-space: nowrap;"><span style="font-weight: 700; color: var(--text-main); display: inline-flex; align-items: center; gap: 5px;"><i class="fa-solid fa-bone text-primary" style="font-size: 0.75rem;"></i> ${escapeHTML(treatedArea || 'علاج طبيعي عام')}</span></td>
           <td style="white-space: nowrap;">${billingBadge}</td>
           <td style="font-size: 0.8rem; color: var(--text-muted); white-space: nowrap;">${safeEditor}</td>
           <td style="white-space: nowrap;">
@@ -910,7 +913,8 @@ export class PatientsManager {
         const safeAge = escapeHTML(p.age);
         const safePhone = escapeHTML(p.phone);
         const safeAddress = escapeHTML(p.address || '');
-        const safeDoctor = escapeHTML(p.doctor || 'طبيب المركز');
+        const treatedArea = p.clinicalSheet?.affectedArea || p.affectedArea || p.clinicalSheet?.diagnosis || p.diagnosis || '';
+        const safeDoctor = escapeHTML(p.doctor || '');
         const cleanDocName = (p.doctor || 'طبيب المركز').replace(/^د\.\s*/, '');
         const docColor = getDoctorColor(p.doctorId || p.doctor || 'default');
         const cleanWaPhone = (p.phone || '').replace(/[^0-9]/g, '').replace(/^0/, '20');
@@ -949,8 +953,8 @@ export class PatientsManager {
                     </span>
                   </div>
                   <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-top: 2px;">
-                    <span class="patient-doc-badge" style="font-size: 0.74rem; padding: 2px 8px;">
-                      <i class="fa-solid fa-user-doctor"></i> د. ${escapeHTML(cleanDocName)}
+                    <span class="patient-area-badge" style="font-size: 0.74rem; padding: 2px 8px; border-radius: 6px; background: var(--bg-subtle); color: var(--text-main); border: 1px solid var(--border-color); display: inline-flex; align-items: center; gap: 5px;">
+                      <i class="fa-solid fa-bone text-primary" style="font-size: 0.72rem;"></i> ${escapeHTML(treatedArea || 'علاج طبيعي عام')}
                     </span>
                   </div>
                 </div>
@@ -1319,9 +1323,8 @@ export class PatientsManager {
     this.clearPhoneValidation();
     document.getElementById('p-id').value = '';
     this.setGender('male');
-    const pDoc = document.getElementById('p-doctor');
-    if (pDoc) pDoc.value = '';
-    this.app.updateCustomSelectDisplay('p-doctor');
+    const pDiag = document.getElementById('p-diagnosis');
+    if (pDiag) pDiag.value = '';
     const insComp = document.getElementById('p-insurance-company');
     if (insComp) insComp.value = '';
     const insPrev = document.getElementById('p-selected-ins-preview');
@@ -1379,8 +1382,10 @@ export class PatientsManager {
     this.setGender(p.gender === 'female' ? 'female' : 'male');
     document.getElementById('p-phone').value = p.phone;
     document.getElementById('p-address').value = p.address || '';
-    document.getElementById('p-doctor').value = p.doctor;
-    this.app.updateCustomSelectDisplay('p-doctor');
+    const pDiag = document.getElementById('p-diagnosis');
+    if (pDiag) {
+      pDiag.value = p.diagnosis || p.affectedArea || p.clinicalSheet?.affectedArea || p.clinicalSheet?.diagnosis || '';
+    }
 
     const progRadios = document.querySelectorAll('input[name="p-program-type"]');
     const pProg = (p.programType === 'pediatric') ? 'quadriplegia' : (p.programType || 'regular');
@@ -1435,10 +1440,7 @@ export class PatientsManager {
     const gender = document.getElementById('p-gender').value;
     const phone = document.getElementById('p-phone').value.trim();
     const address = document.getElementById('p-address').value.trim();
-    const docSelectEl = document.getElementById('p-doctor');
-    const doctor = docSelectEl?.value || '';
-    const selectedDoctorOpt = docSelectEl?.options[docSelectEl.selectedIndex];
-    const doctorUid = selectedDoctorOpt?.getAttribute('data-uid') || '';
+    const diagnosis = document.getElementById('p-diagnosis')?.value.trim() || '';
     const billing = document.querySelector('input[name="p-billing"]:checked')?.value || 'cash';
 
     // 1. Name Validation (must be at least 2 words and not contain numbers)
@@ -1515,12 +1517,7 @@ export class PatientsManager {
       }
     }
 
-    // 4. Doctor Validation (Explicit User Choice Required)
-    if (!doctor || doctor === '') {
-      if (saveBtn) { saveBtn.disabled = false; saveBtn.innerHTML = 'حفظ المريض'; }
-      await this.app.showAlert('يرجى اختيار الطبيب المعالج المتابع للمريض أولاً.', 'بيانات ناقصة: اختيار الطبيب', 'warning');
-      return;
-    }
+
 
     // 5. Insurance Company Validation
     let insuranceCompany = '';
@@ -1545,6 +1542,10 @@ export class PatientsManager {
 
     const programType = document.querySelector('input[name="p-program-type"]:checked')?.value || 'regular';
 
+    const existingP = id ? this.patients.find(p => p.id === id) : null;
+    const doctor = existingP?.doctor || '';
+    const doctorUid = existingP?.doctorUid || '';
+
     const patientData = {
       id: id || null,
       name,
@@ -1554,6 +1555,8 @@ export class PatientsManager {
       address,
       doctor,
       doctorUid,
+      diagnosis,
+      affectedArea: diagnosis || existingP?.affectedArea || '',
       programType,
       billing,
       insuranceCompany,
@@ -1574,7 +1577,7 @@ export class PatientsManager {
     const savedId = (actionResult && actionResult.id) ? actionResult.id : (patientData.id || id);
     const auditDesc = id 
       ? `تعديل ملف المريض: ${name}`
-      : `تسجيل مريض جديد: ${name} (طبيب: ${doctor} - نظام: ${billing})`;
+      : `تسجيل مريض جديد: ${name} (نظام: ${billing})`;
       
     try { await db.logAudit(id ? 'تعديل مريض' : 'إضافة مريض', auditDesc, currentUser); } catch (_) {}
 

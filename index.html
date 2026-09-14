@@ -121,8 +121,8 @@
   
 
     <!-- Stylesheets -->
-  <link rel="stylesheet" href="css/style.css?v=2.1.3" media="screen">
-  <link rel="stylesheet" href="css/print.css?v=2.1.3" media="print">
+  <link rel="stylesheet" href="css/style.css?v=2.1.4" media="screen">
+  <link rel="stylesheet" href="css/print.css?v=2.1.4" media="print">
 </head>
 <body>
   <script>
@@ -649,7 +649,7 @@
                   <th>السن</th>
                   <th>الموبايل</th>
                   <th>العنوان</th>
-                  <th>الدكتور المعالج</th>
+                  <th>العضو / التشخيص</th>
                   <th>نظام الحساب</th>
                   <th>آخر تعديل</th>
                   <th>إجراءات</th>
@@ -2069,7 +2069,7 @@
         <div class="admin-system-footer no-print" style="margin-top: 32px; margin-bottom: 35px; text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px;">
           <div style="display: inline-flex; align-items: center; gap: 8px; background: var(--bg-surface); border: 1.5px solid var(--border-color); padding: 7px 18px; border-radius: 999px; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);">
             <span style="width: 8px; height: 8px; border-radius: 50%; background-color: var(--success); display: inline-block; box-shadow: 0 0 6px var(--success);"></span>
-            <span id="admin-system-version-label" data-clinic="version-badge" style="font-weight: 800; font-size: 0.88rem; color: var(--text-main);">نظام ASCPT — الإصدار 2.1.3</span>
+            <span id="admin-system-version-label" data-clinic="version-badge" style="font-weight: 800; font-size: 0.88rem; color: var(--text-main);">نظام ASCPT — الإصدار 2.1.4</span>
             <span class="badge badge-primary" style="font-size: 0.72rem; padding: 2px 10px; border-radius: 999px; font-weight: 800;">إصدار معتمد</span>
           </div>
           <div style="font-size: 0.76rem; color: var(--text-muted); font-weight: 700;">
@@ -2184,20 +2184,14 @@
             </div>
           </div>
 
-          <!-- 4. Treating Doctor -->
+          <!-- 4. Affected Body Part / Preliminary Diagnosis -->
           <div class="form-group form-group-modern" style="margin-top: 4px;">
-            <label for="p-doctor" class="modern-field-label">
-              <i class="fa-solid fa-user-doctor text-primary"></i> الدكتور المعالج <span class="required-star">*</span>
+            <label for="p-diagnosis" class="modern-field-label">
+              <i class="fa-solid fa-bone text-primary"></i> العضو المعالج / التشخيص المبدئي
             </label>
-            <div class="custom-select-wrapper">
-              <select id="p-doctor" class="form-control d-none" required></select>
-              <button type="button" class="custom-select-btn modern-select-btn" id="btn-select-p-doctor" data-open-picker="p-doctor" data-picker-title="اختر الطبيب المعالج للمريض">
-                <span class="select-btn-val">
-                  <i class="fa-solid fa-stethoscope text-primary"></i>
-                  <span class="btn-text">-- اضغط لاختيار الطبيب المعالج --</span>
-                </span>
-                <i class="fa-solid fa-chevron-down custom-select-arrow"></i>
-              </button>
+            <div class="modern-input-wrapper">
+              <i class="fa-solid fa-stethoscope modern-input-icon"></i>
+              <input type="text" id="p-diagnosis" class="form-control modern-input" placeholder="مثال: الفقرات القطنية، خشونة الركبة، تأهيل الكتف...">
             </div>
           </div>
 
@@ -4013,7 +4007,7 @@
   </div>
 
 <!-- Main Application Script (ES Module) -->
-  <script type="module" src="js/app.js?v=2.1.3"></script>
+  <script type="module" src="js/app.js?v=2.1.4"></script>
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {

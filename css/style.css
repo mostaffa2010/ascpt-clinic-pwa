@@ -6925,6 +6925,27 @@ h1, h2, h3, h4, h5, h6 {
   }
 }
 
+/* Patient Card Treated Area Badge (Optimized for Light & Dark Mode) */
+.patient-area-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4.5px;
+  font-size: 0.73rem;
+  font-weight: 700;
+  color: var(--text-main);
+  background: var(--bg-subtle);
+  border: 1px solid var(--border-color);
+  padding: 2px 8px;
+  border-radius: 6px;
+  white-space: nowrap;
+}
+
+[data-theme="dark"] .patient-area-badge {
+  color: var(--text-main) !important;
+  background: rgba(255, 255, 255, 0.05) !important;
+  border: 1px solid var(--border-color) !important;
+}
+
 /* Patient Card Doctor Badge (Optimized for Light & Dark Mode) */
 .patient-doc-badge {
   display: inline-flex;
