@@ -234,12 +234,12 @@ export class AppointmentsManager {
     });
   }
 
-  async loadAll(targetDate = null) {
+  async loadAll(targetDate = null, forceRefresh = false) {
     const dateToLoad = targetDate || this.selectedDate || getLocalDateStr();
     this.selectedDate = dateToLoad;
 
     const [appointments, doctors, patients, slots, sessions, shiftOverrides] = await Promise.all([
-      db.getAppointments(),
+      db.getAppointments(forceRefresh),
       db.getDoctorsList(),
       db.getPatients(),
       db.getAppointmentSlots ? db.getAppointmentSlots() : DEFAULT_APPT_SLOTS,
@@ -371,11 +371,11 @@ export class AppointmentsManager {
   }
 
   // ================= Full Grid: every active doctor as a column =================
-  async render() {
+  async render(forceRefresh = false) {
     const grid = document.getElementById('appointments-grid');
     if (!grid) return;
     try {
-      await this.loadAll(this.selectedDate);
+      await this.loadAll(this.selectedDate, forceRefresh);
       const currentUser = auth.getCurrentUser();
       const isDoctor = currentUser && currentUser.role === 'doctor';
       this.renderWeekdayStrip();
@@ -1070,6 +1070,7 @@ export class AppointmentsManager {
     // 2. Remove appointment
     const removeBtn = e.target.closest('[data-remove-appt]');
     if (removeBtn) {
+      e.stopPropagation();
       this.deleteAppointment(removeBtn.getAttribute('data-remove-appt'));
       return;
     }
@@ -1699,7 +1700,7 @@ export class AppointmentsManager {
   }
 
   async refreshVisibleGrids() {
-    if (document.getElementById('appointments-grid')) await this.render();
+    if (document.getElementById('appointments-grid')) await this.render(true);
     const myGrid = document.getElementById('my-appointments-grid');
     if (myGrid) {
       const uid = auth.getCurrentUser()?.uid;

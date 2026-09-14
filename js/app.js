@@ -1837,7 +1837,7 @@ class App {
     } else if (viewName === 'patients') {
       if (this.patientsManager) await this.patientsManager.loadPatients();
     } else if (viewName === 'appointments') {
-      if (this.appointmentsManager) await this.appointmentsManager.render();
+      if (this.appointmentsManager) await this.appointmentsManager.render(true);
     } else if (viewName === 'finance') {
       if (this.financeManager) await this.financeManager.loadDailyReport();
     } else if (viewName === 'claims') {

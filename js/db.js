@@ -1416,15 +1416,17 @@ class FirestoreDatabaseService {
   }
 
   // ================= 9. Weekly Appointments Schedule & Custom Slots (Persistent Local Caching) =================
-  async getAppointmentSlots() {
+  async getAppointmentSlots(forceRefresh = false) {
     // Fast path: localStorage
-    try {
-      const local = localStorage.getItem('ascpt_cached_appointment_slots');
-      if (local) {
-        const parsed = JSON.parse(local);
-        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
-      }
-    } catch (_) {}
+    if (!forceRefresh) {
+      try {
+        const local = localStorage.getItem('ascpt_cached_appointment_slots');
+        if (local) {
+          const parsed = JSON.parse(local);
+          if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+        }
+      } catch (_) {}
+    }
 
     this.ensureConnected();
     try {
@@ -1471,6 +1473,13 @@ class FirestoreDatabaseService {
         for (const a of affected) {
           await setDoc(doc(firestoreDb, 'appointments', a.id), { timeSlot: newKey }, { merge: true });
         }
+        if (this._appointmentsCache) {
+          this._appointmentsCache = this._appointmentsCache.map(a => a.timeSlot === oldKey ? { ...a, timeSlot: newKey } : a);
+        }
+        try {
+          localStorage.setItem('ascpt_cached_appointments', JSON.stringify(this._appointmentsCache || []));
+          localStorage.setItem('ascpt_appointments_last_sync', String(Date.now()));
+        } catch (_) {}
       } catch (err) {
         console.warn('Update affected appts notice:', err.message);
       }
@@ -1490,6 +1499,13 @@ class FirestoreDatabaseService {
       for (const a of affected) {
         await deleteDoc(doc(firestoreDb, 'appointments', a.id));
       }
+      if (this._appointmentsCache) {
+        this._appointmentsCache = this._appointmentsCache.filter(a => a.timeSlot !== slotKey);
+      }
+      try {
+        localStorage.setItem('ascpt_cached_appointments', JSON.stringify(this._appointmentsCache || []));
+        localStorage.setItem('ascpt_appointments_last_sync', String(Date.now()));
+      } catch (_) {}
     } catch (err) {
       console.warn('Delete affected appts notice:', err.message);
     }
@@ -1512,32 +1528,38 @@ class FirestoreDatabaseService {
   async getAppointments(forceRefresh = false) {
     this.ensureConnected();
     const now = Date.now();
-    if (!forceRefresh && this._appointmentsCache && (now - this._appointmentsLastFetch < this.APPT_CACHE_TTL)) {
+
+    // 1. Fast in-memory cache check (valid for 60 seconds if not force-refresh)
+    if (!forceRefresh && this._appointmentsCache && (now - this._appointmentsLastFetch < 60000)) {
       return [...this._appointmentsCache];
     }
-    if (!forceRefresh) {
+
+    // 2. Query Firestore directly (Firestore SDK provides its own persistent offline cache!)
+    try {
+      const snap = await getDocs(collection(firestoreDb, 'appointments'));
+      const list = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
+      this._appointmentsCache = list;
+      this._appointmentsLastFetch = now;
+      try {
+        localStorage.setItem('ascpt_cached_appointments', JSON.stringify(list));
+        localStorage.setItem('ascpt_appointments_last_sync', String(now));
+      } catch (_) {}
+      return [...list];
+    } catch (e) {
+      console.warn('getAppointments network error, using local fallback:', e.message);
+      // 3. Fallback when completely offline or network fails
+      if (this._appointmentsCache) return [...this._appointmentsCache];
       try {
         const local = localStorage.getItem('ascpt_cached_appointments');
         if (local) {
           const parsed = JSON.parse(local);
-          if (Array.isArray(parsed) && parsed.length > 0) {
+          if (Array.isArray(parsed)) {
             this._appointmentsCache = parsed;
             this._appointmentsLastFetch = now;
             return [...parsed];
           }
         }
       } catch (_) {}
-    }
-    try {
-      const snap = await getDocs(collection(firestoreDb, 'appointments'));
-      const list = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
-      this._appointmentsCache = list;
-      this._appointmentsLastFetch = now;
-      try { localStorage.setItem('ascpt_cached_appointments', JSON.stringify(list)); } catch (_) {}
-      return [...list];
-    } catch (e) {
-      if (this._appointmentsCache) return [...this._appointmentsCache];
-      console.warn('getAppointments error:', e.message);
       return [];
     }
   }
@@ -1551,29 +1573,44 @@ class FirestoreDatabaseService {
       createdAt: new Date().toISOString()
     };
     await setDoc(ref, payload);
-    if (this._appointmentsCache) {
-      this._appointmentsCache.push(payload);
-      this._appointmentsLastFetch = Date.now();
-      try { localStorage.setItem('ascpt_cached_appointments', JSON.stringify(this._appointmentsCache)); } catch (_) {}
+
+    // Update in-memory cache and localStorage synchronously
+    if (!this._appointmentsCache) {
+      this._appointmentsCache = [];
     }
+    this._appointmentsCache.push(payload);
+    this._appointmentsLastFetch = Date.now();
+    try {
+      localStorage.setItem('ascpt_cached_appointments', JSON.stringify(this._appointmentsCache));
+      localStorage.setItem('ascpt_appointments_last_sync', String(Date.now()));
+    } catch (_) {}
     return payload;
   }
 
   async updateAppointment(apptId, updates) {
     this.ensureConnected();
     const ref = doc(firestoreDb, 'appointments', apptId);
-    await updateDoc(ref, {
+    const payload = {
       ...updates,
       updatedAt: new Date().toISOString()
-    });
+    };
+    await updateDoc(ref, payload);
+
+    // Update in-memory cache and localStorage synchronously
     if (this._appointmentsCache) {
       const idx = this._appointmentsCache.findIndex(a => a.id === apptId);
       if (idx !== -1) {
-        this._appointmentsCache[idx] = { ...this._appointmentsCache[idx], ...updates };
+        this._appointmentsCache[idx] = { ...this._appointmentsCache[idx], ...payload };
       }
-      this._appointmentsLastFetch = Date.now();
     }
-    return { id: apptId, ...updates };
+    this._appointmentsLastFetch = Date.now();
+    try {
+      if (this._appointmentsCache) {
+        localStorage.setItem('ascpt_cached_appointments', JSON.stringify(this._appointmentsCache));
+        localStorage.setItem('ascpt_appointments_last_sync', String(Date.now()));
+      }
+    } catch (_) {}
+    return { id: apptId, ...payload };
   }
 
   async updateAppointmentStatus(apptId, status, meta = {}) {
@@ -1587,10 +1624,16 @@ class FirestoreDatabaseService {
   async deleteAppointment(apptId) {
     this.ensureConnected();
     await deleteDoc(doc(firestoreDb, 'appointments', apptId));
+
+    // Update in-memory cache and localStorage synchronously
     if (this._appointmentsCache) {
       this._appointmentsCache = this._appointmentsCache.filter(a => a.id !== apptId);
-      this._appointmentsLastFetch = Date.now();
     }
+    this._appointmentsLastFetch = Date.now();
+    try {
+      localStorage.setItem('ascpt_cached_appointments', JSON.stringify(this._appointmentsCache || []));
+      localStorage.setItem('ascpt_appointments_last_sync', String(Date.now()));
+    } catch (_) {}
   }
 
   // ================= 9.1 Shift Overrides (Temporary Doctor Coverage) =================
