@@ -110,6 +110,8 @@ class App {
     window.auditManager = this.auditManager;
     window.claimsManager = this.claimsManager;
     window.doctorDashboardManager = this.doctorDashboardManager;
+    window.switchAppView = (view) => this.switchView(view);
+    window.switchView = (view) => this.switchView(view);
   }
 
   async init() {
@@ -309,7 +311,17 @@ class App {
       }
     }
 
-    if (this.currentView === viewName && !isBackNavigation) return;
+    if (this.currentView === viewName && !isBackNavigation) {
+      if (viewName === 'patients' && this.patientsManager) this.patientsManager.loadPatients();
+      if (viewName === 'sessions' && this.sessionsManager) this.sessionsManager.loadTodaySessions();
+      if (viewName === 'finance' && this.financeManager) this.financeManager.loadDailyReport();
+      if (viewName === 'appointments' && this.appointmentsManager) this.appointmentsManager.render();
+      if (viewName === 'admin' && this.auditManager) {
+        this.auditManager.loadUsers();
+        this.auditManager.loadAuditLogs();
+      }
+      return;
+    }
 
     if (!isBackNavigation) {
       const depth = (history.state?.depth || 0) + 1;

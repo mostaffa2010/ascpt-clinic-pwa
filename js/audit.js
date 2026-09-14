@@ -3,7 +3,7 @@
 // Authoritative Supabase PostgreSQL Integration
 // ========================================================
 
-import { supabase } from './supabase-init.js';
+import { supabase } from './clinic-config.js';
 import { db } from './db.js';
 import { auth } from './auth.js';
 import { RolesManager } from './roles.js';

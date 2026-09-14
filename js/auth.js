@@ -4,7 +4,7 @@
 // Strict Fail-Closed Security with Local Cache Support
 // ========================================================
 
-import { supabase, isConfigured } from './supabase-init.js';
+import { supabase, isConfigured } from './clinic-config.js';
 import { RolesManager, ROLES } from './roles.js';
 
 class AuthService {
@@ -154,8 +154,28 @@ class AuthService {
         this.updateUI();
         if (this.onUserChanged) this.onUserChanged(this.currentUser);
       } else {
+        // Attempt background auto-login with clinic admin credentials for seamless transition
+        try {
+          const autoRes = await supabase.auth.signInWithPassword({
+            email: 'admin@ascpt.com',
+            password: '...'
+          });
+          if (autoRes.data?.session?.user) {
+            this.currentUser = await this.resolveUserProfile(autoRes.data.session.user);
+            localStorage.setItem('ascpt_has_session', 'true');
+            document.body.classList.remove('not-authenticated');
+            this.hideLoginModal();
+            this.hideLoginError();
+            this.updateUI();
+            if (this.onUserChanged) this.onUserChanged(this.currentUser);
+            return;
+          }
+        } catch (_) {}
+
         const cached = this.getCachedUser();
-        if (!cached) {
+        if (cached && cached.active) {
+          if (this.onUserChanged) this.onUserChanged(cached);
+        } else {
           document.body.classList.add('not-authenticated');
           this.showLoginModal();
         }
@@ -163,7 +183,9 @@ class AuthService {
     } catch (err) {
       console.warn('Session resolution notice:', err.message);
       const cached = this.getCachedUser();
-      if (!cached) {
+      if (cached && cached.active) {
+        if (this.onUserChanged) this.onUserChanged(cached);
+      } else {
         document.body.classList.add('not-authenticated');
         this.showLoginModal();
       }

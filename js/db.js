@@ -4,7 +4,7 @@
 // Unlimited High-Speed Queries, Zero Per-Read Billing
 // ========================================================
 
-import { supabase, isConfigured } from './supabase-init.js';
+import { supabase, isConfigured } from './clinic-config.js';
 import { CLINIC_CONFIG } from './clinic-config.js';
 
 class SupabaseDatabaseService {

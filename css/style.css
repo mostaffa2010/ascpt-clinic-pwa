@@ -10053,3 +10053,13 @@ body.role-doctor .btn-quick-attend {
   color: var(--primary) !important;
   transform: translateY(-2px) !important;
 }
+
+/* Guaranteed display for Admin header icon button */
+html.role-admin #btn-admin-header,
+body.role-admin #btn-admin-header {
+  display: inline-flex !important;
+}
+html:not(.role-admin) #btn-admin-header,
+body:not(.role-admin) #btn-admin-header {
+  display: none !important;
+}
