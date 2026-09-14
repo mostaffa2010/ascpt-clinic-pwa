@@ -422,7 +422,7 @@ export class ClaimsManager {
     if (companyPatients.length === 0) {
       const tbody = document.getElementById('claim-patients-tbody');
       if (tbody) {
-        tbody.innerHTML = `<tr><td colspan="9" style="text-align: center; padding: 24px; color: var(--text-muted); font-weight: 700;">لا يوجد مرضى مسجلون حالياً تحت شركة ${this.currentCompany}.</td></tr>`;
+        if (tbody) tbody.innerHTML = `<tr><td colspan="9" style="text-align: center; padding: 24px; color: var(--text-muted); font-weight: 700;">لا يوجد مرضى مسجلون حالياً تحت شركة ${this.currentCompany}.</td></tr>`;
       }
       this.claimPatientsData = [];
       this.recalcGrandTotals();
@@ -511,11 +511,12 @@ export class ClaimsManager {
   }
 
   renderPatientsTable() {
+    const tbody = document.getElementById('claim-patients-tbody');
     const mobContainer = document.getElementById('claim-patients-mobile-cards');
     if (!mobContainer) return;
 
     if (this.claimPatientsData.length === 0) {
-      tbody.innerHTML = `<tr><td colspan="8" style="text-align: center; padding: 24px; color: var(--text-muted);">اضغط على زر "استخراج وعرض مرضى الشركة" لعرض القائمة.</td></tr>`;
+      if (tbody) tbody.innerHTML = `<tr><td colspan="8" style="text-align: center; padding: 24px; color: var(--text-muted);">اضغط على زر "استخراج وعرض مرضى الشركة" لعرض القائمة.</td></tr>`;
       const statsEl = document.getElementById('claim-search-stats');
       if (statsEl) statsEl.innerHTML = '';
       return;
@@ -534,7 +535,7 @@ export class ClaimsManager {
     }
 
     if (filtered.length === 0) {
-      tbody.innerHTML = `<tr><td colspan="8" style="text-align: center; padding: 24px; color: var(--text-muted); font-weight: 700;">لا توجد نتائج مطابقة لبحثك: "${this.searchQuery}".</td></tr>`;
+      if (tbody) tbody.innerHTML = `<tr><td colspan="8" style="text-align: center; padding: 24px; color: var(--text-muted); font-weight: 700;">لا توجد نتائج مطابقة لبحثك: "${this.searchQuery}".</td></tr>`;
       return;
     }
 
@@ -564,7 +565,7 @@ export class ClaimsManager {
     }
 
     this.setupScrollSync();
-    tbody.innerHTML = filtered.map((item, idx) => {
+    if (tbody) tbody.innerHTML = filtered.map((item, idx) => {
       const p = item.patient;
       const safeId = escapeHTML(p.id);
       const safeName = escapeHTML(p.name);
@@ -605,7 +606,6 @@ export class ClaimsManager {
       `;    }).join('');
 
     // Render Handcrafted Mobile Claim Cards
-    const mobContainer = document.getElementById('claim-patients-mobile-cards');
     if (mobContainer) {
       mobContainer.innerHTML = filtered.map((item, idx) => {
         const p = item.patient;
@@ -1145,14 +1145,14 @@ export class ClaimsManager {
     }
 
     if (filtered.length === 0) {
-      tbody.innerHTML = `<tr><td colspan="8" style="text-align: center; color: var(--text-muted); padding: 24px;">لا توجد مطالبات تأمين مسجلة مطابقة للبحث.</td></tr>`;
+      if (tbody) tbody.innerHTML = `<tr><td colspan="8" style="text-align: center; color: var(--text-muted); padding: 24px;">لا توجد مطالبات تأمين مسجلة مطابقة للبحث.</td></tr>`;
       return;
     }
 
     const currentUser = auth.getCurrentUser();
     const canDelete = RolesManager.canDelete(currentUser);
 
-    tbody.innerHTML = filtered.map(c => {
+    if (tbody) tbody.innerHTML = filtered.map(c => {
       const safeId = escapeHTML(c.id);
       const safeCode = escapeHTML(c.claimCode || 'CLM-SYS');
       const safeCompany = escapeHTML(c.companyName);

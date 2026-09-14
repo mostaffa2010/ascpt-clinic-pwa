@@ -1290,6 +1290,7 @@ export class SessionsManager {
       return timeB.localeCompare(timeA);
     });
     this.sessions = sessions;
+    const tbody = document.getElementById('sessions-today-tbody');
     const mobileCardsContainer = document.getElementById('sessions-today-mobile-cards');
     const badge = document.getElementById('sessions-today-count-badge');
     
@@ -1355,7 +1356,7 @@ export class SessionsManager {
     });
 
     // 1. Render Desktop Table
-    tbody.innerHTML = sessions.map(s => {
+    if (tbody) tbody.innerHTML = sessions.map(s => {
       const isNewlyAdded = Boolean(s.id && s.id === this.newlyAddedSessionId);
       const rowHighlightClass = isNewlyAdded ? 'session-row-newly-added' : '';
       const safeId = escapeHTML(s.id);

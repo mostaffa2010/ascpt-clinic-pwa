@@ -603,6 +603,7 @@ export class PatientsManager {
   }
 
   renderPatients() {
+    const tbody = document.getElementById('patients-tbody');
     const mobileContainer = document.getElementById('patients-mobile-cards');
     if (!mobileContainer) return;
 
@@ -691,7 +692,7 @@ export class PatientsManager {
 
     if (filtered.length === 0) {
       if (this.filterTodayOnly) {
-        tbody.innerHTML = `<tr><td colspan="8" style="text-align: center; color: var(--text-muted); padding: 36px 20px;">
+        if (tbody) tbody.innerHTML = `<tr><td colspan="8" style="text-align: center; color: var(--text-muted); padding: 36px 20px;">
           <i class="fa-solid fa-calendar-xmark" style="font-size: 1.8rem; color: var(--text-muted); margin-bottom: 8px; display: block;"></i>
           لا توجد حالات مسجلة في مواعيد أو جلسات اليوم.<br>
           <button type="button" class="btn btn-outline btn-sm" id="btn-reset-today-filter" style="margin-top: 10px;">
@@ -730,7 +731,7 @@ export class PatientsManager {
             </button>
           </div>
         `;
-        tbody.innerHTML = `<tr><td colspan="8" style="text-align: center; color: var(--text-muted); padding: 30px;">لا يوجد مرضى مطابقين لكلمة البحث: <strong>"${escapeHTML(rawSearch)}"</strong></td></tr>`;
+        if (tbody) tbody.innerHTML = `<tr><td colspan="8" style="text-align: center; color: var(--text-muted); padding: 30px;">لا يوجد مرضى مطابقين لكلمة البحث: <strong>"${escapeHTML(rawSearch)}"</strong></td></tr>`;
         if (mobileContainer) mobileContainer.innerHTML = emptySearchCard;
         return;
       }
@@ -748,7 +749,7 @@ export class PatientsManager {
             </button>
           </div>
         `;
-        tbody.innerHTML = `<tr><td colspan="8" style="text-align: center; color: var(--text-muted); padding: 30px;">لا توجد حالات مسجلة بهذا النظام.</td></tr>`;
+        if (tbody) tbody.innerHTML = `<tr><td colspan="8" style="text-align: center; color: var(--text-muted); padding: 30px;">لا توجد حالات مسجلة بهذا النظام.</td></tr>`;
         if (mobileContainer) mobileContainer.innerHTML = emptyFilterCard;
         return;
       }
@@ -765,7 +766,7 @@ export class PatientsManager {
           </button>
         </div>
       `;
-      tbody.innerHTML = `<tr><td colspan="8" style="text-align: center; color: var(--text-muted); padding: 30px;">سجل المرضى فارغ.</td></tr>`;
+      if (tbody) tbody.innerHTML = `<tr><td colspan="8" style="text-align: center; color: var(--text-muted); padding: 30px;">سجل المرضى فارغ.</td></tr>`;
       if (mobileContainer) mobileContainer.innerHTML = emptyAllCard;
       return;
     }
@@ -778,7 +779,7 @@ export class PatientsManager {
     setTimeout(() => this.setupScrollSync(), 50);
 
     // 1. Render Desktop Table
-    tbody.innerHTML = filtered.map(p => {
+    if (tbody) tbody.innerHTML = filtered.map(p => {
       const isNewlyAdded = (p.id && p.id === this.newlyAddedPatientId);
       const rowHighlightClass = isNewlyAdded ? 'patient-row-newly-added' : '';
       let billingBadge = '';

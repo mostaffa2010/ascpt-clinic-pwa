@@ -363,7 +363,6 @@ class App {
     const btnText = document.getElementById('btn-login-text');
 
     const handleLoginAction = async (e) => {
-      window.__doLogin = handleLoginAction;
       if (e) {
         try { e.preventDefault(); } catch (_) {}
         try { e.stopPropagation(); } catch (_) {}
@@ -401,6 +400,8 @@ class App {
       }
     };
 
+    window.__doLogin = handleLoginAction;
+    window.handleLoginAction = handleLoginAction;
     if (formLogin) {
       formLogin.addEventListener('submit', handleLoginAction);
     }
