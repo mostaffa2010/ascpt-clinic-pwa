@@ -820,6 +820,16 @@ export class PatientsManager {
       const genderIcon = isFemale ? 'fa-solid fa-venus' : 'fa-solid fa-mars';
       const genderText = isFemale ? 'أنثى' : 'ذكر';
 
+      const prog = p.programType || p.clinicalSheet?.programType || 'regular';
+      let programBadge = '';
+      if (prog === 'scoliosis') {
+        programBadge = `<span class="badge" style="background: rgba(2, 132, 199, 0.15); color: #0284c7; border: 1px solid rgba(2, 132, 199, 0.35); font-size: 0.68rem; font-weight: 800; padding: 1px 6px; border-radius: 4px; margin-right: 4px;"><i class="fa-solid fa-arrows-split-up-and-left"></i> Scoliosis</span>`;
+      } else if (prog === 'hemiplegia') {
+        programBadge = `<span class="badge" style="background: rgba(245, 158, 11, 0.15); color: #b45309; border: 1px solid rgba(245, 158, 11, 0.35); font-size: 0.68rem; font-weight: 800; padding: 1px 6px; border-radius: 4px; margin-right: 4px;"><i class="fa-solid fa-brain"></i> Hemiplegia</span>`;
+      } else if (prog === 'quadriplegia' || prog === 'pediatric') {
+        programBadge = `<span class="badge" style="background: rgba(225, 29, 72, 0.15); color: #e11d48; border: 1px solid rgba(225, 29, 72, 0.35); font-size: 0.68rem; font-weight: 800; padding: 1px 6px; border-radius: 4px; margin-right: 4px;"><i class="fa-solid fa-wheelchair"></i> Quadriplegia</span>`;
+      }
+
       return `
         <tr class="${genderClass}">
           <td style="font-weight: 800; color: var(--primary); cursor: ${canAccessSheet ? 'pointer' : 'default'}; white-space: nowrap;"
@@ -911,6 +921,16 @@ export class PatientsManager {
         const genderIcon = isFemale ? 'fa-solid fa-venus' : 'fa-solid fa-mars';
         const genderText = isFemale ? 'أنثى' : 'ذكر';
         const avatarIcon = isFemale ? 'fa-solid fa-person-dress' : 'fa-solid fa-person';
+
+        const prog = p.programType || p.clinicalSheet?.programType || 'regular';
+        let programBadge = '';
+        if (prog === 'scoliosis') {
+          programBadge = `<span class="badge" style="background: rgba(2, 132, 199, 0.15); color: #0284c7; border: 1px solid rgba(2, 132, 199, 0.35); font-size: 0.68rem; font-weight: 800; padding: 1px 6px; border-radius: 4px; margin-right: 4px;"><i class="fa-solid fa-arrows-split-up-and-left"></i> Scoliosis</span>`;
+        } else if (prog === 'hemiplegia') {
+          programBadge = `<span class="badge" style="background: rgba(245, 158, 11, 0.15); color: #b45309; border: 1px solid rgba(245, 158, 11, 0.35); font-size: 0.68rem; font-weight: 800; padding: 1px 6px; border-radius: 4px; margin-right: 4px;"><i class="fa-solid fa-brain"></i> Hemiplegia</span>`;
+        } else if (prog === 'quadriplegia' || prog === 'pediatric') {
+          programBadge = `<span class="badge" style="background: rgba(225, 29, 72, 0.15); color: #e11d48; border: 1px solid rgba(225, 29, 72, 0.35); font-size: 0.68rem; font-weight: 800; padding: 1px 6px; border-radius: 4px; margin-right: 4px;"><i class="fa-solid fa-wheelchair"></i> Quadriplegia</span>`;
+        }
 
         return `
           <div class="hero-styled-card hero-patient-card ${genderClass} ${rowHighlightClass}" style="padding: 11px 13px; margin-bottom: 10px; border-radius: 14px;">
