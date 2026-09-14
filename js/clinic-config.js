@@ -10,7 +10,7 @@ export const CLINIC_CONFIG = {
  englishName: 'Alexandria Specialized Center for Physical Therapy',
  abbreviation: 'ASCPT',
  tagline: 'نظام إدارة مراكز وعيادات العلاج الطبيعي',
- version: '1.4.87',
+ version: '1.4.88',
  director: {
   name: 'د. حسني أحمد الجويلي',
   title: 'إستشاري العلاج الطبيعي والتقويم الحركي للعمود الفقري'
@@ -26,7 +26,12 @@ export const CLINIC_CONFIG = {
   enableInsuranceClaims: true,
   enableAttendanceCards: true
  },
- // Production Firebase Web Client Configuration
+ // Supabase Cloud PostgreSQL Configuration (Zero-Limit Unlimited Reads)
+ supabase: {
+  url: "https://wpgjkqlswiszwfyqlujz.supabase.co",
+  anonKey: "sb_publishable_uMXZizxCE1H5xyMS8Fwcww_3sES_YaR"
+ },
+ // Legacy Firebase Configuration (Kept for fallback if needed)
  firebase: {
   apiKey: "AIzaSyBBVMHo-Rya1iFnE-7QEVPKeoBibDgqXKw",
   authDomain: "ascpt-clinic-pwa.firebaseapp.com",

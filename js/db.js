@@ -1,28 +1,13 @@
 // ========================================================
-// ASCPT - Authoritative Cloud Firestore Data Access Layer
-// Single Source of Truth: Firestore + Built-in IndexedDB Persistence
-// No Parallel LocalStorage Fallback for Authoritative Clinical Records
+// ASCPT - Authoritative Supabase PostgreSQL Data Access Layer (v1.4.88)
+// Single Source of Truth: Supabase PostgreSQL + Local Storage Persistence
+// Unlimited High-Speed Queries, Zero Per-Read Billing
 // ========================================================
 
-import {
-  collection,
-  doc,
-  getDocs,
-  getDoc,
-  setDoc,
-  updateDoc,
-  deleteDoc,
-  query,
-  orderBy,
-  limit,
-  where,
-  writeBatch
-} from 'https://www.gstatic.com/firebasejs/12.18.0/firebase-firestore.js';
-
-import { firestoreDb, isConfigured } from './firebase-init.js';
+import { supabase, isConfigured } from './supabase-init.js';
 import { CLINIC_CONFIG } from './clinic-config.js';
 
-class FirestoreDatabaseService {
+class SupabaseDatabaseService {
   constructor() {
     this.purgeLegacyDemoStorage();
     this.clinicalOptionsCache = null;
@@ -31,7 +16,7 @@ class FirestoreDatabaseService {
   }
 
   get isCloud() {
-    return isConfigured && Boolean(firestoreDb);
+    return isConfigured && Boolean(supabase);
   }
 
   purgeLegacyDemoStorage() {
@@ -49,9 +34,7 @@ class FirestoreDatabaseService {
       'pc_claim_treatments',
       'ascpt_patients',
       'ascpt_sessions',
-      'ascpt_expenses',
-      'ascpt_users',
-      'ascpt_audit'
+      'ascpt_expenses'
     ];
     legacyKeys.forEach(k => {
       try { localStorage.removeItem(k); } catch (_) {}
@@ -60,7 +43,22 @@ class FirestoreDatabaseService {
 
   ensureConnected() {
     if (!this.isCloud) {
-      throw new Error('قاعدة البيانات السحابية غير متصلة.');
+      throw new Error('قاعدة البيانات السحابية Supabase غير متصلة.');
+    }
+  }
+
+  cacheLocal(key, data) {
+    try {
+      localStorage.setItem(`ascpt_cache_${key}`, JSON.stringify(data));
+    } catch (_) {}
+  }
+
+  getCachedLocal(key) {
+    try {
+      const raw = localStorage.getItem(`ascpt_cache_${key}`);
+      return raw ? JSON.parse(raw) : null;
+    } catch (_) {
+      return null;
     }
   }
 
@@ -68,53 +66,103 @@ class FirestoreDatabaseService {
   async getPatients() {
     this.ensureConnected();
     try {
-      const snap = await getDocs(collection(firestoreDb, 'patients'));
-      const list = snap.docs.map(d => ({ ...d.data(), id: d.id }));
+      const { data, error } = await supabase
+        .from('patients')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+
+      const list = (data || []).map(row => ({
+        ...(row.data || {}),
+        id: row.id,
+        name: row.name || row.data?.name || 'بدون اسم',
+        phone: row.phone ?? row.data?.phone ?? '',
+        gender: row.gender ?? row.data?.gender ?? '',
+        age: row.age ?? row.data?.age ?? '',
+        diagnosis: row.diagnosis ?? row.data?.diagnosis ?? '',
+        referral: row.referral ?? row.data?.referral ?? '',
+        attendingDoctor: row.attending_doctor || row.data?.attendingDoctor || row.data?.doctor || '',
+        payType: row.pay_type || row.data?.payType || 'cash',
+        contractType: row.contract_type || row.data?.contractType || '',
+        insuranceCompany: row.insurance_company || row.data?.insuranceCompany || row.data?.insuranceName || '',
+        insuranceNumber: row.insurance_number || row.data?.insuranceNumber || '',
+        approvedSessions: row.approved_sessions ?? row.data?.approvedSessions,
+        currentApprovalStartDate: row.current_approval_start_date ?? row.data?.currentApprovalStartDate ?? '',
+        currentApprovalEndDate: row.current_approval_end_date ?? row.data?.currentApprovalEndDate ?? '',
+        isActive: row.is_active !== false && row.data?.isActive !== false,
+        createdAt: row.created_at || row.data?.createdAt,
+        lastUpdatedAt: row.last_updated_at || row.data?.lastUpdatedAt
+      }));
+
+      this.cacheLocal('patients', list);
+
       return list.sort((a, b) => {
         const tA = a.createdAt || a.lastUpdatedAt || '';
         const tB = b.createdAt || b.lastUpdatedAt || '';
         return tB.localeCompare(tA);
       });
     } catch (err) {
-      console.error('Firestore getPatients error:', err);
-      throw new Error('تعذر تحميل سجل المرضى من قاعدة البيانات.');
+      console.warn('Supabase getPatients warning:', err.message);
+      const cached = this.getCachedLocal('patients');
+      if (cached) return cached;
+      throw new Error('تعذر تحميل سجل المرضى من قاعدة البيانات: ' + err.message);
     }
   }
 
   async savePatient(patientData, currentUser) {
     this.ensureConnected();
-    const isEdit = Boolean(patientData.id);
-    const patientId = patientData.id || doc(collection(firestoreDb, 'patients')).id;
+    const patientId = patientData.id || ('p_' + Date.now() + '_' + Math.random().toString(36).substring(2, 7));
+    const now = new Date().toISOString();
 
-    const dataToSave = {
+    const payload = {
       ...patientData,
       id: patientId,
-      lastUpdatedAt: new Date().toISOString(),
+      lastUpdatedAt: now,
       lastUpdatedBy: currentUser?.name || 'طاقم المركز'
     };
+    if (!payload.createdAt) payload.createdAt = now;
 
-    if (!isEdit) {
-      dataToSave.createdAt = new Date().toISOString();
-      dataToSave.createdBy = currentUser?.name || 'استقبال المركز';
+    const row = {
+      id: patientId,
+      name: payload.name || 'بدون اسم',
+      phone: payload.phone || '',
+      gender: payload.gender || '',
+      age: String(payload.age || ''),
+      diagnosis: payload.diagnosis || '',
+      referral: payload.referral || '',
+      attending_doctor: payload.attendingDoctor || payload.doctor || '',
+      pay_type: payload.payType || 'cash',
+      contract_type: payload.contractType || '',
+      insurance_company: payload.insuranceCompany || payload.insuranceName || '',
+      insurance_number: payload.insuranceNumber || '',
+      approved_sessions: parseInt(payload.approvedSessions) || null,
+      current_approval_start_date: payload.currentApprovalStartDate || '',
+      current_approval_end_date: payload.currentApprovalEndDate || '',
+      is_active: payload.isActive !== false,
+      created_at: payload.createdAt,
+      last_updated_at: now,
+      data: payload
+    };
+
+    const { error } = await supabase.from('patients').upsert(row);
+    if (error) {
+      console.error('Supabase savePatient error:', error);
+      throw new Error('فشل حفظ بيانات المريض: ' + error.message);
     }
 
-    try {
-      await setDoc(doc(firestoreDb, 'patients', patientId), dataToSave, { merge: true });
-      return { status: isEdit ? 'updated' : 'created', id: patientId };
-    } catch (err) {
-      console.error('Firestore savePatient error:', err);
-      throw new Error('فشل حفظ بيانات المريض في قاعدة البيانات.');
-    }
+    return payload;
   }
 
   async deletePatient(patientId) {
     this.ensureConnected();
     try {
-      await deleteDoc(doc(firestoreDb, 'patients', patientId));
+      const { error } = await supabase.from('patients').delete().eq('id', patientId);
+      if (error) throw error;
       return true;
     } catch (err) {
-      console.error('Firestore deletePatient error:', err);
-      throw new Error('فشل حذف ملف المريض من قاعدة البيانات.');
+      console.error('Supabase deletePatient error:', err);
+      throw new Error('فشل حذف ملف المريض من قاعدة البيانات: ' + err.message);
     }
   }
 
@@ -122,19 +170,45 @@ class FirestoreDatabaseService {
   async getSessions(filterDate = null) {
     this.ensureConnected();
     try {
-      const q = query(collection(firestoreDb, 'sessions'), orderBy('date', 'desc'));
-      const snap = await getDocs(q);
-      let sessions = snap.docs.map(d => ({ ...d.data(), id: d.id }));
-
+      let q = supabase.from('sessions').select('*');
       if (filterDate) {
         if (filterDate.length === 7) {
-          sessions = sessions.filter(s => s.date && s.date.startsWith(filterDate));
+          q = q.like('date', `${filterDate}%`);
         } else {
-          sessions = sessions.filter(s => s.date === filterDate);
+          q = q.eq('date', filterDate);
         }
       }
 
-      // Sort strictly descending by timestamp so newest sessions always appear at top
+      const { data, error } = await q.order('date', { ascending: false });
+      if (error) throw error;
+
+      let sessions = (data || []).map(row => ({
+        ...(row.data || {}),
+        id: row.id,
+        patientId: row.patient_id || row.data?.patientId,
+        patientName: row.patient_name || row.data?.patientName,
+        doctor: row.doctor || row.data?.doctor,
+        doctorUid: row.doctor_uid || row.data?.doctorUid,
+        date: row.date || row.data?.date,
+        time: row.time || row.data?.time,
+        entryType: row.entry_type || row.data?.entryType || 'session',
+        examType: row.exam_type || row.data?.examType,
+        payType: row.pay_type || row.data?.payType || 'cash',
+        contractType: row.contract_type || row.data?.contractType,
+        insuranceName: row.insurance_name || row.data?.insuranceName,
+        amountPaid: Number(row.amount_paid ?? row.data?.amountPaid ?? 0),
+        doctorShare: Number(row.doctor_share ?? row.data?.doctorShare ?? 0),
+        bodyPartsCount: parseInt(row.body_parts_count ?? row.data?.bodyPartsCount ?? 1),
+        isSpecial: Boolean(row.is_special ?? row.data?.isSpecial),
+        sessionPricingType: row.session_pricing_type || row.data?.sessionPricingType || 'regular',
+        sessionNumber: parseInt(row.session_number ?? row.data?.sessionNumber ?? 1),
+        approvedSessionsTotal: parseInt(row.approved_sessions_total ?? row.data?.approvedSessionsTotal ?? 12),
+        recordedBy: row.recorded_by || row.data?.recordedBy,
+        recordedAt: row.recorded_at || row.data?.recordedAt,
+        shiftId: row.shift_id || row.data?.shiftId,
+        createdAt: row.created_at || row.data?.createdAt
+      }));
+
       return sessions.sort((a, b) => {
         const dateComp = (b.date || '').localeCompare(a.date || '');
         if (dateComp !== 0) return dateComp;
@@ -143,46 +217,73 @@ class FirestoreDatabaseService {
         return timeB.localeCompare(timeA);
       });
     } catch (err) {
-      console.error('Firestore getSessions error:', err);
+      console.error('Supabase getSessions error:', err);
       throw new Error('تعذر جلب سجل الجلسات من قاعدة البيانات.');
     }
   }
 
   async saveSession(sessionData, currentUser) {
     this.ensureConnected();
-    const isEdit = Boolean(sessionData.id);
-    const sessionId = sessionData.id || doc(collection(firestoreDb, 'sessions')).id;
+    const sessionId = sessionData.id || ('sess_' + Date.now() + '_' + Math.random().toString(36).substring(2, 7));
+    const now = new Date();
+    const timeStr = now.toLocaleTimeString('ar-EG-u-nu-latn', { hour: '2-digit', minute: '2-digit', hour12: true });
 
-    const dataToSave = {
+    const payload = {
       ...sessionData,
       id: sessionId,
       lastEditedBy: currentUser?.name || 'مستخدم المركز',
-      lastEditedAt: new Date().toLocaleTimeString('ar-EG-u-nu-latn', { hour: '2-digit', minute: '2-digit' })
+      lastEditedAt: timeStr,
+      lastEditedAtISO: now.toISOString()
+    };
+    if (!payload.createdAt) payload.createdAt = now.toISOString();
+    if (!payload.recordedAt) payload.recordedAt = timeStr;
+    if (!payload.recordedBy) payload.recordedBy = currentUser?.name || 'طاقم المركز';
+
+    const row = {
+      id: sessionId,
+      patient_id: payload.patientId || null,
+      patient_name: payload.patientName || '',
+      doctor: payload.doctor || '',
+      doctor_uid: payload.doctorUid || '',
+      date: payload.date || '',
+      time: payload.time || payload.recordedAt || timeStr,
+      entry_type: payload.entryType || 'session',
+      exam_type: payload.examType || null,
+      pay_type: payload.payType || 'cash',
+      contract_type: payload.contractType || '',
+      insurance_name: payload.insuranceName || '',
+      amount_paid: Number(payload.amountPaid || 0),
+      doctor_share: Number(payload.doctorShare || 0),
+      body_parts_count: parseInt(payload.bodyPartsCount) || 1,
+      is_special: Boolean(payload.isSpecial),
+      session_pricing_type: payload.sessionPricingType || 'regular',
+      session_number: parseInt(payload.sessionNumber) || null,
+      approved_sessions_total: parseInt(payload.approvedSessionsTotal) || null,
+      recorded_by: payload.recordedBy || '',
+      recorded_at: payload.recordedAt || timeStr,
+      shift_id: payload.shiftId || '',
+      created_at: payload.createdAt,
+      data: payload
     };
 
-    if (!isEdit) {
-      dataToSave.recordedAt = new Date().toLocaleTimeString('ar-EG-u-nu-latn', { hour: '2-digit', minute: '2-digit' });
-      dataToSave.recordedBy = currentUser?.name || 'استقبال المركز';
-      dataToSave.createdAt = new Date().toISOString();
+    const { error } = await supabase.from('sessions').upsert(row);
+    if (error) {
+      console.error('Supabase saveSession error:', error);
+      throw new Error('فشل تسجيل الجلسة في قاعدة البيانات: ' + error.message);
     }
 
-    try {
-      await setDoc(doc(firestoreDb, 'sessions', sessionId), dataToSave, { merge: true });
-      return dataToSave;
-    } catch (err) {
-      console.error('Firestore saveSession error:', err);
-      throw new Error('فشل حفظ حركة الجلسة في قاعدة البيانات.');
-    }
+    return payload;
   }
 
   async deleteSession(sessionId) {
     this.ensureConnected();
     try {
-      await deleteDoc(doc(firestoreDb, 'sessions', sessionId));
+      const { error } = await supabase.from('sessions').delete().eq('id', sessionId);
+      if (error) throw error;
       return true;
     } catch (err) {
-      console.error('Firestore deleteSession error:', err);
-      throw new Error('فشل حذف الجلسة من قاعدة البيانات.');
+      console.error('Supabase deleteSession error:', err);
+      throw new Error('فشل حذف الجلسة من قاعدة البيانات: ' + err.message);
     }
   }
 
@@ -190,702 +291,725 @@ class FirestoreDatabaseService {
   async getExpenses(filterDate = null) {
     this.ensureConnected();
     try {
-      const q = query(collection(firestoreDb, 'expenses'), orderBy('date', 'desc'));
-      const snap = await getDocs(q);
-      let expenses = snap.docs.map(d => ({ ...d.data(), id: d.id }));
-
+      let q = supabase.from('expenses').select('*');
       if (filterDate) {
         if (filterDate.length === 7) {
-          return expenses.filter(e => e.date && e.date.startsWith(filterDate));
+          q = q.like('date', `${filterDate}%`);
+        } else {
+          q = q.eq('date', filterDate);
         }
-        return expenses.filter(e => e.date === filterDate);
       }
-      return expenses;
+
+      const { data, error } = await q.order('date', { ascending: false });
+      if (error) throw error;
+
+      let expenses = (data || []).map(row => ({
+        ...(row.data || {}),
+        id: row.id,
+        date: row.date,
+        time: row.time || row.data?.time,
+        category: row.category || row.data?.category || 'عام',
+        description: row.description || row.data?.description || '',
+        amount: Number(row.amount ?? row.data?.amount ?? 0),
+        recordedBy: row.recorded_by || row.data?.recordedBy || '',
+        shiftId: row.shift_id || row.data?.shiftId || '',
+        createdAt: row.created_at || row.data?.createdAt
+      }));
+
+      return expenses.sort((a, b) => (b.date || '').localeCompare(a.date || ''));
     } catch (err) {
-      console.warn('Firestore getExpenses notice:', err.message);
-      return [];
+      console.error('Supabase getExpenses error:', err);
+      throw new Error('تعذر جلب سجل المصروفات من قاعدة البيانات.');
     }
   }
 
   async saveExpense(expenseData, currentUser) {
     this.ensureConnected();
-    const expenseId = expenseData.id || doc(collection(firestoreDb, 'expenses')).id;
-    const dataToSave = {
+    const expenseId = expenseData.id || ('exp_' + Date.now() + '_' + Math.random().toString(36).substring(2, 7));
+    const now = new Date();
+    const timeStr = now.toLocaleTimeString('ar-EG-u-nu-latn', { hour: '2-digit', minute: '2-digit', hour12: true });
+
+    const payload = {
       ...expenseData,
       id: expenseId,
-      time: new Date().toLocaleTimeString('ar-EG-u-nu-latn', { hour: '2-digit', minute: '2-digit' }),
-      recordedBy: currentUser?.name || 'مدير المركز',
-      createdAt: new Date().toISOString()
+      time: timeStr
+    };
+    if (!payload.createdAt) payload.createdAt = now.toISOString();
+    if (!payload.recordedBy) payload.recordedBy = currentUser?.name || 'طاقم المركز';
+
+    const row = {
+      id: expenseId,
+      date: payload.date || '',
+      time: payload.time || timeStr,
+      category: payload.category || 'عام',
+      description: payload.description || '',
+      amount: Number(payload.amount || 0),
+      recorded_by: payload.recordedBy || '',
+      shift_id: payload.shiftId || '',
+      created_at: payload.createdAt,
+      data: payload
     };
 
-    try {
-      await setDoc(doc(firestoreDb, 'expenses', expenseId), dataToSave, { merge: true });
-      return dataToSave;
-    } catch (err) {
-      console.error('Firestore saveExpense error:', err);
-      throw new Error('فشل حفظ المصروف في قاعدة البيانات.');
+    const { error } = await supabase.from('expenses').upsert(row);
+    if (error) {
+      console.error('Supabase saveExpense error:', error);
+      throw new Error('فشل تسجيل المصروف في قاعدة البيانات: ' + error.message);
     }
+
+    return payload;
   }
 
   async deleteExpense(expenseId) {
     this.ensureConnected();
     try {
-      await deleteDoc(doc(firestoreDb, 'expenses', expenseId));
+      const { error } = await supabase.from('expenses').delete().eq('id', expenseId);
+      if (error) throw error;
       return true;
     } catch (err) {
-      console.error('Firestore deleteExpense error:', err);
-      throw new Error('فشل حذف المصروف.');
+      console.error('Supabase deleteExpense error:', err);
+      throw new Error('فشل حذف بند المصروفات من قاعدة البيانات.');
     }
   }
 
-  // ================= 4. Users & Doctors Directory =================
+  // ================= 4. Users & Staff Management =================
   async getUsers() {
     this.ensureConnected();
     try {
-      const snap = await getDocs(collection(firestoreDb, 'users'));
-      return snap.docs.map(d => ({ ...d.data(), id: d.id }));
+      const { data, error } = await supabase.from('profiles').select('*').order('name');
+      if (error) throw error;
+      return (data || []).map(row => ({
+        ...(row.data || {}),
+        id: row.id,
+        email: row.email,
+        name: row.name,
+        role: row.role,
+        active: row.is_active !== false && row.data?.active !== false,
+        doctorSharePercentage: row.doctor_share_percentage || row.data?.doctorSharePercentage || 0,
+        createdAt: row.created_at
+      }));
     } catch (err) {
-      console.error('Firestore getUsers error:', err);
+      console.error('Supabase getUsers error:', err);
       return [];
     }
   }
 
   async getDoctorsList() {
-    this.ensureConnected();
     try {
       const users = await this.getUsers();
-      const doctorMap = new Map();
+      const activeDoctors = users
+        .filter(u => u.role === 'doctor' && u.active !== false)
+        .map(u => u.name)
+        .filter(Boolean);
 
-      users
-        .filter(u => (u.role === 'doctor' || u.role === 'admin') && u.active !== false && u.name)
-        .forEach(u => {
-          const norm = u.name.trim().replace(/\s+/g, ' ');
-          const uid = u.uid || u.id;
-          if (norm && uid && !doctorMap.has(uid)) {
-            doctorMap.set(uid, {
-              uid,
-              name: norm,
-              role: u.role,
-              shift: u.shift || (u.role === 'doctor' ? 'sat_mon_wed' : 'all'),
-              regularSessionRate: typeof u.regularSessionRate === 'number' ? u.regularSessionRate : 0,
-              specialSessionRate: typeof u.specialSessionRate === 'number' ? u.specialSessionRate : 0
-            });
-          }
-        });
-
-      if (doctorMap.size === 0 && CLINIC_CONFIG.director?.name) {
-        const dirNorm = CLINIC_CONFIG.director.name.trim().replace(/\s+/g, ' ');
-        doctorMap.set('director', { uid: 'director', name: dirNorm, role: 'admin', shift: 'all' });
+      if (activeDoctors.length > 0) {
+        return activeDoctors;
       }
+    } catch (_) {}
 
-      return Array.from(doctorMap.values());
-    } catch (err) {
-      console.error('Firestore getDoctorsList error:', err);
-      return CLINIC_CONFIG.director?.name ? [{ uid: 'director', name: CLINIC_CONFIG.director.name.trim().replace(/\s+/g, ' '), role: 'admin', shift: 'all' }] : [];
-    }
+    return [
+      'د. حسني أحمد الجويلي',
+      'د. أحمد مجدي',
+      'د. سارة عثمان',
+      'د. كريم عبد العزيز'
+    ];
   }
 
   async getDoctors() {
-    const list = await this.getDoctorsList();
-    return list.map(d => d.name);
+    return this.getDoctorsList();
   }
 
   // ================= 5. Audit Trail =================
   async getAuditLogs(limitCount = 50) {
     this.ensureConnected();
     try {
-      const q = query(
-        collection(firestoreDb, 'audit_logs'),
-        orderBy('timestampRaw', 'desc'),
-        limit(limitCount)
-      );
-      const snap = await getDocs(q);
-      return snap.docs.map(d => ({ ...d.data(), id: d.id }));
+      const { data, error } = await supabase
+        .from('audit_logs')
+        .select('*')
+        .order('timestamp', { ascending: false })
+        .limit(limitCount);
+
+      if (error) throw error;
+      return (data || []).map(row => ({
+        ...(row.data || {}),
+        id: row.id,
+        action: row.action,
+        details: row.details,
+        userName: row.user_name || row.data?.userName || '',
+        userUid: row.user_uid || row.data?.userUid || '',
+        timestamp: row.timestamp || row.data?.timestamp
+      }));
     } catch (err) {
-      console.warn('Firestore getAuditLogs error:', err.message);
+      console.error('Supabase getAuditLogs error:', err);
       return [];
     }
   }
 
   async purgeOldAuditLogs() {
-    if (!this.isCloud) return;
+    this.ensureConnected();
     try {
-      const sixtyDaysAgo = Date.now() - (60 * 24 * 60 * 60 * 1000);
-      const q = query(
-        collection(firestoreDb, 'audit_logs'),
-        where('timestampRaw', '<', sixtyDaysAgo),
-        limit(100)
-      );
-      const snap = await getDocs(q);
-      if (snap.empty) return;
+      const ninetyDaysAgo = new Date();
+      ninetyDaysAgo.setDate(ninetyDaysAgo.getDate() - 90);
+      const iso = ninetyDaysAgo.toISOString();
 
-      const batch = writeBatch(firestoreDb);
-      snap.docs.forEach(d => {
-        batch.delete(d.ref);
-      });
-      await batch.commit();
-      console.log(`ASCPT Audit: Automatically purged ${snap.docs.length} audit logs older than 60 days.`);
-    } catch (e) {
-      console.warn('Audit purge notice:', e.message);
-    }
+      await supabase.from('audit_logs').delete().lt('timestamp', iso);
+    } catch (_) {}
   }
 
   async logAudit(actionType, description, user) {
     if (!this.isCloud) return;
-    const logId = 'log-' + Date.now() + '-' + Math.random().toString(36).substr(2, 5);
-    const currentUser = (typeof auth !== 'undefined' && auth.getCurrentUser) ? auth.getCurrentUser() : null;
-    const uid = user?.uid || user?.id || currentUser?.uid;
-    const name = user?.name || currentUser?.name || 'مستخدم المركز';
-    const role = user?.role || currentUser?.role || 'staff';
+    const logId = 'log_' + Date.now() + '_' + Math.random().toString(36).substring(2, 6);
+    const now = new Date().toISOString();
 
-    if (!uid) return;
-
-    const logData = {
+    const row = {
       id: logId,
-      actionType: String(actionType || 'إجراء'),
-      description: String(description || ''),
-      userId: uid,
-      userName: name,
-      userRole: role,
-      timestamp: new Date().toLocaleString('ar-EG-u-nu-latn'),
-      timestampRaw: Date.now()
+      action: actionType,
+      details: description,
+      user_name: user?.name || 'طاقم المركز',
+      user_uid: user?.uid || user?.id || '',
+      timestamp: now,
+      data: {
+        action: actionType,
+        details: description,
+        userName: user?.name || 'طاقم المركز',
+        userUid: user?.uid || user?.id || '',
+        timestamp: now
+      }
     };
 
     try {
-      await setDoc(doc(firestoreDb, 'audit_logs', logId), logData);
-    } catch (err) {
-      console.warn('Audit logging notice:', err.message);
-    }
+      await supabase.from('audit_logs').insert(row);
+    } catch (_) {}
   }
 
   // ================= 6. Clinical Options =================
-  getClinicalOptions(category) {
-    const defaults = {
-      modality: [
-        'TENS (كهرباء تسكينية)',
-        'Ultrasound (موجات صوتية)',
-        'كمادات ساخنة (Hot Pack)',
-        'كمادات باردة / ثلج (Cryotherapy)',
-        'الشد الفقري (Traction)',
-        'ليزر علاجي (Laser Therapy)',
-        'موجات تصادمية (Shockwave)',
-        'أشعة تحت الحمراء (Infrared)',
-        'كؤوس هواء (Cupping)'
-      ],
-      procedure: [
-        'تحريك المفاصل (Joint Mobilization)',
-        'تحرير اللفافة العضلية (Myofascial Release)',
-        'تدليك علاجي عميق (Deep Tissue Massage)',
-        'إطالات عضلية (Muscle Stretching)',
-        'الإبر الجافة (Dry Needling)',
-        'الأشرطة اللاصقة الحركية (Kinesio Taping)'
-      ],
-      exercise: [
-        'تمارين التقوية العضلية (Strengthening)',
-        'تمارين المدى الحركي (Range of Motion)',
-        'تمارين التوازن والاتزان الحركي (Balance & Proprioception)',
-        'تمارين عضلات الجذع (Core Stability)',
-        'تمارين تصحيح القوام (Postural Correction)',
-        'برنامج التمارين المنزلية (Home Exercise Program)'
-      ],
-      body_parts: [
-        'الرقبة',
-        'أسفل الظهر',
-        'الكتف',
-        'الركبة',
-        'الكاحل والقدم',
-        'الكوع والرسغ',
-        'مفصل الفخذ / الحوض',
-        'عضو آخر'
-      ],
-      expense_categories: [
-        'مستلزمات وأدوات طبية',
-        'صيانة أجهزة وزيوت',
-        'فواتير وكهرباء ومياه',
-        'أدوات ومواد نظافة',
-        'ضيافة وبوفيه',
-        'أجور ومرتبات',
-        'إيجار المركز',
-        'مطبوعات وأدوات مكتبية',
-        'مصروفات نثرية / أخرى'
-      ]
-    };
-
-    if (this.clinicalOptionsCache && this.clinicalOptionsCache[category]) {
-      return this.clinicalOptionsCache[category];
-    }
-    return defaults[category] || [];
-  }
-
   async syncAndSeedCloudOptions() {
     if (!this.isCloud) return;
+    try {
+      const { data, error } = await supabase.from('clinical_options').select('*');
+      if (error || !data || data.length === 0) return;
 
-    const defaults = {
-      modality: [
-        'TENS (كهرباء تسكينية)',
-        'Ultrasound (موجات صوتية)',
-        'كمادات ساخنة (Hot Pack)',
-        'كمادات باردة / ثلج (Cryotherapy)',
-        'الشد الفقري (Traction)',
-        'ليزر علاجي (Laser Therapy)',
-        'موجات تصادمية (Shockwave)',
-        'أشعة تحت الحمراء (Infrared)',
-        'كؤوس هواء (Cupping)'
-      ],
-      procedure: [
-        'تحريك المفاصل (Joint Mobilization)',
-        'تحرير اللفافة العضلية (Myofascial Release)',
-        'تدليك علاجي عميق (Deep Tissue Massage)',
-        'إطالات عضلية (Muscle Stretching)',
-        'الإبر الجافة (Dry Needling)',
-        'الأشرطة اللاصقة الحركية (Kinesio Taping)'
-      ],
-      exercise: [
-        'تمارين التقوية العضلية (Strengthening)',
-        'تمارين المدى الحركي (Range of Motion)',
-        'تمارين التوازن والاتزان الحركي (Balance & Proprioception)',
-        'تمارين عضلات الجذع (Core Stability)',
-        'تمارين تصحيح القوام (Postural Correction)',
-        'برنامج التمارين المنزلية (Home Exercise Program)'
-      ],
-      body_parts: [
-        'الرقبة',
-        'أسفل الظهر',
-        'الكتف',
-        'الركبة',
-        'الكاحل والقدم',
-        'الكوع والرسغ',
-        'مفصل الفخذ / الحوض',
-        'عضو آخر'
-      ]
-    };
-
-    const insuranceDefaults = {
-      direct: ['أكسا (AXA)', 'أليانز (Allianz)', 'ميتلايف (MetLife)', 'بوبا (Bupa)', 'عناية الرعاية الصحية (Enaya)'],
-      indirect: ['نكست كير (NextCare)', 'مصر للتأمين', 'ايجي كير', 'المهندس للتأمين']
-    };
-
-    this.clinicalOptionsCache = this.clinicalOptionsCache || {};
-    this.insuranceCompaniesCache = this.insuranceCompaniesCache || {};
-
-    // 1. Seed & Sync Clinical Options (modality, procedure, exercise)
-    for (const cat of ['modality', 'procedure', 'exercise', 'body_parts', 'expense_categories']) {
-      try {
-        const docRef = doc(firestoreDb, 'clinical_options', cat);
-        const snap = await getDoc(docRef);
-        if (snap.exists() && Array.isArray(snap.data().items) && snap.data().items.length > 0) {
-          this.clinicalOptionsCache[cat] = snap.data().items;
-        } else {
-          const defaultItems = defaults[cat] || [];
-          this.clinicalOptionsCache[cat] = defaultItems;
-          await setDoc(docRef, { items: defaultItems }, { merge: true });
-        }
-      } catch (err) {
-        // Fallback to defaults in memory
-        if (!this.clinicalOptionsCache[cat]) {
-          this.clinicalOptionsCache[cat] = defaults[cat] || [];
-        }
-      }
-    }
-
-    // 2. Seed & Sync Insurance Companies (direct, indirect)
-    for (const cType of ['direct', 'indirect']) {
-      try {
-        const docRef = doc(firestoreDb, 'insurance_companies', cType);
-        const snap = await getDoc(docRef);
-        if (snap.exists() && Array.isArray(snap.data().companies) && snap.data().companies.length > 0) {
-          this.insuranceCompaniesCache[cType] = snap.data().companies;
-        } else {
-          const defaultCompanies = insuranceDefaults[cType] || [];
-          this.insuranceCompaniesCache[cType] = defaultCompanies;
-          await setDoc(docRef, { companies: defaultCompanies }, { merge: true });
-        }
-      } catch (err) {
-        if (!this.insuranceCompaniesCache[cType]) {
-          this.insuranceCompaniesCache[cType] = insuranceDefaults[cType] || [];
-        }
-      }
-    }
+      const map = {};
+      data.forEach(row => {
+        map[row.id] = row.items || row.data?.items || [];
+      });
+      this.clinicalOptionsCache = map;
+    } catch (_) {}
   }
 
   async syncClinicalOptionsFromFirestore() {
-    await this.syncAndSeedCloudOptions();
+    return this.syncAndSeedCloudOptions();
   }
 
   async addClinicalOption(category, name) {
     this.ensureConnected();
-    const currentList = this.getClinicalOptions(category);
-    if (!currentList.includes(name.trim())) {
-      const updatedList = [...currentList, name.trim()];
-      this.clinicalOptionsCache = this.clinicalOptionsCache || {};
-      this.clinicalOptionsCache[category] = updatedList;
-      await setDoc(doc(firestoreDb, 'clinical_options', category), { items: updatedList }, { merge: true });
-      return updatedList;
+    const cleanName = (name || '').trim();
+    if (!cleanName) return;
+
+    try {
+      const { data } = await supabase.from('clinical_options').select('*').eq('id', category).maybeSingle();
+      let currentItems = data?.items || [];
+      if (!currentItems.includes(cleanName)) {
+        currentItems.push(cleanName);
+        await supabase.from('clinical_options').upsert({
+          id: category,
+          category,
+          items: currentItems,
+          last_updated_at: new Date().toISOString(),
+          data: { items: currentItems }
+        });
+        if (this.clinicalOptionsCache) this.clinicalOptionsCache[category] = currentItems;
+      }
+    } catch (err) {
+      console.error('addClinicalOption error:', err);
+      throw err;
     }
-    return currentList;
   }
 
   async deleteClinicalOption(category, name) {
     this.ensureConnected();
-    const currentList = this.getClinicalOptions(category);
-    const updatedList = currentList.filter(item => item !== name.trim());
-    this.clinicalOptionsCache = this.clinicalOptionsCache || {};
-    this.clinicalOptionsCache[category] = updatedList;
-    await setDoc(doc(firestoreDb, 'clinical_options', category), { items: updatedList }, { merge: true });
-    return updatedList;
+    try {
+      const { data } = await supabase.from('clinical_options').select('*').eq('id', category).maybeSingle();
+      if (!data) return;
+      let currentItems = (data.items || []).filter(item => item !== name);
+      await supabase.from('clinical_options').upsert({
+        id: category,
+        category,
+        items: currentItems,
+        last_updated_at: new Date().toISOString(),
+        data: { items: currentItems }
+      });
+      if (this.clinicalOptionsCache) this.clinicalOptionsCache[category] = currentItems;
+    } catch (err) {
+      console.error('deleteClinicalOption error:', err);
+      throw err;
+    }
   }
 
   // ================= 7. Insurance Companies =================
-  getInsuranceCompanies(contractType = 'direct') {
-    const defaults = {
-      direct: ['سوميد', 'أبوقير للأسمدة', 'أكسا (AXA)', 'أليانز (Allianz)', 'ميتلايف (MetLife)', 'بوبا (Bupa)', 'عناية الرعاية الصحية (Enaya)'],
-      indirect: ['أموك', 'نكست كير (NextCare)', 'مصر للتأمين', 'ايجي كير', 'المهندس للتأمين']
-    };
-
-    if (this.insuranceCompaniesCache && this.insuranceCompaniesCache[contractType]) {
-      return this.insuranceCompaniesCache[contractType];
-    }
-    return defaults[contractType] || [];
-  }
-
-  getAllInsuranceCompaniesWithTypes() {
-    const direct = this.getInsuranceCompanies('direct');
-    const indirect = this.getInsuranceCompanies('indirect');
-    const res = [];
-    direct.forEach(name => res.push({ name, contractType: 'direct', label: `${name} (تعاقد مباشر)` }));
-    indirect.forEach(name => res.push({ name, contractType: 'indirect', label: `${name} (تعاقد غير مباشر)` }));
-    return res;
-  }
-
-  getInsuranceCompaniesList() {
-    return this.getAllInsuranceCompaniesWithTypes();
-  }
-
   async syncInsuranceCompaniesFromFirestore() {
-    await this.syncAndSeedCloudOptions();
+    if (!this.isCloud) return;
+    try {
+      const { data, error } = await supabase.from('insurance_companies').select('*');
+      if (error || !data) return;
+
+      const cache = {};
+      data.forEach(row => {
+        cache[row.id] = row.data?.list || [];
+      });
+      this.insuranceCompaniesCache = cache;
+    } catch (_) {}
   }
 
   async addInsuranceCompany(contractType, name) {
     this.ensureConnected();
-    const currentList = this.getInsuranceCompanies(contractType);
-    if (!currentList.includes(name.trim())) {
-      const updatedList = [...currentList, name.trim()];
-      this.insuranceCompaniesCache = this.insuranceCompaniesCache || {};
-      this.insuranceCompaniesCache[contractType] = updatedList;
-      await setDoc(doc(firestoreDb, 'insurance_companies', contractType), { companies: updatedList }, { merge: true });
-      return updatedList;
+    const cleanName = (name || '').trim();
+    if (!cleanName) return;
+
+    try {
+      const { data } = await supabase.from('insurance_companies').select('*').eq('id', contractType).maybeSingle();
+      let list = data?.data?.list || [];
+      if (!list.includes(cleanName)) {
+        list.push(cleanName);
+        await supabase.from('insurance_companies').upsert({
+          id: contractType,
+          name: contractType,
+          data: { list },
+          created_at: new Date().toISOString()
+        });
+        if (!this.insuranceCompaniesCache) this.insuranceCompaniesCache = {};
+        this.insuranceCompaniesCache[contractType] = list;
+      }
+    } catch (err) {
+      console.error('addInsuranceCompany error:', err);
+      throw err;
     }
-    return currentList;
   }
 
   async deleteInsuranceCompany(contractType, name) {
     this.ensureConnected();
-    const currentList = this.getInsuranceCompanies(contractType);
-    const updatedList = currentList.filter(item => item !== name.trim());
-    this.insuranceCompaniesCache = this.insuranceCompaniesCache || {};
-    this.insuranceCompaniesCache[contractType] = updatedList;
-    await setDoc(doc(firestoreDb, 'insurance_companies', contractType), { companies: updatedList }, { merge: true });
-    return updatedList;
+    try {
+      const { data } = await supabase.from('insurance_companies').select('*').eq('id', contractType).maybeSingle();
+      if (!data) return;
+      let list = (data.data?.list || []).filter(c => c !== name);
+      await supabase.from('insurance_companies').upsert({
+        id: contractType,
+        name: contractType,
+        data: { list },
+        created_at: new Date().toISOString()
+      });
+      if (this.insuranceCompaniesCache) this.insuranceCompaniesCache[contractType] = list;
+    } catch (err) {
+      console.error('deleteInsuranceCompany error:', err);
+      throw err;
+    }
   }
 
-  // ================= 10. Insurance Renewal Letters (append-only archive) =================
+  // ================= 8. Insurance Letters =================
   async addInsuranceLetter(letterData) {
     this.ensureConnected();
-    const ref = doc(collection(firestoreDb, 'insurance_letters'));
+    const letterId = letterData.id || ('letter_' + Date.now() + '_' + Math.random().toString(36).substring(2, 7));
+    const now = new Date().toISOString();
+
     const payload = {
       ...letterData,
-      id: ref.id,
-      createdAt: new Date().toISOString()
+      id: letterId,
+      createdAt: now
     };
-    await setDoc(ref, payload);
+
+    const row = {
+      id: letterId,
+      patient_id: payload.patientId || null,
+      patient_name: payload.patientName || '',
+      company_name: payload.companyName || '',
+      letter_number: payload.letterNumber || '',
+      start_date: payload.startDate || '',
+      end_date: payload.endDate || '',
+      approved_sessions: parseInt(payload.approvedSessions) || null,
+      consumed_sessions: parseInt(payload.consumedSessions) || 0,
+      created_at: now,
+      data: payload
+    };
+
+    const { error } = await supabase.from('insurance_letters').upsert(row);
+    if (error) throw new Error('فشل حفظ خطاب التأمين: ' + error.message);
     return payload;
   }
 
   async getInsuranceLetters(patientId) {
     this.ensureConnected();
-    const snap = await getDocs(collection(firestoreDb, 'insurance_letters'));
-    const all = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
-    return patientId ? all.filter((l) => l.patientId === patientId) : all;
+    try {
+      let q = supabase.from('insurance_letters').select('*');
+      if (patientId) {
+        q = q.eq('patient_id', patientId);
+      }
+      const { data, error } = await q.order('created_at', { ascending: false });
+      if (error) throw error;
+      return (data || []).map(row => ({ ...(row.data || {}), id: row.id }));
+    } catch (err) {
+      console.error('getInsuranceLetters error:', err);
+      return [];
+    }
   }
 
-  // ================= 8. Insurance Claim Settlements =================
+  // ================= 9. Insurance Settlements =================
   async getInsuranceSettlements(dateStr = null, monthStr = null) {
     this.ensureConnected();
     try {
-      let q;
+      let q = supabase.from('insurance_settlements').select('*');
       if (dateStr) {
-        q = query(
-          collection(firestoreDb, 'insurance_settlements'),
-          where('settlementDate', '==', dateStr)
-        );
+        q = q.eq('date', dateStr);
       } else if (monthStr) {
-        const startOfMonth = `${monthStr}-01`;
-        const endOfMonth = `${monthStr}-31`;
-        q = query(
-          collection(firestoreDb, 'insurance_settlements'),
-          where('settlementDate', '>=', startOfMonth),
-          where('settlementDate', '<=', endOfMonth)
-        );
-      } else {
-        q = query(
-          collection(firestoreDb, 'insurance_settlements'),
-          orderBy('settlementDate', 'desc'),
-          limit(100)
-        );
+        q = q.like('date', `${monthStr}%`);
       }
-      const snap = await getDocs(q);
-      const list = snap.docs.map((d) => ({ ...d.data(), id: d.id }));
-      list.sort((a, b) => (b.createdAt || '').localeCompare(a.createdAt || ''));
-      return list;
+      const { data, error } = await q.order('created_at', { ascending: false });
+      if (error) throw error;
+      return (data || []).map(row => ({
+        ...(row.data || {}),
+        id: row.id,
+        amountReceived: Number(row.amount_received ?? row.data?.amountReceived ?? 0)
+      }));
     } catch (err) {
-      console.warn('Firestore getInsuranceSettlements error:', err.message);
+      console.error('getInsuranceSettlements error:', err);
       return [];
     }
   }
 
   async saveInsuranceSettlement(settlementData, currentUser) {
     this.ensureConnected();
-    const settlementId = settlementData.id || doc(collection(firestoreDb, 'insurance_settlements')).id;
-    const dataToSave = {
+    const settlementId = settlementData.id || ('stl_' + Date.now() + '_' + Math.random().toString(36).substring(2, 7));
+    const now = new Date();
+    const timeStr = now.toLocaleTimeString('ar-EG-u-nu-latn', { hour: '2-digit', minute: '2-digit', hour12: true });
+
+    const payload = {
       ...settlementData,
       id: settlementId,
-      time: new Date().toLocaleTimeString('ar-EG-u-nu-latn', { hour: '2-digit', minute: '2-digit' }),
+      time: timeStr,
       recordedBy: currentUser?.name || 'مدير المركز',
-      createdAt: new Date().toISOString()
+      createdAt: now.toISOString()
     };
 
-    try {
-      await setDoc(doc(firestoreDb, 'insurance_settlements', settlementId), dataToSave);
-      return dataToSave;
-    } catch (err) {
-      console.error('Save insurance settlement error:', err);
-      throw err;
-    }
+    const row = {
+      id: settlementId,
+      claim_id: payload.claimId || null,
+      company_name: payload.companyName || '',
+      amount_received: Number(payload.amountReceived || 0),
+      date: payload.date || '',
+      time: timeStr,
+      created_at: now.toISOString(),
+      data: payload
+    };
+
+    const { error } = await supabase.from('insurance_settlements').upsert(row);
+    if (error) throw new Error('فشل تسجيل تسوية التأمين: ' + error.message);
+    return payload;
   }
 
   async deleteInsuranceSettlement(settlementId) {
     this.ensureConnected();
-    await deleteDoc(doc(firestoreDb, 'insurance_settlements', settlementId));
+    try {
+      const { error } = await supabase.from('insurance_settlements').delete().eq('id', settlementId);
+      if (error) throw error;
+      return true;
+    } catch (err) {
+      console.error('deleteInsuranceSettlement error:', err);
+      throw new Error('فشل حذف تسوية التأمين.');
+    }
   }
 
-  // ================= 8.أ. Insurance Claims (سجل مطالبات التأمين الصادرة) =================
+  // ================= 10. Insurance Claims =================
   async getInsuranceClaims(companyName = null) {
     this.ensureConnected();
     try {
-      let q;
-      if (companyName && companyName !== 'all') {
-        q = query(
-          collection(firestoreDb, 'insurance_claims'),
-          where('companyName', '==', companyName)
-        );
-      } else {
-        q = query(
-          collection(firestoreDb, 'insurance_claims'),
-          orderBy('createdAt', 'desc'),
-          limit(100)
-        );
+      let q = supabase.from('insurance_claims').select('*');
+      if (companyName) {
+        q = q.eq('company_name', companyName);
       }
-      const snap = await getDocs(q);
-      const list = snap.docs.map((d) => ({ ...d.data(), id: d.id }));
-      list.sort((a, b) => (b.createdAt || '').localeCompare(a.createdAt || ''));
-      return list;
+      const { data, error } = await q.order('created_at', { ascending: false });
+      if (error) throw error;
+      return (data || []).map(row => ({
+        ...(row.data || {}),
+        id: row.id,
+        totalAmount: Number(row.total_amount ?? row.data?.totalAmount ?? 0)
+      }));
     } catch (err) {
-      console.warn('Firestore getInsuranceClaims error:', err.message);
+      console.error('getInsuranceClaims error:', err);
       return [];
     }
   }
 
   async saveInsuranceClaim(claimData, currentUser) {
     this.ensureConnected();
-    const claimId = claimData.id || doc(collection(firestoreDb, 'insurance_claims')).id;
-    const dataToSave = {
+    const claimId = claimData.id || ('claim_' + Date.now() + '_' + Math.random().toString(36).substring(2, 7));
+    const now = new Date().toISOString();
+
+    const payload = {
       ...claimData,
       id: claimId,
       recordedBy: currentUser?.name || 'مدير المركز',
       recordedByUid: currentUser?.uid || '',
-      createdAt: claimData.createdAt || new Date().toISOString()
+      createdAt: claimData.createdAt || now
     };
 
-    try {
-      await setDoc(doc(firestoreDb, 'insurance_claims', claimId), dataToSave, { merge: true });
-      return dataToSave;
-    } catch (err) {
-      console.error('Save insurance claim error:', err);
-      throw err;
-    }
+    const row = {
+      id: claimId,
+      claim_number: payload.claimNumber || '',
+      company_name: payload.companyName || '',
+      month: payload.month || '',
+      total_amount: Number(payload.totalAmount || 0),
+      status: payload.status || 'pending',
+      created_at: payload.createdAt,
+      data: payload
+    };
+
+    const { error } = await supabase.from('insurance_claims').upsert(row);
+    if (error) throw new Error('فشل حفظ مطالبة التأمين: ' + error.message);
+    return payload;
   }
 
   async updateInsuranceClaim(claimId, updateData) {
     this.ensureConnected();
     try {
-      await setDoc(doc(firestoreDb, 'insurance_claims', claimId), updateData, { merge: true });
+      const { data: existing } = await supabase.from('insurance_claims').select('*').eq('id', claimId).single();
+      const updatedData = { ...(existing?.data || {}), ...updateData };
+
+      const rowUpdates = {
+        data: updatedData
+      };
+      if (updateData.status) rowUpdates.status = updateData.status;
+      if (updateData.totalAmount !== undefined) rowUpdates.total_amount = Number(updateData.totalAmount);
+
+      const { error } = await supabase.from('insurance_claims').update(rowUpdates).eq('id', claimId);
+      if (error) throw error;
       return true;
     } catch (err) {
-      console.error('Update insurance claim error:', err);
-      throw err;
+      console.error('updateInsuranceClaim error:', err);
+      throw new Error('فشل تحديث مطالبة التأمين.');
     }
   }
 
   async deleteInsuranceClaim(claimId) {
     this.ensureConnected();
-    await deleteDoc(doc(firestoreDb, 'insurance_claims', claimId));
+    try {
+      const { error } = await supabase.from('insurance_claims').delete().eq('id', claimId);
+      if (error) throw error;
+      return true;
+    } catch (err) {
+      console.error('deleteInsuranceClaim error:', err);
+      throw new Error('فشل حذف مطالبة التأمين.');
+    }
   }
 
-  // ================= 9. Weekly Appointments Schedule & Custom Slots =================
+  // ================= 11. Appointments Slots =================
   async getAppointmentSlots() {
     this.ensureConnected();
     try {
-      const docRef = doc(firestoreDb, 'clinical_options', 'appointment_slots');
-      const snap = await getDoc(docRef);
-      if (snap.exists() && Array.isArray(snap.data().slots) && snap.data().slots.length > 0) {
-        return snap.data().slots;
+      const { data } = await supabase.from('clinical_options').select('*').eq('id', 'appointment_slots').maybeSingle();
+      if (data?.items && Array.isArray(data.items) && data.items.length > 0) {
+        return data.items;
       }
-    } catch (e) {
-      console.warn('getAppointmentSlots notice:', e.message);
-    }
+    } catch (_) {}
+
     return [
-      { key: '15:30', label: '٣:٣٠ م' },
-      { key: '16:30', label: '٤:٣٠ م' },
-      { key: '17:30', label: '٥:٣٠ م' },
-      { key: '18:30', label: '٦:٣٠ م' },
-      { key: '19:00', label: '٧:٠٠ م' }
+      { key: 'slot_1', label: '10:00 ص - 11:00 ص' },
+      { key: 'slot_2', label: '11:00 ص - 12:00 م' },
+      { key: 'slot_3', label: '12:00 م - 01:00 م' },
+      { key: 'slot_4', label: '01:00 م - 02:00 م' },
+      { key: 'slot_5', label: '05:00 م - 06:00 م' },
+      { key: 'slot_6', label: '06:00 م - 07:00 م' },
+      { key: 'slot_7', label: '07:00 م - 08:00 م' },
+      { key: 'slot_8', label: '08:00 م - 09:00 م' }
     ];
   }
 
   async saveAppointmentSlots(slots) {
     this.ensureConnected();
-    const docRef = doc(firestoreDb, 'clinical_options', 'appointment_slots');
-    await setDoc(docRef, { slots }, { merge: true });
-    return slots;
+    try {
+      await supabase.from('clinical_options').upsert({
+        id: 'appointment_slots',
+        category: 'appointment_slots',
+        items: slots,
+        last_updated_at: new Date().toISOString(),
+        data: { items: slots }
+      });
+    } catch (err) {
+      console.error('saveAppointmentSlots error:', err);
+      throw new Error('فشل حفظ فترات المواعيد.');
+    }
   }
 
   async updateAppointmentSlot(oldKey, newKey, newLabel) {
-    this.ensureConnected();
-    let slots = await this.getAppointmentSlots();
-    slots = slots.map(s => s.key === oldKey ? { key: newKey, label: newLabel } : s);
-    slots.sort((a, b) => a.key.localeCompare(b.key));
-    await this.saveAppointmentSlots(slots);
-
-    if (oldKey !== newKey) {
-      try {
-        const appts = await this.getAppointments();
-        const affected = appts.filter(a => a.timeSlot === oldKey);
-        for (const a of affected) {
-          await setDoc(doc(firestoreDb, 'appointments', a.id), { timeSlot: newKey }, { merge: true });
-        }
-      } catch (err) {
-        console.warn('Update affected appts notice:', err.message);
-      }
+    const slots = await this.getAppointmentSlots();
+    const idx = slots.findIndex(s => s.key === oldKey);
+    if (idx !== -1) {
+      slots[idx] = { key: newKey, label: newLabel };
+      await this.saveAppointmentSlots(slots);
     }
-    return slots;
   }
 
   async deleteAppointmentSlot(slotKey) {
-    this.ensureConnected();
-    let slots = await this.getAppointmentSlots();
-    slots = slots.filter(s => s.key !== slotKey);
-    await this.saveAppointmentSlots(slots);
-
-    try {
-      const appts = await this.getAppointments();
-      const affected = appts.filter(a => a.timeSlot === slotKey);
-      for (const a of affected) {
-        await deleteDoc(doc(firestoreDb, 'appointments', a.id));
-      }
-    } catch (err) {
-      console.warn('Delete affected appts notice:', err.message);
-    }
-    return slots;
+    const slots = await this.getAppointmentSlots();
+    const filtered = slots.filter(s => s.key !== slotKey);
+    await this.saveAppointmentSlots(filtered);
   }
 
   async addAppointmentSlot(newKey, newLabel) {
-    this.ensureConnected();
-    let slots = await this.getAppointmentSlots();
-    if (!slots.some(s => s.key === newKey)) {
-      slots.push({ key: newKey, label: newLabel });
-      slots.sort((a, b) => a.key.localeCompare(b.key));
-      await this.saveAppointmentSlots(slots);
-    }
-    return slots;
+    const slots = await this.getAppointmentSlots();
+    slots.push({ key: newKey, label: newLabel });
+    await this.saveAppointmentSlots(slots);
   }
 
-    // ================= 9. Weekly Appointments Schedule =================
-  // Fixed recurring weekly template (not tied to specific calendar dates):
-  // a slot stays booked for the same patient every week until someone
-  // deletes it and books a different patient in its place.
+  // ================= 12. Appointments =================
   async getAppointments() {
     this.ensureConnected();
-    const snap = await getDocs(collection(firestoreDb, 'appointments'));
-    return snap.docs.map((d) => ({ id: d.id, ...d.data() }));
+    try {
+      const { data, error } = await supabase.from('appointments').select('*').order('date', { ascending: true });
+      if (error) throw error;
+      return (data || []).map(row => ({
+        ...(row.data || {}),
+        id: row.id,
+        patientId: row.patient_id || row.data?.patientId,
+        patientName: row.patient_name || row.data?.patientName,
+        phone: row.phone || row.data?.phone,
+        doctor: row.doctor || row.data?.doctor,
+        date: row.date,
+        time: row.time || row.data?.time,
+        status: row.status || row.data?.status || 'scheduled',
+        notes: row.notes || row.data?.notes || '',
+        createdAt: row.created_at || row.data?.createdAt
+      }));
+    } catch (err) {
+      console.error('Supabase getAppointments error:', err);
+      return [];
+    }
   }
 
   async addAppointment(apptData) {
     this.ensureConnected();
-    const ref = doc(collection(firestoreDb, 'appointments'));
+    const apptId = apptData.id || ('appt_' + Date.now() + '_' + Math.random().toString(36).substring(2, 7));
+    const now = new Date().toISOString();
+
     const payload = {
       ...apptData,
-      id: ref.id,
-      createdAt: new Date().toISOString()
+      id: apptId,
+      createdAt: now
     };
-    await setDoc(ref, payload);
+
+    const row = {
+      id: apptId,
+      patient_id: payload.patientId || null,
+      patient_name: payload.patientName || '',
+      phone: payload.phone || '',
+      doctor: payload.doctor || '',
+      date: payload.date || '',
+      time: payload.time || '',
+      status: payload.status || 'scheduled',
+      notes: payload.notes || '',
+      created_at: now,
+      data: payload
+    };
+
+    const { error } = await supabase.from('appointments').upsert(row);
+    if (error) throw new Error('فشل تسجيل الموعد: ' + error.message);
     return payload;
   }
 
   async updateAppointment(apptId, updates) {
     this.ensureConnected();
-    const ref = doc(firestoreDb, 'appointments', apptId);
-    await updateDoc(ref, {
-      ...updates,
-      updatedAt: new Date().toISOString()
-    });
-    return { id: apptId, ...updates };
+    try {
+      const { data: existing } = await supabase.from('appointments').select('*').eq('id', apptId).single();
+      const updatedData = { ...(existing?.data || {}), ...updates };
+
+      const rowUpdates = { data: updatedData };
+      if (updates.date) rowUpdates.date = updates.date;
+      if (updates.time) rowUpdates.time = updates.time;
+      if (updates.status) rowUpdates.status = updates.status;
+      if (updates.doctor) rowUpdates.doctor = updates.doctor;
+
+      const { error } = await supabase.from('appointments').update(rowUpdates).eq('id', apptId);
+      if (error) throw error;
+      return true;
+    } catch (err) {
+      console.error('updateAppointment error:', err);
+      throw new Error('فشل تحديث بيانات الموعد.');
+    }
   }
 
   async deleteAppointment(apptId) {
     this.ensureConnected();
-    await deleteDoc(doc(firestoreDb, 'appointments', apptId));
+    try {
+      const { error } = await supabase.from('appointments').delete().eq('id', apptId);
+      if (error) throw error;
+      return true;
+    } catch (err) {
+      console.error('deleteAppointment error:', err);
+      throw new Error('فشل حذف الموعد.');
+    }
   }
 
-  // ================= 9.1 Shift Overrides (Temporary Doctor Coverage) =================
+  // ================= 13. Shift Overrides =================
   async getShiftOverrides(dateStr = null) {
     this.ensureConnected();
     try {
-      const snap = await getDocs(collection(firestoreDb, 'shift_overrides'));
-      const all = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
+      let q = supabase.from('shift_overrides').select('*');
       if (dateStr) {
-        return all.filter((o) => o.date === dateStr);
+        q = q.eq('date', dateStr);
       }
-      return all;
+      const { data, error } = await q.order('closed_at', { ascending: false });
+      if (error) throw error;
+      return (data || []).map(row => ({
+        ...(row.data || {}),
+        id: row.id,
+        cashCollected: Number(row.cash_collected ?? row.data?.cashCollected ?? 0),
+        expenses: Number(row.expenses ?? row.data?.expenses ?? 0),
+        netCash: Number(row.net_cash ?? row.data?.netCash ?? 0)
+      }));
     } catch (err) {
-      console.warn('getShiftOverrides notice:', err.message);
+      console.error('getShiftOverrides error:', err);
       return [];
     }
   }
 
   async addShiftOverride(overrideData) {
     this.ensureConnected();
-    const docId = `${overrideData.doctorUid}_${overrideData.date}`;
-    const ref = doc(firestoreDb, 'shift_overrides', docId);
+    const docId = overrideData.id || (overrideData.shiftId ? `${overrideData.date}_${overrideData.shiftId}` : `override_${Date.now()}`);
+    const now = new Date().toISOString();
+
     const payload = {
       ...overrideData,
       id: docId,
-      createdAt: new Date().toISOString()
+      createdAt: now
     };
-    await setDoc(ref, payload);
+
+    const row = {
+      id: docId,
+      shift_id: payload.shiftId || '',
+      date: payload.date || '',
+      cash_collected: Number(payload.cashCollected || 0),
+      expenses: Number(payload.expenses || 0),
+      net_cash: Number(payload.netCash || 0),
+      closed_by: payload.closedBy || '',
+      closed_at: payload.closedAt || now,
+      data: payload
+    };
+
+    const { error } = await supabase.from('shift_overrides').upsert(row);
+    if (error) throw new Error('فشل حفظ تسوية الشفت: ' + error.message);
     return payload;
   }
 
   async deleteShiftOverride(overrideId) {
     this.ensureConnected();
-    await deleteDoc(doc(firestoreDb, 'shift_overrides', overrideId));
+    try {
+      const { error } = await supabase.from('shift_overrides').delete().eq('id', overrideId);
+      if (error) throw error;
+      return true;
+    } catch (err) {
+      console.error('deleteShiftOverride error:', err);
+      throw new Error('فشل حذف تسوية الشفت.');
+    }
   }
 
-  // ================= 8. Backup & Restore =================
-  // NOTE: `users` and `audit_logs` are intentionally excluded from backups.
-  // Staff accounts must only ever be created/changed through the vetted
-  // admin API (api/admin/users.js), never by restoring arbitrary JSON, and
-  // restoring old audit entries would corrupt the audit trail's true
-  // chronological order.
+  // ================= 14. Full Backup & Restore =================
   async createFullBackup() {
     this.ensureConnected();
 
@@ -898,17 +1022,18 @@ class FirestoreDatabaseService {
       this.getInsuranceClaims()
     ]);
 
-    const clinicalOptionsSnap = await getDocs(collection(firestoreDb, 'clinical_options'));
+    const { data: clinicalData } = await supabase.from('clinical_options').select('*');
     const clinicalOptions = {};
-    clinicalOptionsSnap.forEach((d) => { clinicalOptions[d.id] = d.data(); });
+    (clinicalData || []).forEach(d => { clinicalOptions[d.id] = d.items || d.data?.items || []; });
 
-    const insuranceSnap = await getDocs(collection(firestoreDb, 'insurance_companies'));
+    const { data: insuranceData } = await supabase.from('insurance_companies').select('*');
     const insuranceCompanies = {};
-    insuranceSnap.forEach((d) => { insuranceCompanies[d.id] = d.data(); });
+    (insuranceData || []).forEach(d => { insuranceCompanies[d.id] = d.data?.list || []; });
 
     return {
-      backupVersion: 1,
+      backupVersion: 2,
       clinicName: CLINIC_CONFIG?.name || 'ASCPT',
+      database: 'Supabase PostgreSQL',
       timestamp: new Date().toISOString(),
       counts: {
         patients: patients.length,
@@ -935,92 +1060,54 @@ class FirestoreDatabaseService {
       throw new Error('ملف النسخة الاحتياطية غير صالح أو تالف.');
     }
 
-    const restoreCollection = async (collectionName, items) => {
-      if (!Array.isArray(items) || items.length === 0) return;
-      let batch = writeBatch(firestoreDb);
-      let opsInBatch = 0;
-      for (const item of items) {
-        if (!item || !item.id) continue; // skip malformed entries defensively
-        batch.set(doc(firestoreDb, collectionName, item.id), item, { merge: true });
-        opsInBatch++;
-        if (opsInBatch >= 450) { // stay safely under Firestore's 500-op batch limit
-          await batch.commit();
-          batch = writeBatch(firestoreDb);
-          opsInBatch = 0;
-        }
-      }
-      if (opsInBatch > 0) {
-        await batch.commit();
-      }
-    };
-
-    await restoreCollection('patients', data.patients);
-    await restoreCollection('sessions', data.sessions);
-    await restoreCollection('expenses', data.expenses);
-    await restoreCollection('appointments', data.appointments);
-    await restoreCollection('insurance_letters', data.insuranceLetters);
-
-    if (data.clinicalOptions && typeof data.clinicalOptions === 'object') {
-      for (const [category, value] of Object.entries(data.clinicalOptions)) {
-        await setDoc(doc(firestoreDb, 'clinical_options', category), value, { merge: true });
+    if (Array.isArray(data.patients)) {
+      for (const p of data.patients) {
+        await this.savePatient(p);
       }
     }
-
-    if (data.insuranceCompanies && typeof data.insuranceCompanies === 'object') {
-      for (const [type, value] of Object.entries(data.insuranceCompanies)) {
-        await setDoc(doc(firestoreDb, 'insurance_companies', type), value, { merge: true });
+    if (Array.isArray(data.sessions)) {
+      for (const s of data.sessions) {
+        await this.saveSession(s);
       }
     }
-
-    // Force a fresh read next time options/companies are needed, since the
-    // in-memory caches may now be stale relative to what was just restored.
-    this.clinicalOptionsCache = null;
-    this.insuranceCompaniesCache = null;
-    await this.syncAndSeedCloudOptions();
+    if (Array.isArray(data.expenses)) {
+      for (const e of data.expenses) {
+        await this.saveExpense(e);
+      }
+    }
+    if (Array.isArray(data.appointments)) {
+      for (const a of data.appointments) {
+        await this.addAppointment(a);
+      }
+    }
+    if (Array.isArray(data.insuranceLetters)) {
+      for (const l of data.insuranceLetters) {
+        await this.addInsuranceLetter(l);
+      }
+    }
   }
 
-  // ================= 11. Patient Medical Imaging & Lab Reports (v1.4.81) =================
+  // ================= 15. Patient Images & Attachments =================
   async getPatientImages(patientId) {
     this.ensureConnected();
-    if (!patientId) return [];
     try {
-      const imageMap = new Map();
+      const { data, error } = await supabase
+        .from('patient_images')
+        .select('*')
+        .eq('patient_id', patientId)
+        .order('created_at', { ascending: false });
 
-      // 1. Primary: Fetch from dedicated Subcollection 'patients/{patientId}/images'
-      try {
-        const snap = await getDocs(collection(firestoreDb, 'patients', patientId, 'images'));
-        snap.docs.forEach((d) => {
-          imageMap.set(d.id, { id: d.id, ...d.data() });
-        });
-      } catch (subErr) {
-        console.warn('Subcollection images fetch notice:', subErr.message);
-      }
-
-      // 2. Legacy fallback: Read from parent patient document (imagingFiles or clinicalSheet.images)
-      try {
-        const pSnap = await getDoc(doc(firestoreDb, 'patients', patientId));
-        if (pSnap.exists()) {
-          const pData = pSnap.data();
-          if (Array.isArray(pData.imagingFiles)) {
-            pData.imagingFiles.forEach((img) => {
-              if (img && img.id && !imageMap.has(img.id)) {
-                imageMap.set(img.id, img);
-              }
-            });
-          }
-          if (pData.clinicalSheet && Array.isArray(pData.clinicalSheet.images)) {
-            pData.clinicalSheet.images.forEach((img) => {
-              if (img && img.id && !imageMap.has(img.id)) {
-                imageMap.set(img.id, img);
-              }
-            });
-          }
-        }
-      } catch (docErr) {
-        console.warn('Patient document imagingFiles fetch notice:', docErr.message);
-      }
-
-      return Array.from(imageMap.values()).sort((a, b) => (b.createdAt || '').localeCompare(a.createdAt || ''));
+      if (error) throw error;
+      return (data || []).map(row => ({
+        ...(row.data || {}),
+        id: row.id,
+        patientId: row.patient_id,
+        title: row.title,
+        category: row.category,
+        notes: row.notes,
+        dataUrl: row.data_url || row.data?.dataUrl,
+        createdAt: row.created_at
+      }));
     } catch (err) {
       console.error('getPatientImages error:', err);
       return [];
@@ -1032,6 +1119,8 @@ class FirestoreDatabaseService {
     if (!patientId) throw new Error('patientId is required');
 
     const imageId = 'img_' + Date.now() + '_' + Math.random().toString(36).substring(2, 8);
+    const now = new Date().toISOString();
+
     const payload = {
       id: imageId,
       patientId,
@@ -1039,119 +1128,58 @@ class FirestoreDatabaseService {
       category: imageData.category || 'other',
       notes: imageData.notes || '',
       dataUrl: imageData.dataUrl,
-      createdAt: new Date().toISOString(),
-      createdBy: imageData.createdBy || '',
-      createdByUid: imageData.createdByUid || ''
+      createdAt: now,
+      createdBy: imageData.createdBy || ''
     };
 
-    // 1. Primary: Save directly to subcollection 'patients/{patientId}/images/{imageId}'
-    // This perfectly matches Firestore Security Rule: match /images/{imageId} { allow read, write: if isUserActive(); }
-    // and completely prevents hitting the 1MB Firestore document limit on the main patient record!
-    try {
-      const imgDocRef = doc(firestoreDb, 'patients', patientId, 'images', imageId);
-      await setDoc(imgDocRef, payload);
-      return payload;
-    } catch (err) {
-      console.warn('Subcollection image write notice, attempting fallback to document array:', err.message);
-      // 2. Fallback: If subcollection write fails, try updating patient document directly
-      try {
-        const pRef = doc(firestoreDb, 'patients', patientId);
-        const pSnap = await getDoc(pRef);
-        if (pSnap.exists()) {
-          const currentList = Array.isArray(pSnap.data().imagingFiles) ? pSnap.data().imagingFiles : [];
-          const updatedList = [payload, ...currentList].slice(0, 20);
-          await updateDoc(pRef, {
-            imagingFiles: updatedList,
-            lastUpdatedAt: new Date().toISOString(),
-            lastUpdatedBy: imageData.createdBy || 'طاقم المركز'
-          });
-          return payload;
-        }
-      } catch (fallbackErr) {
-        console.error('addPatientImage fallback error:', fallbackErr);
-      }
-      throw err;
-    }
+    const row = {
+      id: imageId,
+      patient_id: patientId,
+      title: payload.title,
+      category: payload.category,
+      notes: payload.notes,
+      data_url: payload.dataUrl,
+      created_at: now,
+      created_by: payload.createdBy,
+      data: payload
+    };
+
+    const { error } = await supabase.from('patient_images').upsert(row);
+    if (error) throw new Error('فشل حفظ المستند: ' + error.message);
+    return payload;
   }
 
   async updatePatientImage(patientId, imageId, updates) {
     this.ensureConnected();
-    if (!patientId || !imageId || !updates) return false;
-
-    let updated = false;
-
-    // 1. Try updating in subcollection 'patients/{patientId}/images/{imageId}'
     try {
-      const imgRef = doc(firestoreDb, 'patients', patientId, 'images', imageId);
-      const imgSnap = await getDoc(imgRef);
-      if (imgSnap.exists()) {
-        await updateDoc(imgRef, {
-          ...updates,
-          lastUpdatedAt: new Date().toISOString()
-        });
-        updated = true;
-      }
-    } catch (subErr) {
-      console.warn('Subcollection image update notice:', subErr.message);
-    }
+      const { data: existing } = await supabase.from('patient_images').select('*').eq('id', imageId).single();
+      const updatedData = { ...(existing?.data || {}), ...updates };
 
-    // 2. Also check / update in parent patient document imagingFiles (for legacy records)
-    try {
-      const pRef = doc(firestoreDb, 'patients', patientId);
-      const pSnap = await getDoc(pRef);
-      if (pSnap.exists()) {
-        const pData = pSnap.data();
-        if (Array.isArray(pData.imagingFiles)) {
-          const list = [...pData.imagingFiles];
-          const idx = list.findIndex((img) => img.id === imageId);
-          if (idx !== -1) {
-            list[idx] = { ...list[idx], ...updates, lastUpdatedAt: new Date().toISOString() };
-            await updateDoc(pRef, { imagingFiles: list, lastUpdatedAt: new Date().toISOString() });
-            updated = true;
-          }
-        }
-      }
-    } catch (docErr) {
-      console.warn('Patient document imagingFiles update notice:', docErr.message);
-    }
+      const rowUpdates = { data: updatedData };
+      if (updates.title) rowUpdates.title = updates.title;
+      if (updates.category) rowUpdates.category = updates.category;
+      if (updates.notes !== undefined) rowUpdates.notes = updates.notes;
 
-    return updated;
+      const { error } = await supabase.from('patient_images').update(rowUpdates).eq('id', imageId);
+      if (error) throw error;
+      return true;
+    } catch (err) {
+      console.error('updatePatientImage error:', err);
+      throw new Error('فشل تعديل بيانات المستند.');
+    }
   }
 
   async deletePatientImage(patientId, imageId) {
     this.ensureConnected();
-    if (!patientId || !imageId) return;
-
     try {
-      // 1. Delete from subcollection
-      try {
-        await deleteDoc(doc(firestoreDb, 'patients', patientId, 'images', imageId));
-      } catch (subErr) {
-        console.warn('Subcollection image delete notice:', subErr.message);
-      }
-
-      // 2. Also remove from patient document imagingFiles if it was saved there (legacy cleanup)
-      try {
-        const pRef = doc(firestoreDb, 'patients', patientId);
-        const pSnap = await getDoc(pRef);
-        if (pSnap.exists()) {
-          const currentList = Array.isArray(pSnap.data().imagingFiles) ? pSnap.data().imagingFiles : [];
-          if (currentList.some((img) => img.id === imageId)) {
-            const updatedList = currentList.filter((img) => img.id !== imageId);
-            await updateDoc(pRef, {
-              imagingFiles: updatedList,
-              lastUpdatedAt: new Date().toISOString()
-            });
-          }
-        }
-      } catch (docErr) {
-        console.warn('Patient document imagingFiles delete notice:', docErr.message);
-      }
+      const { error } = await supabase.from('patient_images').delete().eq('id', imageId);
+      if (error) throw error;
+      return true;
     } catch (err) {
       console.error('deletePatientImage error:', err);
-      throw err;
+      throw new Error('فشل حذف المستند.');
     }
   }
 }
 
-export const db = new FirestoreDatabaseService();
+export const db = new SupabaseDatabaseService();
