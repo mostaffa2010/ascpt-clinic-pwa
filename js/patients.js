@@ -2622,8 +2622,15 @@ export class PatientsManager {
     document.getElementById('receipt-print-patient-name').textContent = p.name;
     document.getElementById('receipt-print-amount-text').textContent = `${amount} ج.م`;
     document.getElementById('receipt-print-item-desc').textContent = itemDesc;
-    document.getElementById('receipt-print-date').textContent = `تحريراً في: ${dateVal}`;
-    document.getElementById('receipt-print-receiver').textContent = currentUser?.name || 'الاستقبال';
+    const receiptDateValEl = document.getElementById('receipt-print-date-val');
+    if (receiptDateValEl) {
+      receiptDateValEl.textContent = dateVal;
+    } else {
+      const receiptDateContainer = document.getElementById('receipt-print-date');
+      if (receiptDateContainer) {
+        receiptDateContainer.innerHTML = `تحريراً في: <bdi dir="ltr">${escapeHTML(dateVal)}</bdi>`;
+      }
+    }
 
     this.app.closeModal('modal-cash-receipt');
     document.body.classList.add('printing-receipt');
