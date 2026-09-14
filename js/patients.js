@@ -108,6 +108,8 @@ export class PatientsManager {
     }
 
     // Toggle Insurance Fields in Patient Form
+    const progRadios = document.querySelectorAll('input[name="p-program-type"]');
+    progRadios.forEach(r => { r.checked = (r.value === 'regular'); });
     const billingRadios = document.querySelectorAll('input[name="p-billing"]');
     billingRadios.forEach(r => {
       r.addEventListener('change', (e) => {
@@ -824,7 +826,7 @@ export class PatientsManager {
               data-patient-id="${safeId}"
               onclick="patientsManager.openPatientSheet('${safeId}')"
               title="${canAccessSheet ? 'اضغط لفتح الشيت الطبي' : 'تعديل بيانات المريض'}">
-            <i class="fa-solid ${canAccessSheet ? 'fa-file-waveform' : 'fa-user'}" style="margin-left: 6px;"></i> ${safeName}
+            <i class="fa-solid ${canAccessSheet ? 'fa-file-waveform' : 'fa-user'}" style="margin-left: 6px;"></i> ${safeName} ${programBadge}
           </td>
           <td style="white-space: nowrap;"><span class="badge ${genderBadgeClass}" style="font-size: 0.74rem; padding: 2px 8px;"><i class="${genderIcon}"></i> ${genderText} • ${safeAge} سنة</span></td>
           <td style="white-space: nowrap;">
@@ -920,7 +922,7 @@ export class PatientsManager {
                 </div>
                 <div style="display: flex; flex-direction: column; gap: 3px; min-width: 0;">
                   <div style="display: flex; align-items: center; gap: 6px; flex-wrap: wrap;">
-                    <span class="hsc-patient-name" style="cursor: pointer; font-size: 0.98rem; font-weight: 800; line-height: 1.35;" onclick="patientsManager.openPatientSheet('${safeId}')" title="اضغط لفتح الشيت الطبي">${safeName}</span>
+                    <span class="hsc-patient-name" style="cursor: pointer; font-size: 0.98rem; font-weight: 800; line-height: 1.35;" onclick="patientsManager.openPatientSheet('${safeId}')" title="اضغط لفتح الشيت الطبي">${safeName}</span> ${programBadge}
                     <span class="badge ${genderBadgeClass}" style="font-size: 0.68rem; padding: 2px 7px; border-radius: 999px;">
                       <i class="${genderIcon}"></i> ${genderText} • ${safeAge} سنة
                     </span>
@@ -1359,6 +1361,8 @@ export class PatientsManager {
     document.getElementById('p-doctor').value = p.doctor;
     this.app.updateCustomSelectDisplay('p-doctor');
 
+    const progRadios = document.querySelectorAll('input[name="p-program-type"]');
+    progRadios.forEach(r => { r.checked = (r.value === 'regular'); });
     const billingRadios = document.querySelectorAll('input[name="p-billing"]');
     billingRadios.forEach(r => { r.checked = (r.value === p.billing); });
 

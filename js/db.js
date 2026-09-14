@@ -863,13 +863,18 @@ class FirestoreDatabaseService {
           const norm = u.name.trim().replace(/\s+/g, ' ');
           const uid = u.uid || u.id;
           if (norm && uid && !doctorMap.has(uid)) {
+            const isSen = (u.seniorityLevel === 'senior');
             doctorMap.set(uid, {
               uid,
               name: norm,
               role: u.role,
               shift: u.shift || (u.role === 'doctor' ? 'sat_mon_wed' : 'all'),
-              regularSessionRate: typeof u.regularSessionRate === 'number' ? u.regularSessionRate : 0,
-              specialSessionRate: typeof u.specialSessionRate === 'number' ? u.specialSessionRate : 0
+              seniorityLevel: u.seniorityLevel || 'junior',
+              regularSessionRate: typeof u.regularSessionRate === 'number' ? u.regularSessionRate : (isSen ? 70 : 40),
+              scoliosisRate: typeof u.scoliosisRate === 'number' ? u.scoliosisRate : (isSen ? 130 : 80),
+              hemiplegiaRate: typeof u.hemiplegiaRate === 'number' ? u.hemiplegiaRate : (isSen ? 100 : 70),
+              pediatricRate: typeof u.pediatricRate === 'number' ? u.pediatricRate : (isSen ? 90 : 60),
+              specialSessionRate: typeof u.specialSessionRate === 'number' ? u.specialSessionRate : (isSen ? 100 : 70)
             });
           }
         });

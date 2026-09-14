@@ -129,7 +129,7 @@ export default async function handler(req, res) {
 
   // ================= POST: Create Staff User (Doctor or Receptionist ONLY) =================
   if (req.method === 'POST') {
-    const { name, email, password, role, shift, regularSessionRate, specialSessionRate } = req.body;
+    const { name, email, password, role, shift, seniorityLevel, regularSessionRate, scoliosisRate, hemiplegiaRate, pediatricRate, specialSessionRate } = req.body;
 
     if (!name || typeof name !== 'string' || name.trim().length < 2 || name.trim().length > 100) {
       return res.status(400).json({ error: 'اسم الموظف مطلوب ويجب أن يكون بين 2 و 100 حرف.' });
@@ -180,7 +180,11 @@ export default async function handler(req, res) {
         email: email.trim().toLowerCase(),
         role,
         shift: doctorShift,
+        seniorityLevel: seniorityLevel || 'junior',
         regularSessionRate: regRate,
+        scoliosisRate: Math.max(0, parseFloat(scoliosisRate) || (seniorityLevel === 'senior' ? 130 : 80)),
+        hemiplegiaRate: Math.max(0, parseFloat(hemiplegiaRate) || (seniorityLevel === 'senior' ? 100 : 70)),
+        pediatricRate: Math.max(0, parseFloat(pediatricRate) || (seniorityLevel === 'senior' ? 90 : 60)),
         specialSessionRate: specRate,
         active: true,
         createdAt: FieldValue.serverTimestamp(),
@@ -243,7 +247,7 @@ export default async function handler(req, res) {
 
   // ================= PATCH: Update Status or Reset Password =================
   if (req.method === 'PATCH') {
-    const { targetUid, active, password, shift, regularSessionRate, specialSessionRate } = req.body;
+    const { targetUid, active, password, shift, seniorityLevel, regularSessionRate, scoliosisRate, hemiplegiaRate, pediatricRate, specialSessionRate } = req.body;
 
     if ('role' in req.body) {
       return res.status(400).json({ error: 'تعديل الأدوار والصلاحيات غير مسموح به عبر هذه الواجهة.' });

@@ -10389,3 +10389,40 @@ body.role-doctor .btn-quick-attend {
   border-radius: 999px;
   margin-top: 2px;
 }
+
+
+/* ================= Clinical Program & Seniority Tokens (v2.0.5) ================= */
+.program-type-segmented {
+  width: 100%;
+}
+.program-pill-opt {
+  display: block;
+  cursor: pointer;
+  margin: 0;
+  user-select: none;
+}
+.program-pill-opt input {
+  display: none;
+}
+.program-pill-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  padding: 8px 6px;
+  border: 1.5px solid var(--border-color);
+  background: var(--bg-surface);
+  border-radius: 10px;
+  font-size: 0.76rem;
+  font-weight: 800;
+  color: var(--text-muted);
+  text-align: center;
+  transition: all 0.15s ease;
+  white-space: nowrap;
+}
+.program-pill-opt input:checked + .program-pill-btn {
+  background: var(--primary-light);
+  border-color: var(--primary);
+  color: var(--primary);
+  box-shadow: 0 0 0 1px var(--primary);
+}

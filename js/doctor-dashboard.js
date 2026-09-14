@@ -152,26 +152,43 @@ export class DoctorDashboardManager {
     // 5. Monthly Earnings Calculation (KPI Card 5 - Cumulative for this month)
     const docList = await db.getDoctorsList();
     const docInfo = docList.find(d => d.uid === docUid || (d.name && user.name && d.name.trim() === user.name.trim())) || user;
-    const regRate = typeof docInfo.regularSessionRate === 'number' ? docInfo.regularSessionRate : (user.regularSessionRate || 0);
-    const specRate = typeof docInfo.specialSessionRate === 'number' ? docInfo.specialSessionRate : (user.specialSessionRate || 0);
+    const isSenior = (docInfo.seniorityLevel === 'senior' || user.seniorityLevel === 'senior');
+    const regRate = typeof docInfo.regularSessionRate === 'number' ? docInfo.regularSessionRate : (isSenior ? 70 : 40);
+    const scolRate = typeof docInfo.scoliosisRate === 'number' ? docInfo.scoliosisRate : (isSenior ? 130 : 80);
+    const hemiRate = typeof docInfo.hemiplegiaRate === 'number' ? docInfo.hemiplegiaRate : (isSenior ? 100 : 70);
+    const pedRate = typeof docInfo.pediatricRate === 'number' ? docInfo.pediatricRate : (isSenior ? 90 : 60);
+    const specRate = typeof docInfo.specialSessionRate === 'number' ? docInfo.specialSessionRate : (isSenior ? 100 : 70);
 
     let monthRegularCount = 0;
-    let monthSpecialCount = 0;
+    let monthScoliosisCount = 0;
+    let monthHemiplegiaCount = 0;
+    let monthPediatricCount = 0;
+    let monthOtherCount = 0;
 
     monthSessions.forEach(s => {
       if (s.entryType === 'examination') return;
-      const isSpec = Boolean(s.isSpecial || s.sessionPricingType === 'special');
       const count = s.bodyPartsCount || 1;
-      if (isSpec) {
-        monthSpecialCount += count;
+      const pType = s.sessionPricingType || s.programType || (s.isSpecial ? 'special' : 'regular');
+      if (pType === 'scoliosis') {
+        monthScoliosisCount += count;
+      } else if (pType === 'hemiplegia') {
+        monthHemiplegiaCount += count;
+      } else if (pType === 'pediatric') {
+        monthPediatricCount += count;
+      } else if (pType === 'special' || pType === 'custom_special') {
+        monthOtherCount += count;
       } else {
         monthRegularCount += count;
       }
     });
 
     const monthRegularDues = monthRegularCount * regRate;
-    const monthSpecialDues = monthSpecialCount * specRate;
-    const totalMonthEarnings = monthRegularDues + monthSpecialDues;
+    const monthScoliosisDues = monthScoliosisCount * scolRate;
+    const monthHemiplegiaDues = monthHemiplegiaCount * hemiRate;
+    const monthPediatricDues = monthPediatricCount * pedRate;
+    const monthOtherDues = monthOtherCount * specRate;
+
+    const totalMonthEarnings = monthRegularDues + monthScoliosisDues + monthHemiplegiaDues + monthPediatricDues + monthOtherDues;
 
     const earningsTotalEl = document.getElementById('stat-doc-earnings-total');
     const earningsRegEl = document.getElementById('stat-doc-earnings-regular');
@@ -182,17 +199,14 @@ export class DoctorDashboardManager {
       earningsTotalEl.textContent = `${totalMonthEarnings.toLocaleString('en-US')} ج.م`;
     }
     if (earningsRegEl) {
-      earningsRegEl.textContent = `${monthRegularCount} جلسة (${monthRegularDues.toLocaleString('en-US')} ج.م)`;
+      earningsRegEl.textContent = `عادية: ${monthRegularCount} (${monthRegularDues} ج.م) • Scoliosis: ${monthScoliosisCount} (${monthScoliosisDues} ج.م)`;
     }
     if (earningsSpecEl) {
-      earningsSpecEl.textContent = `${monthSpecialCount} جلسة (${monthSpecialDues.toLocaleString('en-US')} ج.م)`;
+      earningsSpecEl.textContent = `Hemiplegia: ${monthHemiplegiaCount} (${monthHemiplegiaDues} ج.م) • أطفال: ${monthPediatricCount} (${monthPediatricDues} ج.م)`;
     }
     if (formulaHintEl) {
-      if (regRate > 0 || specRate > 0) {
-        formulaHintEl.textContent = `حساب الأتعاب: سعر الجلسة العادية ${regRate} ج.م • سعر الجلسة الخاصة ${specRate} ج.م`;
-      } else {
-        formulaHintEl.innerHTML = `<span style="color: var(--text-muted);"><i class="fa-solid fa-circle-info"></i> لم يتم تحديد أسعار الجلسات بعد من قِبل إدارة المركز</span>`;
-      }
+      const tierTitle = isSenior ? 'أخصائي أول (Senior)' : 'طبيب ممارس (Junior)';
+      formulaHintEl.innerHTML = `مستوى الطبيب: <strong>${tierTitle}</strong> • عادية: ${regRate} ج.م • Scoliosis: ${scolRate} ج.م • Hemiplegia: ${hemiRate} ج.م • أطفال: ${pedRate} ج.م`;
     }
 
     this.renderTable();
@@ -267,12 +281,21 @@ export class DoctorDashboardManager {
       const timeDisplay = s.recordedAt || '';
       const dateDisplay = s.date || '';
       const safePatientId = escapeHTML(s.patientId || '');
+      const pType = s.sessionPricingType || s.programType || (s.isSpecial ? 'special' : 'regular');
+      let progTag = '';
+      if (pType === 'scoliosis') {
+        progTag = `<span class="badge" style="background:rgba(2, 132, 199, 0.15); color:#0284c7; border:1px solid rgba(2, 132, 199, 0.35); font-size:0.7rem; font-weight:800;"><i class="fa-solid fa-arrows-split-up-and-left"></i> Scoliosis</span>`;
+      } else if (pType === 'hemiplegia') {
+        progTag = `<span class="badge" style="background:rgba(245, 158, 11, 0.15); color:#b45309; border:1px solid rgba(245, 158, 11, 0.35); font-size:0.7rem; font-weight:800;"><i class="fa-solid fa-brain"></i> Hemiplegia</span>`;
+      } else if (pType === 'pediatric') {
+        progTag = `<span class="badge" style="background:rgba(236, 72, 153, 0.15); color:#be185d; border:1px solid rgba(236, 72, 153, 0.35); font-size:0.7rem; font-weight:800;"><i class="fa-solid fa-child"></i> أطفال</span>`;
+      }
 
       return `
         <tr>
           <td style="font-weight: 800; color: var(--text-main); cursor: pointer;" onclick="patientsManager.openPatientSheet('${safePatientId}')" title="اضغط لفتح الشيت الطبي">
             <i class="fa-solid fa-user-injured" style="color: var(--primary); margin-left: 6px;"></i>
-            ${escapeHTML(s.patientName)}
+            ${escapeHTML(s.patientName)} ${progTag}
           </td>
           <td>${billingBadge}</td>
           <td style="font-size: 0.85rem; color: var(--text-muted);">${partsDisplay}</td>
