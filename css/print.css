@@ -891,7 +891,16 @@
     font-weight: 600 !important;
   }
 
-  /* ================= CASE 6: PRINTING CASH RECEIPT ================= */
+  /* ================= CASE 6: PRINTING CASH RECEIPT (A5 FULL-BLEED) ================= */
+  @page receiptPage {
+    size: A5 portrait;
+    margin: 6mm 8mm;
+  }
+
+  body.printing-receipt {
+    page: receiptPage;
+  }
+
   body.printing-receipt > *:not(#printable-cash-receipt) {
     display: none !important;
     height: 0 !important;
@@ -907,12 +916,23 @@
     display: block !important;
     position: relative !important;
     width: 100% !important;
+    height: 100% !important;
     margin: 0 auto !important;
-    padding: 6mm 4mm !important;
+    padding: 0 !important;
+    box-sizing: border-box !important;
   }
 
   body.printing-receipt #printable-cash-receipt > div {
-    border: 2px solid #000000 !important;
+    border: 2px solid #0369a1 !important;
+    border-radius: 8px !important;
+    padding: 16px 20px !important;
+    min-height: 186mm !important;
+    width: 100% !important;
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: space-between !important;
+    box-sizing: border-box !important;
+    background: #ffffff !important;
   }
 
   body.printing-receipt #printable-cash-receipt h2 {
@@ -921,7 +941,7 @@
   }
 
   body.printing-receipt #printable-cash-receipt div[style*="border-bottom: 2px solid"] {
-    border-bottom: 2px solid #000000 !important;
+    border-bottom: 2px solid #0369a1 !important;
   }
 
   body.printing-receipt #receipt-print-amount-box {
