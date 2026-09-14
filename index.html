@@ -117,13 +117,12 @@
 
   <!-- SheetJS for Excel Export (Direct & Safe for iOS WebKit) -->
   <script src="assets/vendor/xlsx/xlsx.full.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
+  
   
 
     <!-- Stylesheets -->
-  <link rel="stylesheet" href="css/style.css?v=1.4.89" media="screen">
-  <link rel="stylesheet" href="css/print.css?v=1.4.89" media="print">
+  <link rel="stylesheet" href="css/style.css?v=1.4.90" media="screen">
+  <link rel="stylesheet" href="css/print.css?v=1.4.90" media="print">
 </head>
 <body>
   <script>
@@ -1767,7 +1766,7 @@
         <div class="admin-system-footer no-print" style="margin-top: 32px; margin-bottom: 35px; text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px;">
           <div style="display: inline-flex; align-items: center; gap: 8px; background: var(--bg-surface); border: 1.5px solid var(--border-color); padding: 7px 18px; border-radius: 999px; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);">
             <span style="width: 8px; height: 8px; border-radius: 50%; background-color: var(--success); display: inline-block; box-shadow: 0 0 6px var(--success);"></span>
-            <span style="font-weight: 800; font-size: 0.88rem; color: var(--text-main);">نظام ASCPT — الإصدار 1.4.89</span>
+            <span style="font-weight: 800; font-size: 0.88rem; color: var(--text-main);">نظام ASCPT — الإصدار 1.4.90</span>
             <span class="badge badge-primary" style="font-size: 0.72rem; padding: 2px 10px; border-radius: 999px; font-weight: 800;">إصدار معتمد</span>
           </div>
           <div style="font-size: 0.76rem; color: var(--text-muted); font-weight: 700;">
@@ -2697,7 +2696,7 @@
             </label>
             <div class="password-input-group">
               <input type="password" id="login-password" class="form-control password-input-field" placeholder="أدخل كلمة السر..." required autocomplete="current-password">
-              <button type="button" id="btn-toggle-password" class="btn-pwd-eye" title="إظهار / إخفاء كلمة السر">
+              <button type="button" id="btn-toggle-password" class="btn-pwd-eye" onclick="const p = document.getElementById('login-password'); const i = document.getElementById('icon-toggle-password'); if(p){ const isP = p.type==='password'; p.type = isP?'text':'password'; if(i) i.className = isP?'fa-solid fa-eye-slash':'fa-solid fa-eye'; }" title="إظهار / إخفاء كلمة السر">
                 <i class="fa-solid fa-eye" id="icon-toggle-password"></i>
               </button>
             </div>
@@ -2712,7 +2711,7 @@
           <!-- Error message container -->
           <div id="login-error-msg" style="display: none; background-color: rgba(239, 68, 68, 0.15); border: 1px solid rgba(239, 68, 68, 0.3); color: #f87171; border-radius: 8px; padding: 9px 12px; font-size: 0.82rem; margin-bottom: 14px; line-height: 1.4;"></div>
 
-          <button type="button" id="btn-do-login" class="btn btn-primary" style="width: 100%; padding: 11px; border-radius: 8px; font-weight: 800; font-size: 0.92rem; display: flex; align-items: center; justify-content: center; gap: 8px;">
+          <button type="button" id="btn-do-login" class="btn btn-primary" onclick="if(window.__doLogin) window.__doLogin();" style="width: 100%; padding: 11px; border-radius: 8px; font-weight: 800; font-size: 0.92rem; display: flex; align-items: center; justify-content: center; gap: 8px;">
             <i class="fa-solid fa-right-to-bracket"></i>
             <span id="btn-login-text">تسجيل الدخول</span>
           </button>
@@ -3618,7 +3617,7 @@
   </div>
 
 <!-- Main Application Script (ES Module) -->
-  <script type="module" src="js/app.js?v=1.4.89"></script>
+  <script type="module" src="js/app.js?v=1.4.90"></script>
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {

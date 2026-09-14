@@ -12,7 +12,6 @@ class SupabaseDatabaseService {
     this.purgeLegacyDemoStorage();
     this.clinicalOptionsCache = null;
     this.insuranceCompaniesCache = null;
-    this.syncAndSeedCloudOptions();
   }
 
   get isCloud() {

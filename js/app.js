@@ -363,6 +363,7 @@ class App {
     const btnText = document.getElementById('btn-login-text');
 
     const handleLoginAction = async (e) => {
+      window.__doLogin = handleLoginAction;
       if (e) {
         try { e.preventDefault(); } catch (_) {}
         try { e.stopPropagation(); } catch (_) {}
@@ -1747,8 +1748,12 @@ class App {
 function startApp() {
   if (window.__ascpt_app_started) return;
   window.__ascpt_app_started = true;
-  const appInstance = new App();
-  appInstance.init();
+  try {
+    const appInstance = new App();
+    appInstance.init().catch(err => console.error('App init error:', err));
+  } catch (err) {
+    console.error('Fatal startApp error:', err);
+  }
 }
 
 if (document.readyState === 'loading') {
