@@ -84,6 +84,7 @@ import { AppointmentsManager } from './appointments.js';
 import { ExportManager } from './export.js';
 import { AuditAndAdminManager } from './audit.js';
 import { RolesManager } from './roles.js';
+import { CLINIC_CONFIG } from './clinic-config.js';
 
 class App {
   constructor() {
@@ -127,6 +128,10 @@ class App {
     // 1. تفعيل PWA والوضع الليلي
     PWAManager.init();
     this.initTheme();
+    const adminVerEl = document.getElementById('admin-system-version-label');
+    if (adminVerEl) {
+      adminVerEl.textContent = 'نظام ' + (CLINIC_CONFIG.abbreviation || 'ASCPT') + ' — الإصدار ' + (CLINIC_CONFIG.version || '2.0.0');
+    }
 
     // 2. ضبط عرض التاريخ والترحيب الذكي الديناميكي
     const today = new Date();
