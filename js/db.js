@@ -1014,21 +1014,33 @@ class FirestoreDatabaseService {
     if (this.clinicalOptionsCache && this.clinicalOptionsCache[category]) {
       return this.clinicalOptionsCache[category];
     }
+    try {
+      const stored = localStorage.getItem('ascpt_cached_clinical_options');
+      if (stored) {
+        this.clinicalOptionsCache = JSON.parse(stored);
+        if (this.clinicalOptionsCache && this.clinicalOptionsCache[category]) {
+          return this.clinicalOptionsCache[category];
+        }
+      }
+    } catch (_) {}
     return defaults[category] || [];
   }
 
-  async syncAndSeedCloudOptions() {
-    if (!this.isCloud || this._optionsLoaded) return;
+  async syncAndSeedCloudOptions(forceRefresh = false) {
+    if (!this.isCloud) return;
+    if (this._optionsLoaded && !forceRefresh) return;
 
-    // Fast-path: try local storage cache first to save 7 reads on page load!
+    this.ensureConnected();
+
+    // Fast-path: immediate memory hydration from local storage
     try {
       const storedClinical = localStorage.getItem('ascpt_cached_clinical_options');
       const storedIns = localStorage.getItem('ascpt_cached_insurance_companies');
-      if (storedClinical && storedIns) {
+      if (storedClinical && !this.clinicalOptionsCache) {
         this.clinicalOptionsCache = JSON.parse(storedClinical);
+      }
+      if (storedIns && !this.insuranceCompaniesCache) {
         this.insuranceCompaniesCache = JSON.parse(storedIns);
-        this._optionsLoaded = true;
-        return;
       }
     } catch (_) {}
 
@@ -1069,6 +1081,17 @@ class FirestoreDatabaseService {
         'الكوع والرسغ',
         'مفصل الفخذ / الحوض',
         'عضو آخر'
+      ],
+      expense_categories: [
+        'مستلزمات وأدوات طبية',
+        'صيانة أجهزة وزيوت',
+        'فواتير وكهرباء ومياه',
+        'أدوات ومواد نظافة',
+        'ضيافة وبوفيه',
+        'أجور ومرتبات',
+        'إيجار المركز',
+        'مطبوعات وأدوات مكتبية',
+        'مصروفات نثرية / أخرى'
       ]
     };
 
@@ -1080,33 +1103,38 @@ class FirestoreDatabaseService {
     this.clinicalOptionsCache = this.clinicalOptionsCache || {};
     this.insuranceCompaniesCache = this.insuranceCompaniesCache || {};
 
-    // 1. Seed & Sync Clinical Options (modality, procedure, exercise)
+    // 1. Seed & Sync Clinical Options
     for (const cat of ['modality', 'procedure', 'exercise', 'body_parts', 'expense_categories']) {
       try {
         const docRef = doc(firestoreDb, 'clinical_options', cat);
         const snap = await getDoc(docRef);
-        if (snap.exists() && Array.isArray(snap.data().items) && snap.data().items.length > 0) {
-          this.clinicalOptionsCache[cat] = snap.data().items;
+        if (snap.exists()) {
+          const data = snap.data();
+          if (Array.isArray(data.items)) {
+            this.clinicalOptionsCache[cat] = data.items;
+          }
         } else {
           const defaultItems = defaults[cat] || [];
           this.clinicalOptionsCache[cat] = defaultItems;
           await setDoc(docRef, { items: defaultItems }, { merge: true });
         }
       } catch (err) {
-        // Fallback to defaults in memory
         if (!this.clinicalOptionsCache[cat]) {
           this.clinicalOptionsCache[cat] = defaults[cat] || [];
         }
       }
     }
 
-    // 2. Seed & Sync Insurance Companies (direct, indirect)
+    // 2. Seed & Sync Insurance Companies
     for (const cType of ['direct', 'indirect']) {
       try {
         const docRef = doc(firestoreDb, 'insurance_companies', cType);
         const snap = await getDoc(docRef);
-        if (snap.exists() && Array.isArray(snap.data().companies) && snap.data().companies.length > 0) {
-          this.insuranceCompaniesCache[cType] = snap.data().companies;
+        if (snap.exists()) {
+          const data = snap.data();
+          if (Array.isArray(data.companies)) {
+            this.insuranceCompaniesCache[cType] = data.companies;
+          }
         } else {
           const defaultCompanies = insuranceDefaults[cType] || [];
           this.insuranceCompaniesCache[cType] = defaultCompanies;
@@ -1128,7 +1156,7 @@ class FirestoreDatabaseService {
   }
 
   async syncClinicalOptionsFromFirestore() {
-    await this.syncAndSeedCloudOptions();
+    await this.syncAndSeedCloudOptions(true);
   }
 
   async addClinicalOption(category, name) {
@@ -1138,7 +1166,14 @@ class FirestoreDatabaseService {
       const updatedList = [...currentList, name.trim()];
       this.clinicalOptionsCache = this.clinicalOptionsCache || {};
       this.clinicalOptionsCache[category] = updatedList;
-      await setDoc(doc(firestoreDb, 'clinical_options', category), { items: updatedList }, { merge: true });
+      try {
+        localStorage.setItem('ascpt_cached_clinical_options', JSON.stringify(this.clinicalOptionsCache));
+      } catch (_) {}
+      try {
+        await setDoc(doc(firestoreDb, 'clinical_options', category), { items: updatedList }, { merge: true });
+      } catch (err) {
+        console.warn('Firestore addClinicalOption error:', err);
+      }
       return updatedList;
     }
     return currentList;
@@ -1150,7 +1185,14 @@ class FirestoreDatabaseService {
     const updatedList = currentList.filter(item => item !== name.trim());
     this.clinicalOptionsCache = this.clinicalOptionsCache || {};
     this.clinicalOptionsCache[category] = updatedList;
-    await setDoc(doc(firestoreDb, 'clinical_options', category), { items: updatedList }, { merge: true });
+    try {
+      localStorage.setItem('ascpt_cached_clinical_options', JSON.stringify(this.clinicalOptionsCache));
+    } catch (_) {}
+    try {
+      await setDoc(doc(firestoreDb, 'clinical_options', category), { items: updatedList }, { merge: true });
+    } catch (err) {
+      console.warn('Firestore deleteClinicalOption error:', err);
+    }
     return updatedList;
   }
 
@@ -1164,6 +1206,15 @@ class FirestoreDatabaseService {
     if (this.insuranceCompaniesCache && this.insuranceCompaniesCache[contractType]) {
       return this.insuranceCompaniesCache[contractType];
     }
+    try {
+      const stored = localStorage.getItem('ascpt_cached_insurance_companies');
+      if (stored) {
+        this.insuranceCompaniesCache = JSON.parse(stored);
+        if (this.insuranceCompaniesCache && this.insuranceCompaniesCache[contractType]) {
+          return this.insuranceCompaniesCache[contractType];
+        }
+      }
+    } catch (_) {}
     return defaults[contractType] || [];
   }
 
@@ -1181,7 +1232,7 @@ class FirestoreDatabaseService {
   }
 
   async syncInsuranceCompaniesFromFirestore() {
-    await this.syncAndSeedCloudOptions();
+    await this.syncAndSeedCloudOptions(true);
   }
 
   async addInsuranceCompany(contractType, name) {
@@ -1191,7 +1242,14 @@ class FirestoreDatabaseService {
       const updatedList = [...currentList, name.trim()];
       this.insuranceCompaniesCache = this.insuranceCompaniesCache || {};
       this.insuranceCompaniesCache[contractType] = updatedList;
-      await setDoc(doc(firestoreDb, 'insurance_companies', contractType), { companies: updatedList }, { merge: true });
+      try {
+        localStorage.setItem('ascpt_cached_insurance_companies', JSON.stringify(this.insuranceCompaniesCache));
+      } catch (_) {}
+      try {
+        await setDoc(doc(firestoreDb, 'insurance_companies', contractType), { companies: updatedList }, { merge: true });
+      } catch (err) {
+        console.warn('Firestore addInsuranceCompany error:', err);
+      }
       return updatedList;
     }
     return currentList;
@@ -1203,11 +1261,18 @@ class FirestoreDatabaseService {
     const updatedList = currentList.filter(item => item !== name.trim());
     this.insuranceCompaniesCache = this.insuranceCompaniesCache || {};
     this.insuranceCompaniesCache[contractType] = updatedList;
-    await setDoc(doc(firestoreDb, 'insurance_companies', contractType), { companies: updatedList }, { merge: true });
+    try {
+      localStorage.setItem('ascpt_cached_insurance_companies', JSON.stringify(this.insuranceCompaniesCache));
+    } catch (_) {}
+    try {
+      await setDoc(doc(firestoreDb, 'insurance_companies', contractType), { companies: updatedList }, { merge: true });
+    } catch (err) {
+      console.warn('Firestore deleteInsuranceCompany error:', err);
+    }
     return updatedList;
   }
 
-  // ================= 10. Insurance Renewal Letters (append-only archive) =================
+    // ================= 10. Insurance Renewal Letters (append-only archive) =================
   async addInsuranceLetter(letterData) {
     this.ensureConnected();
     const ref = doc(collection(firestoreDb, 'insurance_letters'));

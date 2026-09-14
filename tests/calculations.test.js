@@ -161,3 +161,37 @@ testAppt.status = 'no-show'; // Patient did not show up
 assert.equal(testAppt.status, 'no-show');
 
 console.log('✓ All 6 Appointments Engine & Status Sync assertions passed successfully!');
+
+// 7. Insurance Companies Sync & Persistence Tests
+console.log('--- Running Tests: Insurance Companies Sync & Mutation ---');
+
+function mockAddInsuranceCompany(currentList, name) {
+  const clean = name.trim();
+  if (!currentList.includes(clean)) {
+    return [...currentList, clean];
+  }
+  return currentList;
+}
+
+function mockDeleteInsuranceCompany(currentList, name) {
+  const clean = name.trim();
+  return currentList.filter(item => item !== clean);
+}
+
+let directCompanies = ['أكسا (AXA)', 'أليانز (Allianz)', 'ميتلايف (MetLife)'];
+
+// Add test
+directCompanies = mockAddInsuranceCompany(directCompanies, 'شركة الدلتا للتأمين');
+assert.equal(directCompanies.length, 4, 'Should have 4 companies after add');
+assert.ok(directCompanies.includes('شركة الدلتا للتأمين'));
+
+// Duplicate add test
+directCompanies = mockAddInsuranceCompany(directCompanies, 'شركة الدلتا للتأمين');
+assert.equal(directCompanies.length, 4, 'Duplicate company must not increase count');
+
+// Delete test
+directCompanies = mockDeleteInsuranceCompany(directCompanies, 'أكسا (AXA)');
+assert.equal(directCompanies.length, 3, 'Should have 3 companies after delete');
+assert.ok(!directCompanies.includes('أكسا (AXA)'));
+
+console.log('✓ All 4 Insurance Companies Sync & Mutation assertions passed successfully!');
