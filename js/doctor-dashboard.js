@@ -133,19 +133,48 @@ export class DoctorDashboardManager {
     const lifetimeCountEl = document.getElementById('stat-doc-lifetime-count');
     if (lifetimeCountEl) lifetimeCountEl.textContent = `${treatedPatientIds.size} مريض`;
 
-    // 4. Case breakdown (Cash vs Insurance) for this doctor
+    // 4. Active Patients under care for this doctor (Replaced Cash vs Insurance with Active Caseload in v2.2.3)
+    const activePatients = (this.docPatients || []).filter(p => {
+      if (p.status === 'discharged' || p.status === 'completed' || p.status === 'inactive') return false;
+      return true;
+    });
+
+    let activeGeneralCount = 0;
+    let activeSpecializedCount = 0;
+
+    activePatients.forEach(p => {
+      const prog = (p.programType || p.clinicalSheet?.programType || '').toLowerCase();
+      if (prog === 'scoliosis' || prog === 'hemiplegia' || prog === 'quadriplegia' || prog === 'pediatric') {
+        activeSpecializedCount++;
+      } else {
+        activeGeneralCount++;
+      }
+    });
+
+    const activeNumEl = document.getElementById('stat-doc-active-num');
+    const activeBreakdownEl = document.getElementById('stat-doc-active-breakdown');
+    if (activeNumEl) {
+      activeNumEl.textContent = activePatients.length;
+    }
+    if (activeBreakdownEl) {
+      if (activePatients.length > 0) {
+        activeBreakdownEl.innerHTML = `${activeGeneralCount} عام • ${activeSpecializedCount} تخصصي`;
+      } else {
+        activeBreakdownEl.textContent = 'لا توجد حالات نشطة حالياً';
+      }
+    }
+
+    // Backward compatibility for legacy cash/ins values
     let cashCount = 0;
     let insCount = 0;
     monthSessions.forEach(s => {
       if (s.payType === 'cash') cashCount++;
       else insCount++;
     });
-
     const cashValEl = document.getElementById('stat-doc-cash-val');
     const insValEl = document.getElementById('stat-doc-ins-val');
     if (cashValEl) cashValEl.textContent = cashCount;
     if (insValEl) insValEl.textContent = insCount;
-
     const ratioEl = document.getElementById('stat-doc-types-ratio');
     if (ratioEl) ratioEl.textContent = `${cashCount} نقدي • ${insCount} تأمين`;
 

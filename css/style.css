@@ -11196,3 +11196,13 @@ body.role-doctor .btn-quick-attend {
   transform: translateY(-1px);
   box-shadow: 0 4px 10px rgba(16, 185, 129, 0.4);
 }
+
+
+.dkc-mini-icon.teal {
+  background: rgba(20, 184, 166, 0.14);
+  color: #0d9488;
+}
+[data-theme="dark"] .dkc-mini-icon.teal {
+  background: rgba(20, 184, 166, 0.22);
+  color: #2dd4bf;
+}

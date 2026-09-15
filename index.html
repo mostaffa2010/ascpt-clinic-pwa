@@ -455,17 +455,22 @@
               <span id="stat-doc-lifetime-count" style="display: none;">0 مريض</span>
             </div>
 
-            <!-- Card 4: Cases Breakdown -->
-            <div class="doc-kpi-card" id="card-doc-kpi-ratio">
+            <!-- Card 4: Active Cases (الحالات النشطة حالياً - v2.2.3) -->
+            <div class="doc-kpi-card" id="card-doc-kpi-active-cases" title="الحالات المقيدة تحت متابعتك السريرية حالياً بالمركز">
               <div class="dkc-top">
-                <span class="dkc-title">توزيع الحالات</span>
-                <span class="dkc-mini-icon amber"><i class="fa-solid fa-chart-pie"></i></span>
+                <span class="dkc-title">الحالات النشطة</span>
+                <span class="dkc-mini-icon teal"><i class="fa-solid fa-heart-pulse"></i></span>
               </div>
-              <div class="dkc-breakdown-row" id="stat-doc-breakdown-row">
-                <span class="dkc-pill cash"><i class="fa-solid fa-money-bill"></i> <strong id="stat-doc-cash-val">0</strong> نقدي</span>
-                <span class="dkc-pill ins"><i class="fa-solid fa-file-contract"></i> <strong id="stat-doc-ins-val">0</strong> تأمين</span>
+              <div class="dkc-metric">
+                <span class="dkc-value" id="stat-doc-active-num">0</span>
+                <span class="dkc-unit">حالة</span>
               </div>
-              <div class="dkc-sub">حالات هذا الشهر</div>
+              <div class="dkc-sub" id="stat-doc-active-sub">
+                <span id="stat-doc-active-breakdown">قيد الخطة العلاجية والتأهيل</span>
+              </div>
+              <!-- Hidden compatibility elements -->
+              <span id="stat-doc-cash-val" style="display: none;">0</span>
+              <span id="stat-doc-ins-val" style="display: none;">0</span>
               <span id="stat-doc-types-ratio" style="display: none;">-</span>
             </div>
           </div>
