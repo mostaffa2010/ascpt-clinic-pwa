@@ -923,7 +923,7 @@ table.appt-table th {
   justify-content: center;
   z-index: 100;
   padding: 16px;
-  backdrop-filter: blur(3px);
+  backdrop-filter: none;
 }
 
 .modal-backdrop.active {
@@ -2800,8 +2800,8 @@ body.not-authenticated #modal-auth #btn-cancel-login {
 }
 
 @keyframes modalSlideUp {
-  from { transform: translateY(100%); opacity: 0.8; }
-  to { transform: translateY(0); opacity: 1; }
+  from { transform: translateY(100%); }
+  to { transform: translateY(0); }
 }
 
 /* ================= Next-Level UI Polish (v1.4.0-beta.2) ================= */
@@ -4341,25 +4341,61 @@ body {
   .modal-backdrop {
     padding: 0 !important;
     align-items: flex-end !important;
-    background-color: rgba(15, 23, 42, 0.45) !important;
-    backdrop-filter: blur(5px) !important;
-    -webkit-backdrop-filter: blur(5px) !important;
+    background-color: rgba(15, 23, 42, 0.72) !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
   }
 
   .modal-content {
     max-width: 100% !important;
     width: 100% !important;
     border-radius: 26px 26px 0 0 !important;
-    max-height: 88vh !important;
+    max-height: 90vh !important;
     margin-bottom: 0 !important;
-    animation: modalSlideUp 0.26s cubic-bezier(0.32, 0.72, 0, 1) !important;
-    padding-bottom: max(22px, env(safe-area-inset-bottom, 22px)) !important;
-    box-shadow: 0 -12px 40px -8px rgba(15, 23, 42, 0.15) !important;
+    animation: modalSlideUp 0.22s cubic-bezier(0.32, 0.72, 0, 1) !important;
+    padding-bottom: 0 !important;
+    box-shadow: 0 -12px 40px -8px rgba(15, 23, 42, 0.3) !important;
     position: relative !important;
     border-bottom: none !important;
     border-left: none !important;
     border-right: none !important;
-    background-color: #ffffff !important;
+    background-color: var(--bg-surface, #ffffff) !important;
+    display: flex !important;
+    flex-direction: column !important;
+    overflow: hidden !important;
+  }
+
+  .modal-content > form {
+    display: flex !important;
+    flex-direction: column !important;
+    flex: 1 1 auto !important;
+    min-height: 0 !important;
+    overflow: hidden !important;
+  }
+
+  .modal-content .modal-header {
+    flex-shrink: 0 !important;
+  }
+
+  .modal-content .modal-body {
+    flex: 1 1 auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+    overscroll-behavior: contain !important;
+  }
+
+  .modal-content .modal-footer {
+    flex-shrink: 0 !important;
+    position: sticky !important;
+    bottom: 0 !important;
+    z-index: 30 !important;
+    padding: 12px 18px !important;
+    padding-bottom: max(22px, calc(env(safe-area-inset-bottom, 0px) + 16px)) !important;
+    background: var(--bg-surface, #ffffff) !important;
+    border-top: 1.5px solid var(--border-color) !important;
+    box-shadow: 0 -6px 20px rgba(0, 0, 0, 0.08) !important;
   }
 
   .modal-content::before {
