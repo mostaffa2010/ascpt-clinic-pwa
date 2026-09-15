@@ -4373,6 +4373,12 @@ body {
     overflow: hidden !important;
   }
 
+  .modal-no-slide .modal-content,
+  .modal-backdrop.modal-no-slide .modal-content {
+    animation: none !important;
+    transform: translateY(0) !important;
+  }
+
   .modal-content .modal-header {
     flex-shrink: 0 !important;
   }

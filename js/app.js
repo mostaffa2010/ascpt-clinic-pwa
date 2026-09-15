@@ -1730,13 +1730,19 @@ class App {
     });
   }
 
-  openModal(modalId) {
+  openModal(modalId, options = {}) {
     const modal = document.getElementById(modalId);
     if (modal) {
       const toast = document.getElementById('toast-notification');
-      if (toast && toast.classList.contains('show')) {
+      if (toast) {
         toast.classList.remove('show');
+        toast.style.display = 'none';
         if (this._toastTimer) clearTimeout(this._toastTimer);
+      }
+      if (options.noSlide) {
+        modal.classList.add('modal-no-slide');
+      } else {
+        modal.classList.remove('modal-no-slide');
       }
       modal.classList.add('active');
       const transientModals = [
@@ -1765,6 +1771,7 @@ class App {
     const msgEl = document.getElementById('toast-message');
     const iconEl = document.getElementById('toast-icon');
     if (toast && msgEl) {
+      toast.style.display = '';
       triggerHaptic(type === 'error' ? 'warning' : 'success');
       msgEl.textContent = message;
 

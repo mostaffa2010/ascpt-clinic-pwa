@@ -1110,7 +1110,7 @@ export class PatientsManager {
                   <i class="fa-brands fa-whatsapp" style="font-size: 0.92rem;"></i>
                 </button>
                 ${!isDoctor ? `
-                  <button type="button" class="btn btn-outline btn-sm btn-icon-action btn-patient-docs" onclick="patientsManager.openPatientDocsModal('${safeId}')" style="width: 28px; height: 28px; padding: 0; display: inline-flex; align-items: center; justify-content: center; border-radius: 50%; font-size: 0.76rem; border-color: var(--border-color);" title="المستندات">
+                  <button type="button" class="btn btn-outline btn-sm btn-icon-action btn-patient-docs" onclick="event.stopPropagation(); patientsManager.openPatientDocsModal('${safeId}')" style="width: 28px; height: 28px; padding: 0; display: inline-flex; align-items: center; justify-content: center; border-radius: 50%; font-size: 0.76rem; border-color: var(--border-color);" title="المستندات">
                     <i class="fa-solid fa-file-invoice text-primary"></i>
                   </button>
                   <button type="button" class="btn btn-outline btn-sm btn-icon-action btn-edit-patient" onclick="patientsManager.openEditModal('${safeId}')" style="width: 28px; height: 28px; padding: 0; display: inline-flex; align-items: center; justify-content: center; border-radius: 50%; font-size: 0.76rem; border-color: var(--border-color);" title="تعديل">
@@ -1857,7 +1857,7 @@ export class PatientsManager {
     document.getElementById('renew-approval-date').value = getLocalDateStr();
     document.getElementById('renew-approval-no').value = patient.insuranceApprovalNo || '';
 
-    this.app.openModal('modal-renew-approval');
+    this.app.openModal('modal-renew-approval', { noSlide: true });
   }
 
   async handleConfirmRenewApproval(e) {
@@ -2662,14 +2662,14 @@ export class PatientsManager {
   }
 
   // ================= Insurance Renewal Letter (A5) =================
-  openInsuranceLetterModalForPatient(patientId) {
+  openInsuranceLetterModalForPatient(patientId, noSlide = false) {
     const p = this.patients.find((item) => item.id === patientId);
     if (!p) return;
     this.currentSheetPatient = p;
-    this.openInsuranceLetterModal();
+    this.openInsuranceLetterModal(noSlide);
   }
 
-  openInsuranceLetterModal() {
+  openInsuranceLetterModal(noSlide = false) {
     if (!this.currentSheetPatient) return;
     const p = this.currentSheetPatient;
     const sheet = p.clinicalSheet || {};
@@ -2680,7 +2680,7 @@ export class PatientsManager {
     const notesInp = document.getElementById('ins-letter-notes');
     if (notesInp) notesInp.value = '';
 
-    this.app.openModal('modal-insurance-letter');
+    this.app.openModal('modal-insurance-letter', { noSlide });
   }
 
   async submitInsuranceLetter() {
@@ -2861,7 +2861,7 @@ export class PatientsManager {
 
   openInsuranceLetterFromRow(patientId) {
     this.app.closeModal('modal-patient-docs');
-    this.openInsuranceLetterModalForPatient(patientId);
+    this.openInsuranceLetterModalForPatient(patientId, true);
   }
 
   // ================= Cash Receipt Methods =================
@@ -2877,7 +2877,7 @@ export class PatientsManager {
     document.getElementById('receipt-item-desc').value = 'جلسة علاج طبيعي';
     document.getElementById('receipt-date').value = getLocalDateStr();
 
-    this.app.openModal('modal-cash-receipt');
+    this.app.openModal('modal-cash-receipt', { noSlide: true });
   }
 
   printCashReceipt() {
@@ -2951,7 +2951,7 @@ export class PatientsManager {
     document.getElementById('statement-body-text').value = '';
     document.getElementById('statement-date').value = getLocalDateStr();
 
-    this.app.openModal('modal-medical-statement');
+    this.app.openModal('modal-medical-statement', { noSlide: true });
   }
 
   printMedicalStatement() {
@@ -3990,7 +3990,7 @@ export class PatientsManager {
 
     this.renderBatchHvDates();
     this.app.closeModal('modal-patient-docs');
-    this.app.openModal('modal-batch-home-visits');
+    this.app.openModal('modal-batch-home-visits', { noSlide: true });
   }
 
   generateBatchHomeVisitDates() {
