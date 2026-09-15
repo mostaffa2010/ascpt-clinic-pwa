@@ -4,7 +4,7 @@
   "description": "Alexandria Specialized Center for Physical Therapy (ASCPT) Management System",
   "type": "module",
   "scripts": {
-    "test": "node --check js/*.js api/admin/*.js && node tests/calculations.test.js && node tests/sync-version-doc.test.js",
+    "test": "node --check js/*.js api/admin/*.js && node tests/calculations.test.js && node tests/sync-version-doc.test.js && node tests/ui-components.test.js",
     "lint": "eslint ."
   },
   "dependencies": {
