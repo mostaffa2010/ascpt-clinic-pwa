@@ -1,0 +1,28 @@
+{
+  "env": {
+    "browser": true,
+    "es6": true
+  },
+  "parserOptions": {
+    "ecmaVersion": 2022,
+    "sourceType": "module"
+  },
+  "extends": "eslint:recommended",
+  "globals": {
+    "XLSX": "readonly"
+  },
+  "overrides": [
+    {
+      "files": ["api/**/*.js", "api/*.js", "tests/**/*.js", "tests/*.js"],
+      "env": {
+        "node": true
+      }
+    },
+    {
+      "files": ["sw.js"],
+      "env": {
+        "serviceworker": true
+      }
+    }
+  ]
+}
