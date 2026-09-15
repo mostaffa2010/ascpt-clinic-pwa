@@ -538,6 +538,7 @@ export class PatientsManager {
       this._patientsSubscribed = true;
       db.subscribeToPatients((updatedPatients) => {
         this.patients = updatedPatients;
+        this._hasLoadedOnce = true;
         this.renderPatients();
       });
     }
@@ -557,6 +558,7 @@ export class PatientsManager {
     }
 
     this.patients = await db.getPatients(forceRefresh);
+    this._hasLoadedOnce = true;
     this.renderPatients();
   }
 
@@ -740,10 +742,14 @@ export class PatientsManager {
   }
 
   renderPatients() {
-    this._hasLoadedOnce = true;
     const tbody = document.getElementById('patients-tbody');
     const mobileContainer = document.getElementById('patients-mobile-cards');
     if (!tbody) return;
+
+    if (!this._hasLoadedOnce && (!this.patients || this.patients.length === 0)) {
+      this.renderSkeleton();
+      return;
+    }
 
     const rawSearch = document.getElementById('patient-search-input')?.value.trim() || '';
     const filterType = document.getElementById('patient-filter-type')?.value || 'all';
@@ -893,6 +899,11 @@ export class PatientsManager {
         `;
         tbody.innerHTML = `<tr><td colspan="8" style="text-align: center; color: var(--text-muted); padding: 30px;">لا توجد حالات مسجلة بهذا النظام.</td></tr>`;
         if (mobileContainer) mobileContainer.innerHTML = emptyFilterCard;
+        return;
+      }
+
+      if (!this._hasLoadedOnce) {
+        this.renderSkeleton();
         return;
       }
 
@@ -1831,6 +1842,8 @@ export class PatientsManager {
   openRenewApprovalModal(patientId) {
     const patient = this.patients.find(p => p.id === patientId);
     if (!patient) return;
+
+    this.app.closeModal('modal-patient-docs');
 
     document.getElementById('renew-patient-id').value = patient.id;
     document.getElementById('renew-patient-name').textContent = patient.name;
@@ -2833,18 +2846,11 @@ export class PatientsManager {
             <small style="color: var(--text-muted); font-weight: 600; font-size: 0.74rem;">خطاب رسمي لشركة التأمين بطلب تجديد الجلسات</small>
           </div>
         </button>
-        <button type="button" class="btn btn-outline" onclick="patientsManager.openBatchHomeVisitsModal('${p.id}', 'clinic_batch')" style="justify-content: flex-start; padding: 12px 16px; border-radius: 10px; font-weight: 800; font-size: 0.95rem; gap: 12px; border-color: var(--border-color); background: var(--bg-surface);">
-          <i class="fa-solid fa-hospital-user text-primary" style="font-size: 1.3rem;"></i>
+        <button type="button" class="btn btn-outline" onclick="patientsManager.openBatchHomeVisitsModal('${p.id}')" style="justify-content: flex-start; padding: 12px 16px; border-radius: 10px; font-weight: 800; font-size: 0.95rem; gap: 12px; border-color: var(--border-color); background: var(--bg-surface);">
+          <i class="fa-solid fa-calendar-check" style="font-size: 1.3rem; color: #0284c7;"></i>
           <div style="text-align: right;">
-            <div>تسجيل جواب جلسات مجمعة (بالمركز)</div>
-            <small style="color: var(--text-muted); font-weight: 600; font-size: 0.74rem;">تسجيل حزمة جلسات حضور بالمركز دفعة واحدة لجواب التأمين</small>
-          </div>
-        </button>
-        <button type="button" class="btn btn-outline" onclick="patientsManager.openBatchHomeVisitsModal('${p.id}', 'home_visit')" style="justify-content: flex-start; padding: 12px 16px; border-radius: 10px; font-weight: 800; font-size: 0.95rem; gap: 12px; border-color: var(--border-color); background: var(--bg-surface);">
-          <i class="fa-solid fa-house-chimney-medical" style="font-size: 1.3rem; color: #059669;"></i>
-          <div style="text-align: right;">
-            <div>تسجيل جواب زيارات منزلية (Home Visits)</div>
-            <small style="color: var(--text-muted); font-weight: 600; font-size: 0.74rem;">تسجيل دفعة زيارات منزلية معتمدة لجواب التأمين</small>
+            <div>تسجيل جوابات الجلسات (مجمعة / منزلية)</div>
+            <small style="color: var(--text-muted); font-weight: 600; font-size: 0.74rem;">تسجيل حزمة جلسات حضور بالمركز أو زيارات منزلية لجواب التأمين</small>
           </div>
         </button>
       `;
@@ -3911,8 +3917,7 @@ export class PatientsManager {
     }
   }
 
-  async openBatchHomeVisitsModal(patientId, defaultType = 'home_visit') {
-    this.app.closeModal('modal-patient-docs');
+  async openBatchHomeVisitsModal(patientId, defaultType = 'clinic_batch') {
     const p = this.patients.find((item) => item.id === patientId);
     if (!p) return;
 
@@ -3984,6 +3989,7 @@ export class PatientsManager {
     if (refInput) refInput.value = '';
 
     this.renderBatchHvDates();
+    this.app.closeModal('modal-patient-docs');
     this.app.openModal('modal-batch-home-visits');
   }
 

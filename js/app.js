@@ -1733,6 +1733,11 @@ class App {
   openModal(modalId) {
     const modal = document.getElementById(modalId);
     if (modal) {
+      const toast = document.getElementById('toast-notification');
+      if (toast && toast.classList.contains('show')) {
+        toast.classList.remove('show');
+        if (this._toastTimer) clearTimeout(this._toastTimer);
+      }
       modal.classList.add('active');
       const transientModals = [
         'modal-auth',

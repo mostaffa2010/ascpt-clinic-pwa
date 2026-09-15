@@ -93,8 +93,8 @@ export class RolesManager {
       addPatientBtn.style.setProperty('display', role === ROLES.DOCTOR ? 'none' : '', 'important');
     }
 
-    // 5. إعادة رسم جدول المرضى لتطبيق إخفاء أزرار التعديل والحذف للطبيب
-    if (window.patientsManager && typeof window.patientsManager.renderPatients === 'function') {
+    // 5. إعادة رسم جدول المرضى لتطبيق إخفاء أزرار التعديل والحذف للطبيب (إذا كانت البيانات محملة مسبقاً)
+    if (window.patientsManager && typeof window.patientsManager.renderPatients === 'function' && window.patientsManager._hasLoadedOnce) {
       window.patientsManager.renderPatients();
     }
   }
