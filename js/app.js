@@ -587,7 +587,7 @@ class App {
     });
 
     document.getElementById('btn-profile-logout')?.addEventListener('click', async () => {
-      this.closeModal('modal-user-profile');
+      this.closeModal('modal-user-profile', { skipHistory: true });
       const confirmed = await this.showConfirm('هل ترغب في تسجيل الخروج من نظام المركز؟', 'تأكيد تسجيل الخروج');
       if (confirmed) {
         await auth.logout();
@@ -597,10 +597,10 @@ class App {
 
     document.getElementById('btn-profile-change-pwd')?.addEventListener('click', (e) => {
       e.preventDefault();
-      this.closeModal('modal-user-profile');
+      this.closeModal('modal-user-profile', { skipHistory: true });
       setTimeout(() => {
         openChangePwdModal();
-      }, 120);
+      }, 50);
     });
 
     // ================= Change Password Feature (v1.4.67) ================
@@ -1814,6 +1814,12 @@ class App {
       modal.classList.remove('modal-no-slide');
     }
     document.body.classList.remove('modal-open');
+
+    if (modalId === 'modal-custom-dialog' && this.dialogResolve) {
+      const res = this.dialogResolve;
+      this.dialogResolve = null;
+      res(false);
+    }
 
     if (this._openModalStack) {
       this._openModalStack = this._openModalStack.filter(id => id !== modalId);

@@ -377,7 +377,7 @@ class AuthService {
 
   async logout() {
     localStorage.removeItem('ascpt_has_session');
-      sessionStorage.removeItem('ascpt_welcome_shown');
+    sessionStorage.removeItem('ascpt_welcome_shown');
     this.setCachedUser(null);
     try {
       if (firebaseAuth) {
@@ -388,6 +388,14 @@ class AuthService {
     }
     this.currentUser = null;
     document.body.classList.add('not-authenticated');
+    document.querySelectorAll('.modal-backdrop.active:not(#modal-auth)').forEach(m => {
+      m.classList.remove('active');
+      m.classList.remove('modal-no-slide');
+    });
+    if (window.app) {
+      window.app._openModalStack = [];
+      window.app.currentView = 'dashboard';
+    }
     this.updateUI();
     this.showLoginModal();
   }
