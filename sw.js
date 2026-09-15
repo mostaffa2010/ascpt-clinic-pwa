@@ -17,6 +17,8 @@ const APP_SHELL_ASSETS = [
   '/css/print.css?v=1.4.3',
   '/icons/icon-192.png',
   '/icons/icon-512.png',
+  '/icons/apple-touch-icon.png',
+  '/icons/favicon-32x32.png',
   '/icons/splash/splash-1290x2796.png',
   '/icons/splash/splash-1179x2556.png',
   '/icons/splash/splash-1284x2778.png',
