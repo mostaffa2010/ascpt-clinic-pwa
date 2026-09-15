@@ -1014,6 +1014,21 @@ export class SessionsManager {
     const saveRes = await db.saveSession(sessionData, currentUser);
     this.newlyAddedSessionId = (saveRes && saveRes.id) ? saveRes.id : (sessionData.id || this.editingSessionId);
 
+    // First Doctor Assignment Rule: assign doctor to patient if not set
+    if (patient && doctor && (!patient.doctor || patient.doctor === '' || patient.doctor === 'طبيب المركز')) {
+      try {
+        await db.savePatient({
+          ...patient,
+          doctor: doctor,
+          doctorUid: doctorUid || ''
+        }, currentUser);
+        patient.doctor = doctor;
+        patient.doctorUid = doctorUid || '';
+      } catch (docAssignErr) {
+        console.warn('Assign first doctor to patient notice:', docAssignErr);
+      }
+    }
+
     // Synchronize session body parts back to patient record if not set
     if (patient && selectedParts.length > 0) {
       try {

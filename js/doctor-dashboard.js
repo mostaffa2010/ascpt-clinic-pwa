@@ -521,13 +521,159 @@ export class DoctorDashboardManager {
       return;
     }
 
+    if (this.currentFilter === 'lifetime') {
+      // Lifetime: Unique Patients treated by this doctor
+      const patientMap = new Map();
+      const rawSessions = this.docSessions.filter((s) => !s.isHomeVisit && s.visitType !== 'home');
+
+      rawSessions.forEach((s) => {
+        const key = s.patientId || s.patientName;
+        if (!patientMap.has(key)) {
+          patientMap.set(key, {
+            patientId: s.patientId || '',
+            patientName: s.patientName || 'مريض',
+            payType: s.payType || 'cash',
+            insuranceName: s.insuranceName || '',
+            contractType: s.contractType || 'direct',
+            sessionsCount: 0,
+            firstDate: s.date || '',
+            lastDate: s.date || '',
+            programType: s.programType || s.sessionPricingType || 'regular',
+            bodyParts: s.bodyParts || []
+          });
+        }
+        const item = patientMap.get(key);
+        item.sessionsCount++;
+        if (s.date) {
+          if (!item.firstDate || s.date < item.firstDate) item.firstDate = s.date;
+          if (!item.lastDate || s.date > item.lastDate) item.lastDate = s.date;
+        }
+        if (s.programType && s.programType !== 'regular') item.programType = s.programType;
+      });
+
+      const uniquePatients = Array.from(patientMap.values()).sort((a, b) => (b.lastDate || '').localeCompare(a.lastDate || ''));
+
+      const titleEl = document.getElementById('doc-table-title');
+      if (titleEl) titleEl.textContent = `سجل جميع مرضاك بالمركز (${uniquePatients.length} مريض)`;
+
+      if (uniquePatients.length === 0) {
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="6" style="text-align: center; color: var(--text-muted); padding: 24px;">
+              <i class="fa-solid fa-users-slash" style="font-size: 1.5rem; margin-bottom: 8px; display: block; color: #cbd5e1;"></i>
+              لا يوجد مرضى مسجلين لك حالياً.
+            </td>
+          </tr>
+        `;
+        const mobCont = document.getElementById('doctor-personal-mobile-cards');
+        if (mobCont) {
+          mobCont.innerHTML = `
+            <div class="empty-state-card" style="text-align: center; padding: 28px 20px; color: var(--text-muted); background: var(--bg-surface); border-radius: 14px; border: 1.5px dashed var(--border-color);">
+              <i class="fa-solid fa-users-slash" style="font-size: 1.8rem; margin-bottom: 8px; display: block; color: #cbd5e1;"></i>
+              لا يوجد مرضى مسجلين لك حالياً.
+            </div>
+          `;
+        }
+        return;
+      }
+
+      // Render Desktop Table for Lifetime (Unique Patients)
+      tbody.innerHTML = uniquePatients.map((p) => {
+        let billingBadge = '';
+        if (p.payType === 'cash') {
+          billingBadge = `<span class="badge badge-cash"><i class="fa-solid fa-money-bill"></i> نقدي</span>`;
+        } else if (p.contractType === 'direct') {
+          billingBadge = `<span class="badge badge-direct"><i class="fa-solid fa-file-contract"></i> ${escapeHTML(p.insuranceName || 'شركة')} (مباشر)</span>`;
+        } else {
+          billingBadge = `<span class="badge badge-indirect"><i class="fa-solid fa-handshake"></i> ${escapeHTML(p.insuranceName || 'شركة')} (غير مباشر)</span>`;
+        }
+
+        const safePatientId = escapeHTML(p.patientId);
+        let progTag = '';
+        if (p.programType === 'scoliosis') {
+          progTag = `<span class="badge" style="background:rgba(2, 132, 199, 0.15); color:#0284c7; border:1px solid rgba(2, 132, 199, 0.35); font-size:0.7rem; font-weight:800;"><i class="fa-solid fa-arrows-split-up-and-left"></i> Scoliosis</span>`;
+        } else if (p.programType === 'hemiplegia') {
+          progTag = `<span class="badge" style="background:rgba(245, 158, 11, 0.15); color:#b45309; border:1px solid rgba(245, 158, 11, 0.35); font-size:0.7rem; font-weight:800;"><i class="fa-solid fa-brain"></i> Hemiplegia</span>`;
+        } else if (p.programType === 'quadriplegia' || p.programType === 'pediatric') {
+          progTag = `<span class="badge" style="background:rgba(225, 29, 72, 0.15); color:#e11d48; border:1px solid rgba(225, 29, 72, 0.35); font-size:0.7rem; font-weight:800;"><i class="fa-solid fa-wheelchair"></i> Quadriplegia</span>`;
+        }
+
+        return `
+          <tr>
+            <td style="font-weight: 800; color: var(--text-main); cursor: pointer;" onclick="patientsManager.openPatientSheet('${safePatientId}')" title="اضغط لفتح الشيت الطبي">
+              <i class="fa-solid fa-user-injured" style="color: var(--primary); margin-left: 6px;"></i>
+              ${escapeHTML(p.patientName)} ${progTag}
+            </td>
+            <td>${billingBadge}</td>
+            <td><span class="badge badge-role-doctor" style="font-size: 0.82rem; font-weight: 800;"><i class="fa-solid fa-calendar-check"></i> ${p.sessionsCount} جلسات</span></td>
+            <td style="font-size: 0.85rem; color: var(--text-muted); white-space: nowrap;">
+              أحدث جلسة: <bdi dir="ltr">${escapeHTML(p.lastDate || '-')}</bdi>
+            </td>
+            <td style="font-size: 0.82rem; color: var(--text-muted);">
+              ${p.firstDate && p.firstDate !== p.lastDate ? `أول جلسة: <bdi dir="ltr">${escapeHTML(p.firstDate)}</bdi>` : 'مريض نشط'}
+            </td>
+            <td style="text-align: center;">
+              <button type="button" class="btn btn-primary btn-sm" onclick="patientsManager.openPatientSheet('${safePatientId}')" style="padding: 4px 10px; font-weight: 700; white-space: nowrap;">
+                <i class="fa-solid fa-file-waveform"></i> الشيت الطبي
+              </button>
+            </td>
+          </tr>
+        `;
+      }).join('');
+
+      // Render Mobile Cards for Lifetime (Unique Patients)
+      const mobileContainer = document.getElementById('doctor-personal-mobile-cards');
+      if (mobileContainer) {
+        mobileContainer.innerHTML = uniquePatients.map((p) => {
+          let billingBadge = '';
+          if (p.payType === 'cash') {
+            billingBadge = `<span class="badge badge-cash" style="font-size: 0.72rem; padding: 2px 7px;"><i class="fa-solid fa-money-bill"></i> نقدي</span>`;
+          } else if (p.contractType === 'direct') {
+            billingBadge = `<span class="badge badge-direct" style="font-size: 0.72rem; padding: 2px 7px;"><i class="fa-solid fa-file-contract"></i> ${escapeHTML(p.insuranceName || 'شركة')} (مباشر)</span>`;
+          } else {
+            billingBadge = `<span class="badge badge-indirect" style="font-size: 0.72rem; padding: 2px 7px;"><i class="fa-solid fa-handshake"></i> ${escapeHTML(p.insuranceName || 'شركة')} (غير مباشر)</span>`;
+          }
+
+          const safePatientId = escapeHTML(p.patientId);
+
+          return `
+            <div class="hero-styled-card" style="padding: 12px 14px; margin-bottom: 10px; border-radius: 14px; border-right: 4px solid var(--primary);">
+              <div class="hsc-top" style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px;">
+                <div class="hsc-patient-meta" style="display: flex; align-items: center; gap: 10px;">
+                  <div class="hsc-avatar" style="background: rgba(2, 132, 199, 0.12); color: var(--primary);"><i class="fa-solid fa-user"></i></div>
+                  <div class="hsc-name-box">
+                    <span class="hsc-patient-name" style="font-weight: 800; font-size: 0.96rem; cursor: pointer;" onclick="patientsManager.openPatientSheet('${safePatientId}')">${escapeHTML(p.patientName)}</span>
+                    <div style="margin-top: 2px;">${billingBadge}</div>
+                  </div>
+                </div>
+                <div class="hsc-amount-box">
+                  <span class="badge" style="background: rgba(2, 132, 199, 0.1); color: var(--primary); border: 1px solid rgba(2, 132, 199, 0.25); font-weight: 800; font-size: 0.82rem; padding: 4px 10px;">
+                    ${p.sessionsCount} جلسات
+                  </span>
+                </div>
+              </div>
+
+              <div class="hsc-divider" style="margin: 8px 0;"></div>
+
+              <div class="hsc-bottom" style="display: flex; justify-content: space-between; align-items: center;">
+                <span class="hsc-time-tag" style="font-size: 0.78rem; color: var(--text-muted);">
+                  <i class="fa-regular fa-calendar-check"></i> أحدث جلسة: <bdi dir="ltr">${escapeHTML(p.lastDate || '-')}</bdi>
+                </span>
+                <button type="button" class="btn btn-outline btn-sm btn-icon-action" onclick="patientsManager.openPatientSheet('${safePatientId}')" style="width: 32px; height: 32px; border-radius: 50%;" title="الشيت الطبي">
+                  <i class="fa-solid fa-file-waveform text-primary"></i>
+                </button>
+              </div>
+            </div>
+          `;
+        }).join('');
+      }
+      return;
+    }
+
     if (this.currentFilter === 'today') {
       displayList = this.docSessions.filter((s) => s.date === todayStr && !s.isHomeVisit && s.visitType !== 'home');
     } else if (this.currentFilter === 'month') {
       displayList = this.docSessions.filter((s) => s.date && s.date.startsWith(currentMonth) && !s.isHomeVisit && s.visitType !== 'home');
-    } else {
-      // Lifetime: all in-clinic sessions for this doctor
-      displayList = this.docSessions.filter((s) => !s.isHomeVisit && s.visitType !== 'home');
     }
 
     if (displayList.length === 0) {

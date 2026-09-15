@@ -1043,8 +1043,7 @@ export class PatientsManager {
         const safeAddress = escapeHTML(p.address || '');
         const mobileAreaInfo = this.getPatientTreatedAreaDisplay(p);
         const safeDoctor = escapeHTML(p.doctor || '');
-          const cleanWaPhone = (p.phone || '').replace(/[^0-9]/g, '').replace(/^0/, '20');
-
+  
         const isFemale = (p.gender === 'female');
         const genderClass = isFemale ? 'gender-female' : 'gender-male';
         const genderBadgeClass = isFemale ? 'badge-gender-female' : 'badge-gender-male';
@@ -1106,7 +1105,7 @@ export class PatientsManager {
 
               <!-- Left: Utility Tool Icons (WhatsApp, Docs, Edit, Delete) -->
               <div style="display: flex; align-items: center; gap: 4px; flex-shrink: 0;">
-                <button type="button" class="btn btn-outline btn-sm btn-icon-action btn-whatsapp-action" onclick="patientsManager.openWhatsAppTemplates('${cleanWaPhone}', '${safeName}', '${safeDoctor}')" style="color: #10b981; border-color: rgba(16, 185, 129, 0.35); background: rgba(16, 185, 129, 0.08); width: 28px; height: 28px; padding: 0; display: inline-flex; align-items: center; justify-content: center; border-radius: 50%;" title="خيارات واتساب الذكية">
+                <button type="button" class="btn btn-outline btn-sm btn-icon-action btn-whatsapp-action" onclick="patientsManager.openWhatsAppTemplates('${escapeHTML(p.phone || '')}', '${safeName}', '${safeDoctor}')" style="color: #10b981; border-color: rgba(16, 185, 129, 0.35); background: rgba(16, 185, 129, 0.08); width: 28px; height: 28px; padding: 0; display: inline-flex; align-items: center; justify-content: center; border-radius: 50%;" title="خيارات واتساب الذكية">
                   <i class="fa-brands fa-whatsapp" style="font-size: 0.92rem;"></i>
                 </button>
                 ${!isDoctor ? `
@@ -1282,10 +1281,11 @@ export class PatientsManager {
       return;
     }
     const cleanPhone = phone.replace(/[^0-9]/g, '').replace(/^0/, '20');
+    const displayPhone = (phone.startsWith('20') && phone.length === 12) ? '0' + phone.slice(2) : phone;
     const nameEl = document.getElementById('wa-modal-patient-name');
     const phoneEl = document.getElementById('wa-modal-patient-phone');
     if (nameEl) nameEl.textContent = name || 'المريض';
-    if (phoneEl) phoneEl.textContent = phone;
+    if (phoneEl) phoneEl.textContent = displayPhone;
 
     const btnAppt = document.getElementById('btn-wa-tpl-appt');
     const btnRenew = document.getElementById('btn-wa-tpl-renew');
@@ -1294,24 +1294,17 @@ export class PatientsManager {
     const apptMsg = `السلام عليكم ورحمة الله وبركاته أستاذ/ة ${name}،\nنذكركم بموعد جلستكم القادمة مع ${doctor || 'الطبيب المعالج'} ب${CLINIC_CONFIG.brandName}.\nنتمنى لكم دوام الصحة والعافية.`;
     const renewMsg = `السلام عليكم ورحمة الله وبركاته أستاذ/ة ${name}،\nنود إعلامكم باقتراب انتهاء الجلسات المعتمدة من شركة التأمين ب${CLINIC_CONFIG.shortName}، يرجى إحضار أصل تجديد الموافقة لمواصلة الخطة العلاجية دون انقطاع.\nشكراً لتعاونكم معنا.`;
 
-    if (btnAppt) {
-      btnAppt.onclick = () => {
-        window.open(`https://wa.me/${cleanPhone}?text=${encodeURIComponent(apptMsg)}`, '_blank');
-        this.app.closeModal('modal-whatsapp-templates');
-      };
-    }
-    if (btnRenew) {
-      btnRenew.onclick = () => {
-        window.open(`https://wa.me/${cleanPhone}?text=${encodeURIComponent(renewMsg)}`, '_blank');
-        this.app.closeModal('modal-whatsapp-templates');
-      };
-    }
-    if (btnDirect) {
-      btnDirect.onclick = () => {
-        window.open(`https://wa.me/${cleanPhone}`, '_blank');
-        this.app.closeModal('modal-whatsapp-templates');
-      };
-    }
+    const openWhatsAppDirect = (msg) => {
+      const url = msg 
+        ? `https://api.whatsapp.com/send?phone=${cleanPhone}&text=${encodeURIComponent(msg)}`
+        : `https://api.whatsapp.com/send?phone=${cleanPhone}`;
+      window.open(url, '_blank');
+      this.app.closeModal('modal-whatsapp-templates');
+    };
+
+    if (btnAppt) btnAppt.onclick = () => openWhatsAppDirect(apptMsg);
+    if (btnRenew) btnRenew.onclick = () => openWhatsAppDirect(renewMsg);
+    if (btnDirect) btnDirect.onclick = () => openWhatsAppDirect('');
 
     this.app.openModal('modal-whatsapp-templates');
   }
@@ -1602,11 +1595,13 @@ export class PatientsManager {
     const progRadios = document.querySelectorAll('input[name="p-program-type"]');
     const pProg = (p.programType === 'pediatric') ? 'quadriplegia' : (p.programType || 'regular');
     progRadios.forEach(r => { r.checked = (r.value === pProg); });
+    const isIns = (p.billing === 'insurance') || (!p.billing && Boolean(p.insuranceCompany && String(p.insuranceCompany).trim().length > 0)) || (p.payType === 'insurance');
+    const effectiveBilling = isIns ? 'insurance' : 'cash';
     const billingRadios = document.querySelectorAll('input[name="p-billing"]');
-    billingRadios.forEach(r => { r.checked = (r.value === p.billing); });
+    billingRadios.forEach(r => { r.checked = (r.value === effectiveBilling); });
 
     const insBox = document.getElementById('p-insurance-details');
-    if (p.billing === 'insurance') {
+    if (effectiveBilling === 'insurance') {
       insBox.style.display = 'block';
       document.getElementById('p-insurance-company').value = p.insuranceCompany || '';
       const cType = p.contractType || 'direct';
@@ -1742,7 +1737,7 @@ export class PatientsManager {
         document.getElementById('p-insurance-company')?.focus();
         return;
       }
-      contractType = document.querySelector('input[name="p-contract"]:checked')?.value || 'direct';
+      contractType = document.querySelector('input[name="p-contract-type"]:checked')?.value || document.querySelector('input[name="p-contract"]:checked')?.value || 'direct';
     }
 
     let approvedSessions = 12;
@@ -2040,6 +2035,19 @@ export class PatientsManager {
 
     const addrEl = document.getElementById('sheet-patient-address');
     if (addrEl) addrEl.textContent = p.address || 'غير محدد';
+
+    // Auto-resolve first session doctor if patient.doctor is empty
+    if ((!p.doctor || p.doctor === '' || p.doctor === 'طبيب المركز') && Array.isArray(this.currentPatientSessions) && this.currentPatientSessions.length > 0) {
+      const sortedChronological = [...this.currentPatientSessions].sort((a, b) => (a.date || '').localeCompare(b.date || ''));
+      const firstSessionWithDoctor = sortedChronological.find(s => s.doctor && s.doctor.trim().length > 0);
+      if (firstSessionWithDoctor) {
+        p.doctor = firstSessionWithDoctor.doctor;
+        p.doctorUid = firstSessionWithDoctor.doctorUid || '';
+        if (db && typeof db.savePatient === 'function') {
+          db.savePatient(p, auth.getCurrentUser()).catch(() => {});
+        }
+      }
+    }
 
     const docEl = document.getElementById('sheet-patient-doctor');
     if (docEl) docEl.textContent = p.doctor || 'طبيب المركز';

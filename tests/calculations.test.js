@@ -624,3 +624,75 @@ assert.equal(groupedHV[1].sessionCount, 6, 'Patient 2 must have 6 sessions');
 assert.equal(groupedHV[0].price, undefined, 'Must not contain any price or monetary dues');
 
 console.log('✓ All 8 Batch Home Visits & Doctor Dashboard Decoupling assertions passed successfully!');
+
+// ============================================================================
+// 12. Doctor Dashboard Lifetime Patients Grouping & First Doctor Assignment
+// ============================================================================
+console.log('--- Running Tests: Doctor Dashboard Lifetime Patients & First Doctor Rule ---');
+
+function groupLifetimePatientsForDoctor(sessions) {
+  const patientMap = new Map();
+  const rawSessions = sessions.filter((s) => !s.isHomeVisit && s.visitType !== 'home');
+
+  rawSessions.forEach((s) => {
+    const key = s.patientId || s.patientName;
+    if (!patientMap.has(key)) {
+      patientMap.set(key, {
+        patientId: s.patientId || '',
+        patientName: s.patientName || 'مريض',
+        payType: s.payType || 'cash',
+        sessionsCount: 0,
+        firstDate: s.date || '',
+        lastDate: s.date || ''
+      });
+    }
+    const item = patientMap.get(key);
+    item.sessionsCount++;
+    if (s.date) {
+      if (!item.firstDate || s.date < item.firstDate) item.firstDate = s.date;
+      if (!item.lastDate || s.date > item.lastDate) item.lastDate = s.date;
+    }
+  });
+
+  return Array.from(patientMap.values()).sort((a, b) => (b.lastDate || '').localeCompare(a.lastDate || ''));
+}
+
+const mockLifetimeSessions = [
+  { patientId: 'p1', patientName: 'أحمد محمود', date: '2026-09-01', payType: 'cash' },
+  { patientId: 'p1', patientName: 'أحمد محمود', date: '2026-09-03', payType: 'cash' },
+  { patientId: 'p1', patientName: 'أحمد محمود', date: '2026-09-05', payType: 'cash' },
+  { patientId: 'p2', patientName: 'منى علي', date: '2026-09-02', payType: 'insurance' },
+  { patientId: 'p2', patientName: 'منى علي', date: '2026-09-04', payType: 'insurance' },
+  { patientId: 'p3', patientName: 'خالد يوسف', date: '2026-09-06', payType: 'cash' },
+  // Home visit should be excluded from lifetime in-clinic patients
+  { patientId: 'p4', patientName: 'زيارة منزلية', date: '2026-09-07', isHomeVisit: true }
+];
+
+const lifetimeGrouped = groupLifetimePatientsForDoctor(mockLifetimeSessions);
+assert.equal(lifetimeGrouped.length, 3, 'Must group 6 in-clinic sessions into exactly 3 unique patients');
+assert.equal(lifetimeGrouped[0].patientId, 'p3', 'Latest session patient (2026-09-06) should be first');
+assert.equal(lifetimeGrouped.find(p => p.patientId === 'p1').sessionsCount, 3, 'Patient p1 must have 3 sessions');
+assert.equal(lifetimeGrouped.find(p => p.patientId === 'p2').sessionsCount, 2, 'Patient p2 must have 2 sessions');
+assert.equal(lifetimeGrouped.find(p => p.patientId === 'p1').firstDate, '2026-09-01');
+assert.equal(lifetimeGrouped.find(p => p.patientId === 'p1').lastDate, '2026-09-05');
+
+// Test First Doctor Assignment Rule
+function assignFirstDoctorRule(patient, sessionDoctor, sessionDoctorUid) {
+  if (patient && sessionDoctor && (!patient.doctor || patient.doctor === '' || patient.doctor === 'طبيب المركز')) {
+    patient.doctor = sessionDoctor;
+    patient.doctorUid = sessionDoctorUid || '';
+    return true; // assigned
+  }
+  return false; // preserved
+}
+
+const newPatient = { id: 'p10', name: 'سارة محمد', doctor: '' };
+const assignedFirst = assignFirstDoctorRule(newPatient, 'د. حسني أحمد الجويلي', 'uid_hosny');
+assert.equal(assignedFirst, true, 'First doctor must be assigned when patient.doctor is empty');
+assert.equal(newPatient.doctor, 'د. حسني أحمد الجويلي');
+
+const secondSessionWithOtherDoctor = assignFirstDoctorRule(newPatient, 'د. أحمد علي', 'uid_ahmed');
+assert.equal(secondSessionWithOtherDoctor, false, 'Existing assigned doctor must NOT be overwritten by subsequent doctors');
+assert.equal(newPatient.doctor, 'د. حسني أحمد الجويلي', 'Assigned doctor must remain the first doctor');
+
+console.log('✓ All 9 Lifetime Patients Grouping & First Doctor Rule assertions passed successfully!');
