@@ -893,6 +893,32 @@ export class AppointmentsManager {
                   ${listToShow.map(a => {
                     const isDone = completedApptIds.includes(a.id) || a.effectiveStatus === 'completed' || a.effectiveStatus === 'attended';
                     const daysStr = formatRecurringDays(a.daysOfWeek);
+                    const patientObj = (this.patients || []).find(p => p.id === a.patientId) ||
+                                       (this.app?.patientsManager?.patients || []).find(p => p.id === a.patientId) ||
+                                       (this.patients || []).find(p => p.name === a.patientName) ||
+                                       (this.app?.patientsManager?.patients || []).find(p => p.name === a.patientName);
+
+                    let bodyPartText = (a.bodyPart && a.bodyPart !== 'علاج طبيعي عام') ? a.bodyPart : '';
+                    if (!bodyPartText && patientObj) {
+                      let partsList = [];
+                      if (this.app?.patientsManager?.getPatientBodyParts) {
+                        partsList = this.app.patientsManager.getPatientBodyParts(patientObj) || [];
+                      }
+                      if (partsList.length === 0 && Array.isArray(patientObj.bodyParts) && patientObj.bodyParts.length > 0) {
+                        partsList = patientObj.bodyParts;
+                      }
+                      if (partsList.length === 0 && patientObj.affectedArea) {
+                        partsList = [patientObj.affectedArea];
+                      }
+                      if (partsList.length === 0 && patientObj.clinicalSheet?.affectedArea) {
+                        partsList = [patientObj.clinicalSheet.affectedArea];
+                      }
+                      if (partsList.length > 0) {
+                        bodyPartText = partsList.join(' • ');
+                      }
+                    }
+                    const displayBodyPart = bodyPartText || a.bodyPart || 'علاج طبيعي عام';
+
                     return `
                       <div class="doc-stack-patient-row ${isDone ? 'completed-row' : ''}">
                         <div class="doc-stack-patient-info">
@@ -902,7 +928,7 @@ export class AppointmentsManager {
                             ${daysStr ? `<span class="badge" style="font-size: 0.65rem; background: rgba(2, 132, 199, 0.1); color: #0284c7; padding: 1px 5px; border-radius: 4px; margin-right: 5px;">${escapeHTML(daysStr)}</span>` : ''}
                           </div>
                           <div class="doc-stack-patient-details">
-                            <span class="patient-body-part">${escapeHTML(a.bodyPart || 'علاج طبيعي عام')}</span>
+                            <span class="patient-body-part">${escapeHTML(displayBodyPart)}</span>
                             ${a.notes ? `<span class="patient-notes">• ${escapeHTML(a.notes)}</span>` : ''}
                           </div>
                         </div>
@@ -1225,7 +1251,26 @@ export class AppointmentsManager {
       dateEl.textContent = daysStr ? `${daysStr} (${this.selectedDate})` : (a.date || this.selectedDate || '-');
     }
     if (areaEl) {
-      areaEl.textContent = a.bodyPart || patientObj?.clinicalSheet?.affectedArea || 'علاج طبيعي عام';
+      let areaText = (a.bodyPart && a.bodyPart !== 'علاج طبيعي عام') ? a.bodyPart : '';
+      if (!areaText && patientObj) {
+        let partsList = [];
+        if (this.app?.patientsManager?.getPatientBodyParts) {
+          partsList = this.app.patientsManager.getPatientBodyParts(patientObj) || [];
+        }
+        if (partsList.length === 0 && Array.isArray(patientObj.bodyParts) && patientObj.bodyParts.length > 0) {
+          partsList = patientObj.bodyParts;
+        }
+        if (partsList.length === 0 && patientObj.affectedArea) {
+          partsList = [patientObj.affectedArea];
+        }
+        if (partsList.length === 0 && patientObj.clinicalSheet?.affectedArea) {
+          partsList = [patientObj.clinicalSheet.affectedArea];
+        }
+        if (partsList.length > 0) {
+          areaText = partsList.join(' • ');
+        }
+      }
+      areaEl.textContent = areaText || a.bodyPart || 'علاج طبيعي عام';
     }
 
     // Determine current effective status for selected date
