@@ -97,7 +97,7 @@ class MockFirestoreSyncService {
     return await this.mockGetDocs('appointments');
   }
 
-  // --- Patients Sync Listener (Replicating js/db.js lines 332-415) ---
+  // --- Patients Sync Listener (Replicating js/db.js) ---
   subscribeToPatients(callback) {
     let isFirstSnapshot = true;
 
@@ -183,7 +183,7 @@ class MockFirestoreSyncService {
     };
   }
 
-  // --- Appointments Sync Listener (Replicating js/db.js lines 1640-1725) ---
+  // --- Appointments Sync Listener (Replicating js/db.js) ---
   subscribeToAppointments(callback) {
     let isFirstSnapshot = true;
 
@@ -392,7 +392,6 @@ class MockFirestoreSyncService {
     }
   }
 
-  // Simulate receiving a remote write from another device
   async receiveRemoteVersionDoc(remoteData) {
     Object.assign(this.remoteStore.metaSyncVersion, remoteData);
     await this.dispatchVersionDoc();
@@ -425,19 +424,16 @@ async function runTests() {
     latestPatients = list;
   });
 
-  // Allow promise to resolve
   await new Promise(resolve => setTimeout(resolve, 10));
 
   assert.equal(service.stats.patientsFullGetDocsCount, 1, 'First attach must trigger initial getDocs');
   assert.equal(service.stats.patientsSingleGetDocCount, 0, 'First attach must not trigger single doc read');
   assert.equal(latestPatients.length, 3, 'Initial callback must receive 3 patients');
 
-  // Initial snapshot arrives matching current version -> records version, does not double-fetch
   await service.dispatchVersionDoc();
   assert.equal(service.stats.patientsFullGetDocsCount, 1, 'Initial snapshot must not double-fetch full collection');
   assert.equal(service._lastSeenPatientsVersion, 1, 'Last seen patients version must record 1');
 
-  // Redundant snapshot with identical version (reconnect / metadata update) -> 0 reads
   await service.dispatchVersionDoc();
   assert.equal(service.stats.patientsFullGetDocsCount, 1, 'Identical version must cost 0 reads');
   assert.equal(service.stats.patientsSingleGetDocCount, 0, 'Identical version must cost 0 single-doc reads');
@@ -450,17 +446,14 @@ async function runTests() {
   const beforeOwnWritesFull = service.stats.patientsFullGetDocsCount;
   const beforeOwnWritesSingle = service.stats.patientsSingleGetDocCount;
 
-  // Device saves a patient (creates p4)
   await service.savePatient({ id: 'p4', name: 'منى جمال' });
 
-  // Assert writer's local cache was updated synchronously
   assert.ok(service._patientsCache.some(p => p.id === 'p4'), 'Writer local cache must contain newly added patient p4');
   assert.equal(service._lastSeenPatientsVersion, 2, 'Last seen patients version updated to 2');
   assert.equal(service._suppressNextOwnPatientsVersionEvent, false, 'Suppression flag must be reset to false');
   assert.equal(service.stats.patientsFullGetDocsCount, beforeOwnWritesFull, 'Writer echo must cost 0 collection refetches');
   assert.equal(service.stats.patientsSingleGetDocCount, beforeOwnWritesSingle, 'Writer echo must cost 0 single-doc reads');
 
-  // Device updates patient p1
   await service.savePatient({ id: 'p1', name: 'أحمد محمود المعدل' });
   assert.equal(service._patientsCache.find(p => p.id === 'p1').name, 'أحمد محمود المعدل', 'Writer cache must reflect update');
   assert.equal(service.stats.patientsFullGetDocsCount, beforeOwnWritesFull, 'Update echo must cost 0 collection refetches');
@@ -474,10 +467,8 @@ async function runTests() {
   const beforeRemoteWriteFull = service.stats.patientsFullGetDocsCount;
   const beforeRemoteWriteSingle = service.stats.patientsSingleGetDocCount;
 
-  // Another device writes patient p5 to Firestore (remote version becomes 4)
   service.remoteStore.patients.set('p5', { id: 'p5', name: 'كريم حسن' });
 
-  // Device receives version-doc from device B: version jump = +1, action = 'created'
   await service.receiveRemoteVersionDoc({
     patientsVersion: 4,
     lastChangedPatientId: 'p5',
@@ -498,7 +489,6 @@ async function runTests() {
   const beforeDeleteFull = service.stats.patientsFullGetDocsCount;
   const beforeDeleteSingle = service.stats.patientsSingleGetDocCount;
 
-  // Another device deletes p3 (remote version becomes 5)
   service.remoteStore.patients.delete('p3');
 
   await service.receiveRemoteVersionDoc({
@@ -521,12 +511,11 @@ async function runTests() {
   const beforeGapFull = service.stats.patientsFullGetDocsCount;
   const beforeGapSingle = service.stats.patientsSingleGetDocCount;
 
-  // While this device was offline, 4 changes occurred (version jumped from 5 to 9)
   service.remoteStore.patients.set('p6', { id: 'p6', name: 'طارق علي' });
   service.remoteStore.patients.set('p7', { id: 'p7', name: 'نادية سامي' });
 
   await service.receiveRemoteVersionDoc({
-    patientsVersion: 9, // Jump of 4 > 1 -> Gap detected!
+    patientsVersion: 9,
     lastChangedPatientId: 'p7',
     lastChangedPatientAction: 'created'
   });
@@ -548,7 +537,6 @@ async function runTests() {
   });
 
   await new Promise(resolve => setTimeout(resolve, 10));
-  // Initial snapshot arrives from Firestore on attach
   await service.dispatchVersionDoc();
 
   // 1. First attach for appointments
@@ -588,7 +576,7 @@ async function runTests() {
   // 5. Gap fallback for appointments
   const beforeApptGapFull = service.stats.appointmentsFullGetDocsCount;
   await service.receiveRemoteVersionDoc({
-    appointmentsVersion: service.remoteStore.metaSyncVersion.appointmentsVersion + 5, // Gap of 5
+    appointmentsVersion: service.remoteStore.metaSyncVersion.appointmentsVersion + 5,
     lastChangedAppointmentId: 'a2',
     lastChangedAppointmentAction: 'updated'
   });
@@ -602,7 +590,6 @@ async function runTests() {
   const pReadsBefore = service.stats.patientsFullGetDocsCount + service.stats.patientsSingleGetDocCount;
   const aReadsBefore = service.stats.appointmentsFullGetDocsCount + service.stats.appointmentsSingleGetDocCount;
 
-  // Mutating appointmentsVersion only must NOT cause any reads on patients
   await service.receiveRemoteVersionDoc({
     appointmentsVersion: service.remoteStore.metaSyncVersion.appointmentsVersion + 1,
     lastChangedAppointmentId: 'a_xyz',
@@ -611,7 +598,6 @@ async function runTests() {
   const pReadsAfter = service.stats.patientsFullGetDocsCount + service.stats.patientsSingleGetDocCount;
   assert.equal(pReadsAfter, pReadsBefore, 'Appointment version change must not trigger any patient reads');
 
-  // Mutating patientsVersion only must NOT cause any reads on appointments
   await service.receiveRemoteVersionDoc({
     patientsVersion: service.remoteStore.metaSyncVersion.patientsVersion + 1,
     lastChangedPatientId: 'p1',

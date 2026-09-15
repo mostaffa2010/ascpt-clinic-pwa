@@ -6,7 +6,7 @@
 
 @page {
   size: A4 portrait;
-  margin: 4mm 5mm;
+  margin: 5mm 6mm;
 }
 
 @media print {
@@ -68,13 +68,6 @@
   }
 
   /* Universal hide for common interactive UI elements */
-  th.no-print,
-  td.no-print,
-  table th.no-print,
-  table td.no-print,
-  .data-table th.no-print,
-  .data-table td.no-print,
-  [class*="no-print"],
   nav,
   .sidebar,
   .bottom-nav,
@@ -90,19 +83,12 @@
   .sandbox-banner,
   #pwa-install-banner,
   .toast-box,
-  #toast-notification,
-  .toast-capsule,
-  .toast,
-  [id*="toast"],
-  [class*="toast"],
-  #finance-header-title,
-  #view-finance > div:first-child,
   .card-header button,
   .finance-mode-segmented,
   .horizontal-date-strip,
   #card-cash-drawer-glance,
   .mobile-only-cards-container,
-  
+  #finance-report-mobile-cards,
   #finance-expenses-mobile-cards,
   #daily-doctors-mobile-deck,
   #monthly-doctors-mobile-deck,
@@ -367,23 +353,23 @@
   body:not(.printing-sheet) .print-header {
     display: block !important;
     text-align: center !important;
-    border-bottom: 1.8px solid #000000 !important;
-    padding-bottom: 3px !important;
-    margin-bottom: 4px !important;
+    border-bottom: 2px solid #0369a1 !important;
+    padding-bottom: 4px !important;
+    margin-bottom: 8px !important;
   }
 
   body:not(.printing-sheet) .print-header h1 {
-    font-size: 11.5pt !important;
-    margin: 0 0 1px 0 !important;
-    color: #000000 !important;
-    font-weight: 900 !important;
+    font-size: 13pt !important;
+    margin: 0 0 2px 0 !important;
+    color: #0369a1 !important;
+    font-weight: 800 !important;
   }
 
   body:not(.printing-sheet) .print-header p {
-    margin: 0.5px 0 !important;
-    font-size: 7.8pt !important;
-    color: #1e293b !important;
-    font-weight: 700 !important;
+    margin: 1px 0 !important;
+    font-size: 8pt !important;
+    color: #334155 !important;
+    font-weight: 600 !important;
   }
 
   body:not(.printing-sheet) .card {
@@ -407,99 +393,83 @@
   }
 
   body:not(.printing-sheet) .stats-grid,
-  body:not(.printing-sheet) #finance-kpi-stats-grid {
+  body:not(.printing-sheet) #finance-kpi-stats-grid,
+  [data-theme="dark"] .stats-grid,
+  [data-theme="dark"] #finance-kpi-stats-grid {
     display: flex !important;
     flex-direction: row !important;
-    gap: 5px !important;
-    margin-bottom: 4px !important;
-    width: 100% !important;
-    box-sizing: border-box !important;
+    gap: 6px !important;
+    margin-bottom: 8px !important;
   }
 
   body:not(.printing-sheet) .stat-box,
-  body:not(.printing-sheet) #finance-kpi-stats-grid .stat-box {
-    flex: 1 1 0px !important;
-    min-width: 0 !important;
-    width: auto !important;
-    border: 1.2px solid #000000 !important;
+  body:not(.printing-sheet) #finance-kpi-stats-grid .stat-box,
+  body:not(.printing-sheet) #finance-kpi-stats-grid .stat-box.highlight,
+  [data-theme="dark"] .stat-box,
+  [data-theme="dark"] .stat-card,
+  [data-theme="dark"] #finance-kpi-stats-grid .stat-box,
+  [data-theme="dark"] #finance-kpi-stats-grid .stat-box.highlight {
+    flex: 1 !important;
+    border: 1.2px solid #64748b !important;
     border-radius: 4px !important;
-    padding: 2px 6px !important;
+    padding: 4px 6px !important;
     box-shadow: none !important;
     display: flex !important;
     align-items: center !important;
-    gap: 4px !important;
+    gap: 6px !important;
     background: #ffffff !important;
     background-color: #ffffff !important;
     color: #000000 !important;
-    box-sizing: border-box !important;
   }
 
   body:not(.printing-sheet) .stat-icon,
-  body:not(.printing-sheet) #finance-kpi-stats-grid .stat-icon {
-    display: none !important;
+  body:not(.printing-sheet) #finance-kpi-stats-grid .stat-icon,
+  [data-theme="dark"] .stat-icon,
+  [data-theme="dark"] #finance-kpi-stats-grid .stat-icon {
+    width: 22px !important;
+    height: 22px !important;
+    font-size: 8.5pt !important;
+    border-radius: 4px !important;
+    background: transparent !important;
+    background-color: transparent !important;
   }
 
   body:not(.printing-sheet) .stat-info .stat-value,
   body:not(.printing-sheet) #finance-kpi-stats-grid .stat-value,
-  body:not(.printing-sheet) #finance-kpi-stats-grid .stat-info .stat-value {
-    font-size: 9pt !important;
-    font-weight: 900 !important;
+  body:not(.printing-sheet) #finance-kpi-stats-grid .stat-info .stat-value,
+  [data-theme="dark"] .stat-info .stat-value,
+  [data-theme="dark"] #finance-kpi-stats-grid .stat-value,
+  [data-theme="dark"] #finance-kpi-stats-grid .stat-info .stat-value {
+    font-size: 9.5pt !important;
+    font-weight: 800 !important;
     color: #000000 !important;
   }
 
   body:not(.printing-sheet) .stat-info .stat-label,
   body:not(.printing-sheet) #finance-kpi-stats-grid .stat-label,
-  body:not(.printing-sheet) #finance-kpi-stats-grid .stat-info .stat-label {
-    font-size: 7.2pt !important;
-    color: #1e293b !important;
+  body:not(.printing-sheet) #finance-kpi-stats-grid .stat-info .stat-label,
+  [data-theme="dark"] .stat-info .stat-label,
+  [data-theme="dark"] #finance-kpi-stats-grid .stat-label,
+  [data-theme="dark"] #finance-kpi-stats-grid .stat-info .stat-label {
+    font-size: 7pt !important;
+    color: #334155 !important;
     font-weight: 700 !important;
     margin-top: 0 !important;
-  }
-
-  body:not(.printing-sheet) #card-doctors-breakdown {
-    width: 100% !important;
-    box-sizing: border-box !important;
-    margin-bottom: 4px !important;
-    padding: 0 !important;
-    border: none !important;
-  }
-
-  body:not(.printing-sheet) #card-doctors-breakdown .card-header {
-    padding: 0 0 2px 0 !important;
-    margin-bottom: 3px !important;
-    border-bottom: 1px solid #475569 !important;
-  }
-
-  body:not(.printing-sheet) #card-doctors-breakdown .card-title {
-    font-size: 8pt !important;
-    font-weight: 800 !important;
-    color: #000000 !important;
   }
 
   body:not(.printing-sheet) #doctors-breakdown-container {
     display: flex !important;
     flex-direction: row !important;
-    gap: 4px !important;
-    width: 100% !important;
-    box-sizing: border-box !important;
+    gap: 6px !important;
   }
 
   body:not(.printing-sheet) #doctors-breakdown-container > div {
-    flex: 1 1 0px !important;
-    min-width: 0 !important;
-    width: auto !important;
-    padding: 2px 5px !important;
+    flex: 1 !important;
+    padding: 4px 6px !important;
     font-size: 7.5pt !important;
-    border: 1.2px solid #000000 !important;
+    border: 1px solid #64748b !important;
     border-radius: 4px !important;
     font-weight: 700 !important;
-    background: #f8fafc !important;
-    color: #000000 !important;
-    box-sizing: border-box !important;
-  }
-
-  body:not(.printing-sheet) #doctors-breakdown-container i.fa-user-doctor {
-    display: none !important;
   }
 
   /* Desktop & Mobile Responsive Table Visibility during Print */
@@ -513,98 +483,81 @@
   }
 
   body:not(.printing-sheet) .card,
-  
+  body:not(.printing-sheet) #card-finance-report-sessions,
   body:not(.printing-sheet) #card-finance-daily-expenses,
   body:not(.printing-sheet) #card-monthly-doctors,
   body:not(.printing-sheet) #card-monthly-insurance,
-  body:not(.printing-sheet) #card-monthly-expenses {
-    border: none !important;
+  body:not(.printing-sheet) #card-monthly-expenses,
+  body:not(.printing-sheet) #card-doctors-breakdown {
+    border: 1px solid #cbd5e1 !important;
     box-shadow: none !important;
-    margin-bottom: 4px !important;
-    padding: 0 !important;
-    background: transparent !important;
-  }
-
-
-  body:not(.printing-sheet) #card-finance-daily-expenses.empty-expenses-print {
-    display: none !important;
+    margin-bottom: 10px !important;
+    padding: 8px 10px !important;
+    background: #ffffff !important;
+    page-break-inside: avoid !important;
   }
 
   body:not(.printing-sheet) .card-header,
-  
+  body:not(.printing-sheet) #card-finance-report-sessions .card-header,
   body:not(.printing-sheet) #card-finance-daily-expenses .card-header,
   body:not(.printing-sheet) #card-monthly-doctors .card-header,
   body:not(.printing-sheet) #card-monthly-insurance .card-header,
-  body:not(.printing-sheet) #card-monthly-expenses .card-header {
+  body:not(.printing-sheet) #card-monthly-expenses .card-header,
+  body:not(.printing-sheet) #card-doctors-breakdown .card-header {
     display: block !important;
-    padding: 0 0 2px 0 !important;
-    margin-bottom: 3px !important;
-    border-bottom: 1.5px solid #000000 !important;
+    padding: 0 0 6px 0 !important;
+    margin-bottom: 6px !important;
+    border-bottom: 1.5px solid #0369a1 !important;
     background: transparent !important;
   }
 
-  body:not(.printing-sheet) .card-title,
-  
-  body:not(.printing-sheet) #card-finance-daily-expenses .card-title,
-  body:not(.printing-sheet) #card-monthly-doctors .card-title,
-  body:not(.printing-sheet) #card-monthly-insurance .card-title,
-  body:not(.printing-sheet) #card-monthly-expenses .card-title {
-    font-size: 8.5pt !important;
-    font-weight: 900 !important;
-    color: #000000 !important;
-  }
-
   body:not(.printing-sheet) table.data-table,
-  
+  body:not(.printing-sheet) #finance-report-table,
   body:not(.printing-sheet) #finance-expenses-table {
     display: table !important;
     width: 100% !important;
     border-collapse: collapse !important;
-    font-size: 8pt !important;
+    font-size: 7.5pt !important;
     background: #ffffff !important;
-    color: #000000 !important;
-    line-height: 1.15 !important;
   }
 
   body:not(.printing-sheet) table.data-table thead,
-  
+  body:not(.printing-sheet) #finance-report-table thead,
   body:not(.printing-sheet) #finance-expenses-table thead {
     display: table-header-group !important;
   }
 
   body:not(.printing-sheet) table.data-table tbody,
-  
+  body:not(.printing-sheet) #finance-report-table tbody,
   body:not(.printing-sheet) #finance-expenses-table tbody {
     display: table-row-group !important;
   }
 
   body:not(.printing-sheet) table.data-table tr,
-  
+  body:not(.printing-sheet) #finance-report-table tr,
   body:not(.printing-sheet) #finance-expenses-table tr {
     display: table-row !important;
-    page-break-inside: avoid !important;
+  }
+
+  body:not(.printing-sheet) table.data-table {
+    width: 100% !important;
+    border-collapse: collapse !important;
+    font-size: 7.5pt !important;
   }
 
   body:not(.printing-sheet) table.data-table th,
-  body:not(.printing-sheet) table.data-table td,
-  
-  body:not(.printing-sheet) #finance-expenses-table th,
-  body:not(.printing-sheet) #finance-expenses-table td {
-    border: 1px solid #334155 !important;
-    padding: 2.5px 5px !important;
+  body:not(.printing-sheet) table.data-table td {
+    border: 1px solid #64748b !important;
+    padding: 3px 6px !important;
     white-space: normal !important;
-    line-height: 1.15 !important;
-    color: #000000 !important;
+    line-height: 1.2 !important;
   }
 
-  body:not(.printing-sheet) table.data-table th,
-  
-  body:not(.printing-sheet) #finance-expenses-table th {
-    background-color: #f1f5f9 !important;
+  body:not(.printing-sheet) table.data-table th {
+    background-color: #e2e8f0 !important;
     color: #000000 !important;
-    font-weight: 900 !important;
-    border: 1.2px solid #000000 !important;
-    text-align: center !important;
+    font-weight: 800 !important;
+    border: 1.2px solid #475569 !important;
   }
 
   body:not(.printing-sheet) .print-footer {
@@ -612,7 +565,7 @@
     justify-content: space-around !important;
     margin-top: 12px !important;
     padding-top: 6px !important;
-    border-top: 1.2px dashed #0284c7 !important;
+    border-top: 1.2px dashed #475569 !important;
     font-size: 8pt !important;
     font-weight: 800 !important;
     page-break-inside: avoid !important;
@@ -727,7 +680,7 @@
   /* ================= CASE 5: PRINTING INSURANCE RENEWAL LETTER (A5) ================= */
   @page insuranceLetterPage {
     size: A5 portrait;
-    margin: 6mm 7mm !important;
+    margin: 10mm;
   }
 
   body.printing-insurance-letter > *:not(#printable-insurance-letter) {
@@ -742,29 +695,22 @@
   }
 
   body.printing-insurance-letter #printable-insurance-letter {
-    display: flex !important;
-    flex-direction: column !important;
-    justify-content: space-between !important;
+    display: block !important;
     position: relative !important;
     width: 100% !important;
-    min-height: 196mm !important;
-    box-sizing: border-box !important;
-    margin: 0 auto !important;
-    padding: 14px 18px 10px 18px !important;
-    border: 2px solid #0284c7 !important;
-    border-radius: 10px !important;
+    margin: 0 !important;
+    padding: 0 !important;
     page: insuranceLetterPage;
     font-size: 10pt !important;
     line-height: 1.6 !important;
     color: #000000 !important;
-    background: #ffffff !important;
   }
 
   body.printing-insurance-letter .ins-letter-header {
     text-align: center !important;
-    border-bottom: 2px solid #0284c7 !important;
+    border-bottom: 2px solid #0369a1 !important;
     padding-bottom: 6px !important;
-    margin-bottom: 12px !important;
+    margin-bottom: 14px !important;
   }
 
   body.printing-insurance-letter .ins-letter-header h1 {
@@ -782,30 +728,8 @@
   }
 
   body.printing-insurance-letter .ins-letter-body {
-    font-size: 10pt !important;
+    font-size: 10.5pt !important;
     padding: 0 4px !important;
-  }
-
-  body.printing-insurance-letter .ins-letter-recipient {
-    text-align: center !important;
-    margin: 12px 0 8px 0 !important;
-  }
-
-  body.printing-insurance-letter .ins-letter-recipient span {
-    display: inline-block !important;
-    font-weight: 800 !important;
-    font-size: 11.5pt !important;
-    border-bottom: 1.5px solid #0284c7 !important;
-    padding-bottom: 3px !important;
-    color: #0f172a !important;
-  }
-
-  body.printing-insurance-letter .ins-letter-salutation {
-    text-align: center !important;
-    font-weight: 700 !important;
-    font-size: 10pt !important;
-    margin: 6px 0 12px 0 !important;
-    color: #334155 !important;
   }
 
   body.printing-insurance-letter .ins-letter-body p {
@@ -817,93 +741,29 @@
     background-color: #f8fafc !important;
     font-weight: 700 !important;
     color: #000000 !important;
-    white-space: pre-wrap !important;
-    unicode-bidi: plaintext !important;
-    word-break: break-word !important;
-    padding: 8px 12px !important;
-    border-radius: 6px !important;
-    margin: 8px 0 !important;
-    line-height: 1.6 !important;
-    text-align: start !important;
-    font-size: 10.5pt !important;
-  }
-
-  body.printing-insurance-letter #ins-print-notes-container {
-    border: 1px dashed #64748b !important;
-    background-color: #f8fafc !important;
-    padding: 6px 10px !important;
-    border-radius: 6px !important;
-    margin: 8px 0 !important;
-    font-size: 9pt !important;
-  }
-
-  body.printing-insurance-letter #ins-print-notes {
-    white-space: pre-wrap !important;
-    unicode-bidi: plaintext !important;
-    word-break: break-word !important;
-    text-align: start !important;
-    color: #1e293b !important;
-    font-weight: 600 !important;
-  }
-
-  body.printing-insurance-letter .ins-letter-closing {
-    text-align: center !important;
-    margin: 14px 0 10px 0 !important;
-    font-weight: 700 !important;
-    font-size: 10pt !important;
-    color: #334155 !important;
   }
 
   body.printing-insurance-letter .ins-letter-footer {
-    display: flex !important;
-    justify-content: space-between !important;
-    align-items: flex-end !important;
-    margin-top: 25px !important;
-    font-size: 9pt !important;
+    margin-top: 30px !important;
+    font-size: 9.5pt !important;
     font-weight: 800 !important;
   }
 
-  body.printing-insurance-letter .ins-stamp-box {
-    width: 95px !important;
-    height: 48px !important;
-    border: 1.5px dashed #94a3b8 !important;
-    border-radius: 6px !important;
-    margin-top: 4px !important;
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    font-size: 7.5pt !important;
-    color: #94a3b8 !important;
-    background: transparent !important;
-  }
-
   body.printing-insurance-letter .ins-letter-signature-space {
-    height: 16mm !important;
-    border-bottom: 1.2px solid #000000 !important;
-    width: 125px !important;
-    margin-top: 4px !important;
+    height: 20mm !important;
   }
 
   body.printing-insurance-letter .ins-letter-footer-contact {
-    margin-top: 14px !important;
+    margin-top: 16px !important;
     padding-top: 6px !important;
-    border-top: 1.2px dashed #0284c7 !important;
+    border-top: 1.2px dashed #475569 !important;
     font-size: 7.5pt !important;
     color: #334155 !important;
     text-align: center !important;
     font-weight: 600 !important;
   }
 
-  /* ================= CASE 6: PRINTING CASH RECEIPT (A5 FULL-BLEED) ================= */
-  @page receiptPage {
-    size: A5 portrait;
-    margin: 5mm 6mm;
-  }
-
-  body.printing-receipt {
-    page: receiptPage;
-  }
-
+  /* ================= CASE 6: PRINTING CASH RECEIPT ================= */
   body.printing-receipt > *:not(#printable-cash-receipt) {
     display: none !important;
     height: 0 !important;
@@ -919,50 +779,21 @@
     display: block !important;
     position: relative !important;
     width: 100% !important;
-    height: 100% !important;
     margin: 0 auto !important;
-    padding: 0 !important;
-    box-sizing: border-box !important;
+    padding: 6mm 4mm !important;
   }
 
   body.printing-receipt #printable-cash-receipt > div {
-    border: 2px solid #0369a1 !important;
-    border-radius: 8px !important;
-    padding: 14px 16px !important;
-    min-height: 190mm !important;
-    width: 100% !important;
-    display: flex !important;
-    flex-direction: column !important;
-    justify-content: space-between !important;
-    box-sizing: border-box !important;
-    background: #ffffff !important;
+    border: 2px solid #000000 !important;
   }
 
   body.printing-receipt #printable-cash-receipt h2 {
     color: #0369a1 !important;
     font-weight: 800 !important;
-    font-size: 10.5pt !important;
-    line-height: 1.25 !important;
-    white-space: nowrap !important;
-  }
-
-  body.printing-receipt #printable-cash-receipt [data-clinic="director-full"] {
-    font-size: 7.8pt !important;
-    line-height: 1.3 !important;
-    color: #334155 !important;
-    white-space: nowrap !important;
-  }
-
-  body.printing-receipt #printable-cash-receipt #receipt-print-date {
-    white-space: nowrap !important;
-    flex-shrink: 0 !important;
-    text-align: left !important;
-    font-size: 8.8pt !important;
-    font-weight: 800 !important;
   }
 
   body.printing-receipt #printable-cash-receipt div[style*="border-bottom: 2px solid"] {
-    border-bottom: 2px solid #0369a1 !important;
+    border-bottom: 2px solid #000000 !important;
   }
 
   body.printing-receipt #receipt-print-amount-box {
@@ -1071,7 +902,7 @@
     image-rendering: -webkit-optimize-contrast;
   }
 
-  /* ================= TOTAL DARK MODE ISOLATION FOR ALL PRINTABLE SHEETS ================= */
+  /* ================= DARK MODE PRINT NORMALIZATION ================= */
   [data-theme="dark"],
   [data-theme="dark"] body,
   [data-theme="dark"] .app-container,
@@ -1084,54 +915,30 @@
   [data-theme="dark"] #printable-attendance-cards,
   [data-theme="dark"] #printable-insurance-letter,
   [data-theme="dark"] #printable-cash-receipt,
-  [data-theme="dark"] #printable-medical-statement,
-  [data-theme="dark"] div,
-  [data-theme="dark"] p,
-  [data-theme="dark"] span,
-  [data-theme="dark"] table,
-  [data-theme="dark"] tr,
-  [data-theme="dark"] td,
-  [data-theme="dark"] th {
-    background-image: none !important;
-    box-shadow: none !important;
-    text-shadow: none !important;
-  }
-
-  [data-theme="dark"],
-  [data-theme="dark"] body,
-  [data-theme="dark"] #view-finance,
-  [data-theme="dark"] .printable-doc,
-  [data-theme="dark"] #printable-patient-sheet,
-  [data-theme="dark"] #printable-insurance-claim,
-  [data-theme="dark"] #printable-attendance-cards,
-  [data-theme="dark"] #printable-insurance-letter,
-  [data-theme="dark"] #printable-cash-receipt,
   [data-theme="dark"] #printable-medical-statement {
     background: #ffffff !important;
     background-color: #ffffff !important;
     color: #000000 !important;
   }
 
-  [data-theme="dark"] table th,
   [data-theme="dark"] .data-table th,
-  [data-theme="dark"] .claim-print-table th {
-    background-color: #f1f5f9 !important;
+  [data-theme="dark"] table.data-table th {
+    background-color: #e2e8f0 !important;
     color: #000000 !important;
-    border-color: #000000 !important;
+    border-color: #475569 !important;
   }
 
-  [data-theme="dark"] table td,
   [data-theme="dark"] .data-table td,
-  [data-theme="dark"] .claim-print-table td {
+  [data-theme="dark"] table.data-table td {
     background-color: #ffffff !important;
     color: #000000 !important;
-    border-color: #334155 !important;
+    border-color: #64748b !important;
   }
 
   [data-theme="dark"] .stat-box,
   [data-theme="dark"] .stat-card {
     background-color: #ffffff !important;
-    border-color: #000000 !important;
+    border-color: #64748b !important;
   }
 
   [data-theme="dark"] .stat-info .stat-value {
@@ -1139,57 +946,7 @@
   }
 
   [data-theme="dark"] .stat-info .stat-label {
-    color: #1e293b !important;
-  }
-
-  [data-theme="dark"] .sheet-section-box,
-  [data-theme="dark"] .statement-diagnosis-box,
-  [data-theme="dark"] #ins-print-diagnosis {
-    background-color: #f8fafc !important;
-    color: #000000 !important;
-    border-color: #334155 !important;
-  }
-
-  [data-theme="dark"] #ins-print-notes-container {
-    background-color: #f8fafc !important;
-    color: #000000 !important;
-    border-color: #64748b !important;
-  }
-
-  [data-theme="dark"] #ins-print-notes {
-    color: #000000 !important;
-  }
-
-  [data-theme="dark"] .badge {
-    background-color: transparent !important;
-    color: #000000 !important;
-    border-color: #000000 !important;
-  }
-
-  [data-theme="dark"] .badge-cash,
-  [data-theme="dark"] .badge-success {
-    background-color: #f0fdf4 !important;
-    color: #14532d !important;
-    border-color: #166534 !important;
-  }
-
-  [data-theme="dark"] .badge-direct,
-  [data-theme="dark"] .badge-primary {
-    background-color: #f0f9ff !important;
-    color: #075985 !important;
-    border-color: #0369a1 !important;
-  }
-
-  [data-theme="dark"] .badge-indirect {
-    background-color: #faf5ff !important;
-    color: #581c87 !important;
-    border-color: #6b21a8 !important;
-  }
-
-  [data-theme="dark"] .badge-warning {
-    background-color: #fffbeb !important;
-    color: #92400e !important;
-    border-color: #b45309 !important;
+    color: #334155 !important;
   }
 
 }
