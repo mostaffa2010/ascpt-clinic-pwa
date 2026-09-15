@@ -8,10 +8,13 @@ import { auth } from './auth.js';
 import { RolesManager } from './roles.js';
 
 export class SessionsManager {
+  get todayDateStr() {
+    return getLocalDateStr();
+  }
+
   constructor(app) {
     this.app = app;
-    this.todayDateStr = getLocalDateStr();
-    this.currentSessionDate = this.todayDateStr;
+    this.currentSessionDate = getLocalDateStr();
     this.sessions = [];
     this.selectedPatientId = null;
     this.editingSessionId = null;

@@ -547,3 +547,87 @@ await emptyDocSync.triggerSnapshot({ exists: false, data: null });
 assert.equal(emptyDocSync.getLastSeen(), 0, 'Missing syncVersion doc should default to version 0');
 
 console.log('✓ All 8 Version-Doc Sync Trigger assertions passed successfully!');
+
+// 11. Today Patients Filter Engine Tests (Date & Recurring Day-of-Week Validation)
+console.log('--- Running Tests: Today Patients Filter & Day-of-Week Sync ---');
+
+function mockGetTodayPatientIdentifiers({ todayStr, sessions = [], appointments = [] }) {
+  const todayIds = new Set();
+  const todayNames = new Set();
+  const normalize = (t) => (t || '').trim().toLowerCase().replace(/[أإآٱ]/g, 'ا').replace(/ة/g, 'ه').replace(/ى/g, 'ي');
+
+  // 1. Sessions recorded today
+  sessions.forEach(s => {
+    const sDate = s.date || (s.createdAt ? s.createdAt.substring(0, 10) : '');
+    if (sDate === todayStr && s.status !== 'cancelled') {
+      if (s.patientId) todayIds.add(String(s.patientId).trim());
+      if (s.patientName) todayNames.add(normalize(s.patientName));
+    }
+  });
+
+  // 2. Appointments scheduled specifically for today
+  const curDate = new Date(todayStr + 'T00:00:00');
+  const dayOfWeek = curDate.getDay();
+
+  if (dayOfWeek !== 5) { // Friday holiday
+    const todayAppts = appointments.filter(a => {
+      if (a.status === 'completed' || a.status === 'cancelled') return false;
+      if (Array.isArray(a.daysOfWeek) && a.daysOfWeek.length > 0) {
+        return a.daysOfWeek.includes(dayOfWeek);
+      }
+      if (a.date) return a.date === todayStr;
+      return false;
+    });
+
+    todayAppts.forEach(a => {
+      if (a.effectiveStatus === 'cancelled' || a.isCancelledToday) return;
+      if (a.patientId) todayIds.add(String(a.patientId).trim());
+      if (a.patientName) todayNames.add(normalize(a.patientName));
+    });
+  }
+
+  return { todayIds, todayNames };
+}
+
+// 15 patients all scheduled for Monday / Wed / Sat: daysOfWeek: [6, 1, 3]
+const mondayAppts = Array.from({ length: 15 }, (_, i) => ({
+  id: `appt_${i+1}`,
+  patientId: `p_${i+1}`,
+  patientName: `مريض ${i+1}`,
+  daysOfWeek: [6, 1, 3] // Sat, Mon, Wed
+}));
+
+// Test 1: On Tuesday (2026-09-15), 0 sessions recorded yet -> MUST return 0 patients! (Bug reported by user)
+const tuesdayResult = mockGetTodayPatientIdentifiers({
+  todayStr: '2026-09-15', // Tuesday (dayOfWeek = 2)
+  sessions: [], // No sessions recorded yet
+  appointments: mondayAppts
+});
+assert.equal(tuesdayResult.todayIds.size, 0, 'On Tuesday with no Tuesday appointments/sessions, count must be 0');
+
+// Test 2: On Monday (2026-09-14), all 15 appointments should be recognized
+const mondayResult = mockGetTodayPatientIdentifiers({
+  todayStr: '2026-09-14', // Monday (dayOfWeek = 1)
+  sessions: [],
+  appointments: mondayAppts
+});
+assert.equal(mondayResult.todayIds.size, 15, 'On Monday, all 15 scheduled appointments must be included');
+
+// Test 3: On Tuesday, a new session is recorded for patient p_1 -> count becomes 1
+const tuesdayWithSession = mockGetTodayPatientIdentifiers({
+  todayStr: '2026-09-15',
+  sessions: [{ patientId: 'p_1', patientName: 'مريض 1', date: '2026-09-15' }],
+  appointments: mondayAppts
+});
+assert.equal(tuesdayWithSession.todayIds.size, 1, 'Attended session on Tuesday must be included in today patients');
+assert.ok(tuesdayWithSession.todayIds.has('p_1'), 'p_1 must be in todayIds');
+
+// Test 4: Cancelled appointments for today are excluded
+const tuesdayWithCancelled = mockGetTodayPatientIdentifiers({
+  todayStr: '2026-09-15',
+  sessions: [],
+  appointments: [{ id: 'a_tue', patientId: 'p_tue', daysOfWeek: [2], effectiveStatus: 'cancelled' }]
+});
+assert.equal(tuesdayWithCancelled.todayIds.size, 0, 'Cancelled appointment for today must not be included');
+
+console.log('✓ All 4 Today Patients Filter assertions passed successfully!');

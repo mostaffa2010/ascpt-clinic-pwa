@@ -610,18 +610,41 @@ export class PatientsManager {
     const todayStr = getLocalDateStr();
 
     // 1. Sessions recorded today
-    const sessions = this.app?.sessionsManager?.sessions || [];
+    const cachedTodaySessions = db._sessionsByDateCache?.get(todayStr)?.data;
+    const sessions = Array.isArray(cachedTodaySessions)
+      ? cachedTodaySessions
+      : (this.app?.sessionsManager?.sessions || []);
+
     sessions.forEach(s => {
       const sDate = s.date || (s.createdAt ? s.createdAt.substring(0, 10) : '');
-      if (sDate === todayStr) {
+      if (sDate === todayStr && s.status !== 'cancelled') {
         if (s.patientId) todayIds.add(String(s.patientId).trim());
         if (s.patientName) todayNames.add(this.normalizeArabic(s.patientName));
       }
     });
 
-    // 2. Weekly appointments schedule
-    const appts = this.app?.appointmentsManager?.appointments || [];
-    appts.forEach(a => {
+    // 2. Weekly appointments schedule scheduled specifically for TODAY (day-of-week / date filtered)
+    let todayAppts = [];
+    if (this.app?.appointmentsManager?.getAppointmentsForDate) {
+      todayAppts = this.app.appointmentsManager.getAppointmentsForDate(todayStr) || [];
+    } else {
+      const allAppts = this.app?.appointmentsManager?.appointments || [];
+      const curDate = new Date(todayStr + 'T00:00:00');
+      const dayOfWeek = curDate.getDay();
+      if (dayOfWeek !== 5) {
+        todayAppts = allAppts.filter(a => {
+          if (a.status === 'completed' || a.status === 'cancelled') return false;
+          if (Array.isArray(a.daysOfWeek) && a.daysOfWeek.length > 0) {
+            return a.daysOfWeek.includes(dayOfWeek);
+          }
+          if (a.date) return a.date === todayStr;
+          return false;
+        });
+      }
+    }
+
+    todayAppts.forEach(a => {
+      if (a.effectiveStatus === 'cancelled' || a.isCancelledToday) return;
       if (a.patientId) todayIds.add(String(a.patientId).trim());
       if (a.patientName) todayNames.add(this.normalizeArabic(a.patientName));
     });
