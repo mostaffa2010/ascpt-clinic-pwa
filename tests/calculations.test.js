@@ -4,68 +4,42 @@ import { getDayShiftKey, isDoctorOnDuty, getShiftLabel, getLatestTherapySession 
 console.log('--- Running ASCPT Unit Tests: Calculations & Shift Engine ---');
 
 // 1. Shift Key Mapping Tests
-// 2026-09-12: Saturday (day 6)
 assert.equal(getDayShiftKey('2026-09-12'), 'sat_mon_wed', 'Saturday must map to sat_mon_wed');
-
-// 2026-09-13: Sunday (day 0)
 assert.equal(getDayShiftKey('2026-09-13'), 'sun_tue_thu', 'Sunday must map to sun_tue_thu');
-
-// 2026-09-14: Monday (day 1)
 assert.equal(getDayShiftKey('2026-09-14'), 'sat_mon_wed', 'Monday must map to sat_mon_wed');
-
-// 2026-09-15: Tuesday (day 2)
 assert.equal(getDayShiftKey('2026-09-15'), 'sun_tue_thu', 'Tuesday must map to sun_tue_thu');
-
-// 2026-09-16: Wednesday (day 3)
 assert.equal(getDayShiftKey('2026-09-16'), 'sat_mon_wed', 'Wednesday must map to sat_mon_wed');
-
-// 2026-09-17: Thursday (day 4)
 assert.equal(getDayShiftKey('2026-09-17'), 'sun_tue_thu', 'Thursday must map to sun_tue_thu');
-
-// 2026-09-18: Friday (day 5)
 assert.equal(getDayShiftKey('2026-09-18'), 'friday', 'Friday must map to friday');
 
 // 2. Doctor On-Duty Logic Tests
-// On Saturday (2026-09-12)
 assert.equal(isDoctorOnDuty('sat_mon_wed', '2026-09-12'), true, 'Doctor with sat_mon_wed must be on duty on Saturday');
 assert.equal(isDoctorOnDuty('sun_tue_thu', '2026-09-12'), false, 'Doctor with sun_tue_thu must NOT be on duty on Saturday');
 assert.equal(isDoctorOnDuty('all', '2026-09-12'), true, 'Full-time doctor (all) must be on duty on Saturday');
-
-// On Sunday (2026-09-13)
 assert.equal(isDoctorOnDuty('sun_tue_thu', '2026-09-13'), true, 'Doctor with sun_tue_thu must be on duty on Sunday');
 assert.equal(isDoctorOnDuty('sat_mon_wed', '2026-09-13'), false, 'Doctor with sat_mon_wed must NOT be on duty on Sunday');
 
-// On Sunday (2026-09-13) with Shift Coverage Overrides
 const sampleOverrides = [{ doctorUid: 'doc_mostafa', date: '2026-09-13', type: 'coverage' }];
-assert.equal(isDoctorOnDuty('sat_mon_wed', '2026-09-13', sampleOverrides, 'doc_mostafa'), true, 'Doctor with sat_mon_wed must be on duty on Sunday if coverage override exists');
-assert.equal(isDoctorOnDuty('sat_mon_wed', '2026-09-13', sampleOverrides, 'other_doc'), false, 'Other sat_mon_wed doctor must remain off duty without override');
+assert.equal(isDoctorOnDuty('sat_mon_wed', '2026-09-13', sampleOverrides, 'doc_mostafa'), true, 'Doctor with coverage override must be on duty');
+assert.equal(isDoctorOnDuty('sat_mon_wed', '2026-09-13', sampleOverrides, 'other_doc'), false, 'Other doctor must remain off duty');
 
 // 3. Shift Labels
 assert.equal(getShiftLabel('sat_mon_wed'), 'السبت / الاثنين / الأربعاء');
 assert.equal(getShiftLabel('sun_tue_thu'), 'الأحد / الثلاثاء / الخميس');
 assert.equal(getShiftLabel('all'), 'طوال أيام الأسبوع');
-
 console.log('✓ All 12 shift and calculation assertions passed successfully!');
 
 // 4. Doctor Session Pricing Calculation Tests
 function calculateDoctorDues(sessions, regularRate, specialRate) {
   let regularCount = 0;
   let specialCount = 0;
-
   sessions.forEach(s => {
-    // Examinations are not treated as regular therapy sessions unless configured,
-    // only active physical therapy sessions count toward doctor session rates
     if (s.entryType === 'examination') return;
-
     const isSpec = Boolean(s.isSpecial || s.sessionPricingType === 'special');
     const count = s.bodyPartsCount || 1;
-    if (isSpec) {
-      specialCount += count;
-    } else {
-      regularCount += count;
-    }
+    if (isSpec) specialCount += count;
+    else regularCount += count;
   });
-
   const totalDues = (regularCount * regularRate) + (specialCount * specialRate);
   return { regularCount, specialCount, totalDues };
 }
@@ -77,18 +51,15 @@ const testSessions = [
   { entryType: 'session', isSpecial: true, bodyPartsCount: 1 },
   { entryType: 'examination', isSpecial: false, bodyPartsCount: 0 }
 ];
-
 const duesResult = calculateDoctorDues(testSessions, 50, 80);
 assert.equal(duesResult.regularCount, 3, 'Regular sessions count should be 3');
 assert.equal(duesResult.specialCount, 2, 'Special sessions count should be 2');
 assert.equal(duesResult.totalDues, (3 * 50) + (2 * 80), 'Total dues should be 310 EGP');
 assert.equal(duesResult.totalDues, 310);
-
 console.log('✓ All Doctor Dues and Session Pricing assertions passed successfully!');
 
 // 5. Patient Last Session Auto-Restore Logic Tests
 console.log('--- Running Tests: Patient Last Session Auto-Restore ---');
-
 const mockPatientSessions = [
   { id: 's3', entryType: 'examination', doctor: 'د. حسني أحمد الجويلي', date: '2026-09-14', amountPaid: 200, notes: 'كشف دوري' },
   { id: 's2', entryType: 'session', doctor: 'د. مصطفى محمود', bodyParts: ['الفقرات العنقية', 'الكتف الأيمن'], isSpecial: true, amountPaid: 150, notes: 'تحسن في المدى الحركي', date: '2026-09-13' },
@@ -103,22 +74,17 @@ assert.equal(latestTherapy.bodyParts.length, 2);
 assert.equal(latestTherapy.isSpecial, true);
 assert.equal(latestTherapy.amountPaid, 150);
 assert.equal(latestTherapy.notes, 'تحسن في المدى الحركي');
-
-// Empty sessions list test
 assert.equal(getLatestTherapySession([]), null, 'Empty list must return null');
 assert.equal(getLatestTherapySession([{ entryType: 'examination' }]), null, 'Only examinations list must return null');
-
 console.log('✓ All 8 Last Session Auto-Restore assertions passed successfully!');
 
 // 6. Appointments Date Filtering & Status Transition Tests
 console.log('--- Running Tests: Appointments Engine & Status Sync ---');
-
 function filterAppointmentsByDate(appointments, targetDate, doctors = [], shiftOverrides = []) {
   if (!targetDate) return [];
   const curDate = new Date(targetDate + 'T00:00:00');
   const dayOfWeek = curDate.getDay();
-  if (dayOfWeek === 5) return []; // Friday holiday
-
+  if (dayOfWeek === 5) return [];
   const shiftKey = getDayShiftKey(targetDate);
   return appointments.filter(a => {
     if (Array.isArray(a.daysOfWeek) && a.daysOfWeek.length > 0) {
@@ -149,116 +115,82 @@ const mockAppointments = [
   { id: 'a6', patientName: 'خالد', timeSlot: '15:30', date: '2026-09-15', status: 'scheduled' }
 ];
 
-// 1. Filtering by date
 const sep14Appts = filterAppointmentsByDate(mockAppointments, '2026-09-14');
 assert.equal(sep14Appts.length, 5, 'Should return 5 appointments for 2026-09-14');
-
 const sep15Appts = filterAppointmentsByDate(mockAppointments, '2026-09-15');
 assert.equal(sep15Appts.length, 1, 'Should return 1 appointment for 2026-09-15');
 assert.equal(sep15Appts[0].patientName, 'خالد');
 
-// 2. Bed Occupancy calculation (ignores cancelled appointments)
 const slot1530Count = calculateSlotOccupancy(mockAppointments, '2026-09-14', '15:30');
-assert.equal(slot1530Count, 3, 'Slot 15:30 occupancy should be 3 beds (cancelled appt a4 excluded)');
+assert.equal(slot1530Count, 3, 'Slot 15:30 occupancy should be 3 beds');
 
-// 3. Status transitions
 let testAppt = { id: 'a1', status: 'scheduled' };
 assert.equal(testAppt.status, 'scheduled');
-testAppt.status = 'attended'; // Checked-in from reception
+testAppt.status = 'attended';
 assert.equal(testAppt.status, 'attended');
-testAppt.status = 'completed'; // Finished by doctor
+testAppt.status = 'completed';
 assert.equal(testAppt.status, 'completed');
-testAppt.status = 'no-show'; // Patient did not show up
+testAppt.status = 'no-show';
 assert.equal(testAppt.status, 'no-show');
-
 console.log('✓ All 6 Appointments Engine & Status Sync assertions passed successfully!');
 
-// 6.5 Weekly Recurring Appointments Engine Tests (No Copy Needed)
+// 6.5 Weekly Recurring Appointments Engine Tests
 console.log('--- Running Tests: Weekly Recurring Appointments Engine ---');
 const recurringAppt = {
   id: 'rec_101',
   patientName: 'الحسن سيد شحاتة',
   doctorUid: 'doc_mostafa',
   timeSlot: '15:30',
-  daysOfWeek: [6, 1, 3], // السبت (6)، الإثنين (1)، الأربعاء (3)
+  daysOfWeek: [6, 1, 3],
   startDate: '2026-09-12',
   status: 'active'
 };
 
-// 1. Check Saturday 2026-09-12 (day 6) -> Must match
 assert.equal(filterAppointmentsByDate([recurringAppt], '2026-09-12').length, 1);
-
-// 2. Check Sunday 2026-09-13 (day 0) -> Must NOT match
 assert.equal(filterAppointmentsByDate([recurringAppt], '2026-09-13').length, 0);
-
-// 3. Check Monday 2026-09-14 (day 1) -> Must match automatically without copy
 assert.equal(filterAppointmentsByDate([recurringAppt], '2026-09-14').length, 1);
-
-// 4. Check Wednesday 2026-09-16 (day 3) -> Must match automatically without copy
 assert.equal(filterAppointmentsByDate([recurringAppt], '2026-09-16').length, 1);
-
-// 5. Check Next Week Saturday 2026-09-19 & Monday 2026-09-21 -> Must match across future weeks
 assert.equal(filterAppointmentsByDate([recurringAppt], '2026-09-19').length, 1);
 assert.equal(filterAppointmentsByDate([recurringAppt], '2026-09-21').length, 1);
-
-// 6. Check Friday 2026-09-18 -> Holiday, must return 0
 assert.equal(filterAppointmentsByDate([recurringAppt], '2026-09-18').length, 0);
-
-// 7. Check Course Completion frees slot
 const completedAppt = { ...recurringAppt, status: 'completed' };
 assert.equal(filterAppointmentsByDate([completedAppt], '2026-09-21').length, 0);
-
 console.log('✓ All 7 Weekly Recurring Appointments assertions passed successfully!');
-
 
 // 7. Insurance Companies Sync & Persistence Tests
 console.log('--- Running Tests: Insurance Companies Sync & Mutation ---');
-
 function mockAddInsuranceCompany(currentList, name) {
   const clean = name.trim();
-  if (!currentList.includes(clean)) {
-    return [...currentList, clean];
-  }
+  if (!currentList.includes(clean)) return [...currentList, clean];
   return currentList;
 }
-
 function mockDeleteInsuranceCompany(currentList, name) {
   const clean = name.trim();
   return currentList.filter(item => item !== clean);
 }
 
 let directCompanies = ['أكسا (AXA)', 'أليانز (Allianz)', 'ميتلايف (MetLife)'];
-
-// Add test
 directCompanies = mockAddInsuranceCompany(directCompanies, 'شركة الدلتا للتأمين');
 assert.equal(directCompanies.length, 4, 'Should have 4 companies after add');
 assert.ok(directCompanies.includes('شركة الدلتا للتأمين'));
-
-// Duplicate add test
 directCompanies = mockAddInsuranceCompany(directCompanies, 'شركة الدلتا للتأمين');
 assert.equal(directCompanies.length, 4, 'Duplicate company must not increase count');
-
-// Delete test
 directCompanies = mockDeleteInsuranceCompany(directCompanies, 'أكسا (AXA)');
 assert.equal(directCompanies.length, 3, 'Should have 3 companies after delete');
 assert.ok(!directCompanies.includes('أكسا (AXA)'));
-
 console.log('✓ All 4 Insurance Companies Sync & Mutation assertions passed successfully!');
 
 // 8. Weekly Working Days & Friday Holiday Exclusion Tests
 console.log('--- Running Tests: Friday Exclusion & Appointment Copy Engine ---');
-
 function isFridayHoliday(dateStr) {
   return new Date(dateStr + 'T00:00:00').getDay() === 5;
 }
-
 function getWorkWeekDays(curDateStr) {
   const cur = new Date(curDateStr + 'T00:00:00');
   const dayOfWeek = cur.getDay();
   const diffToSat = (dayOfWeek + 1) % 7;
   const sat = new Date(cur);
   sat.setDate(cur.getDate() - diffToSat);
-
   const days = [];
   for (let i = 0; i < 6; i++) {
     const d = new Date(sat);
@@ -271,19 +203,16 @@ function getWorkWeekDays(curDateStr) {
   return days;
 }
 
-// 1. Friday Detection
 assert.equal(isFridayHoliday('2026-09-18'), true, '2026-09-18 must be detected as Friday holiday');
 assert.equal(isFridayHoliday('2026-09-14'), false, '2026-09-14 (Monday) is not Friday');
 assert.equal(isFridayHoliday('2026-09-12'), false, '2026-09-12 (Saturday) is not Friday');
 
-// 2. Week working days must have exactly 6 days (excluding Friday)
 const sep14Week = getWorkWeekDays('2026-09-14');
 assert.equal(sep14Week.length, 6, 'Work week must have exactly 6 days');
 assert.equal(sep14Week[0], '2026-09-12', 'First day of week is Saturday 2026-09-12');
 assert.equal(sep14Week[5], '2026-09-17', 'Last day of week is Thursday 2026-09-17');
-assert.ok(!sep14Week.includes('2026-09-18'), 'Friday 2026-09-18 must be strictly excluded from working week strip');
+assert.ok(!sep14Week.includes('2026-09-18'), 'Friday 2026-09-18 must be excluded');
 
-// 3. Appointment Copy Simulation
 function copyAppointmentToDates(origAppt, targetDates) {
   return targetDates
     .filter(d => !isFridayHoliday(d))
@@ -306,97 +235,71 @@ const origAppt = {
   date: '2026-09-14',
   status: 'completed'
 };
-
 const copied = copyAppointmentToDates(origAppt, ['2026-09-12', '2026-09-16', '2026-09-18']);
-assert.equal(copied.length, 2, 'Friday must be skipped, copying to Saturday and Wednesday only');
+assert.equal(copied.length, 2, 'Friday must be skipped');
 assert.equal(copied[0].date, '2026-09-12');
 assert.equal(copied[0].patientName, 'محمد عبد الفتاح');
 assert.equal(copied[0].doctorName, 'د. مصطفى محمود');
 assert.equal(copied[0].timeSlot, '16:30');
-assert.equal(copied[0].status, 'scheduled', 'Copied appointment must reset to scheduled status');
+assert.equal(copied[0].status, 'scheduled');
 assert.equal(copied[1].date, '2026-09-16');
-
 console.log('✓ All 6 Friday Exclusion & Appointment Copy assertions passed successfully!');
 
 // 9. Clinical Programs & Senior/Junior Doctor Pricing Engine Tests
 console.log('--- Running Tests: Clinical Programs & Senior/Junior Doctor Pricing ---');
-
 function calculateDoctorProgramDues(sessions, docRates) {
   let regularCount = 0;
   let scoliosisCount = 0;
   let hemiplegiaCount = 0;
   let quadriplegiaCount = 0;
   let otherCount = 0;
-
   sessions.forEach(s => {
     if (s.entryType === 'examination') return;
     const count = s.bodyPartsCount || 1;
     const pType = s.sessionPricingType || s.programType || (s.isSpecial ? 'special' : 'regular');
-    if (pType === 'scoliosis') {
-      scoliosisCount += count;
-    } else if (pType === 'hemiplegia') {
-      hemiplegiaCount += count;
-    } else if (pType === 'quadriplegia' || pType === 'pediatric') {
-      quadriplegiaCount += count;
-    } else if (pType === 'special') {
-      otherCount += count;
-    } else {
-      regularCount += count;
-    }
+    if (pType === 'scoliosis') scoliosisCount += count;
+    else if (pType === 'hemiplegia') hemiplegiaCount += count;
+    else if (pType === 'quadriplegia' || pType === 'pediatric') quadriplegiaCount += count;
+    else if (pType === 'special') otherCount += count;
+    else regularCount += count;
   });
-
   const quadRate = docRates.quadriplegia ?? docRates.pediatric ?? 0;
-  const totalDues = 
-    (regularCount * (docRates.regular || 0)) +
-    (scoliosisCount * (docRates.scoliosis || 0)) +
-    (hemiplegiaCount * (docRates.hemiplegia || 0)) +
-    (quadriplegiaCount * quadRate) +
-    (otherCount * (docRates.special || 0));
-
-  return {
-    regularCount,
-    scoliosisCount,
-    hemiplegiaCount,
-    quadriplegiaCount,
-    otherCount,
-    totalDues
-  };
+  const totalDues = (regularCount * (docRates.regular || 0)) +
+                    (scoliosisCount * (docRates.scoliosis || 0)) +
+                    (hemiplegiaCount * (docRates.hemiplegia || 0)) +
+                    (quadriplegiaCount * quadRate) +
+                    (otherCount * (docRates.special || 0));
+  return { regularCount, scoliosisCount, hemiplegiaCount, quadriplegiaCount, otherCount, totalDues };
 }
 
 const sampleMixedSessions = [
   { entryType: 'session', sessionPricingType: 'regular', bodyPartsCount: 1 },
-  { entryType: 'session', sessionPricingType: 'regular', bodyPartsCount: 2 }, // 2 units
+  { entryType: 'session', sessionPricingType: 'regular', bodyPartsCount: 2 },
   { entryType: 'session', sessionPricingType: 'scoliosis', bodyPartsCount: 1 },
   { entryType: 'session', sessionPricingType: 'hemiplegia', bodyPartsCount: 1 },
   { entryType: 'session', sessionPricingType: 'quadriplegia', bodyPartsCount: 1 },
-  { entryType: 'examination', sessionPricingType: 'regular', bodyPartsCount: 0 } // Exam excluded from therapy rates
+  { entryType: 'examination', sessionPricingType: 'regular', bodyPartsCount: 0 }
 ];
 
-// Test 1: Junior Doctor Rates (Regular 40, Scoliosis 80, Hemiplegia 70, Pediatric 60)
 const juniorRates = { regular: 40, scoliosis: 80, hemiplegia: 70, quadriplegia: 60, pediatric: 60 };
 const juniorDues = calculateDoctorProgramDues(sampleMixedSessions, juniorRates);
-assert.equal(juniorDues.regularCount, 3, 'Junior should have 3 regular session units (1 + 2)');
-assert.equal(juniorDues.scoliosisCount, 1, 'Junior should have 1 scoliosis session');
-assert.equal(juniorDues.hemiplegiaCount, 1, 'Junior should have 1 hemiplegia session');
-assert.equal(juniorDues.quadriplegiaCount, 1, 'Junior should have 1 quadriplegia session');
-// Total = (3 * 40) + (1 * 80) + (1 * 70) + (1 * 60) = 120 + 80 + 70 + 60 = 330 EGP
-assert.equal(juniorDues.totalDues, 330, 'Junior total dues should be 330 EGP');
+assert.equal(juniorDues.regularCount, 3);
+assert.equal(juniorDues.scoliosisCount, 1);
+assert.equal(juniorDues.hemiplegiaCount, 1);
+assert.equal(juniorDues.quadriplegiaCount, 1);
+assert.equal(juniorDues.totalDues, 330);
 
-// Test 2: Senior Doctor Rates (Regular 70, Scoliosis 130, Hemiplegia 100, Pediatric 90)
 const seniorRates = { regular: 70, scoliosis: 130, hemiplegia: 100, quadriplegia: 90, pediatric: 90 };
 const seniorDues = calculateDoctorProgramDues(sampleMixedSessions, seniorRates);
 assert.equal(seniorDues.regularCount, 3);
 assert.equal(seniorDues.scoliosisCount, 1);
 assert.equal(seniorDues.hemiplegiaCount, 1);
 assert.equal(seniorDues.quadriplegiaCount, 1);
-// Total = (3 * 70) + (1 * 130) + (1 * 100) + (1 * 90) = 210 + 130 + 100 + 90 = 530 EGP
-assert.equal(seniorDues.totalDues, 530, 'Senior total dues should be 530 EGP');
-
+assert.equal(seniorDues.totalDues, 530);
 console.log('✓ All 8 Clinical Program & Seniority Dues assertions passed successfully!');
 
-// 10. Version-Doc Pattern Sync Engine Tests (Self-Echo Skip, Delta-Fetch, Gap Fallback)
+// 10. Version-Doc Pattern Sync Engine Tests
 console.log('--- Running Tests: Version-Doc Pattern & Sync Trigger Engine ---');
-
 function createMockDeltaSyncListener(initialData, singleDocStore = {}) {
   let lastSeenVersion = null;
   let isFirstSnapshot = true;
@@ -406,7 +309,7 @@ function createMockDeltaSyncListener(initialData, singleDocStore = {}) {
   let cache = [...initialData];
   let notifiedData = [...initialData];
 
-  function mockFullFetch(force) {
+  function mockFullFetch() {
     fullCollectionFetchCount++;
     cache = [...initialData];
     notifiedData = [...cache];
@@ -419,55 +322,41 @@ function createMockDeltaSyncListener(initialData, singleDocStore = {}) {
     return Promise.resolve(docData ? { exists: true, id, data: docData } : { exists: false, id });
   }
 
-  // Startup fetch on attach
-  mockFullFetch(true);
+  mockFullFetch();
 
   async function onSnapshotCallback(snap) {
     const data = snap.exists ? snap.data : null;
     const currentVersion = (data && typeof data.patientsVersion === 'number') ? data.patientsVersion : 0;
 
-    // 1. Skip writer's own echo (0 reads, local cache already patched)
     if (suppressNextOwnVersionEvent) {
       suppressNextOwnVersionEvent = false;
       lastSeenVersion = currentVersion;
       return;
     }
-
-    // 2. Initial snapshot
     if (isFirstSnapshot) {
       isFirstSnapshot = false;
       lastSeenVersion = currentVersion;
       return;
     }
-
-    // 3. Redundant snapshot
-    if (lastSeenVersion === currentVersion) {
-      return;
-    }
+    if (lastSeenVersion === currentVersion) return;
 
     const isSequential = (typeof lastSeenVersion === 'number' && currentVersion === lastSeenVersion + 1);
     const action = data ? data.lastChangedPatientAction : null;
     const targetId = data ? data.lastChangedPatientId : null;
-
     lastSeenVersion = currentVersion;
 
-    // 4. Delta-fetch optimization (single-doc read or 0-read delete)
     if (isSequential && targetId && (action === 'created' || action === 'updated' || action === 'deleted') && Array.isArray(cache)) {
       if (action === 'deleted') {
         cache = cache.filter(p => p.id !== targetId);
         notifiedData = [...cache];
         return;
       }
-
       const pSnap = await mockSingleDocFetch(targetId);
       if (pSnap.exists) {
         const item = { id: pSnap.id, ...pSnap.data };
         const idx = cache.findIndex(p => p.id === targetId);
-        if (idx !== -1) {
-          cache[idx] = { ...cache[idx], ...item };
-        } else {
-          cache.unshift(item);
-        }
+        if (idx !== -1) cache[idx] = { ...cache[idx], ...item };
+        else cache.unshift(item);
         notifiedData = [...cache];
         return;
       } else {
@@ -476,9 +365,7 @@ function createMockDeltaSyncListener(initialData, singleDocStore = {}) {
         return;
       }
     }
-
-    // 5. Gap fallback (version jump > 1) -> full collection fetch
-    await mockFullFetch(true);
+    await mockFullFetch();
   }
 
   return {
@@ -500,63 +387,52 @@ const mockStore = {
 };
 const syncTest = createMockDeltaSyncListener(mockPatientsData, mockStore);
 
-// 1. On startup, initial fetch executed immediately
-assert.equal(syncTest.getFullFetchCount(), 1, 'Initial fetch must run on attach');
-assert.equal(syncTest.getSingleDocFetchCount(), 0, 'No single doc fetch on attach');
+assert.equal(syncTest.getFullFetchCount(), 1);
+assert.equal(syncTest.getSingleDocFetchCount(), 0);
 
-// 2. Initial snapshot arrives with version 5 -> records version, does not double-fetch
 await syncTest.triggerSnapshot({ exists: true, data: { patientsVersion: 5 } });
-assert.equal(syncTest.getLastSeen(), 5, 'Last seen version must update to 5');
-assert.equal(syncTest.getFullFetchCount(), 1, 'Initial snapshot must not trigger duplicate fetch');
+assert.equal(syncTest.getLastSeen(), 5);
+assert.equal(syncTest.getFullFetchCount(), 1);
 
-// 3. Redundant snapshot with same version (reconnect / tab refresh) -> NO fetch!
 await syncTest.triggerSnapshot({ exists: true, data: { patientsVersion: 5 } });
-assert.equal(syncTest.getFullFetchCount(), 1, 'Identical version must cost 0 collection refetches');
-assert.equal(syncTest.getSingleDocFetchCount(), 0, 'Identical version must cost 0 single-doc reads');
+assert.equal(syncTest.getFullFetchCount(), 1);
+assert.equal(syncTest.getSingleDocFetchCount(), 0);
 
-// 4. Writer's own echo: suppressNextOwnVersionEvent = true -> 0 Firestore reads!
 syncTest.setSuppressOwn(true);
 await syncTest.triggerSnapshot({ exists: true, data: { patientsVersion: 6, lastChangedPatientId: 'p1', lastChangedPatientAction: 'updated' } });
-assert.equal(syncTest.getLastSeen(), 6, 'Last seen version must update to 6');
-assert.equal(syncTest.getFullFetchCount(), 1, 'Writer echo must cost 0 collection refetches');
-assert.equal(syncTest.getSingleDocFetchCount(), 0, 'Writer echo must cost 0 single-doc reads');
-assert.equal(syncTest.getSuppressOwn(), false, 'Suppression flag must be reset to false');
+assert.equal(syncTest.getLastSeen(), 6);
+assert.equal(syncTest.getFullFetchCount(), 1);
+assert.equal(syncTest.getSingleDocFetchCount(), 0);
+assert.equal(syncTest.getSuppressOwn(), false);
 
-// 5. Remote write from another device: version 7 (jump of 1), action "updated" -> delta-fetch (1 single-doc read, 0 collection reads)
 await syncTest.triggerSnapshot({ exists: true, data: { patientsVersion: 7, lastChangedPatientId: 'p1', lastChangedPatientAction: 'updated' } });
-assert.equal(syncTest.getLastSeen(), 7, 'Last seen version must update to 7');
-assert.equal(syncTest.getFullFetchCount(), 1, 'Delta-fetch must NOT perform full collection read');
-assert.equal(syncTest.getSingleDocFetchCount(), 1, 'Delta-fetch must perform exactly 1 single-doc read');
-assert.equal(syncTest.getCache().find(p => p.id === 'p1').name, 'أحمد المعدل', 'Delta-fetch must merge updated doc data into cache');
+assert.equal(syncTest.getLastSeen(), 7);
+assert.equal(syncTest.getFullFetchCount(), 1);
+assert.equal(syncTest.getSingleDocFetchCount(), 1);
+assert.equal(syncTest.getCache().find(p => p.id === 'p1').name, 'أحمد المعدل');
 
-// 6. Remote delete from another device: version 8 (jump of 1), action "deleted" -> 0 reads, cache updated directly!
 await syncTest.triggerSnapshot({ exists: true, data: { patientsVersion: 8, lastChangedPatientId: 'p2', lastChangedPatientAction: 'deleted' } });
-assert.equal(syncTest.getLastSeen(), 8, 'Last seen version must update to 8');
-assert.equal(syncTest.getFullFetchCount(), 1, 'Delete sync must cost 0 collection reads');
-assert.equal(syncTest.getSingleDocFetchCount(), 1, 'Delete sync must cost 0 single doc reads (count remains 1)');
-assert.equal(syncTest.getCache().some(p => p.id === 'p2'), false, 'Deleted patient p2 must be removed from cache');
+assert.equal(syncTest.getLastSeen(), 8);
+assert.equal(syncTest.getFullFetchCount(), 1);
+assert.equal(syncTest.getSingleDocFetchCount(), 1);
+assert.equal(syncTest.getCache().some(p => p.id === 'p2'), false);
 
-// 7. Gap fallback: Device reconnects after multiple changes (version jumps from 8 to 12) -> triggers full collection refetch
 await syncTest.triggerSnapshot({ exists: true, data: { patientsVersion: 12, lastChangedPatientId: 'p3', lastChangedPatientAction: 'created' } });
-assert.equal(syncTest.getLastSeen(), 12, 'Last seen version must update to 12');
-assert.equal(syncTest.getFullFetchCount(), 2, 'Version gap (>1) must fall back to full collection refetch');
+assert.equal(syncTest.getLastSeen(), 12);
+assert.equal(syncTest.getFullFetchCount(), 2);
 
-// 8. Missing doc fallback handles gracefully
 const emptyDocSync = createMockDeltaSyncListener([]);
 await emptyDocSync.triggerSnapshot({ exists: false, data: null });
-assert.equal(emptyDocSync.getLastSeen(), 0, 'Missing syncVersion doc should default to version 0');
-
+assert.equal(emptyDocSync.getLastSeen(), 0);
 console.log('✓ All 8 Version-Doc Sync Trigger assertions passed successfully!');
 
-// 11. Today Patients Filter Engine Tests (Date & Recurring Day-of-Week Validation)
+// 11. Today Patients Filter Engine Tests
 console.log('--- Running Tests: Today Patients Filter & Day-of-Week Sync ---');
-
 function mockGetTodayPatientIdentifiers({ todayStr, sessions = [], appointments = [] }) {
   const todayIds = new Set();
   const todayNames = new Set();
   const normalize = (t) => (t || '').trim().toLowerCase().replace(/[أإآٱ]/g, 'ا').replace(/ة/g, 'ه').replace(/ى/g, 'ي');
 
-  // 1. Sessions recorded today
   sessions.forEach(s => {
     const sDate = s.date || (s.createdAt ? s.createdAt.substring(0, 10) : '');
     if (sDate === todayStr && s.status !== 'cancelled') {
@@ -565,11 +441,9 @@ function mockGetTodayPatientIdentifiers({ todayStr, sessions = [], appointments 
     }
   });
 
-  // 2. Appointments scheduled specifically for today
   const curDate = new Date(todayStr + 'T00:00:00');
   const dayOfWeek = curDate.getDay();
-
-  if (dayOfWeek !== 5) { // Friday holiday
+  if (dayOfWeek !== 5) {
     const todayAppts = appointments.filter(a => {
       if (a.status === 'completed' || a.status === 'cancelled') return false;
       if (Array.isArray(a.daysOfWeek) && a.daysOfWeek.length > 0) {
@@ -585,49 +459,42 @@ function mockGetTodayPatientIdentifiers({ todayStr, sessions = [], appointments 
       if (a.patientName) todayNames.add(normalize(a.patientName));
     });
   }
-
   return { todayIds, todayNames };
 }
 
-// 15 patients all scheduled for Monday / Wed / Sat: daysOfWeek: [6, 1, 3]
 const mondayAppts = Array.from({ length: 15 }, (_, i) => ({
   id: `appt_${i+1}`,
   patientId: `p_${i+1}`,
   patientName: `مريض ${i+1}`,
-  daysOfWeek: [6, 1, 3] // Sat, Mon, Wed
+  daysOfWeek: [6, 1, 3]
 }));
 
-// Test 1: On Tuesday (2026-09-15), 0 sessions recorded yet -> MUST return 0 patients! (Bug reported by user)
 const tuesdayResult = mockGetTodayPatientIdentifiers({
-  todayStr: '2026-09-15', // Tuesday (dayOfWeek = 2)
-  sessions: [], // No sessions recorded yet
-  appointments: mondayAppts
-});
-assert.equal(tuesdayResult.todayIds.size, 0, 'On Tuesday with no Tuesday appointments/sessions, count must be 0');
-
-// Test 2: On Monday (2026-09-14), all 15 appointments should be recognized
-const mondayResult = mockGetTodayPatientIdentifiers({
-  todayStr: '2026-09-14', // Monday (dayOfWeek = 1)
+  todayStr: '2026-09-15',
   sessions: [],
   appointments: mondayAppts
 });
-assert.equal(mondayResult.todayIds.size, 15, 'On Monday, all 15 scheduled appointments must be included');
+assert.equal(tuesdayResult.todayIds.size, 0);
 
-// Test 3: On Tuesday, a new session is recorded for patient p_1 -> count becomes 1
+const mondayResult = mockGetTodayPatientIdentifiers({
+  todayStr: '2026-09-14',
+  sessions: [],
+  appointments: mondayAppts
+});
+assert.equal(mondayResult.todayIds.size, 15);
+
 const tuesdayWithSession = mockGetTodayPatientIdentifiers({
   todayStr: '2026-09-15',
   sessions: [{ patientId: 'p_1', patientName: 'مريض 1', date: '2026-09-15' }],
   appointments: mondayAppts
 });
-assert.equal(tuesdayWithSession.todayIds.size, 1, 'Attended session on Tuesday must be included in today patients');
-assert.ok(tuesdayWithSession.todayIds.has('p_1'), 'p_1 must be in todayIds');
+assert.equal(tuesdayWithSession.todayIds.size, 1);
+assert.ok(tuesdayWithSession.todayIds.has('p_1'));
 
-// Test 4: Cancelled appointments for today are excluded
 const tuesdayWithCancelled = mockGetTodayPatientIdentifiers({
   todayStr: '2026-09-15',
   sessions: [],
   appointments: [{ id: 'a_tue', patientId: 'p_tue', daysOfWeek: [2], effectiveStatus: 'cancelled' }]
 });
-assert.equal(tuesdayWithCancelled.todayIds.size, 0, 'Cancelled appointment for today must not be included');
-
+assert.equal(tuesdayWithCancelled.todayIds.size, 0);
 console.log('✓ All 4 Today Patients Filter assertions passed successfully!');
