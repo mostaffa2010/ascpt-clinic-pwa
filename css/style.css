@@ -6946,6 +6946,42 @@ h1, h2, h3, h4, h5, h6 {
   border: 1px solid var(--border-color) !important;
 }
 
+.patient-area-badge.prog-quadriplegia {
+  color: #e11d48;
+  background: rgba(225, 29, 72, 0.12);
+  border-color: rgba(225, 29, 72, 0.3);
+}
+
+.patient-area-badge.prog-hemiplegia {
+  color: #b45309;
+  background: rgba(245, 158, 11, 0.12);
+  border-color: rgba(245, 158, 11, 0.3);
+}
+
+.patient-area-badge.prog-scoliosis {
+  color: #0284c7;
+  background: rgba(2, 132, 199, 0.12);
+  border-color: rgba(2, 132, 199, 0.3);
+}
+
+[data-theme="dark"] .patient-area-badge.prog-quadriplegia {
+  color: #fb7185 !important;
+  background: rgba(225, 29, 72, 0.22) !important;
+  border-color: rgba(225, 29, 72, 0.45) !important;
+}
+
+[data-theme="dark"] .patient-area-badge.prog-hemiplegia {
+  color: #fbbf24 !important;
+  background: rgba(245, 158, 11, 0.22) !important;
+  border-color: rgba(245, 158, 11, 0.45) !important;
+}
+
+[data-theme="dark"] .patient-area-badge.prog-scoliosis {
+  color: #38bdf8 !important;
+  background: rgba(2, 132, 199, 0.22) !important;
+  border-color: rgba(2, 132, 199, 0.45) !important;
+}
+
 /* Patient Card Doctor Badge (Optimized for Light & Dark Mode) */
 .patient-doc-badge {
   display: inline-flex;

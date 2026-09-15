@@ -665,6 +665,7 @@ export class PatientsManager {
         const normPhone = (p.phone || '').replace(/[^0-9]/g, '');
         const normComp = this.normalizeArabic(p.insuranceCompany || '');
         const normDoc = this.normalizeArabic(p.doctor || '');
+        const normProg = this.normalizeArabic(p.programType || '');
         const normArea = this.normalizeArabic(p.clinicalSheet?.affectedArea || p.affectedArea || p.clinicalSheet?.diagnosis || p.diagnosis || '');
         const normAddr = this.normalizeArabic(p.address || '');
 
@@ -673,6 +674,7 @@ export class PatientsManager {
           (cleanDigits.length > 0 && normPhone.includes(cleanDigits)) ||
           normComp.includes(normSearch) ||
           normDoc.includes(normSearch) ||
+          normProg.includes(normSearch) ||
           normArea.includes(normSearch) ||
           normAddr.includes(normSearch);
       }
@@ -828,8 +830,7 @@ export class PatientsManager {
       const safeAge = escapeHTML(p.age);
       const safePhone = escapeHTML(p.phone);
       const safeAddress = escapeHTML(p.address || '-');
-      const pParts = this.getPatientBodyParts(p);
-      const partsDisplay = pParts.length > 0 ? pParts.join(' • ') : 'لم تحدد الأعضاء بعد';
+      const areaInfo = this.getPatientTreatedAreaDisplay(p);
       const safeDoctor = escapeHTML(p.doctor || '');
       const safeEditor = escapeHTML(p.lastUpdatedBy || p.createdBy || '-');
       const cleanWaPhone = (p.phone || '').replace(/[^0-9]/g, '').replace(/^0/, '20');
@@ -865,7 +866,7 @@ export class PatientsManager {
             </a>
           </td>
           <td style="white-space: nowrap;">${safeAddress}</td>
-          <td style="white-space: nowrap;"><span style="font-weight: 700; color: var(--text-main); display: inline-flex; align-items: center; gap: 5px;"><i class="fa-solid fa-bone text-primary" style="font-size: 0.75rem;"></i> ${escapeHTML(partsDisplay)}</span></td>
+          <td style="white-space: nowrap;"><span class="patient-area-badge ${areaInfo.badgeClass}" style="font-size: 0.74rem; padding: 2px 8px; border-radius: 6px; display: inline-flex; align-items: center; gap: 5px;"><i class="${areaInfo.icon}"></i> ${escapeHTML(areaInfo.text)}</span></td>
           <td style="white-space: nowrap;">${billingBadge}</td>
           <td style="font-size: 0.8rem; color: var(--text-muted); white-space: nowrap;">${safeEditor}</td>
           <td style="white-space: nowrap;">
@@ -929,8 +930,7 @@ export class PatientsManager {
         const safeAge = escapeHTML(p.age);
         const safePhone = escapeHTML(p.phone);
         const safeAddress = escapeHTML(p.address || '');
-        const mParts = this.getPatientBodyParts(p);
-        const mobilePartsDisplay = mParts.length > 0 ? mParts.join(' • ') : 'لم تحدد الأعضاء بعد';
+        const mobileAreaInfo = this.getPatientTreatedAreaDisplay(p);
         const safeDoctor = escapeHTML(p.doctor || '');
         const cleanDocName = (p.doctor || 'طبيب المركز').replace(/^د\.\s*/, '');
         const docColor = getDoctorColor(p.doctorId || p.doctor || 'default');
@@ -970,8 +970,8 @@ export class PatientsManager {
                     </span>
                   </div>
                   <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-top: 2px;">
-                    <span class="patient-area-badge" style="font-size: 0.74rem; padding: 2px 8px; border-radius: 6px; background: var(--bg-subtle); color: var(--text-main); border: 1px solid var(--border-color); display: inline-flex; align-items: center; gap: 5px;">
-                      <i class="fa-solid fa-bone text-primary" style="font-size: 0.72rem;"></i> ${escapeHTML(mobilePartsDisplay)}
+                    <span class="patient-area-badge ${mobileAreaInfo.badgeClass}" style="font-size: 0.74rem; padding: 2px 8px; border-radius: 6px; display: inline-flex; align-items: center; gap: 5px;">
+                      <i class="${mobileAreaInfo.icon}"></i> ${escapeHTML(mobileAreaInfo.text)}
                     </span>
                   </div>
                 </div>
@@ -1063,6 +1063,46 @@ export class PatientsManager {
 
 
   // ================= Dynamic Patient Body Parts Resolution (Two-Way Session Sync) =================
+  getPatientTreatedAreaDisplay(p) {
+    if (!p) return { text: 'لم تحدد الأعضاء بعد', icon: 'fa-solid fa-bone', badgeClass: 'prog-regular' };
+
+    const prog = (p.programType === 'pediatric') ? 'quadriplegia' : (p.programType || p.clinicalSheet?.programType || 'regular');
+    const pParts = this.getPatientBodyParts(p);
+    const hasParts = pParts.length > 0;
+    const partsText = pParts.join(' • ');
+
+    if (prog === 'quadriplegia') {
+      return {
+        text: hasParts ? `Quadriplegia • ${partsText}` : 'Quadriplegia',
+        icon: 'fa-solid fa-wheelchair',
+        badgeClass: 'prog-quadriplegia'
+      };
+    }
+
+    if (prog === 'hemiplegia') {
+      return {
+        text: hasParts ? `Hemiplegia • ${partsText}` : 'Hemiplegia',
+        icon: 'fa-solid fa-brain',
+        badgeClass: 'prog-hemiplegia'
+      };
+    }
+
+    if (prog === 'scoliosis') {
+      return {
+        text: hasParts ? `Scoliosis • ${partsText}` : 'Scoliosis',
+        icon: 'fa-solid fa-arrows-split-up-and-left',
+        badgeClass: 'prog-scoliosis'
+      };
+    }
+
+    // Regular (عام / عظام)
+    return {
+      text: hasParts ? partsText : 'لم تحدد الأعضاء بعد',
+      icon: 'fa-solid fa-bone',
+      badgeClass: 'prog-regular'
+    };
+  }
+
   getPatientBodyParts(patient) {
     if (!patient) return [];
     if (Array.isArray(patient.bodyParts) && patient.bodyParts.length > 0) {
