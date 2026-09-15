@@ -612,7 +612,7 @@
     justify-content: space-around !important;
     margin-top: 12px !important;
     padding-top: 6px !important;
-    border-top: 1.2px dashed #475569 !important;
+    border-top: 1.2px dashed #0284c7 !important;
     font-size: 8pt !important;
     font-weight: 800 !important;
     page-break-inside: avoid !important;
@@ -727,7 +727,7 @@
   /* ================= CASE 5: PRINTING INSURANCE RENEWAL LETTER (A5) ================= */
   @page insuranceLetterPage {
     size: A5 portrait;
-    margin: 10mm;
+    margin: 6mm 7mm !important;
   }
 
   body.printing-insurance-letter > *:not(#printable-insurance-letter) {
@@ -742,20 +742,27 @@
   }
 
   body.printing-insurance-letter #printable-insurance-letter {
-    display: block !important;
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: space-between !important;
     position: relative !important;
     width: 100% !important;
-    margin: 0 !important;
-    padding: 0 !important;
+    min-height: 196mm !important;
+    box-sizing: border-box !important;
+    margin: 0 auto !important;
+    padding: 14px 18px 10px 18px !important;
+    border: 2px solid #0284c7 !important;
+    border-radius: 10px !important;
     page: insuranceLetterPage;
     font-size: 10pt !important;
     line-height: 1.6 !important;
     color: #000000 !important;
+    background: #ffffff !important;
   }
 
   body.printing-insurance-letter .ins-letter-header {
     text-align: center !important;
-    border-bottom: 2px solid #0369a1 !important;
+    border-bottom: 2px solid #0284c7 !important;
     padding-bottom: 6px !important;
     margin-bottom: 12px !important;
   }
@@ -788,7 +795,7 @@
     display: inline-block !important;
     font-weight: 800 !important;
     font-size: 11.5pt !important;
-    border-bottom: 1.5px solid #0369a1 !important;
+    border-bottom: 1.5px solid #0284c7 !important;
     padding-bottom: 3px !important;
     color: #0f172a !important;
   }
@@ -880,7 +887,7 @@
   body.printing-insurance-letter .ins-letter-footer-contact {
     margin-top: 14px !important;
     padding-top: 6px !important;
-    border-top: 1.2px dashed #475569 !important;
+    border-top: 1.2px dashed #0284c7 !important;
     font-size: 7.5pt !important;
     color: #334155 !important;
     text-align: center !important;
