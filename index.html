@@ -550,13 +550,16 @@
               </div>
             </div>
 
-            <!-- Full-Width Sleek Segmented Control (Point 2) -->
-            <div class="doc-filter-segmented-bar no-print">
+            <!-- 2x2 Grid Filter for Doctor Dashboard (v2.2.7) -->
+            <div class="doc-filter-grid no-print">
               <button type="button" class="doc-seg-btn active" id="btn-doc-filter-today">
                 <i class="fa-solid fa-calendar-day"></i> <span>جلسات اليوم</span>
               </button>
               <button type="button" class="doc-seg-btn" id="btn-doc-filter-month">
                 <i class="fa-solid fa-calendar-days"></i> <span>حالات الشهر</span>
+              </button>
+              <button type="button" class="doc-seg-btn" id="btn-doc-filter-home-visits">
+                <i class="fa-solid fa-house-medical"></i> <span>زيارات منزلية</span>
               </button>
               <button type="button" class="doc-seg-btn" id="btn-doc-filter-lifetime">
                 <i class="fa-solid fa-users"></i> <span>كل المرضى</span>
@@ -2260,7 +2263,7 @@
         <div class="admin-system-footer no-print" style="margin-top: 32px; margin-bottom: 35px; text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px;">
           <div style="display: inline-flex; align-items: center; gap: 8px; background: var(--bg-surface); border: 1.5px solid var(--border-color); padding: 7px 18px; border-radius: 999px; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);">
             <span style="width: 8px; height: 8px; border-radius: 50%; background-color: var(--success); display: inline-block; box-shadow: 0 0 6px var(--success);"></span>
-            <span id="admin-system-version-label" data-clinic="version-badge" style="font-weight: 800; font-size: 0.88rem; color: var(--text-main);">نظام ASCPT — الإصدار 2.2.6</span>
+            <span id="admin-system-version-label" data-clinic="version-badge" style="font-weight: 800; font-size: 0.88rem; color: var(--text-main);">نظام ASCPT — الإصدار 2.2.7</span>
             <span class="badge badge-primary" style="font-size: 0.72rem; padding: 2px 10px; border-radius: 999px; font-weight: 800;">إصدار معتمد</span>
           </div>
           <div style="font-size: 0.76rem; color: var(--text-muted); font-weight: 700;">
@@ -2591,6 +2594,110 @@
       <div class="modal-footer">
         <button type="button" class="btn btn-outline" data-close-modal="modal-patient-docs">إغلاق</button>
       </div>
+    </div>
+  </div>
+
+  <!-- Modal: Batch Home Visits & Insurance Package Entry (تسجيل جواب زيارات منزلية - v2.2.7) -->
+  <div class="modal-backdrop" id="modal-batch-home-visits" style="z-index: 220;">
+    <div class="modal-content" style="max-width: 560px;">
+      <div class="modal-header">
+        <h3><i class="fa-solid fa-house-medical-circle-check" style="color: #059669;"></i> تسجيل جواب زيارات منزلية لمريض تأمين</h3>
+        <button type="button" class="modal-close" data-close-modal="modal-batch-home-visits">&times;</button>
+      </div>
+      <form id="form-batch-home-visits" novalidate>
+        <div class="modal-body" style="padding: 16px; max-height: 75vh; overflow-y: auto;">
+          <!-- Patient Summary Strip -->
+          <div style="background: var(--bg-subtle); border-radius: 10px; padding: 12px; margin-bottom: 14px; border: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
+            <div>
+              <div style="font-weight: 800; font-size: 1.05rem; color: var(--text-main);" id="batch-hv-patient-name">-</div>
+              <div style="font-size: 0.82rem; color: var(--text-muted); margin-top: 2px;" id="batch-hv-patient-info">-</div>
+            </div>
+            <span id="batch-hv-patient-badge" class="badge badge-direct">تأمين</span>
+          </div>
+
+          <!-- Doctor Selector -->
+          <div class="form-group" style="margin-bottom: 12px;">
+            <label for="batch-hv-doctor" style="font-weight: 800; font-size: 0.85rem;">الطبيب المعالج (الذي أجرى الزيارات) *</label>
+            <select id="batch-hv-doctor" class="form-control" required style="height: 40px; font-weight: 700;">
+              <!-- Populated dynamically -->
+            </select>
+          </div>
+
+          <!-- Pattern Generator Box -->
+          <div style="background: rgba(2, 132, 199, 0.05); border: 1.5px solid rgba(2, 132, 199, 0.25); border-radius: 12px; padding: 14px; margin-bottom: 14px;">
+            <div style="font-weight: 800; font-size: 0.9rem; color: var(--primary); margin-bottom: 10px; display: flex; align-items: center; gap: 6px;">
+              <i class="fa-solid fa-wand-magic-sparkles"></i>
+              <span>توليد التواريخ تلقائياً بنمط الجلسات</span>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px;">
+              <div class="form-group" style="margin: 0;">
+                <label for="batch-hv-count" style="font-weight: 700; font-size: 0.8rem;">عدد جلسات الجواب *</label>
+                <input type="number" id="batch-hv-count" class="form-control" min="1" max="50" value="12" style="height: 38px; font-weight: 800; text-align: center;">
+              </div>
+              <div class="form-group" style="margin: 0;">
+                <label for="batch-hv-start-date" style="font-weight: 700; font-size: 0.8rem;">تاريخ أول جلسة *</label>
+                <input type="date" id="batch-hv-start-date" class="form-control" style="height: 38px; font-weight: 700;">
+              </div>
+            </div>
+
+            <div class="form-group" style="margin-bottom: 10px;">
+              <label style="font-weight: 700; font-size: 0.8rem; margin-bottom: 4px; display: block;">نمط أيام الحضور الأسبوعي:</label>
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px;">
+                <button type="button" class="btn btn-outline btn-sm btn-batch-pattern active" data-pattern="sat_mon_wed" id="btn-batch-pattern-sat" style="padding: 6px; font-size: 0.78rem; font-weight: 700; border-radius: 8px;">السبت • الإثنين • الأربعاء</button>
+                <button type="button" class="btn btn-outline btn-sm btn-batch-pattern" data-pattern="sun_tue_thu" id="btn-batch-pattern-sun" style="padding: 6px; font-size: 0.78rem; font-weight: 700; border-radius: 8px;">الأحد • الثلاثاء • الخميس</button>
+              </div>
+            </div>
+
+            <button type="button" class="btn btn-primary btn-sm" id="btn-generate-batch-hv-dates" style="width: 100%; height: 38px; font-weight: 800; font-size: 0.88rem; justify-content: center; gap: 8px; border-radius: 8px;">
+              <i class="fa-solid fa-calculator"></i> توليد قائمة التواريخ (مع استبعاد الجمعة)
+            </button>
+          </div>
+
+          <!-- Generated Dates List Container -->
+          <div class="form-group" style="margin-bottom: 14px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+              <label style="font-weight: 800; font-size: 0.85rem;">
+                تواريخ الجلسات المعتمدة (<span id="batch-hv-dates-count">0</span> جلسة)
+              </label>
+              <small style="color: var(--text-muted); font-size: 0.75rem;">(اضغط ✕ لحذف أي تاريخ)</small>
+            </div>
+            <div id="batch-hv-dates-chips" style="display: flex; flex-wrap: wrap; gap: 6px; min-height: 48px; max-height: 140px; overflow-y: auto; padding: 8px; background: var(--bg-surface); border: 1.5px solid var(--border-color); border-radius: 10px;">
+              <span style="color: var(--text-muted); font-size: 0.8rem; margin: auto;">اضغط على "توليد قائمة التواريخ" أو أضف تواريخ يدوياً أدناه</span>
+            </div>
+          </div>
+
+          <!-- Manual Add Single Date -->
+          <div style="display: flex; gap: 8px; align-items: center; margin-bottom: 14px;">
+            <input type="date" id="batch-hv-manual-date" class="form-control" style="height: 36px; font-size: 0.85rem; flex: 1;">
+            <button type="button" class="btn btn-outline btn-sm" id="btn-add-batch-hv-single-date" style="height: 36px; font-weight: 700; font-size: 0.82rem; white-space: nowrap; border-radius: 8px;">
+              <i class="fa-solid fa-plus"></i> إضافة تاريخ
+            </button>
+          </div>
+
+          <!-- Pre-settled Cut-off Switch & Letter Ref -->
+          <div style="background: rgba(245, 158, 11, 0.08); border: 1px dashed #f59e0b; border-radius: 10px; padding: 10px 12px; margin-bottom: 12px;">
+            <label style="display: flex; align-items: flex-start; gap: 8px; cursor: pointer; margin: 0;">
+              <input type="checkbox" id="batch-hv-presettled" style="margin-top: 3px; accent-color: #f59e0b; width: 17px; height: 17px;">
+              <span style="font-size: 0.82rem; font-weight: 700; color: var(--text-main); line-height: 1.4;">
+                جلسات سابقة تم تسويتها مسبقاً مع الطبيب (أرشيف قبل سبتمبر - لا تُحسب في المستحقات الحالية)
+              </span>
+            </label>
+          </div>
+
+          <div class="form-group" style="margin-bottom: 4px;">
+            <label for="batch-hv-letter-ref" style="font-weight: 700; font-size: 0.8rem;">رقم مرجع الجواب أو ملاحظات (اختياري)</label>
+            <input type="text" id="batch-hv-letter-ref" class="form-control" placeholder="مثال: جواب رقم 145 / كورس أغسطس" style="height: 38px; font-size: 0.85rem;">
+          </div>
+        </div>
+
+        <div class="modal-footer" style="padding: 12px 16px;">
+          <button type="button" class="btn btn-outline" data-close-modal="modal-batch-home-visits">إلغاء</button>
+          <button type="submit" class="btn btn-primary" id="btn-submit-batch-hv" style="font-weight: 800; background: #059669; border-color: #059669;">
+            <i class="fa-solid fa-check-double"></i> تأكيد وحفظ الجواب بالكامل
+          </button>
+        </div>
+      </form>
     </div>
   </div>
 

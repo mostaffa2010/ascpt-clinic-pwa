@@ -7424,24 +7424,23 @@ h1, h2, h3, h4, h5, h6 {
   transform: scale(0.98);
 }
 
-/* Doctor Personal Sessions Segmented Filter Bar */
-.doc-filter-segmented-bar {
-  display: flex;
-  align-items: center;
+/* Doctor Personal Sessions 2x2 Responsive Filter Grid (v2.2.7) */
+.doc-filter-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
   background: var(--bg-subtle);
   border: 1.5px solid var(--border-color);
   border-radius: 14px;
-  padding: 4px;
-  gap: 4px;
+  padding: 6px;
+  gap: 6px;
   margin: 4px 14px 14px 14px;
   box-sizing: border-box;
 }
 
-.doc-seg-btn {
-  flex: 1;
-  border: none;
+.doc-filter-grid .doc-seg-btn {
+  border: 1px solid transparent;
   border-radius: 10px;
-  padding: 8px 10px;
+  padding: 8px 8px;
   font-size: 0.82rem;
   font-weight: 800;
   display: inline-flex;
@@ -7453,19 +7452,28 @@ h1, h2, h3, h4, h5, h6 {
   transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   color: var(--text-muted);
   background: transparent;
+  min-height: 38px;
+  box-sizing: border-box;
 }
 
-:root:not([data-theme="dark"]) .doc-seg-btn.active {
+:root:not([data-theme="dark"]) .doc-filter-grid .doc-seg-btn.active {
   background: #ffffff;
   color: #0284c7;
+  border-color: rgba(2, 132, 199, 0.2);
   box-shadow: 0 2px 8px rgba(15, 23, 42, 0.08);
 }
 
-[data-theme="dark"] .doc-seg-btn.active {
+[data-theme="dark"] .doc-filter-grid .doc-seg-btn.active {
   background: #1e293b;
   color: #38bdf8;
-  border: 1px solid rgba(56, 189, 248, 0.3);
+  border-color: rgba(56, 189, 248, 0.3);
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.4);
+}
+
+@media (min-width: 768px) {
+  .doc-filter-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
 }
 
 

@@ -48,6 +48,9 @@ export class PatientsManager {
       exercise: false
     };
     this.filterTodayOnly = false;
+    this.batchHvDates = [];
+    this.batchHvSelectedPattern = 'sat_mon_wed';
+    this.activeBatchPatient = null;
   }
 
   async init() {
@@ -102,6 +105,27 @@ export class PatientsManager {
     if (btnOpenAdd) {
       btnOpenAdd.addEventListener('click', () => this.openAddModal());
     }
+
+    // Batch Home Visits Modal Event Bindings
+    document.querySelectorAll('.btn-batch-pattern').forEach((btn) => {
+      btn.addEventListener('click', (e) => {
+        document.querySelectorAll('.btn-batch-pattern').forEach((b) => b.classList.remove('active'));
+        e.currentTarget.classList.add('active');
+        this.batchHvSelectedPattern = e.currentTarget.getAttribute('data-pattern') || 'sat_mon_wed';
+      });
+    });
+
+    document.getElementById('btn-generate-batch-hv-dates')?.addEventListener('click', () => {
+      this.generateBatchHomeVisitDates();
+    });
+
+    document.getElementById('btn-add-batch-hv-single-date')?.addEventListener('click', () => {
+      this.addBatchHvSingleDate();
+    });
+
+    document.getElementById('form-batch-home-visits')?.addEventListener('submit', (e) => {
+      this.handleSaveBatchHomeVisits(e);
+    });
 
     const btnViewSessions = document.getElementById('btn-view-patient-sessions');
     if (btnViewSessions) {
@@ -2796,6 +2820,13 @@ export class PatientsManager {
             <small style="color: var(--text-muted); font-weight: 600; font-size: 0.74rem;">خطاب رسمي لشركة التأمين بطلب تجديد الجلسات</small>
           </div>
         </button>
+        <button type="button" class="btn btn-outline" onclick="patientsManager.openBatchHomeVisitsModal('${p.id}')" style="justify-content: flex-start; padding: 12px 16px; border-radius: 10px; font-weight: 800; font-size: 0.95rem; gap: 12px; border-color: var(--border-color); background: var(--bg-surface);">
+          <i class="fa-solid fa-house-medical-circle-check" style="font-size: 1.3rem; color: #059669;"></i>
+          <div style="text-align: right;">
+            <div>تسجيل جواب زيارات منزلية / جلسات مجمعة</div>
+            <small style="color: var(--text-muted); font-weight: 600; font-size: 0.74rem;">تسجيل تواريخ جلسات الجواب المنتهية دفعة واحدة لمطالبات التأمين</small>
+          </div>
+        </button>
       `;
     }
 
@@ -3804,4 +3835,234 @@ export class PatientsManager {
     }, { passive: false });
   }
 
+
+  // ================= Batch Home Visits Methods (جوابات التأمين والزيارات المنزلية) =================
+  async openBatchHomeVisitsModal(patientId) {
+    this.app.closeModal('modal-patient-docs');
+    const p = this.patients.find((item) => item.id === patientId);
+    if (!p) return;
+
+    this.activeBatchPatient = p;
+    this.batchHvDates = [];
+    this.batchHvSelectedPattern = 'sat_mon_wed';
+
+    const nameEl = document.getElementById('batch-hv-patient-name');
+    if (nameEl) nameEl.textContent = p.name;
+
+    const infoEl = document.getElementById('batch-hv-patient-info');
+    const cType = p.contractType === 'indirect' ? 'غير مباشر' : 'مباشر';
+    if (infoEl) {
+      infoEl.textContent = `${p.insuranceCompany || 'شركة التأمين'} (${cType}) • السن: ${p.age || '-'} سنة`;
+    }
+
+    // Populate Doctor Dropdown
+    const docSelect = document.getElementById('batch-hv-doctor');
+    if (docSelect) {
+      const doctors = await db.getDoctors();
+      docSelect.innerHTML = '<option value="">-- اضغط لاختيار الطبيب المعالج --</option>' + (doctors || []).map((d) => {
+        const clean = (d.name || '').replace(/^د\.\s*/, '');
+        const isSel = (p.doctorId && d.uid === p.doctorId) ? 'selected' : '';
+        return `<option value="${escapeHTML(d.uid)}" data-name="${escapeHTML(d.name)}" ${isSel}>د. ${escapeHTML(clean)}</option>`;
+      }).join('');
+      if (this.app?.updateCustomSelectDisplay) {
+        this.app.updateCustomSelectDisplay('batch-hv-doctor');
+      }
+    }
+
+    // Default start date = today
+    const startDateInput = document.getElementById('batch-hv-start-date');
+    if (startDateInput) startDateInput.value = getLocalDateStr();
+
+    // Default count
+    const countInput = document.getElementById('batch-hv-count');
+    if (countInput) countInput.value = p.approvedSessions || 12;
+
+    // Reset pattern buttons
+    document.querySelectorAll('.btn-batch-pattern').forEach((b) => {
+      b.classList.toggle('active', b.getAttribute('data-pattern') === 'sat_mon_wed');
+    });
+
+    // Reset presettled checkbox
+    const preChk = document.getElementById('batch-hv-presettled');
+    if (preChk) preChk.checked = false;
+
+    const refInput = document.getElementById('batch-hv-letter-ref');
+    if (refInput) refInput.value = '';
+
+    this.renderBatchHvDates();
+    this.app.openModal('modal-batch-home-visits');
+  }
+
+  generateBatchHomeVisitDates() {
+    const countInput = document.getElementById('batch-hv-count');
+    const startDateInput = document.getElementById('batch-hv-start-date');
+
+    const totalCount = Math.min(50, Math.max(1, parseInt(countInput?.value, 10) || 12));
+    const startStr = startDateInput?.value || getLocalDateStr();
+
+    const pattern = this.batchHvSelectedPattern || 'sat_mon_wed';
+    const allowedDays = pattern === 'sun_tue_thu' ? [0, 2, 4] : [6, 1, 3];
+
+    const generated = [];
+    const curDate = new Date(startStr + 'T00:00:00');
+
+    let safetyCounter = 0;
+    while (generated.length < totalCount && safetyCounter < 150) {
+      safetyCounter++;
+      const dayOfWeek = curDate.getDay();
+
+      if (dayOfWeek !== 5 && allowedDays.includes(dayOfWeek)) {
+        const y = curDate.getFullYear();
+        const m = String(curDate.getMonth() + 1).padStart(2, '0');
+        const d = String(curDate.getDate()).padStart(2, '0');
+        generated.push(`${y}-${m}-${d}`);
+      }
+      curDate.setDate(curDate.getDate() + 1);
+    }
+
+    this.batchHvDates = generated;
+    this.renderBatchHvDates();
+  }
+
+  renderBatchHvDates() {
+    const container = document.getElementById('batch-hv-dates-chips');
+    const countEl = document.getElementById('batch-hv-dates-count');
+    if (countEl) countEl.textContent = this.batchHvDates.length;
+
+    if (!container) return;
+
+    if (!this.batchHvDates || this.batchHvDates.length === 0) {
+      container.innerHTML = '<span style="color: var(--text-muted); font-size: 0.8rem; margin: auto;">اضغط على "توليد قائمة التواريخ" أو أضف تواريخ يدوياً أدناه</span>';
+      return;
+    }
+
+    const dayNames = ['الأحد', 'الإثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة', 'السبت'];
+
+    container.innerHTML = this.batchHvDates.map((dateStr, idx) => {
+      const dObj = new Date(dateStr + 'T00:00:00');
+      const dName = dayNames[dObj.getDay()] || '';
+      return `
+        <span class="badge" style="background: rgba(2, 132, 199, 0.12); color: #0284c7; border: 1px solid rgba(2, 132, 199, 0.3); padding: 4px 8px; font-size: 0.78rem; font-weight: 700; border-radius: 6px; display: inline-flex; align-items: center; gap: 6px;">
+          <span>${idx + 1}. ${dateStr} (${dName})</span>
+          <button type="button" class="btn-remove-batch-date" data-index="${idx}" style="background: transparent; border: none; color: #ef4444; font-weight: 800; cursor: pointer; padding: 0 2px; font-size: 0.85rem;" title="حذف هذا التاريخ">&times;</button>
+        </span>
+      `;
+    }).join('');
+
+    container.querySelectorAll('.btn-remove-batch-date').forEach((btn) => {
+      btn.addEventListener('click', (e) => {
+        const idx = parseInt(e.currentTarget.getAttribute('data-index'), 10);
+        if (!isNaN(idx)) {
+          this.removeBatchHvDate(idx);
+        }
+      });
+    });
+  }
+
+  removeBatchHvDate(idx) {
+    if (idx >= 0 && idx < this.batchHvDates.length) {
+      this.batchHvDates.splice(idx, 1);
+      this.renderBatchHvDates();
+    }
+  }
+
+  addBatchHvSingleDate() {
+    const input = document.getElementById('batch-hv-manual-date');
+    const val = input?.value?.trim();
+    if (!val) {
+      this.app.showToast('من فضلك حدد تاريخاً لإضافته', 'warning');
+      return;
+    }
+
+    const dObj = new Date(val + 'T00:00:00');
+    if (dObj.getDay() === 5) {
+      this.app.showAlert('يوم الجمعة عطلة رسمية بالمركز ولا يمكن تسجيل جلسات فيه.', 'تنبيه عطلة', 'warning');
+      return;
+    }
+
+    if (!this.batchHvDates.includes(val)) {
+      this.batchHvDates.push(val);
+      this.batchHvDates.sort();
+      this.renderBatchHvDates();
+      if (input) input.value = '';
+    } else {
+      this.app.showToast('هذا التاريخ مضاف بالفعل في القائمة', 'info');
+    }
+  }
+
+  async handleSaveBatchHomeVisits(e) {
+    if (e && e.preventDefault) e.preventDefault();
+
+    if (!this.activeBatchPatient) {
+      this.app.showAlert('بيانات المريض غير متوفرة', 'خطأ', 'danger');
+      return;
+    }
+
+    const docSelect = document.getElementById('batch-hv-doctor');
+    const doctorUid = docSelect?.value;
+    const doctorName = docSelect?.options[docSelect.selectedIndex]?.getAttribute('data-name') || '';
+
+    if (!doctorUid) {
+      this.app.showAlert('من فضلك اختر الطبيب المعالج الذي أجرى الزيارات.', 'بيانات ناقصة', 'warning');
+      return;
+    }
+
+    if (!this.batchHvDates || this.batchHvDates.length === 0) {
+      this.app.showAlert('يجب توليد أو إضافة تاريخ جلسة واحدة على الأقل.', 'بيانات ناقصة', 'warning');
+      return;
+    }
+
+    const isPreSettled = Boolean(document.getElementById('batch-hv-presettled')?.checked);
+    const letterRef = document.getElementById('batch-hv-letter-ref')?.value?.trim() || '';
+
+    const p = this.activeBatchPatient;
+    const saveBtn = document.getElementById('btn-submit-batch-hv');
+    if (saveBtn) {
+      saveBtn.disabled = true;
+      saveBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> جاري تسجيل الجلسات...';
+    }
+
+    const sessionsToCreate = this.batchHvDates.map((dateStr) => {
+      const preSettledFlag = isPreSettled || (dateStr < '2026-09-01');
+
+      return {
+        patientId: p.id,
+        patientName: p.name,
+        doctor: doctorName,
+        doctorUid: doctorUid,
+        date: dateStr,
+        payType: 'insurance',
+        billing: 'insurance',
+        contractType: p.contractType || 'direct',
+        insuranceName: p.insuranceCompany || 'تأمين',
+        programType: p.programType || p.clinicalSheet?.programType || 'regular',
+        sessionPricingType: p.programType || 'regular',
+        bodyParts: p.treatedParts || p.clinicalSheet?.treatedParts || [],
+        bodyPartsCount: (p.treatedParts && p.treatedParts.length) || p.approvedBodyParts || 1,
+        amountPaid: 0,
+        isHomeVisit: true,
+        visitType: 'home',
+        isPreSettled: preSettledFlag,
+        letterRef: letterRef,
+        notes: `زيارة منزلية - جواب تأمين${letterRef ? ` (${letterRef})` : ''}${preSettledFlag ? ' • مسواة مسبقاً' : ''}`
+      };
+    });
+
+    try {
+      const currentUser = (typeof window !== 'undefined' && window.auth?.getCurrentUser) ? window.auth.getCurrentUser() : null;
+      await db.saveBatchSessions(sessionsToCreate, currentUser);
+
+      this.app.closeModal('modal-batch-home-visits');
+      this.app.showToast(`تم بنجاح تسجيل جواب الزيارات المنزلية (${sessionsToCreate.length} جلسة) للمريض ${p.name}`);
+      this.activeBatchPatient = null;
+      this.batchHvDates = [];
+    } catch (err) {
+      this.app.showAlert('تعذر تسجيل حزمة الجلسات: ' + err.message, 'خطأ', 'danger');
+    } finally {
+      if (saveBtn) {
+        saveBtn.disabled = false;
+        saveBtn.innerHTML = '<i class="fa-solid fa-check-double"></i> تأكيد وحفظ الجواب بالكامل';
+      }
+    }
+  }
 }
