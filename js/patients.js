@@ -1962,15 +1962,32 @@ export class PatientsManager {
     };
   }
 
-  async openPatientSheet(patientId) {
+  async openPatientSheet(patientId, fallbackName = null) {
     const currentUser = auth.getCurrentUser();
     if (!RolesManager.canAccessClinicalSheet(currentUser)) {
       this.app.showAlert('الدخول على الشيت الطبي متاح للأطباء المعالجين ومدير المركز فقط.', 'صلاحية الأطباء');
       return;
     }
 
-    const p = this.patients.find(item => item.id === patientId);
-    if (!p) return;
+    if (!this.patients || this.patients.length === 0) {
+      await this.loadPatients();
+    }
+
+    let p = (this.patients || []).find(item => item.id === patientId || String(item.id) === String(patientId));
+    if (!p && fallbackName) {
+      p = (this.patients || []).find(item => item.name === fallbackName);
+    }
+    if (!p && patientId) {
+      p = (this.patients || []).find(item => item.name === patientId);
+    }
+    if (!p) {
+      await this.loadPatients(true);
+      p = (this.patients || []).find(item => item.id === patientId || String(item.id) === String(patientId) || item.name === patientId || (fallbackName && item.name === fallbackName));
+    }
+    if (!p) {
+      this.app.showAlert('تعذر العثور على ملف هذا المريض في السجلات.', 'تنبيه');
+      return;
+    }
 
     this.currentSheetPatient = p;
     const sheet = p.clinicalSheet || {};

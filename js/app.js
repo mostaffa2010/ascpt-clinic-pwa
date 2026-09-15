@@ -1683,6 +1683,10 @@ class App {
     this.renderMultiPickerOptions();
   }
 
+  openPatientClinicalSheet(patientId, patientName = null) {
+    return this.patientsManager?.openPatientSheet(patientId, patientName);
+  }
+
   showAlert(message, title = 'تنبيه المركز', type = 'info') {
     return new Promise((resolve) => {
       this.dialogResolve = resolve;

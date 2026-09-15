@@ -871,7 +871,7 @@ export class AppointmentsManager {
                     <span>${escapeHTML(slot.label)}</span>
                   </div>
                   <div class="doc-stack-patient-count ${isSlotFullyDone ? 'done' : ''}">
-                    ${isSlotFullyDone ? '<i class="fa-solid fa-check-double"></i> مكتملة بالكامل' : `<i class="fa-solid fa-users"></i> ${uncompletedAppts.length} متبقي من ${cellAppts.length}`}
+                    ${isSlotFullyDone ? '<i class="fa-solid fa-check-double"></i> <span>مكتملة بالكامل</span>' : `<i class="fa-solid fa-users"></i> <span><strong>${uncompletedAppts.length}</strong> متبقي من ${cellAppts.length}</span>`}
                   </div>
                 </div>
 

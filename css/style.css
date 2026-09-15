@@ -11315,3 +11315,77 @@ body.role-doctor .btn-quick-attend {
   height: 24px;
   border-radius: var(--radius-pill, 9999px);
 }
+
+/* Doctor Stack Card Header (Time Slot & Patient Count Pill Bar) */
+.doc-stack-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px;
+  margin-bottom: 10px;
+  background: rgba(2, 132, 199, 0.07);
+  border: 1px solid rgba(2, 132, 199, 0.2);
+  border-radius: 12px;
+  gap: 8px;
+}
+
+[data-theme="dark"] .doc-stack-card-header {
+  background: rgba(15, 23, 42, 0.65);
+  border-color: rgba(56, 189, 248, 0.22);
+}
+
+.doc-stack-time-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 0.96rem;
+  font-weight: 800;
+  color: var(--primary);
+  letter-spacing: 0.3px;
+}
+
+.doc-stack-time-badge i {
+  font-size: 0.95rem;
+  color: var(--primary);
+}
+
+.doc-stack-patient-count {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  padding: 4px 12px;
+  border-radius: 999px;
+  background: var(--bg-surface);
+  color: var(--text-muted);
+  border: 1px solid var(--border-color);
+  white-space: nowrap;
+}
+
+.doc-stack-patient-count i {
+  font-size: 0.8rem;
+  color: var(--primary);
+}
+
+.doc-stack-patient-count.done {
+  background: rgba(16, 185, 129, 0.12);
+  color: #059669;
+  border-color: rgba(16, 185, 129, 0.3);
+}
+
+.doc-stack-patient-count.done i {
+  color: #059669;
+}
+
+[data-theme="dark"] .doc-stack-patient-count {
+  background: rgba(30, 41, 59, 0.8);
+  border-color: rgba(148, 163, 184, 0.2);
+  color: #cbd5e1;
+}
+
+[data-theme="dark"] .doc-stack-patient-count.done {
+  background: rgba(5, 150, 105, 0.2);
+  color: #34d399;
+  border-color: rgba(52, 211, 153, 0.3);
+}

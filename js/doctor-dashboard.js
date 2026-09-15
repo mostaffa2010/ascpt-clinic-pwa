@@ -396,6 +396,9 @@ export class DoctorDashboardManager {
   }
 
   renderTable() {
+    if (!this.app.patientsManager?.patients || this.app.patientsManager.patients.length === 0) {
+      this.app.patientsManager?.loadPatients().catch(() => {});
+    }
     this._hasLoadedOnce = true;
     const tbody = document.getElementById('doctor-personal-tbody');
     if (!tbody) return;
@@ -625,16 +628,26 @@ export class DoctorDashboardManager {
       const mobileContainer = document.getElementById('doctor-personal-mobile-cards');
       if (mobileContainer) {
         mobileContainer.innerHTML = uniquePatients.map((p) => {
-          let billingBadge = '';
-          if (p.payType === 'cash') {
-            billingBadge = `<span class="badge badge-cash" style="font-size: 0.72rem; padding: 2px 7px;"><i class="fa-solid fa-money-bill"></i> نقدي</span>`;
-          } else if (p.contractType === 'direct') {
-            billingBadge = `<span class="badge badge-direct" style="font-size: 0.72rem; padding: 2px 7px;"><i class="fa-solid fa-file-contract"></i> ${escapeHTML(p.insuranceName || 'شركة')} (مباشر)</span>`;
-          } else {
-            billingBadge = `<span class="badge badge-indirect" style="font-size: 0.72rem; padding: 2px 7px;"><i class="fa-solid fa-handshake"></i> ${escapeHTML(p.insuranceName || 'شركة')} (غير مباشر)</span>`;
+          const patientObj = (this.app.patientsManager?.patients || []).find(pt => pt.id === p.patientId) ||
+                             (this.app.patientsManager?.patients || []).find(pt => pt.name === p.patientName);
+
+          let bodyPartsList = [];
+          if (patientObj) {
+            bodyPartsList = this.app.patientsManager?.getPatientBodyParts(patientObj) || [];
+          }
+          if (bodyPartsList.length === 0 && p.bodyParts && p.bodyParts.length > 0) {
+            bodyPartsList = p.bodyParts;
+          }
+          if (bodyPartsList.length === 0 && patientObj?.affectedArea) {
+            bodyPartsList = [patientObj.affectedArea];
+          }
+          if (bodyPartsList.length === 0 && patientObj?.clinicalSheet?.affectedArea) {
+            bodyPartsList = [patientObj.clinicalSheet.affectedArea];
           }
 
+          const displayParts = bodyPartsList.length > 0 ? bodyPartsList.join(' • ') : 'علاج طبيعي عام';
           const safePatientId = escapeHTML(p.patientId);
+          const safeName = escapeHTML(p.patientName);
 
           return `
             <div class="hero-styled-card" style="padding: 12px 14px; margin-bottom: 10px; border-radius: 14px; border-right: 4px solid var(--primary);">
@@ -642,8 +655,13 @@ export class DoctorDashboardManager {
                 <div class="hsc-patient-meta" style="display: flex; align-items: center; gap: 10px;">
                   <div class="hsc-avatar" style="background: rgba(2, 132, 199, 0.12); color: var(--primary);"><i class="fa-solid fa-user"></i></div>
                   <div class="hsc-name-box">
-                    <span class="hsc-patient-name" style="font-weight: 800; font-size: 0.96rem; cursor: pointer;" onclick="patientsManager.openPatientSheet('${safePatientId}')">${escapeHTML(p.patientName)}</span>
-                    <div style="margin-top: 2px;">${billingBadge}</div>
+                    <span class="hsc-patient-name" style="font-weight: 800; font-size: 0.96rem; cursor: pointer;" onclick="patientsManager.openPatientSheet('${safePatientId}', '${safeName}')">${safeName}</span>
+                    <div style="margin-top: 3px;">
+                      <span class="badge" style="background: rgba(2, 132, 199, 0.08); color: var(--primary); border: 1px solid rgba(2, 132, 199, 0.22); font-size: 0.74rem; font-weight: 700; padding: 2px 8px; border-radius: 6px; display: inline-flex; align-items: center; gap: 5px;">
+                        <i class="fa-solid fa-bone" style="font-size: 0.68rem;"></i>
+                        <span>${escapeHTML(displayParts)}</span>
+                      </span>
+                    </div>
                   </div>
                 </div>
                 <div class="hsc-amount-box">
@@ -659,7 +677,7 @@ export class DoctorDashboardManager {
                 <span class="hsc-time-tag" style="font-size: 0.78rem; color: var(--text-muted);">
                   <i class="fa-regular fa-calendar-check"></i> أحدث جلسة: <bdi dir="ltr">${escapeHTML(p.lastDate || '-')}</bdi>
                 </span>
-                <button type="button" class="btn btn-outline btn-sm btn-icon-action" onclick="patientsManager.openPatientSheet('${safePatientId}')" style="width: 32px; height: 32px; border-radius: 50%;" title="الشيت الطبي">
+                <button type="button" class="btn btn-outline btn-sm btn-icon-action" onclick="patientsManager.openPatientSheet('${safePatientId}', '${safeName}')" style="width: 32px; height: 32px; border-radius: 50%;" title="الشيت الطبي">
                   <i class="fa-solid fa-file-waveform text-primary"></i>
                 </button>
               </div>
