@@ -582,7 +582,7 @@ class App {
     });
 
     document.getElementById('btn-profile-admin-panel')?.addEventListener('click', () => {
-      this.closeModal('modal-user-profile');
+      this.closeModal('modal-user-profile', { skipHistory: true });
       this.switchView('admin');
     });
 
@@ -977,6 +977,8 @@ class App {
           const pid = this.patientsManager.activeDocsPatientId;
           this.patientsManager.openedFromDocs = false;
           this.closeModal(topModal.id, { isFromPopstate: true });
+          // Restore sentinel so subsequent back gesture continues to close docs modal safely
+          history.pushState({ isModal: true, modalId: 'modal-patient-docs', view: this.currentView }, '');
           this.patientsManager.openPatientDocsModal(pid, { noSlide: true, alreadyInHistory: true });
           return;
         }
@@ -1775,15 +1777,18 @@ class App {
         modal.classList.remove('modal-no-slide');
       }
       modal.classList.add('active');
-      const transientModals = [
-        'modal-auth',
-        'modal-custom-dialog',
-        'modal-custom-picker',
-        'modal-custom-calendar',
-        'modal-custom-month-picker'
-      ];
-      if (!transientModals.includes(modalId) && !options.alreadyInHistory) {
-        history.pushState({ modal: modalId, view: this.currentView }, '');
+
+      if (!this._openModalStack) this._openModalStack = [];
+      if (!this._openModalStack.includes(modalId)) {
+        this._openModalStack.push(modalId);
+      }
+
+      // Maintain exactly one active modal sentinel in browser history
+      // so the Android hardware back gesture closes the modal instead of exiting the PWA
+      if (modalId !== 'modal-auth' && !options.alreadyInHistory) {
+        if (!history.state || !history.state.isModal) {
+          history.pushState({ isModal: true, modalId: modalId, view: this.currentView }, '');
+        }
       }
     }
   }
@@ -1795,8 +1800,17 @@ class App {
       modal.classList.remove('modal-no-slide');
     }
     document.body.classList.remove('modal-open');
-    if (!options.isFromPopstate && !options.keepHistory && history.state && history.state.modal === modalId) {
-      history.back();
+
+    if (this._openModalStack) {
+      this._openModalStack = this._openModalStack.filter(id => id !== modalId);
+    }
+
+    // When the last open modal closes via on-screen action (not popstate or skipHistory),
+    // cleanly consume the history sentinel so history stack never accumulates dead entries
+    if (!options.isFromPopstate && !options.skipHistory && (!this._openModalStack || this._openModalStack.length === 0)) {
+      if (history.state && history.state.isModal) {
+        history.back();
+      }
     }
   }
 
