@@ -12,6 +12,7 @@ export class PatientsManager {
   constructor(app) {
     this.app = app;
     this.patients = [];
+    this._hasLoadedOnce = false;
     this.currentSheetPatient = null;
     window.patientsManager = this;
     this.insEditMode = false;
@@ -492,6 +493,9 @@ export class PatientsManager {
   }
 
   async loadPatients(forceRefresh = false) {
+    if (!this._hasLoadedOnce && (!this.patients || this.patients.length === 0)) {
+      this.renderSkeleton();
+    }
     // Real-time zero-cost listener: subscribe to changes across the patients directory
     if (db.subscribeToPatients && !this._patientsSubscribed) {
       this._patientsSubscribed = true;
@@ -652,7 +656,54 @@ export class PatientsManager {
     return { todayIds, todayNames };
   }
 
+  renderSkeleton() {
+    const mobileContainer = document.getElementById('patients-mobile-cards');
+    const tbody = document.getElementById('patients-tbody');
+
+    if (mobileContainer && (!this.patients || this.patients.length === 0)) {
+      mobileContainer.innerHTML = Array.from({ length: 4 }).map(() => `
+        <div class="patient-card skeleton-card" style="padding: 11px 13px; margin-bottom: 10px; border-radius: 14px;">
+          <div style="display: flex; align-items: flex-start; justify-content: space-between; gap: 8px;">
+            <div style="display: flex; align-items: center; gap: 10px; min-width: 0; flex: 1;">
+              <div class="skeleton-shimmer skeleton-avatar"></div>
+              <div style="display: flex; flex-direction: column; gap: 6px; flex: 1;">
+                <div class="skeleton-shimmer skeleton-line" style="width: 45%; height: 16px;"></div>
+                <div class="skeleton-shimmer skeleton-line" style="width: 30%; height: 12px;"></div>
+              </div>
+            </div>
+            <div style="display: flex; gap: 6px;">
+              <div class="skeleton-shimmer skeleton-badge" style="width: 50px;"></div>
+              <div class="skeleton-shimmer skeleton-badge" style="width: 50px;"></div>
+            </div>
+          </div>
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 10px; padding-top: 8px; border-top: 1px dashed var(--border-color, #e2e8f0);">
+            <div class="skeleton-shimmer skeleton-line" style="width: 35%; height: 12px;"></div>
+            <div class="skeleton-shimmer skeleton-line" style="width: 20%; height: 12px;"></div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    if (tbody && (!this.patients || this.patients.length === 0)) {
+      tbody.innerHTML = Array.from({ length: 4 }).map(() => `
+        <tr>
+          <td colspan="7" style="padding: 12px;">
+            <div style="display: flex; align-items: center; gap: 12px;">
+              <div class="skeleton-shimmer skeleton-avatar" style="width: 32px; height: 32px;"></div>
+              <div class="skeleton-shimmer skeleton-line" style="width: 25%; height: 14px;"></div>
+              <div class="skeleton-shimmer skeleton-line" style="width: 15%; height: 14px;"></div>
+              <div class="skeleton-shimmer skeleton-line" style="width: 20%; height: 14px;"></div>
+              <div class="skeleton-shimmer skeleton-line" style="width: 15%; height: 14px;"></div>
+              <div class="skeleton-shimmer skeleton-line" style="width: 15%; height: 14px;"></div>
+            </div>
+          </td>
+        </tr>
+      `).join('');
+    }
+  }
+
   renderPatients() {
+    this._hasLoadedOnce = true;
     const tbody = document.getElementById('patients-tbody');
     const mobileContainer = document.getElementById('patients-mobile-cards');
     if (!tbody) return;

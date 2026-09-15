@@ -12,6 +12,7 @@ export class DoctorDashboardManager {
     this.currentFilter = 'today'; // 'today' | 'month' | 'lifetime'
     this._sessionsSubscribed = false;
     this._isRendering = false;
+    this._hasLoadedOnce = false;
   }
 
   init() {
@@ -42,12 +43,68 @@ export class DoctorDashboardManager {
     this.renderTable();
   }
 
+  renderSkeleton() {
+    const mobileCards = document.getElementById('doctor-personal-mobile-cards');
+    const tbody = document.getElementById('doctor-personal-tbody');
+    const myApptsGrid = document.getElementById('my-appointments-grid');
+
+    if (mobileCards && (!this.docSessions || this.docSessions.length === 0)) {
+      mobileCards.innerHTML = Array.from({ length: 3 }).map(() => `
+        <div class="hero-styled-card skeleton-card" style="padding: 12px 14px; margin-bottom: 10px; border-radius: 14px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+            <div style="display: flex; align-items: center; gap: 10px;">
+              <div class="skeleton-shimmer skeleton-avatar" style="width: 36px; height: 36px;"></div>
+              <div style="display: flex; flex-direction: column; gap: 5px;">
+                <div class="skeleton-shimmer skeleton-line" style="width: 130px; height: 16px;"></div>
+                <div class="skeleton-shimmer skeleton-line" style="width: 80px; height: 12px;"></div>
+              </div>
+            </div>
+            <div class="skeleton-shimmer skeleton-badge" style="width: 65px;"></div>
+          </div>
+          <div style="display: flex; justify-content: space-between; align-items: center; padding-top: 8px; border-top: 1px dashed var(--border-color, #e2e8f0);">
+            <div class="skeleton-shimmer skeleton-line" style="width: 100px; height: 12px;"></div>
+            <div class="skeleton-shimmer skeleton-line" style="width: 45px; height: 12px;"></div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    if (tbody && (!this.docSessions || this.docSessions.length === 0)) {
+      tbody.innerHTML = Array.from({ length: 3 }).map(() => `
+        <tr>
+          <td colspan="7" style="padding: 12px;">
+            <div style="display: flex; align-items: center; gap: 12px;">
+              <div class="skeleton-shimmer skeleton-avatar" style="width: 32px; height: 32px;"></div>
+              <div class="skeleton-shimmer skeleton-line" style="width: 25%; height: 14px;"></div>
+              <div class="skeleton-shimmer skeleton-line" style="width: 15%; height: 14px;"></div>
+              <div class="skeleton-shimmer skeleton-line" style="width: 20%; height: 14px;"></div>
+              <div class="skeleton-shimmer skeleton-line" style="width: 15%; height: 14px;"></div>
+            </div>
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    if (myApptsGrid && myApptsGrid.children.length === 0) {
+      myApptsGrid.innerHTML = `
+        <div style="display: flex; flex-direction: column; gap: 10px; padding: 10px 0;">
+          <div class="skeleton-shimmer" style="height: 48px; border-radius: var(--radius-sm, 10px);"></div>
+          <div class="skeleton-shimmer" style="height: 48px; border-radius: var(--radius-sm, 10px);"></div>
+        </div>
+      `;
+    }
+  }
+
   async render() {
     if (this._isRendering) return;
     this._isRendering = true;
     try {
       const user = auth.getCurrentUser();
       if (!user || user.role !== 'doctor') return;
+
+      if (!this._hasLoadedOnce && !this.docSessions) {
+        this.renderSkeleton();
+      }
 
     const docName = user.name;
     const subEl = document.getElementById('doctor-dashboard-sub');
@@ -325,6 +382,7 @@ export class DoctorDashboardManager {
   }
 
   renderTable() {
+    this._hasLoadedOnce = true;
     const tbody = document.getElementById('doctor-personal-tbody');
     if (!tbody) return;
 

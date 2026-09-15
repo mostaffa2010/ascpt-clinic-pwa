@@ -11206,3 +11206,73 @@ body.role-doctor .btn-quick-attend {
   background: rgba(20, 184, 166, 0.22);
   color: #2dd4bf;
 }
+
+
+/* ========================================================
+   Reusable Skeleton Loading Component (UI-only Shimmer)
+   Matches ASCPT Design System Tokens & Conventions
+   ======================================================== */
+@keyframes skeleton-shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+.skeleton-shimmer {
+  background: linear-gradient(90deg, 
+    rgba(226, 232, 240, 0.65) 25%, 
+    rgba(241, 245, 249, 0.95) 37%, 
+    rgba(226, 232, 240, 0.65) 63%
+  );
+  background-size: 400% 100%;
+  animation: skeleton-shimmer 1.4s ease-in-out infinite;
+  border-radius: var(--radius-sm, 10px);
+}
+
+[data-theme="dark"] .skeleton-shimmer {
+  background: linear-gradient(90deg, 
+    rgba(30, 41, 59, 0.7) 25%, 
+    rgba(51, 65, 85, 0.85) 37%, 
+    rgba(30, 41, 59, 0.7) 63%
+  );
+  background-size: 400% 100%;
+}
+
+.skeleton-card {
+  background: var(--bg-surface, #ffffff);
+  border: 1px solid var(--border-color, #e2e8f0);
+  border-radius: var(--radius-md, 16px);
+  padding: 14px 16px;
+  margin-bottom: 12px;
+  box-shadow: var(--shadow-sm);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  pointer-events: none;
+  user-select: none;
+}
+
+[data-theme="dark"] .skeleton-card {
+  background: var(--bg-surface, #1e293b);
+  border-color: rgba(255, 255, 255, 0.08);
+}
+
+.skeleton-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.skeleton-line {
+  height: 14px;
+  border-radius: var(--radius-xs, 6px);
+}
+
+.skeleton-badge {
+  height: 24px;
+  border-radius: var(--radius-pill, 9999px);
+}

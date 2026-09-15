@@ -16,6 +16,7 @@ export class SessionsManager {
     this.app = app;
     this.currentSessionDate = getLocalDateStr();
     this.sessions = [];
+    this._hasLoadedOnce = false;
     this.selectedPatientId = null;
     this.editingSessionId = null;
     this.insEditMode = false;
@@ -1469,6 +1470,9 @@ export class SessionsManager {
   }
 
   async loadTodaySessions() {
+    if (!this._hasLoadedOnce && (!this.sessions || this.sessions.length === 0)) {
+      this.renderSkeleton();
+    }
     // Real-time zero-cost listener: subscribe to changes for the selected session date
     if (db.subscribeToTodaySessions && (!this._subscribedDate || this._subscribedDate !== this.currentSessionDate)) {
       if (this.unsubscribeSessions) {
@@ -1484,7 +1488,52 @@ export class SessionsManager {
     await this.renderTodaySessionsList(sessions);
   }
 
+  renderSkeleton() {
+    const mobileCardsContainer = document.getElementById('sessions-today-mobile-cards');
+    const tbody = document.getElementById('sessions-today-tbody');
+
+    if (mobileCardsContainer && (!this.sessions || this.sessions.length === 0)) {
+      mobileCardsContainer.innerHTML = Array.from({ length: 4 }).map(() => `
+        <div class="hero-styled-card skeleton-card" style="padding: 12px 14px; margin-bottom: 10px; border-radius: 14px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+            <div style="display: flex; align-items: center; gap: 10px;">
+              <div class="skeleton-shimmer skeleton-avatar" style="width: 36px; height: 36px;"></div>
+              <div style="display: flex; flex-direction: column; gap: 5px;">
+                <div class="skeleton-shimmer skeleton-line" style="width: 120px; height: 16px;"></div>
+                <div class="skeleton-shimmer skeleton-line" style="width: 80px; height: 12px;"></div>
+              </div>
+            </div>
+            <div class="skeleton-shimmer skeleton-badge" style="width: 60px;"></div>
+          </div>
+          <div style="display: flex; justify-content: space-between; align-items: center; padding-top: 8px; border-top: 1px dashed var(--border-color, #e2e8f0);">
+            <div class="skeleton-shimmer skeleton-line" style="width: 90px; height: 12px;"></div>
+            <div class="skeleton-shimmer skeleton-line" style="width: 50px; height: 12px;"></div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    if (tbody && (!this.sessions || this.sessions.length === 0)) {
+      tbody.innerHTML = Array.from({ length: 4 }).map(() => `
+        <tr>
+          <td colspan="8" style="padding: 12px;">
+            <div style="display: flex; align-items: center; gap: 12px;">
+              <div class="skeleton-shimmer skeleton-avatar" style="width: 32px; height: 32px;"></div>
+              <div class="skeleton-shimmer skeleton-line" style="width: 20%; height: 14px;"></div>
+              <div class="skeleton-shimmer skeleton-line" style="width: 10%; height: 14px;"></div>
+              <div class="skeleton-shimmer skeleton-line" style="width: 15%; height: 14px;"></div>
+              <div class="skeleton-shimmer skeleton-line" style="width: 12%; height: 14px;"></div>
+              <div class="skeleton-shimmer skeleton-line" style="width: 12%; height: 14px;"></div>
+              <div class="skeleton-shimmer skeleton-line" style="width: 12%; height: 14px;"></div>
+            </div>
+          </td>
+        </tr>
+      `).join('');
+    }
+  }
+
   async renderTodaySessionsList(sessionsList) {
+    this._hasLoadedOnce = true;
     const sessions = Array.isArray(sessionsList) ? [...sessionsList] : [];
     sessions.sort((a, b) => {
       const timeA = a.createdAt || a.recordedAt || '';

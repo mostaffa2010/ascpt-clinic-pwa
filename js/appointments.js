@@ -81,6 +81,7 @@ export class AppointmentsManager {
   constructor(app) {
     this.app = app;
     this.appointments = [];
+    this._hasLoadedOnce = false;
     this.doctors = [];
     this.patients = [];
     this.slots = [];
@@ -609,12 +610,36 @@ export class AppointmentsManager {
     }
   }
 
+  renderSkeleton(grid = document.getElementById('appointments-grid')) {
+    if (!grid) return;
+    grid.innerHTML = `
+      <div class="skeleton-appointments" style="display: flex; flex-direction: column; gap: 12px; padding: 10px 0;">
+        ${Array.from({ length: 4 }).map(() => `
+          <div class="skeleton-card" style="padding: 14px; border-radius: var(--radius-md, 16px);">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+              <div class="skeleton-shimmer skeleton-line" style="width: 110px; height: 18px;"></div>
+              <div class="skeleton-shimmer skeleton-badge" style="width: 70px;"></div>
+            </div>
+            <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+              <div class="skeleton-shimmer" style="flex: 1; min-width: 140px; height: 46px; border-radius: var(--radius-sm, 10px);"></div>
+              <div class="skeleton-shimmer" style="flex: 1; min-width: 140px; height: 46px; border-radius: var(--radius-sm, 10px);"></div>
+            </div>
+          </div>
+        `).join('')}
+      </div>
+    `;
+  }
+
   async render(forceRefresh = false) {
     this.subscribeToUpdates();
     const grid = document.getElementById('appointments-grid');
     if (!grid) return;
+    if (!this._hasLoadedOnce && (!this.appointments || this.appointments.length === 0)) {
+      this.renderSkeleton(grid);
+    }
     try {
       await this.loadAll(this.selectedDate, forceRefresh);
+      this._hasLoadedOnce = true;
       const currentUser = auth.getCurrentUser();
       const isDoctor = currentUser && currentUser.role === 'doctor';
 
