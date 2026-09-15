@@ -730,6 +730,20 @@ class App {
     document.querySelectorAll('.modal-backdrop').forEach(modal => {
       modal.addEventListener('click', (e) => {
         if (e.target === modal && modal.id !== 'modal-auth' && modal.id !== 'modal-custom-dialog') {
+          const subModals = [
+            'modal-batch-home-visits',
+            'modal-medical-statement',
+            'modal-renew-approval',
+            'modal-insurance-letter',
+            'modal-cash-receipt'
+          ];
+          if (subModals.includes(modal.id) && this.patientsManager?.openedFromDocs && this.patientsManager?.activeDocsPatientId) {
+            const pid = this.patientsManager.activeDocsPatientId;
+            this.patientsManager.openedFromDocs = false;
+            this.closeModal(modal.id, { skipHistory: true });
+            this.patientsManager.openPatientDocsModal(pid, { noSlide: true, alreadyInHistory: true });
+            return;
+          }
           this.closeModal(modal.id);
         }
       });
@@ -751,7 +765,7 @@ class App {
           if (subModals.includes(modalId) && this.patientsManager?.openedFromDocs && this.patientsManager?.activeDocsPatientId) {
             const pid = this.patientsManager.activeDocsPatientId;
             this.patientsManager.openedFromDocs = false;
-            this.closeModal(modalId);
+            this.closeModal(modalId, { skipHistory: true });
             this.patientsManager.openPatientDocsModal(pid, { noSlide: true, alreadyInHistory: true });
             return;
           }
@@ -1807,7 +1821,7 @@ class App {
 
     // When the last open modal closes via on-screen action (not popstate or skipHistory),
     // cleanly consume the history sentinel so history stack never accumulates dead entries
-    if (!options.isFromPopstate && !options.skipHistory && (!this._openModalStack || this._openModalStack.length === 0)) {
+    if (!options.isFromPopstate && !options.skipHistory && !options.keepHistory && (!this._openModalStack || this._openModalStack.length === 0)) {
       if (history.state && history.state.isModal) {
         history.back();
       }

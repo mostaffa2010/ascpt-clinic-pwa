@@ -1845,7 +1845,7 @@ export class PatientsManager {
 
     this.openedFromDocs = true;
     this.activeDocsPatientId = patientId;
-    this.app.closeModal('modal-patient-docs');
+    this.app.closeModal('modal-patient-docs', { skipHistory: true });
 
     document.getElementById('renew-patient-id').value = patient.id;
     document.getElementById('renew-patient-name').textContent = patient.name;
@@ -1859,7 +1859,7 @@ export class PatientsManager {
     document.getElementById('renew-approval-date').value = getLocalDateStr();
     document.getElementById('renew-approval-no').value = patient.insuranceApprovalNo || '';
 
-    this.app.openModal('modal-renew-approval', { noSlide: true });
+    this.app.openModal('modal-renew-approval', { noSlide: true, alreadyInHistory: true });
   }
 
   async handleConfirmRenewApproval(e) {
@@ -2664,16 +2664,16 @@ export class PatientsManager {
   }
 
   // ================= Insurance Renewal Letter (A5) =================
-  openInsuranceLetterModalForPatient(patientId, noSlide = false) {
+  openInsuranceLetterModalForPatient(patientId, noSlide = false, fromDocs = false) {
     const p = this.patients.find((item) => item.id === patientId);
     if (!p) return;
-    this.openedFromDocs = true;
+    this.openedFromDocs = fromDocs;
     this.activeDocsPatientId = patientId;
     this.currentSheetPatient = p;
-    this.openInsuranceLetterModal(noSlide);
+    this.openInsuranceLetterModal(noSlide, fromDocs);
   }
 
-  openInsuranceLetterModal(noSlide = false) {
+  openInsuranceLetterModal(noSlide = false, fromDocs = false) {
     if (!this.currentSheetPatient) return;
     const p = this.currentSheetPatient;
     const sheet = p.clinicalSheet || {};
@@ -2684,7 +2684,7 @@ export class PatientsManager {
     const notesInp = document.getElementById('ins-letter-notes');
     if (notesInp) notesInp.value = '';
 
-    this.app.openModal('modal-insurance-letter', { noSlide });
+    this.app.openModal('modal-insurance-letter', { noSlide, alreadyInHistory: fromDocs });
   }
 
   async submitInsuranceLetter() {
@@ -2871,15 +2871,15 @@ export class PatientsManager {
   }
 
   openInsuranceLetterFromRow(patientId) {
-    this.app.closeModal('modal-patient-docs');
-    this.openInsuranceLetterModalForPatient(patientId, true);
+    this.app.closeModal('modal-patient-docs', { skipHistory: true });
+    this.openInsuranceLetterModalForPatient(patientId, true, true);
   }
 
   // ================= Cash Receipt Methods =================
   openCashReceiptModal(patientId) {
     this.openedFromDocs = true;
     this.activeDocsPatientId = patientId;
-    this.app.closeModal('modal-patient-docs');
+    this.app.closeModal('modal-patient-docs', { skipHistory: true });
     const p = this.patients.find(item => item.id === patientId);
     if (!p) return;
 
@@ -2890,7 +2890,7 @@ export class PatientsManager {
     document.getElementById('receipt-item-desc').value = 'جلسة علاج طبيعي';
     document.getElementById('receipt-date').value = getLocalDateStr();
 
-    this.app.openModal('modal-cash-receipt', { noSlide: true });
+    this.app.openModal('modal-cash-receipt', { noSlide: true, alreadyInHistory: true });
   }
 
   printCashReceipt() {
@@ -2948,7 +2948,7 @@ export class PatientsManager {
   openMedicalStatementModal(patientId) {
     this.openedFromDocs = true;
     this.activeDocsPatientId = patientId;
-    this.app.closeModal('modal-patient-docs');
+    this.app.closeModal('modal-patient-docs', { skipHistory: true });
     const p = this.patients.find(item => item.id === patientId);
     if (!p) return;
 
@@ -2966,7 +2966,7 @@ export class PatientsManager {
     document.getElementById('statement-body-text').value = '';
     document.getElementById('statement-date').value = getLocalDateStr();
 
-    this.app.openModal('modal-medical-statement', { noSlide: true });
+    this.app.openModal('modal-medical-statement', { noSlide: true, alreadyInHistory: true });
   }
 
   printMedicalStatement() {
@@ -4006,8 +4006,8 @@ export class PatientsManager {
     if (refInput) refInput.value = '';
 
     this.renderBatchHvDates();
-    this.app.closeModal('modal-patient-docs', { keepHistory: true });
-    this.app.openModal('modal-batch-home-visits', { noSlide: true });
+    this.app.closeModal('modal-patient-docs', { skipHistory: true });
+    this.app.openModal('modal-batch-home-visits', { noSlide: true, alreadyInHistory: true });
   }
 
   generateBatchHomeVisitDates() {
