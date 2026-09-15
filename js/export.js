@@ -135,7 +135,7 @@ export class ExportManager {
       // ب. Fallback CSV بترميز عربي
       let csv = '\uFEFF';
       csv += `نظام PhysioFlow لإدارة مراكز العلاج الطبيعي - التقرير اليومي: ${dateStr}\r\n\r\n`;
-      csv += `إجمالي المرضى: ${allSessions.length}, إيرادات: ${totalDrawerCash} ج.م, مصروفات: ${totalExp} ج.م, صافي الدرج: ${netCash} ج.م\r\n\r\n`;
+      csv += `إجمالي المرضى: ${allSessions.length}, إيرادات: ${totalCash} ج.م, مصروفات: ${totalExp} ج.م, صافي الدرج: ${netCash} ج.م\r\n\r\n`;
       csv += 'م,اسم المريض,الطبيب المعالج,نظام الحساب,شركة التأمين,نوع التعاقد,الأعضاء المعالجة,المبلغ المسدد (ج.م),المسؤول,الوقت\r\n';
 
       allSessions.forEach((s, idx) => {
@@ -279,7 +279,7 @@ export class ExportManager {
       // Fallback CSV
       let csv = '\uFEFF';
       csv += `نظام PhysioFlow لإدارة مراكز العلاج الطبيعي - التقرير الشهري: ${monthStr}\r\n\r\n`;
-      csv += `إجمالي مرضى الشهر,${totalPatients},نقدي,${cashCount},تأمين,${insCount},إيرادات,${totalIncome} ج.م,مصروفات,${totalExp} ج.م,صافي الأرباح,${netCash} ج.م\r\n\r\n`;
+      csv += `إجمالي مرضى الشهر,${totalPatients},نقدي,${cashCount},تأمين,${insCount},إيرادات,${totalCash} ج.م,مصروفات,${totalExp} ج.م,صافي الأرباح,${netCash} ج.م\r\n\r\n`;
       csv += 'إحصائية الأطباء الشهرية:\r\nم,الطبيب المعالج,مرضى نقدي,مرضى شركات تأمين,إجمالي الحالات,عدد الجلسات المحتسبة,النسبة\r\n';
       doctorsData.forEach(d => {
         csv += `${d['م']},"${csvSafe(d['الطبيب المعالج'])}",${d['مرضى نقدي']},${d['مرضى شركات تأمين']},${d['إجمالي الحالات']},${d['عدد الجلسات المحتسبة']},${d['النسبة من إجمالي المركز']}\r\n`;

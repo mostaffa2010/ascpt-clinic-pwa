@@ -1065,7 +1065,7 @@ class FirestoreDatabaseService {
   async logAudit(actionType, description, user) {
     if (!this.isCloud) return;
     const logId = 'log-' + Date.now() + '-' + Math.random().toString(36).substr(2, 5);
-    const currentUser = (typeof window !== 'undefined' && window.auth?.getCurrentUser) ? window.auth.getCurrentUser() : null;
+    const currentUser = (typeof auth !== 'undefined' && auth.getCurrentUser) ? auth.getCurrentUser() : null;
     const uid = user?.uid || user?.id || currentUser?.uid;
     const name = user?.name || currentUser?.name || 'مستخدم المركز';
     const role = user?.role || currentUser?.role || 'staff';
