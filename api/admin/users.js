@@ -248,7 +248,7 @@ export default async function handler(req, res) {
 
   // ================= PATCH: Update Status or Reset Password =================
   if (req.method === 'PATCH') {
-    const { targetUid, active, password, shift, seniorityLevel, regularSessionRate, scoliosisRate, hemiplegiaRate, quadriplegiaRate, pediatricRate, specialSessionRate } = req.body;
+    const { targetUid, active, password, shift, regularSessionRate, specialSessionRate } = req.body;
 
     if ('role' in req.body) {
       return res.status(400).json({ error: 'تعديل الأدوار والصلاحيات غير مسموح به عبر هذه الواجهة.' });

@@ -1,4 +1,2 @@
 assets/vendor/
 node_modules/
-dist/
-.cache/
