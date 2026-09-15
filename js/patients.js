@@ -1843,6 +1843,8 @@ export class PatientsManager {
     const patient = this.patients.find(p => p.id === patientId);
     if (!patient) return;
 
+    this.openedFromDocs = true;
+    this.activeDocsPatientId = patientId;
     this.app.closeModal('modal-patient-docs');
 
     document.getElementById('renew-patient-id').value = patient.id;
@@ -2665,6 +2667,8 @@ export class PatientsManager {
   openInsuranceLetterModalForPatient(patientId, noSlide = false) {
     const p = this.patients.find((item) => item.id === patientId);
     if (!p) return;
+    this.openedFromDocs = true;
+    this.activeDocsPatientId = patientId;
     this.currentSheetPatient = p;
     this.openInsuranceLetterModal(noSlide);
   }
@@ -2788,6 +2792,7 @@ export class PatientsManager {
     if (!p) return;
 
     this.activeDocsPatientId = patientId;
+    this.openedFromDocs = false;
     document.getElementById('p-docs-modal-name').textContent = p.name;
     const isIns = p.billing === 'insurance';
     const cType = p.contractType === 'indirect' ? 'غير مباشر' : 'مباشر';
@@ -2866,6 +2871,8 @@ export class PatientsManager {
 
   // ================= Cash Receipt Methods =================
   openCashReceiptModal(patientId) {
+    this.openedFromDocs = true;
+    this.activeDocsPatientId = patientId;
     this.app.closeModal('modal-patient-docs');
     const p = this.patients.find(item => item.id === patientId);
     if (!p) return;
@@ -2933,6 +2940,8 @@ export class PatientsManager {
 
   // ================= Medical Statement Methods =================
   openMedicalStatementModal(patientId) {
+    this.openedFromDocs = true;
+    this.activeDocsPatientId = patientId;
     this.app.closeModal('modal-patient-docs');
     const p = this.patients.find(item => item.id === patientId);
     if (!p) return;
@@ -3921,6 +3930,8 @@ export class PatientsManager {
     const p = this.patients.find((item) => item.id === patientId);
     if (!p) return;
 
+    this.openedFromDocs = true;
+    this.activeDocsPatientId = patientId;
     this.activeBatchPatient = p;
     this.batchHvDates = [];
     this.batchHvSelectedPattern = 'sat_mon_wed';

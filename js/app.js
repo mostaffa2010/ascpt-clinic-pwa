@@ -740,7 +740,23 @@ class App {
       const closeBtn = e.target.closest('[data-close-modal]');
       if (closeBtn) {
         const modalId = closeBtn.getAttribute('data-close-modal');
-        if (modalId) this.closeModal(modalId);
+        if (modalId) {
+          const subModals = [
+            'modal-batch-home-visits',
+            'modal-medical-statement',
+            'modal-renew-approval',
+            'modal-insurance-letter',
+            'modal-cash-receipt'
+          ];
+          if (subModals.includes(modalId) && this.patientsManager?.openedFromDocs && this.patientsManager?.activeDocsPatientId) {
+            const pid = this.patientsManager.activeDocsPatientId;
+            this.patientsManager.openedFromDocs = false;
+            this.closeModal(modalId);
+            this.patientsManager.openPatientDocsModal(pid);
+            return;
+          }
+          this.closeModal(modalId);
+        }
       }
     });
 
@@ -950,6 +966,20 @@ class App {
       const activeModals = Array.from(document.querySelectorAll('.modal-backdrop.active:not(#modal-auth)'));
       if (activeModals.length > 0) {
         const topModal = activeModals[activeModals.length - 1];
+        const subModals = [
+          'modal-batch-home-visits',
+          'modal-medical-statement',
+          'modal-renew-approval',
+          'modal-insurance-letter',
+          'modal-cash-receipt'
+        ];
+        if (subModals.includes(topModal.id) && this.patientsManager?.openedFromDocs && this.patientsManager?.activeDocsPatientId) {
+          const pid = this.patientsManager.activeDocsPatientId;
+          this.patientsManager.openedFromDocs = false;
+          this.closeModal(topModal.id);
+          this.patientsManager.openPatientDocsModal(pid);
+          return;
+        }
         this.closeModal(topModal.id);
         return;
       }
@@ -1750,7 +1780,14 @@ class App {
         'modal-custom-dialog',
         'modal-custom-picker',
         'modal-custom-calendar',
-        'modal-custom-month-picker'
+        'modal-custom-month-picker',
+        'modal-patient-docs',
+        'modal-whatsapp-templates',
+        'modal-batch-home-visits',
+        'modal-cash-receipt',
+        'modal-medical-statement',
+        'modal-renew-approval',
+        'modal-insurance-letter'
       ];
       if (!transientModals.includes(modalId)) {
         history.pushState({ modal: modalId, view: this.currentView }, '');
@@ -1762,8 +1799,12 @@ class App {
     const modal = document.getElementById(modalId);
     if (modal) {
       modal.classList.remove('active');
+      modal.classList.remove('modal-no-slide');
     }
     document.body.classList.remove('modal-open');
+    if (history.state && history.state.modal === modalId) {
+      history.back();
+    }
   }
 
   showToast(message, type = 'success') {

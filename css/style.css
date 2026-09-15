@@ -2772,20 +2772,7 @@ body.not-authenticated #modal-auth #btn-cancel-login {
   .modal-backdrop {
     padding: 0;
     align-items: flex-end;
-    background-color: rgba(15, 23, 42, 0.6);
-  }
-  
-  .modal-content {
-    max-width: 100%;
-    width: 100%;
-    border-radius: 28px 28px 0 0 !important;
-    max-height: 88vh;
-    margin-bottom: 0;
-    animation: modalSlideUp 0.28s cubic-bezier(0.32, 0.72, 0, 1) !important;
-    padding-bottom: max(20px, env(safe-area-inset-bottom, 20px));
-    box-shadow: 0 -10px 30px rgba(0, 0, 0, 0.15);
-    position: relative;
-    border-bottom: none !important;
+    background-color: rgba(15, 23, 42, 0.72);
   }
   
   .modal-content::before {
@@ -4352,7 +4339,8 @@ body {
     border-radius: 26px 26px 0 0 !important;
     max-height: 90vh !important;
     margin-bottom: 0 !important;
-    animation: modalSlideUp 0.22s cubic-bezier(0.32, 0.72, 0, 1) !important;
+    transform: translateY(100%);
+    animation: modalSlideUp 0.22s cubic-bezier(0.16, 1, 0.3, 1) both !important;
     padding-bottom: 0 !important;
     box-shadow: 0 -12px 40px -8px rgba(15, 23, 42, 0.3) !important;
     position: relative !important;
@@ -4374,7 +4362,8 @@ body {
   }
 
   .modal-no-slide .modal-content,
-  .modal-backdrop.modal-no-slide .modal-content {
+  .modal-backdrop.modal-no-slide .modal-content,
+  .modal-backdrop.modal-no-slide.active .modal-content {
     animation: none !important;
     transform: translateY(0) !important;
   }
