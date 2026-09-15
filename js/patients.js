@@ -2639,14 +2639,14 @@ export class PatientsManager {
     const today = new Date().toLocaleDateString('ar-EG-u-nu-latn');
     document.getElementById('print-sheet-meta').textContent = `تاريخ ووقت الطباعة: ${today} ${now}`;
 
-    document.getElementById('p-print-name').textContent = p.name;
-    document.getElementById('p-print-age').textContent = `${p.age} سنة`;
-    document.getElementById('p-print-phone').textContent = p.phone;
+    document.getElementById('p-print-name').textContent = p.name || '';
+    document.getElementById('p-print-age').textContent = p.age ? `${p.age} سنة` : '-';
+    document.getElementById('p-print-phone').textContent = p.phone || '-';
     document.getElementById('p-print-address').textContent = p.address || '-';
-    document.getElementById('p-print-doctor').textContent = p.doctor;
-    document.getElementById('p-print-billing').textContent = p.billing === 'cash' 
+    document.getElementById('p-print-doctor').textContent = p.doctor || p.doctorName || '-';
+    document.getElementById('p-print-billing').textContent = (p.billing === 'cash' || p.payType === 'cash')
       ? 'سداد نقدي' 
-      : `${p.insuranceCompany || 'تأمين'} (${p.contractType === 'direct' ? 'تعاقد مباشر' : 'تعاقد غير مباشر'})`;
+      : `${p.insuranceCompany || p.insuranceName || 'تأمين'} (${p.contractType === 'direct' ? 'تعاقد مباشر' : 'تعاقد غير مباشر'})`;
 
     // 2. Diagnosis
     document.getElementById('p-print-diagnosis').textContent = 
@@ -2752,10 +2752,10 @@ export class PatientsManager {
       });
 
       // 2. Fill the printable A5 template
-      document.getElementById('ins-print-company').textContent = p.insuranceCompany || '-';
-      document.getElementById('ins-print-patient-name').textContent = p.name;
-      document.getElementById('ins-print-diagnosis').textContent = diagnosis;
-      document.getElementById('ins-print-sessions').textContent = sessionCount;
+      document.getElementById('ins-print-company').textContent = p.insuranceCompany || p.insuranceName || '-';
+      document.getElementById('ins-print-patient-name').textContent = p.name || '';
+      document.getElementById('ins-print-diagnosis').textContent = diagnosis || '-';
+      document.getElementById('ins-print-sessions').textContent = sessionCount || '1';
       document.getElementById('ins-print-date').textContent = `تحريراً في: ${todayLabel}`;
 
       const notesContainer = document.getElementById('ins-print-notes-container');
