@@ -1237,7 +1237,7 @@ export class SessionsManager {
     }
   }
 
-  toggleInsuranceEditMode(_caller = 'session') {
+  toggleInsuranceEditMode(caller = 'session') {
     const user = auth.getCurrentUser();
     if (!RolesManager.canManageUsers(user)) {
       this.app.showAlert('تعديل وحذف شركات التأمين متاح لمدير المركز فقط.', 'صلاحية المدير');
@@ -1654,7 +1654,7 @@ export class SessionsManager {
       const specialBadge = (!isExam && isSpecialSession) ? `<span class="badge" style="background: rgba(245, 158, 11, 0.15); color: #b45309; border: 1px solid rgba(245, 158, 11, 0.35); font-size: 0.72rem; padding: 1px 6px; margin-right: 6px; border-radius: 4px; font-weight: 800;"><i class="fa-solid fa-star"></i> خاصة</span>` : '';
 
       return `
-        <tr class="${rowHighlightClass}">
+        <tr>
           <td style="font-weight: 700;">${safePatient} ${examTag}${specialBadge}</td>
           <td style="text-align: center; white-space: nowrap;">${sessionNumBadge}</td>
           <td>${safeDoc}</td>
@@ -1714,7 +1714,17 @@ export class SessionsManager {
           }
         }
 
-
+        const pType = s.sessionPricingType || s.programType || (s.isSpecial ? 'special' : 'regular');
+        let progBadge = '';
+        if (pType === 'scoliosis') {
+          progBadge = `<span class="badge" style="background: rgba(2, 132, 199, 0.15); color: #0284c7; border: 1px solid rgba(2, 132, 199, 0.35); font-size: 0.72rem; font-weight: 800;"><i class="fa-solid fa-arrows-split-up-and-left"></i> Scoliosis</span>`;
+        } else if (pType === 'hemiplegia') {
+          progBadge = `<span class="badge" style="background: rgba(245, 158, 11, 0.15); color: #b45309; border: 1px solid rgba(245, 158, 11, 0.35); font-size: 0.72rem; font-weight: 800;"><i class="fa-solid fa-brain"></i> Hemiplegia</span>`;
+        } else if (pType === 'quadriplegia' || pType === 'pediatric') {
+          progBadge = `<span class="badge" style="background: rgba(225, 29, 72, 0.15); color: #e11d48; border: 1px solid rgba(225, 29, 72, 0.35); font-size: 0.72rem; font-weight: 800;"><i class="fa-solid fa-wheelchair"></i> Quadriplegia</span>`;
+        } else if (pType === 'special') {
+          progBadge = `<span class="badge badge-warning" style="font-size: 0.72rem; font-weight: 800;"><i class="fa-solid fa-star"></i> خاصة</span>`;
+        }
 
         let payBadge = '';
         if (isExam) {

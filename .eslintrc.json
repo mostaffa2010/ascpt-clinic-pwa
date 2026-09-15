@@ -11,11 +11,6 @@
   "globals": {
     "XLSX": "readonly"
   },
-  "rules": {
-    "no-empty": ["error", { "allowEmptyCatch": true }],
-    "no-unused-vars": ["error", { "argsIgnorePattern": "^_", "varsIgnorePattern": "^_" }],
-    "require-atomic-updates": "off"
-  },
   "overrides": [
     {
       "files": ["api/**/*.js", "api/*.js", "tests/**/*.js", "tests/*.js"],

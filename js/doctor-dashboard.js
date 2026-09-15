@@ -238,10 +238,12 @@ export class DoctorDashboardManager {
     // 5. Monthly Earnings Calculation (KPI Card 5 - Cumulative for this month)
     const docList = await db.getDoctorsList();
     const docInfo = docList.find(d => d.uid === docUid || (d.name && user.name && d.name.trim() === user.name.trim())) || user;
+    const isSenior = (docInfo.seniorityLevel === 'senior' || user.seniorityLevel === 'senior');
     const regRate = typeof docInfo.regularSessionRate === 'number' ? docInfo.regularSessionRate : 0;
     const scolRate = typeof docInfo.scoliosisRate === 'number' ? docInfo.scoliosisRate : 0;
     const hemiRate = typeof docInfo.hemiplegiaRate === 'number' ? docInfo.hemiplegiaRate : 0;
     const quadRate = typeof docInfo.quadriplegiaRate === 'number' ? docInfo.quadriplegiaRate : (typeof docInfo.pediatricRate === 'number' ? docInfo.pediatricRate : 0);
+    const pedRate = quadRate;
     const specRate = typeof docInfo.specialSessionRate === 'number' ? docInfo.specialSessionRate : 0;
 
     let monthRegularCount = 0;

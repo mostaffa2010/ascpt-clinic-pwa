@@ -205,7 +205,7 @@ export class ClaimsManager {
 
     // Status Filter Pills for Claims Ledger
     document.querySelectorAll('.btn-claim-filter-pill').forEach(btn => {
-      btn.addEventListener('click', () => {
+      btn.addEventListener('click', (e) => {
         document.querySelectorAll('.btn-claim-filter-pill').forEach(b => {
           b.classList.remove('active');
           b.style.background = 'var(--bg-subtle)';
@@ -367,6 +367,7 @@ export class ClaimsManager {
   toggleClaimSettings(forceOpen) {
     const body = document.getElementById('claim-settings-body');
     const strip = document.getElementById('claim-settings-summary-strip');
+    const btn = document.getElementById('btn-toggle-claim-settings');
     const icon = document.getElementById('icon-toggle-claim-settings');
     const text = document.getElementById('text-toggle-claim-settings');
 
@@ -610,7 +611,7 @@ export class ClaimsManager {
     // Render Handcrafted Mobile Claim Cards
     const mobContainer = document.getElementById('claim-patients-mobile-cards');
     if (mobContainer) {
-      mobContainer.innerHTML = filtered.map((item) => {
+      mobContainer.innerHTML = filtered.map((item, idx) => {
         const p = item.patient;
         const safeId = escapeHTML(p.id);
         const safeName = escapeHTML(p.name);

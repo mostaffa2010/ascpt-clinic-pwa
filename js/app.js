@@ -1637,7 +1637,8 @@ class App {
     return new Promise((resolve) => {
       this.dialogResolve = resolve;
       const inputEl = document.getElementById('dialog-input'); if (inputEl) inputEl.style.display = 'none';
-            const titleEl = document.getElementById('dialog-title');
+      const modal = document.getElementById('modal-custom-dialog');
+      const titleEl = document.getElementById('dialog-title');
       const msgEl = document.getElementById('dialog-message');
       const iconEl = document.getElementById('dialog-icon');
       const btnCancel = document.getElementById('dialog-btn-cancel');

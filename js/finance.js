@@ -403,7 +403,7 @@ export class FinanceManager {
     }
   }
 
-  async handleSubmitSettlement(_e) {
+  async handleSubmitSettlement(e) {
     const compSelect = document.getElementById('settle-company-select');
     const company = compSelect?.value?.trim();
     const period = document.getElementById('settle-claim-period')?.value?.trim();
