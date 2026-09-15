@@ -4,15 +4,7 @@
 // Endpoint: /api/admin/users
 // ========================================================
 
-import {
-  getDocs,
-  collection,
-  query,
-  orderBy,
-  limit
-} from 'https://www.gstatic.com/firebasejs/12.18.0/firebase-firestore.js';
-
-import { firestoreDb, firebaseAuth } from './firebase-init.js';
+import { firebaseAuth } from './firebase-init.js';
 import { db } from './db.js';
 import { auth } from './auth.js';
 import { RolesManager } from './roles.js';

@@ -12,9 +12,9 @@ const APP_SHELL_ASSETS = [
   '/',
   '/index.html',
   '/manifest.json',
-  '/css/style.css?v=2.1.7',
+  '/css/style.css?v=1.4.3',
   '/css/print.css',
-  '/css/print.css?v=2.1.7',
+  '/css/print.css?v=1.4.3',
   '/icons/icon-192.png',
   '/icons/icon-512.png',
   '/icons/splash/splash-1290x2796.png',
@@ -32,7 +32,7 @@ const APP_SHELL_ASSETS = [
   '/icons/splash/splash-1620x2160.png',
   '/assets/vendor/xlsx/xlsx.full.min.js',
   '/js/app.js',
-  '/js/app.js?v=2.1.7',
+  '/js/app.js?v=1.4.3',
   '/js/auth.js',
   '/js/db.js',
   '/js/doctor-dashboard.js',
@@ -112,36 +112,34 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // A. Navigation Requests (Fast Launch < 100ms: Stale-While-Revalidate like Facebook & Native Apps)
-  if (event.request.mode === 'navigate' || url.endsWith('/index.html') || url.endsWith('/')) {
+  // A. Navigation Requests (PWA launch, URL navigation, refresh, or offline startup)
+  if (event.request.mode === 'navigate' || url.endsWith('/index.html')) {
     event.respondWith(
       (async () => {
-        const cache = await caches.open(CACHE_NAME);
-        const cachedPage = (await cache.match('/index.html')) || (await cache.match('/'));
-
-        // Background silent revalidation: fetch newest version from network without blocking UI
-        const fetchPromise = fetch(event.request).then(async (networkResponse) => {
+        try {
+          // If network is available, fetch and keep offline cache updated
+          const networkResponse = await fetch(event.request);
           if (networkResponse && networkResponse.status === 200) {
             const copy = networkResponse.clone();
-            await cache.put('/index.html', copy.clone());
-            await cache.put('/', copy.clone());
+            const cache = await caches.open(CACHE_NAME);
+            cache.put('/index.html', copy.clone());
+            cache.put('/', copy.clone());
           }
           return networkResponse;
-        }).catch(() => null);
-
-        // Instant launch from device storage if cached
-        if (cachedPage) {
-          return cachedPage;
+        } catch (networkError) {
+          // Device is OFFLINE (e.g. Wi-Fi turned off): serve cached index.html immediately!
+          const cache = await caches.open(CACHE_NAME);
+          const cachedPage = (await cache.match('/index.html')) ||
+                             (await cache.match('/')) ||
+                             (await cache.match(event.request));
+          if (cachedPage) {
+            return cachedPage;
+          }
+          return new Response('Offline - ASCPT Clinic', {
+            status: 503,
+            headers: { 'Content-Type': 'text/plain; charset=utf-8' }
+          });
         }
-
-        // First launch or cache miss: wait for network
-        const networkResponse = await fetchPromise;
-        if (networkResponse) return networkResponse;
-
-        return new Response('Offline - ASCPT Clinic', {
-          status: 503,
-          headers: { 'Content-Type': 'text/plain; charset=utf-8' }
-        });
       })()
     );
     return;

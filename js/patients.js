@@ -1,5 +1,5 @@
 import { CLINIC_CONFIG } from './clinic-config.js';
-import { escapeHTML, getLocalDateStr, getDoctorColor } from './utils.js';
+import { escapeHTML, getLocalDateStr } from './utils.js';
 // ========================================================
 // PhysioFlow - Patients Management Module
 // ========================================================
@@ -905,7 +905,6 @@ export class PatientsManager {
       const safePhone = escapeHTML(p.phone);
       const safeAddress = escapeHTML(p.address || '-');
       const areaInfo = this.getPatientTreatedAreaDisplay(p);
-      const safeDoctor = escapeHTML(p.doctor || '');
       const safeEditor = escapeHTML(p.lastUpdatedBy || p.createdBy || '-');
       const cleanWaPhone = (p.phone || '').replace(/[^0-9]/g, '').replace(/^0/, '20');
       const isFemale = (p.gender === 'female');
@@ -914,18 +913,9 @@ export class PatientsManager {
       const genderIcon = isFemale ? 'fa-solid fa-venus' : 'fa-solid fa-mars';
       const genderText = isFemale ? 'أنثى' : 'ذكر';
 
-      const prog = p.programType || p.clinicalSheet?.programType || 'regular';
-      let programBadge = '';
-      if (prog === 'scoliosis') {
-        programBadge = `<span class="badge" style="background: rgba(2, 132, 199, 0.15); color: #0284c7; border: 1px solid rgba(2, 132, 199, 0.35); font-size: 0.68rem; font-weight: 800; padding: 1px 6px; border-radius: 4px; margin-right: 4px;"><i class="fa-solid fa-arrows-split-up-and-left"></i> Scoliosis</span>`;
-      } else if (prog === 'hemiplegia') {
-        programBadge = `<span class="badge" style="background: rgba(245, 158, 11, 0.15); color: #b45309; border: 1px solid rgba(245, 158, 11, 0.35); font-size: 0.68rem; font-weight: 800; padding: 1px 6px; border-radius: 4px; margin-right: 4px;"><i class="fa-solid fa-brain"></i> Hemiplegia</span>`;
-      } else if (prog === 'quadriplegia' || prog === 'pediatric') {
-        programBadge = `<span class="badge" style="background: rgba(225, 29, 72, 0.15); color: #e11d48; border: 1px solid rgba(225, 29, 72, 0.35); font-size: 0.68rem; font-weight: 800; padding: 1px 6px; border-radius: 4px; margin-right: 4px;"><i class="fa-solid fa-wheelchair"></i> Quadriplegia</span>`;
-      }
 
       return `
-        <tr class="${genderClass}">
+        <tr class="${genderClass} ${rowHighlightClass}">
           <td style="font-weight: 800; color: var(--primary); cursor: ${canAccessSheet ? 'pointer' : 'default'}; white-space: nowrap;"
               class="${canAccessSheet ? 'patient-sheet-link' : 'btn-edit-patient'}"
               data-patient-id="${safeId}"
@@ -1002,13 +992,10 @@ export class PatientsManager {
         const safeId = escapeHTML(p.id);
         const safeName = escapeHTML(p.name);
         const safeAge = escapeHTML(p.age);
-        const safePhone = escapeHTML(p.phone);
         const safeAddress = escapeHTML(p.address || '');
         const mobileAreaInfo = this.getPatientTreatedAreaDisplay(p);
         const safeDoctor = escapeHTML(p.doctor || '');
-        const cleanDocName = (p.doctor || 'طبيب المركز').replace(/^د\.\s*/, '');
-        const docColor = getDoctorColor(p.doctorId || p.doctor || 'default');
-        const cleanWaPhone = (p.phone || '').replace(/[^0-9]/g, '').replace(/^0/, '20');
+          const cleanWaPhone = (p.phone || '').replace(/[^0-9]/g, '').replace(/^0/, '20');
 
         const isFemale = (p.gender === 'female');
         const genderClass = isFemale ? 'gender-female' : 'gender-male';
@@ -1017,15 +1004,6 @@ export class PatientsManager {
         const genderText = isFemale ? 'أنثى' : 'ذكر';
         const avatarIcon = isFemale ? 'fa-solid fa-person-dress' : 'fa-solid fa-person';
 
-        const prog = p.programType || p.clinicalSheet?.programType || 'regular';
-        let programBadge = '';
-        if (prog === 'scoliosis') {
-          programBadge = `<span class="badge" style="background: rgba(2, 132, 199, 0.15); color: #0284c7; border: 1px solid rgba(2, 132, 199, 0.35); font-size: 0.68rem; font-weight: 800; padding: 1px 6px; border-radius: 4px; margin-right: 4px;"><i class="fa-solid fa-arrows-split-up-and-left"></i> Scoliosis</span>`;
-        } else if (prog === 'hemiplegia') {
-          programBadge = `<span class="badge" style="background: rgba(245, 158, 11, 0.15); color: #b45309; border: 1px solid rgba(245, 158, 11, 0.35); font-size: 0.68rem; font-weight: 800; padding: 1px 6px; border-radius: 4px; margin-right: 4px;"><i class="fa-solid fa-brain"></i> Hemiplegia</span>`;
-        } else if (prog === 'quadriplegia' || prog === 'pediatric') {
-          programBadge = `<span class="badge" style="background: rgba(225, 29, 72, 0.15); color: #e11d48; border: 1px solid rgba(225, 29, 72, 0.35); font-size: 0.68rem; font-weight: 800; padding: 1px 6px; border-radius: 4px; margin-right: 4px;"><i class="fa-solid fa-wheelchair"></i> Quadriplegia</span>`;
-        }
 
         return `
           <div class="hero-styled-card hero-patient-card ${genderClass} ${rowHighlightClass}" style="padding: 11px 13px; margin-bottom: 10px; border-radius: 14px;">
@@ -1412,7 +1390,7 @@ export class PatientsManager {
     const feedback = document.getElementById('p-phone-feedback');
     if (!phoneInput) return false;
 
-    let val = phoneInput.value.trim().replace(/[\s\-\(\)\.]/g, '');
+    let val = phoneInput.value.trim().replace(/[\s\-().]/g, '');
     if (val.startsWith('+20')) val = '0' + val.slice(3);
     else if (val.startsWith('20') && val.length === 12) val = '0' + val.slice(2);
 
@@ -1661,7 +1639,7 @@ export class PatientsManager {
     }
 
     // 3. Strict Egyptian Mobile Phone Validation (010, 011, 012, 015 - exactly 11 digits)
-    let cleanPhone = phone.replace(/[\s\-\(\)\.]/g, '');
+    let cleanPhone = phone.replace(/[\s\-().]/g, '');
     if (cleanPhone.startsWith('+20')) cleanPhone = '0' + cleanPhone.slice(3);
     else if (cleanPhone.startsWith('20') && cleanPhone.length === 12) cleanPhone = '0' + cleanPhone.slice(2);
 
@@ -2856,7 +2834,6 @@ export class PatientsManager {
     const amount = document.getElementById('receipt-amount')?.value || '400';
     const itemDesc = document.getElementById('receipt-item-desc')?.value.trim() || 'جلسة علاج طبيعي';
     const dateVal = document.getElementById('receipt-date')?.value || getLocalDateStr();
-    const currentUser = auth.getCurrentUser();
 
     const isFemaleReceipt = (p.gender === 'female');
     const isMaleReceipt = (p.gender === 'male');

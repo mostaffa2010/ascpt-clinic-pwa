@@ -1445,9 +1445,7 @@ export class AppointmentsManager {
     }
 
     // Populate Doctor Dropdown
-    const today = getLocalDateStr();
     const docSelect = document.getElementById('appt-doctor-select');
-    const warningEl = document.getElementById('appt-doc-shift-warning');
     if (docSelect) {
       docSelect.innerHTML = `<option value="">-- اضغط لاختيار الطبيب المعالج --</option>` + (this.doctors || []).map((d) => {
         const clean = (d.name || '').replace(/^د\.\s*/, '');
@@ -1859,7 +1857,7 @@ export class AppointmentsManager {
     }
   }
 
-  openEditSlotModal(slotKey, slotLabel) {
+  openEditSlotModal(slotKey, _slotLabel) {
     this.slotEditMode = 'edit';
     this.slotEditOldKey = slotKey;
 
