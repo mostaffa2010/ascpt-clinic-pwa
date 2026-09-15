@@ -1,9 +1,9 @@
 // ========================================================
-// ASCPT - Weekly Appointments Schedule (Customizable Recurring Template)
+// ASCPT - Weekly Recurring Appointments Schedule (Master Timetable & Daily Operations)
 // ========================================================
-// A booking is (doctor + time slot + patient).
-// Time slots represent horizontal rows across all doctors.
-// Slots can now be customized, added, or deleted directly from the UI.
+// In Physical Therapy, an appointment is a Recurring Weekly Slot (e.g. Sat-Mon-Wed at 3:30 PM).
+// Master recurring bookings persist automatically across weeks until completed/discharged.
+// Single-day exceptions (e.g. patient apologies for today) are tracked without breaking future weeks.
 
 import { escapeHTML, initStackDeck, getDoctorColor, getLocalDateStr, isDoctorOnDuty, getShiftLabel, getDayShiftKey } from './utils.js';
 import { db } from './db.js';
@@ -17,7 +17,16 @@ export const DEFAULT_APPT_SLOTS = [
   { key: '19:00', label: '٧:٠٠ م' }
 ];
 
-const MAX_BEDS_PER_SLOT = 6;
+export const MAX_BEDS_PER_SLOT = 6;
+
+export const DAYS_CONFIG = [
+  { dayIndex: 6, name: 'السبت', short: 'سبت', key: 'sat' },
+  { dayIndex: 0, name: 'الأحد', short: 'أحد', key: 'sun' },
+  { dayIndex: 1, name: 'الاثنين', short: 'إثنين', key: 'mon' },
+  { dayIndex: 2, name: 'الثلاثاء', short: 'ثلاثاء', key: 'tue' },
+  { dayIndex: 3, name: 'الأربعاء', short: 'أربعاء', key: 'wed' },
+  { dayIndex: 4, name: 'الخميس', short: 'خميس', key: 'thu' }
+];
 
 const ARABIC_DIGITS = { '0': '٠', '1': '١', '2': '٢', '3': '٣', '4': '٤', '5': '٥', '6': '٦', '7': '٧', '8': '٨', '9': '٩' };
 
@@ -54,7 +63,18 @@ export function parseSlotKey(key) {
     hour = h24 - 12;
     period = 'PM';
   }
-  return { hour: String(hour), minute, period };
+  return { hour, minute, period, h24 };
+}
+
+export function formatRecurringDays(daysOfWeek) {
+  if (!Array.isArray(daysOfWeek) || daysOfWeek.length === 0) return '';
+  const order = [6, 0, 1, 2, 3, 4];
+  const sorted = [...daysOfWeek].sort((a, b) => order.indexOf(a) - order.indexOf(b));
+  if (sorted.length === 6) return 'يومياً (عدا الجمعة)';
+  if (sorted.length === 3 && sorted.includes(6) && sorted.includes(1) && sorted.includes(3)) return 'سبت - إثنين - أربع';
+  if (sorted.length === 3 && sorted.includes(0) && sorted.includes(2) && sorted.includes(4)) return 'أحد - ثلاثاء - خميس';
+  const dayNames = { 6: 'سبت', 0: 'أحد', 1: 'إثنين', 2: 'ثلاثاء', 3: 'أربعاء', 4: 'خميس' };
+  return sorted.map(d => dayNames[d] || '').filter(Boolean).join(' • ');
 }
 
 export class AppointmentsManager {
@@ -70,11 +90,18 @@ export class AppointmentsManager {
     this.selectedPatientId = null;
     this.selectedPatientName = null;
 
+    // View Mode: 'daily' (Operational) vs 'weekly' (Master Timetable)
+    this.viewMode = 'daily';
+
+    // Recurring Days Selection State
+    this.selectedDaysForNewAppt = [6, 1, 3]; // Default: Sat/Mon/Wed
+    this.selectedDaysForMoveAppt = [6, 1, 3];
+
     // Slot Editing State
-    this.slotEditMode = 'edit'; // 'edit' | 'add'
+    this.slotEditMode = 'edit';
     this.slotEditOldKey = null;
     this.movingAppt = null;
-    this.doctorApptFilter = 'active'; // 'active' | 'completed'
+    this.doctorApptFilter = 'active';
     this.shiftOverrides = [];
     this.selectedDate = getLocalDateStr();
     this.selectedApptForAction = null;
@@ -88,11 +115,71 @@ export class AppointmentsManager {
     const myGrid = document.getElementById('my-appointments-grid');
     if (myGrid) myGrid.addEventListener('click', (e) => this.handleGridClick(e));
 
+    // Book New Appointment Header Button
+    document.getElementById('btn-book-new-appt')?.addEventListener('click', () => {
+      this.openAddModal(null, null, null);
+    });
+
+    // View Switcher Buttons
+    document.getElementById('btn-view-mode-daily')?.addEventListener('click', () => {
+      this.setViewMode('daily');
+    });
+    document.getElementById('btn-view-mode-weekly')?.addEventListener('click', () => {
+      this.setViewMode('weekly');
+    });
+
+    // Form: Submit Appointment
     document.getElementById('modal-appointment-form')?.addEventListener('submit', (e) => {
       e.preventDefault();
       this.submitAppointment();
     });
 
+    // Days Presets in Add Modal
+    document.getElementById('btn-preset-sat-mon-wed')?.addEventListener('click', () => {
+      this.setNewApptDays([6, 1, 3], 'sat_mon_wed');
+    });
+    document.getElementById('btn-preset-sun-tue-thu')?.addEventListener('click', () => {
+      this.setNewApptDays([0, 2, 4], 'sun_tue_thu');
+    });
+    document.getElementById('btn-preset-daily')?.addEventListener('click', () => {
+      this.setNewApptDays([6, 0, 1, 2, 3, 4], 'daily');
+    });
+
+    // Individual Day Toggles in Add Modal
+    document.getElementById('appt-modal-days-grid')?.addEventListener('click', (e) => {
+      const toggle = e.target.closest('.appt-day-toggle');
+      if (toggle && toggle.dataset.day !== undefined) {
+        const dayIdx = parseInt(toggle.dataset.day, 10);
+        this.toggleNewApptDay(dayIdx);
+      }
+    });
+
+    // Days Presets in Move Modal
+    document.getElementById('btn-move-preset-sat-mon-wed')?.addEventListener('click', () => {
+      this.setMoveApptDays([6, 1, 3]);
+    });
+    document.getElementById('btn-move-preset-sun-tue-thu')?.addEventListener('click', () => {
+      this.setMoveApptDays([0, 2, 4]);
+    });
+    document.getElementById('btn-move-preset-daily')?.addEventListener('click', () => {
+      this.setMoveApptDays([6, 0, 1, 2, 3, 4]);
+    });
+
+    // Individual Day Toggles in Move Modal
+    document.getElementById('move-modal-days-grid')?.addEventListener('click', (e) => {
+      const toggle = e.target.closest('.appt-day-toggle');
+      if (toggle && toggle.dataset.day !== undefined) {
+        const dayIdx = parseInt(toggle.dataset.day, 10);
+        this.toggleMoveApptDay(dayIdx);
+      }
+    });
+
+    // Slot selection in Add Modal live update
+    document.getElementById('appt-slot-select')?.addEventListener('change', () => {
+      this.updateApptPreviewText();
+    });
+
+    // Patient picker trigger
     document.getElementById('appt-patient-picker-trigger')?.addEventListener('click', () => this.openPatientPicker());
 
     const searchInput = document.getElementById('appt-picker-search-input');
@@ -103,33 +190,13 @@ export class AppointmentsManager {
       if (item) this.selectPatientFromPicker(item.getAttribute('data-patient-id'));
     });
 
-    // Add New Slot Trigger Button in Card Header
+    // Move / Reschedule Appointment Form
     document.getElementById('form-move-appointment')?.addEventListener('submit', (e) => {
       e.preventDefault();
       this.handleConfirmMoveAppointment();
     });
 
-    // Bind Copy Appointment Actions & Presets
-    document.getElementById('form-copy-appointment')?.addEventListener('submit', (e) => {
-      e.preventDefault();
-      this.handleConfirmCopyAppointment();
-    });
-
-    document.getElementById('btn-copy-shift-sat-mon-wed')?.addEventListener('click', () => {
-      this.setCopyShiftSelection([0, 2, 4]); // السبت (0)، الاثنين (2)، الأربعاء (4)
-    });
-
-    document.getElementById('btn-copy-shift-sun-tue-thu')?.addEventListener('click', () => {
-      this.setCopyShiftSelection([1, 3, 5]); // الأحد (1)، الثلاثاء (3)، الخميس (5)
-    });
-
-    document.getElementById('btn-appt-sheet-copy')?.addEventListener('click', () => {
-      const a = this.selectedApptForAction;
-      this.app.closeModal('modal-appt-actions');
-      if (a) this.openCopyModal(a.id);
-    });
-
-
+    // Add New Slot Trigger Button in Card Header
     document.getElementById('btn-add-new-slot')?.addEventListener('click', () => this.openAddSlotModal());
 
     // Slot Edit Form Controls
@@ -168,7 +235,7 @@ export class AppointmentsManager {
       });
     }
 
-    // Period Segmented Control (مساءً / صباحاً)
+    // Period Segmented Control
     const modalSlot = document.getElementById('modal-edit-appointment-slot');
     if (modalSlot) {
       modalSlot.addEventListener('click', (e) => {
@@ -188,7 +255,7 @@ export class AppointmentsManager {
 
     this.renderSlotQuickChips();
 
-    // Shift Coverage Overrides (v1.4.76)
+    // Shift Coverage Overrides
     document.getElementById('btn-open-shift-coverage')?.addEventListener('click', () => {
       this.openShiftCoverageModal();
     });
@@ -205,7 +272,7 @@ export class AppointmentsManager {
       }
     });
 
-    // Date Strip Navigation Controls (v2.0.0)
+    // Date Strip Navigation Controls
     document.getElementById('btn-appt-prev-day')?.addEventListener('click', () => this.navigateDay(-1));
     document.getElementById('btn-appt-next-day')?.addEventListener('click', () => this.navigateDay(1));
     document.getElementById('btn-appt-today')?.addEventListener('click', () => this.changeSelectedDate(getLocalDateStr()));
@@ -225,7 +292,7 @@ export class AppointmentsManager {
       }
     });
 
-    // Action Bottom Sheet Buttons (v2.0.0)
+    // Action Bottom Sheet Buttons
     document.getElementById('btn-appt-sheet-checkin')?.addEventListener('click', () => {
       if (this.selectedApptForAction) this.handleCheckinFromAppt(this.selectedApptForAction);
     });
@@ -242,6 +309,14 @@ export class AppointmentsManager {
       this.handleStatusUpdateFromSheet('scheduled');
     });
 
+    document.getElementById('btn-appt-sheet-apologize-today')?.addEventListener('click', () => {
+      if (this.selectedApptForAction) this.toggleApologyForToday(this.selectedApptForAction);
+    });
+
+    document.getElementById('btn-appt-sheet-finish-course')?.addEventListener('click', () => {
+      if (this.selectedApptForAction) this.handleFinishCourse(this.selectedApptForAction);
+    });
+
     document.getElementById('btn-appt-sheet-move')?.addEventListener('click', () => {
       const a = this.selectedApptForAction;
       this.app.closeModal('modal-appt-actions');
@@ -253,6 +328,100 @@ export class AppointmentsManager {
       this.app.closeModal('modal-appt-actions');
       if (a) this.deleteAppointment(a.id);
     });
+  }
+
+  setViewMode(mode) {
+    this.viewMode = mode;
+    const btnDaily = document.getElementById('btn-view-mode-daily');
+    const btnWeekly = document.getElementById('btn-view-mode-weekly');
+    if (btnDaily) btnDaily.classList.toggle('active', mode === 'daily');
+    if (btnWeekly) btnWeekly.classList.toggle('active', mode === 'weekly');
+
+    const navBar = document.querySelector('.appt-date-navigator-bar');
+    if (navBar) {
+      navBar.style.display = (mode === 'daily') ? 'block' : 'none';
+    }
+
+    this.render();
+  }
+
+  setNewApptDays(days, presetKey = null) {
+    this.selectedDaysForNewAppt = [...days];
+    this.updateDaysGridUI('appt-modal-days-grid', this.selectedDaysForNewAppt);
+    this.updatePresetsUI('appt-presets-wrap', presetKey);
+    this.updateApptPreviewText();
+  }
+
+  toggleNewApptDay(dayIdx) {
+    const idx = this.selectedDaysForNewAppt.indexOf(dayIdx);
+    if (idx > -1) {
+      if (this.selectedDaysForNewAppt.length <= 1) {
+        this.app.showAlert('يجب اختيار يوم واحد على الأقل للموعد الدوري.', 'تنبيه', 'warning');
+        return;
+      }
+      this.selectedDaysForNewAppt.splice(idx, 1);
+    } else {
+      this.selectedDaysForNewAppt.push(dayIdx);
+    }
+    this.updateDaysGridUI('appt-modal-days-grid', this.selectedDaysForNewAppt);
+    this.updatePresetsUI('appt-presets-wrap', null);
+    this.updateApptPreviewText();
+  }
+
+  setMoveApptDays(days) {
+    this.selectedDaysForMoveAppt = [...days];
+    this.updateDaysGridUI('move-modal-days-grid', this.selectedDaysForMoveAppt);
+  }
+
+  toggleMoveApptDay(dayIdx) {
+    const idx = this.selectedDaysForMoveAppt.indexOf(dayIdx);
+    if (idx > -1) {
+      if (this.selectedDaysForMoveAppt.length <= 1) {
+        this.app.showAlert('يجب اختيار يوم واحد على الأقل للموعد الدوري.', 'تنبيه', 'warning');
+        return;
+      }
+      this.selectedDaysForMoveAppt.splice(idx, 1);
+    } else {
+      this.selectedDaysForMoveAppt.push(dayIdx);
+    }
+    this.updateDaysGridUI('move-modal-days-grid', this.selectedDaysForMoveAppt);
+  }
+
+  updateDaysGridUI(gridId, selectedDays) {
+    const grid = document.getElementById(gridId);
+    if (!grid) return;
+    grid.querySelectorAll('.appt-day-toggle').forEach(el => {
+      const d = parseInt(el.dataset.day, 10);
+      el.classList.toggle('active', selectedDays.includes(d));
+    });
+  }
+
+  updatePresetsUI(containerId, activePreset) {
+    const container = document.getElementById(containerId);
+    if (!container) return;
+    container.querySelectorAll('.appt-preset-pill').forEach(btn => {
+      btn.classList.toggle('active', btn.dataset.preset === activePreset);
+    });
+  }
+
+  updateApptPreviewText() {
+    const el = document.getElementById('appt-schedule-preview-text');
+    if (!el) return;
+    const daysStr = formatRecurringDays(this.selectedDaysForNewAppt);
+    const slotKey = document.getElementById('appt-slot-select')?.value || this.pendingTimeSlot || '15:30';
+    const slotObj = (this.slots || []).find(s => s.key === slotKey);
+    const slotLabel = slotObj ? slotObj.label : slotKey;
+    const docSelect = document.getElementById('appt-doctor-select');
+    const docName = docSelect?.options[docSelect.selectedIndex]?.text?.split('(')[0]?.trim() || 'طبيب المركز';
+    el.textContent = `سيتم تثبيت الموعد الدوري أسبوعياً كل (${daysStr}) الساعة ${slotLabel} مع ${docName}`;
+  }
+
+  getPatternFromDays(days) {
+    if (!Array.isArray(days)) return 'custom';
+    if (days.length === 6) return 'daily';
+    if (days.length === 3 && days.includes(6) && days.includes(1) && days.includes(3)) return 'sat_mon_wed';
+    if (days.length === 3 && days.includes(0) && days.includes(2) && days.includes(4)) return 'sun_tue_thu';
+    return 'custom';
   }
 
   async loadAll(targetDate = null, forceRefresh = false) {
@@ -277,12 +446,28 @@ export class AppointmentsManager {
 
   getAppointmentsForDate(dateStr) {
     if (!dateStr) return [];
+    const curDate = new Date(dateStr + 'T00:00:00');
+    const dayOfWeek = curDate.getDay(); // 0..6
+    if (dayOfWeek === 5) return []; // Friday is clinic holiday
+
     return (this.appointments || []).filter(a => {
-      // 1. Direct date match
+      // Completed or cancelled appointments at master level are excluded from future dates
+      if (a.status === 'completed' || a.status === 'cancelled') return false;
+
+      // 1. Recurring Appointment Model (Master Weekly Schedule)
+      if (Array.isArray(a.daysOfWeek) && a.daysOfWeek.length > 0) {
+        if (!a.daysOfWeek.includes(dayOfWeek)) return false;
+        if (a.startDate && dateStr < a.startDate) return false;
+        if (a.endDate && dateStr > a.endDate) return false;
+        return true;
+      }
+
+      // 2. Direct date match (Legacy one-off or explicit date)
       if (a.date) {
         return a.date === dateStr;
       }
-      // 2. Backward compatibility for legacy appointments without a date
+
+      // 3. Backward compatibility for legacy appointments without date or daysOfWeek
       const shiftKey = getDayShiftKey(dateStr);
       if (a.dayOfWeek) {
         return a.dayOfWeek === shiftKey;
@@ -292,12 +477,38 @@ export class AppointmentsManager {
         (a.doctorName && (d.name === a.doctorName || a.doctorName.includes(d.name) || d.name.includes(a.doctorName)))
       );
       return isDoctorOnDuty(doc?.shift, dateStr, this.shiftOverrides, a.doctorUid || doc?.uid);
+    }).map(a => {
+      let effectiveStatus = a.status || 'scheduled';
+
+      // Check if apologized for today only (single-day cancellation exception)
+      if (Array.isArray(a.cancelledDates) && a.cancelledDates.includes(dateStr)) {
+        effectiveStatus = 'cancelled';
+      } else {
+        // Check if patient attended today in sessions collection
+        const hasSessionToday = (this.sessions || []).some(s =>
+          s.patientId === a.patientId &&
+          (s.date === dateStr || s.createdAt?.startsWith(dateStr)) &&
+          s.status !== 'cancelled'
+        );
+        if (hasSessionToday) {
+          effectiveStatus = 'attended';
+        } else if (a.dailyStatuses && a.dailyStatuses[dateStr]) {
+          effectiveStatus = a.dailyStatuses[dateStr];
+        }
+      }
+
+      return {
+        ...a,
+        effectiveStatus,
+        isCancelledToday: effectiveStatus === 'cancelled',
+        isAttendedToday: effectiveStatus === 'attended' || effectiveStatus === 'completed'
+      };
     });
   }
 
   getSlotTotalCount(timeSlot, targetDate = this.selectedDate) {
     const dayAppts = this.getAppointmentsForDate(targetDate);
-    return dayAppts.filter(a => a.timeSlot === timeSlot && a.status !== 'cancelled').length;
+    return dayAppts.filter(a => a.timeSlot === timeSlot && a.effectiveStatus !== 'cancelled').length;
   }
 
   getCellAppointments(doctorUid, timeSlot, targetDate = this.selectedDate) {
@@ -316,7 +527,6 @@ export class AppointmentsManager {
   navigateDay(delta) {
     const cur = new Date(this.selectedDate + 'T00:00:00');
     cur.setDate(cur.getDate() + delta);
-    // Skip Friday automatically when moving through days
     if (cur.getDay() === 5) {
       cur.setDate(cur.getDate() + (delta >= 0 ? 1 : -1));
     }
@@ -333,7 +543,7 @@ export class AppointmentsManager {
     const currentUser = auth.getCurrentUser();
     if (currentUser && currentUser.role === 'doctor') {
       const docUid = currentUser.uid || currentUser.id;
-      await this.renderForDoctor(docUid);
+      if (docUid) await this.renderForDoctor(docUid);
     }
   }
 
@@ -342,12 +552,11 @@ export class AppointmentsManager {
     if (!container) return;
 
     const cur = new Date(this.selectedDate + 'T00:00:00');
-    const dayOfWeek = cur.getDay(); // 0: Sun, 1: Mon, ... 6: Sat
-    const diffToSat = (dayOfWeek + 1) % 7; // Sat is day 0 of Egyptian work week
+    const dayOfWeek = cur.getDay();
+    const diffToSat = (dayOfWeek + 1) % 7;
     const sat = new Date(cur);
     sat.setDate(cur.getDate() - diffToSat);
 
-    // 6 working days: Saturday through Thursday (Friday is official weekly holiday)
     const arabicDays = ['السبت', 'الأحد', 'الاثنين', 'الثلاثاء', 'الأربعاء', 'الخميس'];
     const days = [];
     const todayStr = getLocalDateStr();
@@ -357,58 +566,42 @@ export class AppointmentsManager {
       d.setDate(sat.getDate() + i);
       const dateStr = getLocalDateStr(d);
       const dayAppts = this.getAppointmentsForDate(dateStr);
-      const activeCount = dayAppts.filter(a => a.status !== 'cancelled').length;
+      const activeCount = dayAppts.filter(a => a.effectiveStatus !== 'cancelled').length;
 
       days.push({
         name: arabicDays[i],
-        dateStr,
-        dayNum: d.getDate(),
-        monthNum: d.getMonth() + 1,
+        date: dateStr,
         count: activeCount,
-        isActive: dateStr === this.selectedDate,
-        isToday: dateStr === todayStr
+        isToday: dateStr === todayStr,
+        isSelected: dateStr === this.selectedDate
       });
     }
 
     container.innerHTML = days.map(d => `
-      <button type="button" class="appt-weekday-pill ${d.isActive ? 'active' : ''} ${d.isToday ? 'is-today' : ''}" data-date="${d.dateStr}">
+      <div class="appt-weekday-pill ${d.isSelected ? 'active' : ''} ${d.isToday ? 'is-today' : ''}" data-date="${d.date}">
         <span class="awp-name">${d.name}</span>
-        <span class="awp-date">${d.dayNum}/${d.monthNum}</span>
-        ${d.count > 0 ? `<span class="awp-badge">${d.count}</span>` : ''}
-      </button>
+        <span class="awp-date">${d.date.split('-').slice(1).join('/')}</span>
+        <span class="awp-badge">${d.count} حالات</span>
+      </div>
     `).join('');
 
-    // Update Stats Pill
     const statsPill = document.getElementById('appt-day-stats-pill');
     if (statsPill) {
-      const isFri = new Date(this.selectedDate + 'T00:00:00').getDay() === 5;
-      if (isFri) {
-        statsPill.innerHTML = `<span style="color: var(--danger); font-weight: 800;"><i class="fa-solid fa-calendar-xmark"></i> عطلة المركز الأسبوعية (المركز مغلق)</span>`;
-        return;
-      }
-      const curAppts = this.getAppointmentsForDate(this.selectedDate);
-      const total = curAppts.filter(a => a.status !== 'cancelled').length;
-      const attended = curAppts.filter(a => a.status === 'attended').length;
-      const completed = curAppts.filter(a => a.status === 'completed').length;
-      const noshow = curAppts.filter(a => a.status === 'no-show').length;
-
-      statsPill.innerHTML = `
-        <span style="color: var(--text-main); font-weight: 800;">إجمالي اليوم: ${total}</span>
-        ${attended > 0 ? `<span style="color: var(--primary);">• ${attended} حضر</span>` : ''}
-        ${completed > 0 ? `<span style="color: var(--success);">• ${completed} مكتمل</span>` : ''}
-        ${noshow > 0 ? `<span style="color: var(--danger);">• ${noshow} لم يحضر</span>` : ''}
-      `;
+      const totalToday = this.getAppointmentsForDate(this.selectedDate).filter(a => a.effectiveStatus !== 'cancelled').length;
+      statsPill.innerHTML = `<i class="fa-solid fa-users text-primary"></i> إجمالي مواعيد اليوم: <strong style="color: var(--primary);">${totalToday}</strong> مريض`;
     }
   }
 
   subscribeToUpdates() {
-    if (db.subscribeToAppointments && !this._apptSubscribed) {
+    if (this._apptSubscribed) return;
+    if (db.subscribeToAppointments) {
       this._apptSubscribed = true;
-      db.subscribeToAppointments(async () => {
+      db.subscribeToAppointments(async (list) => {
+        this.appointments = list || [];
         const currentUser = auth.getCurrentUser();
         if (currentUser && currentUser.role === 'doctor') {
           const docUid = currentUser.uid || currentUser.id;
-          await this.renderForDoctor(docUid);
+          if (docUid) await this.renderForDoctor(docUid);
         } else {
           await this.render();
         }
@@ -416,7 +609,6 @@ export class AppointmentsManager {
     }
   }
 
-  // ================= Full Grid: every active doctor as a column =================
   async render(forceRefresh = false) {
     this.subscribeToUpdates();
     const grid = document.getElementById('appointments-grid');
@@ -425,91 +617,78 @@ export class AppointmentsManager {
       await this.loadAll(this.selectedDate, forceRefresh);
       const currentUser = auth.getCurrentUser();
       const isDoctor = currentUser && currentUser.role === 'doctor';
-      this.renderWeekdayStrip();
-      const calPicker = document.getElementById('appt-calendar-picker');
-      if (calPicker && this.selectedDate) {
-        calPicker.value = this.selectedDate;
+
+      if (this.viewMode === 'weekly') {
+        grid.innerHTML = this.buildWeeklyMasterHTML(this.doctors, isDoctor);
+      } else {
+        this.renderWeekdayStrip();
+        const calPicker = document.getElementById('appt-calendar-picker');
+        if (calPicker && this.selectedDate) {
+          calPicker.value = this.selectedDate;
+        }
+        grid.innerHTML = this.buildGridHTML(this.doctors, isDoctor);
       }
-      grid.innerHTML = this.buildGridHTML(this.doctors, isDoctor);
     } catch (err) {
       console.error('Appointments render error:', err);
       grid.innerHTML = this.buildErrorHTML(err);
     }
   }
 
-  // ================= Doctor's Own Schedule (Stacked Cards Deck + Smart Hybrid) =================
   getCompletedAppts(doctorUid) {
-    const today = getLocalDateStr();
-    const key = `ascpt_done_appts_${doctorUid}_${today}`;
+    const today = this.selectedDate || getLocalDateStr();
     try {
-      return JSON.parse(localStorage.getItem(key) || '[]');
+      const raw = localStorage.getItem(`ascpt_completed_appts_${doctorUid}_${today}`);
+      return raw ? JSON.parse(raw) : [];
     } catch (_) {
       return [];
     }
   }
 
   async toggleApptCompleted(apptId, doctorUid, patientName) {
-    const appt = (this.appointments || []).find(a => a.id === apptId);
-    const isCurrentlyDone = appt ? (appt.status === 'completed') : false;
-    const newStatus = isCurrentlyDone ? 'scheduled' : 'completed';
-
-    // 1. Update Firestore in background
-    try {
-      await db.updateAppointmentStatus(apptId, newStatus, {
-        completedByUid: doctorUid,
-        completedByName: (this.doctors || []).find(d => d.uid === doctorUid)?.name || '',
-        completedAt: new Date().toLocaleTimeString('ar-EG-u-nu-latn', { hour: '2-digit', minute: '2-digit' })
-      });
-      if (appt) appt.status = newStatus;
-    } catch (e) {
-      console.warn('Update status error:', e);
-    }
-
-    // 2. LocalStorage backup
-    const targetDate = this.selectedDate || getLocalDateStr();
-    const key = `ascpt_done_appts_${doctorUid}_${targetDate}`;
-    let list = this.getCompletedAppts(doctorUid);
-    if (isCurrentlyDone) {
-      list = list.filter(id => id !== apptId);
+    const today = this.selectedDate || getLocalDateStr();
+    const completedApptIds = this.getCompletedAppts(doctorUid);
+    const isCompleted = completedApptIds.includes(apptId);
+    let updated;
+    if (isCompleted) {
+      updated = completedApptIds.filter(id => id !== apptId);
     } else {
-      list.push(apptId);
+      updated = [...completedApptIds, apptId];
     }
-    try { localStorage.setItem(key, JSON.stringify(list)); } catch (_) {}
+    try {
+      localStorage.setItem(`ascpt_completed_appts_${doctorUid}_${today}`, JSON.stringify(updated));
+    } catch (_) {}
+
+    try {
+      await db.updateAppointmentStatus(apptId, isCompleted ? 'scheduled' : 'completed', {
+        completedAt: !isCompleted ? new Date().toISOString() : null,
+        doctorUid
+      });
+    } catch (e) {
+      console.warn('Update appointment status notice:', e);
+    }
 
     if (this.app?.showToast) {
-      const nameTxt = patientName ? `موعد ${patientName}` : 'موعد المريض';
-      this.app.showToast(isCurrentlyDone ? `تم استرجاع ${nameTxt} للمتبقية` : `تم إنهاء ${nameTxt} بنجاح`);
+      this.app.showToast(isCompleted ? `تم التراجع عن إكمال حالة: ${patientName}` : `عاش يا دكتور! تم إنهاء حالة: ${patientName}`, 'success');
     }
-    await this.refreshVisibleGrids();
+    await this.renderForDoctor(doctorUid);
   }
 
   findClosestSlotIndex(slots) {
     if (!slots || slots.length === 0) return 0;
     const now = new Date();
-    const currentMinutes = now.getHours() * 60 + now.getMinutes();
-
-    let closestIdx = 0;
+    const curMin = now.getHours() * 60 + now.getMinutes();
+    let bestIdx = 0;
     let minDiff = Infinity;
-
     slots.forEach((s, idx) => {
-      const [h, m] = (s.slot?.key || '').split(':').map(Number);
-      if (!isNaN(h) && !isNaN(m)) {
-        const slotMinutes = h * 60 + m;
-        // In-progress window: 20 mins before slot to 45 mins after
-        if (currentMinutes >= slotMinutes - 20 && currentMinutes <= slotMinutes + 45) {
-          minDiff = -1;
-          closestIdx = idx;
-          return;
-        }
-        const diff = Math.abs(currentMinutes - slotMinutes);
-        if (minDiff !== -1 && diff < minDiff) {
-          minDiff = diff;
-          closestIdx = idx;
-        }
+      const { h24, minute } = parseSlotKey(s.slot.key);
+      const slotMin = h24 * 60 + parseInt(minute, 10);
+      const diff = Math.abs(curMin - slotMin);
+      if (diff < minDiff) {
+        minDiff = diff;
+        bestIdx = idx;
       }
     });
-
-    return closestIdx;
+    return bestIdx;
   }
 
   async renderForDoctor(doctorUid) {
@@ -532,7 +711,6 @@ export class AppointmentsManager {
     const grid = document.getElementById('my-appointments-grid');
     if (!grid) return;
 
-    // Filter toggles: Active vs Completed
     grid.querySelector('#btn-doc-appts-active')?.addEventListener('click', () => {
       this.doctorApptFilter = 'active';
       this.renderForDoctor(doctorUid);
@@ -543,7 +721,6 @@ export class AppointmentsManager {
       this.renderForDoctor(doctorUid);
     });
 
-    // Per-patient Complete ("تم") buttons
     grid.querySelectorAll('.btn-complete-patient').forEach(btn => {
       btn.addEventListener('click', (e) => {
         e.stopPropagation();
@@ -553,7 +730,6 @@ export class AppointmentsManager {
       });
     });
 
-    // Per-patient Undo buttons
     grid.querySelectorAll('.btn-undo-patient').forEach(btn => {
       btn.addEventListener('click', (e) => {
         e.stopPropagation();
@@ -573,7 +749,7 @@ export class AppointmentsManager {
 
     if (!onDutyToday) {
       const shiftName = getShiftLabel(doctorShift);
-      const dayName = new Intl.DateTimeFormat('ar-EG', { weekday: 'long' }).format(new Date());
+      const dayName = new Intl.DateTimeFormat('ar-EG', { weekday: 'long' }).format(new Date(targetDate + 'T00:00:00'));
       return {
         html: `
           <div class="hero-styled-card doc-offduty-schedule-card" style="text-align: center; padding: 36px 20px; margin: 4px 0; border: 1.5px dashed rgba(2, 132, 199, 0.3); background: rgba(2, 132, 199, 0.03);">
@@ -583,7 +759,7 @@ export class AppointmentsManager {
             <div style="font-weight: 800; font-size: 1.15rem; color: var(--text-main);">اليوم (${dayName}) ليس ضمن أيام عملك الرسمية</div>
             <div style="font-size: 0.86rem; color: var(--text-muted); margin-top: 6px; line-height: 1.6;">
               شفتك المسجل بالمركز هو: <strong style="color: var(--primary);">${escapeHTML(shiftName)}</strong>.<br>
-              استمتع بيوم إجازتك! ☕ (في حالة النزول كشيفت تغطية استثنائي، يمكن للاستقبال أو الإدارة تفعيل شيفتك لليوم).
+              استمتع بيوم إجازتك! ☕ (في حالة النزول كشيفت تغطية استثنائي، يمكن للاستقبال تفعيل شيفتك لليوم).
             </div>
           </div>
         `,
@@ -594,13 +770,12 @@ export class AppointmentsManager {
     const slotsToRender = (this.slots && this.slots.length > 0) ? this.slots : DEFAULT_APPT_SLOTS;
     const completedApptIds = this.getCompletedAppts(doctorUid);
 
-    // All booked slots for this doctor for targetDate
     const allSlots = slotsToRender.map((slot) => {
       const cellAppts = this.getCellAppointments(doctorUid, slot.key, targetDate);
       if (cellAppts.length === 0) return null;
 
-      const uncompletedAppts = cellAppts.filter(a => a.status !== 'completed' && !completedApptIds.includes(a.id));
-      const completedAppts = cellAppts.filter(a => a.status === 'completed' || completedApptIds.includes(a.id));
+      const uncompletedAppts = cellAppts.filter(a => a.effectiveStatus !== 'completed' && a.effectiveStatus !== 'attended' && !completedApptIds.includes(a.id));
+      const completedAppts = cellAppts.filter(a => a.effectiveStatus === 'completed' || a.effectiveStatus === 'attended' || completedApptIds.includes(a.id));
       const isSlotFullyDone = uncompletedAppts.length === 0;
 
       return {
@@ -629,16 +804,12 @@ export class AppointmentsManager {
 
     const totalUncompletedPatients = allSlots.reduce((acc, curr) => acc + curr.uncompletedAppts.length, 0);
     const totalCompletedPatients = allSlots.reduce((acc, curr) => acc + curr.completedAppts.length, 0);
-
     const isShowingCompleted = this.doctorApptFilter === 'completed';
 
-    // When showing Active, display slots that have uncompleted patients (or if all done, empty message)
-    // When showing Completed, display slots that have completed patients
     const slotsToDisplay = isShowingCompleted 
       ? allSlots.filter(s => s.completedAppts.length > 0)
       : allSlots.filter(s => !s.isSlotFullyDone);
 
-    // Smart Auto-Focus: Find closest time slot to current clock among slotsToDisplay
     const initialIndex = !isShowingCompleted ? this.findClosestSlotIndex(slotsToDisplay) : 0;
 
     let contentHTML = '';
@@ -664,98 +835,47 @@ export class AppointmentsManager {
       }
     } else {
       contentHTML = `
-        <!-- The 3D Overlapping Stack Deck -->
         <div class="doc-stack-container" id="doc-stack-container">
           ${slotsToDisplay.map(({ slot, cellAppts, uncompletedAppts, completedAppts, isSlotFullyDone }, index) => {
-            // In active view, show count of remaining vs total
-            let countLabel = '';
-            if (isShowingCompleted) {
-              countLabel = `${completedAppts.length} مكتمل`;
-            } else if (cellAppts.length > 1) {
-              countLabel = `${uncompletedAppts.length} متبقي من ${cellAppts.length}`;
-            } else {
-              countLabel = 'حالة واحدة';
-            }
-
-            // In active view, show all patients in this slot (with completed ones dimmed/checked off)
-            // In completed view, show the completed ones
-            const patientsToShow = isShowingCompleted ? completedAppts : cellAppts;
-
+            const listToShow = isShowingCompleted ? completedAppts : uncompletedAppts;
             return `
-              <div class="hero-styled-card doc-stack-card ${index === initialIndex ? 'is-active-card' : 'is-peeking-card'}" data-stack-index="${index}">
-                <div class="doc-card-header">
-                  <div class="doc-card-time-badge">
-                    <i class="fa-regular fa-clock" style="color: var(--primary); font-size: 1.15rem;"></i>
-                    <span style="font-weight: 800; font-size: 1.05rem; color: var(--text-main);">${escapeHTML(slot.label)}</span>
+              <div class="doc-stack-card" data-card-index="${index}">
+                <div class="doc-stack-card-header">
+                  <div class="doc-stack-time-badge">
+                    <i class="fa-regular fa-clock"></i>
+                    <span>${escapeHTML(slot.label)}</span>
                   </div>
-                  <div style="display: flex; align-items: center; gap: 6px;">
-                    <span class="badge ${isSlotFullyDone ? 'badge-cash' : 'badge-primary'}" style="font-size: 0.78rem; padding: 4px 10px; border-radius: 999px; font-weight: 800;">
-                      ${countLabel}
-                    </span>
-                    <i class="fa-solid fa-chevron-down doc-card-peek-indicator" style="font-size: 0.75rem; color: var(--text-muted);"></i>
+                  <div class="doc-stack-patient-count ${isSlotFullyDone ? 'done' : ''}">
+                    ${isSlotFullyDone ? '<i class="fa-solid fa-check-double"></i> مكتملة بالكامل' : `<i class="fa-solid fa-users"></i> ${uncompletedAppts.length} متبقي من ${cellAppts.length}`}
                   </div>
                 </div>
 
-                <div class="hsc-divider" style="margin: 10px 0 12px 0;"></div>
-
-                <div class="doc-card-patients-list">
-                  ${patientsToShow.map((a, pIdx) => {
-                    const isDone = completedApptIds.includes(a.id);
-                    const patientObj = (this.patients || []).find(p => p.id === a.patientId);
-                    const phone = patientObj?.phone || '';
-
-                    // Clinical Fallback Chain: Body Part / Area being treated
-                    let treatedArea = a.bodyPart || patientObj?.clinicalSheet?.affectedArea || '';
-                    if (!treatedArea) {
-                      const pSessions = (this.sessions || []).filter(s => s.patientId === a.patientId || s.patientName === a.patientName);
-                      pSessions.sort((x, y) => new Date(y.date || y.createdAt || 0) - new Date(x.date || x.createdAt || 0));
-                      if (pSessions.length > 0) {
-                        const latestSess = pSessions[0];
-                        if (Array.isArray(latestSess.bodyParts) && latestSess.bodyParts.length > 0) {
-                          treatedArea = latestSess.bodyParts.join('، ');
-                        } else if (typeof latestSess.bodyParts === 'string') {
-                          treatedArea = latestSess.bodyParts;
-                        }
-                      }
-                    }
-
-                    let bodyPartBadge = '';
-                    if (treatedArea) {
-                      bodyPartBadge = `<span class="badge" style="font-size: 0.70rem; padding: 2px 8px; border-radius: 999px; font-weight: 800; display: inline-flex; align-items: center; gap: 4px; background: rgba(2, 132, 199, 0.1); color: var(--primary); border: 1px solid rgba(2, 132, 199, 0.28);"><i class="fa-solid fa-bone"></i> ${escapeHTML(treatedArea)}</span>`;
-                    } else {
-                      bodyPartBadge = `<span class="badge" style="font-size: 0.70rem; padding: 2px 8px; border-radius: 999px; font-weight: 800; display: inline-flex; align-items: center; gap: 4px; background: rgba(245, 158, 11, 0.1); color: var(--warning); border: 1px solid rgba(245, 158, 11, 0.28);"><i class="fa-solid fa-stethoscope"></i> كشف / تقييم جديد</span>`;
-                    }
-
+                <div class="doc-stack-patients-list">
+                  ${listToShow.map(a => {
+                    const isDone = completedApptIds.includes(a.id) || a.effectiveStatus === 'completed' || a.effectiveStatus === 'attended';
+                    const daysStr = formatRecurringDays(a.daysOfWeek);
                     return `
-                      <div class="doc-patient-item" style="padding: 8px 10px; border-radius: 12px; background: var(--bg-subtle); margin-bottom: 7px; display: flex; align-items: center; justify-content: space-between; gap: 8px; ${isDone ? 'opacity: 0.72;' : ''}">
-                        <div style="display: flex; align-items: center; gap: 8px; min-width: 0; flex: 1;">
-                          <div class="doc-patient-avatar" style="width: 34px; height: 34px; border-radius: 9px; font-size: 0.88rem; flex-shrink: 0; display: flex; align-items: center; justify-content: center; ${isDone ? 'background: rgba(16, 185, 129, 0.15); color: #10b981;' : ''}">
-                            <i class="fa-solid ${isDone ? 'fa-check' : 'fa-user'}"></i>
+                      <div class="doc-stack-patient-row ${isDone ? 'completed-row' : ''}">
+                        <div class="doc-stack-patient-info">
+                          <div class="doc-stack-patient-name">
+                            <i class="fa-solid fa-user-injured text-primary"></i>
+                            <span>${escapeHTML(a.patientName)}</span>
+                            ${daysStr ? `<span class="badge" style="font-size: 0.65rem; background: rgba(2, 132, 199, 0.1); color: #0284c7; padding: 1px 5px; border-radius: 4px; margin-right: 5px;">${escapeHTML(daysStr)}</span>` : ''}
                           </div>
-                          <div class="doc-patient-info" style="min-width: 0;">
-                            <div class="doc-patient-name" style="font-weight: 800; font-size: 0.88rem; color: var(--text-main); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; ${isDone ? 'text-decoration: line-through;' : ''}">${escapeHTML(a.patientName)}</div>
-                            <div style="display: flex; align-items: center; gap: 6px; margin-top: 2px;">
-                              ${bodyPartBadge}
-                              ${phone ? `<a href="tel:${escapeHTML(phone)}" style="font-size: 0.72rem; color: var(--text-muted); text-decoration: none; display: inline-flex; align-items: center; gap: 3px;" title="اتصال"><i class="fa-solid fa-phone" style="font-size: 0.65rem;"></i> <bdi dir="ltr">${escapeHTML(phone)}</bdi></a>` : ''}
-                            </div>
+                          <div class="doc-stack-patient-details">
+                            <span class="patient-body-part">${escapeHTML(a.bodyPart || 'علاج طبيعي عام')}</span>
+                            ${a.notes ? `<span class="patient-notes">• ${escapeHTML(a.notes)}</span>` : ''}
                           </div>
                         </div>
-
-                        <!-- Per-Patient Done / Undo Action Button -->
-                        <div style="flex-shrink: 0;">
-                          ${!isDone ? `
-                            <button type="button" class="btn btn-outline btn-sm btn-complete-patient" data-appt-id="${escapeHTML(a.id)}" data-patient-name="${escapeHTML(a.patientName)}" style="padding: 4px 10px; font-size: 0.76rem; font-weight: 800; border-radius: 999px; color: #10b981; border-color: rgba(16, 185, 129, 0.4); background: rgba(16, 185, 129, 0.08); display: inline-flex; align-items: center; gap: 4px; cursor: pointer;" title="تأكيد إنهاء جلسة هذا المريض">
-                              <i class="fa-solid fa-check"></i> <span>تم</span>
+                        <div class="doc-stack-patient-actions">
+                          ${isDone ? `
+                            <button type="button" class="btn-undo-patient" data-appt-id="${escapeHTML(a.id)}" data-patient-name="${escapeHTML(a.patientName)}" title="تراجع عن الإكمال">
+                              <i class="fa-solid fa-rotate-left"></i>
                             </button>
                           ` : `
-                            <div style="display: flex; align-items: center; gap: 4px;">
-                              <span style="display: inline-flex; align-items: center; gap: 3px; font-size: 0.72rem; font-weight: 800; color: #10b981; background: rgba(16, 185, 129, 0.12); padding: 3px 8px; border-radius: 999px;">
-                                <i class="fa-solid fa-check-double"></i> مكتمل
-                              </span>
-                              <button type="button" class="btn btn-sm btn-undo-patient" data-appt-id="${escapeHTML(a.id)}" data-patient-name="${escapeHTML(a.patientName)}" title="استرجاع للمتبقية" style="padding: 2px 6px; font-size: 0.74rem; color: var(--text-muted); background: transparent; border: none; cursor: pointer;">
-                                <i class="fa-solid fa-rotate-left"></i>
-                              </button>
-                            </div>
+                            <button type="button" class="btn-complete-patient" data-appt-id="${escapeHTML(a.id)}" data-patient-name="${escapeHTML(a.patientName)}" title="تم إنهاء الجلسة">
+                              <i class="fa-solid fa-check"></i> <span>تم</span>
+                            </button>
                           `}
                         </div>
                       </div>
@@ -766,76 +886,121 @@ export class AppointmentsManager {
             `;
           }).join('')}
         </div>
-
-        <!-- Stack Navigation Controls -->
-        ${slotsToDisplay.length > 1 ? `
-        <div class="doc-stack-nav-bar" id="doc-stack-nav-bar">
-          <button type="button" class="doc-stack-nav-btn" id="btn-doc-stack-prev">
-            <i class="fa-solid fa-chevron-right"></i> السابق
-          </button>
-
-          <div class="doc-stack-dots" id="doc-stack-dots">
-            ${slotsToDisplay.map((_, i) => `
-              <span class="doc-dot ${i === initialIndex ? 'active' : ''}" data-dot-index="${i}"></span>
-            `).join('')}
-          </div>
-
-          <button type="button" class="doc-stack-nav-btn" id="btn-doc-stack-next">
-            التالي <i class="fa-solid fa-chevron-left"></i>
-          </button>
-        </div>
-        ` : ''}
       `;
     }
 
-    const html = `
-      <div class="doc-stack-wrapper">
-        <div class="doc-stack-header-bar" style="flex-wrap: wrap; gap: 8px;">
-          <div style="display: flex; align-items: center; gap: 6px;">
-            <button type="button" class="btn btn-sm ${!isShowingCompleted ? 'btn-primary' : 'btn-outline'}" id="btn-doc-appts-active" style="font-size: 0.76rem; padding: 4px 10px; border-radius: 999px; font-weight: 800;">
-              المتبقية (${totalUncompletedPatients})
-            </button>
-            <button type="button" class="btn btn-sm ${isShowingCompleted ? 'btn-primary' : 'btn-outline'}" id="btn-doc-appts-completed" style="font-size: 0.76rem; padding: 4px 10px; border-radius: 999px; font-weight: 800;">
-              المكتملة (${totalCompletedPatients})
-            </button>
+    return {
+      html: `
+        <div class="doc-schedule-wrapper">
+          <div class="doc-schedule-filter-bar">
+            <div class="filter-tab-pill ${!isShowingCompleted ? 'active' : ''}" id="btn-doc-appts-active">
+              <i class="fa-solid fa-hourglass-half"></i>
+              <span>الحالات المتبقية</span>
+              <span class="filter-count-badge">${totalUncompletedPatients}</span>
+            </div>
+            <div class="filter-tab-pill ${isShowingCompleted ? 'active' : ''}" id="btn-doc-appts-completed">
+              <i class="fa-solid fa-check-circle"></i>
+              <span>الحالات المكتملة</span>
+              <span class="filter-count-badge">${totalCompletedPatients}</span>
+            </div>
           </div>
-
-          <div style="display: flex; align-items: center; gap: 8px;">
-            ${slotsToDisplay.length > 1 ? `
-            <span id="doc-stack-counter" style="font-size: 0.78rem; font-weight: 800; color: var(--primary); background: rgba(2, 132, 199, 0.12); padding: 2px 10px; border-radius: 999px;">${initialIndex + 1} من ${slotsToDisplay.length}</span>
-            <button type="button" class="btn btn-outline btn-sm" id="btn-toggle-doc-stack-layout" style="font-size: 0.75rem; padding: 3px 9px; border-radius: 8px; height: 28px;" title="تبديل بين التراكم والقائمة">
-              <i class="fa-solid fa-list" id="icon-stack-toggle"></i>
-            </button>
-            ` : ''}
-          </div>
+          ${contentHTML}
         </div>
-
-        ${contentHTML}
-      </div>
-    `;
-
-    return { html, initialIndex };
+      `,
+      initialIndex
+    };
   }
 
-    initDocStackDeck(initialIndex = 0) {
-    if (typeof window !== 'undefined' && window.innerWidth >= 768) {
-      return; // Display as responsive grid on laptops/large screens
-    }
+  initDocStackDeck(initialIndex = 0) {
     initStackDeck({
-      prefix: 'doc-stack',
-      initialIndex
+      containerId: 'doc-stack-container',
+      cardSelector: '.doc-stack-card',
+      initialIndex: initialIndex || 0,
+      activeOffsetPx: 12
     });
   }
 
-    buildErrorHTML(err) {
-    return `<div style="padding: 20px; text-align: center; color: var(--danger);">
-      <i class="fa-solid fa-triangle-exclamation"></i> تعذر تحميل جدول المواعيد.<br>
-      <span style="font-size: 0.8rem; color: var(--text-muted);">${escapeHTML(err.message || 'خطأ غير معروف')}</span>
-    </div>`;
+  buildErrorHTML(err) {
+    return `<div style="padding: 20px; color: var(--danger); text-align: center;">تعذر تحميل جدول المواعيد: ${escapeHTML(err.message)}</div>`;
+  }
+
+  buildWeeklyMasterHTML(doctorsToShow, isDoctorReadOnly = false) {
+    const slotsToRender = (this.slots && this.slots.length > 0) ? this.slots : DEFAULT_APPT_SLOTS;
+    const workingDays = DAYS_CONFIG;
+
+    return `
+      <div style="margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
+        <div style="font-size: 0.88rem; font-weight: 800; color: var(--text-main);">
+          <i class="fa-solid fa-table-cells text-primary"></i> الجدول الأسبوعي العام (خريطة المواعيد والحصص الدورية لكافة أيام الأسبوع)
+        </div>
+        <div style="font-size: 0.78rem; color: var(--text-muted);">
+          اضغط على أي مريض لفتح خيارات الموعد، أو اضغط زر "+ حجز" لتسكين مريض جديد في نفس الفترة واليوم.
+        </div>
+      </div>
+
+      <div class="appt-weekly-master-grid">
+        <div class="weekly-header-cell" style="background: var(--primary); color: #fff;">
+          <i class="fa-regular fa-clock"></i> الفترة
+        </div>
+        ${workingDays.map(d => `
+          <div class="weekly-header-cell">
+            <div style="font-size: 0.92rem; font-weight: 800;">${escapeHTML(d.name)}</div>
+            <div style="font-size: 0.72rem; opacity: 0.8;">${d.dayIndex === 6 || d.dayIndex === 1 || d.dayIndex === 3 ? 'شفت سبت/إثنين/أربع' : 'شفت أحد/ثلاثاء/خميس'}</div>
+          </div>
+        `).join('')}
+
+        ${slotsToRender.map(slot => `
+          <div class="weekly-slot-time-cell">
+            <span style="font-weight: 800; color: var(--primary); font-size: 0.95rem;">${escapeHTML(slot.label)}</span>
+            <span style="font-size: 0.7rem; color: var(--text-muted);">${escapeHTML(slot.key)}</span>
+          </div>
+
+          ${workingDays.map(day => {
+            const cellAppts = (this.appointments || []).filter(a => {
+              if (a.status === 'completed' || a.status === 'cancelled') return false;
+              if (a.timeSlot !== slot.key) return false;
+              if (Array.isArray(a.daysOfWeek) && a.daysOfWeek.includes(day.dayIndex)) return true;
+              return false;
+            });
+
+            const total = cellAppts.length;
+            const isFull = total >= MAX_BEDS_PER_SLOT;
+
+            return `
+              <div class="weekly-data-cell">
+                <div class="weekly-cell-header">
+                  <span>${day.short}</span>
+                  <span class="badge ${isFull ? 'badge-cash' : 'badge-subtle'}" style="font-size: 0.68rem; padding: 1px 5px;">
+                    ${total}/${MAX_BEDS_PER_SLOT}
+                  </span>
+                </div>
+                <div class="weekly-cell-appts" style="display: flex; flex-direction: column; gap: 4px; flex: 1;">
+                  ${cellAppts.map(a => {
+                    const docObj = (this.doctors || []).find(d => d.uid === a.doctorUid);
+                    const cleanDoc = (a.doctorName || docObj?.name || 'طبيب').replace(/^د\.\s*/, '');
+                    const docColor = getDoctorColor(a.doctorUid || a.doctorName || 'default');
+                    return `
+                      <div class="weekly-appt-chip" data-appt-action-id="${escapeHTML(a.id)}" title="المريض: ${escapeHTML(a.patientName)} • الطبيب: د. ${escapeHTML(cleanDoc)}">
+                        <span style="width: 7px; height: 7px; border-radius: 50%; background: ${docColor.color}; flex-shrink: 0;"></span>
+                        <span style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: 1;">${escapeHTML(a.patientName)}</span>
+                      </div>
+                    `;
+                  }).join('')}
+                </div>
+                ${!isDoctorReadOnly ? `
+                  <button type="button" class="btn btn-outline btn-sm btn-add-appt" data-add-slot="${escapeHTML(slot.key)}" data-add-day="${day.dayIndex}" style="font-size: 0.68rem; padding: 2px 4px; border-radius: 5px; border-style: dashed; color: var(--primary); margin-top: auto; cursor: pointer;">
+                    <i class="fa-solid fa-plus"></i> حجز
+                  </button>
+                ` : ''}
+              </div>
+            `;
+          }).join('')}
+        `).join('')}
+      </div>
+    `;
   }
 
   buildGridHTML(doctorsToShow, isDoctorReadOnly = false) {
-    // Check if Friday: Official weekly clinic holiday
     const isFridayHoliday = new Date(this.selectedDate + 'T00:00:00').getDay() === 5;
     if (isFridayHoliday) {
       return `
@@ -862,12 +1027,11 @@ export class AppointmentsManager {
 
     const slotsToRender = (this.slots && this.slots.length > 0) ? this.slots : DEFAULT_APPT_SLOTS;
 
-    // Responsive Appointments Cards Grid (v1.4.57: Matrix table removed, 2-Column Responsive Card Grid)
     return `
       <div class="appt-timeline-grid-container">
         ${slotsToRender.map((slot) => {
           const currentUser = auth.getCurrentUser();
-          const rawSlotAppts = this.getAppointmentsForDate(this.selectedDate).filter(a => a.timeSlot === slot.key && a.status !== 'cancelled');
+          const rawSlotAppts = this.getAppointmentsForDate(this.selectedDate).filter(a => a.timeSlot === slot.key);
           const slotAppts = (isDoctorReadOnly && currentUser)
             ? rawSlotAppts.filter(a =>
                 (a.doctorUid && (a.doctorUid === currentUser.uid || a.doctorUid === currentUser.id)) ||
@@ -875,17 +1039,16 @@ export class AppointmentsManager {
               )
             : rawSlotAppts;
 
-          const totalInSlot = slotAppts.length;
-          const isFull = totalInSlot >= MAX_BEDS_PER_SLOT;
-          const overCapacity = totalInSlot > MAX_BEDS_PER_SLOT;
+          const totalActiveInSlot = slotAppts.filter(a => a.effectiveStatus !== 'cancelled').length;
+          const isFull = totalActiveInSlot >= MAX_BEDS_PER_SLOT;
+          const overCapacity = totalActiveInSlot > MAX_BEDS_PER_SLOT;
 
           const occupancyBadge = overCapacity
-            ? `<span class="badge" style="background: rgba(239, 68, 68, 0.2); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.4); font-weight: 800;"><i class="fa-solid fa-triangle-exclamation"></i> ممتلئ (${totalInSlot}/${MAX_BEDS_PER_SLOT})</span>`
+            ? `<span class="badge" style="background: rgba(239, 68, 68, 0.2); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.4); font-weight: 800;"><i class="fa-solid fa-triangle-exclamation"></i> ممتلئ (${totalActiveInSlot}/${MAX_BEDS_PER_SLOT})</span>`
             : (isFull
-              ? `<span class="badge badge-cash" style="font-weight: 800;"><i class="fa-solid fa-bed"></i> مكتمل (${totalInSlot}/${MAX_BEDS_PER_SLOT})</span>`
-              : `<span class="badge badge-direct" style="font-weight: 800;"><i class="fa-solid fa-bed"></i> ${totalInSlot} من ${MAX_BEDS_PER_SLOT} أسرة</span>`);
+              ? `<span class="badge badge-cash" style="font-weight: 800;"><i class="fa-solid fa-bed"></i> مكتمل (${totalActiveInSlot}/${MAX_BEDS_PER_SLOT})</span>`
+              : `<span class="badge badge-direct" style="font-weight: 800;"><i class="fa-solid fa-bed"></i> ${totalActiveInSlot} من ${MAX_BEDS_PER_SLOT} أسرة</span>`);
 
-          // Group slot appointments by doctor dynamically from actual slot appointments
           const docGroupsMap = new Map();
           slotAppts.forEach(a => {
             const docKey = a.doctorUid || a.doctorName || 'general';
@@ -926,33 +1089,36 @@ export class AppointmentsManager {
                   <div class="appt-chips-wrap">
                     ${activeDocAppts.map(({ cleanDoc, cellAppts, docColor }) => `
                       <div class="appt-active-doc-group">
-                        ${true ? `
-                          <div class="appt-slot-doc-name" style="color: ${docColor.color}; font-weight: 800; font-size: 0.82rem; margin-bottom: 5px;">
-                            <span style="width: 8px; height: 8px; border-radius: 50%; background: ${docColor.color}; display: inline-block; margin-left: 5px;"></span>
-                            د. ${escapeHTML(cleanDoc)}:
-                          </div>` : ''}
+                        <div class="appt-slot-doc-name" style="color: ${docColor.color}; font-weight: 800; font-size: 0.82rem; margin-bottom: 5px;">
+                          <span style="width: 8px; height: 8px; border-radius: 50%; background: ${docColor.color}; display: inline-block; margin-left: 5px;"></span>
+                          د. ${escapeHTML(cleanDoc)}:
+                        </div>
                         <div class="appt-doc-chips-list" style="display: flex; flex-wrap: wrap; gap: 6px;">
                           ${cellAppts.map((a) => {
                             let statusBadge = '';
-                            if (a.status === 'completed') {
-                              statusBadge = `<span class="badge badge-appt-completed" style="font-size: 0.68rem; padding: 1px 6px; border-radius: 4px;"><i class="fa-solid fa-check"></i> مكتمل</span>`;
-                            } else if (a.status === 'attended') {
-                              statusBadge = `<span class="badge badge-appt-attended" style="font-size: 0.68rem; padding: 1px 6px; border-radius: 4px;"><i class="fa-solid fa-bolt"></i> حضر</span>`;
-                            } else if (a.status === 'no-show') {
+                            if (a.effectiveStatus === 'attended') {
+                              statusBadge = `<span class="badge badge-appt-attended" style="font-size: 0.68rem; padding: 1px 6px; border-radius: 4px;"><i class="fa-solid fa-check-double"></i> حضر وسجل جلسة</span>`;
+                            } else if (a.effectiveStatus === 'completed') {
+                              statusBadge = `<span class="badge badge-appt-completed" style="font-size: 0.68rem; padding: 1px 6px; border-radius: 4px;"><i class="fa-solid fa-check"></i> تم إنهاء الجلسة</span>`;
+                            } else if (a.effectiveStatus === 'cancelled') {
+                              statusBadge = `<span class="badge" style="background: rgba(245, 158, 11, 0.15); color: #d97706; border: 1px solid rgba(245, 158, 11, 0.35); font-size: 0.68rem; padding: 1px 6px; border-radius: 4px;"><i class="fa-solid fa-user-slash"></i> معتذر اليوم</span>`;
+                            } else if (a.effectiveStatus === 'no-show') {
                               statusBadge = `<span class="badge badge-appt-noshow" style="font-size: 0.68rem; padding: 1px 6px; border-radius: 4px;"><i class="fa-solid fa-user-xmark"></i> لم يحضر</span>`;
+                            } else {
+                              statusBadge = `<span class="badge badge-primary" style="font-size: 0.68rem; padding: 1px 6px; border-radius: 4px;"><i class="fa-regular fa-clock"></i> في الانتظار</span>`;
                             }
 
+                            const daysStr = formatRecurringDays(a.daysOfWeek);
+
                             return `
-                              <div class="appt-chip clickable" data-appt-action-id="${escapeHTML(a.id)}" title="اضغط لفتح خيارات وتفاصيل الموعد">
+                              <div class="appt-chip clickable" data-appt-action-id="${escapeHTML(a.id)}" title="اضغط لعرض خيارات وإجراءات الموعد">
                                 <span class="appt-chip-patient">${escapeHTML(a.patientName)}</span>
+                                ${daysStr ? `<span class="badge" style="font-size: 0.65rem; background: rgba(2, 132, 199, 0.08); color: #0284c7; padding: 1px 5px; border-radius: 4px;">${escapeHTML(daysStr)}</span>` : ''}
                                 ${statusBadge}
                                 ${!isDoctorReadOnly ? `
                                 <div class="appt-chip-actions">
-                                  <button type="button" class="appt-chip-copy" data-copy-appt="${escapeHTML(a.id)}" title="نسخ الموعد ليوم آخر">
-                                    <i class="fa-regular fa-copy"></i>
-                                  </button>
-                                  <button type="button" class="appt-chip-move" data-move-appt="${escapeHTML(a.id)}" title="نقل الموعد">
-                                    <i class="fa-solid fa-arrow-right-arrow-left"></i>
+                                  <button type="button" class="appt-chip-move" data-move-appt="${escapeHTML(a.id)}" title="تعديل الموعد والأيام">
+                                    <i class="fa-solid fa-pen-to-square"></i>
                                   </button>
                                   <button type="button" class="appt-chip-remove" data-remove-appt="${escapeHTML(a.id)}" title="حذف">&times;</button>
                                 </div>` : ''}
@@ -1006,7 +1172,8 @@ export class AppointmentsManager {
     if (subEl) {
       const pPhone = patientObj?.phone || '';
       const pBilling = patientObj?.billing === 'insurance' ? `تأمين (${patientObj.insuranceCompany || ''})` : 'نقدي';
-      subEl.textContent = `${pBilling}${pPhone ? ` • هاتف: ${pPhone}` : ''}`;
+      const daysStr = formatRecurringDays(a.daysOfWeek);
+      subEl.textContent = `${pBilling}${daysStr ? ` • أيام: ${daysStr}` : ''}${pPhone ? ` • هاتف: ${pPhone}` : ''}`;
     }
 
     if (docEl) docEl.textContent = a.doctorName || docObj?.name || '-';
@@ -1015,27 +1182,46 @@ export class AppointmentsManager {
       timeEl.textContent = slotObj?.label || a.timeSlot || '-';
     }
     if (dateEl) {
-      dateEl.textContent = a.date || this.selectedDate || '-';
+      const daysStr = formatRecurringDays(a.daysOfWeek);
+      dateEl.textContent = daysStr ? `${daysStr} (${this.selectedDate})` : (a.date || this.selectedDate || '-');
     }
     if (areaEl) {
       areaEl.textContent = a.bodyPart || patientObj?.clinicalSheet?.affectedArea || 'علاج طبيعي عام';
     }
 
+    // Determine current effective status for selected date
+    const isApologizedToday = Array.isArray(a.cancelledDates) && a.cancelledDates.includes(this.selectedDate);
+    const hasSessionToday = (this.sessions || []).some(s =>
+      s.patientId === a.patientId &&
+      (s.date === this.selectedDate || s.createdAt?.startsWith(this.selectedDate)) &&
+      s.status !== 'cancelled'
+    );
+
     if (statusBadgeEl) {
-      const st = a.status || 'scheduled';
-      if (st === 'completed') {
+      if (isApologizedToday) {
+        statusBadgeEl.className = 'badge';
+        statusBadgeEl.style.background = 'rgba(245, 158, 11, 0.15)';
+        statusBadgeEl.style.color = '#d97706';
+        statusBadgeEl.innerHTML = '<i class="fa-solid fa-user-slash"></i> معتذر عن جلسة اليوم';
+      } else if (hasSessionToday) {
+        statusBadgeEl.className = 'badge badge-appt-attended';
+        statusBadgeEl.innerHTML = '<i class="fa-solid fa-check-double"></i> حضر وأجرى الجلسة اليوم';
+      } else if (a.status === 'completed') {
         statusBadgeEl.className = 'badge badge-appt-completed';
         statusBadgeEl.innerHTML = '<i class="fa-solid fa-check"></i> مكتمل';
-      } else if (st === 'attended') {
-        statusBadgeEl.className = 'badge badge-appt-attended';
-        statusBadgeEl.innerHTML = '<i class="fa-solid fa-bolt"></i> تم الحضور / جلسة مسجلة';
-      } else if (st === 'no-show') {
+      } else if (a.status === 'no-show') {
         statusBadgeEl.className = 'badge badge-appt-noshow';
-        statusBadgeEl.innerHTML = '<i class="fa-solid fa-user-xmark"></i> لم يحضر (No-Show)';
+        statusBadgeEl.innerHTML = '<i class="fa-solid fa-user-xmark"></i> لم يحضر';
       } else {
         statusBadgeEl.className = 'badge badge-primary';
-        statusBadgeEl.innerHTML = '<i class="fa-regular fa-clock"></i> محجوز';
+        statusBadgeEl.innerHTML = '<i class="fa-regular fa-clock"></i> محجوز (في الانتظار)';
       }
+    }
+
+    // Toggle Apologize button label
+    const textApologize = document.getElementById('text-appt-sheet-apologize');
+    if (textApologize) {
+      textApologize.textContent = isApologizedToday ? 'إلغاء الاعتذار وإعادة الموعد لليوم' : 'اعتذار عن جلسة اليوم فقط';
     }
 
     const phone = patientObj?.phone || '';
@@ -1049,9 +1235,8 @@ export class AppointmentsManager {
     }
     if (waBtn) {
       if (phone) {
-        const cleanPhone = phone.replace(/\D/g, '');
-        const waNum = cleanPhone.startsWith('0') ? '2' + cleanPhone : cleanPhone;
-        waBtn.href = `https://wa.me/${waNum}`;
+        const cleanWa = phone.replace(/[^0-9]/g, '').replace(/^0/, '20');
+        waBtn.href = `https://wa.me/${cleanWa}`;
         waBtn.style.display = 'inline-flex';
       } else {
         waBtn.style.display = 'none';
@@ -1061,11 +1246,59 @@ export class AppointmentsManager {
     this.app.openModal('modal-appt-actions');
   }
 
+  async toggleApologyForToday(appt) {
+    if (!appt) return;
+    const targetDate = this.selectedDate || getLocalDateStr();
+    let cancelledDates = Array.isArray(appt.cancelledDates) ? [...appt.cancelledDates] : [];
+    const isCurrentlyCancelled = cancelledDates.includes(targetDate);
+
+    if (isCurrentlyCancelled) {
+      cancelledDates = cancelledDates.filter(d => d !== targetDate);
+    } else {
+      cancelledDates.push(targetDate);
+    }
+
+    try {
+      await db.updateAppointment(appt.id, {
+        cancelledDates,
+        statusUpdatedAt: new Date().toISOString()
+      });
+      this.app.closeModal('modal-appt-actions');
+      this.app.showToast(isCurrentlyCancelled ? 'تم إلغاء الاعتذار وإعادة الموعد لليوم' : 'تم تسجيل اعتذار المريض عن جلسة اليوم', 'info');
+      await this.loadAll(this.selectedDate, true);
+      await this.render();
+    } catch (e) {
+      console.error('Error toggling apology:', e);
+      this.app.showAlert('حدث خطأ أثناء حفظ حالة الاعتذار.', 'خطأ', 'danger');
+    }
+  }
+
+  async handleFinishCourse(appt) {
+    if (!appt) return;
+    const confirmed = confirm(`هل ترغب في إنهاء الحجز الدوري للمريض (${appt.patientName})؟\nسيتم تفريغ مكانه في جدول المواعيد لكافة الأسابيع القادمة.`);
+    if (!confirmed) return;
+
+    try {
+      await db.updateAppointment(appt.id, {
+        status: 'completed',
+        endDate: this.selectedDate || getLocalDateStr(),
+        completedAt: new Date().toISOString(),
+        completedBy: auth.getCurrentUser()?.name || 'الاستقبال'
+      });
+      this.app.closeModal('modal-appt-actions');
+      this.app.showToast(`تم إنهاء الحجز الدوري للمريض ${appt.patientName} وتفريغ المكان بنجاح`, 'success');
+      await this.loadAll(this.selectedDate, true);
+      await this.render();
+    } catch (e) {
+      console.error('Error finishing course:', e);
+      this.app.showAlert('حدث خطأ أثناء إنهاء الحجز.', 'خطأ', 'danger');
+    }
+  }
+
   async handleCheckinFromAppt(appt) {
     if (!appt) return;
     this.app.closeModal('modal-appt-actions');
 
-    // 1. Mark as attended in Firestore
     try {
       await db.updateAppointmentStatus(appt.id, 'attended', {
         attendedAt: new Date().toLocaleTimeString('ar-EG-u-nu-latn', { hour: '2-digit', minute: '2-digit' })
@@ -1075,14 +1308,11 @@ export class AppointmentsManager {
       console.warn('Update attended status notice:', e);
     }
 
-    // 2. Switch to sessions view
     this.app.switchView('sessions');
 
-    // 3. Select patient in sessionsManager
     if (this.app?.sessionsManager?.selectPatient) {
       await this.app.sessionsManager.selectPatient(appt.patientId);
 
-      // Pre-select doctor if matched
       if (appt.doctorName) {
         const docSelect = document.getElementById('session-doctor-select');
         if (docSelect) {
@@ -1097,43 +1327,30 @@ export class AppointmentsManager {
     }
   }
 
-  async handleStatusUpdateFromSheet(status) {
-    const appt = this.selectedApptForAction;
-    if (!appt) return;
+  async handleStatusUpdateFromSheet(newStatus) {
+    const a = this.selectedApptForAction;
+    if (!a) return;
     this.app.closeModal('modal-appt-actions');
-
     try {
-      const meta = {};
-      if (status === 'completed') {
-        meta.completedAt = new Date().toLocaleTimeString('ar-EG-u-nu-latn', { hour: '2-digit', minute: '2-digit' });
-        meta.completedBy = auth.getCurrentUser()?.name || 'الاستقبال';
-      } else if (status === 'no-show') {
-        meta.noShowMarkedAt = new Date().toLocaleTimeString('ar-EG-u-nu-latn', { hour: '2-digit', minute: '2-digit' });
-      }
-
-      await db.updateAppointmentStatus(appt.id, status, meta);
-      appt.status = status;
-
-      const titles = {
+      await db.updateAppointmentStatus(a.id, newStatus);
+      a.status = newStatus;
+      const statusLabels = {
         completed: 'تم إنهاء الجلسة',
-        'no-show': 'تم تحديد الحالة: لم يحضر',
-        scheduled: 'تمت إعادة الحالة إلى محجوز'
+        'no-show': 'تم تسجيل عدم الحضور (No-Show)',
+        scheduled: 'تمت إعادة الحالة إلى مجدول'
       };
-      if (this.app?.showToast) {
-        this.app.showToast(`${titles[status] || 'تم تحديث الموعد'}: ${appt.patientName}`);
-      }
-      await this.refreshVisibleGrids();
+      this.app.showToast(statusLabels[newStatus] || 'تم تحديث حالة الموعد', 'info');
+      await this.render();
     } catch (err) {
-      this.app.showAlert('تعذر تحديث حالة الموعد: ' + err.message, 'خطأ', 'danger');
+      this.app.showAlert('تعذر تحديث الحالة: ' + err.message, 'خطأ', 'danger');
     }
   }
 
   handleGridClick(e) {
     const currentUser = auth.getCurrentUser();
     if (currentUser && currentUser.role === 'doctor') {
-      return; // Strict read-only for doctors
+      return;
     }
-    // 1. Edit slot row time
     const editSlotTrigger = e.target.closest('[data-edit-slot]');
     if (editSlotTrigger) {
       const slotKey = editSlotTrigger.getAttribute('data-edit-slot');
@@ -1142,7 +1359,6 @@ export class AppointmentsManager {
       return;
     }
 
-    // 2. Remove appointment
     const removeBtn = e.target.closest('[data-remove-appt]');
     if (removeBtn) {
       e.stopPropagation();
@@ -1150,7 +1366,6 @@ export class AppointmentsManager {
       return;
     }
 
-    // 2.5 Move / reschedule appointment
     const moveBtn = e.target.closest('[data-move-appt]');
     if (moveBtn) {
       e.stopPropagation();
@@ -1158,15 +1373,13 @@ export class AppointmentsManager {
       return;
     }
 
-    // 2.6 Copy appointment to other days
     const copyBtn = e.target.closest('[data-copy-appt]');
     if (copyBtn) {
       e.stopPropagation();
-      this.openCopyModal(copyBtn.getAttribute('data-copy-appt'));
+      this.openMoveModal(copyBtn.getAttribute('data-copy-appt'));
       return;
     }
 
-    // 2.7 Open Action Sheet for appointment
     const apptActionTrigger = e.target.closest('[data-appt-action-id]');
     if (apptActionTrigger) {
       const apptId = apptActionTrigger.getAttribute('data-appt-action-id');
@@ -1176,37 +1389,37 @@ export class AppointmentsManager {
       }
     }
 
-    // 3. Add appointment
     const addBtn = e.target.closest('.btn-add-appt');
     if (addBtn) {
+      const dayAttr = addBtn.getAttribute('data-add-day');
+      const dayIndex = dayAttr !== null ? parseInt(dayAttr, 10) : null;
       this.openAddModal(
         addBtn.getAttribute('data-add-doctor'),
         addBtn.getAttribute('data-add-doctor-name'),
-        addBtn.getAttribute('data-add-slot')
+        addBtn.getAttribute('data-add-slot'),
+        dayIndex
       );
     }
   }
 
   // ================= Add Appointment Modal =================
-  openAddModal(doctorUid, doctorName, timeSlot) {
-    // Check if Friday
-    if (new Date(this.selectedDate + 'T00:00:00').getDay() === 5) {
+  openAddModal(doctorUid, doctorName, timeSlot, dayIndex = null) {
+    if (new Date(this.selectedDate + 'T00:00:00').getDay() === 5 && !dayIndex) {
       this.app.showAlert('يوم الجمعة عطلة رسمية بالمركز، لا يمكن حجز مواعيد في هذا اليوم.', 'عطلة أسبوعية', 'warning');
       return;
     }
     this.pendingDoctorUid = doctorUid || null;
     this.pendingDoctorName = doctorName || null;
-    this.pendingTimeSlot = timeSlot;
+    this.pendingTimeSlot = timeSlot || (this.slots && this.slots[0] ? this.slots[0].key : '15:30');
     this.selectedPatientId = null;
     this.selectedPatientName = null;
 
-    const slotLabel = (this.slots || []).find((s) => s.key === timeSlot)?.label || timeSlot;
     const titleEl = document.getElementById('appt-modal-title');
     if (titleEl) {
-      titleEl.innerHTML = `<i class="fa-solid fa-calendar-plus" style="color: var(--primary);"></i> حجز سرير - الساعة ${escapeHTML(slotLabel)}`;
+      titleEl.innerHTML = `<i class="fa-solid fa-calendar-plus text-primary"></i> تثبيت حجز موعد دوري للمريض`;
     }
 
-    // Populate and sync Doctor Dropdown in modal
+    // Populate Doctor Dropdown
     const today = getLocalDateStr();
     const docSelect = document.getElementById('appt-doctor-select');
     const warningEl = document.getElementById('appt-doc-shift-warning');
@@ -1214,44 +1427,70 @@ export class AppointmentsManager {
       docSelect.innerHTML = `<option value="">-- اضغط لاختيار الطبيب المعالج --</option>` + (this.doctors || []).map((d) => {
         const clean = (d.name || '').replace(/^د\.\s*/, '');
         const isSel = (doctorUid && d.uid === doctorUid) ? 'selected' : '';
-        const onDuty = isDoctorOnDuty(d.shift, today, this.shiftOverrides, d.uid);
-        const dutyBadge = onDuty ? '🟢 مناوب اليوم' : '⚪ ليس بشيفت اليوم';
-        return `<option value="${escapeHTML(d.uid)}" ${isSel}>د. ${escapeHTML(clean)} (${dutyBadge})</option>`;
+        const shiftLabel = getShiftLabel(d.shift || 'sat_mon_wed');
+        return `<option value="${escapeHTML(d.uid)}" ${isSel}>د. ${escapeHTML(clean)} (شفت: ${escapeHTML(shiftLabel)})</option>`;
       }).join('');
 
-      docSelect.value = doctorUid || '';
-      this.pendingDoctorUid = doctorUid || '';
-      const matchedDoc = (this.doctors || []).find(d => d.uid === doctorUid);
+      docSelect.value = doctorUid || (this.doctors[0] ? this.doctors[0].uid : '');
+      this.pendingDoctorUid = docSelect.value;
+      const matchedDoc = (this.doctors || []).find(d => d.uid === this.pendingDoctorUid);
       this.pendingDoctorName = matchedDoc ? matchedDoc.name : '';
+
       if (this.app?.updateCustomSelectDisplay) {
         this.app.updateCustomSelectDisplay('appt-doctor-select');
       }
 
-      const updateShiftWarning = (uid) => {
-        if (!warningEl) return;
-        if (!uid) {
-          warningEl.style.display = 'none';
-          return;
-        }
-        const doc = (this.doctors || []).find(d => d.uid === uid);
-        const onDuty = isDoctorOnDuty(doc?.shift, today, this.shiftOverrides, uid);
-        warningEl.style.display = onDuty ? 'none' : 'block';
-      };
+      // Auto preset matching days based on doctor shift
+      if (matchedDoc?.shift === 'sun_tue_thu') {
+        this.setNewApptDays([0, 2, 4], 'sun_tue_thu');
+      } else {
+        this.setNewApptDays([6, 1, 3], 'sat_mon_wed');
+      }
 
-      updateShiftWarning(doctorUid);
       docSelect.onchange = (e) => {
         this.pendingDoctorUid = e.target.value;
         const d = (this.doctors || []).find(x => x.uid === e.target.value);
         this.pendingDoctorName = d ? d.name : '';
-        updateShiftWarning(e.target.value);
+        if (d?.shift === 'sun_tue_thu') {
+          this.setNewApptDays([0, 2, 4], 'sun_tue_thu');
+        } else {
+          this.setNewApptDays([6, 1, 3], 'sat_mon_wed');
+        }
+        this.updateApptPreviewText();
       };
+    }
+
+    // Populate Slot Dropdown
+    const slotSelect = document.getElementById('appt-slot-select');
+    if (slotSelect) {
+      const slotsToUse = (this.slots && this.slots.length > 0) ? this.slots : DEFAULT_APPT_SLOTS;
+      slotSelect.innerHTML = slotsToUse.map(s => `
+        <option value="${escapeHTML(s.key)}" ${s.key === this.pendingTimeSlot ? 'selected' : ''}>
+          ${escapeHTML(s.label)} (${escapeHTML(s.key)})
+        </option>
+      `).join('');
+      slotSelect.value = this.pendingTimeSlot;
+      if (this.app?.updateCustomSelectDisplay) {
+        this.app.updateCustomSelectDisplay('appt-slot-select');
+      }
+    }
+
+    if (dayIndex !== null) {
+      if (dayIndex === 6 || dayIndex === 1 || dayIndex === 3) {
+        this.setNewApptDays([6, 1, 3], 'sat_mon_wed');
+      } else if (dayIndex === 0 || dayIndex === 2 || dayIndex === 4) {
+        this.setNewApptDays([0, 2, 4], 'sun_tue_thu');
+      } else {
+        this.setNewApptDays([dayIndex], null);
+      }
     }
 
     const bodyPartInput = document.getElementById('appt-body-part');
     if (bodyPartInput) bodyPartInput.value = '';
     const trigger = document.getElementById('appt-patient-picker-trigger');
-    if (trigger) trigger.querySelector('.btn-text').textContent = '-- اختر مريض من السجل --';
+    if (trigger) trigger.querySelector('.btn-text').textContent = '-- اضغط للبحث واختيار المريض --';
 
+    this.updateApptPreviewText();
     this.app.openModal('modal-appointment');
   }
 
@@ -1260,7 +1499,9 @@ export class AppointmentsManager {
     if (searchInput) searchInput.value = '';
     await this.renderPickerPatients();
     this.app.openModal('modal-appt-patient-picker');
-    if (searchInput) setTimeout(() => searchInput.focus(), 250);
+    setTimeout(() => {
+      if (searchInput) searchInput.focus();
+    }, 150);
   }
 
   normalizeArabic(text) {
@@ -1321,7 +1562,7 @@ export class AppointmentsManager {
       }
 
       return `
-        <div class="picker-item" data-patient-id="${escapeHTML(p.id)}" style="display: flex; justify-content: space-between; align-items: center;">
+        <div class="picker-item" data-patient-id="${escapeHTML(p.id)}" style="display: flex; justify-content: space-between; align-items: center; padding: 10px 12px; border-bottom: 1px solid var(--border-color); cursor: pointer;">
           <div>
             <div style="font-weight: 700; color: var(--text-main); font-size: 0.95rem;">
               <i class="fa-solid fa-user" style="color: var(--primary); margin-left: 6px;"></i> ${escapeHTML(p.name)}
@@ -1343,7 +1584,18 @@ export class AppointmentsManager {
     this.selectedPatientName = patient.name;
     const trigger = document.getElementById('appt-patient-picker-trigger');
     if (trigger) trigger.querySelector('.btn-text').textContent = patient.name;
+
+    const bodyPartInput = document.getElementById('appt-body-part');
+    if (bodyPartInput && !bodyPartInput.value) {
+      if (patient.bodyParts && patient.bodyParts.length > 0) {
+        bodyPartInput.value = patient.bodyParts.join(' • ');
+      } else if (patient.affectedArea) {
+        bodyPartInput.value = patient.affectedArea;
+      }
+    }
+
     this.app.closeModal('modal-appt-patient-picker');
+    this.updateApptPreviewText();
   }
 
   async submitAppointment() {
@@ -1351,6 +1603,9 @@ export class AppointmentsManager {
     const chosenUid = docSelect ? docSelect.value : this.pendingDoctorUid;
     const docObj = (this.doctors || []).find((d) => d.uid === chosenUid);
     const chosenName = docObj ? docObj.name : (this.pendingDoctorName || 'طبيب المركز');
+
+    const slotSelect = document.getElementById('appt-slot-select');
+    const chosenSlot = slotSelect ? slotSelect.value : this.pendingTimeSlot;
 
     if (!chosenUid) {
       this.app.showAlert('من فضلك اختر الطبيب المعالج.', 'بيانات ناقصة', 'warning');
@@ -1362,60 +1617,166 @@ export class AppointmentsManager {
       return;
     }
 
+    if (!Array.isArray(this.selectedDaysForNewAppt) || this.selectedDaysForNewAppt.length === 0) {
+      this.app.showAlert('من فضلك اختر يوماً واحداً على الأقل لأيام الحضور الأسبوعية.', 'بيانات ناقصة', 'warning');
+      return;
+    }
+
     try {
       const bodyPartVal = document.getElementById('appt-body-part')?.value.trim() || '';
-      const today = getLocalDateStr();
-      const matchedDoc = (this.doctors || []).find(d => d.uid === chosenUid);
-      const onDuty = isDoctorOnDuty(matchedDoc?.shift, today, this.shiftOverrides, chosenUid);
-
-      if (!onDuty && chosenUid) {
-        // Automatically activate shift coverage for this doctor for today
-        try {
-          await db.addShiftOverride({
-            doctorUid: chosenUid,
-            doctorName: chosenName,
-            date: today,
-            type: 'coverage',
-            createdBy: auth.getCurrentUser()?.name || 'الاستقبال'
-          });
-        } catch (covErr) {
-          console.warn('Auto coverage activation notice:', covErr);
-        }
-      }
+      const daysPattern = this.getPatternFromDays(this.selectedDaysForNewAppt);
+      const daysText = formatRecurringDays(this.selectedDaysForNewAppt);
 
       await db.addAppointment({
         doctorUid: chosenUid,
         doctorName: chosenName,
-        timeSlot: this.pendingTimeSlot,
-        date: this.selectedDate,
-        dayOfWeek: getDayShiftKey(this.selectedDate),
+        timeSlot: chosenSlot,
+        daysOfWeek: [...this.selectedDaysForNewAppt],
+        daysPattern,
+        startDate: this.selectedDate || getLocalDateStr(),
         patientId: this.selectedPatientId,
         patientName: this.selectedPatientName,
         bodyPart: bodyPartVal,
         status: 'scheduled',
-        createdBy: auth.getCurrentUser()?.name || ''
+        cancelledDates: [],
+        createdBy: auth.getCurrentUser()?.name || 'الاستقبال'
       });
+
       this.app.closeModal('modal-appointment');
-      this.app.showToast(!onDuty ? 'تم حجز الموعد وتفعيل تغطية الشيفت للطبيب لليوم بنجاح' : 'تم حجز الموعد بنجاح');
-      await this.refreshVisibleGrids();
+      this.app.showToast(`تم تثبيت الموعد الدوري أسبوعياً (${daysText}) بنجاح`, 'success');
+      await this.loadAll(this.selectedDate, true);
+      await this.render();
+      if (this.app?.patientsManager?.renderPatients) {
+        this.app.patientsManager.renderPatients();
+      }
     } catch (err) {
-      this.app.showAlert('تعذر حجز الموعد: ' + err.message, 'خطأ', 'danger');
+      console.error('Submit appointment error:', err);
+      this.app.showAlert('تعذر حفظ الموعد: ' + err.message, 'خطأ', 'danger');
     }
   }
 
   async deleteAppointment(apptId) {
-    const confirmed = await this.app.showConfirm('هل تريد إلغاء هذا الموعد؟', 'تأكيد الإلغاء');
+    const appt = (this.appointments || []).find((a) => a.id === apptId);
+    const pName = appt ? appt.patientName : 'المريض';
+    const confirmed = confirm(`هل أنت متأكد من حذف موعد ${pName} نهائياً؟`);
     if (!confirmed) return;
+
     try {
       await db.deleteAppointment(apptId);
-      this.app.showToast('تم إلغاء الموعد');
-      await this.refreshVisibleGrids();
+      this.app.showToast(`تم حذف موعد ${pName} بنجاح`);
+      await this.loadAll(this.selectedDate, true);
+      await this.render();
+      const currentUser = auth.getCurrentUser();
+      if (currentUser && currentUser.role === 'doctor') {
+        const uid = currentUser.uid || currentUser.id;
+        if (uid) await this.renderForDoctor(uid);
+      }
+      if (this.app?.patientsManager?.renderPatients) {
+        this.app.patientsManager.renderPatients();
+      }
     } catch (err) {
-      this.app.showAlert('تعذر إلغاء الموعد: ' + err.message, 'خطأ', 'danger');
+      console.error('Delete appointment error:', err);
+      this.app.showAlert('تعذر حذف الموعد: ' + err.message, 'خطأ', 'danger');
     }
   }
 
-  // ================= Slot Management Modals & Handlers =================
+  // ================= Move / Edit Recurring Appointment Modal =================
+  openMoveModal(apptId) {
+    const appt = this.appointments.find((a) => a.id === apptId);
+    if (!appt) return;
+
+    this.movingAppt = appt;
+    const nameEl = document.getElementById('move-appt-patient-name');
+    if (nameEl) nameEl.textContent = appt.patientName;
+
+    const currentSlotObj = (this.slots || []).find((s) => s.key === appt.timeSlot);
+    const slotLabel = currentSlotObj ? currentSlotObj.label : appt.timeSlot;
+    const daysStr = formatRecurringDays(appt.daysOfWeek);
+    const infoEl = document.getElementById('move-appt-current-info');
+    if (infoEl) {
+      infoEl.textContent = `الموعد الحالي: د. ${appt.doctorName || '-'} — الساعة ${slotLabel}${daysStr ? ` (${daysStr})` : ''}`;
+    }
+
+    const docSel = document.getElementById('move-appt-doctor');
+    if (docSel) {
+      docSel.innerHTML = this.doctors.map((d) => `
+        <option value="${escapeHTML(d.uid)}" data-name="${escapeHTML(d.name)}" ${d.uid === appt.doctorUid ? 'selected' : ''}>
+          ${escapeHTML(d.name)}
+        </option>
+      `).join('');
+    }
+
+    const slotSel = document.getElementById('move-appt-slot');
+    if (slotSel) {
+      const slotsToUse = (this.slots && this.slots.length > 0) ? this.slots : DEFAULT_APPT_SLOTS;
+      slotSel.innerHTML = slotsToUse.map((s) => {
+        const count = this.getSlotTotalCount(s.key);
+        return `
+          <option value="${escapeHTML(s.key)}" ${s.key === appt.timeSlot ? 'selected' : ''}>
+            ${escapeHTML(s.label)} (${count}/${MAX_BEDS_PER_SLOT} حالات)
+          </option>
+        `;
+      }).join('');
+    }
+
+    // Set days for moving appt
+    if (Array.isArray(appt.daysOfWeek) && appt.daysOfWeek.length > 0) {
+      this.setMoveApptDays(appt.daysOfWeek);
+    } else {
+      this.setMoveApptDays([6, 1, 3]);
+    }
+
+    if (this.app?.updateCustomSelectDisplay) {
+      this.app.updateCustomSelectDisplay('move-appt-doctor');
+      this.app.updateCustomSelectDisplay('move-appt-slot');
+    }
+
+    this.app.openModal('modal-move-appointment');
+  }
+
+  async handleConfirmMoveAppointment() {
+    if (!this.movingAppt) return;
+    const apptId = this.movingAppt.id;
+    const docSel = document.getElementById('move-appt-doctor');
+    const slotSel = document.getElementById('move-appt-slot');
+
+    const targetDoctorUid = docSel?.value;
+    const targetDoctorName = docSel?.options[docSel.selectedIndex]?.getAttribute('data-name') || '';
+    const targetSlotKey = slotSel?.value;
+    const targetSlotLabel = (this.slots || []).find((s) => s.key === targetSlotKey)?.label || targetSlotKey;
+
+    if (!targetDoctorUid || !targetSlotKey) {
+      this.app.showAlert('من فضلك اختر الطبيب والميعاد المطلوب النقل إليه.', 'بيانات ناقصة', 'warning');
+      return;
+    }
+
+    if (!Array.isArray(this.selectedDaysForMoveAppt) || this.selectedDaysForMoveAppt.length === 0) {
+      this.app.showAlert('يجب اختيار يوم واحد على الأقل للموعد الدوري.', 'بيانات ناقصة', 'warning');
+      return;
+    }
+
+    const daysPattern = this.getPatternFromDays(this.selectedDaysForMoveAppt);
+    const daysText = formatRecurringDays(this.selectedDaysForMoveAppt);
+
+    try {
+      await db.updateAppointment(apptId, {
+        doctorUid: targetDoctorUid,
+        doctorName: targetDoctorName,
+        timeSlot: targetSlotKey,
+        daysOfWeek: [...this.selectedDaysForMoveAppt],
+        daysPattern,
+        updatedAt: new Date().toISOString()
+      });
+      this.app.closeModal('modal-move-appointment');
+      this.app.showToast(`تم تعديل موعد ${this.movingAppt.patientName} (${daysText} - ${targetSlotLabel}) بنجاح`);
+      this.movingAppt = null;
+      await this.refreshVisibleGrids();
+    } catch (err) {
+      this.app.showAlert('تعذر تعديل الموعد: ' + err.message, 'خطأ', 'danger');
+    }
+  }
+
+
   renderSlotQuickChips() {
     const container = document.getElementById('slot-quick-chips');
     if (!container) return;

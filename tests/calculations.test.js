@@ -115,8 +115,19 @@ console.log('--- Running Tests: Appointments Engine & Status Sync ---');
 
 function filterAppointmentsByDate(appointments, targetDate, doctors = [], shiftOverrides = []) {
   if (!targetDate) return [];
+  const curDate = new Date(targetDate + 'T00:00:00');
+  const dayOfWeek = curDate.getDay();
+  if (dayOfWeek === 5) return []; // Friday holiday
+
   const shiftKey = getDayShiftKey(targetDate);
   return appointments.filter(a => {
+    if (Array.isArray(a.daysOfWeek) && a.daysOfWeek.length > 0) {
+      if (a.status === 'completed') return false;
+      if (!a.daysOfWeek.includes(dayOfWeek)) return false;
+      if (a.startDate && targetDate < a.startDate) return false;
+      if (a.endDate && targetDate > a.endDate) return false;
+      return true;
+    }
     if (a.date) return a.date === targetDate;
     if (a.dayOfWeek) return a.dayOfWeek === shiftKey;
     const doc = doctors.find(d => d.uid === a.doctorUid);
@@ -161,6 +172,44 @@ testAppt.status = 'no-show'; // Patient did not show up
 assert.equal(testAppt.status, 'no-show');
 
 console.log('✓ All 6 Appointments Engine & Status Sync assertions passed successfully!');
+
+// 6.5 Weekly Recurring Appointments Engine Tests (No Copy Needed)
+console.log('--- Running Tests: Weekly Recurring Appointments Engine ---');
+const recurringAppt = {
+  id: 'rec_101',
+  patientName: 'الحسن سيد شحاتة',
+  doctorUid: 'doc_mostafa',
+  timeSlot: '15:30',
+  daysOfWeek: [6, 1, 3], // السبت (6)، الإثنين (1)، الأربعاء (3)
+  startDate: '2026-09-12',
+  status: 'active'
+};
+
+// 1. Check Saturday 2026-09-12 (day 6) -> Must match
+assert.equal(filterAppointmentsByDate([recurringAppt], '2026-09-12').length, 1);
+
+// 2. Check Sunday 2026-09-13 (day 0) -> Must NOT match
+assert.equal(filterAppointmentsByDate([recurringAppt], '2026-09-13').length, 0);
+
+// 3. Check Monday 2026-09-14 (day 1) -> Must match automatically without copy
+assert.equal(filterAppointmentsByDate([recurringAppt], '2026-09-14').length, 1);
+
+// 4. Check Wednesday 2026-09-16 (day 3) -> Must match automatically without copy
+assert.equal(filterAppointmentsByDate([recurringAppt], '2026-09-16').length, 1);
+
+// 5. Check Next Week Saturday 2026-09-19 & Monday 2026-09-21 -> Must match across future weeks
+assert.equal(filterAppointmentsByDate([recurringAppt], '2026-09-19').length, 1);
+assert.equal(filterAppointmentsByDate([recurringAppt], '2026-09-21').length, 1);
+
+// 6. Check Friday 2026-09-18 -> Holiday, must return 0
+assert.equal(filterAppointmentsByDate([recurringAppt], '2026-09-18').length, 0);
+
+// 7. Check Course Completion frees slot
+const completedAppt = { ...recurringAppt, status: 'completed' };
+assert.equal(filterAppointmentsByDate([completedAppt], '2026-09-21').length, 0);
+
+console.log('✓ All 7 Weekly Recurring Appointments assertions passed successfully!');
+
 
 // 7. Insurance Companies Sync & Persistence Tests
 console.log('--- Running Tests: Insurance Companies Sync & Mutation ---');
