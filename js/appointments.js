@@ -197,6 +197,20 @@ export class AppointmentsManager {
       this.handleConfirmMoveAppointment();
     });
 
+    // Copy / Duplicate Appointment Form & Presets
+    document.getElementById('form-copy-appointment')?.addEventListener('submit', (e) => {
+      e.preventDefault();
+      this.handleConfirmCopyAppointment();
+    });
+
+    document.getElementById('btn-copy-shift-sat-mon-wed')?.addEventListener('click', () => {
+      this.setCopyShiftSelection([0, 2, 4]);
+    });
+
+    document.getElementById('btn-copy-shift-sun-tue-thu')?.addEventListener('click', () => {
+      this.setCopyShiftSelection([1, 3, 5]);
+    });
+
     // Add New Slot Trigger Button in Card Header
     document.getElementById('btn-add-new-slot')?.addEventListener('click', () => this.openAddSlotModal());
 

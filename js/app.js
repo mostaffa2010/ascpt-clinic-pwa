@@ -783,6 +783,14 @@ class App {
       }
     });
 
+    // Quick Action: New Patient Direct Trigger
+    document.getElementById('btn-quick-new-patient')?.addEventListener('click', () => {
+      this.switchView('patients');
+      setTimeout(() => {
+        this.patientsManager?.openAddModal();
+      }, 120);
+    });
+
     // Universal Custom Picker Trigger Delegation ([data-open-picker])
     document.addEventListener('click', (e) => {
       const pickerBtn = e.target.closest('[data-open-picker]');
