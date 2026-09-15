@@ -16,7 +16,7 @@ export class DoctorDashboardManager {
   }
 
   init() {
-    ['today', 'month', 'lifetime', 'home-visits'].forEach((t) => {
+    ['today', 'month', 'lifetime'].forEach(t => {
       document.getElementById(`btn-doc-filter-${t}`)?.addEventListener('click', () => {
         this.setFilter(t);
       });
@@ -27,16 +27,15 @@ export class DoctorDashboardManager {
     this.currentFilter = filterType;
 
     // Update active button state
-    ['today', 'month', 'lifetime', 'home-visits'].forEach((t) => {
+    ['today', 'month', 'lifetime'].forEach(t => {
       const btn = document.getElementById(`btn-doc-filter-${t}`);
       if (btn) btn.classList.toggle('active', t === filterType);
     });
 
     const titles = {
-      today: 'جلسات مرضاك اليوم بالمركز',
-      month: 'حالات وجلسات هذا الشهر بالمركز',
-      lifetime: 'سجل جميع مرضاك بالمركز',
-      'home-visits': 'بيان الزيارات المنزلية قيد التسوية مع المركز'
+      today: 'جلسات مرضاك اليوم',
+      month: 'حالات وجلسات هذا الشهر',
+      lifetime: 'سجل جميع مرضاك'
     };
     const titleEl = document.getElementById('doc-table-title');
     if (titleEl) titleEl.textContent = titles[filterType] || 'جلسات مرضاك';
@@ -148,7 +147,7 @@ export class DoctorDashboardManager {
     });
 
     // 1. Today's sessions for this doctor
-    const todaySessions = this.docSessions.filter((s) => s.date === todayStr && !s.isHomeVisit && s.visitType !== 'home');
+    const todaySessions = this.docSessions.filter(s => s.date === todayStr);
     const todayCredited = todaySessions.reduce((acc, s) => {
       if (s.entryType === 'examination') return acc + 1;
       return acc + (s.bodyPartsCount || 1);
@@ -164,7 +163,7 @@ export class DoctorDashboardManager {
     if (todayCountEl) todayCountEl.textContent = `${todaySessions.length} زيارة • ${todayCredited} جلسة`;
 
     // 2. This month's sessions
-    const monthSessions = this.docSessions.filter((s) => s.date && s.date.startsWith(currentMonth) && !s.isHomeVisit && s.visitType !== 'home');
+    const monthSessions = this.docSessions.filter(s => s.date && s.date.startsWith(currentMonth));
     const monthCredited = monthSessions.reduce((acc, s) => {
       if (s.entryType === 'examination') return acc + 1;
       return acc + (s.bodyPartsCount || 1);
@@ -251,10 +250,8 @@ export class DoctorDashboardManager {
     let monthQuadriplegiaCount = 0;
     let monthOtherCount = 0;
 
-    monthSessions.forEach((s) => {
+    monthSessions.forEach(s => {
       if (s.entryType === 'examination') return;
-      if (s.isHomeVisit || s.visitType === 'home') return;
-      if (s.isPreSettled || (s.date && s.date < '2026-09-01')) return;
       const count = s.bodyPartsCount || 1;
       const pType = s.sessionPricingType || s.programType || (s.isSpecial ? 'special' : 'regular');
       if (pType === 'scoliosis') {
@@ -376,19 +373,6 @@ export class DoctorDashboardManager {
       }
     }
 
-
-    // Update Home Visits Counter Badge
-    const activeHomeVisits = this.docSessions.filter((s) => (s.isHomeVisit || s.visitType === 'home') && !s.isPreSettled);
-    const hvBadge = document.getElementById('badge-doc-home-visits');
-    if (hvBadge) {
-      if (activeHomeVisits.length > 0) {
-        hvBadge.style.display = 'inline-block';
-        hvBadge.textContent = activeHomeVisits.length;
-      } else {
-        hvBadge.style.display = 'none';
-      }
-    }
-
     this.renderTable();
     } finally {
       this._isRendering = false;
@@ -405,129 +389,13 @@ export class DoctorDashboardManager {
 
     let displayList = [];
 
-    if (this.currentFilter === 'home-visits') {
-      const hvSessions = this.docSessions.filter((s) => s.isHomeVisit || s.visitType === 'home');
-      if (hvSessions.length === 0) {
-        tbody.innerHTML = `
-          <tr>
-            <td colspan="6" style="text-align: center; color: var(--text-muted); padding: 24px;">
-              <i class="fa-solid fa-house-chimney-medical" style="font-size: 1.8rem; margin-bottom: 8px; display: block; color: #cbd5e1;"></i>
-              لا توجد زيارات منزلية مسجلة لك حالياً.
-            </td>
-          </tr>
-        `;
-        const mobCont = document.getElementById('doctor-personal-mobile-cards');
-        if (mobCont) {
-          mobCont.innerHTML = `
-            <div class="empty-state-card" style="text-align: center; padding: 28px 20px; color: var(--text-muted); background: var(--bg-surface); border-radius: 14px; border: 1.5px dashed var(--border-color);">
-              <i class="fa-solid fa-house-chimney-medical" style="font-size: 1.8rem; margin-bottom: 8px; display: block; color: #cbd5e1;"></i>
-              لا توجد زيارات منزلية مسجلة لك حالياً.
-            </div>
-          `;
-        }
-        return;
-      }
-
-      // Group by patient
-      const patientGroups = new Map();
-      hvSessions.forEach((s) => {
-        const key = s.patientId || s.patientName;
-        if (!patientGroups.has(key)) {
-          patientGroups.set(key, {
-            patientId: s.patientId,
-            patientName: s.patientName,
-            insuranceName: s.insuranceName || 'تأمين',
-            sessions: []
-          });
-        }
-        patientGroups.get(key).sessions.push(s);
-      });
-
-      // Render Table Rows (NO PRICES SHOWN)
-      tbody.innerHTML = Array.from(patientGroups.values()).map((group) => {
-        const sList = group.sessions.sort((a, b) => (a.date || '').localeCompare(b.date || ''));
-        const firstDate = sList[0]?.date || '-';
-        const lastDate = sList[sList.length - 1]?.date || '-';
-        const dateRange = (firstDate === lastDate) ? firstDate : `من ${firstDate} إلى ${lastDate}`;
-        const isPre = sList.every((s) => s.isPreSettled || (s.date && s.date < '2026-09-01'));
-        const statusBadge = isPre
-          ? '<span class="badge" style="background: rgba(100, 116, 139, 0.15); color: #475569; border: 1px solid #cbd5e1; font-weight: 800;"><i class="fa-solid fa-box-archive"></i> مسواة مسبقاً (أرشيف)</span>'
-          : '<span class="badge badge-warning" style="font-weight: 800;"><i class="fa-solid fa-clock"></i> قيد التسوية مع المركز</span>';
-
-        return `
-          <tr>
-            <td style="font-weight: 800; color: var(--primary);">${escapeHTML(group.patientName)}</td>
-            <td><span class="badge badge-direct"><i class="fa-solid fa-file-contract"></i> ${escapeHTML(group.insuranceName)} (زيارة منزلية)</span></td>
-            <td><span class="badge badge-role-doctor" style="font-size: 0.82rem; font-weight: 800;">${group.sessions.length} جلسات</span></td>
-            <td style="font-weight: 700; direction: ltr; text-align: right;">${dateRange}</td>
-            <td>${statusBadge}</td>
-            <td style="text-align: center;">
-              <button type="button" class="btn btn-outline btn-sm btn-icon-action" onclick="app.openPatientClinicalSheet('${escapeHTML(group.patientId)}')" title="الشيت الطبي">
-                <i class="fa-solid fa-file-waveform text-primary"></i>
-              </button>
-            </td>
-          </tr>
-        `;
-      }).join('');
-
-      // Render Mobile Cards (NO PRICES SHOWN)
-      const mobileContainer = document.getElementById('doctor-personal-mobile-cards');
-      if (mobileContainer) {
-        mobileContainer.innerHTML = Array.from(patientGroups.values()).map((group) => {
-          const sList = group.sessions.sort((a, b) => (a.date || '').localeCompare(b.date || ''));
-          const firstDate = sList[0]?.date || '-';
-          const lastDate = sList[sList.length - 1]?.date || '-';
-          const dateRange = (firstDate === lastDate) ? firstDate : `من ${firstDate} إلى ${lastDate}`;
-          const isPre = sList.every((s) => s.isPreSettled || (s.date && s.date < '2026-09-01'));
-          const statusBadge = isPre
-            ? '<span class="badge" style="background: rgba(100, 116, 139, 0.15); color: #475569; border: 1px solid #cbd5e1; font-weight: 800;"><i class="fa-solid fa-box-archive"></i> مسواة مسبقاً (أرشيف)</span>'
-            : '<span class="badge badge-warning" style="font-weight: 800;"><i class="fa-solid fa-clock"></i> قيد التسوية مع المركز</span>';
-
-          return `
-            <div class="hero-styled-card" style="padding: 12px 14px; margin-bottom: 10px; border-radius: 14px; border-right: 4px solid #059669;">
-              <div class="hsc-top" style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px;">
-                <div class="hsc-patient-meta" style="display: flex; align-items: center; gap: 10px;">
-                  <div class="hsc-avatar" style="background: rgba(5, 150, 105, 0.12); color: #059669;"><i class="fa-solid fa-house-user"></i></div>
-                  <div class="hsc-name-box">
-                    <span class="hsc-patient-name" style="font-weight: 800; font-size: 0.96rem;">${escapeHTML(group.patientName)}</span>
-                    <span class="hsc-doc-sub" style="font-size: 0.78rem; color: var(--text-muted);"><i class="fa-solid fa-file-contract"></i> ${escapeHTML(group.insuranceName)}</span>
-                  </div>
-                </div>
-                <div class="hsc-amount-box">
-                  <span class="badge" style="background: #ecfdf5; color: #059669; border: 1px solid #a7f3d0; font-weight: 800; font-size: 0.85rem; padding: 4px 10px;">
-                    ${group.sessions.length} جلسات
-                  </span>
-                </div>
-              </div>
-
-              <div class="hsc-badges-row" style="margin-bottom: 8px;">
-                ${statusBadge}
-              </div>
-
-              <div class="hsc-divider" style="margin: 8px 0;"></div>
-
-              <div class="hsc-bottom" style="display: flex; justify-content: space-between; align-items: center;">
-                <span class="hsc-time-tag" style="font-size: 0.78rem; color: var(--text-muted); direction: ltr;">
-                  <i class="fa-regular fa-calendar"></i> ${dateRange}
-                </span>
-                <button type="button" class="btn btn-outline btn-sm btn-icon-action" onclick="app.openPatientClinicalSheet('${escapeHTML(group.patientId)}')" style="width: 30px; height: 30px; border-radius: 50%;" title="الشيت الطبي">
-                  <i class="fa-solid fa-file-waveform text-primary"></i>
-                </button>
-              </div>
-            </div>
-          `;
-        }).join('');
-      }
-      return;
-    }
-
     if (this.currentFilter === 'today') {
-      displayList = this.docSessions.filter((s) => s.date === todayStr && !s.isHomeVisit && s.visitType !== 'home');
+      displayList = this.docSessions.filter(s => s.date === todayStr);
     } else if (this.currentFilter === 'month') {
-      displayList = this.docSessions.filter((s) => s.date && s.date.startsWith(currentMonth) && !s.isHomeVisit && s.visitType !== 'home');
+      displayList = this.docSessions.filter(s => s.date && s.date.startsWith(currentMonth));
     } else {
-      // Lifetime: all in-clinic sessions for this doctor
-      displayList = this.docSessions.filter((s) => !s.isHomeVisit && s.visitType !== 'home');
+      // Lifetime: all sessions for this doctor (or latest 50)
+      displayList = [...this.docSessions];
     }
 
     if (displayList.length === 0) {
