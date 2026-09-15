@@ -914,8 +914,10 @@ class App {
         const isPrompt = inputEl && inputEl.style.display !== 'none';
         const val = isPrompt ? inputEl.value.trim() : true;
         if (inputEl) inputEl.style.display = 'none';
+        const res = this.dialogResolve;
+        this.dialogResolve = null;
         this.closeModal('modal-custom-dialog');
-        if (this.dialogResolve) this.dialogResolve(val);
+        if (res) res(val);
       });
     }
 
@@ -924,8 +926,10 @@ class App {
         const inputEl = document.getElementById('dialog-input');
         const isPrompt = inputEl && inputEl.style.display !== 'none';
         if (inputEl) inputEl.style.display = 'none';
+        const res = this.dialogResolve;
+        this.dialogResolve = null;
         this.closeModal('modal-custom-dialog');
-        if (this.dialogResolve) this.dialogResolve(isPrompt ? null : false);
+        if (res) res(isPrompt ? null : false);
       });
     }
 

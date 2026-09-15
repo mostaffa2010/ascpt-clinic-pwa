@@ -396,8 +396,11 @@ class AuthService {
       window.app._openModalStack = [];
       window.app.currentView = 'dashboard';
     }
+    const loginForm = document.getElementById('form-login');
+    if (loginForm) loginForm.reset();
     this.updateUI();
     this.showLoginModal();
+    if (this.onUserChanged) this.onUserChanged(null);
   }
 
   mapAuthError(err) {
