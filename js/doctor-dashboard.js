@@ -191,29 +191,99 @@ export class DoctorDashboardManager {
 
     const totalMonthEarnings = monthRegularDues + monthScoliosisDues + monthHemiplegiaDues + monthQuadriplegiaDues + monthOtherDues;
 
+    const totalMonthSessions = monthRegularCount + monthScoliosisCount + monthHemiplegiaCount + monthQuadriplegiaCount + monthOtherCount;
+
     const earningsTotalEl = document.getElementById('stat-doc-earnings-total');
-    const earningsRegEl = document.getElementById('stat-doc-earnings-regular');
-    const earningsSpecEl = document.getElementById('stat-doc-earnings-special');
+    const monthTotalSessionsEl = document.getElementById('stat-doc-month-total-sessions');
+    const programsContainer = document.getElementById('stat-doc-programs-container');
     const formulaHintEl = document.getElementById('stat-doc-earnings-formula-hint');
 
     if (earningsTotalEl) {
       earningsTotalEl.textContent = `${totalMonthEarnings.toLocaleString('en-US')} ج.م`;
     }
-    if (earningsRegEl) {
-      earningsRegEl.textContent = `عادية: ${monthRegularCount} (${monthRegularDues} ج.م) • Scoliosis: ${monthScoliosisCount} (${monthScoliosisDues} ج.م)`;
+
+    if (monthTotalSessionsEl) {
+      monthTotalSessionsEl.innerHTML = `<i class="fa-solid fa-clipboard-check text-primary"></i> <span>إجمالي: <strong>${totalMonthSessions}</strong> جلسة منجزة هذا الشهر</span>`;
     }
-    if (earningsSpecEl) {
-      earningsSpecEl.textContent = `Hemiplegia: ${monthHemiplegiaCount} (${monthHemiplegiaDues} ج.م) • Quadriplegia: ${monthQuadriplegiaCount} (${monthQuadriplegiaDues} ج.م)`;
+
+    if (programsContainer) {
+      const activePrograms = [];
+
+      if (monthRegularCount > 0) {
+        activePrograms.push(`
+          <div class="doc-prog-chip chip-regular">
+            <span class="doc-prog-icon"><i class="fa-solid fa-bone"></i></span>
+            <span class="doc-prog-name">علاج طبيعي عام:</span>
+            <strong class="doc-prog-count">${monthRegularCount} جلسة</strong>
+            ${monthRegularDues > 0 ? `<span class="doc-prog-dues">(${monthRegularDues.toLocaleString('en-US')} ج.م)</span>` : ''}
+          </div>
+        `);
+      }
+
+      if (monthScoliosisCount > 0) {
+        activePrograms.push(`
+          <div class="doc-prog-chip chip-scoliosis">
+            <span class="doc-prog-icon"><i class="fa-solid fa-arrows-split-up-and-left"></i></span>
+            <span class="doc-prog-name">Scoliosis:</span>
+            <strong class="doc-prog-count">${monthScoliosisCount} جلسة</strong>
+            ${monthScoliosisDues > 0 ? `<span class="doc-prog-dues">(${monthScoliosisDues.toLocaleString('en-US')} ج.م)</span>` : ''}
+          </div>
+        `);
+      }
+
+      if (monthHemiplegiaCount > 0) {
+        activePrograms.push(`
+          <div class="doc-prog-chip chip-hemiplegia">
+            <span class="doc-prog-icon"><i class="fa-solid fa-brain"></i></span>
+            <span class="doc-prog-name">Hemiplegia:</span>
+            <strong class="doc-prog-count">${monthHemiplegiaCount} جلسة</strong>
+            ${monthHemiplegiaDues > 0 ? `<span class="doc-prog-dues">(${monthHemiplegiaDues.toLocaleString('en-US')} ج.م)</span>` : ''}
+          </div>
+        `);
+      }
+
+      if (monthQuadriplegiaCount > 0) {
+        activePrograms.push(`
+          <div class="doc-prog-chip chip-quadriplegia">
+            <span class="doc-prog-icon"><i class="fa-solid fa-wheelchair"></i></span>
+            <span class="doc-prog-name">Quadriplegia:</span>
+            <strong class="doc-prog-count">${monthQuadriplegiaCount} جلسة</strong>
+            ${monthQuadriplegiaDues > 0 ? `<span class="doc-prog-dues">(${monthQuadriplegiaDues.toLocaleString('en-US')} ج.م)</span>` : ''}
+          </div>
+        `);
+      }
+
+      if (monthOtherCount > 0) {
+        activePrograms.push(`
+          <div class="doc-prog-chip chip-other">
+            <span class="doc-prog-icon"><i class="fa-solid fa-notes-medical"></i></span>
+            <span class="doc-prog-name">برامج أخرى:</span>
+            <strong class="doc-prog-count">${monthOtherCount} جلسة</strong>
+            ${monthOtherDues > 0 ? `<span class="doc-prog-dues">(${monthOtherDues.toLocaleString('en-US')} ج.م)</span>` : ''}
+          </div>
+        `);
+      }
+
+      if (activePrograms.length > 0) {
+        programsContainer.innerHTML = activePrograms.join('');
+      } else {
+        programsContainer.innerHTML = `
+          <div class="doc-prog-chip chip-empty" style="color: var(--text-muted); font-size: 0.8rem; border-style: dashed; padding: 6px 12px; border-radius: 8px;">
+            <i class="fa-solid fa-folder-open" style="margin-left: 5px;"></i> لا توجد جلسات مسجلة لهذا الشهر حتى الآن
+          </div>
+        `;
+      }
     }
+
     if (formulaHintEl) {
       const activeRates = [];
-      if (regRate > 0) activeRates.push(`عادية: ${regRate} ج.م`);
+      if (regRate > 0) activeRates.push(`عام: ${regRate} ج.م`);
       if (scolRate > 0) activeRates.push(`Scoliosis: ${scolRate} ج.م`);
       if (hemiRate > 0) activeRates.push(`Hemiplegia: ${hemiRate} ج.م`);
       if (quadRate > 0) activeRates.push(`Quadriplegia: ${quadRate} ج.م`);
 
       if (activeRates.length > 0) {
-        formulaHintEl.innerHTML = `أجر الجلسات: ` + activeRates.join(' • ');
+        formulaHintEl.innerHTML = `<i class="fa-solid fa-tag text-primary"></i> تسعيرة الجلسات المعتمدة: ` + activeRates.join(' • ');
       } else {
         formulaHintEl.innerHTML = `<span style="color: var(--text-muted);"><i class="fa-solid fa-circle-info"></i> لم يتم تحديد أسعار الجلسات بعد من قِبل إدارة المركز</span>`;
       }

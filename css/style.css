@@ -10936,3 +10936,263 @@ body.role-doctor .btn-quick-attend {
     font-size: 0.82rem;
   }
 }
+
+
+/* ======================================================== */
+/* Doctor Dashboard UI & Completed Cases Fixes (v2.2.2)     */
+/* ======================================================== */
+
+/* 1. Clinical Programs Dynamic Chips */
+.doc-programs-breakdown-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.doc-prog-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: 9px;
+  font-size: 0.82rem;
+  background: var(--bg-subtle);
+  border: 1px solid var(--border-color);
+  color: var(--text-main);
+  transition: all 0.2s ease;
+}
+
+.doc-prog-chip .doc-prog-icon {
+  font-size: 0.85rem;
+  color: var(--primary);
+}
+
+.doc-prog-chip.chip-regular {
+  background: rgba(2, 132, 199, 0.08);
+  border-color: rgba(2, 132, 199, 0.25);
+  color: var(--text-main);
+}
+.doc-prog-chip.chip-regular .doc-prog-icon {
+  color: var(--primary);
+}
+
+.doc-prog-chip.chip-scoliosis {
+  background: rgba(2, 132, 199, 0.12);
+  border-color: rgba(2, 132, 199, 0.35);
+  color: #0284c7;
+}
+
+.doc-prog-chip.chip-hemiplegia {
+  background: rgba(245, 158, 11, 0.12);
+  border-color: rgba(245, 158, 11, 0.35);
+  color: #b45309;
+}
+[data-theme="dark"] .doc-prog-chip.chip-hemiplegia {
+  color: #fbbf24;
+}
+
+.doc-prog-chip.chip-quadriplegia {
+  background: rgba(147, 51, 234, 0.12);
+  border-color: rgba(147, 51, 234, 0.35);
+  color: #7e22ce;
+}
+[data-theme="dark"] .doc-prog-chip.chip-quadriplegia {
+  color: #c084fc;
+}
+
+.doc-prog-chip.chip-other {
+  background: rgba(16, 185, 129, 0.1);
+  border-color: rgba(16, 185, 129, 0.3);
+  color: #059669;
+}
+
+[data-theme="dark"] .doc-prog-chip {
+  background: #1e293b;
+  border-color: #334155;
+  color: #f1f5f9;
+}
+
+/* 2. Doctor Dashboard Schedule Filter Bar (الحالات المتبقية vs المكتملة) */
+.doc-schedule-filter-bar {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+  background: var(--bg-subtle);
+  border: 1px solid var(--border-color);
+  padding: 4px;
+  border-radius: 12px;
+  margin-bottom: 14px;
+}
+
+[data-theme="dark"] .doc-schedule-filter-bar {
+  background: #0f172a;
+  border-color: #1e293b;
+}
+
+.filter-tab-pill {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  height: 42px;
+  border-radius: 9px;
+  cursor: pointer;
+  font-size: 0.86rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  user-select: none;
+}
+
+.filter-tab-pill:hover:not(.active) {
+  color: var(--text-main);
+  background: rgba(0, 0, 0, 0.03);
+}
+
+[data-theme="dark"] .filter-tab-pill:hover:not(.active) {
+  color: #f1f5f9;
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.filter-tab-pill.active {
+  background: var(--bg-surface);
+  color: var(--primary);
+  font-weight: 800;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+[data-theme="dark"] .filter-tab-pill.active {
+  background: #1e293b;
+  color: #38bdf8;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+}
+
+.filter-tab-pill .filter-count-badge {
+  font-size: 0.74rem;
+  font-weight: 800;
+  padding: 2px 8px;
+  border-radius: var(--radius-pill);
+  background: rgba(148, 163, 184, 0.2);
+  color: var(--text-muted);
+}
+
+.filter-tab-pill.active .filter-count-badge {
+  background: var(--primary-light);
+  color: var(--primary);
+}
+
+[data-theme="dark"] .filter-tab-pill.active .filter-count-badge {
+  background: rgba(2, 132, 199, 0.25);
+  color: #38bdf8;
+}
+
+/* 3. Patient Row & Action Buttons in Stack Deck */
+.doc-stack-patients-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.doc-stack-patient-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 14px;
+  border-radius: 11px;
+  background: var(--bg-subtle);
+  border: 1px solid var(--border-color);
+  transition: all 0.2s ease;
+}
+
+[data-theme="dark"] .doc-stack-patient-row {
+  background: rgba(30, 41, 59, 0.7);
+  border-color: #334155;
+}
+
+.doc-stack-patient-name {
+  font-size: 0.92rem;
+  font-weight: 800;
+  color: var(--text-main);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+[data-theme="dark"] .doc-stack-patient-name {
+  color: #f1f5f9;
+}
+
+.doc-stack-patient-details {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  margin-top: 3px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+[data-theme="dark"] .doc-stack-patient-details {
+  color: #94a3b8;
+}
+
+/* Undo Button (تراجع) */
+.btn-undo-patient {
+  background: rgba(245, 158, 11, 0.12);
+  color: #d97706;
+  border: 1px solid rgba(245, 158, 11, 0.35);
+  height: 32px;
+  padding: 0 10px;
+  border-radius: 8px;
+  font-size: 0.76rem;
+  font-weight: 700;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.btn-undo-patient:hover {
+  background: rgba(245, 158, 11, 0.22);
+  border-color: #d97706;
+  transform: translateY(-1px);
+}
+
+[data-theme="dark"] .btn-undo-patient {
+  background: rgba(245, 158, 11, 0.18);
+  color: #fbbf24;
+  border-color: rgba(245, 158, 11, 0.4);
+}
+[data-theme="dark"] .btn-undo-patient:hover {
+  background: rgba(245, 158, 11, 0.28);
+  border-color: #fbbf24;
+}
+
+/* Complete Button (تم) */
+.btn-complete-patient {
+  background: var(--success);
+  color: #ffffff;
+  border: none;
+  height: 34px;
+  padding: 0 14px;
+  border-radius: 8px;
+  font-size: 0.82rem;
+  font-weight: 800;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  box-shadow: 0 2px 6px rgba(16, 185, 129, 0.3);
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.btn-complete-patient:hover {
+  background: #059669;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 10px rgba(16, 185, 129, 0.4);
+}

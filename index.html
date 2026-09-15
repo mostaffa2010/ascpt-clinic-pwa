@@ -470,8 +470,8 @@
             </div>
           </div>
 
-          <!-- Doctor Monthly Earnings KPI Card (Card 5 - Added in v1.4.80) -->
-          <div class="card doc-earnings-kpi-card" id="card-doctor-monthly-earnings" style="margin-top: 14px; background: var(--bg-surface); border: 1.5px solid rgba(16, 185, 129, 0.35); border-radius: var(--radius-lg); padding: 14px 18px; box-shadow: var(--shadow-sm);">
+          <!-- Doctor Monthly Earnings KPI Card (Option 1: Clinical Programs & Dynamic Chips - v2.2.2) -->
+          <div class="card doc-earnings-kpi-card" id="card-doctor-monthly-earnings" style="margin-top: 14px; background: var(--bg-surface); border: 1.5px solid rgba(16, 185, 129, 0.35); border-radius: var(--radius-lg); padding: 16px; box-shadow: var(--shadow-sm);">
             <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
               <div style="display: flex; align-items: center; gap: 12px;">
                 <div class="stat-icon green" style="width: 48px; height: 48px; border-radius: 12px; font-size: 1.35rem; display: flex; align-items: center; justify-content: center; background: rgba(16, 185, 129, 0.14); color: var(--success);">
@@ -487,21 +487,21 @@
                 </div>
               </div>
 
-              <!-- Breakdown Badges -->
-              <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
-                <div style="background: var(--bg-subtle); border: 1px solid var(--border-color); border-radius: 8px; padding: 6px 12px; font-size: 0.82rem;">
-                  <span style="color: var(--text-muted); font-weight: 600;">جلسات عادية:</span>
-                  <strong style="color: var(--text-main); margin-right: 4px;" id="stat-doc-earnings-regular">0 جلسة (0 ج.م)</strong>
-                </div>
-                <div style="background: rgba(245, 158, 11, 0.08); border: 1px solid rgba(245, 158, 11, 0.35); border-radius: 8px; padding: 6px 12px; font-size: 0.82rem;">
-                  <span style="color: #b45309; font-weight: 700;"><i class="fa-solid fa-star" style="font-size: 0.74rem;"></i> جلسات خاصة:</span>
-                  <strong style="color: #b45309; margin-right: 4px;" id="stat-doc-earnings-special">0 جلسة (0 ج.م)</strong>
-                </div>
+              <!-- Total Month Sessions Badge -->
+              <div style="display: flex; align-items: center; gap: 8px;">
+                <span class="badge" id="stat-doc-month-total-sessions" style="background: rgba(2, 132, 199, 0.1); color: var(--primary); font-size: 0.82rem; font-weight: 800; padding: 6px 12px; border-radius: 999px; border: 1px solid rgba(2, 132, 199, 0.25); display: inline-flex; align-items: center; gap: 6px;">
+                  <i class="fa-solid fa-clipboard-check"></i> <span>0 جلسة منجزة هذا الشهر</span>
+                </span>
               </div>
             </div>
 
-            <div id="stat-doc-earnings-formula-hint" style="font-size: 0.75rem; color: var(--text-muted); margin-top: 10px; border-top: 1px dashed var(--border-color); padding-top: 6px;">
-              حساب الأتعاب: سعر الجلسة العادية 0 ج.م • سعر الجلسة الخاصة 0 ج.م
+            <!-- Dynamic Clinical Programs Chips Container -->
+            <div class="doc-programs-breakdown-row" id="stat-doc-programs-container" style="display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; padding-top: 10px; border-top: 1px dashed var(--border-color);">
+              <!-- Rendered dynamically: Only active clinical programs will appear -->
+            </div>
+
+            <div id="stat-doc-earnings-formula-hint" style="font-size: 0.76rem; color: var(--text-muted); margin-top: 10px; border-top: 1px dashed var(--border-color); padding-top: 6px;">
+              <!-- Rates hint / status -->
             </div>
           </div>
 

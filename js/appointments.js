@@ -870,7 +870,7 @@ export class AppointmentsManager {
                         <div class="doc-stack-patient-actions">
                           ${isDone ? `
                             <button type="button" class="btn-undo-patient" data-appt-id="${escapeHTML(a.id)}" data-patient-name="${escapeHTML(a.patientName)}" title="تراجع عن الإكمال">
-                              <i class="fa-solid fa-rotate-left"></i>
+                              <i class="fa-solid fa-rotate-left"></i> <span>تراجع</span>
                             </button>
                           ` : `
                             <button type="button" class="btn-complete-patient" data-appt-id="${escapeHTML(a.id)}" data-patient-name="${escapeHTML(a.patientName)}" title="تم إنهاء الجلسة">
