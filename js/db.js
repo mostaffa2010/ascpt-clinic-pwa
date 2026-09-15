@@ -770,6 +770,62 @@ class FirestoreDatabaseService {
     }
   }
 
+  async saveBatchSessions(sessionsList, currentUser) {
+    this.ensureConnected();
+    if (!Array.isArray(sessionsList) || sessionsList.length === 0) return [];
+
+    const nowIso = new Date().toISOString();
+    const timeStr = new Date().toLocaleTimeString('ar-EG-u-nu-latn', { hour: '2-digit', minute: '2-digit' });
+    const recBy = currentUser?.name || 'استقبال المركز';
+
+    const batch = writeBatch(firestoreDb);
+    const preparedSessions = [];
+
+    sessionsList.forEach((sessionData) => {
+      const sessionId = sessionData.id || doc(collection(firestoreDb, 'sessions')).id;
+      const dataToSave = {
+        ...sessionData,
+        id: sessionId,
+        recordedAt: sessionData.recordedAt || timeStr,
+        recordedBy: sessionData.recordedBy || recBy,
+        createdAt: sessionData.createdAt || nowIso,
+        lastEditedBy: recBy,
+        lastEditedAt: timeStr
+      };
+
+      const ref = doc(firestoreDb, 'sessions', sessionId);
+      batch.set(ref, dataToSave, { merge: true });
+      preparedSessions.push(dataToSave);
+
+      // In-memory caches update (0 reads)
+      this._sessionDocCache.set(sessionId, dataToSave);
+      if (dataToSave.date) {
+        this._sessionsByDateCache.delete(dataToSave.date);
+        this._sessionsByDateCache.delete(dataToSave.date.substring(0, 7));
+      }
+      if (dataToSave.patientId) {
+        this._sessionsByPatientCache.delete(dataToSave.patientId);
+      }
+      if (this._sessionsCache) {
+        const idx = this._sessionsCache.findIndex((s) => s.id === sessionId);
+        if (idx !== -1) {
+          this._sessionsCache[idx] = { ...this._sessionsCache[idx], ...dataToSave };
+        } else {
+          this._sessionsCache.unshift(dataToSave);
+        }
+      }
+    });
+
+    try {
+      await batch.commit();
+      this._sessionsLastFetch = Date.now();
+      return preparedSessions;
+    } catch (err) {
+      console.error('Firestore saveBatchSessions error:', err);
+      throw new Error('فشل حفظ حزمة الجلسات في قاعدة البيانات.');
+    }
+  }
+
   async deleteSession(sessionId) {
     this.ensureConnected();
     try {
