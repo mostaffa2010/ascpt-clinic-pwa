@@ -752,7 +752,7 @@ class App {
             const pid = this.patientsManager.activeDocsPatientId;
             this.patientsManager.openedFromDocs = false;
             this.closeModal(modalId);
-            this.patientsManager.openPatientDocsModal(pid);
+            this.patientsManager.openPatientDocsModal(pid, { noSlide: true, alreadyInHistory: true });
             return;
           }
           this.closeModal(modalId);
@@ -976,11 +976,11 @@ class App {
         if (subModals.includes(topModal.id) && this.patientsManager?.openedFromDocs && this.patientsManager?.activeDocsPatientId) {
           const pid = this.patientsManager.activeDocsPatientId;
           this.patientsManager.openedFromDocs = false;
-          this.closeModal(topModal.id);
-          this.patientsManager.openPatientDocsModal(pid);
+          this.closeModal(topModal.id, { isFromPopstate: true });
+          this.patientsManager.openPatientDocsModal(pid, { noSlide: true, alreadyInHistory: true });
           return;
         }
-        this.closeModal(topModal.id);
+        this.closeModal(topModal.id, { isFromPopstate: true });
         return;
       }
 
@@ -1780,29 +1780,22 @@ class App {
         'modal-custom-dialog',
         'modal-custom-picker',
         'modal-custom-calendar',
-        'modal-custom-month-picker',
-        'modal-patient-docs',
-        'modal-whatsapp-templates',
-        'modal-batch-home-visits',
-        'modal-cash-receipt',
-        'modal-medical-statement',
-        'modal-renew-approval',
-        'modal-insurance-letter'
+        'modal-custom-month-picker'
       ];
-      if (!transientModals.includes(modalId)) {
+      if (!transientModals.includes(modalId) && !options.alreadyInHistory) {
         history.pushState({ modal: modalId, view: this.currentView }, '');
       }
     }
   }
 
-  closeModal(modalId) {
+  closeModal(modalId, options = {}) {
     const modal = document.getElementById(modalId);
     if (modal) {
       modal.classList.remove('active');
       modal.classList.remove('modal-no-slide');
     }
     document.body.classList.remove('modal-open');
-    if (history.state && history.state.modal === modalId) {
+    if (!options.isFromPopstate && !options.keepHistory && history.state && history.state.modal === modalId) {
       history.back();
     }
   }

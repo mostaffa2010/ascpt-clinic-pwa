@@ -2787,7 +2787,7 @@ export class PatientsManager {
   }
 
   // ================= Patient Documents Hub (نافذة المستندات والطباعة) =================
-  openPatientDocsModal(patientId) {
+  openPatientDocsModal(patientId, options = {}) {
     const p = this.patients.find(item => item.id === patientId);
     if (!p) return;
 
@@ -2861,7 +2861,7 @@ export class PatientsManager {
       `;
     }
 
-    this.app.openModal('modal-patient-docs');
+    this.app.openModal('modal-patient-docs', options);
   }
 
   openInsuranceLetterFromRow(patientId) {
@@ -4000,7 +4000,7 @@ export class PatientsManager {
     if (refInput) refInput.value = '';
 
     this.renderBatchHvDates();
-    this.app.closeModal('modal-patient-docs');
+    this.app.closeModal('modal-patient-docs', { keepHistory: true });
     this.app.openModal('modal-batch-home-visits', { noSlide: true });
   }
 
