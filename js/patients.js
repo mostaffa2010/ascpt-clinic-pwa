@@ -2809,12 +2809,6 @@ export class PatientsManager {
     const container = document.getElementById('p-docs-actions-container');
     if (!container) return;
 
-    // Prevent ghost clicks (touch bleed-through) when opening or returning from sub-modals
-    container.style.pointerEvents = 'none';
-    setTimeout(() => {
-      if (container) container.style.pointerEvents = 'auto';
-    }, 280);
-
     if (!isIns) {
       // Cash Patient Actions
       container.innerHTML = `
