@@ -5,7 +5,7 @@
 // True Offline Navigation & Fault-Tolerant Cache Architecture
 // ========================================================
 
-const CACHE_NAME = 'ascpt-clinic-v2.2.0';
+const CACHE_NAME = 'ascpt-clinic-v2.2.1';
 
 // Core App Shell assets required for offline rendering
 const APP_SHELL_ASSETS = [

@@ -1798,29 +1798,45 @@
           
         </div>
         <div class="card" id="card-main-appointments-schedule">
-          <div class="card-header" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; padding: 12px 16px;">
-            <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
-              <span class="card-title" style="margin: 0;"><i class="fa-solid fa-calendar-days text-primary"></i> جدول مواعيد المركز</span>
-              <button type="button" class="btn btn-primary btn-sm" id="btn-book-new-appt" style="font-weight: 800; font-size: 0.8rem; padding: 5px 12px; border-radius: 8px; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;">
-                <i class="fa-solid fa-calendar-plus"></i> تثبيت حجز مريض جديد
-              </button>
-              <button type="button" class="btn btn-outline btn-sm" id="btn-add-new-slot" style="color: var(--text-muted); border-color: var(--border-color); font-weight: 700; font-size: 0.76rem; padding: 4px 10px; border-radius: 8px; cursor: pointer;" title="تعديل أو إضافة أوقات الفترات">
-                <i class="fa-regular fa-clock"></i> فترات الساعات
-              </button>
-              <button type="button" class="btn btn-outline btn-sm" id="btn-open-shift-coverage" style="color: var(--success); border-color: rgba(16, 185, 129, 0.4); font-weight: 800; font-size: 0.76rem; padding: 4px 10px; border-radius: 8px; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;" title="تسجيل تغطية شيفت استثنائي لطبيب">
-                <i class="fa-solid fa-user-clock"></i> <span>تغطية شيفت</span>
-              </button>
-            </div>
-            <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
-              <div class="btn-group-segmented" style="display: inline-flex; background: var(--bg-subtle); padding: 3px; border-radius: 10px; border: 1px solid var(--border-color);">
-                <button type="button" class="btn-segmented active" id="btn-view-mode-daily" style="font-size: 0.76rem; font-weight: 800; padding: 4px 10px; border-radius: 7px;">
-                  <i class="fa-solid fa-calendar-day"></i> اليوم التشغيلي
+          <!-- Premium Redesigned Header Toolbar (v2.2.1) -->
+          <div class="appt-hero-header">
+            <!-- Row 1: Title + Capacity Badge + Utility Buttons -->
+            <div class="appt-hero-top-row">
+              <div class="appt-title-group">
+                <span class="appt-main-title"><i class="fa-solid fa-calendar-days text-primary"></i> جدول مواعيد المركز</span>
+                <span class="appt-capacity-pill" id="appt-bed-count-badge">
+                  <i class="fa-solid fa-bed"></i> ٦ أسرة / موعد
+                </span>
+              </div>
+              <div class="appt-utility-tools">
+                <button type="button" class="appt-tool-btn" id="btn-open-shift-coverage" title="تسجيل تغطية شيفت استثنائي لطبيب">
+                  <i class="fa-solid fa-user-clock text-success"></i>
+                  <span>تغطية شيفت</span>
                 </button>
-                <button type="button" class="btn-segmented" id="btn-view-mode-weekly" style="font-size: 0.76rem; font-weight: 800; padding: 4px 10px; border-radius: 7px;">
-                  <i class="fa-solid fa-table-cells"></i> الجدول الأسبوعي العام
+                <button type="button" class="appt-tool-btn" id="btn-add-new-slot" title="تعديل أو إضافة فترات الساعات">
+                  <i class="fa-regular fa-clock text-primary"></i>
+                  <span>فترات الساعات</span>
                 </button>
               </div>
-              <span class="badge" style="background: #e0f2fe; color: #0284c7; font-weight: 800; font-size: 0.8rem;" id="appt-bed-count-badge">سعة المواعيد: ٦ أسرة</span>
+            </div>
+
+            <!-- Row 2: Action Button & Segmented View Switcher -->
+            <div class="appt-hero-actions-row">
+              <button type="button" class="btn btn-primary appt-primary-cta-btn" id="btn-book-new-appt">
+                <i class="fa-solid fa-calendar-plus"></i>
+                <span>تثبيت حجز مريض جديد</span>
+              </button>
+
+              <div class="appt-view-tabs-track">
+                <button type="button" class="appt-tab-btn active" id="btn-view-mode-daily">
+                  <i class="fa-solid fa-calendar-day"></i>
+                  <span>اليوم التشغيلي</span>
+                </button>
+                <button type="button" class="appt-tab-btn" id="btn-view-mode-weekly">
+                  <i class="fa-solid fa-table-cells"></i>
+                  <span>الجدول الأسبوعي العام</span>
+                </button>
+              </div>
             </div>
           </div>
           <div style="padding: 14px 16px;">
