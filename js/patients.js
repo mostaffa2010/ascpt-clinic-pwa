@@ -107,6 +107,19 @@ export class PatientsManager {
     }
 
     // Batch Home Visits Modal Event Bindings
+    // Session Type Selection: Home Visits vs Clinic Batch
+    document.querySelectorAll('input[name="batch-session-type"]').forEach((radio) => {
+      radio.addEventListener('change', (e) => {
+        this.setBatchSessionType(e.target.value);
+      });
+    });
+    document.getElementById('btn-type-home-visit')?.addEventListener('click', () => {
+      this.setBatchSessionType('home_visit');
+    });
+    document.getElementById('btn-type-clinic-batch')?.addEventListener('click', () => {
+      this.setBatchSessionType('clinic_batch');
+    });
+
     document.querySelectorAll('.btn-batch-pattern').forEach((btn) => {
       btn.addEventListener('click', (e) => {
         document.querySelectorAll('.btn-batch-pattern').forEach((b) => b.classList.remove('active'));
@@ -2820,11 +2833,18 @@ export class PatientsManager {
             <small style="color: var(--text-muted); font-weight: 600; font-size: 0.74rem;">خطاب رسمي لشركة التأمين بطلب تجديد الجلسات</small>
           </div>
         </button>
-        <button type="button" class="btn btn-outline" onclick="patientsManager.openBatchHomeVisitsModal('${p.id}')" style="justify-content: flex-start; padding: 12px 16px; border-radius: 10px; font-weight: 800; font-size: 0.95rem; gap: 12px; border-color: var(--border-color); background: var(--bg-surface);">
-          <i class="fa-solid fa-house-medical-circle-check" style="font-size: 1.3rem; color: #059669;"></i>
+        <button type="button" class="btn btn-outline" onclick="patientsManager.openBatchHomeVisitsModal('${p.id}', 'clinic_batch')" style="justify-content: flex-start; padding: 12px 16px; border-radius: 10px; font-weight: 800; font-size: 0.95rem; gap: 12px; border-color: var(--border-color); background: var(--bg-surface);">
+          <i class="fa-solid fa-hospital-user text-primary" style="font-size: 1.3rem;"></i>
           <div style="text-align: right;">
-            <div>تسجيل جواب زيارات منزلية / جلسات مجمعة</div>
-            <small style="color: var(--text-muted); font-weight: 600; font-size: 0.74rem;">تسجيل تواريخ جلسات الجواب المنتهية دفعة واحدة لمطالبات التأمين</small>
+            <div>تسجيل جواب جلسات مجمعة (بالمركز)</div>
+            <small style="color: var(--text-muted); font-weight: 600; font-size: 0.74rem;">تسجيل حزمة جلسات حضور بالمركز دفعة واحدة لجواب التأمين</small>
+          </div>
+        </button>
+        <button type="button" class="btn btn-outline" onclick="patientsManager.openBatchHomeVisitsModal('${p.id}', 'home_visit')" style="justify-content: flex-start; padding: 12px 16px; border-radius: 10px; font-weight: 800; font-size: 0.95rem; gap: 12px; border-color: var(--border-color); background: var(--bg-surface);">
+          <i class="fa-solid fa-house-chimney-medical" style="font-size: 1.3rem; color: #059669;"></i>
+          <div style="text-align: right;">
+            <div>تسجيل جواب زيارات منزلية (Home Visits)</div>
+            <small style="color: var(--text-muted); font-weight: 600; font-size: 0.74rem;">تسجيل دفعة زيارات منزلية معتمدة لجواب التأمين</small>
           </div>
         </button>
       `;
@@ -3837,7 +3857,61 @@ export class PatientsManager {
 
 
   // ================= Batch Home Visits Methods (جوابات التأمين والزيارات المنزلية) =================
-  async openBatchHomeVisitsModal(patientId) {
+  setBatchSessionType(type) {
+    this.batchSessionType = type; // 'home_visit' | 'clinic_batch'
+    const isHome = (type === 'home_visit');
+
+    const radioHome = document.querySelector('input[name="batch-session-type"][value="home_visit"]');
+    const radioClinic = document.querySelector('input[name="batch-session-type"][value="clinic_batch"]');
+    if (radioHome && isHome) radioHome.checked = true;
+    if (radioClinic && !isHome) radioClinic.checked = true;
+
+    const btnHome = document.getElementById('btn-type-home-visit');
+    const btnClinic = document.getElementById('btn-type-clinic-batch');
+
+    if (btnHome && btnClinic) {
+      if (isHome) {
+        btnHome.style.border = '1.5px solid #059669';
+        btnHome.style.background = 'rgba(5, 150, 105, 0.12)';
+        btnHome.style.color = '#059669';
+
+        btnClinic.style.border = '1.5px solid var(--border-color)';
+        btnClinic.style.background = 'var(--bg-surface)';
+        btnClinic.style.color = 'var(--text-muted)';
+      } else {
+        btnClinic.style.border = '1.5px solid var(--primary)';
+        btnClinic.style.background = 'rgba(2, 132, 199, 0.12)';
+        btnClinic.style.color = 'var(--primary)';
+
+        btnHome.style.border = '1.5px solid var(--border-color)';
+        btnHome.style.background = 'var(--bg-surface)';
+        btnHome.style.color = 'var(--text-muted)';
+      }
+    }
+
+    const titleEl = document.getElementById('modal-batch-title-text');
+    if (titleEl) {
+      titleEl.innerHTML = isHome
+        ? '<i class="fa-solid fa-house-chimney-medical" style="color: #059669;"></i> <span>تسجيل جواب زيارات منزلية</span>'
+        : '<i class="fa-solid fa-hospital-user text-primary"></i> <span>تسجيل جلسات مجمعة بالمركز</span>';
+    }
+
+    const docLabel = document.getElementById('batch-hv-doc-label');
+    if (docLabel) {
+      docLabel.innerHTML = isHome
+        ? '<i class="fa-solid fa-user-doctor text-primary"></i> الطبيب المعالج (الذي أجرى الزيارات) <span class="required-star">*</span>'
+        : '<i class="fa-solid fa-user-doctor text-primary"></i> الطبيب المعالج بالمركز <span class="required-star">*</span>';
+    }
+
+    const preLabel = document.getElementById('batch-hv-presettled-label');
+    if (preLabel) {
+      preLabel.textContent = isHome
+        ? 'زيارات سابقة تم تسويتها مسبقاً مع الطبيب (أرشيف قبل سبتمبر - لا تُحسب في المستحقات الحالية)'
+        : 'جلسات سابقة مسواة مسبقاً (أرشيف قبل سبتمبر - لا تُحسب في مستحقات الطبيب الحالية)';
+    }
+  }
+
+  async openBatchHomeVisitsModal(patientId, defaultType = 'home_visit') {
     this.app.closeModal('modal-patient-docs');
     const p = this.patients.find((item) => item.id === patientId);
     if (!p) return;
@@ -3845,25 +3919,45 @@ export class PatientsManager {
     this.activeBatchPatient = p;
     this.batchHvDates = [];
     this.batchHvSelectedPattern = 'sat_mon_wed';
+    this.batchSessionType = defaultType;
 
     const nameEl = document.getElementById('batch-hv-patient-name');
     if (nameEl) nameEl.textContent = p.name;
 
     const infoEl = document.getElementById('batch-hv-patient-info');
+    const isIns = p.billing === 'insurance';
     const cType = p.contractType === 'indirect' ? 'غير مباشر' : 'مباشر';
     if (infoEl) {
-      infoEl.textContent = `${p.insuranceCompany || 'شركة التأمين'} (${cType}) • السن: ${p.age || '-'} سنة`;
+      infoEl.textContent = isIns
+        ? `${p.insuranceCompany || 'شركة التأمين'} (${cType}) • السن: ${p.age || '-'} سنة`
+        : `مريض نقدي • كود: ${p.id.slice(-5)} • السن: ${p.age || '-'} سنة`;
     }
 
-    // Populate Doctor Dropdown
+    const badge = document.getElementById('batch-hv-patient-badge');
+    if (badge) {
+      badge.className = `badge ${isIns ? 'badge-direct' : 'badge-cash'}`;
+      badge.textContent = isIns ? 'تأمين' : 'نقدي';
+    }
+
+    // Set and sync batch session type (Home vs Clinic)
+    this.setBatchSessionType(defaultType);
+
+    // Populate Doctor Dropdown with full doctor objects
     const docSelect = document.getElementById('batch-hv-doctor');
     if (docSelect) {
-      const doctors = await db.getDoctors();
-      docSelect.innerHTML = '<option value="">-- اضغط لاختيار الطبيب المعالج --</option>' + (doctors || []).map((d) => {
-        const clean = (d.name || '').replace(/^د\.\s*/, '');
+      const doctorObjects = await db.getDoctorsList();
+      docSelect.innerHTML = '<option value="">-- اضغط لاختيار الطبيب المعالج --</option>' + (doctorObjects || []).map((d) => {
+        const cleanName = (d.name || '').trim();
         const isSel = (p.doctorId && d.uid === p.doctorId) ? 'selected' : '';
-        return `<option value="${escapeHTML(d.uid)}" data-name="${escapeHTML(d.name)}" ${isSel}>د. ${escapeHTML(clean)}</option>`;
+        return `<option value="${escapeHTML(d.uid)}" data-name="${escapeHTML(cleanName)}" ${isSel}>${escapeHTML(cleanName)}</option>`;
       }).join('');
+
+      if (p.doctorId && doctorObjects.some((d) => d.uid === p.doctorId)) {
+        docSelect.value = p.doctorId;
+      } else {
+        docSelect.value = '';
+      }
+
       if (this.app?.updateCustomSelectDisplay) {
         this.app.updateCustomSelectDisplay('batch-hv-doctor');
       }
@@ -4022,8 +4116,10 @@ export class PatientsManager {
       saveBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> جاري تسجيل الجلسات...';
     }
 
+    const isHome = (this.batchSessionType === 'home_visit');
     const sessionsToCreate = this.batchHvDates.map((dateStr) => {
       const preSettledFlag = isPreSettled || (dateStr < '2026-09-01');
+      const labelType = isHome ? 'زيارة منزلية' : 'جلسات مجمعة بالمركز';
 
       return {
         patientId: p.id,
@@ -4031,20 +4127,20 @@ export class PatientsManager {
         doctor: doctorName,
         doctorUid: doctorUid,
         date: dateStr,
-        payType: 'insurance',
-        billing: 'insurance',
+        payType: p.billing || 'insurance',
+        billing: p.billing || 'insurance',
         contractType: p.contractType || 'direct',
-        insuranceName: p.insuranceCompany || 'تأمين',
+        insuranceName: p.insuranceCompany || (p.billing === 'cash' ? 'نقدي' : 'تأمين'),
         programType: p.programType || p.clinicalSheet?.programType || 'regular',
         sessionPricingType: p.programType || 'regular',
         bodyParts: p.treatedParts || p.clinicalSheet?.treatedParts || [],
         bodyPartsCount: (p.treatedParts && p.treatedParts.length) || p.approvedBodyParts || 1,
         amountPaid: 0,
-        isHomeVisit: true,
-        visitType: 'home',
+        isHomeVisit: isHome,
+        visitType: isHome ? 'home' : 'clinic',
         isPreSettled: preSettledFlag,
         letterRef: letterRef,
-        notes: `زيارة منزلية - جواب تأمين${letterRef ? ` (${letterRef})` : ''}${preSettledFlag ? ' • مسواة مسبقاً' : ''}`
+        notes: `${labelType} - جواب تأمين${letterRef ? ` (${letterRef})` : ''}${preSettledFlag ? ' • مسواة مسبقاً' : ''}`
       };
     });
 
@@ -4053,7 +4149,10 @@ export class PatientsManager {
       await db.saveBatchSessions(sessionsToCreate, currentUser);
 
       this.app.closeModal('modal-batch-home-visits');
-      this.app.showToast(`تم بنجاح تسجيل جواب الزيارات المنزلية (${sessionsToCreate.length} جلسة) للمريض ${p.name}`);
+      this.app.showToast(isHome
+        ? `تم بنجاح تسجيل جواب الزيارات المنزلية (${sessionsToCreate.length} زيارة) للمريض ${p.name}`
+        : `تم بنجاح تسجيل الجلسات المجمعة بالمركز (${sessionsToCreate.length} جلسة) للمريض ${p.name}`
+      );
       this.activeBatchPatient = null;
       this.batchHvDates = [];
     } catch (err) {

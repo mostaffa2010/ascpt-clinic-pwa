@@ -190,7 +190,7 @@ class App {
     try { await this.appointmentsManager.init(); } catch (e) { console.warn('appointmentsManager init notice:', e); }
 
     // مزامنة أزرار القوائم المخصصة
-    ['claim-company-select', 'patient-filter-type', 'session-doctor-select', 'finance-doctor-filter', 'newuser-role', 'p-gender', 'p-approved-body-parts', 'renew-approved-body-parts', 'appt-doctor-select'].forEach(id => {
+    ['claim-company-select', 'patient-filter-type', 'session-doctor-select', 'finance-doctor-filter', 'newuser-role', 'p-gender', 'p-approved-body-parts', 'renew-approved-body-parts', 'appt-doctor-select', 'batch-hv-doctor'].forEach(id => {
       this.updateCustomSelectDisplay(id);
     });
 
@@ -1418,7 +1418,7 @@ class App {
     if (textSpan) {
       const selectedOpt = select.options[select.selectedIndex];
       if (!selectedOpt || !selectedOpt.value) {
-        if (selectId === 'session-doctor-select' || selectId === 'appt-doctor-select') {
+        if (selectId === 'session-doctor-select' || selectId === 'appt-doctor-select' || selectId === 'batch-hv-doctor') {
           textSpan.textContent = '-- اضغط لاختيار الطبيب المعالج --';
         } else {
           textSpan.textContent = selectedOpt ? selectedOpt.text : '-- اختر --';
@@ -1819,7 +1819,17 @@ class App {
     // Sync custom button displays
     this.updateCustomSelectDisplay('p-doctor');
     this.updateCustomSelectDisplay('session-doctor-select');
+    const batchDoc = document.getElementById('batch-hv-doctor');
+    if (batchDoc) {
+      const prev = batchDoc.value;
+      batchDoc.innerHTML = `<option value="">-- اضغط لاختيار الطبيب المعالج --</option>` + doctorObjects.map(d =>
+        `<option value="${escapeHTML(d.uid)}" data-name="${escapeHTML(d.name)}">${escapeHTML(d.name)}</option>`
+      ).join('');
+      batchDoc.value = (prev && doctorObjects.some(d => d.uid === prev)) ? prev : '';
+    }
+
     this.updateCustomSelectDisplay('appt-doctor-select');
+    this.updateCustomSelectDisplay('batch-hv-doctor');
     this.updateCustomSelectDisplay('finance-doctor-filter');
   }
 

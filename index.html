@@ -2597,17 +2597,20 @@
     </div>
   </div>
 
-  <!-- Modal: Batch Home Visits & Insurance Package Entry (تسجيل جواب زيارات منزلية - v2.2.7) -->
+  <!-- Modal: Batch Sessions & Home Visits Entry (تسجيل الجلسات المجمعة والزيارات المنزلية - v2.2.7) -->
   <div class="modal-backdrop" id="modal-batch-home-visits" style="z-index: 220;">
-    <div class="modal-content" style="max-width: 560px;">
-      <div class="modal-header">
-        <h3><i class="fa-solid fa-house-medical-circle-check" style="color: #059669;"></i> تسجيل جواب زيارات منزلية لمريض تأمين</h3>
+    <div class="modal-content" style="max-width: 540px; border-radius: 18px; overflow: hidden; box-shadow: 0 20px 40px rgba(0,0,0,0.35);">
+      <div class="modal-header" style="padding: 14px 18px; border-bottom: 1.5px solid var(--border-color); background: var(--bg-subtle);">
+        <h3 id="modal-batch-title-text" style="font-size: 1.05rem; font-weight: 800; margin: 0; display: flex; align-items: center; gap: 8px;">
+          <i class="fa-solid fa-house-chimney-medical" style="color: #059669;"></i>
+          <span>تسجيل جواب زيارات منزلية</span>
+        </h3>
         <button type="button" class="modal-close" data-close-modal="modal-batch-home-visits">&times;</button>
       </div>
       <form id="form-batch-home-visits" novalidate>
         <div class="modal-body" style="padding: 16px; max-height: 75vh; overflow-y: auto;">
           <!-- Patient Summary Strip -->
-          <div style="background: var(--bg-subtle); border-radius: 10px; padding: 12px; margin-bottom: 14px; border: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
+          <div style="background: var(--bg-subtle); border-radius: 12px; padding: 12px 14px; margin-bottom: 14px; border: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; gap: 8px;">
             <div>
               <div style="font-weight: 800; font-size: 1.05rem; color: var(--text-main);" id="batch-hv-patient-name">-</div>
               <div style="font-size: 0.82rem; color: var(--text-muted); margin-top: 2px;" id="batch-hv-patient-info">-</div>
@@ -2615,49 +2618,87 @@
             <span id="batch-hv-patient-badge" class="badge badge-direct">تأمين</span>
           </div>
 
-          <!-- Doctor Selector -->
-          <div class="form-group" style="margin-bottom: 12px;">
-            <label for="batch-hv-doctor" style="font-weight: 800; font-size: 0.85rem;">الطبيب المعالج (الذي أجرى الزيارات) *</label>
-            <select id="batch-hv-doctor" class="form-control" required style="height: 40px; font-weight: 700;">
-              <!-- Populated dynamically -->
-            </select>
+          <!-- Type Selector: Home Visits vs Clinic Batch -->
+          <div class="form-group" style="margin-bottom: 14px;">
+            <label style="font-weight: 800; font-size: 0.85rem; margin-bottom: 6px; display: block;">
+              <i class="fa-solid fa-layer-group text-primary"></i> نوع الجلسات المطلوب تسجيلها <span class="required-star">*</span>
+            </label>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+              <label class="segmented-option" style="margin: 0; cursor: pointer;">
+                <input type="radio" name="batch-session-type" value="home_visit" checked style="display: none;">
+                <div class="segmented-btn" id="btn-type-home-visit" style="padding: 10px 8px; text-align: center; font-weight: 800; font-size: 0.85rem; border-radius: 10px; display: flex; align-items: center; justify-content: center; gap: 6px; border: 1.5px solid #059669; background: rgba(5, 150, 105, 0.12); color: #059669; transition: all 0.2s ease;">
+                  <i class="fa-solid fa-house-chimney-medical"></i> <span>زيارات منزلية</span>
+                </div>
+              </label>
+              <label class="segmented-option" style="margin: 0; cursor: pointer;">
+                <input type="radio" name="batch-session-type" value="clinic_batch" style="display: none;">
+                <div class="segmented-btn" id="btn-type-clinic-batch" style="padding: 10px 8px; text-align: center; font-weight: 800; font-size: 0.85rem; border-radius: 10px; display: flex; align-items: center; justify-content: center; gap: 6px; border: 1.5px solid var(--border-color); background: var(--bg-surface); color: var(--text-muted); transition: all 0.2s ease;">
+                  <i class="fa-solid fa-hospital-user"></i> <span>جلسات مجمعة (بالمركز)</span>
+                </div>
+              </label>
+            </div>
+          </div>
+
+          <!-- Doctor Selector (Custom App Picker) -->
+          <div class="form-group form-group-modern" style="margin-bottom: 14px;">
+            <label for="batch-hv-doctor" class="modern-field-label" id="batch-hv-doc-label">
+              <i class="fa-solid fa-user-doctor text-primary"></i> الطبيب المعالج <span class="required-star">*</span>
+            </label>
+            <div class="custom-select-wrapper">
+              <select id="batch-hv-doctor" class="form-control d-none" required></select>
+              <button type="button" class="custom-select-btn modern-select-btn" id="btn-select-batch-hv-doctor" data-open-picker="batch-hv-doctor" data-picker-title="اختر الطبيب المعالج" style="min-height: 44px; width: 100%; display: flex; align-items: center; justify-content: space-between; padding: 0 14px; font-weight: 700; font-size: 0.9rem; border-radius: 10px; border: 1.5px solid var(--border-color); background: var(--bg-surface); color: var(--text-main);">
+                <span class="select-btn-val">
+                  <span class="btn-text">-- اضغط لاختيار الطبيب المعالج --</span>
+                </span>
+                <i class="fa-solid fa-chevron-down custom-select-arrow" style="color: var(--text-muted);"></i>
+              </button>
+            </div>
           </div>
 
           <!-- Pattern Generator Box -->
-          <div style="background: rgba(2, 132, 199, 0.05); border: 1.5px solid rgba(2, 132, 199, 0.25); border-radius: 12px; padding: 14px; margin-bottom: 14px;">
+          <div style="background: rgba(2, 132, 199, 0.05); border: 1.5px solid rgba(2, 132, 199, 0.25); border-radius: 14px; padding: 14px; margin-bottom: 14px;">
             <div style="font-weight: 800; font-size: 0.9rem; color: var(--primary); margin-bottom: 10px; display: flex; align-items: center; gap: 6px;">
               <i class="fa-solid fa-wand-magic-sparkles"></i>
               <span>توليد التواريخ تلقائياً بنمط الجلسات</span>
             </div>
 
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px;">
-              <div class="form-group" style="margin: 0;">
-                <label for="batch-hv-count" style="font-weight: 700; font-size: 0.8rem;">عدد جلسات الجواب *</label>
-                <input type="number" id="batch-hv-count" class="form-control" min="1" max="50" value="12" style="height: 38px; font-weight: 800; text-align: center;">
+              <div class="form-group form-group-modern" style="margin: 0;">
+                <label for="batch-hv-count" class="modern-field-label">
+                  <i class="fa-solid fa-hashtag text-primary"></i> عدد الجلسات <span class="required-star">*</span>
+                </label>
+                <div class="modern-input-wrapper">
+                  <input type="number" id="batch-hv-count" class="form-control modern-input" min="1" max="50" value="12" style="font-weight: 800; text-align: center; height: 42px;" inputmode="numeric">
+                </div>
               </div>
-              <div class="form-group" style="margin: 0;">
-                <label for="batch-hv-start-date" style="font-weight: 700; font-size: 0.8rem;">تاريخ أول جلسة *</label>
-                <input type="date" id="batch-hv-start-date" class="form-control" style="height: 38px; font-weight: 700;">
+              <div class="form-group form-group-modern" style="margin: 0;">
+                <label for="batch-hv-start-date" class="modern-field-label">
+                  <i class="fa-solid fa-calendar-day text-primary"></i> أول جلسة <span class="required-star">*</span>
+                </label>
+                <div class="modern-input-wrapper">
+                  <i class="fa-regular fa-calendar modern-input-icon"></i>
+                  <input type="text" id="batch-hv-start-date" readonly class="form-control modern-input date-picker-clickable" required data-open-calendar="batch-hv-start-date" placeholder="اختر التاريخ..." style="font-weight: 700; height: 42px; cursor: pointer;">
+                </div>
               </div>
             </div>
 
             <div class="form-group" style="margin-bottom: 10px;">
-              <label style="font-weight: 700; font-size: 0.8rem; margin-bottom: 4px; display: block;">نمط أيام الحضور الأسبوعي:</label>
-              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px;">
-                <button type="button" class="btn btn-outline btn-sm btn-batch-pattern active" data-pattern="sat_mon_wed" id="btn-batch-pattern-sat" style="padding: 6px; font-size: 0.78rem; font-weight: 700; border-radius: 8px;">السبت • الإثنين • الأربعاء</button>
-                <button type="button" class="btn btn-outline btn-sm btn-batch-pattern" data-pattern="sun_tue_thu" id="btn-batch-pattern-sun" style="padding: 6px; font-size: 0.78rem; font-weight: 700; border-radius: 8px;">الأحد • الثلاثاء • الخميس</button>
+              <label style="font-weight: 700; font-size: 0.8rem; margin-bottom: 6px; display: block; color: var(--text-muted);">نمط أيام الحضور الأسبوعي:</label>
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+                <button type="button" class="btn btn-outline btn-sm btn-batch-pattern active" data-pattern="sat_mon_wed" id="btn-batch-pattern-sat" style="padding: 8px; font-size: 0.8rem; font-weight: 800; border-radius: 8px; justify-content: center;">السبت • الإثنين • الأربعاء</button>
+                <button type="button" class="btn btn-outline btn-sm btn-batch-pattern" data-pattern="sun_tue_thu" id="btn-batch-pattern-sun" style="padding: 8px; font-size: 0.8rem; font-weight: 800; border-radius: 8px; justify-content: center;">الأحد • الثلاثاء • الخميس</button>
               </div>
             </div>
 
-            <button type="button" class="btn btn-primary btn-sm" id="btn-generate-batch-hv-dates" style="width: 100%; height: 38px; font-weight: 800; font-size: 0.88rem; justify-content: center; gap: 8px; border-radius: 8px;">
-              <i class="fa-solid fa-calculator"></i> توليد قائمة التواريخ (مع استبعاد الجمعة)
+            <button type="button" class="btn btn-primary btn-sm" id="btn-generate-batch-hv-dates" style="width: 100%; height: 40px; font-weight: 800; font-size: 0.88rem; justify-content: center; gap: 8px; border-radius: 10px;">
+              <i class="fa-solid fa-calculator"></i> توليد قائمة التواريخ (استبعاد الجمعة)
             </button>
           </div>
 
           <!-- Generated Dates List Container -->
           <div class="form-group" style="margin-bottom: 14px;">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
-              <label style="font-weight: 800; font-size: 0.85rem;">
+              <label style="font-weight: 800; font-size: 0.85rem; margin: 0;">
                 تواريخ الجلسات المعتمدة (<span id="batch-hv-dates-count">0</span> جلسة)
               </label>
               <small style="color: var(--text-muted); font-size: 0.75rem;">(اضغط ✕ لحذف أي تاريخ)</small>
@@ -2667,34 +2708,41 @@
             </div>
           </div>
 
-          <!-- Manual Add Single Date -->
+          <!-- Manual Add Single Date (Custom App Calendar) -->
           <div style="display: flex; gap: 8px; align-items: center; margin-bottom: 14px;">
-            <input type="date" id="batch-hv-manual-date" class="form-control" style="height: 36px; font-size: 0.85rem; flex: 1;">
-            <button type="button" class="btn btn-outline btn-sm" id="btn-add-batch-hv-single-date" style="height: 36px; font-weight: 700; font-size: 0.82rem; white-space: nowrap; border-radius: 8px;">
+            <div class="modern-input-wrapper" style="flex: 1;">
+              <i class="fa-regular fa-calendar modern-input-icon"></i>
+              <input type="text" id="batch-hv-manual-date" readonly class="form-control modern-input date-picker-clickable" data-open-calendar="batch-hv-manual-date" placeholder="اختر تاريخ لإضافته..." style="height: 38px; font-size: 0.85rem; font-weight: 700; cursor: pointer;">
+            </div>
+            <button type="button" class="btn btn-outline btn-sm" id="btn-add-batch-hv-single-date" style="height: 38px; font-weight: 800; font-size: 0.82rem; white-space: nowrap; border-radius: 8px; padding: 0 12px;">
               <i class="fa-solid fa-plus"></i> إضافة تاريخ
             </button>
           </div>
 
           <!-- Pre-settled Cut-off Switch & Letter Ref -->
-          <div style="background: rgba(245, 158, 11, 0.08); border: 1px dashed #f59e0b; border-radius: 10px; padding: 10px 12px; margin-bottom: 12px;">
-            <label style="display: flex; align-items: flex-start; gap: 8px; cursor: pointer; margin: 0;">
-              <input type="checkbox" id="batch-hv-presettled" style="margin-top: 3px; accent-color: #f59e0b; width: 17px; height: 17px;">
-              <span style="font-size: 0.82rem; font-weight: 700; color: var(--text-main); line-height: 1.4;">
+          <div style="background: rgba(245, 158, 11, 0.08); border: 1.5px dashed #f59e0b; border-radius: 12px; padding: 12px; margin-bottom: 12px;">
+            <label style="display: flex; align-items: flex-start; gap: 10px; cursor: pointer; margin: 0;">
+              <input type="checkbox" id="batch-hv-presettled" style="margin-top: 3px; accent-color: #f59e0b; width: 18px; height: 18px;">
+              <span id="batch-hv-presettled-label" style="font-size: 0.82rem; font-weight: 700; color: var(--text-main); line-height: 1.4;">
                 جلسات سابقة تم تسويتها مسبقاً مع الطبيب (أرشيف قبل سبتمبر - لا تُحسب في المستحقات الحالية)
               </span>
             </label>
           </div>
 
-          <div class="form-group" style="margin-bottom: 4px;">
-            <label for="batch-hv-letter-ref" style="font-weight: 700; font-size: 0.8rem;">رقم مرجع الجواب أو ملاحظات (اختياري)</label>
-            <input type="text" id="batch-hv-letter-ref" class="form-control" placeholder="مثال: جواب رقم 145 / كورس أغسطس" style="height: 38px; font-size: 0.85rem;">
+          <div class="form-group form-group-modern" style="margin-bottom: 4px;">
+            <label for="batch-hv-letter-ref" class="modern-field-label">
+              <i class="fa-solid fa-hashtag text-primary"></i> رقم مرجع الجواب أو ملاحظات (اختياري)
+            </label>
+            <div class="modern-input-wrapper">
+              <input type="text" id="batch-hv-letter-ref" class="form-control modern-input" placeholder="مثال: جواب رقم 145 / كورس أغسطس..." style="height: 40px; font-size: 0.85rem;">
+            </div>
           </div>
         </div>
 
-        <div class="modal-footer" style="padding: 12px 16px;">
-          <button type="button" class="btn btn-outline" data-close-modal="modal-batch-home-visits">إلغاء</button>
-          <button type="submit" class="btn btn-primary" id="btn-submit-batch-hv" style="font-weight: 800; background: #059669; border-color: #059669;">
-            <i class="fa-solid fa-check-double"></i> تأكيد وحفظ الجواب بالكامل
+        <div class="modal-footer" style="padding: 12px 18px; border-top: 1.5px solid var(--border-color); background: var(--bg-subtle); display: flex; justify-content: flex-end; gap: 10px;">
+          <button type="button" class="btn btn-outline" data-close-modal="modal-batch-home-visits" style="border-radius: 10px; font-weight: 700;">إلغاء</button>
+          <button type="submit" class="btn btn-primary" id="btn-submit-batch-hv" style="font-weight: 800; background: #059669; border-color: #059669; border-radius: 10px; padding: 8px 18px;">
+            <i class="fa-solid fa-check-double"></i> تأكيد وحفظ الجلسات بالكامل
           </button>
         </div>
       </form>
