@@ -483,37 +483,63 @@ export class DoctorDashboardManager {
           const dateRange = (firstDate === lastDate) ? firstDate : `من ${firstDate} إلى ${lastDate}`;
           const isPre = sList.every((s) => s.isPreSettled || (s.date && s.date < '2026-09-01'));
           const statusBadge = isPre
-            ? '<span class="badge" style="background: rgba(100, 116, 139, 0.15); color: #475569; border: 1px solid #cbd5e1; font-weight: 800;"><i class="fa-solid fa-box-archive"></i> مسواة مسبقاً (أرشيف)</span>'
-            : '<span class="badge badge-warning" style="font-weight: 800;"><i class="fa-solid fa-clock"></i> قيد التسوية مع المركز</span>';
+            ? '<span class="badge" style="background: rgba(100, 116, 139, 0.15); color: #475569; border: 1px solid #cbd5e1; font-weight: 800; font-size: 0.72rem; padding: 2px 7px;"><i class="fa-solid fa-box-archive"></i> مسواة مسبقاً</span>'
+            : '<span class="badge badge-warning" style="font-weight: 800; font-size: 0.72rem; padding: 2px 7px;"><i class="fa-solid fa-clock"></i> قيد التسوية</span>';
+
+          const patientObj = (this.app.patientsManager?.patients || []).find(pt => pt.id === group.patientId) ||
+                             (this.app.patientsManager?.patients || []).find(pt => pt.name === group.patientName);
+          let bodyPartsList = [];
+          if (patientObj) {
+            bodyPartsList = this.app.patientsManager?.getPatientBodyParts(patientObj) || [];
+          }
+          if (bodyPartsList.length === 0) {
+            group.sessions.forEach(s => {
+              if (Array.isArray(s.bodyParts)) {
+                s.bodyParts.forEach(bp => {
+                  if (bp && !bodyPartsList.includes(bp)) bodyPartsList.push(bp);
+                });
+              }
+            });
+          }
+          if (bodyPartsList.length === 0 && patientObj?.affectedArea) bodyPartsList = [patientObj.affectedArea];
+          if (bodyPartsList.length === 0 && patientObj?.clinicalSheet?.affectedArea) bodyPartsList = [patientObj.clinicalSheet.affectedArea];
+          const displayParts = bodyPartsList.length > 0 ? bodyPartsList.join(' • ') : 'علاج طبيعي عام';
+
+          const safePatientId = escapeHTML(group.patientId || '');
+          const safeName = escapeHTML(group.patientName || 'مريض');
 
           return `
-            <div class="hero-styled-card" style="padding: 12px 14px; margin-bottom: 10px; border-radius: 14px; border-right: 4px solid #059669;">
+            <div class="hero-styled-card" style="padding: 12px 14px; margin-bottom: 10px; border-radius: 14px; border-right: 4px solid var(--primary);">
               <div class="hsc-top" style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px;">
                 <div class="hsc-patient-meta" style="display: flex; align-items: center; gap: 10px;">
-                  <div class="hsc-avatar" style="background: rgba(5, 150, 105, 0.12); color: #059669;"><i class="fa-solid fa-house-user"></i></div>
+                  <div class="hsc-avatar" style="background: rgba(2, 132, 199, 0.12); color: var(--primary);"><i class="fa-solid fa-user"></i></div>
                   <div class="hsc-name-box">
-                    <span class="hsc-patient-name" style="font-weight: 800; font-size: 0.96rem;">${escapeHTML(group.patientName)}</span>
-                    <span class="hsc-doc-sub" style="font-size: 0.78rem; color: var(--text-muted);"><i class="fa-solid fa-file-contract"></i> ${escapeHTML(group.insuranceName)}</span>
+                    <span class="hsc-patient-name" style="font-weight: 800; font-size: 0.96rem; cursor: pointer;" onclick="patientsManager.openPatientSheet('${safePatientId}', '${safeName}')">${safeName}</span>
+                    <div style="margin-top: 3px;">
+                      <span class="badge" style="background: rgba(2, 132, 199, 0.08); color: var(--primary); border: 1px solid rgba(2, 132, 199, 0.22); font-size: 0.74rem; font-weight: 700; padding: 2px 8px; border-radius: 6px; display: inline-flex; align-items: center; gap: 5px;">
+                        <i class="fa-solid fa-bone" style="font-size: 0.68rem;"></i>
+                        <span>${escapeHTML(displayParts)}</span>
+                      </span>
+                    </div>
                   </div>
                 </div>
                 <div class="hsc-amount-box">
-                  <span class="badge" style="background: #ecfdf5; color: #059669; border: 1px solid #a7f3d0; font-weight: 800; font-size: 0.85rem; padding: 4px 10px;">
+                  <span class="badge" style="background: rgba(2, 132, 199, 0.1); color: var(--primary); border: 1px solid rgba(2, 132, 199, 0.25); font-weight: 800; font-size: 0.82rem; padding: 4px 10px;">
                     ${group.sessions.length} جلسات
                   </span>
                 </div>
               </div>
 
-              <div class="hsc-badges-row" style="margin-bottom: 8px;">
-                ${statusBadge}
-              </div>
-
               <div class="hsc-divider" style="margin: 8px 0;"></div>
 
-              <div class="hsc-bottom" style="display: flex; justify-content: space-between; align-items: center;">
-                <span class="hsc-time-tag" style="font-size: 0.78rem; color: var(--text-muted); direction: ltr;">
-                  <i class="fa-regular fa-calendar"></i> ${dateRange}
-                </span>
-                <button type="button" class="btn btn-outline btn-sm btn-icon-action" onclick="app.openPatientClinicalSheet('${escapeHTML(group.patientId)}')" style="width: 30px; height: 30px; border-radius: 50%;" title="الشيت الطبي">
+              <div class="hsc-bottom" style="display: flex; justify-content: space-between; align-items: center; gap: 8px;">
+                <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+                  ${statusBadge}
+                  <span class="hsc-time-tag" style="font-size: 0.78rem; color: var(--text-muted); direction: ltr;">
+                    <i class="fa-regular fa-calendar"></i> ${dateRange}
+                  </span>
+                </div>
+                <button type="button" class="btn btn-outline btn-sm btn-icon-action" onclick="patientsManager.openPatientSheet('${safePatientId}', '${safeName}')" style="width: 32px; height: 32px; border-radius: 50%; flex-shrink: 0;" title="الشيت الطبي">
                   <i class="fa-solid fa-file-waveform text-primary"></i>
                 </button>
               </div>
@@ -775,60 +801,70 @@ export class DoctorDashboardManager {
       `;
     }).join('');
 
-    // 2. Render Handcrafted Mobile Cards
+    // 2. Render Handcrafted Mobile Cards (Unified style matching "All Patients" card)
     if (mobileContainer) {
       mobileContainer.innerHTML = displayList.map(s => {
-        let billingBadge = '';
-        if (s.payType === 'cash') {
-          billingBadge = `<span class="badge badge-cash"><i class="fa-solid fa-money-bill"></i> نقدي</span>`;
-        } else if (s.contractType === 'direct') {
-          billingBadge = `<span class="badge badge-direct"><i class="fa-solid fa-file-contract"></i> ${escapeHTML(s.insuranceName || 'شركة')}</span>`;
-        } else {
-          billingBadge = `<span class="badge badge-indirect"><i class="fa-solid fa-handshake"></i> ${escapeHTML(s.insuranceName || 'شركة')}</span>`;
-        }
-
         const isExam = (s.entryType === 'examination');
         const safePatientId = escapeHTML(s.patientId || '');
-        const safeName = escapeHTML(s.patientName || '');
+        const safeName = escapeHTML(s.patientName || 'مريض');
         const timeDisplay = s.recordedAt || '';
-        const safeParts = Array.isArray(s.bodyParts) ? s.bodyParts.join('، ') : (s.bodyParts || '');
+
+        const patientObj = (this.app.patientsManager?.patients || []).find(pt => pt.id === s.patientId) ||
+                           (this.app.patientsManager?.patients || []).find(pt => pt.name === s.patientName);
+
+        let bodyPartsList = [];
+        if (patientObj) {
+          bodyPartsList = this.app.patientsManager?.getPatientBodyParts(patientObj) || [];
+        }
+        if (bodyPartsList.length === 0 && Array.isArray(s.bodyParts) && s.bodyParts.length > 0) {
+          bodyPartsList = s.bodyParts;
+        } else if (bodyPartsList.length === 0 && s.bodyParts && typeof s.bodyParts === 'string') {
+          bodyPartsList = [s.bodyParts];
+        }
+        if (bodyPartsList.length === 0 && patientObj?.affectedArea) {
+          bodyPartsList = [patientObj.affectedArea];
+        }
+        if (bodyPartsList.length === 0 && patientObj?.clinicalSheet?.affectedArea) {
+          bodyPartsList = [patientObj.clinicalSheet.affectedArea];
+        }
+
+        const displayParts = isExam ? 'فحص سريري / كشف' : (bodyPartsList.length > 0 ? bodyPartsList.join(' • ') : 'علاج طبيعي عام');
         const unitCount = s.bodyPartsCount || 1;
         const unitWord = unitCount === 1 ? 'جلسة' : unitCount === 2 ? 'جلستان' : 'جلسات';
 
+        const amountBadge = isExam
+          ? `<span class="badge" style="background: rgba(245, 158, 11, 0.12); color: #d97706; border: 1px solid rgba(245, 158, 11, 0.3); font-weight: 800; font-size: 0.82rem; padding: 4px 10px;"><i class="fa-solid fa-stethoscope"></i> كشف</span>`
+          : `<span class="badge" style="background: rgba(2, 132, 199, 0.1); color: var(--primary); border: 1px solid rgba(2, 132, 199, 0.25); font-weight: 800; font-size: 0.82rem; padding: 4px 10px;">${unitCount} ${unitWord}</span>`;
+
         return `
-          <div class="hero-styled-card">
-            <div class="hsc-top">
-              <div class="hsc-patient-meta">
-                <div class="hsc-avatar"><i class="fa-solid fa-user-injured"></i></div>
+          <div class="hero-styled-card" style="padding: 12px 14px; margin-bottom: 10px; border-radius: 14px; border-right: 4px solid var(--primary);">
+            <div class="hsc-top" style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px;">
+              <div class="hsc-patient-meta" style="display: flex; align-items: center; gap: 10px;">
+                <div class="hsc-avatar" style="background: rgba(2, 132, 199, 0.12); color: var(--primary);"><i class="fa-solid fa-user"></i></div>
                 <div class="hsc-name-box">
-                  <span class="hsc-patient-name" style="cursor: pointer;" onclick="patientsManager.openPatientSheet('${safePatientId}')">${safeName}</span>
-                  <span class="hsc-doc-sub"><i class="fa-solid fa-calendar-day"></i> ${s.date || ''}</span>
+                  <span class="hsc-patient-name" style="font-weight: 800; font-size: 0.96rem; cursor: pointer;" onclick="patientsManager.openPatientSheet('${safePatientId}', '${safeName}')">${safeName}</span>
+                  <div style="margin-top: 3px;">
+                    <span class="badge" style="background: rgba(2, 132, 199, 0.08); color: var(--primary); border: 1px solid rgba(2, 132, 199, 0.22); font-size: 0.74rem; font-weight: 700; padding: 2px 8px; border-radius: 6px; display: inline-flex; align-items: center; gap: 5px;">
+                      <i class="fa-solid fa-bone" style="font-size: 0.68rem;"></i>
+                      <span>${escapeHTML(displayParts)}</span>
+                    </span>
+                  </div>
                 </div>
               </div>
               <div class="hsc-amount-box">
-                ${isExam 
-                  ? `<span class="badge badge-exam-tag"><i class="fa-solid fa-stethoscope"></i> كشف</span>`
-                  : `<span class="badge badge-primary" style="font-weight: 800; font-size: 0.76rem;"><i class="fa-solid fa-heart-pulse"></i> ${unitCount} ${unitWord}</span>`
-                }
+                ${amountBadge}
               </div>
             </div>
 
-            <div class="hsc-badges-row">
-              ${billingBadge}
-            </div>
+            <div class="hsc-divider" style="margin: 8px 0;"></div>
 
-            <div class="hsc-divider" style="margin: 10px 0 12px 0;"></div>
-
-            <div class="hsc-bottom">
-              <div class="hsc-tags">
-                ${safeParts ? `<span class="hsc-tag-pill"><i class="fa-solid fa-bone"></i> ${safeParts}</span>` : ''}
-                ${timeDisplay ? `<span class="hsc-time-tag"><i class="fa-regular fa-clock"></i> ${timeDisplay}</span>` : ''}
-              </div>
-              <div class="hsc-actions">
-                <button type="button" class="btn btn-primary btn-sm btn-hero-sheet" onclick="patientsManager.openPatientSheet('${safePatientId}')" title="فتح الشيت الطبي">
-                  <i class="fa-solid fa-file-waveform"></i> الشيت الطبي
-                </button>
-              </div>
+            <div class="hsc-bottom" style="display: flex; justify-content: space-between; align-items: center;">
+              <span class="hsc-time-tag" style="font-size: 0.78rem; color: var(--text-muted);">
+                <i class="fa-regular fa-calendar-check"></i> <bdi dir="ltr">${escapeHTML(s.date || '-')}</bdi>${timeDisplay ? ` • ${escapeHTML(timeDisplay)}` : ''}
+              </span>
+              <button type="button" class="btn btn-outline btn-sm btn-icon-action" onclick="patientsManager.openPatientSheet('${safePatientId}', '${safeName}')" style="width: 32px; height: 32px; border-radius: 50%;" title="الشيت الطبي">
+                <i class="fa-solid fa-file-waveform text-primary"></i>
+              </button>
             </div>
           </div>
         `;
