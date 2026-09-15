@@ -394,70 +394,156 @@ assert.equal(seniorDues.totalDues, 530, 'Senior total dues should be 530 EGP');
 
 console.log('✓ All 8 Clinical Program & Seniority Dues assertions passed successfully!');
 
-// 10. Version-Doc Pattern Sync Engine Tests (O(1) Real-Time Read Optimization)
+// 10. Version-Doc Pattern Sync Engine Tests (Self-Echo Skip, Delta-Fetch, Gap Fallback)
 console.log('--- Running Tests: Version-Doc Pattern & Sync Trigger Engine ---');
 
-function createMockSyncListener(initialData) {
+function createMockDeltaSyncListener(initialData, singleDocStore = {}) {
   let lastSeenVersion = null;
   let isFirstSnapshot = true;
-  let fetchCount = 0;
-  let notifiedData = null;
+  let fullCollectionFetchCount = 0;
+  let singleDocFetchCount = 0;
+  let suppressNextOwnVersionEvent = false;
+  let cache = [...initialData];
+  let notifiedData = [...initialData];
 
-  function mockFetch(force) {
-    fetchCount++;
-    return Promise.resolve(initialData);
+  function mockFullFetch(force) {
+    fullCollectionFetchCount++;
+    cache = [...initialData];
+    notifiedData = [...cache];
+    return Promise.resolve(cache);
   }
 
-  // Startup fetch
-  mockFetch(true).then(data => { notifiedData = data; });
+  function mockSingleDocFetch(id) {
+    singleDocFetchCount++;
+    const docData = singleDocStore[id];
+    return Promise.resolve(docData ? { exists: true, id, data: docData } : { exists: false, id });
+  }
 
-  function onSnapshotCallback(snap) {
+  // Startup fetch on attach
+  mockFullFetch(true);
+
+  async function onSnapshotCallback(snap) {
     const data = snap.exists ? snap.data : null;
     const currentVersion = (data && typeof data.patientsVersion === 'number') ? data.patientsVersion : 0;
 
+    // 1. Skip writer's own echo (0 reads, local cache already patched)
+    if (suppressNextOwnVersionEvent) {
+      suppressNextOwnVersionEvent = false;
+      lastSeenVersion = currentVersion;
+      return;
+    }
+
+    // 2. Initial snapshot
     if (isFirstSnapshot) {
       isFirstSnapshot = false;
       lastSeenVersion = currentVersion;
       return;
     }
 
-    if (lastSeenVersion !== currentVersion) {
-      lastSeenVersion = currentVersion;
-      mockFetch(true).then(res => { notifiedData = res; });
+    // 3. Redundant snapshot
+    if (lastSeenVersion === currentVersion) {
+      return;
     }
+
+    const isSequential = (typeof lastSeenVersion === 'number' && currentVersion === lastSeenVersion + 1);
+    const action = data ? data.lastChangedPatientAction : null;
+    const targetId = data ? data.lastChangedPatientId : null;
+
+    lastSeenVersion = currentVersion;
+
+    // 4. Delta-fetch optimization (single-doc read or 0-read delete)
+    if (isSequential && targetId && (action === 'created' || action === 'updated' || action === 'deleted') && Array.isArray(cache)) {
+      if (action === 'deleted') {
+        cache = cache.filter(p => p.id !== targetId);
+        notifiedData = [...cache];
+        return;
+      }
+
+      const pSnap = await mockSingleDocFetch(targetId);
+      if (pSnap.exists) {
+        const item = { id: pSnap.id, ...pSnap.data };
+        const idx = cache.findIndex(p => p.id === targetId);
+        if (idx !== -1) {
+          cache[idx] = { ...cache[idx], ...item };
+        } else {
+          cache.unshift(item);
+        }
+        notifiedData = [...cache];
+        return;
+      } else {
+        cache = cache.filter(p => p.id !== targetId);
+        notifiedData = [...cache];
+        return;
+      }
+    }
+
+    // 5. Gap fallback (version jump > 1) -> full collection fetch
+    await mockFullFetch(true);
   }
 
   return {
     getLastSeen: () => lastSeenVersion,
-    getFetchCount: () => fetchCount,
+    getFullFetchCount: () => fullCollectionFetchCount,
+    getSingleDocFetchCount: () => singleDocFetchCount,
     getNotifiedData: () => notifiedData,
+    getCache: () => cache,
+    setSuppressOwn: (val) => { suppressNextOwnVersionEvent = val; },
+    getSuppressOwn: () => suppressNextOwnVersionEvent,
     triggerSnapshot: onSnapshotCallback
   };
 }
 
 const mockPatientsData = [{ id: 'p1', name: 'أحمد' }, { id: 'p2', name: 'محمود' }];
-const syncTest = createMockSyncListener(mockPatientsData);
+const mockStore = {
+  p1: { name: 'أحمد المعدل', phone: '0100000000' },
+  p3: { name: 'علي الجديد', phone: '0120000000' }
+};
+const syncTest = createMockDeltaSyncListener(mockPatientsData, mockStore);
 
 // 1. On startup, initial fetch executed immediately
-assert.equal(syncTest.getFetchCount(), 1, 'Initial fetch must run on attach');
+assert.equal(syncTest.getFullFetchCount(), 1, 'Initial fetch must run on attach');
+assert.equal(syncTest.getSingleDocFetchCount(), 0, 'No single doc fetch on attach');
 
 // 2. Initial snapshot arrives with version 5 -> records version, does not double-fetch
-syncTest.triggerSnapshot({ exists: true, data: { patientsVersion: 5 } });
+await syncTest.triggerSnapshot({ exists: true, data: { patientsVersion: 5 } });
 assert.equal(syncTest.getLastSeen(), 5, 'Last seen version must update to 5');
-assert.equal(syncTest.getFetchCount(), 1, 'Initial snapshot must not trigger duplicate fetch');
+assert.equal(syncTest.getFullFetchCount(), 1, 'Initial snapshot must not trigger duplicate fetch');
 
 // 3. Redundant snapshot with same version (reconnect / tab refresh) -> NO fetch!
-syncTest.triggerSnapshot({ exists: true, data: { patientsVersion: 5 } });
-assert.equal(syncTest.getFetchCount(), 1, 'Identical version must cost 0 collection refetches');
+await syncTest.triggerSnapshot({ exists: true, data: { patientsVersion: 5 } });
+assert.equal(syncTest.getFullFetchCount(), 1, 'Identical version must cost 0 collection refetches');
+assert.equal(syncTest.getSingleDocFetchCount(), 0, 'Identical version must cost 0 single-doc reads');
 
-// 4. Remote write increments version to 6 -> triggers exactly 1 refetch!
-syncTest.triggerSnapshot({ exists: true, data: { patientsVersion: 6 } });
+// 4. Writer's own echo: suppressNextOwnVersionEvent = true -> 0 Firestore reads!
+syncTest.setSuppressOwn(true);
+await syncTest.triggerSnapshot({ exists: true, data: { patientsVersion: 6, lastChangedPatientId: 'p1', lastChangedPatientAction: 'updated' } });
 assert.equal(syncTest.getLastSeen(), 6, 'Last seen version must update to 6');
-assert.equal(syncTest.getFetchCount(), 2, 'New version must trigger refetch');
+assert.equal(syncTest.getFullFetchCount(), 1, 'Writer echo must cost 0 collection refetches');
+assert.equal(syncTest.getSingleDocFetchCount(), 0, 'Writer echo must cost 0 single-doc reads');
+assert.equal(syncTest.getSuppressOwn(), false, 'Suppression flag must be reset to false');
 
-// 5. Missing doc fallback handles gracefully
-const emptyDocSync = createMockSyncListener([]);
-emptyDocSync.triggerSnapshot({ exists: false, data: null });
+// 5. Remote write from another device: version 7 (jump of 1), action "updated" -> delta-fetch (1 single-doc read, 0 collection reads)
+await syncTest.triggerSnapshot({ exists: true, data: { patientsVersion: 7, lastChangedPatientId: 'p1', lastChangedPatientAction: 'updated' } });
+assert.equal(syncTest.getLastSeen(), 7, 'Last seen version must update to 7');
+assert.equal(syncTest.getFullFetchCount(), 1, 'Delta-fetch must NOT perform full collection read');
+assert.equal(syncTest.getSingleDocFetchCount(), 1, 'Delta-fetch must perform exactly 1 single-doc read');
+assert.equal(syncTest.getCache().find(p => p.id === 'p1').name, 'أحمد المعدل', 'Delta-fetch must merge updated doc data into cache');
+
+// 6. Remote delete from another device: version 8 (jump of 1), action "deleted" -> 0 reads, cache updated directly!
+await syncTest.triggerSnapshot({ exists: true, data: { patientsVersion: 8, lastChangedPatientId: 'p2', lastChangedPatientAction: 'deleted' } });
+assert.equal(syncTest.getLastSeen(), 8, 'Last seen version must update to 8');
+assert.equal(syncTest.getFullFetchCount(), 1, 'Delete sync must cost 0 collection reads');
+assert.equal(syncTest.getSingleDocFetchCount(), 1, 'Delete sync must cost 0 single doc reads (count remains 1)');
+assert.equal(syncTest.getCache().some(p => p.id === 'p2'), false, 'Deleted patient p2 must be removed from cache');
+
+// 7. Gap fallback: Device reconnects after multiple changes (version jumps from 8 to 12) -> triggers full collection refetch
+await syncTest.triggerSnapshot({ exists: true, data: { patientsVersion: 12, lastChangedPatientId: 'p3', lastChangedPatientAction: 'created' } });
+assert.equal(syncTest.getLastSeen(), 12, 'Last seen version must update to 12');
+assert.equal(syncTest.getFullFetchCount(), 2, 'Version gap (>1) must fall back to full collection refetch');
+
+// 8. Missing doc fallback handles gracefully
+const emptyDocSync = createMockDeltaSyncListener([]);
+await emptyDocSync.triggerSnapshot({ exists: false, data: null });
 assert.equal(emptyDocSync.getLastSeen(), 0, 'Missing syncVersion doc should default to version 0');
 
-console.log('✓ All 5 Version-Doc Sync Trigger assertions passed successfully!');
+console.log('✓ All 8 Version-Doc Sync Trigger assertions passed successfully!');
