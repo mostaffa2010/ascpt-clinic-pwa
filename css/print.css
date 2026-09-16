@@ -850,12 +850,13 @@
   }
 
   body.printing-claim table.claim-print-table {
-    width: 100% !important;
+    width: 98% !important;
+    max-width: 98% !important;
     table-layout: fixed !important;
     border-collapse: collapse !important;
     box-sizing: border-box !important;
     border: 1.5px solid #000000 !important;
-    margin: 10px 0 !important;
+    margin: 10px auto !important;
   }
 
   body.printing-claim table.claim-print-table th,
@@ -868,6 +869,16 @@
     vertical-align: middle !important;
     box-sizing: border-box !important;
     word-break: break-word !important;
+  }
+
+  body.printing-claim table.claim-print-table th:first-child,
+  body.printing-claim table.claim-print-table td:first-child {
+    border-right: 1.5px solid #000000 !important;
+  }
+
+  body.printing-claim table.claim-print-table th:last-child,
+  body.printing-claim table.claim-print-table td:last-child {
+    border-left: 1.5px solid #000000 !important;
   }
 
   body.printing-claim table.claim-print-table th {

@@ -894,9 +894,9 @@ export class ClaimsManager {
     const claimDate = document.getElementById('claim-doc-date')?.value || getLocalDateStr();
 
     document.getElementById('claim-print-company-name').textContent = companyName;
-    document.getElementById('claim-print-tax-no').textContent = taxNumber ? `رقم البطاقة الضريبية: ${taxNumber}` : 'رقم البطاقة الضريبية: 430-392-745';
-    document.getElementById('claim-print-date').textContent = `تحريراً في: ${claimDate}`;
-    document.getElementById('claim-print-period-text').textContent = `عن الفترة من ${this.startDate || '-'} إلى ${this.endDate || '-'}`;
+    document.getElementById('claim-print-tax-no').textContent = taxNumber ? `رقم البطاقة الضريبية: ${taxNumber}` : '';
+    document.getElementById('claim-print-date').textContent = claimDate ? `تحريراً في: ${claimDate}` : '';
+    document.getElementById('claim-print-period-text').textContent = (this.startDate || this.endDate) ? `عن الفترة من ${this.startDate || '-'} إلى ${this.endDate || '-'}` : '';
 
     let grandTotal = 0;
     const tbody = document.getElementById('claim-print-tbody');
