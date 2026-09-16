@@ -126,6 +126,10 @@ assert(claimsJsContent.includes('class="attendance-card-footer-wrap"'), 'claims.
 assert(printCssContent.includes('min-height: 242mm !important;'), 'print.css must ensure #view-finance has min-height: 242mm to push footer to bottom');
 console.log('✓ 10. Bottom Footers & Safe Print Margins: Verified attendance cards, claims, and financial reports.');
 
+// 11. Strict Guardrail: Medical Statement Header Branding Parity
+assert(htmlContent.includes('<h2 style="font-size: 13pt; margin: 0; font-weight: 800; color: #0284c7; white-space: nowrap;" data-clinic="brand-name">مركز الإسكندرية التخصصي للعلاج الطبيعي</h2>'), 'Medical statement header must be "مركز الإسكندرية التخصصي للعلاج الطبيعي"');
+console.log('✓ 11. Medical Statement Branding: Verified center name header in #printable-medical-statement.');
+
 console.log('===================================================================');
 console.log('✓ All ASCPT UI Component Compliance Guardrail Checks Passed (100%)!');
 console.log('===================================================================');
