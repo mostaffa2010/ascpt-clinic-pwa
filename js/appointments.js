@@ -467,8 +467,8 @@ export class AppointmentsManager {
     if (dayOfWeek === 5) return []; // Friday is clinic holiday
 
     return (this.appointments || []).filter(a => {
-      // Completed or cancelled appointments at master level are excluded from future dates
-      if (a.status === 'completed' || a.status === 'cancelled') return false;
+      // Cancelled appointments at master level are excluded
+      if (a.status === 'cancelled') return false;
 
       // 1. Recurring Appointment Model (Master Weekly Schedule)
       if (Array.isArray(a.daysOfWeek) && a.daysOfWeek.length > 0) {
@@ -695,10 +695,33 @@ export class AppointmentsManager {
     } catch (_) {}
 
     try {
-      await db.updateAppointmentStatus(apptId, isCompleted ? 'scheduled' : 'completed', {
-        completedAt: !isCompleted ? new Date().toISOString() : null,
-        doctorUid
-      });
+      const appt = (this.appointments || []).find(a => a.id === apptId);
+      const isRecurring = appt && Array.isArray(appt.daysOfWeek) && appt.daysOfWeek.length > 0;
+      const dailyStatuses = { ...(appt?.dailyStatuses || {}) };
+      if (isCompleted) {
+        delete dailyStatuses[today];
+      } else {
+        dailyStatuses[today] = 'completed';
+      }
+
+      if (isRecurring) {
+        // For recurring appointments, persist daily completion per date so future dates stay scheduled
+        await db.updateAppointment(apptId, {
+          dailyStatuses,
+          statusUpdatedAt: new Date().toISOString()
+        });
+        if (appt) appt.dailyStatuses = dailyStatuses;
+      } else {
+        await db.updateAppointmentStatus(apptId, isCompleted ? 'scheduled' : 'completed', {
+          completedAt: !isCompleted ? new Date().toISOString() : null,
+          doctorUid,
+          dailyStatuses
+        });
+        if (appt) {
+          appt.status = isCompleted ? 'scheduled' : 'completed';
+          appt.dailyStatuses = dailyStatuses;
+        }
+      }
     } catch (e) {
       console.warn('Update appointment status notice:', e);
     }
