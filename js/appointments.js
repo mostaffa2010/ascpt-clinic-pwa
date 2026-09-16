@@ -745,17 +745,16 @@ export class AppointmentsManager {
           const docObj = (this.doctors || []).find(d => d.uid === doctorUid || d.id === doctorUid);
           const docName = appt.doctorName || docObj?.name || 'طبيب المركز';
 
-          let sessionNumber = null;
-          let approvedSessionsTotal = null;
+          let sessionNumber = 1;
+          let cycleNumber = 1;
+          let approvedSessionsTotal = 12;
           if (patient) {
-            const cycleStart = patient.currentApprovalStartDate || '';
-            const isIns = (lastSession.payType === 'insurance' || patient.billing === 'insurance');
-            const therapySessions = allPatientSessions.filter(x => x.entryType !== 'examination');
-            const cycleSessions = (isIns && cycleStart)
-              ? therapySessions.filter(x => (x.date || '').localeCompare(cycleStart) >= 0)
-              : therapySessions;
-            sessionNumber = cycleSessions.length + 1;
-            approvedSessionsTotal = patient.approvedSessions || 12;
+            const approvedTotal = parseInt(patient.approvedSessions, 10) || 12;
+            const therapySessions = allPatientSessions.filter(x => (x.entryType === 'session' || !x.entryType) && x.status !== 'cancelled');
+            const totalCount = therapySessions.length;
+            sessionNumber = (totalCount % approvedTotal) + 1;
+            cycleNumber = Math.floor(totalCount / approvedTotal) + 1;
+            approvedSessionsTotal = approvedTotal;
           }
 
           let partsToUse = [];
@@ -792,6 +791,7 @@ export class AppointmentsManager {
             amountPaid: typeof lastSession.amountPaid === 'number' ? lastSession.amountPaid : 0,
             notes: `تم الإتمام والتسجيل تلقائياً بواسطة الطبيب (${docName.replace(/^د\.\s*/, '')})`,
             sessionNumber: typeof sessionNumber === 'number' ? sessionNumber : (lastSession.sessionNumber ? lastSession.sessionNumber + 1 : 1),
+            cycleNumber: typeof cycleNumber === 'number' ? cycleNumber : 1,
             approvedSessionsTotal: typeof approvedSessionsTotal === 'number' ? approvedSessionsTotal : (patient?.approvedSessions || 12),
             approvedBodyPartsTotal: typeof patient?.approvedBodyParts === 'number' ? patient.approvedBodyParts : 1,
             autoCreatedByDoctor: true,

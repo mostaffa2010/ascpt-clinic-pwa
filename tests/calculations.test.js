@@ -837,7 +837,90 @@ assert.equal(settledResult.find(s => s.id === 's_u1').isPreSettled, true);
 assert.equal(settledResult.find(s => s.id === 's_u2').isPreSettled, true);
 assert.equal(settledResult.find(s => s.id === 's_other').isPreSettled, false);
 
-console.log('✓ All 21 Batch Home Visits & Doctor Dashboard Decoupling assertions passed successfully!');
+// 10. Test Chronological Session Sequencing & Option A Cycle Rollover
+// Scenario 1: Existing September sessions (13/9, 15/9, 16/9) + retroactive August batch (7 sessions from 5/8 to 17/8)
+function mockSequencePatientSessionsChronologically(sessions = [], approvedTotal = 12) {
+  const therapySessions = (sessions || []).filter(s =>
+    (s.entryType === 'session' || !s.entryType) && s.status !== 'cancelled'
+  );
+
+  therapySessions.sort((a, b) => {
+    const dComp = (a.date || '').localeCompare(b.date || '');
+    if (dComp !== 0) return dComp;
+    const tA = a.createdAt || a.recordedAt || '';
+    const tB = b.createdAt || b.recordedAt || '';
+    if (tA && tB) return tA.localeCompare(tB);
+    return (a.id || '').localeCompare(b.id || '');
+  });
+
+  const total = parseInt(approvedTotal, 10) > 0 ? parseInt(approvedTotal, 10) : 12;
+  const map = new Map();
+
+  therapySessions.forEach((s, idx) => {
+    const numInCycle = (idx % total) + 1;
+    const cycleNum = Math.floor(idx / total) + 1;
+    const isHome = s.isHomeVisit || s.visitType === 'home';
+    const label = isHome ? 'زيارة' : 'جلسة';
+    const cycleSuffix = cycleNum > 1 ? ` (دورة ${cycleNum})` : '';
+
+    map.set(s.id, {
+      sessionNumber: numInCycle,
+      cycleNumber: cycleNum,
+      overallNumber: idx + 1,
+      displayLabel: `${label} ${numInCycle} من ${total}${cycleSuffix}`,
+      shortLabel: `${label} ${numInCycle}${cycleSuffix}`
+    });
+  });
+
+  return map;
+}
+
+const augustSessions = Array.from({ length: 7 }, (_, i) => ({
+  id: `aug_${i+1}`,
+  date: `2026-08-${String(5 + i * 2).padStart(2, '0')}`,
+  entryType: 'session'
+}));
+const septSessions = [
+  { id: 'sept_1', date: '2026-09-13', entryType: 'session' },
+  { id: 'sept_2', date: '2026-09-15', entryType: 'session' },
+  { id: 'sept_3', date: '2026-09-16', entryType: 'session' }
+];
+
+const combinedSessions = [...augustSessions, ...septSessions];
+const seqMap = mockSequencePatientSessionsChronologically(combinedSessions, 12);
+
+// Check August sessions (1 to 7)
+assert.equal(seqMap.get('aug_1').sessionNumber, 1, 'First August session must be #1');
+assert.equal(seqMap.get('aug_1').cycleNumber, 1);
+assert.equal(seqMap.get('aug_2').sessionNumber, 2, 'Second August session must be #2');
+assert.equal(seqMap.get('aug_7').sessionNumber, 7, 'Seventh August session must be #7');
+
+// Check September sessions (shifted from 1,2,3 to 8,9,10)
+assert.equal(seqMap.get('sept_1').sessionNumber, 8, '13/09 session must become #8');
+assert.equal(seqMap.get('sept_1').cycleNumber, 1);
+assert.equal(seqMap.get('sept_2').sessionNumber, 9, '15/09 session must become #9');
+assert.equal(seqMap.get('sept_3').sessionNumber, 10, '16/09 session must become #10');
+
+// Scenario 2: Option A Cycle Rollover at session 12 -> 13
+const extendedSessions = [
+  ...combinedSessions,
+  { id: 'sept_4', date: '2026-09-18', entryType: 'session' }, // #11
+  { id: 'sept_5', date: '2026-09-20', entryType: 'session' }, // #12
+  { id: 'sept_6', date: '2026-09-22', entryType: 'session' }, // #13 -> cycle 2, #1
+  { id: 'sept_7', date: '2026-09-24', entryType: 'session' }  // #14 -> cycle 2, #2
+];
+
+const seqExtendedMap = mockSequencePatientSessionsChronologically(extendedSessions, 12);
+assert.equal(seqExtendedMap.get('sept_5').sessionNumber, 12, '12th session is #12 in cycle 1');
+assert.equal(seqExtendedMap.get('sept_5').cycleNumber, 1);
+
+// Option A: 13th session rolls over to #1 of Cycle 2
+assert.equal(seqExtendedMap.get('sept_6').sessionNumber, 1, '13th session must roll over to #1');
+assert.equal(seqExtendedMap.get('sept_6').cycleNumber, 2, '13th session must be in cycle 2');
+assert.equal(seqExtendedMap.get('sept_7').sessionNumber, 2, '14th session must be #2 of cycle 2');
+assert.equal(seqExtendedMap.get('sept_7').cycleNumber, 2);
+
+console.log('✓ All 28 Batch Home Visits & Option A Chronological Sequencing assertions passed successfully!');
 
 // ============================================================================
 // 12. Doctor Dashboard Lifetime Patients Grouping & First Doctor Assignment

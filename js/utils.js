@@ -566,3 +566,46 @@ export function getLatestTherapySession(sessions) {
   const therapySessions = sessions.filter(s => s.entryType === 'session' || !s.entryType);
   return therapySessions.length > 0 ? therapySessions[0] : null;
 }
+
+/**
+ * Sequences a patient's physical therapy sessions chronologically (ascending by date)
+ * and assigns each session its relative number in the approval cycle (Option A).
+ * @param {Array} sessions - Array of patient session objects
+ * @param {number} approvedTotal - Approved sessions per cycle (defaults to 12)
+ * @returns {Map<string, {sessionNumber: number, cycleNumber: number, overallNumber: number, displayLabel: string}>}
+ */
+export function sequencePatientSessionsChronologically(sessions = [], approvedTotal = 12) {
+  const therapySessions = (sessions || []).filter(s =>
+    (s.entryType === 'session' || !s.entryType) && s.status !== 'cancelled'
+  );
+
+  therapySessions.sort((a, b) => {
+    const dComp = (a.date || '').localeCompare(b.date || '');
+    if (dComp !== 0) return dComp;
+    const tA = a.createdAt || a.recordedAt || '';
+    const tB = b.createdAt || b.recordedAt || '';
+    if (tA && tB) return tA.localeCompare(tB);
+    return (a.id || '').localeCompare(b.id || '');
+  });
+
+  const total = parseInt(approvedTotal, 10) > 0 ? parseInt(approvedTotal, 10) : 12;
+  const map = new Map();
+
+  therapySessions.forEach((s, idx) => {
+    const numInCycle = (idx % total) + 1;
+    const cycleNum = Math.floor(idx / total) + 1;
+    const isHome = s.isHomeVisit || s.visitType === 'home';
+    const label = isHome ? 'زيارة' : 'جلسة';
+    const cycleSuffix = cycleNum > 1 ? ` (دورة ${cycleNum})` : '';
+
+    map.set(s.id, {
+      sessionNumber: numInCycle,
+      cycleNumber: cycleNum,
+      overallNumber: idx + 1,
+      displayLabel: `${label} ${numInCycle} من ${total}${cycleSuffix}`,
+      shortLabel: `${label} ${numInCycle}${cycleSuffix}`
+    });
+  });
+
+  return map;
+}

@@ -1,5 +1,5 @@
 import { CLINIC_CONFIG } from './clinic-config.js';
-import { escapeHTML, getLocalDateStr } from './utils.js';
+import { escapeHTML, getLocalDateStr, sequencePatientSessionsChronologically } from './utils.js';
 // ========================================================
 // PhysioFlow - Patients Management Module
 // ========================================================
@@ -2629,19 +2629,25 @@ export class PatientsManager {
         </div>
       `;
     } else {
-      let therapyCounter = therapySessions.length;
+      const approvedTotal = parseInt(p.approvedSessions, 10) || 12;
+      const seqMap = sequencePatientSessionsChronologically(sessions, approvedTotal);
 
       listEl.innerHTML = sessions.map((s, idx) => {
         const isExam = (s.entryType === 'examination');
         let sessionBadgeHTML = '';
         if (isExam) {
           sessionBadgeHTML = `<span class="badge badge-examination"><i class="fa-solid fa-stethoscope"></i> كشف واستشارة</span>`;
-        } else if (s.isHomeVisit || s.visitType === 'home') {
-          sessionBadgeHTML = `<span class="stc-num-badge" style="background: rgba(5, 150, 105, 0.12); color: #059669; border: 1px solid rgba(5, 150, 105, 0.3);"><i class="fa-solid fa-house-chimney-medical"></i> زيارة منزلية #${therapyCounter}</span>`;
-          therapyCounter--;
         } else {
-          sessionBadgeHTML = `<span class="stc-num-badge">الجلسة #${therapyCounter}</span>`;
-          therapyCounter--;
+          const seqInfo = seqMap.get(s.id);
+          const sessNum = seqInfo?.sessionNumber || s.sessionNumber || 1;
+          const cycleNum = seqInfo?.cycleNumber || s.cycleNumber || 1;
+          const cycleSuffix = cycleNum > 1 ? ` (دورة ${cycleNum})` : '';
+
+          if (s.isHomeVisit || s.visitType === 'home') {
+            sessionBadgeHTML = `<span class="stc-num-badge" style="background: rgba(5, 150, 105, 0.12); color: #059669; border: 1px solid rgba(5, 150, 105, 0.3);"><i class="fa-solid fa-house-chimney-medical"></i> زيارة منزلية #${sessNum}${cycleSuffix}</span>`;
+          } else {
+            sessionBadgeHTML = `<span class="stc-num-badge">الجلسة #${sessNum}${cycleSuffix}</span>`;
+          }
         }
 
         const isLatest = (idx === 0);
@@ -4314,11 +4320,21 @@ export class PatientsManager {
     }
 
     const isHome = (this.batchSessionType === 'home_visit');
-    const sessionsToCreate = this.batchHvDates.map((dateStr) => {
-      const preSettledFlag = isPreSettled;
-      const labelType = isHome ? 'زيارة منزلية' : 'جلسات مجمعة بالمركز';
+    const labelType = isHome ? 'زيارة منزلية' : 'جلسات مجمعة بالمركز';
+    const preSettledFlag = isPreSettled;
+    const approvedTotal = parseInt(p.approvedSessions, 10) || 12;
 
+    // 1. Fetch existing sessions for this patient to compute correct chronological sequence
+    const existingPatientSessions = (await db.getSessionsForPatient(p.id)) || [];
+    const nonExamsExisting = existingPatientSessions.filter(s =>
+      (s.entryType === 'session' || !s.entryType) && s.status !== 'cancelled'
+    );
+
+    // 2. Draft new batch sessions with unique IDs
+    const newSessionDrafts = this.batchHvDates.map((dateStr) => {
+      const sessionId = 'batch_' + Date.now() + '_' + Math.random().toString(36).substring(2, 9);
       return {
+        id: sessionId,
         patientId: p.id,
         patientName: p.name,
         doctor: doctorName,
@@ -4339,6 +4355,39 @@ export class PatientsManager {
         letterRef: letterRef,
         notes: `${labelType} - جواب تأمين${letterRef ? ` (${letterRef})` : ''}${preSettledFlag ? ' • مسواة مسبقاً' : ''}`
       };
+    });
+
+    // 3. Combine existing + new drafts and sequence chronologically (Option A)
+    const combined = [...nonExamsExisting, ...newSessionDrafts];
+    combined.sort((a, b) => {
+      const dComp = (a.date || '').localeCompare(b.date || '');
+      if (dComp !== 0) return dComp;
+      const tA = a.createdAt || a.recordedAt || '';
+      const tB = b.createdAt || b.recordedAt || '';
+      if (tA && tB) return tA.localeCompare(tB);
+      return (a.id || '').localeCompare(b.id || '');
+    });
+
+    // 4. Assign sessionNumber and cycleNumber to all sessions in the sequence
+    const newIds = new Set(newSessionDrafts.map(n => n.id));
+    const sessionsToCreate = [];
+
+    combined.forEach((s, idx) => {
+      const numInCycle = (idx % approvedTotal) + 1;
+      const cycleNum = Math.floor(idx / approvedTotal) + 1;
+
+      if (newIds.has(s.id)) {
+        s.sessionNumber = numInCycle;
+        s.cycleNumber = cycleNum;
+        s.approvedSessionsTotal = approvedTotal;
+        sessionsToCreate.push(s);
+      } else if (s.sessionNumber !== numInCycle || s.cycleNumber !== cycleNum) {
+        // Existing session whose sequence shifted chronologically due to retroactive past sessions
+        s.sessionNumber = numInCycle;
+        s.cycleNumber = cycleNum;
+        s.approvedSessionsTotal = approvedTotal;
+        sessionsToCreate.push(s);
+      }
     });
 
     try {

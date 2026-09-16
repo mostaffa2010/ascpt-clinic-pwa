@@ -1017,24 +1017,30 @@ export class SessionsManager {
       } catch (_) {}
     }
 
-    // Calculate session number for patient's approval cycle
-    let sessionNumber = null;
-    let approvedSessionsTotal = null;
+    // Calculate session number for patient's approval cycle (Option A rollover)
+    let sessionNumber = 1;
+    let cycleNumber = 1;
+    let approvedSessionsTotal = 12;
     if (this.entryMode === 'session' && patient) {
       try {
-        const allPatientSessions = (await db.getSessionsForPatient(patient.id)).filter(x => x.entryType !== 'examination');
-        const cycleStart = patient.currentApprovalStartDate || '';
-        const cycleSessions = (payType === 'insurance' && cycleStart)
-          ? allPatientSessions.filter(x => (x.date || '').localeCompare(cycleStart) >= 0)
-          : allPatientSessions;
+        const allPatientSessions = (await db.getSessionsForPatient(patient.id)).filter(x => (x.entryType === 'session' || !x.entryType) && x.status !== 'cancelled');
+        const approvedTotal = parseInt(patient.approvedSessions, 10) || 12;
+        approvedSessionsTotal = approvedTotal;
 
         if (isEdit && this.editingSessionId) {
-          const editIdx = cycleSessions.findIndex(x => x.id === this.editingSessionId);
-          sessionNumber = editIdx >= 0 ? (editIdx + 1) : (cycleSessions.length || 1);
+          const sorted = [...allPatientSessions].sort((a, b) => (a.date || '').localeCompare(b.date || ''));
+          const editIdx = sorted.findIndex(x => x.id === this.editingSessionId);
+          const seqIdx = editIdx >= 0 ? editIdx : sorted.length;
+          sessionNumber = (seqIdx % approvedTotal) + 1;
+          cycleNumber = Math.floor(seqIdx / approvedTotal) + 1;
         } else {
-          sessionNumber = cycleSessions.length + 1;
+          const simulated = [...allPatientSessions, { id: 'temp_new', date: sessionDateVal }];
+          simulated.sort((a, b) => (a.date || '').localeCompare(b.date || ''));
+          const myIdx = simulated.findIndex(x => x.id === 'temp_new');
+          const seqIdx = myIdx >= 0 ? myIdx : allPatientSessions.length;
+          sessionNumber = (seqIdx % approvedTotal) + 1;
+          cycleNumber = Math.floor(seqIdx / approvedTotal) + 1;
         }
-        approvedSessionsTotal = patient.approvedSessions || 12;
       } catch (_) {}
     }
 
@@ -1062,6 +1068,7 @@ export class SessionsManager {
       amountPaid,
       notes,
       sessionNumber,
+      cycleNumber,
       approvedSessionsTotal,
       approvedBodyPartsTotal: patient?.approvedBodyParts || 1
     };
@@ -1747,16 +1754,13 @@ export class SessionsManager {
         const approvedTotal = parseInt(s.approvedSessionsTotal) || parseInt(pObj?.approvedSessions) || 12;
         const sessNum = s.sessionNumber || 1;
 
+        const cycleNum = s.cycleNumber || Math.floor(((s.sessionNumber || 1) - 1) / approvedTotal) + 1;
+        const cycleSuffix = cycleNum > 1 ? ` (دورة ${cycleNum})` : '';
+
         if (s.payType === 'insurance') {
-          if (sessNum > approvedTotal) {
-            sessionNumBadge = `<span class="badge" style="background:var(--danger-light); color:var(--danger); border:1px solid var(--danger); font-weight:800; font-size:0.78rem;"><i class="fa-solid fa-triangle-exclamation"></i> زيارة ${sessNum} من ${approvedTotal}</span>`;
-          } else if (sessNum === approvedTotal) {
-            sessionNumBadge = `<span class="badge" style="background:var(--warning-light); color:var(--warning); border:1px solid var(--warning); font-weight:800; font-size:0.78rem;"><i class="fa-solid fa-flag-checkered"></i> زيارة ${sessNum} من ${approvedTotal}</span>`;
-          } else {
-            sessionNumBadge = `<span class="badge" style="background:var(--bg-subtle); color:var(--primary); border:1px solid var(--border-color); font-weight:800; font-size:0.8rem;"><i class="fa-solid fa-calendar-check"></i> زيارة ${sessNum} من ${approvedTotal}</span>`;
-          }
+          sessionNumBadge = `<span class="badge" style="background:var(--bg-subtle); color:var(--primary); border:1px solid var(--border-color); font-weight:800; font-size:0.8rem;"><i class="fa-solid fa-calendar-check"></i> زيارة ${sessNum} من ${approvedTotal}${cycleSuffix}</span>`;
         } else {
-          sessionNumBadge = `<span class="badge" style="background:var(--bg-subtle); color:var(--text-main); border:1px solid var(--border-color); font-weight:700; font-size:0.8rem;">الجلسة ${sessNum}</span>`;
+          sessionNumBadge = `<span class="badge" style="background:var(--bg-subtle); color:var(--text-main); border:1px solid var(--border-color); font-weight:700; font-size:0.8rem;">الجلسة ${sessNum}${cycleSuffix}</span>`;
         }
       }
 
@@ -1845,10 +1849,13 @@ export class SessionsManager {
           const approvedTotal = parseInt(s.approvedSessionsTotal) || parseInt(pObj?.approvedSessions) || 12;
           const sessNum = s.sessionNumber || 1;
 
+          const cycleNum = s.cycleNumber || Math.floor(((s.sessionNumber || 1) - 1) / approvedTotal) + 1;
+          const cycleSuffix = cycleNum > 1 ? ` (دورة ${cycleNum})` : '';
+
           if (s.payType === 'insurance') {
-            sessionNumBadge = `<span class="badge" style="background: rgba(56, 189, 248, 0.15); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.3); font-weight: 800; font-size: 0.78rem;"><i class="fa-solid fa-calendar-check"></i> زيارة ${sessNum} من ${approvedTotal}</span>`;
+            sessionNumBadge = `<span class="badge" style="background: rgba(56, 189, 248, 0.15); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.3); font-weight: 800; font-size: 0.78rem;"><i class="fa-solid fa-calendar-check"></i> زيارة ${sessNum} من ${approvedTotal}${cycleSuffix}</span>`;
           } else {
-            sessionNumBadge = `<span class="badge" style="background: rgba(255, 255, 255, 0.08); color: var(--text-main); border: 1px solid var(--border-color); font-weight: 800; font-size: 0.78rem;">الجلسة ${sessNum}</span>`;
+            sessionNumBadge = `<span class="badge" style="background: rgba(255, 255, 255, 0.08); color: var(--text-main); border: 1px solid var(--border-color); font-weight: 800; font-size: 0.78rem;">الجلسة ${sessNum}${cycleSuffix}</span>`;
           }
         }
 
