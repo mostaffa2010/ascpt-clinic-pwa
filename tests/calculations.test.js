@@ -721,7 +721,7 @@ assert.equal(newPatient.doctor, 'د. حسني أحمد الجويلي', 'Assigne
 
 console.log('✓ All 9 Lifetime Patients Grouping & First Doctor Rule assertions passed successfully!');
 
-// 14. Daily Print Sheet Sessions Aggregation Engine Tests
+// 14. Daily Print Sheet Sessions Aggregation Engine Tests (Ascending Arrival Order & Clean Columns)
 console.log('--- Running Tests: Daily Print Sheet Sessions Aggregation Engine ---');
 
 function aggregateDailySessionsForPrint(sessions = []) {
@@ -733,8 +733,21 @@ function aggregateDailySessionsForPrint(sessions = []) {
     patientMap.get(key).push(s);
   });
 
+  // Sort patients chronologically by arrival time (earliest arrival first)
+  const sortedPatientEntries = Array.from(patientMap.values()).sort((itemsA, itemsB) => {
+    const timeA = itemsA.reduce((min, s) => {
+      const t = s.createdAt || s.recordedAt || s.time || '';
+      return (!min || (t && t < min)) ? t : min;
+    }, '');
+    const timeB = itemsB.reduce((min, s) => {
+      const t = s.createdAt || s.recordedAt || s.time || '';
+      return (!min || (t && t < min)) ? t : min;
+    }, '');
+    return timeA.localeCompare(timeB);
+  });
+
   const rows = [];
-  patientMap.forEach(items => {
+  sortedPatientEntries.forEach(items => {
     const first = items[0];
     const patientName = first.patientName || 'مريض';
     const docNames = Array.from(new Set(items.map(s => s.doctor).filter(Boolean)));
@@ -750,7 +763,7 @@ function aggregateDailySessionsForPrint(sessions = []) {
     const hasSession = items.some(s => s.entryType === 'session' || !s.entryType);
     let actionType = 'جلسة';
     if (hasSession && hasExam) {
-      actionType = 'جلسة زائد كشف';
+      actionType = 'جلسة وكشف';
     } else if (hasExam) {
       actionType = 'كشف';
     } else if (items.length > 1) {
@@ -761,22 +774,22 @@ function aggregateDailySessionsForPrint(sessions = []) {
 
     const treatedBodyParts = partsSet.size > 0 ? Array.from(partsSet).join('، ') : (hasExam && !hasSession ? 'فحص سريري' : 'عام');
     const isInsurance = items.some(s => s.payType === 'insurance' || s.contractType === 'direct' || s.contractType === 'indirect');
-    const payTypeText = isInsurance ? 'شركة' : 'نقدي';
     let companyName = '-';
     if (isInsurance) {
       const matchedItem = items.find(s => s.insuranceName);
-      companyName = matchedItem ? matchedItem.insuranceName : 'تأمين';
+      companyName = (matchedItem && matchedItem.insuranceName) ? matchedItem.insuranceName : 'تأمين';
     }
 
     const totalPaid = items.reduce((acc, curr) => acc + (parseFloat(curr.amountPaid) || 0), 0);
+    const amountDisplay = totalPaid === 0 ? '0' : totalPaid.toLocaleString('en-US');
 
     rows.push({
       patientName,
       doctorText,
       treatedBodyParts,
-      payTypeText,
       companyName,
       actionType,
+      amountDisplay,
       totalPaid
     });
   });
@@ -786,41 +799,40 @@ function aggregateDailySessionsForPrint(sessions = []) {
 
 // Scenario 1: Patient with only a session
 const testOnlySession = aggregateDailySessionsForPrint([
-  { id: 's1', patientId: 'p1', patientName: 'أحمد علي', doctor: 'د. مصطفى', bodyParts: ['الركبة'], entryType: 'session', payType: 'cash', amountPaid: 150 }
+  { id: 's1', patientId: 'p1', patientName: 'أحمد علي', doctor: 'د. مصطفى', bodyParts: ['الركبة'], entryType: 'session', payType: 'cash', amountPaid: 150, time: '04:00' }
 ]);
 assert.equal(testOnlySession.length, 1);
 assert.equal(testOnlySession[0].actionType, 'جلسة');
-assert.equal(testOnlySession[0].payTypeText, 'نقدي');
 assert.equal(testOnlySession[0].companyName, '-');
-assert.equal(testOnlySession[0].totalPaid, 150);
+assert.equal(testOnlySession[0].amountDisplay, '150');
 
 // Scenario 2: Patient with only an examination
 const testOnlyExam = aggregateDailySessionsForPrint([
-  { id: 'e1', patientId: 'p2', patientName: 'سارة محمد', doctor: 'د. محمد', bodyParts: [], entryType: 'examination', payType: 'insurance', insuranceName: 'أموك', amountPaid: 0 }
+  { id: 'e1', patientId: 'p2', patientName: 'سارة محمد', doctor: 'د. محمد', bodyParts: [], entryType: 'examination', payType: 'insurance', insuranceName: 'أموك', amountPaid: 0, time: '04:30' }
 ]);
 assert.equal(testOnlyExam.length, 1);
 assert.equal(testOnlyExam[0].actionType, 'كشف');
-assert.equal(testOnlyExam[0].payTypeText, 'شركة');
 assert.equal(testOnlyExam[0].companyName, 'أموك');
 assert.equal(testOnlyExam[0].treatedBodyParts, 'فحص سريري');
+assert.equal(testOnlyExam[0].amountDisplay, '0');
 
-// Scenario 3: Patient with BOTH session and examination on the same day -> Must merge into ONE row with "جلسة زائد كشف" and sum amounts!
+// Scenario 3: Patient with BOTH session and examination on the same day -> Must merge into ONE row with "جلسة وكشف" and sum amounts!
 const testSessionAndExam = aggregateDailySessionsForPrint([
-  { id: 's3', patientId: 'p3', patientName: 'محمود حسن', doctor: 'د. مصطفى', bodyParts: ['أسفل الظهر'], entryType: 'session', payType: 'cash', amountPaid: 150 },
-  { id: 'e3', patientId: 'p3', patientName: 'محمود حسن', doctor: 'د. مصطفى', bodyParts: [], entryType: 'examination', payType: 'cash', amountPaid: 100 }
+  { id: 's3', patientId: 'p3', patientName: 'محمود حسن', doctor: 'د. مصطفى', bodyParts: ['أسفل الظهر'], entryType: 'session', payType: 'cash', amountPaid: 150, time: '03:15' },
+  { id: 'e3', patientId: 'p3', patientName: 'محمود حسن', doctor: 'د. مصطفى', bodyParts: [], entryType: 'examination', payType: 'cash', amountPaid: 100, time: '03:10' }
 ]);
 assert.equal(testSessionAndExam.length, 1, 'Patient with session and exam must merge into exactly 1 row');
-assert.equal(testSessionAndExam[0].actionType, 'جلسة زائد كشف');
-assert.equal(testSessionAndExam[0].totalPaid, 250, 'Total paid must sum session (150) + exam (100) = 250');
+assert.equal(testSessionAndExam[0].actionType, 'جلسة وكشف');
+assert.equal(testSessionAndExam[0].totalPaid, 250);
+assert.equal(testSessionAndExam[0].amountDisplay, '250');
 assert.equal(testSessionAndExam[0].treatedBodyParts, 'أسفل الظهر');
 
-// Scenario 4: Multiple patients mixed
-const testMixed = aggregateDailySessionsForPrint([
-  { id: 's1', patientId: 'p1', patientName: 'أحمد علي', doctor: 'د. مصطفى', bodyParts: ['الركبة'], entryType: 'session', payType: 'cash', amountPaid: 150 },
-  { id: 'e1', patientId: 'p2', patientName: 'سارة محمد', doctor: 'د. محمد', bodyParts: [], entryType: 'examination', payType: 'insurance', insuranceName: 'أموك', amountPaid: 0 },
-  { id: 's3', patientId: 'p3', patientName: 'محمود حسن', doctor: 'د. مصطفى', bodyParts: ['أسفل الظهر'], entryType: 'session', payType: 'cash', amountPaid: 150 },
-  { id: 'e3', patientId: 'p3', patientName: 'محمود حسن', doctor: 'د. مصطفى', bodyParts: [], entryType: 'examination', payType: 'cash', amountPaid: 100 }
+// Scenario 4: Chronological sorting (Earliest arrival first)
+const testSorting = aggregateDailySessionsForPrint([
+  { id: 's_late', patientId: 'p_late', patientName: 'مريض متأخر', time: '05:30', entryType: 'session', amountPaid: 100 },
+  { id: 's_early', patientId: 'p_early', patientName: 'مريض مبكر', time: '03:30', entryType: 'session', amountPaid: 100 }
 ]);
-assert.equal(testMixed.length, 3, 'Should produce 3 distinct patient rows');
+assert.equal(testSorting[0].patientName, 'مريض مبكر', 'Earliest arrival (03:30) must be first row');
+assert.equal(testSorting[1].patientName, 'مريض متأخر', 'Later arrival (05:30) must be second row');
 
-console.log('✓ All 7 Daily Print Sheet Aggregation assertions passed successfully!');
+console.log('✓ All 8 Daily Print Sheet Aggregation assertions passed successfully!');

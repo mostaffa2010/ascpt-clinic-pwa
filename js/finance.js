@@ -1034,7 +1034,7 @@ export class FinanceManager {
     const reportTbody = document.getElementById('finance-report-tbody');
     if (reportTbody) {
       if (allSessions.length === 0) {
-        reportTbody.innerHTML = '<tr><td colspan="8" style="text-align: center; color: var(--text-muted); padding: 14px;">لا توجد جلسات أو كشوفات مسجلة لهذا اليوم.</td></tr>';
+        reportTbody.innerHTML = '<tr><td colspan="7" style="text-align: center; color: var(--text-muted); padding: 10px; font-size: 7pt;">لا توجد جلسات أو كشوفات مسجلة لهذا اليوم.</td></tr>';
       } else {
         // Group sessions and examinations by patient to merge if patient had both on the same day
         const patientSessionsMap = new Map();
@@ -1047,10 +1047,23 @@ export class FinanceManager {
           patientSessionsMap.get(key).push(s);
         });
 
+        // Sort patients chronologically by arrival time (earliest arrival first)
+        const sortedPatientEntries = Array.from(patientSessionsMap.values()).sort((itemsA, itemsB) => {
+          const timeA = itemsA.reduce((min, s) => {
+            const t = s.createdAt || s.recordedAt || s.time || '';
+            return (!min || (t && t < min)) ? t : min;
+          }, '');
+          const timeB = itemsB.reduce((min, s) => {
+            const t = s.createdAt || s.recordedAt || s.time || '';
+            return (!min || (t && t < min)) ? t : min;
+          }, '');
+          return timeA.localeCompare(timeB);
+        });
+
         const rowsHTML = [];
         let rowIdx = 1;
 
-        patientSessionsMap.forEach((items) => {
+        sortedPatientEntries.forEach((items) => {
           const first = items[0];
           const patientName = first.patientName || 'مريض';
 
@@ -1070,12 +1083,12 @@ export class FinanceManager {
             }
           });
 
-          // Action Type: session, examination, or merged "جلسة زائد كشف"
+          // Action Type: session, examination, or merged "جلسة وكشف"
           const hasExam = items.some(s => s.entryType === 'examination');
           const hasSession = items.some(s => s.entryType === 'session' || !s.entryType);
           let actionType = 'جلسة';
           if (hasSession && hasExam) {
-            actionType = 'جلسة زائد كشف';
+            actionType = 'جلسة وكشف';
           } else if (hasExam) {
             actionType = 'كشف';
           } else if (items.length > 1) {
@@ -1088,17 +1101,17 @@ export class FinanceManager {
             ? Array.from(partsSet).join('، ')
             : (hasExam && !hasSession ? 'فحص سريري' : 'عام');
 
-          // Pay Type & Insurance Company
+          // Insurance Company (company name or "-" for cash)
           const isInsurance = items.some(s => s.payType === 'insurance' || s.contractType === 'direct' || s.contractType === 'indirect');
-          const payTypeText = isInsurance ? 'شركة' : 'نقدي';
           let companyName = '-';
           if (isInsurance) {
             const matchedItem = items.find(s => s.insuranceName);
-            companyName = matchedItem ? matchedItem.insuranceName : 'تأمين';
+            companyName = (matchedItem && matchedItem.insuranceName) ? matchedItem.insuranceName : 'تأمين';
           }
 
-          // Total Amount Paid
+          // Total Amount Paid (numeric only without "ج.م")
           const totalPaid = items.reduce((acc, curr) => acc + (parseFloat(curr.amountPaid) || 0), 0);
+          const amountDisplay = totalPaid === 0 ? '0' : totalPaid.toLocaleString('en-US');
 
           rowsHTML.push(
             '<tr>' +
@@ -1106,12 +1119,9 @@ export class FinanceManager {
               '<td style="font-weight: 700; color: #000000;">' + escapeHTML(patientName) + '</td>' +
               '<td style="font-weight: 600;">' + escapeHTML(treatedBodyParts) + '</td>' +
               '<td style="font-weight: 600;">' + escapeHTML(doctorText) + '</td>' +
-              '<td style="text-align: center;">' +
-                '<span class="badge ' + (isInsurance ? 'badge-direct' : 'badge-cash') + '" style="padding: 1px 3px; font-size: 6.5pt; font-weight: 800;">' + payTypeText + '</span>' +
-              '</td>' +
-              '<td style="font-weight: 600;">' + escapeHTML(companyName) + '</td>' +
+              '<td style="font-weight: 600; text-align: center;">' + escapeHTML(companyName) + '</td>' +
               '<td style="text-align: center; font-weight: 800; color: #0369a1;">' + escapeHTML(actionType) + '</td>' +
-              '<td style="text-align: center; font-weight: 800; color: #15803d; white-space: nowrap;">' + totalPaid.toLocaleString('en-US') + ' ج.م</td>' +
+              '<td style="text-align: center; font-weight: 800; color: #15803d; white-space: nowrap;">' + amountDisplay + '</td>' +
             '</tr>'
           );
         });
@@ -1128,7 +1138,7 @@ export class FinanceManager {
     const expTbody = document.getElementById('finance-expenses-tbody');
     if (expTbody) {
       if (allExpenses.length === 0) {
-        expTbody.innerHTML = `<tr><td colspan="5" style="text-align: center; color: var(--text-muted); padding: 4px; font-size: 7pt;">لا توجد مصروفات مسجلة لهذا اليوم.</td></tr>`;
+        expTbody.innerHTML = `<tr><td colspan="4" style="text-align: center; color: var(--text-muted); padding: 4px; font-size: 7pt; font-weight: 700;">لا توجد مصروفات مسجلة لهذا اليوم.</td></tr>`;
       } else {
         expTbody.innerHTML = allExpenses.map(e => `
           <tr>
