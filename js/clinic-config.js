@@ -10,7 +10,7 @@ export const CLINIC_CONFIG = {
  englishName: 'Alexandria Specialized Center for Physical Therapy',
  abbreviation: 'ASCPT',
  tagline: 'نظام إدارة مراكز وعيادات العلاج الطبيعي',
- version: '2.9.2',
+ version: '2.10.0',
  director: {
   name: 'د. حسني أحمد الجويلي',
   title: 'إستشاري العلاج الطبيعي والتقويم الحركي للعمود الفقري'
@@ -34,6 +34,7 @@ export const CLINIC_CONFIG = {
   projectId: "ascpt-clinic-pwa",
   storageBucket: "ascpt-clinic-pwa.firebasestorage.app",
   messagingSenderId: "480756686941",
-  appId: "1:480756686941:web:ccd6a8a1f6aeafca5fadb4"
+  appId: "1:480756686941:web:ccd6a8a1f6aeafca5fadb4",
+  vapidKey: "BNxVekL4fNFFrfCdSFf8KQaB0dWM3YrMfl59uku4lxI5Anwiat1fIMv7ZQOsLNommf3Ub_hSgmlXUquBHbzYJNs"
  }
 };

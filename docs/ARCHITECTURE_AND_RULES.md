@@ -45,6 +45,11 @@ physioflow/
 │   ├── audit.js        # Audit trail & logs
 │   ├── pwa.js          # PWA installation & network status
 │   ├── utils.js        # Pure helper functions
+│   ├── notifications.js# Unified Push & In-App Notification Center
+│
+├── api/
+│   ├── admin/users.js  # Privileged staff admin endpoint
+│   └── notifications/  # Serverless push notification dispatch
 │
 ├── assets/
 │   ├── icons/

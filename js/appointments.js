@@ -802,6 +802,19 @@ export class AppointmentsManager {
           const currentUser = auth.getCurrentUser() || { name: docName, role: 'doctor', uid: safeDoctorUid };
           const savedSession = await db.saveSession(newSessionData, currentUser);
           createdSessionId = savedSession?.id || null;
+          if (savedSession && window.app?.notificationsManager) {
+            try {
+              window.app.notificationsManager.sendNotification({
+                type: 'session_completed',
+                title: 'تم تسجيل جلسة من جدول الطبيب',
+                body: `المريض: ${safePatientName} بواسطة د. ${docName}`,
+                target: { role: 'receptionist' },
+                data: { screen: 'sessions', date: today, patientId: safePatientId }
+              });
+            } catch (notifErr) {
+              console.warn('Notification to reception notice:', notifErr);
+            }
+          }
         } else {
           createdSessionId = todaySessions[0]?.id || null;
         }
@@ -2005,6 +2018,20 @@ export class AppointmentsManager {
 
       this.app.closeModal('modal-appointment');
       this.app.showToast(`تم تثبيت الموعد الدوري أسبوعياً (${daysText}) بنجاح`, 'success');
+
+      if (chosenUid && window.app?.notificationsManager) {
+        try {
+          window.app.notificationsManager.sendNotification({
+            type: 'appointment_booked',
+            title: `حجز موعد جديد: ${this.selectedPatientName}`,
+            body: `موعد دوري أسبوعياً (${daysText}) مع د. ${chosenName}`,
+            target: { doctorUid: chosenUid, role: 'doctor' },
+            data: { screen: 'appointments', date: this.selectedDate || getLocalDateStr() }
+          });
+        } catch (notifErr) {
+          console.warn('Appointment notification notice:', notifErr);
+        }
+      }
       await this.loadAll(this.selectedDate, true);
       await this.render();
       if (this.app?.patientsManager?.renderPatients) {

@@ -2136,6 +2136,20 @@ export class FinanceManager {
       } catch (_) {}
 
       this.app.showToast('تم تسجيل وتأكيد تسليم النقدية بنجاح!', 'success');
+
+      if (window.app?.notificationsManager) {
+        try {
+          window.app.notificationsManager.sendNotification({
+            type: 'cash_handoff',
+            title: 'تسليم العهدة النقدية',
+            body: `تم تسليم عهدة اليوم (${currentNetCash} ج.م) بواسطة ${currentUser.name}`,
+            target: { role: 'admin' },
+            data: { screen: 'finance', date: this.currentDate }
+          });
+        } catch (notifErr) {
+          console.warn('Cash handoff notification notice:', notifErr);
+        }
+      }
       await this.loadDailyReport();
     } catch (err) {
       console.error('Cash handoff error:', err);

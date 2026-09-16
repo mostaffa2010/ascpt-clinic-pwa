@@ -84,6 +84,7 @@ import { AppointmentsManager } from './appointments.js';
 import { ExportManager } from './export.js';
 import { AuditAndAdminManager } from './audit.js';
 import { RolesManager } from './roles.js';
+import { NotificationsManager } from './notifications.js';
 import { CLINIC_CONFIG } from './clinic-config.js';
 
 class App {
@@ -102,6 +103,8 @@ class App {
     this.claimsManager = new ClaimsManager(this);
     this.doctorDashboardManager = new DoctorDashboardManager(this);
     this.appointmentsManager = new AppointmentsManager(this);
+    this.notificationsManager = new NotificationsManager(this);
+    window.notificationsManager = this.notificationsManager;
 
     window.patientsManager = this.patientsManager;
     window.sessionsManager = this.sessionsManager;
@@ -187,7 +190,8 @@ class App {
     try { await this.financeManager.init(); } catch (e) { console.warn('financeManager init notice:', e); }
     try { this.exportManager.init(); } catch (e) { console.warn('exportManager init notice:', e); }
     try { await this.auditManager.init(); } catch (e) { console.warn('auditManager init notice:', e); }
-    try { await this.appointmentsManager.init(); } catch (e) { console.warn('appointmentsManager init notice:', e); }
+    try { await this.appointmentsManager.init();
+    this.notificationsManager.init(); } catch (e) { console.warn('appointmentsManager init notice:', e); }
 
     // مزامنة أزرار القوائم المخصصة
     ['claim-company-select', 'patient-filter-type', 'session-doctor-select', 'finance-doctor-filter', 'newuser-role', 'p-gender', 'p-approved-body-parts', 'renew-approved-body-parts', 'appt-doctor-select', 'batch-hv-doctor'].forEach(id => {
@@ -604,6 +608,7 @@ class App {
           btnAdminProfile.style.display = (user.role === 'admin') ? 'flex' : 'none';
         }
 
+        this.notificationsManager?.checkCurrentPermissionState();
         this.openModal('modal-user-profile');
       } catch (err) {
         console.error('Error opening user profile modal:', err);

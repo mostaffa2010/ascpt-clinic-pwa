@@ -1132,6 +1132,26 @@ export class SessionsManager {
     } catch (syncErr) {
       console.warn('Sync appointment status notice:', syncErr);
     }
+    // Trigger Push Notification to Attending Doctor on Patient Arrival (v2.10.0)
+    if (!isEdit && (doctorUid || doctor)) {
+      try {
+        const progLabel = sessionPricingType === 'scoliosis' ? 'Scoliosis' : (sessionPricingType === 'hemiplegia' ? 'تأهيل عصبي' : (sessionPricingType === 'quadriplegia' ? 'تأهيل شلل' : 'علاج طبيعي عام'));
+        const partsText = selectedParts.length > 0 ? selectedParts.join('، ') : '';
+        const titleText = this.entryMode === 'examination' ? `حضور كشف: ${patientName}` : `حضور مريض: ${patientName}`;
+        const bodyText = `${this.entryMode === 'examination' ? 'كشف سريري' : 'جلسة ' + progLabel}${partsText ? ' (' + partsText + ')' : ''} مع د. ${doctor}`;
+
+        window.app?.notificationsManager?.sendNotification({
+          type: 'patient_checkin',
+          title: titleText,
+          body: bodyText,
+          target: { doctorUid: doctorUid || '', role: 'doctor' },
+          data: { screen: 'doctor-dashboard', patientId: this.selectedPatientId }
+        });
+      } catch (notifErr) {
+        console.warn('Session notification dispatch notice:', notifErr);
+      }
+    }
+
     this.currentPage = 1;
     
     let auditAction = isEdit ? 'تعديل جلسة' : 'تسجيل جلسة';

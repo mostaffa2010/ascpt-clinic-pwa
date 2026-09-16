@@ -1,0 +1,487 @@
+// ========================================================
+// ASCPT - Unified Push Notifications & In-App Center Manager
+// Alexandria Specialized Center for Physical Therapy
+// Module: js/notifications.js (Phase 2.10)
+// ========================================================
+
+import {
+  collection,
+  doc,
+  setDoc,
+  updateDoc,
+  deleteDoc,
+  onSnapshot,
+  query,
+  orderBy,
+  limit,
+  writeBatch
+} from 'https://www.gstatic.com/firebasejs/12.18.0/firebase-firestore.js';
+
+import { firestoreDb, isConfigured } from './firebase-init.js';
+import { CLINIC_CONFIG } from './clinic-config.js';
+import { auth } from './auth.js';
+import { escapeHTML } from './utils.js';
+
+function urlB64ToUint8Array(base64String) {
+  const padding = '='.repeat((4 - (base64String.length % 4)) % 4);
+  const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/');
+  const rawData = window.atob(base64);
+  const outputArray = new Uint8Array(rawData.length);
+  for (let i = 0; i < rawData.length; ++i) {
+    outputArray[i] = rawData.charCodeAt(i);
+  }
+  return outputArray;
+}
+
+function formatRelativeTimeArabic(dateIso) {
+  if (!dateIso) return '';
+  const now = new Date();
+  const past = new Date(dateIso);
+  const diffSec = Math.floor((now - past) / 1000);
+
+  if (diffSec < 45) return 'الآن';
+  if (diffSec < 90) return 'منذ دقيقة';
+  const diffMin = Math.floor(diffSec / 60);
+  if (diffMin < 60) {
+    if (diffMin === 2) return 'منذ دقيقتين';
+    if (diffMin >= 3 && diffMin <= 10) return `منذ ${diffMin} دقائق`;
+    return `منذ ${diffMin} دقيقة`;
+  }
+  const diffHours = Math.floor(diffMin / 60);
+  if (diffHours < 24) {
+    if (diffHours === 1) return 'منذ ساعة';
+    if (diffHours === 2) return 'منذ ساعتين';
+    if (diffHours >= 3 && diffHours <= 10) return `منذ ${diffHours} ساعات`;
+    return `منذ ${diffHours} ساعة`;
+  }
+  const diffDays = Math.floor(diffHours / 24);
+  if (diffDays === 1) return 'أمس';
+  if (diffDays === 2) return 'منذ يومين';
+  if (diffDays <= 7) return `منذ ${diffDays} أيام`;
+  return past.toLocaleDateString('ar-EG-u-nu-latn');
+}
+
+export class NotificationsManager {
+  constructor(app) {
+    this.app = app;
+    this.notifications = [];
+    this.unsubscribeListener = null;
+    this.isDropdownOpen = false;
+    this.currentToken = null;
+  }
+
+  init() {
+    this.bindDomEvents();
+    this.bindServiceWorkerMessages();
+    this.setupAuthSync();
+  }
+
+  bindDomEvents() {
+    const btnBell = document.getElementById('btn-notifications-bell');
+    const dropdown = document.getElementById('notification-dropdown');
+    const btnMarkAll = document.getElementById('btn-mark-all-read');
+    const btnTogglePush = document.getElementById('btn-toggle-push-notifications');
+
+    if (btnBell) {
+      btnBell.addEventListener('click', (e) => {
+        e.stopPropagation();
+        this.toggleDropdown();
+      });
+    }
+
+    if (btnMarkAll) {
+      btnMarkAll.addEventListener('click', (e) => {
+        e.stopPropagation();
+        this.markAllAsRead();
+      });
+    }
+
+    if (btnTogglePush) {
+      btnTogglePush.addEventListener('click', (e) => {
+        e.preventDefault();
+        this.requestPermissionAndSubscribe();
+      });
+    }
+
+    // Close dropdown on outside click
+    document.addEventListener('click', (e) => {
+      if (this.isDropdownOpen) {
+        if (dropdown && !dropdown.contains(e.target) && (!btnBell || !btnBell.contains(e.target))) {
+          this.closeDropdown();
+        }
+      }
+    });
+
+    // Close dropdown on ESC
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && this.isDropdownOpen) {
+        this.closeDropdown();
+      }
+    });
+  }
+
+  bindServiceWorkerMessages() {
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.addEventListener('message', (event) => {
+        const data = event.data;
+        if (data && data.type === 'NAVIGATE_TO_VIEW') {
+          if (data.screen && this.app && typeof this.app.switchView === 'function') {
+            this.app.switchView(data.screen);
+            if (data.patientId && this.app.patientsManager) {
+              setTimeout(() => {
+                this.app.patientsManager.openClinicalSheet(data.patientId);
+              }, 200);
+            }
+          }
+        }
+      });
+    }
+  }
+
+  setupAuthSync() {
+    // Sync notifications when user logs in or out
+    if (this.app) {
+      const originalCheckSession = this.app.checkSession?.bind(this.app);
+      if (originalCheckSession) {
+        this.app.checkSession = async () => {
+          await originalCheckSession();
+          this.startListening();
+          this.checkCurrentPermissionState();
+        };
+      }
+    }
+    // Initial start if already authenticated
+    this.startListening();
+    this.checkCurrentPermissionState();
+  }
+
+  startListening() {
+    if (this.unsubscribeListener) {
+      this.unsubscribeListener();
+      this.unsubscribeListener = null;
+    }
+
+    const currentUser = auth.getCurrentUser();
+    if (!currentUser || !currentUser.uid || !firestoreDb || !isConfigured) {
+      this.updateBadge(0);
+      return;
+    }
+
+    try {
+      const notifCol = collection(firestoreDb, 'users', currentUser.uid, 'notifications');
+      const q = query(notifCol, orderBy('createdAt', 'desc'), limit(25));
+
+      this.unsubscribeListener = onSnapshot(q, (snapshot) => {
+        const notifs = [];
+        snapshot.forEach((docSnap) => {
+          notifs.push({ id: docSnap.id, ...docSnap.data() });
+        });
+        this.notifications = notifs;
+        this.renderNotifications();
+      }, (err) => {
+        console.warn('Notifications real-time listener notice:', err.message);
+      });
+    } catch (err) {
+      console.warn('Failed to attach notifications listener:', err.message);
+    }
+  }
+
+  toggleDropdown() {
+    if (this.isDropdownOpen) {
+      this.closeDropdown();
+    } else {
+      this.openDropdown();
+    }
+  }
+
+  openDropdown() {
+    const dropdown = document.getElementById('notification-dropdown');
+    if (!dropdown) return;
+    dropdown.style.display = 'flex';
+    this.isDropdownOpen = true;
+    this.renderNotifications();
+  }
+
+  closeDropdown() {
+    const dropdown = document.getElementById('notification-dropdown');
+    if (!dropdown) return;
+    dropdown.style.display = 'none';
+    this.isDropdownOpen = false;
+  }
+
+  updateBadge(count) {
+    const badge = document.getElementById('notification-badge');
+    if (!badge) return;
+    if (count > 0) {
+      badge.textContent = count > 99 ? '99+' : count;
+      badge.style.display = 'flex';
+    } else {
+      badge.textContent = '0';
+      badge.style.display = 'none';
+    }
+  }
+
+  renderNotifications() {
+    const listEl = document.getElementById('notifications-list');
+    const unreadCount = this.notifications.filter(n => !n.read).length;
+    this.updateBadge(unreadCount);
+
+    if (!listEl) return;
+
+    if (this.notifications.length === 0) {
+      listEl.innerHTML = `
+        <div class="notification-empty-state">
+          <div class="notif-empty-icon"><i class="fa-regular fa-bell-slash"></i></div>
+          <div class="notif-empty-title">لا توجد إشعارات جديدة</div>
+          <div class="notif-empty-sub">ستظهر هنا التنبيهات الفورية لحضور المرضى والمواعيد والعهد</div>
+        </div>
+      `;
+      return;
+    }
+
+    listEl.innerHTML = this.notifications.map((n) => {
+      const isUnread = !n.read;
+      const timeStr = formatRelativeTimeArabic(n.createdAt);
+      let iconClass = 'fa-solid fa-bell';
+      let iconColor = 'var(--primary)';
+      let iconBg = 'rgba(2, 132, 199, 0.12)';
+
+      if (n.type === 'patient_checkin') {
+        iconClass = 'fa-solid fa-user-check';
+        iconColor = '#10b981';
+        iconBg = 'rgba(16, 185, 129, 0.12)';
+      } else if (n.type === 'appointment_booked') {
+        iconClass = 'fa-solid fa-calendar-plus';
+        iconColor = '#0284c7';
+        iconBg = 'rgba(2, 132, 199, 0.12)';
+      } else if (n.type === 'session_completed') {
+        iconClass = 'fa-solid fa-circle-check';
+        iconColor = '#059669';
+        iconBg = 'rgba(5, 150, 105, 0.12)';
+      } else if (n.type === 'cash_handoff') {
+        iconClass = 'fa-solid fa-vault';
+        iconColor = '#d97706';
+        iconBg = 'rgba(217, 119, 6, 0.12)';
+      } else if (n.type === 'admin_broadcast') {
+        iconClass = 'fa-solid fa-bullhorn';
+        iconColor = '#8b5cf6';
+        iconBg = 'rgba(139, 92, 246, 0.12)';
+      }
+
+      return `
+        <div class="notification-item ${isUnread ? 'is-unread' : ''}" data-notif-id="${n.id}">
+          <div class="notif-avatar" style="color: ${iconColor}; background: ${iconBg};">
+            <i class="${iconClass}"></i>
+          </div>
+          <div class="notif-content-wrap">
+            <div class="notif-title-row">
+              <span class="notif-title">${escapeHTML(n.title)}</span>
+              <span class="notif-time">${timeStr}</span>
+            </div>
+            <div class="notif-body">${escapeHTML(n.body)}</div>
+          </div>
+          ${isUnread ? '<span class="notif-unread-dot" title="غير مقروء"></span>' : ''}
+        </div>
+      `;
+    }).join('');
+
+    // Attach click handlers to notification items
+    listEl.querySelectorAll('.notification-item').forEach((item) => {
+      item.addEventListener('click', (e) => {
+        const notifId = item.dataset.notifId;
+        const notif = this.notifications.find(n => n.id === notifId);
+        if (notif) {
+          this.handleNotificationClick(notif);
+        }
+      });
+    });
+  }
+
+  async handleNotificationClick(notif) {
+    if (!notif.read) {
+      await this.markAsRead(notif.id);
+    }
+    this.closeDropdown();
+
+    const data = notif.data || {};
+    if (data.screen && this.app && typeof this.app.switchView === 'function') {
+      this.app.switchView(data.screen);
+      if (data.patientId && this.app.patientsManager) {
+        setTimeout(() => {
+          this.app.patientsManager.openClinicalSheet(data.patientId);
+        }, 150);
+      }
+    }
+  }
+
+  async markAsRead(notificationId) {
+    const currentUser = auth.getCurrentUser();
+    if (!currentUser || !currentUser.uid || !firestoreDb) return;
+    try {
+      const docRef = doc(firestoreDb, 'users', currentUser.uid, 'notifications', notificationId);
+      await updateDoc(docRef, { read: true });
+    } catch (e) {
+      console.warn('markAsRead notice:', e.message);
+    }
+  }
+
+  async markAllAsRead() {
+    const currentUser = auth.getCurrentUser();
+    if (!currentUser || !currentUser.uid || !firestoreDb) return;
+
+    const unread = this.notifications.filter(n => !n.read);
+    if (unread.length === 0) return;
+
+    try {
+      const batch = writeBatch(firestoreDb);
+      unread.forEach((n) => {
+        const ref = doc(firestoreDb, 'users', currentUser.uid, 'notifications', n.id);
+        batch.update(ref, { read: true });
+      });
+      await batch.commit();
+      if (this.app?.showToast) {
+        this.app.showToast('تم تحديد جميع الإشعارات كمقروءة');
+      }
+    } catch (e) {
+      console.warn('markAllAsRead notice:', e.message);
+    }
+  }
+
+  async checkCurrentPermissionState() {
+    const statusText = document.getElementById('push-status-text');
+    const btnToggle = document.getElementById('btn-toggle-push-notifications');
+
+    if (!('Notification' in window) || !('serviceWorker' in navigator)) {
+      if (statusText) statusText.textContent = 'الإشعارات الفورية غير مدعومة على هذا المتصفح';
+      if (btnToggle) {
+        btnToggle.disabled = true;
+        btnToggle.textContent = 'غير مدعوم';
+      }
+      return;
+    }
+
+    if (Notification.permission === 'granted') {
+      if (statusText) statusText.textContent = 'الإشعارات الفورية مفعلة بنجاح على هذا الجهاز';
+      if (btnToggle) {
+        btnToggle.textContent = 'مفعل ✓';
+        btnToggle.classList.replace('btn-outline', 'btn-success');
+        btnToggle.style.borderColor = 'var(--success)';
+        btnToggle.style.color = 'var(--success)';
+      }
+    } else if (Notification.permission === 'denied') {
+      if (statusText) statusText.textContent = 'تم حظر الإشعارات من إعدادات المتصفح. يمكنك السماح بها من قفل الموقع';
+      if (btnToggle) {
+        btnToggle.textContent = 'محظور';
+        btnToggle.disabled = true;
+      }
+    } else {
+      if (statusText) statusText.textContent = 'تلقي تنبيهات المرضى والمواعيد والعهد فورياً على هذا الجهاز';
+      if (btnToggle) {
+        btnToggle.textContent = 'تفعيل';
+        btnToggle.disabled = false;
+      }
+    }
+  }
+
+  async requestPermissionAndSubscribe() {
+    const currentUser = auth.getCurrentUser();
+    if (!currentUser || !currentUser.uid) {
+      if (this.app?.showAlert) this.app.showAlert('يرجى تسجيل الدخول أولاً لتفعيل الإشعارات.', 'تنبيه', 'warning');
+      return;
+    }
+
+    if (!('Notification' in window) || !('serviceWorker' in navigator)) {
+      if (this.app?.showAlert) this.app.showAlert('هذا المتصفح لا يدعم خدمة إشعارات الويب Web Push.', 'غير مدعوم', 'warning');
+      return;
+    }
+
+    try {
+      const permission = await Notification.requestPermission();
+      if (permission !== 'granted') {
+        this.checkCurrentPermissionState();
+        if (this.app?.showAlert) {
+          this.app.showAlert('تم رفض إذن الإشعارات. يرجى تفعيلها من إعدادات المتصفح لتلقي التنبيهات.', 'تنبيه', 'warning');
+        }
+        return;
+      }
+
+      const vapidKey = CLINIC_CONFIG.firebase?.vapidKey;
+      if (!vapidKey) {
+        throw new Error('VAPID Key غير مهيأ في إعدادات النظام.');
+      }
+
+      const reg = await navigator.serviceWorker.ready;
+      let subscription = await reg.pushManager.getSubscription();
+
+      if (!subscription) {
+        subscription = await reg.pushManager.subscribe({
+          userVisibleOnly: true,
+          applicationServerKey: urlB64ToUint8Array(vapidKey)
+        });
+      }
+
+      const subJson = subscription.toJSON();
+      const tokenString = subJson.endpoint;
+
+      // Hash endpoint to create safe deterministic docId
+      let tokenHash = 0;
+      for (let i = 0; i < tokenString.length; i++) {
+        tokenHash = ((tokenHash << 5) - tokenHash) + tokenString.charCodeAt(i);
+        tokenHash |= 0;
+      }
+      const tokenDocId = 'tok_' + Math.abs(tokenHash);
+
+      // Save token to Firestore under current user's profile
+      if (firestoreDb) {
+        const tokenRef = doc(firestoreDb, 'users', currentUser.uid, 'fcm_tokens', tokenDocId);
+        await setDoc(tokenRef, {
+          token: tokenString,
+          subscription: subJson,
+          deviceType: /Mobi|Android|iPhone/i.test(navigator.userAgent) ? 'mobile' : 'desktop',
+          userAgent: navigator.userAgent.substring(0, 150),
+          role: currentUser.role || 'staff',
+          updatedAt: new Date().toISOString()
+        }, { merge: true });
+      }
+
+      this.checkCurrentPermissionState();
+      if (this.app?.showToast) {
+        this.app.showToast('تم تفعيل الإشعارات الفورية بنجاح على هذا الجهاز! 🔔');
+      }
+    } catch (err) {
+      console.error('Subscription error:', err);
+      if (this.app?.showAlert) {
+        this.app.showAlert('تعذر تفعيل الإشعارات: ' + (err.message || 'خطأ غير معروف'), 'خطأ', 'danger');
+      }
+    }
+  }
+
+  async sendNotification({ type, title, body, target, data }) {
+    // Fault-tolerant: If offline, skip silently without throwing or blocking clinical actions
+    if (!navigator.onLine) {
+      console.warn('Device is offline. Notification skipped gracefully.');
+      return;
+    }
+
+    try {
+      const response = await fetch('/api/notifications/send', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          type: type || 'general',
+          title,
+          body,
+          target: target || {},
+          data: data || {}
+        })
+      });
+
+      const result = await response.json();
+      return result;
+    } catch (err) {
+      console.warn('sendNotification notice:', err.message);
+    }
+  }
+}

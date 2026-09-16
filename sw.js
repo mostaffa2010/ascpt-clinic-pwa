@@ -1,11 +1,11 @@
 // ========================================================
 // ASCPT - Service Worker & Offline PWA Cache Engine
 // Alexandria Specialized Center for Physical Therapy
-// Version: 2.9.2 (Cache: ascpt-clinic-v2.9.2)
+// Version: 2.10.0 (Cache: ascpt-clinic-v2.10.0)
 // True Offline Navigation & Fault-Tolerant Cache Architecture
 // ========================================================
 
-const CACHE_NAME = 'ascpt-clinic-v2.9.2';
+const CACHE_NAME = 'ascpt-clinic-v2.10.0';
 
 // Core App Shell assets required for offline rendering
 const APP_SHELL_ASSETS = [
@@ -50,6 +50,7 @@ const APP_SHELL_ASSETS = [
   '/js/utils.js',
   '/js/clinic-config.js',
   '/js/firebase-init.js',
+  '/js/notifications.js',
   'https://www.gstatic.com/firebasejs/12.18.0/firebase-app.js',
   'https://www.gstatic.com/firebasejs/12.18.0/firebase-auth.js',
   'https://www.gstatic.com/firebasejs/12.18.0/firebase-firestore.js',
@@ -175,5 +176,77 @@ self.addEventListener('fetch', (event) => {
         return new Response('', { status: 408 });
       }
     })()
+  );
+});
+
+// ========================================================
+// Push Notifications & Background Click Handlers (v2.10.0)
+// ========================================================
+self.addEventListener('push', (event) => {
+  if (!event.data) return;
+
+  let payload = {};
+  try {
+    payload = event.data.json();
+  } catch (e) {
+    payload = {
+      notification: {
+        title: 'مركز الإسكندرية التخصصي (ASCPT)',
+        body: event.data.text()
+      }
+    };
+  }
+
+  const notificationData = payload.notification || {};
+  const customData = payload.data || {};
+
+  const title = notificationData.title || customData.title || 'مركز الإسكندرية التخصصي (ASCPT)';
+  const options = {
+    body: notificationData.body || customData.body || '',
+    icon: notificationData.icon || '/icons/icon-192.png',
+    badge: notificationData.badge || '/icons/favicon-32x32.png',
+    dir: 'rtl',
+    lang: 'ar',
+    vibrate: [200, 100, 200],
+    tag: customData.type || 'ascpt-notification',
+    renotify: true,
+    data: {
+      url: customData.url || '/',
+      screen: customData.screen || '',
+      patientId: customData.patientId || '',
+      date: customData.date || ''
+    }
+  };
+
+  event.waitUntil(
+    self.registration.showNotification(title, options)
+  );
+});
+
+self.addEventListener('notificationclick', (event) => {
+  event.notification.close();
+  const data = event.notification.data || {};
+  const targetUrl = data.url || '/';
+
+  event.waitUntil(
+    self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then((clientList) => {
+      for (const client of clientList) {
+        if ('focus' in client) {
+          client.focus();
+          if (data.screen) {
+            client.postMessage({
+              type: 'NAVIGATE_TO_VIEW',
+              screen: data.screen,
+              patientId: data.patientId,
+              date: data.date
+            });
+          }
+          return;
+        }
+      }
+      if (self.clients.openWindow) {
+        return self.clients.openWindow(targetUrl);
+      }
+    })
   );
 });
