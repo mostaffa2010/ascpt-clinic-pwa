@@ -689,11 +689,38 @@ export class AppointmentsManager {
     if (!appt) return;
 
     if (!isCompleted) {
-      // 1. First Session Restriction: Check if patient has any previous session
+      // 1. Resolve Patient Object
+      let patient = (this.patients || []).find(p => p.id === appt.patientId);
+      if (!patient) {
+        try {
+          const allPatients = await db.getPatients();
+          patient = allPatients.find(p => p.id === appt.patientId || p.name === (appt.patientName || patientName));
+        } catch (_) {}
+      }
+
+      const targetPatientId = appt.patientId || patient?.id;
+
+      // 2. First Session Restriction: Check if patient has any previous session
       let allPatientSessions = [];
-      try {
-        allPatientSessions = (await db.getSessionsForPatient(appt.patientId) || []).filter(s => s.status !== 'cancelled' && (s.entryType === 'session' || !s.entryType));
-      } catch (_) {}
+      if (targetPatientId) {
+        try {
+          allPatientSessions = (await db.getSessionsForPatient(targetPatientId) || []).filter(s =>
+            s.status !== 'cancelled' && (s.entryType === 'session' || !s.entryType)
+          );
+        } catch (_) {}
+      }
+
+      // Fallback search by patient name if ID search returned empty
+      if (allPatientSessions.length === 0 && (appt.patientName || patientName)) {
+        try {
+          const allSess = await db.getSessions();
+          allPatientSessions = (allSess || []).filter(s =>
+            s.patientName === (appt.patientName || patientName) &&
+            s.status !== 'cancelled' &&
+            (s.entryType === 'session' || !s.entryType)
+          );
+        } catch (_) {}
+      }
 
       const lastSession = getLatestTherapySession(allPatientSessions);
       if (!lastSession) {
@@ -705,11 +732,11 @@ export class AppointmentsManager {
         return;
       }
 
-      // 2. Subsequent Session: Auto-create session in sessions collection copying last session settings
+      // 3. Subsequent Session: Auto-create session in sessions collection copying last session settings
       let createdSessionId = null;
       try {
         const todaySessions = (await db.getSessions(today) || []).filter(s =>
-          s.patientId === appt.patientId &&
+          (s.patientId === targetPatientId || s.patientName === (appt.patientName || patientName)) &&
           s.status !== 'cancelled' &&
           (s.entryType === 'session' || !s.entryType)
         );
@@ -717,7 +744,6 @@ export class AppointmentsManager {
         if (todaySessions.length === 0) {
           const docObj = (this.doctors || []).find(d => d.uid === doctorUid || d.id === doctorUid);
           const docName = appt.doctorName || docObj?.name || 'طبيب المركز';
-          const patient = (this.patients || []).find(p => p.id === appt.patientId) || await db.getPatient(appt.patientId);
 
           let sessionNumber = null;
           let approvedSessionsTotal = null;
@@ -747,8 +773,8 @@ export class AppointmentsManager {
             sessionPricingType: lastSession.sessionPricingType || lastSession.programType || 'regular',
             programType: lastSession.programType || lastSession.sessionPricingType || 'regular',
             date: today,
-            patientId: appt.patientId,
-            patientName: appt.patientName,
+            patientId: targetPatientId || '',
+            patientName: appt.patientName || patientName,
             doctor: docName,
             doctorUid: doctorUid,
             bodyParts: partsToUse,
@@ -774,15 +800,16 @@ export class AppointmentsManager {
         }
       } catch (err) {
         console.error('Error auto-creating session by doctor:', err);
+        await this.app.showAlert('تعذر حفظ الجلسة في سجل الاستقبال: ' + err.message, 'خطأ في الحفظ', 'danger');
+        return;
       }
 
-      // Update completed list in localStorage
+      // 4. Update completed list in localStorage and appointment status
       const updated = [...completedApptIds, apptId];
       try {
         localStorage.setItem(`ascpt_completed_appts_${doctorUid}_${today}`, JSON.stringify(updated));
       } catch (_) {}
 
-      // Update appointment in Firestore
       const isRecurring = Array.isArray(appt.daysOfWeek) && appt.daysOfWeek.length > 0;
       const dailyStatuses = { ...(appt.dailyStatuses || {}) };
       dailyStatuses[today] = 'completed';
@@ -815,12 +842,12 @@ export class AppointmentsManager {
         this.app.showToast(`عاش يا دكتور! تم إنهاء وتسجيل جلسة: ${patientName}`, 'success');
       }
     } else {
-      // 3. Doctor Undo (زر التراجع): Delete the auto-created session from sessions collection
+      // 5. Doctor Undo (زر التراجع):
       try {
         let sessionIdToDelete = appt?.dailySessionIds?.[today];
         if (!sessionIdToDelete) {
           const todaySessions = (await db.getSessions(today) || []).filter(s =>
-            s.patientId === appt.patientId &&
+            (s.patientId === appt.patientId || s.patientName === (appt.patientName || patientName)) &&
             s.status !== 'cancelled' &&
             s.autoCreatedByDoctor
           );
@@ -1605,9 +1632,14 @@ export class AppointmentsManager {
   async handleStatusUpdateFromSheet(newStatus) {
     const a = this.selectedApptForAction;
     if (!a) return;
+    this.app.closeModal('modal-appt-actions');
+    if (newStatus === 'completed') {
+      const docUid = a.doctorUid || auth.getCurrentUser()?.uid || '';
+      await this.toggleApptCompleted(a.id, docUid, a.patientName);
+      return;
+    }
     const targetDate = this.selectedDate || getLocalDateStr();
     const isRecurring = Array.isArray(a.daysOfWeek) && a.daysOfWeek.length > 0;
-    this.app.closeModal('modal-appt-actions');
     try {
       if (isRecurring) {
         const dailyStatuses = { ...(a.dailyStatuses || {}) };

@@ -285,6 +285,16 @@ class FirestoreDatabaseService {
   }
 
   // ================= 1. Patients Management =================
+  async getPatient(id) {
+    if (!id) return null;
+    try {
+      const patients = await this.getPatients();
+      return patients.find(p => p.id === id || p.name === id) || null;
+    } catch (_) {
+      return null;
+    }
+  }
+
   async getPatients(forceRefresh = false) {
     this.ensureConnected();
     const now = Date.now();
