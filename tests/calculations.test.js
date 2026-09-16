@@ -153,9 +153,25 @@ assert.equal(filterAppointmentsByDate([recurringAppt], '2026-09-16').length, 1);
 assert.equal(filterAppointmentsByDate([recurringAppt], '2026-09-19').length, 1);
 assert.equal(filterAppointmentsByDate([recurringAppt], '2026-09-21').length, 1);
 assert.equal(filterAppointmentsByDate([recurringAppt], '2026-09-18').length, 0);
-const completedAppt = { ...recurringAppt, status: 'completed' };
-assert.equal(filterAppointmentsByDate([completedAppt], '2026-09-21').length, 0);
-console.log('✓ All 7 Weekly Recurring Appointments assertions passed successfully!');
+
+// Weekly Master Grid Filter Rule: Never hide active recurring appointments when a session is completed
+function filterWeeklyMasterAppointments(appointments, slotKey, dayIndex) {
+  return appointments.filter(a => {
+    if (a.status === 'cancelled' || a.status === 'discharged') return false;
+    if (a.timeSlot !== slotKey) return false;
+    if (Array.isArray(a.daysOfWeek) && a.daysOfWeek.includes(dayIndex)) return true;
+    return false;
+  });
+}
+
+// Even if an appointment has status === 'completed' or dailyStatuses set, it remains in weekly master grid
+const completedTodayRecurring = { ...recurringAppt, status: 'scheduled', dailyStatuses: { '2026-09-14': 'completed' } };
+assert.equal(filterWeeklyMasterAppointments([completedTodayRecurring], '15:30', 6).length, 1, 'Present on Saturday in master grid');
+assert.equal(filterWeeklyMasterAppointments([completedTodayRecurring], '15:30', 1).length, 1, 'Present on Monday in master grid');
+assert.equal(filterWeeklyMasterAppointments([completedTodayRecurring], '15:30', 3).length, 1, 'Present on Wednesday in master grid');
+assert.equal(filterWeeklyMasterAppointments([completedTodayRecurring], '15:30', 0).length, 0, 'Not present on Sunday');
+
+console.log('✓ All 11 Weekly Recurring Appointments & Master Grid assertions passed successfully!');
 
 // 7. Insurance Companies Sync & Persistence Tests
 console.log('--- Running Tests: Insurance Companies Sync & Mutation ---');

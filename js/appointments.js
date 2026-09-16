@@ -490,7 +490,7 @@ export class AppointmentsManager {
       }
       return false;
     }).map(a => {
-      let effectiveStatus = a.status || 'scheduled';
+      let effectiveStatus = (Array.isArray(a.daysOfWeek) && a.daysOfWeek.length > 0) ? 'scheduled' : (a.status || 'scheduled');
 
       // Check if apologized for today only (single-day cancellation exception)
       if (Array.isArray(a.cancelledDates) && a.cancelledDates.includes(dateStr)) {
@@ -706,10 +706,15 @@ export class AppointmentsManager {
 
       if (isRecurring) {
         // For recurring appointments, persist daily completion per date so future dates stay scheduled
-        await db.updateAppointment(apptId, {
+        const updates = {
           dailyStatuses,
           statusUpdatedAt: new Date().toISOString()
-        });
+        };
+        if (appt?.status === 'completed') {
+          updates.status = 'scheduled';
+          if (appt) appt.status = 'scheduled';
+        }
+        await db.updateAppointment(apptId, updates);
         if (appt) appt.dailyStatuses = dailyStatuses;
       } else {
         await db.updateAppointmentStatus(apptId, isCompleted ? 'scheduled' : 'completed', {
@@ -1076,7 +1081,8 @@ export class AppointmentsManager {
 
           ${workingDays.map(day => {
             const cellAppts = (this.appointments || []).filter(a => {
-              if (a.status === 'completed' || a.status === 'cancelled') return false;
+              if (a.status === 'cancelled' || a.status === 'discharged') return false;
+              if (a.courseFinished && a.endDate && a.endDate < (this.selectedDate || getLocalDateStr())) return false;
               if (a.timeSlot !== slot.key) return false;
               if (Array.isArray(a.daysOfWeek) && a.daysOfWeek.includes(day.dayIndex)) return true;
               return false;
@@ -1468,12 +1474,46 @@ export class AppointmentsManager {
   async handleStatusUpdateFromSheet(newStatus) {
     const a = this.selectedApptForAction;
     if (!a) return;
+    const targetDate = this.selectedDate || getLocalDateStr();
+    const isRecurring = Array.isArray(a.daysOfWeek) && a.daysOfWeek.length > 0;
     this.app.closeModal('modal-appt-actions');
     try {
-      await db.updateAppointmentStatus(a.id, newStatus);
-      a.status = newStatus;
+      if (isRecurring) {
+        const dailyStatuses = { ...(a.dailyStatuses || {}) };
+        if (newStatus === 'scheduled') {
+          delete dailyStatuses[targetDate];
+        } else {
+          dailyStatuses[targetDate] = newStatus;
+        }
+        const updates = {
+          dailyStatuses,
+          statusUpdatedAt: new Date().toISOString()
+        };
+        if (a.status === 'completed') {
+          updates.status = 'scheduled';
+          a.status = 'scheduled';
+        }
+        await db.updateAppointment(a.id, updates);
+        a.dailyStatuses = dailyStatuses;
+
+        if (a.doctorUid) {
+          const completedApptIds = this.getCompletedAppts(a.doctorUid);
+          let updated;
+          if (newStatus === 'completed') {
+            updated = completedApptIds.includes(a.id) ? completedApptIds : [...completedApptIds, a.id];
+          } else {
+            updated = completedApptIds.filter(id => id !== a.id);
+          }
+          try {
+            localStorage.setItem(`ascpt_completed_appts_${a.doctorUid}_${targetDate}`, JSON.stringify(updated));
+          } catch (_) {}
+        }
+      } else {
+        await db.updateAppointmentStatus(a.id, newStatus);
+        a.status = newStatus;
+      }
       const statusLabels = {
-        completed: 'تم إنهاء الجلسة',
+        completed: 'تم إنهاء الجلسة لليوم',
         'no-show': 'تم تسجيل عدم الحضور (No-Show)',
         scheduled: 'تمت إعادة الحالة إلى مجدول'
       };
