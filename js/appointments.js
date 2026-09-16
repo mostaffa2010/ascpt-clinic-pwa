@@ -6,7 +6,7 @@ import { CLINIC_CONFIG } from './clinic-config.js';
 // Master recurring bookings persist automatically across weeks until completed/discharged.
 // Single-day exceptions (e.g. patient apologies for today) are tracked without breaking future weeks.
 
-import { escapeHTML, initStackDeck, getDoctorColor, getLocalDateStr, isDoctorOnDuty, getShiftLabel, getDayShiftKey } from './utils.js';
+import { escapeHTML, initStackDeck, getDoctorColor, getLocalDateStr, isDoctorOnDuty, getShiftLabel, getDayShiftKey, getLatestTherapySession } from './utils.js';
 import { db } from './db.js';
 import { auth } from './auth.js';
 
@@ -684,56 +684,187 @@ export class AppointmentsManager {
     const today = this.selectedDate || getLocalDateStr();
     const completedApptIds = this.getCompletedAppts(doctorUid);
     const isCompleted = completedApptIds.includes(apptId);
-    let updated;
-    if (isCompleted) {
-      updated = completedApptIds.filter(id => id !== apptId);
-    } else {
-      updated = [...completedApptIds, apptId];
-    }
-    try {
-      localStorage.setItem(`ascpt_completed_appts_${doctorUid}_${today}`, JSON.stringify(updated));
-    } catch (_) {}
 
-    try {
-      const appt = (this.appointments || []).find(a => a.id === apptId);
-      const isRecurring = appt && Array.isArray(appt.daysOfWeek) && appt.daysOfWeek.length > 0;
-      const dailyStatuses = { ...(appt?.dailyStatuses || {}) };
-      if (isCompleted) {
-        delete dailyStatuses[today];
-      } else {
-        dailyStatuses[today] = 'completed';
+    const appt = (this.appointments || []).find(a => a.id === apptId);
+    if (!appt) return;
+
+    if (!isCompleted) {
+      // 1. First Session Restriction: Check if patient has any previous session
+      let allPatientSessions = [];
+      try {
+        allPatientSessions = (await db.getSessionsForPatient(appt.patientId) || []).filter(s => s.status !== 'cancelled' && (s.entryType === 'session' || !s.entryType));
+      } catch (_) {}
+
+      const lastSession = getLatestTherapySession(allPatientSessions);
+      if (!lastSession) {
+        await this.app.showAlert(
+          `عذراً يا دكتور، هذه الجلسة الأولى للمريض (${patientName}). طبقاً لتعليمات الإدارة، يجب أن يقوم الاستقبال بتسجيل الجلسة الأولى واستلام الحساب أولاً.`,
+          'تنبيه: الجلسة الأولى للمريض',
+          'warning'
+        );
+        return;
       }
 
+      // 2. Subsequent Session: Auto-create session in sessions collection copying last session settings
+      let createdSessionId = null;
+      try {
+        const todaySessions = (await db.getSessions(today) || []).filter(s =>
+          s.patientId === appt.patientId &&
+          s.status !== 'cancelled' &&
+          (s.entryType === 'session' || !s.entryType)
+        );
+
+        if (todaySessions.length === 0) {
+          const docObj = (this.doctors || []).find(d => d.uid === doctorUid || d.id === doctorUid);
+          const docName = appt.doctorName || docObj?.name || 'طبيب المركز';
+          const patient = (this.patients || []).find(p => p.id === appt.patientId) || await db.getPatient(appt.patientId);
+
+          let sessionNumber = null;
+          let approvedSessionsTotal = null;
+          if (patient) {
+            const cycleStart = patient.currentApprovalStartDate || '';
+            const isIns = (lastSession.payType === 'insurance' || patient.billing === 'insurance');
+            const therapySessions = allPatientSessions.filter(x => x.entryType !== 'examination');
+            const cycleSessions = (isIns && cycleStart)
+              ? therapySessions.filter(x => (x.date || '').localeCompare(cycleStart) >= 0)
+              : therapySessions;
+            sessionNumber = cycleSessions.length + 1;
+            approvedSessionsTotal = patient.approvedSessions || 12;
+          }
+
+          let partsToUse = [];
+          if (Array.isArray(lastSession.bodyParts) && lastSession.bodyParts.length > 0) {
+            partsToUse = [...lastSession.bodyParts];
+          } else if (appt.bodyPart) {
+            partsToUse = [appt.bodyPart];
+          } else if (patient?.bodyParts) {
+            partsToUse = [...patient.bodyParts];
+          }
+
+          const newSessionData = {
+            entryType: 'session',
+            isSpecial: Boolean(lastSession.isSpecial || lastSession.sessionPricingType === 'special'),
+            sessionPricingType: lastSession.sessionPricingType || lastSession.programType || 'regular',
+            programType: lastSession.programType || lastSession.sessionPricingType || 'regular',
+            date: today,
+            patientId: appt.patientId,
+            patientName: appt.patientName,
+            doctor: docName,
+            doctorUid: doctorUid,
+            bodyParts: partsToUse,
+            bodyPartsCount: partsToUse.length || 1,
+            payType: lastSession.payType || (patient?.billing === 'insurance' ? 'insurance' : 'cash'),
+            insuranceName: lastSession.insuranceName || patient?.insuranceCompany || '',
+            contractType: lastSession.contractType || patient?.contractType || '-',
+            amountPaid: lastSession.amountPaid !== undefined ? lastSession.amountPaid : 0,
+            notes: `تم الإتمام والتسجيل تلقائياً بواسطة الطبيب (${docName.replace(/^د\.\s*/, '')})`,
+            sessionNumber,
+            approvedSessionsTotal,
+            approvedBodyPartsTotal: patient?.approvedBodyParts || 1,
+            autoCreatedByDoctor: true,
+            sourceAppointmentId: apptId,
+            status: 'active'
+          };
+
+          const currentUser = auth.getCurrentUser() || { name: docName, role: 'doctor', uid: doctorUid };
+          const savedSession = await db.saveSession(newSessionData, currentUser);
+          createdSessionId = savedSession?.id || null;
+        } else {
+          createdSessionId = todaySessions[0]?.id || null;
+        }
+      } catch (err) {
+        console.error('Error auto-creating session by doctor:', err);
+      }
+
+      // Update completed list in localStorage
+      const updated = [...completedApptIds, apptId];
+      try {
+        localStorage.setItem(`ascpt_completed_appts_${doctorUid}_${today}`, JSON.stringify(updated));
+      } catch (_) {}
+
+      // Update appointment in Firestore
+      const isRecurring = Array.isArray(appt.daysOfWeek) && appt.daysOfWeek.length > 0;
+      const dailyStatuses = { ...(appt.dailyStatuses || {}) };
+      dailyStatuses[today] = 'completed';
+
+      const dailySessionIds = { ...(appt.dailySessionIds || {}) };
+      if (createdSessionId) {
+        dailySessionIds[today] = createdSessionId;
+      }
+
+      const updates = {
+        dailyStatuses,
+        dailySessionIds,
+        statusUpdatedAt: new Date().toISOString()
+      };
       if (isRecurring) {
-        // For recurring appointments, persist daily completion per date so future dates stay scheduled
-        const updates = {
-          dailyStatuses,
-          statusUpdatedAt: new Date().toISOString()
-        };
-        if (appt?.status === 'completed') {
+        if (appt.status === 'completed') {
           updates.status = 'scheduled';
-          if (appt) appt.status = 'scheduled';
+          appt.status = 'scheduled';
         }
-        await db.updateAppointment(apptId, updates);
-        if (appt) appt.dailyStatuses = dailyStatuses;
       } else {
-        await db.updateAppointmentStatus(apptId, isCompleted ? 'scheduled' : 'completed', {
-          completedAt: !isCompleted ? new Date().toISOString() : null,
-          doctorUid,
-          dailyStatuses
-        });
-        if (appt) {
-          appt.status = isCompleted ? 'scheduled' : 'completed';
-          appt.dailyStatuses = dailyStatuses;
-        }
+        updates.status = 'completed';
+        updates.completedAt = new Date().toISOString();
+        updates.doctorUid = doctorUid;
       }
-    } catch (e) {
-      console.warn('Update appointment status notice:', e);
+      await db.updateAppointment(apptId, updates);
+      appt.dailyStatuses = dailyStatuses;
+      appt.dailySessionIds = dailySessionIds;
+
+      if (this.app?.showToast) {
+        this.app.showToast(`عاش يا دكتور! تم إنهاء وتسجيل جلسة: ${patientName}`, 'success');
+      }
+    } else {
+      // 3. Doctor Undo (زر التراجع): Delete the auto-created session from sessions collection
+      try {
+        let sessionIdToDelete = appt?.dailySessionIds?.[today];
+        if (!sessionIdToDelete) {
+          const todaySessions = (await db.getSessions(today) || []).filter(s =>
+            s.patientId === appt.patientId &&
+            s.status !== 'cancelled' &&
+            s.autoCreatedByDoctor
+          );
+          if (todaySessions.length > 0) {
+            sessionIdToDelete = todaySessions[0].id;
+          }
+        }
+        if (sessionIdToDelete) {
+          await db.deleteSession(sessionIdToDelete);
+        }
+      } catch (delErr) {
+        console.warn('Error deleting auto-created session on undo:', delErr);
+      }
+
+      const updated = completedApptIds.filter(id => id !== apptId);
+      try {
+        localStorage.setItem(`ascpt_completed_appts_${doctorUid}_${today}`, JSON.stringify(updated));
+      } catch (_) {}
+
+      const dailyStatuses = { ...(appt.dailyStatuses || {}) };
+      delete dailyStatuses[today];
+
+      const dailySessionIds = { ...(appt.dailySessionIds || {}) };
+      delete dailySessionIds[today];
+
+      const isRecurring = Array.isArray(appt.daysOfWeek) && appt.daysOfWeek.length > 0;
+      const updates = {
+        dailyStatuses,
+        dailySessionIds,
+        statusUpdatedAt: new Date().toISOString()
+      };
+      if (!isRecurring) {
+        updates.status = 'scheduled';
+        updates.completedAt = null;
+      }
+      await db.updateAppointment(apptId, updates);
+      appt.dailyStatuses = dailyStatuses;
+      appt.dailySessionIds = dailySessionIds;
+
+      if (this.app?.showToast) {
+        this.app.showToast(`تم التراجع عن إكمال حالة: ${patientName} وإلغاء تسجيل الجلسة`, 'info');
+      }
     }
 
-    if (this.app?.showToast) {
-      this.app.showToast(isCompleted ? `تم التراجع عن إكمال حالة: ${patientName}` : `عاش يا دكتور! تم إنهاء حالة: ${patientName}`, 'success');
-    }
     await this.renderForDoctor(doctorUid);
   }
 

@@ -729,6 +729,20 @@ export class SessionsManager {
       this.updateSessionPaymentUI(patient);
       if (!this.editingSessionId) {
         await this.autoRestoreLastSessionSettings(patient);
+        // Duplicate Warning: Check if patient already had a session today
+        try {
+          const checkDate = document.getElementById('session-date')?.value || this.currentSessionDate || getLocalDateStr();
+          const existing = (await db.getSessions(checkDate) || []).filter(s =>
+            s.patientId === patient.id &&
+            (s.entryType === 'session' || !s.entryType) &&
+            s.status !== 'cancelled'
+          );
+          if (existing.length > 0) {
+            const ex = existing[0];
+            const docTxt = ex.doctor ? `مع ${ex.doctor}` : '';
+            this.app.showToast(`⚠️ تنبيه: تم تسجيل جلسة هذا اليوم للمريض (${patient.name}) بالفعل ${docTxt}`, 'warning');
+          }
+        } catch (_) {}
       }
     }
 
@@ -964,6 +978,27 @@ export class SessionsManager {
 
     const sessionDateVal = document.getElementById('session-date')?.value || this.currentSessionDate;
     const isEdit = Boolean(this.editingSessionId);
+
+    // Duplicate Prevention: Block saving a second session for the same patient on the same date
+    if (!isEdit && this.entryMode === 'session') {
+      try {
+        const existingOnDate = (await db.getSessions(sessionDateVal) || []).filter(s =>
+          s.patientId === this.selectedPatientId &&
+          (s.entryType === 'session' || !s.entryType) &&
+          s.status !== 'cancelled'
+        );
+        if (existingOnDate.length > 0) {
+          const ex = existingOnDate[0];
+          const docTxt = ex.doctor ? `مع ${ex.doctor}` : 'بالفعل';
+          await this.app.showAlert(
+            `عذراً، تم تسجيل وإتمام جلسة هذا اليوم للمريض (${patientName}) بالفعل ${docTxt}. يمنع النظام تسجيل جلسة ثانية لنفس المريض في نفس اليوم منعاً للازدواجية.`,
+            'جلسة مسجلة مسبقاً',
+            'warning'
+          );
+          return;
+        }
+      } catch (_) {}
+    }
 
     // Calculate session number for patient's approval cycle
     let sessionNumber = null;
@@ -1597,6 +1632,34 @@ export class SessionsManager {
       return timeB.localeCompare(timeA);
     });
     this.sessions = sessions;
+
+    // Real-time toast notification for Reception when doctor auto-creates or cancels a session
+    const currentIds = new Set(sessions.map(s => s.id));
+    const currentUser = auth.getCurrentUser();
+    const isReceptionOrAdmin = currentUser && currentUser.role !== 'doctor';
+
+    if (this._lastSeenSessionIds && isReceptionOrAdmin) {
+      sessions.forEach(s => {
+        if (!this._lastSeenSessionIds.has(s.id) && s.autoCreatedByDoctor) {
+          const docName = s.doctor || 'الطبيب المعالج';
+          if (typeof this.app?.showToast === 'function') {
+            this.app.showToast(`🔔 قام ${docName} بتسجيل جلسة للمريض: ${s.patientName}`, 'info');
+          }
+        }
+      });
+
+      this._lastSeenSessionsMap?.forEach((oldS, oldId) => {
+        if (!currentIds.has(oldId) && oldS.autoCreatedByDoctor) {
+          const docName = oldS.doctor || 'الطبيب';
+          if (typeof this.app?.showToast === 'function') {
+            this.app.showToast(`⚠️ قام ${docName} بإلغاء تسجيل جلسة المريض: ${oldS.patientName}`, 'warning');
+          }
+        }
+      });
+    }
+
+    this._lastSeenSessionIds = currentIds;
+    this._lastSeenSessionsMap = new Map(sessions.map(s => [s.id, s]));
     const tbody = document.getElementById('sessions-today-tbody');
     const mobileCardsContainer = document.getElementById('sessions-today-mobile-cards');
     const badge = document.getElementById('sessions-today-count-badge');

@@ -1003,3 +1003,66 @@ assert.ok(indexHtmlContent.includes('<th class="no-print">المسجل</th>'), '
 assert.ok(indexHtmlContent.includes('<th class="no-print">إجراءات</th>'), 'Actions header must have class="no-print" in settlements table');
 
 console.log('✓ All 6 Monthly Report Integrity assertions passed successfully!');
+
+// ============================================================================
+// 15. Doctor Auto-Session, First-Session Guard & Duplicate Prevention Tests
+// ============================================================================
+console.log('--- Running Tests: Doctor Auto-Session & Duplicate Prevention Engine ---');
+
+function mockValidateDoctorCompleteSession(allPatientSessions, lastSession, appt, today) {
+  if (!lastSession) {
+    return { allowed: false, reason: 'first_session' };
+  }
+  const partsToUse = (Array.isArray(lastSession.bodyParts) && lastSession.bodyParts.length > 0)
+    ? [...lastSession.bodyParts]
+    : (appt.bodyPart ? [appt.bodyPart] : []);
+
+  const newSession = {
+    entryType: 'session',
+    date: today,
+    patientId: appt.patientId,
+    patientName: appt.patientName,
+    doctor: appt.doctorName,
+    doctorUid: appt.doctorUid,
+    bodyParts: partsToUse,
+    bodyPartsCount: partsToUse.length || 1,
+    payType: lastSession.payType || 'cash',
+    amountPaid: lastSession.amountPaid !== undefined ? lastSession.amountPaid : 0,
+    sessionPricingType: lastSession.sessionPricingType || 'regular',
+    autoCreatedByDoctor: true,
+    sourceAppointmentId: appt.id
+  };
+  return { allowed: true, newSession };
+}
+
+// 1. First session: Doctor is strictly blocked
+const firstSessionRes = mockValidateDoctorCompleteSession([], null, { id: 'a1', patientId: 'p1', patientName: 'علي', doctorName: 'د. مصطفى' }, '2026-09-16');
+assert.equal(firstSessionRes.allowed, false, 'First session must be blocked for doctor');
+assert.equal(firstSessionRes.reason, 'first_session');
+
+// 2. Subsequent session: Doctor succeeds and settings are replicated from lastSession
+const mockLastSession = {
+  id: 'sess_prev',
+  entryType: 'session',
+  date: '2026-09-14',
+  payType: 'cash',
+  amountPaid: 150,
+  bodyParts: ['الركبة اليمنى', 'الفقرات القطنية'],
+  sessionPricingType: 'regular'
+};
+const subSessionRes = mockValidateDoctorCompleteSession([mockLastSession], mockLastSession, { id: 'a2', patientId: 'p1', patientName: 'علي', doctorName: 'د. مصطفى', doctorUid: 'doc_1' }, '2026-09-16');
+assert.equal(subSessionRes.allowed, true, 'Subsequent session must be allowed');
+assert.equal(subSessionRes.newSession.amountPaid, 150);
+assert.equal(subSessionRes.newSession.bodyPartsCount, 2);
+assert.equal(subSessionRes.newSession.autoCreatedByDoctor, true);
+
+// 3. Duplicate Prevention: Check duplicate session on same date
+function mockCheckDuplicateSession(existingSessions, patientId, date) {
+  return existingSessions.some(s => s.patientId === patientId && s.date === date && s.status !== 'cancelled' && (s.entryType === 'session' || !s.entryType));
+}
+const mockExisting = [{ id: 's_today', patientId: 'p1', date: '2026-09-16', status: 'active', entryType: 'session' }];
+assert.equal(mockCheckDuplicateSession(mockExisting, 'p1', '2026-09-16'), true, 'Duplicate must be detected on same date');
+assert.equal(mockCheckDuplicateSession(mockExisting, 'p1', '2026-09-17'), false, 'Different date must not be duplicate');
+assert.equal(mockCheckDuplicateSession(mockExisting, 'p2', '2026-09-16'), false, 'Different patient must not be duplicate');
+
+console.log('✓ All 7 Doctor Auto-Session & Duplicate Prevention assertions passed successfully!');
