@@ -137,8 +137,8 @@
   
 
     <!-- Stylesheets -->
-  <link rel="stylesheet" href="css/style.css?v=2.8.8" media="screen">
-  <link rel="stylesheet" href="css/print.css?v=2.8.8" media="print">
+  <link rel="stylesheet" href="css/style.css?v=2.8.9" media="screen">
+  <link rel="stylesheet" href="css/print.css?v=2.8.9" media="print">
 </head>
 <body>
   <script>
@@ -838,6 +838,9 @@
             <div class="pcm-info-item pcm-info-billing" id="sheet-patient-billing-badge">
               <!-- Populated dynamically -->
             </div>
+            <div class="pcm-info-item" id="sheet-patient-program-badge" style="cursor: pointer;" title="البرنامج العلاجي التخصصي">
+              <!-- Populated dynamically -->
+            </div>
             <button type="button" class="pcm-sessions-chip" id="btn-view-patient-sessions" title="فتح سجل جلسات المريض">
               <i class="fa-solid fa-calendar-check text-primary"></i>
               <span id="sheet-sessions-btn-text">سجل الجلسات (0)</span>
@@ -866,8 +869,39 @@
                 <textarea id="sheet-diagnosis" class="form-control" rows="3" placeholder="مثال: انزلاق غضروفي عنقي/قطني، خشونة مفصل، أو بالإنجليزية Cervical discogenic pain..." dir="auto" style="resize: vertical; min-height: 80px; line-height: 1.55; font-size: 0.92rem;" required></textarea>
               </div>
               <div class="form-group">
-                <label for="sheet-affected-area">المنطقة أو العضو المصاب *</label>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                  <label for="sheet-affected-area" style="margin: 0;">المنطقة أو العضو المصاب *</label>
+                  <button type="button" class="btn btn-outline btn-sm" id="btn-sheet-picker-body-parts" style="font-size: 0.76rem; padding: 2px 8px; border-radius: 6px;">
+                    <i class="fa-solid fa-list-check"></i> قائمة الأعضاء
+                  </button>
+                </div>
                 <input type="text" id="sheet-affected-area" class="form-control" placeholder="مثال: الركبة اليمنى، الفقرات القطنية، مفصل الكتف..." dir="auto" required>
+              </div>
+            </div>
+
+            <!-- Clinical Program Selection for Patient (v2.8.9) -->
+            <div class="form-group" style="margin-top: 12px; padding-top: 10px; border-top: 1px dashed var(--border-color);">
+              <label style="font-weight: 800; font-size: 0.88rem; color: var(--text-main); margin-bottom: 8px; display: flex; align-items: center; justify-content: space-between;">
+                <span><i class="fa-solid fa-notes-medical text-primary"></i> تصنيف البرنامج التخصصي للمريض:</span>
+                <span id="sheet-program-hint" class="badge badge-primary" style="font-size: 0.72rem; padding: 2px 8px;">تأهيل عام</span>
+              </label>
+              <div class="program-type-segmented" style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px;">
+                <label class="program-pill-opt">
+                  <input type="radio" name="sheet-program-type" value="regular" checked>
+                  <span class="program-pill-btn"><i class="fa-solid fa-bone"></i> عام / عظام</span>
+                </label>
+                <label class="program-pill-opt">
+                  <input type="radio" name="sheet-program-type" value="scoliosis">
+                  <span class="program-pill-btn"><i class="fa-solid fa-arrows-split-up-and-left"></i> Scoliosis</span>
+                </label>
+                <label class="program-pill-opt">
+                  <input type="radio" name="sheet-program-type" value="hemiplegia">
+                  <span class="program-pill-btn"><i class="fa-solid fa-brain"></i> Hemiplegia</span>
+                </label>
+                <label class="program-pill-opt">
+                  <input type="radio" name="sheet-program-type" value="quadriplegia">
+                  <span class="program-pill-btn"><i class="fa-solid fa-wheelchair"></i> Quadriplegia</span>
+                </label>
               </div>
             </div>
           </div>
@@ -2419,7 +2453,7 @@
         <div class="admin-system-footer no-print" style="margin-top: 32px; margin-bottom: 35px; text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px;">
           <div style="display: inline-flex; align-items: center; gap: 8px; background: var(--bg-surface); border: 1.5px solid var(--border-color); padding: 7px 18px; border-radius: 999px; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);">
             <span style="width: 8px; height: 8px; border-radius: 50%; background-color: var(--success); display: inline-block; box-shadow: 0 0 6px var(--success);"></span>
-            <span id="admin-system-version-label" data-clinic="version-badge" style="font-weight: 800; font-size: 0.88rem; color: var(--text-main);">نظام ASCPT — الإصدار 2.8.8</span>
+            <span id="admin-system-version-label" data-clinic="version-badge" style="font-weight: 800; font-size: 0.88rem; color: var(--text-main);">نظام ASCPT — الإصدار 2.8.9</span>
             <span class="badge badge-primary" style="font-size: 0.72rem; padding: 2px 10px; border-radius: 999px; font-weight: 800;">إصدار معتمد</span>
           </div>
           <div style="font-size: 0.76rem; color: var(--text-muted); font-weight: 700;">

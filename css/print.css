@@ -345,13 +345,19 @@
   }
 
   body:not(.printing-sheet):not(.printing-claim):not(.printing-cards):not(.printing-insurance-letter):not(.printing-receipt):not(.printing-statement) #view-finance {
-    display: flex !important;
-    flex-direction: column !important;
+    display: block !important;
     box-sizing: border-box !important;
-    min-height: 242mm !important;
+    min-height: 0 !important;
+    height: auto !important;
     padding: 0 !important;
     margin: 0 !important;
     width: 100% !important;
+  }
+
+  body.finance-daily-mode #view-finance {
+    min-height: 242mm !important;
+    display: flex !important;
+    flex-direction: column !important;
   }
 
   body.printing-monthly #view-finance,
@@ -628,14 +634,18 @@
   body:not(.printing-sheet):not(.printing-claim):not(.printing-cards):not(.printing-insurance-letter):not(.printing-receipt):not(.printing-statement) .print-footer {
     display: flex !important;
     justify-content: space-around !important;
-    margin-top: auto !important;
-    padding-top: 6px !important;
+    margin-top: 4mm !important;
+    padding-top: 4px !important;
     border-top: 1.5px dashed #000000 !important;
     font-size: 7.5pt !important;
     font-weight: 800 !important;
     color: #000000 !important;
     page-break-inside: avoid !important;
     width: 100% !important;
+  }
+
+  body.finance-daily-mode .print-footer {
+    margin-top: auto !important;
   }
 
   body:not(.printing-sheet) .print-footer .signature-line {
@@ -832,14 +842,18 @@
   body:not(.printing-sheet):not(.printing-claim):not(.printing-cards):not(.printing-insurance-letter):not(.printing-receipt):not(.printing-statement) .print-footer {
     display: flex !important;
     justify-content: space-around !important;
-    margin-top: auto !important;
-    padding-top: 6px !important;
+    margin-top: 4mm !important;
+    padding-top: 4px !important;
     border-top: 1.5px dashed #000000 !important;
     font-size: 7.5pt !important;
     font-weight: 800 !important;
     color: #000000 !important;
     page-break-inside: avoid !important;
     width: 100% !important;
+  }
+
+  body.finance-daily-mode .print-footer {
+    margin-top: auto !important;
   }
 
   body:not(.printing-sheet) .print-footer .signature-line {

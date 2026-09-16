@@ -335,6 +335,32 @@ export class PatientsManager {
 
 
 
+    // Body Parts Picker in Clinical Sheet (v2.8.9)
+    document.getElementById('btn-sheet-picker-body-parts')?.addEventListener('click', () => {
+      this.app.openMultiPicker({
+        category: 'body_parts',
+        title: 'اختر العضو / المنطقة المصابة',
+        currentSelected: (document.getElementById('sheet-affected-area')?.value || '').split(/[,،]/).map(s => s.trim()).filter(Boolean),
+        onConfirm: (selected) => {
+          const areaInput = document.getElementById('sheet-affected-area');
+          if (areaInput) areaInput.value = selected.join('، ');
+        }
+      });
+    });
+
+    // Program Radios in Sheet: update hint
+    document.querySelectorAll('input[name="sheet-program-type"]').forEach(r => {
+      r.addEventListener('change', (e) => {
+        const hint = document.getElementById('sheet-program-hint');
+        if (hint) {
+          if (e.target.value === 'scoliosis') hint.textContent = 'Scoliosis';
+          else if (e.target.value === 'hemiplegia') hint.textContent = 'Hemiplegia';
+          else if (e.target.value === 'quadriplegia') hint.textContent = 'Quadriplegia';
+          else hint.textContent = 'تأهيل عام';
+        }
+      });
+    });
+
     // Toggle Chips Edit Mode Buttons in Clinical Sheet
     document.getElementById('btn-toggle-chips-modality')?.addEventListener('click', () => this.toggleChipsEditMode('modality'));
     document.getElementById('btn-toggle-chips-procedure')?.addEventListener('click', () => this.toggleChipsEditMode('procedure'));
@@ -2092,6 +2118,40 @@ export class PatientsManager {
     const addrEl = document.getElementById('sheet-patient-address');
     if (addrEl) addrEl.textContent = p.address || 'غير محدد';
 
+    // Populate Program Type Badge in Header and Radios in Section 1 (v2.8.9)
+    const currentProg = p.programType || p.clinicalSheet?.programType || 'regular';
+    const progRadios = document.querySelectorAll('input[name="sheet-program-type"]');
+    progRadios.forEach(r => {
+      r.checked = (r.value === currentProg || (currentProg === 'pediatric' && r.value === 'quadriplegia'));
+    });
+    const progHint = document.getElementById('sheet-program-hint');
+    if (progHint) {
+      if (currentProg === 'scoliosis') progHint.textContent = 'Scoliosis';
+      else if (currentProg === 'hemiplegia') progHint.textContent = 'Hemiplegia';
+      else if (currentProg === 'quadriplegia' || currentProg === 'pediatric') progHint.textContent = 'Quadriplegia';
+      else progHint.textContent = 'تأهيل عام';
+    }
+    const progHeaderBadge = document.getElementById('sheet-patient-program-badge');
+    if (progHeaderBadge) {
+      let bClass = 'badge badge-primary';
+      let bIcon = 'fa-solid fa-bone';
+      let bText = 'علاج عام';
+      if (currentProg === 'scoliosis') {
+        bClass = 'badge badge-warning';
+        bIcon = 'fa-solid fa-arrows-split-up-and-left';
+        bText = 'Scoliosis';
+      } else if (currentProg === 'hemiplegia') {
+        bClass = 'badge badge-role-rec';
+        bIcon = 'fa-solid fa-brain';
+        bText = 'Hemiplegia';
+      } else if (currentProg === 'quadriplegia' || currentProg === 'pediatric') {
+        bClass = 'badge badge-role-admin';
+        bIcon = 'fa-solid fa-wheelchair';
+        bText = 'Quadriplegia';
+      }
+      progHeaderBadge.innerHTML = `<span class="${bClass}" style="font-size: 0.74rem; font-weight: 800; padding: 4px 9px; border-radius: 999px; display: inline-flex; align-items: center; gap: 5px;"><i class="${bIcon}"></i> ${bText}</span>`;
+    }
+
     // Auto-resolve first session doctor if patient.doctor is empty
     if ((!p.doctor || p.doctor === '' || p.doctor === 'طبيب المركز') && Array.isArray(this.currentPatientSessions) && this.currentPatientSessions.length > 0) {
       const sortedChronological = [...this.currentPatientSessions].sort((a, b) => (a.date || '').localeCompare(b.date || ''));
@@ -2284,8 +2344,26 @@ export class PatientsManager {
       updatedBy: currentUser?.name || 'الطبيب المعالج'
     };
 
+    const selectedProg = document.querySelector('input[name="sheet-program-type"]:checked')?.value || 'regular';
+    this.currentSheetPatient.programType = selectedProg;
+    clinicalSheet.programType = selectedProg;
     this.currentSheetPatient.clinicalSheet = clinicalSheet;
     await db.savePatient(this.currentSheetPatient, currentUser);
+
+    // Synchronize program type to all existing sessions for this patient
+    try {
+      const pSessions = await db.getSessionsForPatient(this.currentSheetPatient.id);
+      for (const s of (pSessions || [])) {
+        if (s.entryType === 'examination') continue;
+        if (s.programType !== selectedProg || s.sessionPricingType !== selectedProg) {
+          s.programType = selectedProg;
+          s.sessionPricingType = selectedProg;
+          await db.saveSession(s, currentUser);
+        }
+      }
+    } catch (sSyncErr) {
+      console.warn('Sync program to sessions notice:', sSyncErr);
+    }
 
     await db.logAudit(
       'تحديث الشيت الطبي',

@@ -1631,34 +1631,18 @@ export class FinanceManager {
                               (specCount * specRate);
 
           const safeDoc = escapeHTML(doc);
+          // In LTR rendered numbers: left is first, right is last.
+          // Arabic headers read RTL: right word is first, left word is last.
+          // Therefore: right number must match right header, left number must match left header!
+          // Header: جلسات (Right) / كشوفات (Left) -> LTR string: ${examsCount} / ${sessionsCount}
+          // Header: نقدي (Right) / شركات (Left) -> LTR string: ${insPatients} / ${cashPatients}
+          // Header: عادية (Right) / scoliosis / hemiplegia / quadriplegia (Left) -> LTR string: ${quadCount} / ${hemiCount} / ${scolCount} / ${regCount + specCount}
           return `
             <tr>
               <td style="font-weight: 700;"><i class="fa-solid fa-user-doctor" style="color: var(--primary); margin-left: 6px;"></i> ${safeDoc}</td>
-              <td style="text-align: center; font-weight: 800;">
-                <div style="display: flex; direction: rtl; justify-content: center; align-items: center; gap: 4px; font-weight: 800;">
-                  <span>${sessionsCount}</span>
-                  <span style="color: #64748b;">/</span>
-                  <span>${examsCount}</span>
-                </div>
-              </td>
-              <td style="text-align: center; font-weight: 800;">
-                <div style="display: flex; direction: rtl; justify-content: center; align-items: center; gap: 4px; font-weight: 800;">
-                  <span>${cashPatients}</span>
-                  <span style="color: #64748b;">/</span>
-                  <span>${insPatients}</span>
-                </div>
-              </td>
-              <td style="text-align: center; font-weight: 800;">
-                <div style="display: flex; direction: rtl; justify-content: center; align-items: center; gap: 3px; font-weight: 800;">
-                  <span>${regCount + specCount}</span>
-                  <span style="color: #64748b;">/</span>
-                  <span>${scolCount}</span>
-                  <span style="color: #64748b;">/</span>
-                  <span>${hemiCount}</span>
-                  <span style="color: #64748b;">/</span>
-                  <span>${quadCount}</span>
-                </div>
-              </td>
+              <td style="text-align: center; font-weight: 800; direction: ltr;">${examsCount} / ${sessionsCount}</td>
+              <td style="text-align: center; font-weight: 800; direction: ltr;">${insPatients} / ${cashPatients}</td>
+              <td style="text-align: center; font-weight: 800; direction: ltr;">${quadCount} / ${hemiCount} / ${scolCount} / ${regCount + specCount}</td>
               <td style="text-align: center; font-weight: 900; color: var(--success); font-size: 0.95rem;">${totalSalary.toLocaleString('en-US')}</td>
             </tr>
           `;
