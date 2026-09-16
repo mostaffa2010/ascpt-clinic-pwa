@@ -961,6 +961,7 @@ export class ClaimsManager {
       const treatments = card.treatments && card.treatments.length > 0
         ? card.treatments
         : ['pulsed Ultrasound', 'Heat application', 'Interferential current', 'Therapeutic ex'];
+      const itemCompany = p.insuranceCompany || this.currentCompany || 'شركة التأمين';
 
       return `
         <div class="attendance-card-print-page">
@@ -978,11 +979,11 @@ export class ClaimsManager {
           <!-- Top Line: Name on the RIGHT, Company on the LEFT (No 'Referred from') -->
           <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; font-size: 11.5pt; font-weight: bold; border-bottom: 1.5px dashed #777; padding-bottom: 10px; direction: rtl;">
             <div style="text-align: right;">الاسم: <span style="font-size: 12.5pt; font-weight: 800; color: var(--text-main);">${escapeHTML(p.name)}</span></div>
-            <div style="text-align: left;">شركة: <span style="font-weight: 800; color: var(--text-main);">${escapeHTML(companyName)}</span></div>
+            <div style="text-align: left; direction: rtl; white-space: nowrap;">شركة: <span style="font-weight: 800; color: var(--text-main);">${escapeHTML(itemCompany)}</span></div>
           </div>
 
           <!-- Content Block: strictly LTR, left-aligned, with bullet points underneath -->
-          <div style="direction: ltr; text-align: left; line-height: 1.8; margin-bottom: 30px; font-size: 11pt;">
+          <div style="direction: ltr; text-align: left; line-height: 1.8; margin-bottom: 24px; font-size: 11pt; padding-left: 4px;">
             <div style="margin-bottom: 20px;">
               <strong style="font-size: 12pt; display: block; color: #000; text-decoration: underline; margin-bottom: 6px;">Referred diagnosis:</strong>
               <div style="padding-left: 14px; font-weight: 700; color: var(--text-main);">• ${escapeHTML(diag)}</div>
@@ -1001,17 +1002,20 @@ export class ClaimsManager {
             </div>
           </div>
 
-          <div style="display: flex; justify-content: flex-end; margin-top: 50px; padding-left: 20px;">
-            <div style="text-align: center;">
-              <div style="font-size: 10.5pt; font-weight: bold;">${CLINIC_CONFIG.director?.name}</div>
-              <div style="font-size: 9.5pt; margin-top: 4px; color: var(--text-muted);">${CLINIC_CONFIG.director?.title}</div>
-              <div style="margin-top: 35px; border-bottom: 1.5px solid #000; width: 150px;"></div>
+          <!-- Bottom Footer Wrap: Strictly pinned to the bottom of the page -->
+          <div class="attendance-card-footer-wrap" style="margin-top: auto !important; width: 100%;">
+            <div style="display: flex; justify-content: flex-end; margin-bottom: 20px; padding-left: 20px;">
+              <div style="text-align: center;">
+                <div style="font-size: 10.5pt; font-weight: bold; color: #000000;">${CLINIC_CONFIG.director?.name}</div>
+                <div style="font-size: 9.5pt; margin-top: 4px; color: #334155;">${CLINIC_CONFIG.director?.title}</div>
+                <div style="margin-top: 35px; border-bottom: 1.5px solid #000000; width: 160px;"></div>
+              </div>
             </div>
-          </div>
 
-          <div style="margin-top: 60px; border-top: 1px solid #777; padding-top: 8px; text-align: center; font-size: 8.5pt; color: #444; line-height: 1.5;">
-            <div style="font-weight: 700;">${CLINIC_CONFIG.brandName} (${CLINIC_CONFIG.abbreviation})</div>
-            <div>${CLINIC_CONFIG.contact?.address} | تليفون: ${CLINIC_CONFIG.contact?.phone} | البريد: ${CLINIC_CONFIG.contact?.email}</div>
+            <div style="border-top: 1px solid #333333; padding-top: 6px; text-align: center; font-size: 8pt; color: #333333; font-weight: 700; line-height: 1.4;">
+              <div style="font-weight: 800; color: #000000;">${CLINIC_CONFIG.brandName} (${CLINIC_CONFIG.abbreviation})</div>
+              <div>${CLINIC_CONFIG.contact?.address} | تليفون: ${CLINIC_CONFIG.contact?.phone} | البريد: ${CLINIC_CONFIG.contact?.email}</div>
+            </div>
           </div>
         </div>
       `;

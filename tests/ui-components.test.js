@@ -114,6 +114,18 @@ assert(exportJsContent.includes('this.app.claimsManager.printClaimStatement()'),
 assert(claimsJsContent.includes('document.body.classList.add(\'printing-claim\')'), 'claims.js must add printing-claim class');
 console.log('✓ 9. Insurance Claim Print Guardrail: Verified isolation, table layout parity, and WiFi print delegation.');
 
+// 10. Strict Guardrail: Fixed Bottom Footers & Safe Print Margins
+const printCssPath = path.join(rootDir, 'css/print.css');
+const printCssContent = fs.readFileSync(printCssPath, 'utf-8');
+
+assert(printCssContent.includes('.attendance-card-footer-wrap'), 'print.css must define .attendance-card-footer-wrap');
+assert(printCssContent.includes('margin-top: auto !important;') && printCssContent.includes('.claim-print-footer-wrap'), 'print.css must pin claim-print-footer-wrap to bottom via margin-top: auto');
+assert(printCssContent.includes('padding: 8mm 14mm !important;'), 'print.css must use safe 14mm horizontal padding for attendance card to prevent left margin clipping');
+assert(htmlContent.includes('class="claim-print-footer-wrap"'), 'index.html must contain .claim-print-footer-wrap inside claim printable doc');
+assert(claimsJsContent.includes('class="attendance-card-footer-wrap"'), 'claims.js must generate .attendance-card-footer-wrap for attendance cards');
+assert(printCssContent.includes('min-height: 242mm !important;'), 'print.css must ensure #view-finance has min-height: 242mm to push footer to bottom');
+console.log('✓ 10. Bottom Footers & Safe Print Margins: Verified attendance cards, claims, and financial reports.');
+
 console.log('===================================================================');
 console.log('✓ All ASCPT UI Component Compliance Guardrail Checks Passed (100%)!');
 console.log('===================================================================');

@@ -345,7 +345,10 @@
   }
 
   body:not(.printing-sheet):not(.printing-claim):not(.printing-cards):not(.printing-insurance-letter):not(.printing-receipt):not(.printing-statement) #view-finance {
-    display: block !important;
+    display: flex !important;
+    flex-direction: column !important;
+    box-sizing: border-box !important;
+    min-height: 242mm !important;
     padding: 0 !important;
     margin: 0 !important;
     width: 100% !important;
@@ -581,16 +584,18 @@
     padding: 2px 2px !important;
   }
 
-  /* 6. Signatures Footer */
+  /* 6. Signatures Footer (Pinned to bottom of daily report) */
   body:not(.printing-sheet):not(.printing-claim):not(.printing-cards):not(.printing-insurance-letter):not(.printing-receipt):not(.printing-statement) .print-footer {
     display: flex !important;
     justify-content: space-around !important;
-    margin-top: 4px !important;
-    padding-top: 2px !important;
-    border-top: 1px dashed #64748b !important;
-    font-size: 7pt !important;
+    margin-top: auto !important;
+    padding-top: 6px !important;
+    border-top: 1.5px dashed #000000 !important;
+    font-size: 7.5pt !important;
     font-weight: 800 !important;
+    color: #000000 !important;
     page-break-inside: avoid !important;
+    width: 100% !important;
   }
 
   body:not(.printing-sheet) .print-footer .signature-line {
@@ -783,17 +788,18 @@
     font-weight: 900 !important;
   }
 
-  /* Signatures Footer: Crisp black dashed separator */
+  /* Signatures Footer: Crisp black dashed separator (Pinned to bottom of monthly report) */
   body:not(.printing-sheet):not(.printing-claim):not(.printing-cards):not(.printing-insurance-letter):not(.printing-receipt):not(.printing-statement) .print-footer {
     display: flex !important;
     justify-content: space-around !important;
-    margin-top: 6px !important;
-    padding-top: 4px !important;
+    margin-top: auto !important;
+    padding-top: 6px !important;
     border-top: 1.5px dashed #000000 !important;
     font-size: 7.5pt !important;
     font-weight: 800 !important;
     color: #000000 !important;
     page-break-inside: avoid !important;
+    width: 100% !important;
   }
 
   body:not(.printing-sheet) .print-footer .signature-line {
@@ -839,14 +845,24 @@
   }
 
   body.printing-claim #printable-insurance-claim {
-    display: block !important;
+    display: flex !important;
+    flex-direction: column !important;
     position: relative !important;
     width: 100% !important;
+    box-sizing: border-box !important;
+    height: 260mm !important;
+    min-height: 260mm !important;
     margin: 0 auto !important;
     padding: 3mm 2mm !important;
     page-break-inside: avoid !important;
     page-break-after: avoid !important;
     page-break-before: avoid !important;
+  }
+
+  body.printing-claim .claim-print-footer-wrap {
+    margin-top: auto !important;
+    width: 100% !important;
+    page-break-inside: avoid !important;
   }
 
   body.printing-claim table.claim-print-table {
@@ -917,12 +933,21 @@
   }
 
   body.printing-cards .attendance-card-print-page {
-    display: block !important;
+    display: flex !important;
+    flex-direction: column !important;
     position: relative !important;
     width: 100% !important;
-    min-height: 275mm !important;
-    padding: 6mm 4mm !important;
+    box-sizing: border-box !important;
+    height: 260mm !important;
+    min-height: 260mm !important;
+    padding: 8mm 14mm !important;
     page-break-after: always !important;
+    page-break-inside: avoid !important;
+  }
+
+  body.printing-cards .attendance-card-footer-wrap {
+    margin-top: auto !important;
+    width: 100% !important;
     page-break-inside: avoid !important;
   }
 
