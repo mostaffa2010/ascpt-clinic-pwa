@@ -4059,8 +4059,8 @@ export class PatientsManager {
     const preLabel = document.getElementById('batch-hv-presettled-label');
     if (preLabel) {
       preLabel.textContent = isHome
-        ? 'زيارات سابقة تم تسويتها مسبقاً مع الطبيب (أرشيف قبل سبتمبر - لا تُحسب في المستحقات الحالية)'
-        : 'جلسات سابقة مسواة مسبقاً (أرشيف قبل سبتمبر - لا تُحسب في مستحقات الطبيب الحالية)';
+        ? 'زيارات سابقة تم تسويتها مسبقاً مع الطبيب (أرشيف مسوّى - لا تظهر قيد التسوية)'
+        : 'جلسات سابقة مسواة مسبقاً (أرشيف مسوّى - لا تظهر قيد التسوية)';
     }
   }
 
@@ -4315,7 +4315,7 @@ export class PatientsManager {
 
     const isHome = (this.batchSessionType === 'home_visit');
     const sessionsToCreate = this.batchHvDates.map((dateStr) => {
-      const preSettledFlag = isPreSettled || (dateStr < '2026-09-01');
+      const preSettledFlag = isPreSettled;
       const labelType = isHome ? 'زيارة منزلية' : 'جلسات مجمعة بالمركز';
 
       return {

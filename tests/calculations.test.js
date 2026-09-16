@@ -801,7 +801,21 @@ const remainingCache = mockDeleteBatchSessions(initialHVCache, idsToDelete);
 assert.equal(remainingCache.length, 1, 'Remaining cache must only contain p_keep session');
 assert.equal(remainingCache[0].id, 'hv_keep_1');
 
-console.log('✓ All 14 Batch Home Visits & Doctor Dashboard Decoupling assertions passed successfully!');
+// 8. Test Pre-Settled Checkbox Fidelity
+function evaluatePreSettledStatus(isCheckboxChecked) {
+  return Boolean(isCheckboxChecked);
+}
+assert.equal(evaluatePreSettledStatus(false), false, 'When checkbox is unchecked, status must be false regardless of date');
+assert.equal(evaluatePreSettledStatus(true), true, 'When checkbox is checked, status must be true');
+
+const sampleBatchSessionsUnchecked = Array.from({ length: 12 }, (_, i) => ({
+  date: `2026-06-24`,
+  isPreSettled: evaluatePreSettledStatus(false)
+}));
+assert.equal(sampleBatchSessionsUnchecked.every(s => !s.isPreSettled), true, 'All sessions must have isPreSettled: false');
+assert.equal(sampleBatchSessionsUnchecked.every(s => Boolean(s.isPreSettled)), false, 'Batch must not be evaluated as pre-settled');
+
+console.log('✓ All 18 Batch Home Visits & Doctor Dashboard Decoupling assertions passed successfully!');
 
 // ============================================================================
 // 12. Doctor Dashboard Lifetime Patients Grouping & First Doctor Assignment

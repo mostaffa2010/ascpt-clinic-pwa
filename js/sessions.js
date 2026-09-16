@@ -2112,7 +2112,7 @@ export class SessionsManager {
           const firstDate = sList[0]?.date || '-';
           const lastDate = sList[sList.length - 1]?.date || '-';
           const dateRange = (firstDate === lastDate) ? firstDate : `من ${firstDate} إلى ${lastDate}`;
-          const isPre = sList.every((s) => s.isPreSettled || (s.date && s.date < '2026-09-01'));
+          const isPre = sList.every((s) => Boolean(s.isPreSettled));
           const statusBadge = isPre
             ? '<span class="badge" style="background: rgba(100, 116, 139, 0.15); color: #475569; border: 1px solid #cbd5e1; font-weight: 800; font-size: 0.76rem;"><i class="fa-solid fa-box-archive"></i> مسواة مسبقاً</span>'
             : '<span class="badge badge-warning" style="font-weight: 800; font-size: 0.76rem;"><i class="fa-solid fa-clock"></i> قيد التسوية</span>';
@@ -2160,7 +2160,7 @@ export class SessionsManager {
           const firstDate = sList[0]?.date || '-';
           const lastDate = sList[sList.length - 1]?.date || '-';
           const dateRange = (firstDate === lastDate) ? firstDate : `من ${firstDate} إلى ${lastDate}`;
-          const isPre = sList.every((s) => s.isPreSettled || (s.date && s.date < '2026-09-01'));
+          const isPre = sList.every((s) => Boolean(s.isPreSettled));
           const statusBadge = isPre
             ? '<span class="badge" style="background: rgba(100, 116, 139, 0.15); color: #475569; border: 1px solid #cbd5e1; font-weight: 800; font-size: 0.72rem; padding: 2px 7px;"><i class="fa-solid fa-box-archive"></i> مسواة مسبقاً</span>'
             : '<span class="badge badge-warning" style="font-weight: 800; font-size: 0.72rem; padding: 2px 7px;"><i class="fa-solid fa-clock"></i> قيد التسوية</span>';
