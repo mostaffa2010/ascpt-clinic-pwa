@@ -482,16 +482,12 @@ export class AppointmentsManager {
         return a.date === dateStr;
       }
 
-      // 3. Backward compatibility for legacy appointments without date or daysOfWeek
-      const shiftKey = getDayShiftKey(dateStr);
+      // 3. Backward compatibility for legacy appointments with dayOfWeek pattern
       if (a.dayOfWeek) {
+        const shiftKey = getDayShiftKey(dateStr);
         return a.dayOfWeek === shiftKey;
       }
-      const doc = (this.doctors || []).find(d =>
-        (a.doctorUid && (d.uid === a.doctorUid || d.id === a.doctorUid)) ||
-        (a.doctorName && (d.name === a.doctorName || a.doctorName.includes(d.name) || d.name.includes(a.doctorName)))
-      );
-      return isDoctorOnDuty(doc?.shift, dateStr, this.shiftOverrides, a.doctorUid || doc?.uid);
+      return false;
     }).map(a => {
       let effectiveStatus = a.status || 'scheduled';
 

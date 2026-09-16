@@ -1030,7 +1030,95 @@ export class FinanceManager {
       }
     }
 
-    // Detailed sessions section removed from finance report (maintained in Sessions view)
+    // Render Daily Sessions & Examinations Table for Print Sheet (Single-Row Merged per Patient)
+    const reportTbody = document.getElementById('finance-report-tbody');
+    if (reportTbody) {
+      if (allSessions.length === 0) {
+        reportTbody.innerHTML = '<tr><td colspan="8" style="text-align: center; color: var(--text-muted); padding: 14px;">لا توجد جلسات أو كشوفات مسجلة لهذا اليوم.</td></tr>';
+      } else {
+        // Group sessions and examinations by patient to merge if patient had both on the same day
+        const patientSessionsMap = new Map();
+        allSessions.forEach(s => {
+          if (s.status === 'cancelled') return;
+          const key = s.patientId ? ('id_' + String(s.patientId).trim()) : ('name_' + (s.patientName || '').trim());
+          if (!patientSessionsMap.has(key)) {
+            patientSessionsMap.set(key, []);
+          }
+          patientSessionsMap.get(key).push(s);
+        });
+
+        const rowsHTML = [];
+        let rowIdx = 1;
+
+        patientSessionsMap.forEach((items) => {
+          const first = items[0];
+          const patientName = first.patientName || 'مريض';
+
+          // Doctors
+          const docNames = Array.from(new Set(items.map(s => s.doctor).filter(Boolean)));
+          const doctorText = docNames.join(' • ') || 'طبيب المركز';
+
+          // Body parts treated
+          const partsSet = new Set();
+          items.forEach(s => {
+            if (Array.isArray(s.bodyParts)) {
+              s.bodyParts.forEach(p => { if (p) partsSet.add(p.trim()); });
+            } else if (typeof s.bodyParts === 'string' && s.bodyParts.trim()) {
+              s.bodyParts.split(/[,،]/).forEach(p => { if (p.trim()) partsSet.add(p.trim()); });
+            } else if (s.affectedArea) {
+              s.affectedArea.split(/[,،]/).forEach(p => { if (p.trim()) partsSet.add(p.trim()); });
+            }
+          });
+
+          // Action Type: session, examination, or merged "جلسة زائد كشف"
+          const hasExam = items.some(s => s.entryType === 'examination');
+          const hasSession = items.some(s => s.entryType === 'session' || !s.entryType);
+          let actionType = 'جلسة';
+          if (hasSession && hasExam) {
+            actionType = 'جلسة زائد كشف';
+          } else if (hasExam) {
+            actionType = 'كشف';
+          } else if (items.length > 1) {
+            actionType = 'جلسة (' + items.length + ')';
+          } else {
+            actionType = 'جلسة';
+          }
+
+          const treatedBodyParts = partsSet.size > 0
+            ? Array.from(partsSet).join('، ')
+            : (hasExam && !hasSession ? 'فحص سريري' : 'عام');
+
+          // Pay Type & Insurance Company
+          const isInsurance = items.some(s => s.payType === 'insurance' || s.contractType === 'direct' || s.contractType === 'indirect');
+          const payTypeText = isInsurance ? 'شركة' : 'نقدي';
+          let companyName = '-';
+          if (isInsurance) {
+            const matchedItem = items.find(s => s.insuranceName);
+            companyName = matchedItem ? matchedItem.insuranceName : 'تأمين';
+          }
+
+          // Total Amount Paid
+          const totalPaid = items.reduce((acc, curr) => acc + (parseFloat(curr.amountPaid) || 0), 0);
+
+          rowsHTML.push(
+            '<tr>' +
+              '<td style="text-align: center; font-weight: 700;">' + (rowIdx++) + '</td>' +
+              '<td style="font-weight: 700; color: #000000;">' + escapeHTML(patientName) + '</td>' +
+              '<td style="font-size: 8pt; font-weight: 600;">' + escapeHTML(treatedBodyParts) + '</td>' +
+              '<td style="font-weight: 600;">' + escapeHTML(doctorText) + '</td>' +
+              '<td style="text-align: center;">' +
+                '<span class="badge ' + (isInsurance ? 'badge-direct' : 'badge-cash') + '">' + payTypeText + '</span>' +
+              '</td>' +
+              '<td style="font-weight: 600;">' + escapeHTML(companyName) + '</td>' +
+              '<td style="text-align: center; font-weight: 800; color: #0369a1;">' + escapeHTML(actionType) + '</td>' +
+              '<td style="text-align: center; font-weight: 800; color: #15803d;">' + totalPaid.toLocaleString('en-US') + ' ج.م</td>' +
+            '</tr>'
+          );
+        });
+
+        reportTbody.innerHTML = rowsHTML.join('');
+      }
+    }
 
     // Daily Expenses Table (Desktop)
     const expCard = document.getElementById('card-finance-daily-expenses');

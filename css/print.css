@@ -483,6 +483,7 @@
   }
 
   body:not(.printing-sheet) .card,
+  body:not(.printing-sheet) #card-finance-report-sessions { display: block !important; }
   body:not(.printing-sheet) #card-finance-report-sessions,
   body:not(.printing-sheet) #card-finance-daily-expenses,
   body:not(.printing-sheet) #card-monthly-doctors,

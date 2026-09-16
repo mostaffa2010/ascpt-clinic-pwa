@@ -11389,3 +11389,9 @@ body.role-doctor .btn-quick-attend {
   color: #34d399;
   border-color: rgba(52, 211, 153, 0.3);
 }
+
+/* Print-only elements: strictly hidden on screen across all themes */
+.print-only-card,
+#card-finance-report-sessions {
+  display: none !important;
+}

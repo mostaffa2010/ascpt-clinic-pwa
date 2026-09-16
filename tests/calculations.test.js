@@ -426,24 +426,28 @@ await emptyDocSync.triggerSnapshot({ exists: false, data: null });
 assert.equal(emptyDocSync.getLastSeen(), 0);
 console.log('✓ All 8 Version-Doc Sync Trigger assertions passed successfully!');
 
-// 11. Today Patients Filter Engine Tests
+// 11. Today Patients Filter Engine Tests (Master Schedule Only - Attended Excluded)
 console.log('--- Running Tests: Today Patients Filter & Day-of-Week Sync ---');
 function mockGetTodayPatientIdentifiers({ todayStr, sessions = [], appointments = [] }) {
   const todayIds = new Set();
   const todayNames = new Set();
   const normalize = (t) => (t || '').trim().toLowerCase().replace(/[أإآٱ]/g, 'ا').replace(/ة/g, 'ه').replace(/ى/g, 'ي');
 
+  // 1. Attended patients today (from recorded sessions)
+  const attendedIds = new Set();
+  const attendedNames = new Set();
   sessions.forEach(s => {
     const sDate = s.date || (s.createdAt ? s.createdAt.substring(0, 10) : '');
     if (sDate === todayStr && s.status !== 'cancelled') {
-      if (s.patientId) todayIds.add(String(s.patientId).trim());
-      if (s.patientName) todayNames.add(normalize(s.patientName));
+      if (s.patientId) attendedIds.add(String(s.patientId).trim());
+      if (s.patientName) attendedNames.add(normalize(s.patientName));
     }
   });
 
+  // 2. Scheduled appointments for today (Strict day-of-week or exact date)
   const curDate = new Date(todayStr + 'T00:00:00');
   const dayOfWeek = curDate.getDay();
-  if (dayOfWeek !== 5) {
+  if (dayOfWeek !== 5) { // Friday holiday
     const todayAppts = appointments.filter(a => {
       if (a.status === 'completed' || a.status === 'cancelled') return false;
       if (Array.isArray(a.daysOfWeek) && a.daysOfWeek.length > 0) {
@@ -455,8 +459,15 @@ function mockGetTodayPatientIdentifiers({ todayStr, sessions = [], appointments 
 
     todayAppts.forEach(a => {
       if (a.effectiveStatus === 'cancelled' || a.isCancelledToday) return;
-      if (a.patientId) todayIds.add(String(a.patientId).trim());
-      if (a.patientName) todayNames.add(normalize(a.patientName));
+      const pId = a.patientId ? String(a.patientId).trim() : '';
+      const pName = a.patientName ? normalize(a.patientName) : '';
+
+      // If already attended today, exclude from remaining scheduled cases
+      if ((pId && attendedIds.has(pId)) || (pName && attendedNames.has(pName)) || a.isAttendedToday) {
+        return;
+      }
+      if (pId) todayIds.add(pId);
+      if (pName) todayNames.add(pName);
     });
   }
   return { todayIds, todayNames };
@@ -466,9 +477,10 @@ const mondayAppts = Array.from({ length: 15 }, (_, i) => ({
   id: `appt_${i+1}`,
   patientId: `p_${i+1}`,
   patientName: `مريض ${i+1}`,
-  daysOfWeek: [6, 1, 3]
+  daysOfWeek: [6, 1, 3] // Sat, Mon, Wed
 }));
 
+// Tuesday (day 2): Monday appts do NOT match Tuesday
 const tuesdayResult = mockGetTodayPatientIdentifiers({
   todayStr: '2026-09-15',
   sessions: [],
@@ -476,6 +488,7 @@ const tuesdayResult = mockGetTodayPatientIdentifiers({
 });
 assert.equal(tuesdayResult.todayIds.size, 0);
 
+// Monday (day 1): 15 scheduled appointments before clinic opens (0 sessions attended)
 const mondayResult = mockGetTodayPatientIdentifiers({
   todayStr: '2026-09-14',
   sessions: [],
@@ -483,21 +496,32 @@ const mondayResult = mockGetTodayPatientIdentifiers({
 });
 assert.equal(mondayResult.todayIds.size, 15);
 
-const tuesdayWithSession = mockGetTodayPatientIdentifiers({
-  todayStr: '2026-09-15',
-  sessions: [{ patientId: 'p_1', patientName: 'مريض 1', date: '2026-09-15' }],
+// Monday with 1 patient attended: p_1 should disappear from remaining scheduled cases -> 14 remaining!
+const mondayWith1Attended = mockGetTodayPatientIdentifiers({
+  todayStr: '2026-09-14',
+  sessions: [{ patientId: 'p_1', patientName: 'مريض 1', date: '2026-09-14' }],
   appointments: mondayAppts
 });
-assert.equal(tuesdayWithSession.todayIds.size, 1);
-assert.ok(tuesdayWithSession.todayIds.has('p_1'));
+assert.equal(mondayWith1Attended.todayIds.size, 14);
+assert.equal(mondayWith1Attended.todayIds.has('p_1'), false);
 
-const tuesdayWithCancelled = mockGetTodayPatientIdentifiers({
-  todayStr: '2026-09-15',
-  sessions: [],
-  appointments: [{ id: 'a_tue', patientId: 'p_tue', daysOfWeek: [2], effectiveStatus: 'cancelled' }]
+// Monday when ALL 15 patients have attended sessions: should be 0 remaining!
+const mondayAllAttended = mockGetTodayPatientIdentifiers({
+  todayStr: '2026-09-14',
+  sessions: mondayAppts.map(a => ({ patientId: a.patientId, patientName: a.patientName, date: '2026-09-14' })),
+  appointments: mondayAppts
 });
-assert.equal(tuesdayWithCancelled.todayIds.size, 0);
-console.log('✓ All 4 Today Patients Filter assertions passed successfully!');
+assert.equal(mondayAllAttended.todayIds.size, 0);
+
+// Friday holiday (2026-09-18): should always be 0!
+const fridayResult = mockGetTodayPatientIdentifiers({
+  todayStr: '2026-09-18',
+  sessions: [],
+  appointments: mondayAppts
+});
+assert.equal(fridayResult.todayIds.size, 0);
+
+console.log('✓ All 6 Today Patients Filter assertions passed successfully!');
 
 // 12. Batch Home Visits & Doctor Dashboard Dues Isolation Tests
 console.log('--- Running Tests: Batch Home Visits & Doctor Dashboard Decoupling ---');
@@ -696,3 +720,107 @@ assert.equal(secondSessionWithOtherDoctor, false, 'Existing assigned doctor must
 assert.equal(newPatient.doctor, 'د. حسني أحمد الجويلي', 'Assigned doctor must remain the first doctor');
 
 console.log('✓ All 9 Lifetime Patients Grouping & First Doctor Rule assertions passed successfully!');
+
+// 14. Daily Print Sheet Sessions Aggregation Engine Tests
+console.log('--- Running Tests: Daily Print Sheet Sessions Aggregation Engine ---');
+
+function aggregateDailySessionsForPrint(sessions = []) {
+  const patientMap = new Map();
+  sessions.forEach(s => {
+    if (s.status === 'cancelled') return;
+    const key = s.patientId ? ('id_' + String(s.patientId).trim()) : ('name_' + (s.patientName || '').trim());
+    if (!patientMap.has(key)) patientMap.set(key, []);
+    patientMap.get(key).push(s);
+  });
+
+  const rows = [];
+  patientMap.forEach(items => {
+    const first = items[0];
+    const patientName = first.patientName || 'مريض';
+    const docNames = Array.from(new Set(items.map(s => s.doctor).filter(Boolean)));
+    const doctorText = docNames.join(' • ') || 'طبيب المركز';
+
+    const partsSet = new Set();
+    items.forEach(s => {
+      if (Array.isArray(s.bodyParts)) s.bodyParts.forEach(p => { if (p) partsSet.add(p.trim()); });
+      else if (s.bodyParts) partsSet.add(String(s.bodyParts).trim());
+    });
+
+    const hasExam = items.some(s => s.entryType === 'examination');
+    const hasSession = items.some(s => s.entryType === 'session' || !s.entryType);
+    let actionType = 'جلسة';
+    if (hasSession && hasExam) {
+      actionType = 'جلسة زائد كشف';
+    } else if (hasExam) {
+      actionType = 'كشف';
+    } else if (items.length > 1) {
+      actionType = 'جلسة (' + items.length + ')';
+    } else {
+      actionType = 'جلسة';
+    }
+
+    const treatedBodyParts = partsSet.size > 0 ? Array.from(partsSet).join('، ') : (hasExam && !hasSession ? 'فحص سريري' : 'عام');
+    const isInsurance = items.some(s => s.payType === 'insurance' || s.contractType === 'direct' || s.contractType === 'indirect');
+    const payTypeText = isInsurance ? 'شركة' : 'نقدي';
+    let companyName = '-';
+    if (isInsurance) {
+      const matchedItem = items.find(s => s.insuranceName);
+      companyName = matchedItem ? matchedItem.insuranceName : 'تأمين';
+    }
+
+    const totalPaid = items.reduce((acc, curr) => acc + (parseFloat(curr.amountPaid) || 0), 0);
+
+    rows.push({
+      patientName,
+      doctorText,
+      treatedBodyParts,
+      payTypeText,
+      companyName,
+      actionType,
+      totalPaid
+    });
+  });
+
+  return rows;
+}
+
+// Scenario 1: Patient with only a session
+const testOnlySession = aggregateDailySessionsForPrint([
+  { id: 's1', patientId: 'p1', patientName: 'أحمد علي', doctor: 'د. مصطفى', bodyParts: ['الركبة'], entryType: 'session', payType: 'cash', amountPaid: 150 }
+]);
+assert.equal(testOnlySession.length, 1);
+assert.equal(testOnlySession[0].actionType, 'جلسة');
+assert.equal(testOnlySession[0].payTypeText, 'نقدي');
+assert.equal(testOnlySession[0].companyName, '-');
+assert.equal(testOnlySession[0].totalPaid, 150);
+
+// Scenario 2: Patient with only an examination
+const testOnlyExam = aggregateDailySessionsForPrint([
+  { id: 'e1', patientId: 'p2', patientName: 'سارة محمد', doctor: 'د. محمد', bodyParts: [], entryType: 'examination', payType: 'insurance', insuranceName: 'أموك', amountPaid: 0 }
+]);
+assert.equal(testOnlyExam.length, 1);
+assert.equal(testOnlyExam[0].actionType, 'كشف');
+assert.equal(testOnlyExam[0].payTypeText, 'شركة');
+assert.equal(testOnlyExam[0].companyName, 'أموك');
+assert.equal(testOnlyExam[0].treatedBodyParts, 'فحص سريري');
+
+// Scenario 3: Patient with BOTH session and examination on the same day -> Must merge into ONE row with "جلسة زائد كشف" and sum amounts!
+const testSessionAndExam = aggregateDailySessionsForPrint([
+  { id: 's3', patientId: 'p3', patientName: 'محمود حسن', doctor: 'د. مصطفى', bodyParts: ['أسفل الظهر'], entryType: 'session', payType: 'cash', amountPaid: 150 },
+  { id: 'e3', patientId: 'p3', patientName: 'محمود حسن', doctor: 'د. مصطفى', bodyParts: [], entryType: 'examination', payType: 'cash', amountPaid: 100 }
+]);
+assert.equal(testSessionAndExam.length, 1, 'Patient with session and exam must merge into exactly 1 row');
+assert.equal(testSessionAndExam[0].actionType, 'جلسة زائد كشف');
+assert.equal(testSessionAndExam[0].totalPaid, 250, 'Total paid must sum session (150) + exam (100) = 250');
+assert.equal(testSessionAndExam[0].treatedBodyParts, 'أسفل الظهر');
+
+// Scenario 4: Multiple patients mixed
+const testMixed = aggregateDailySessionsForPrint([
+  { id: 's1', patientId: 'p1', patientName: 'أحمد علي', doctor: 'د. مصطفى', bodyParts: ['الركبة'], entryType: 'session', payType: 'cash', amountPaid: 150 },
+  { id: 'e1', patientId: 'p2', patientName: 'سارة محمد', doctor: 'د. محمد', bodyParts: [], entryType: 'examination', payType: 'insurance', insuranceName: 'أموك', amountPaid: 0 },
+  { id: 's3', patientId: 'p3', patientName: 'محمود حسن', doctor: 'د. مصطفى', bodyParts: ['أسفل الظهر'], entryType: 'session', payType: 'cash', amountPaid: 150 },
+  { id: 'e3', patientId: 'p3', patientName: 'محمود حسن', doctor: 'د. مصطفى', bodyParts: [], entryType: 'examination', payType: 'cash', amountPaid: 100 }
+]);
+assert.equal(testMixed.length, 3, 'Should produce 3 distinct patient rows');
+
+console.log('✓ All 7 Daily Print Sheet Aggregation assertions passed successfully!');

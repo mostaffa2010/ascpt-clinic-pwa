@@ -652,7 +652,9 @@ export class PatientsManager {
     const todayNames = new Set();
     const todayStr = getLocalDateStr();
 
-    // 1. Sessions recorded today
+    // 1. Collect attended patients for today (sessions recorded today)
+    const attendedIds = new Set();
+    const attendedNames = new Set();
     const cachedTodaySessions = db._sessionsByDateCache?.get(todayStr)?.data;
     const sessions = Array.isArray(cachedTodaySessions)
       ? cachedTodaySessions
@@ -661,8 +663,8 @@ export class PatientsManager {
     sessions.forEach(s => {
       const sDate = s.date || (s.createdAt ? s.createdAt.substring(0, 10) : '');
       if (sDate === todayStr && s.status !== 'cancelled') {
-        if (s.patientId) todayIds.add(String(s.patientId).trim());
-        if (s.patientName) todayNames.add(this.normalizeArabic(s.patientName));
+        if (s.patientId) attendedIds.add(String(s.patientId).trim());
+        if (s.patientName) attendedNames.add(this.normalizeArabic(s.patientName));
       }
     });
 
@@ -686,10 +688,19 @@ export class PatientsManager {
       }
     }
 
+    // 3. Keep ONLY scheduled patients who have NOT yet attended today
     todayAppts.forEach(a => {
       if (a.effectiveStatus === 'cancelled' || a.isCancelledToday) return;
-      if (a.patientId) todayIds.add(String(a.patientId).trim());
-      if (a.patientName) todayNames.add(this.normalizeArabic(a.patientName));
+      const pId = a.patientId ? String(a.patientId).trim() : '';
+      const pName = a.patientName ? this.normalizeArabic(a.patientName) : '';
+
+      // If already attended today, exclude from "حالات اليوم المتبقية في الجدول"
+      if ((pId && attendedIds.has(pId)) || (pName && attendedNames.has(pName)) || a.isAttendedToday) {
+        return;
+      }
+
+      if (pId) todayIds.add(pId);
+      if (pName) todayNames.add(pName);
     });
 
     return { todayIds, todayNames };
