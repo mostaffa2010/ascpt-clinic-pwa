@@ -82,6 +82,20 @@ const guideContent = fs.readFileSync(guidePath, 'utf-8');
 assert.ok(guideContent.includes('كيف تضيف نوع إشعار جديد في 3 خطوات بسيطة'), 'guide must explain adding new notification types');
 console.log('✓ 8. Comprehensive Documentation: Verified docs/NOTIFICATIONS_GUIDE.md with 3-step developer template and usage table.');
 
+
+// 9. Verify Token Endpoint & Primer Modal (v2.10.1 Refinement)
+const apiTokenPath = path.join(rootDir, 'api/notifications/token.js');
+assert.ok(fs.existsSync(apiTokenPath), 'api/notifications/token.js must exist');
+const apiTokenContent = fs.readFileSync(apiTokenPath, 'utf-8');
+assert.ok(apiTokenContent.includes("action === 'register'"), 'token.js must handle registration');
+assert.ok(apiTokenContent.includes("action === 'mark_all_read'"), 'token.js must handle mark_all_read');
+
+assert.ok(indexHtmlContent.includes('id="modal-notification-primer"'), 'index.html must include #modal-notification-primer');
+assert.ok(indexHtmlContent.includes('id="btn-primer-confirm"'), 'index.html must include #btn-primer-confirm');
+assert.ok(styleCssContent.includes('position: fixed'), 'style.css must define position: fixed for mobile notification dropdown');
+assert.ok(printCssContent.includes('#modal-notification-primer'), 'print.css must suppress #modal-notification-primer');
+console.log('✓ 9. Refinement Guardrails: Verified server token endpoint, custom primer modal, and fixed mobile dropdown.');
+
 console.log('===================================================================');
-console.log('✓ All 8 Push Notifications Guardrail Tests Passed Successfully (100%)!');
+console.log('✓ All 9 Push Notifications Guardrail Tests Passed Successfully (100%)!');
 console.log('===================================================================');

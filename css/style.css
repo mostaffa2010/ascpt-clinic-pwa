@@ -12121,15 +12121,17 @@ body.role-doctor .btn-quick-attend {
 }
 
 .notification-dropdown {
-  position: absolute;
-  top: calc(100% + 8px);
-  right: 0;
-  width: 330px;
-  max-width: 90vw;
+  position: fixed;
+  top: calc(var(--topbar-height, 60px) + env(safe-area-inset-top, 0px) + 8px);
+  left: 12px;
+  right: 12px;
+  width: calc(100% - 24px);
+  max-width: 380px;
+  margin: 0 auto;
   background: var(--bg-surface);
   border: 1px solid var(--border-color);
   border-radius: 16px;
-  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2), 0 3px 10px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.25), 0 3px 10px rgba(0, 0, 0, 0.08);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
   z-index: 10000;
@@ -12137,6 +12139,17 @@ body.role-doctor .btn-quick-attend {
   flex-direction: column;
   overflow: hidden;
   animation: notifSlideDown 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@media screen and (min-width: 768px) {
+  .notification-dropdown {
+    position: absolute;
+    top: calc(100% + 8px);
+    right: -140px;
+    left: auto;
+    width: 350px;
+    margin: 0;
+  }
 }
 
 @keyframes notifSlideDown {
