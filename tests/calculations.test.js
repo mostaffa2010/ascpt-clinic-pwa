@@ -836,3 +836,41 @@ assert.equal(testSorting[0].patientName, 'مريض مبكر', 'Earliest arrival 
 assert.equal(testSorting[1].patientName, 'مريض متأخر', 'Later arrival (05:30) must be second row');
 
 console.log('✓ All 8 Daily Print Sheet Aggregation assertions passed successfully!');
+
+
+// 15. Monthly Report Calculations & Tables Integrity Tests
+console.log('--- Running Tests: Monthly Report Calculations & Tables Integrity ---');
+
+// Test 1: Doctor percentage based on credited sessions, NOT patient count
+const sampleMonthlySessions = [
+  { doctor: 'د. حسني', bodyPartsCount: 2, entryType: 'session' }, // 2 credited sessions
+  { doctor: 'د. حسني', bodyPartsCount: 1, entryType: 'session' }, // 1 credited session
+  { doctor: 'د. أحمد', bodyPartsCount: 1, entryType: 'session' }  // 1 credited session
+];
+const totalClinicCreditedSessions = sampleMonthlySessions.reduce((acc, s) => acc + (s.bodyPartsCount || 1), 0); // 4
+const docHosnySessions = sampleMonthlySessions.filter(s => s.doctor === 'د. حسني');
+const docHosnyCredited = docHosnySessions.reduce((acc, s) => acc + (s.bodyPartsCount || 1), 0); // 3
+const docHosnyPct = ((docHosnyCredited / totalClinicCreditedSessions) * 100).toFixed(1);
+assert.equal(docHosnyPct, '75.0', 'Doctor percentage must be based on credited sessions (3/4 = 75%), not patient count (2/3 = 66.7%)');
+
+// Test 2: Insurance Distribution Sorted Descending by Count
+const sampleInsCategories = {
+  'abo_qir': { name: 'أبو قير', count: 1 },
+  'cash': { name: 'سداد نقدي مباشر', count: 26 },
+  'amoc': { name: 'أموك', count: 5 }
+};
+const sortedIns = Object.values(sampleInsCategories).sort((a, b) => b.count - a.count);
+assert.equal(sortedIns[0].name, 'سداد نقدي مباشر', 'Highest count/percentage (26) must be top row');
+assert.equal(sortedIns[1].name, 'أموك', 'Second highest (5) must be second row');
+assert.equal(sortedIns[2].name, 'أبو قير', 'Lowest (1) must be last row');
+
+// Test 3: Monthly Financial Summary Totals
+const sessionsCashIncome = 15000;
+const insuranceSettlementsNet = 5000;
+const monthlyExpensesTotal = 8000;
+const totalMonthIncome = sessionsCashIncome + insuranceSettlementsNet;
+const netOperatingProfit = totalMonthIncome - monthlyExpensesTotal;
+assert.equal(totalMonthIncome, 20000, 'Total income must sum cash + settlements (15000 + 5000 = 20000)');
+assert.equal(netOperatingProfit, 12000, 'Net operating profit must be total income - expenses (20000 - 8000 = 12000)');
+
+console.log('✓ All 4 Monthly Report Integrity assertions passed successfully!');

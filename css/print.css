@@ -600,15 +600,94 @@
     width: 100% !important;
   }
 
+  /* Monthly Tables: High-Contrast, 100% Full Width, Uniform Medical Borders */
   body:not(.printing-sheet) #card-monthly-doctors,
   body:not(.printing-sheet) #card-monthly-insurance,
-  body:not(.printing-sheet) #card-monthly-expenses {
+  body:not(.printing-sheet) #card-monthly-settlements,
+  body:not(.printing-sheet) #card-monthly-expenses-categories,
+  body:not(.printing-sheet) #card-monthly-financial-summary {
+    display: block !important;
     border: 1px solid #cbd5e1 !important;
     box-shadow: none !important;
-    margin-bottom: 8px !important;
-    padding: 4px 6px !important;
+    margin-top: 0 !important;
+    margin-bottom: 5px !important;
+    padding: 3px 5px !important;
     background: #ffffff !important;
-    page-break-inside: avoid !important;
+    page-break-inside: auto !important;
+    box-sizing: border-box !important;
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+
+  body:not(.printing-sheet) #card-monthly-doctors .card-header,
+  body:not(.printing-sheet) #card-monthly-insurance .card-header,
+  body:not(.printing-sheet) #card-monthly-settlements .card-header,
+  body:not(.printing-sheet) #card-monthly-expenses-categories .card-header,
+  body:not(.printing-sheet) #card-monthly-financial-summary .card-header {
+    display: block !important;
+    padding: 0 0 2px 0 !important;
+    margin-bottom: 2px !important;
+    border-bottom: 1px solid #0369a1 !important;
+    background: transparent !important;
+  }
+
+  body:not(.printing-sheet) #card-monthly-doctors .card-title,
+  body:not(.printing-sheet) #card-monthly-insurance .card-title,
+  body:not(.printing-sheet) #card-monthly-settlements .card-title,
+  body:not(.printing-sheet) #card-monthly-expenses-categories .card-title,
+  body:not(.printing-sheet) #card-monthly-financial-summary .card-title {
+    font-size: 7.5pt !important;
+    font-weight: 800 !important;
+    color: #000000 !important;
+  }
+
+  body:not(.printing-sheet) #monthly-doctors-table,
+  body:not(.printing-sheet) #monthly-insurance-table,
+  body:not(.printing-sheet) #monthly-settlements-table,
+  body:not(.printing-sheet) #monthly-expenses-categories-table,
+  body:not(.printing-sheet) #monthly-financial-summary-table {
+    display: table !important;
+    width: 100% !important;
+    table-layout: fixed !important;
+    border-collapse: collapse !important;
+    font-size: 6.8pt !important;
+    background: #ffffff !important;
+    margin: 0 !important;
+  }
+
+  body:not(.printing-sheet) #monthly-doctors-table th,
+  body:not(.printing-sheet) #monthly-doctors-table td,
+  body:not(.printing-sheet) #monthly-insurance-table th,
+  body:not(.printing-sheet) #monthly-insurance-table td,
+  body:not(.printing-sheet) #monthly-settlements-table th,
+  body:not(.printing-sheet) #monthly-settlements-table td,
+  body:not(.printing-sheet) #monthly-expenses-categories-table th,
+  body:not(.printing-sheet) #monthly-expenses-categories-table td,
+  body:not(.printing-sheet) #monthly-financial-summary-table th,
+  body:not(.printing-sheet) #monthly-financial-summary-table td {
+    border: 0.8px solid #64748b !important;
+    padding: 1.5px 2px !important;
+    line-height: 1.05 !important;
+    vertical-align: middle !important;
+    word-break: break-word !important;
+  }
+
+  body:not(.printing-sheet) #monthly-doctors-table th,
+  body:not(.printing-sheet) #monthly-insurance-table th,
+  body:not(.printing-sheet) #monthly-settlements-table th,
+  body:not(.printing-sheet) #monthly-expenses-categories-table th,
+  body:not(.printing-sheet) #monthly-financial-summary-table th {
+    background-color: #e2e8f0 !important;
+    color: #000000 !important;
+    font-weight: 800 !important;
+    font-size: 6.5pt !important;
+    padding: 2px 2px !important;
+    text-align: center !important;
+  }
+
+  body:not(.printing-sheet) #monthly-financial-summary-table tfoot td {
+    border: 0.8px solid #64748b !important;
+    padding: 2px 3px !important;
   }
 
   body:not(.printing-sheet) #card-monthly-doctors .card-header,

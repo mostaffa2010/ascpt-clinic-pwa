@@ -1548,14 +1548,22 @@
             </div>
             <div class="table-responsive desktop-only-table" id="monthly-doctors-table-container">
               <table class="data-table" id="monthly-doctors-table">
+                <colgroup>
+                  <col style="width: 25%;">
+                  <col style="width: 14%;">
+                  <col style="width: 16%;">
+                  <col style="width: 14%;">
+                  <col style="width: 16%;">
+                  <col style="width: 15%;">
+                </colgroup>
                 <thead>
                   <tr>
                     <th>الطبيب المعالج</th>
-                    <th>مرضى نقدي</th>
-                    <th>مرضى شركات تأمين</th>
-                    <th>إجمالي الحالات</th>
-                    <th>عدد الجلسات المحتسبة</th>
-                    <th>النسبة من إجمالي المركز</th>
+                    <th style="text-align: center;">مرضى نقدي</th>
+                    <th style="text-align: center;">مرضى شركات تأمين</th>
+                    <th style="text-align: center;">إجمالي الحالات</th>
+                    <th style="text-align: center;">عدد الجلسات المحتسبة</th>
+                    <th style="text-align: center;">النسبة من إجمالي المركز</th>
                   </tr>
                 </thead>
                 <tbody id="monthly-doctors-tbody">
@@ -1573,12 +1581,20 @@
             </div>
             <div class="table-responsive desktop-only-table" id="monthly-insurance-table-container">
               <table class="data-table" id="monthly-insurance-table">
+                <colgroup>
+                  <col style="width: 5%;">
+                  <col style="width: 40%;">
+                  <col style="width: 20%;">
+                  <col style="width: 18%;">
+                  <col style="width: 17%;">
+                </colgroup>
                 <thead>
                   <tr>
+                    <th style="text-align: center;">م</th>
                     <th>جهة السداد / شركة التأمين</th>
-                    <th>نوع التعاقد</th>
-                    <th>عدد الحالات</th>
-                    <th>النسبة المئوية</th>
+                    <th style="text-align: center;">نوع التعاقد</th>
+                    <th style="text-align: center;">عدد الحالات</th>
+                    <th style="text-align: center;">النسبة المئوية</th>
                   </tr>
                 </thead>
                 <tbody id="monthly-insurance-tbody">
@@ -1619,20 +1635,28 @@
             <div id="monthly-settlements-mobile-cards" class="mobile-only-cards-container" style="margin-top: 8px;"></div>
           </div>
 
-          <!-- Monthly Expenses Categorical Distribution Card (v1.4.80) -->
+          <!-- Merged Monthly Expenses Card -->
           <div class="card" id="card-monthly-expenses-categories" style="margin-bottom: 16px;">
             <div class="card-header" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
-              <span class="card-title"><i class="fa-solid fa-chart-pie" style="color: var(--danger);"></i> توزيع المصروفات الشهرية حسب البنود</span>
+              <span class="card-title"><i class="fa-solid fa-receipt" style="color: var(--danger);"></i> بيان وتوزيع المصروفات الشهرية حسب البنود</span>
               <span class="badge badge-cash" id="monthly-expense-categories-count-badge" style="background: rgba(239, 68, 68, 0.12); color: var(--danger); font-size: 0.8rem; font-weight: 800;">0 بنود</span>
             </div>
             <div class="table-responsive desktop-only-table">
-              <table class="data-table">
+              <table class="data-table" id="monthly-expenses-categories-table">
+                <colgroup>
+                  <col style="width: 5%;">
+                  <col style="width: 45%;">
+                  <col style="width: 15%;">
+                  <col style="width: 20%;">
+                  <col style="width: 15%;">
+                </colgroup>
                 <thead>
                   <tr>
+                    <th style="text-align: center;">م</th>
                     <th>بند المصروف</th>
-                    <th>عدد الحركات</th>
-                    <th>إجمالي المنصرف</th>
-                    <th>النسبة من المصروفات</th>
+                    <th style="text-align: center;">عدد الحركات</th>
+                    <th style="text-align: center;">إجمالي المنصرف</th>
+                    <th style="text-align: center;">النسبة من المصروفات</th>
                   </tr>
                 </thead>
                 <tbody id="monthly-expenses-categories-tbody">
@@ -1643,8 +1667,41 @@
             <div id="monthly-expenses-categories-mobile" class="mobile-only-cards-container"></div>
           </div>
 
+          <!-- Monthly Financial Receipts & Net Summary Card -->
+          <div class="card" id="card-monthly-financial-summary" style="margin-bottom: 16px;">
+            <div class="card-header">
+              <span class="card-title"><i class="fa-solid fa-vault" style="color: var(--success);"></i> البيان المالي وإجمالي المقبوضات الشهرية</span>
+            </div>
+            <div class="table-responsive desktop-only-table">
+              <table class="data-table" id="monthly-financial-summary-table">
+                <colgroup>
+                  <col style="width: 6%;">
+                  <col style="width: 40%;">
+                  <col style="width: 24%;">
+                  <col style="width: 18%;">
+                  <col style="width: 12%;">
+                </colgroup>
+                <thead>
+                  <tr>
+                    <th style="text-align: center;">م</th>
+                    <th>بند الإيراد / المقبوضات</th>
+                    <th style="text-align: center;">طريقة التحصيل والاستلام</th>
+                    <th style="text-align: center;">المبلغ المحصل</th>
+                    <th style="text-align: center;">النسبة</th>
+                  </tr>
+                </thead>
+                <tbody id="monthly-financial-summary-tbody">
+                  <!-- Rendered dynamically -->
+                </tbody>
+                <tfoot id="monthly-financial-summary-tfoot">
+                  <!-- Rendered dynamically -->
+                </tfoot>
+              </table>
+            </div>
+          </div>
+
           <!-- Monthly Expenses Table -->
-          <div class="card" id="card-monthly-expenses">
+          <div class="card no-print" id="card-monthly-expenses">
             <div class="card-header">
               <span class="card-title"><i class="fa-solid fa-receipt"></i> بيان مصروفات الشهر</span>
             </div>
@@ -2314,7 +2371,7 @@
         <div class="admin-system-footer no-print" style="margin-top: 32px; margin-bottom: 35px; text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px;">
           <div style="display: inline-flex; align-items: center; gap: 8px; background: var(--bg-surface); border: 1.5px solid var(--border-color); padding: 7px 18px; border-radius: 999px; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);">
             <span style="width: 8px; height: 8px; border-radius: 50%; background-color: var(--success); display: inline-block; box-shadow: 0 0 6px var(--success);"></span>
-            <span id="admin-system-version-label" data-clinic="version-badge" style="font-weight: 800; font-size: 0.88rem; color: var(--text-main);">نظام ASCPT — الإصدار 2.4.8</span>
+            <span id="admin-system-version-label" data-clinic="version-badge" style="font-weight: 800; font-size: 0.88rem; color: var(--text-main);">نظام ASCPT — الإصدار 2.4.9</span>
             <span class="badge badge-primary" style="font-size: 0.72rem; padding: 2px 10px; border-radius: 999px; font-weight: 800;">إصدار معتمد</span>
           </div>
           <div style="font-size: 0.76rem; color: var(--text-muted); font-weight: 700;">

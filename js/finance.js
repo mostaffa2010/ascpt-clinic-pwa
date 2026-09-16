@@ -1354,6 +1354,10 @@ export class FinanceManager {
 
     const monthSettlements = await db.getInsuranceSettlements(null, this.currentMonth);
     const totalPatients = allSessions.length;
+    const totalClinicSessions = allSessions.reduce((acc, s) => {
+      if (s.entryType === 'examination') return acc + 1;
+      return acc + (s.bodyPartsCount || 1);
+    }, 0);
     const totalSessionsIncome = allSessions.reduce((acc, curr) => acc + (parseFloat(curr.amountPaid) || 0), 0);
     const totalSettlementsNet = monthSettlements.reduce((acc, s) => acc + (parseFloat(s.netAmount) || 0), 0);
     const totalSettlementsDeductions = monthSettlements.reduce((acc, s) => acc + (parseFloat(s.deductions) || 0), 0);
@@ -1413,6 +1417,14 @@ export class FinanceManager {
     // Render Monthly Settlements Table
     const mSetTbody = document.getElementById('monthly-settlements-tbody');
     const mSetBadge = document.getElementById('monthly-settlements-total-badge');
+    const mSetCard = document.getElementById('card-monthly-settlements');
+    if (mSetCard) {
+      if (monthSettlements.length === 0) {
+        mSetCard.classList.add('no-print');
+      } else {
+        mSetCard.classList.remove('no-print');
+      }
+    }
     if (mSetBadge) {
       mSetBadge.textContent = `صافي: ${totalSettlementsNet.toLocaleString('en-US')} ج.م ${totalSettlementsDeductions > 0 ? `(استقطاعات: ${totalSettlementsDeductions.toLocaleString('en-US')} ج.م)` : ''}`;
     }
@@ -1515,7 +1527,7 @@ export class FinanceManager {
           const cashCount = docSessions.filter(s => s.payType === 'cash').length;
           const insCount = docSessions.filter(s => s.payType === 'insurance').length;
           const total = docSessions.length;
-          const pct = totalPatients > 0 ? ((total / totalPatients) * 100).toFixed(1) : 0;
+          const pct = totalClinicSessions > 0 ? ((creditedSessions / totalClinicSessions) * 100).toFixed(1) : 0;
 
           const creditedSessions = docSessions.reduce((acc, s) => {
             if (s.entryType === 'examination') return acc + 1;
@@ -1559,7 +1571,7 @@ export class FinanceManager {
           const cashCount = docSessions.filter(s => s.payType === 'cash').length;
           const insCount = docSessions.filter(s => s.payType === 'insurance').length;
           const total = docSessions.length;
-          const pct = totalPatients > 0 ? ((total / totalPatients) * 100).toFixed(1) : 0;
+          const pct = totalClinicSessions > 0 ? ((creditedSessions / totalClinicSessions) * 100).toFixed(1) : 0;
           const creditedSessions = docSessions.reduce((acc, s) => {
             if (s.entryType === 'examination') return acc + 1;
             return acc + (s.bodyPartsCount || 1);
@@ -1665,23 +1677,19 @@ export class FinanceManager {
           }
         });
 
-        insTbody.innerHTML = Object.values(categories).map(item => {
-          const pct = ((item.count / totalPatients) * 100).toFixed(1);
+        const sortedInsCats = Object.values(categories).sort((a, b) => b.count - a.count);
+        let insIdx = 1;
+        insTbody.innerHTML = sortedInsCats.map(item => {
+          const pct = totalPatients > 0 ? ((item.count / totalPatients) * 100).toFixed(1) : 0;
           const safeName = escapeHTML(item.name);
           const safeType = escapeHTML(item.type);
           return `
             <tr>
-              <td style="font-weight: 700;">${safeName}</td>
-              <td><span class="badge ${item.type.includes('نقدي') ? 'badge-cash' : (item.type.includes('غير مباشر') ? 'badge-indirect' : 'badge-direct')}"><i class="fa-solid ${item.type.includes('نقدي') ? 'fa-money-bill' : (item.type.includes('غير مباشر') ? 'fa-handshake' : 'fa-file-contract')}"></i> ${safeType}</span></td>
-              <td style="font-weight: 800; color: var(--primary); font-size: 0.95rem;">${item.count} حالة</td>
-              <td>
-                <div style="display: flex; align-items: center; gap: 8px;">
-                  <span style="font-weight: 700; width: 45px;">${pct}%</span>
-                  <div style="flex: 1; background-color: var(--bg-subtle); height: 8px; border-radius: 4px; overflow: hidden;">
-                    <div style="width: ${pct}%; background-color: ${item.type.includes('نقدي') ? 'var(--success)' : 'var(--primary)'}; height: 100%; border-radius: 4px;"></div>
-                  </div>
-                </div>
-              </td>
+              <td style="text-align: center; font-weight: 700;">${insIdx++}</td>
+              <td style="font-weight: 700; color: #000000;">${safeName}</td>
+              <td style="text-align: center;"><span class="badge ${item.type.includes('نقدي') ? 'badge-cash' : (item.type.includes('غير مباشر') ? 'badge-indirect' : 'badge-direct')}">${safeType}</span></td>
+              <td style="font-weight: 800; color: var(--primary); text-align: center;">${item.count} حالة</td>
+              <td style="font-weight: 800; text-align: center;">${pct}%</td>
             </tr>
           `;
         }).join('');
@@ -1764,24 +1772,16 @@ export class FinanceManager {
       if (sortedCats.length === 0) {
         mExpCatTbody.innerHTML = `<tr><td colspan="4" style="text-align: center; color: var(--text-muted); padding: 20px;">لا توجد مصروفات مسجلة لهذا الشهر.</td></tr>`;
       } else {
+        let expCatIdx = 1;
         mExpCatTbody.innerHTML = sortedCats.map(cat => {
           const pct = totalExpenses > 0 ? ((cat.total / totalExpenses) * 100).toFixed(1) : 0;
           return `
             <tr>
-              <td style="font-weight: 700; color: var(--text-main);">
-                <i class="fa-solid fa-tag" style="color: var(--danger); margin-left: 6px; font-size: 0.85rem;"></i>
-                ${escapeHTML(cat.name)}
-              </td>
-              <td style="font-weight: 700; color: var(--text-muted);">${cat.count} حركات</td>
-              <td style="font-weight: 800; color: var(--danger); font-size: 0.95rem;">${cat.total.toLocaleString('en-US')} ج.م</td>
-              <td>
-                <div style="display: flex; align-items: center; gap: 8px;">
-                  <span style="font-weight: 700; width: 45px;">${pct}%</span>
-                  <div style="flex: 1; background-color: var(--bg-subtle); height: 8px; border-radius: 4px; overflow: hidden;">
-                    <div style="width: ${pct}%; background-color: var(--danger); height: 100%; border-radius: 4px;"></div>
-                  </div>
-                </div>
-              </td>
+              <td style="text-align: center; font-weight: 700;">${expCatIdx++}</td>
+              <td style="font-weight: 700; color: #000000;">${escapeHTML(cat.name)}</td>
+              <td style="font-weight: 700; text-align: center;">${cat.count} حركات</td>
+              <td style="font-weight: 800; color: var(--danger); text-align: center;">${cat.total.toLocaleString('en-US')} ج.م</td>
+              <td style="font-weight: 800; text-align: center;">${pct}%</td>
             </tr>
           `;
         }).join('');
@@ -1823,6 +1823,51 @@ export class FinanceManager {
             </div>
           `;
         }).join('');
+      }
+    }
+
+    // D. Monthly Financial Summary Table (المقبوضات وصافي الدخل)
+    const finSummaryTbody = document.getElementById('monthly-financial-summary-tbody');
+    const finSummaryTfoot = document.getElementById('monthly-financial-summary-tfoot');
+    if (finSummaryTbody) {
+      const cashPct = totalIncome > 0 ? ((totalSessionsIncome / totalIncome) * 100).toFixed(1) : 0;
+      const settlePct = totalIncome > 0 ? ((totalSettlementsNet / totalIncome) * 100).toFixed(1) : 0;
+
+      finSummaryTbody.innerHTML = `
+        <tr>
+          <td style="text-align: center; font-weight: 700;">1</td>
+          <td style="font-weight: 700; color: #000000;">إيرادات الجلسات والكشوفات</td>
+          <td style="text-align: center;"><span class="badge badge-cash">نقداً بالخزينة (الدرج)</span></td>
+          <td style="text-align: center; font-weight: 800; color: var(--success);">${totalSessionsIncome.toLocaleString('en-US')} ج.م</td>
+          <td style="text-align: center; font-weight: 800;">${cashPct}%</td>
+        </tr>
+        <tr>
+          <td style="text-align: center; font-weight: 700;">2</td>
+          <td style="font-weight: 700; color: #000000;">تحصيلات ومطالبات شركات التأمين</td>
+          <td style="text-align: center;"><span class="badge badge-direct">تحويل بنكي / شيكات / درج</span></td>
+          <td style="text-align: center; font-weight: 800; color: var(--primary);">${totalSettlementsNet.toLocaleString('en-US')} ج.م</td>
+          <td style="text-align: center; font-weight: 800;">${settlePct}%</td>
+        </tr>
+      `;
+
+      if (finSummaryTfoot) {
+        finSummaryTfoot.innerHTML = `
+          <tr style="background-color: #f1f5f9; font-weight: 800;">
+            <td colspan="3" style="text-align: right; font-weight: 900; color: #000000;">إجمالي مقبوضات وتحصيلات المركز (الدخل العام)</td>
+            <td style="text-align: center; font-weight: 900; color: var(--success); font-size: 8pt;">${totalIncome.toLocaleString('en-US')} ج.م</td>
+            <td style="text-align: center; font-weight: 900;">100%</td>
+          </tr>
+          <tr style="background-color: #fef2f2;">
+            <td colspan="3" style="text-align: right; font-weight: 800; color: var(--danger);">إجمالي المصروفات التشغيلية للشهر</td>
+            <td style="text-align: center; font-weight: 800; color: var(--danger); font-size: 8pt;">-${totalExpenses.toLocaleString('en-US')} ج.م</td>
+            <td style="text-align: center; font-weight: 700; color: var(--danger);">${totalIncome > 0 ? ((totalExpenses / totalIncome) * 100).toFixed(1) : 0}%</td>
+          </tr>
+          <tr style="background-color: #f0fdf4; border-top: 2px solid #16a34a;">
+            <td colspan="3" style="text-align: right; font-weight: 900; color: #15803d; font-size: 8pt;">صافي الدخل التشغيلي للمركز (الأرباح)</td>
+            <td style="text-align: center; font-weight: 900; color: #15803d; font-size: 8.5pt;">${netProfit.toLocaleString('en-US')} ج.م</td>
+            <td style="text-align: center; font-weight: 900; color: #15803d;">هامش: ${marginPct}%</td>
+          </tr>
+        `;
       }
     }
 
