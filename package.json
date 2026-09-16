@@ -1,10 +1,10 @@
 {
   "name": "ascpt-clinic-pwa",
-  "version": "2.7.0",
+  "version": "2.7.1",
   "description": "Alexandria Specialized Center for Physical Therapy (ASCPT) Management System",
   "type": "module",
   "scripts": {
-    "test": "node --check js/*.js api/admin/*.js && node tests/calculations.test.js && node tests/sync-version-doc.test.js && node tests/ui-components.test.js",
+    "test": "node -e \"const fs=require('fs'),cp=require('child_process');['js','api/admin'].forEach(d=>fs.readdirSync(d).filter(f=>f.endsWith('.js')).forEach(f=>cp.execSync('node --check '+d+'/'+f)));\" && node tests/calculations.test.js && node tests/sync-version-doc.test.js && node tests/ui-components.test.js",
     "lint": "eslint ."
   },
   "dependencies": {

@@ -1700,7 +1700,6 @@ export class SessionsManager {
       return;
     }
 
-    const currentUser = auth.getCurrentUser();
     const canDelete = RolesManager.canDelete(currentUser);
 
     // Preload patients from local cache (Zero Firestore reads & Zero N+1 queries)
