@@ -137,8 +137,8 @@
   
 
     <!-- Stylesheets -->
-  <link rel="stylesheet" href="css/style.css?v=2.7.5" media="screen">
-  <link rel="stylesheet" href="css/print.css?v=2.7.5" media="print">
+  <link rel="stylesheet" href="css/style.css?v=2.7.6" media="screen">
+  <link rel="stylesheet" href="css/print.css?v=2.7.6" media="print">
 </head>
 <body>
   <script>
@@ -1162,37 +1162,37 @@
           </div>
 
           <!-- Table / Cards of Today's Sessions (v1.4.80) -->
-          <div class="card" id="card-sessions-today">
-            <div class="card-header" style="display: flex; flex-direction: column; gap: 8px; padding: 12px 14px; border-bottom: 1.5px solid var(--border-color);">
+          <div class="card" id="card-sessions-today" data-active-tab="clinic">
+            <div class="card-header" style="display: flex; flex-direction: column; gap: 10px; padding: 12px 14px; border-bottom: 1.5px solid var(--border-color);">
               <div style="display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap; width: 100%;">
                 <!-- Segmented Switcher: [ جلسات المركز ] [ الزيارات المنزلية ] -->
                 <div class="session-tab-segmented">
                   <button type="button" id="btn-tab-clinic-sessions" class="session-view-tab-btn active">
                     <i class="fa-solid fa-hospital-user"></i>
                     <span>جلسات المركز</span>
-                    <span class="badge" id="sessions-today-count-badge" style="background: rgba(255,255,255,0.25); color: #fff; font-size: 0.74rem; padding: 2px 7px; font-weight: 800; border-radius: 6px;">0 جلسة</span>
                   </button>
                   <button type="button" id="btn-tab-home-visits" class="session-view-tab-btn">
-                    <i class="fa-solid fa-house-chimney-medical" style="color: #059669;"></i>
+                    <i class="fa-solid fa-house-chimney-medical"></i>
                     <span>الزيارات المنزلية</span>
-                    <span class="badge" id="sessions-home-visits-count-badge" style="background: rgba(5, 150, 105, 0.15); color: #059669; border: 1px solid rgba(5, 150, 105, 0.3); font-size: 0.74rem; padding: 2px 7px; font-weight: 800; border-radius: 6px;">0</span>
+                    <span class="session-hv-count-pill" id="sessions-home-visits-count-badge">0</span>
                   </button>
                 </div>
 
-                <!-- Clinic Mode Meta: Date Badge -->
-                <div id="clinic-sessions-header-meta" style="display: flex; align-items: center; gap: 8px;">
+                <!-- Clinic Mode Meta: Date & Sessions Count Badge -->
+                <div id="clinic-sessions-header-meta" class="session-header-meta-row">
                   <div class="card-title" style="margin: 0; display: flex; align-items: center; gap: 6px; font-size: 0.88rem; white-space: nowrap;">
                     <i class="fa-solid fa-calendar-day text-primary"></i>
                     <span>تاريخ:</span>
-                    <span id="sessions-table-date-label" class="badge" style="background: #e0f2fe; color: #0284c7; font-size: 0.82rem; font-weight: 800; white-space: nowrap;">اليوم</span>
+                    <span id="sessions-table-date-label" class="badge badge-date-label">اليوم</span>
                   </div>
+                  <span class="badge badge-cash" id="sessions-today-count-badge">0 جلسة</span>
                 </div>
 
                 <!-- Home Visits Mode Meta: Search Box -->
-                <div id="home-visits-header-meta" style="display: none; align-items: center; gap: 8px; flex-wrap: wrap;">
-                  <div style="position: relative; min-width: 180px; max-width: 240px;">
-                    <input type="text" id="input-search-home-visits" class="form-control" placeholder="بحث مريض أو طبيب..." style="height: 32px; font-size: 0.8rem; padding: 4px 28px 4px 10px; border-radius: 8px;">
-                    <i class="fa-solid fa-magnifying-glass" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); font-size: 0.75rem; color: var(--text-muted); pointer-events: none;"></i>
+                <div id="home-visits-header-meta" class="session-header-meta-row" style="display: none;">
+                  <div class="session-hv-search-wrap">
+                    <input type="text" id="input-search-home-visits" class="form-control session-hv-search-input" placeholder="بحث مريض أو طبيب...">
+                    <i class="fa-solid fa-magnifying-glass session-hv-search-icon"></i>
                   </div>
                 </div>
               </div>
@@ -2414,7 +2414,7 @@
         <div class="admin-system-footer no-print" style="margin-top: 32px; margin-bottom: 35px; text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px;">
           <div style="display: inline-flex; align-items: center; gap: 8px; background: var(--bg-surface); border: 1.5px solid var(--border-color); padding: 7px 18px; border-radius: 999px; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);">
             <span style="width: 8px; height: 8px; border-radius: 50%; background-color: var(--success); display: inline-block; box-shadow: 0 0 6px var(--success);"></span>
-            <span id="admin-system-version-label" data-clinic="version-badge" style="font-weight: 800; font-size: 0.88rem; color: var(--text-main);">نظام ASCPT — الإصدار 2.7.5</span>
+            <span id="admin-system-version-label" data-clinic="version-badge" style="font-weight: 800; font-size: 0.88rem; color: var(--text-main);">نظام ASCPT — الإصدار 2.7.6</span>
             <span class="badge badge-primary" style="font-size: 0.72rem; padding: 2px 10px; border-radius: 999px; font-weight: 800;">إصدار معتمد</span>
           </div>
           <div style="font-size: 0.76rem; color: var(--text-muted); font-weight: 700;">

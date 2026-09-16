@@ -1959,7 +1959,7 @@ export class SessionsManager {
     const toggleGroup = document.getElementById('sessions-view-mode-toggle');
 
     if (tableContainer) tableContainer.style.display = 'none';
-    if (cardsContainer) cardsContainer.style.display = 'grid';
+    if (cardsContainer && this.activeSessionsTab !== 'home_visits') cardsContainer.style.display = 'grid';
     if (toggleGroup) toggleGroup.style.display = 'none';
   }
 
@@ -1983,47 +1983,38 @@ export class SessionsManager {
   // ================= Sessions View Tabs & Home Visits Management (v2.7.5) =================
   switchSessionsTab(tab) {
     this.activeSessionsTab = tab;
+    const card = document.getElementById('card-sessions-today');
     const btnClinic = document.getElementById('btn-tab-clinic-sessions');
     const btnHV = document.getElementById('btn-tab-home-visits');
-    const clinicMeta = document.getElementById('clinic-sessions-header-meta');
-    const hvMeta = document.getElementById('home-visits-header-meta');
-    const clinicTable = document.getElementById('sessions-table-container');
-    const clinicCards = document.getElementById('sessions-today-mobile-cards');
-    const hvView = document.getElementById('sessions-home-visits-view');
+
+    if (card) {
+      card.setAttribute('data-active-tab', tab);
+    }
 
     if (tab === 'home_visits') {
       if (btnClinic) {
         btnClinic.classList.remove('active');
-        btnClinic.style.background = 'transparent';
-        btnClinic.style.color = 'var(--text-muted)';
+        btnClinic.style.removeProperty('background');
+        btnClinic.style.removeProperty('color');
       }
       if (btnHV) {
         btnHV.classList.add('active');
-        btnHV.style.background = '#059669';
-        btnHV.style.color = '#ffffff';
+        btnHV.style.removeProperty('background');
+        btnHV.style.removeProperty('color');
       }
-      if (clinicMeta) clinicMeta.style.display = 'none';
-      if (hvMeta) hvMeta.style.display = 'flex';
-      if (clinicTable) clinicTable.style.display = 'none';
-      if (clinicCards) clinicCards.style.display = 'none';
-      if (hvView) hvView.style.display = 'block';
 
       this.renderHomeVisitsList();
     } else {
       if (btnClinic) {
         btnClinic.classList.add('active');
-        btnClinic.style.background = 'var(--primary)';
-        btnClinic.style.color = '#ffffff';
+        btnClinic.style.removeProperty('background');
+        btnClinic.style.removeProperty('color');
       }
       if (btnHV) {
         btnHV.classList.remove('active');
-        btnHV.style.background = 'transparent';
-        btnHV.style.color = 'var(--text-muted)';
+        btnHV.style.removeProperty('background');
+        btnHV.style.removeProperty('color');
       }
-      if (clinicMeta) clinicMeta.style.display = 'flex';
-      if (hvMeta) hvMeta.style.display = 'none';
-      if (hvView) hvView.style.display = 'none';
-      if (clinicCards) clinicCards.style.display = 'grid';
 
       this.loadTodaySessions();
     }

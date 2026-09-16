@@ -11715,49 +11715,203 @@ body.role-doctor .btn-quick-attend {
   border-color: #d97706;
 }
 
-/* Session View Switcher (جلسات المركز vs الزيارات المنزلية - v2.7.5) */
+/* ==========================================================================
+   SESSION VIEW SWITCHER & HOME VISITS TAB (v2.7.6)
+   Light & Dark Mode Harmonized
+   ========================================================================== */
 .session-tab-segmented {
   display: inline-flex;
   align-items: center;
-  background: var(--bg-subtle);
-  border: 1.5px solid var(--border-color);
   border-radius: 12px;
-  padding: 3px;
-  gap: 4px;
+  padding: 4px;
+  gap: 6px;
+  box-sizing: border-box;
+}
+
+:root:not([data-theme="dark"]) .session-tab-segmented {
+  background: #f1f5f9;
+  border: 1.5px solid #e2e8f0;
 }
 
 [data-theme="dark"] .session-tab-segmented {
   background: #1e293b;
-  border-color: #334155;
+  border: 1.5px solid #334155;
 }
 
 .session-view-tab-btn {
-  border: none;
+  border: 1px solid transparent;
   background: transparent;
-  color: var(--text-muted);
-  padding: 6px 14px;
+  padding: 8px 16px;
   border-radius: 9px;
   font-weight: 800;
-  font-size: 0.84rem;
+  font-size: 0.85rem;
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
   cursor: pointer;
-  transition: all 0.18s cubic-bezier(0.4, 0, 0.2, 1);
+  white-space: nowrap;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  box-sizing: border-box;
 }
 
-.session-view-tab-btn:hover {
-  color: var(--text-main);
+/* Inactive states */
+:root:not([data-theme="dark"]) .session-view-tab-btn {
+  color: #64748b;
+}
+:root:not([data-theme="dark"]) .session-view-tab-btn:hover {
+  color: #0f172a;
+  background: rgba(255, 255, 255, 0.6);
 }
 
-.session-view-tab-btn.active#btn-tab-clinic-sessions {
-  background: var(--primary) !important;
-  color: #ffffff !important;
-  box-shadow: 0 2px 8px rgba(2, 132, 199, 0.35);
+[data-theme="dark"] .session-view-tab-btn {
+  color: #94a3b8;
+}
+[data-theme="dark"] .session-view-tab-btn:hover {
+  color: #f8fafc;
+  background: rgba(255, 255, 255, 0.05);
 }
 
-.session-view-tab-btn.active#btn-tab-home-visits {
+/* Active Clinic Tab - Light Mode */
+:root:not([data-theme="dark"]) .session-view-tab-btn.active#btn-tab-clinic-sessions {
+  background: #ffffff !important;
+  color: #0284c7 !important;
+  border-color: rgba(2, 132, 199, 0.25) !important;
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.08) !important;
+}
+
+/* Active Clinic Tab - Dark Mode */
+[data-theme="dark"] .session-view-tab-btn.active#btn-tab-clinic-sessions {
+  background: #0f172a !important;
+  color: #38bdf8 !important;
+  border-color: rgba(56, 189, 248, 0.35) !important;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.4) !important;
+}
+
+/* Active Home Visits Tab - Light Mode */
+:root:not([data-theme="dark"]) .session-view-tab-btn.active#btn-tab-home-visits {
+  background: #ffffff !important;
+  color: #059669 !important;
+  border-color: rgba(5, 150, 105, 0.25) !important;
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.08) !important;
+}
+
+/* Active Home Visits Tab - Dark Mode */
+[data-theme="dark"] .session-view-tab-btn.active#btn-tab-home-visits {
+  background: #0f172a !important;
+  color: #34d399 !important;
+  border-color: rgba(52, 211, 153, 0.35) !important;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.4) !important;
+}
+
+/* Home Visits Count Pill inside Tab */
+.session-hv-count-pill {
+  font-size: 0.74rem;
+  font-weight: 800;
+  padding: 2px 7px;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 18px;
+  transition: all 0.2s ease;
+}
+
+:root:not([data-theme="dark"]) .session-hv-count-pill {
+  background: rgba(5, 150, 105, 0.12);
+  color: #059669;
+  border: 1px solid rgba(5, 150, 105, 0.25);
+}
+
+[data-theme="dark"] .session-hv-count-pill {
+  background: rgba(5, 150, 105, 0.25);
+  color: #34d399;
+  border: 1px solid rgba(52, 211, 153, 0.35);
+}
+
+.session-view-tab-btn.active#btn-tab-home-visits .session-hv-count-pill {
   background: #059669 !important;
   color: #ffffff !important;
-  box-shadow: 0 2px 8px rgba(5, 150, 105, 0.35);
+  border-color: transparent !important;
+}
+
+/* Meta Container */
+.session-header-meta-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+/* Search input for Home Visits */
+.session-hv-search-wrap {
+  position: relative;
+  min-width: 200px;
+  max-width: 280px;
+}
+
+.session-hv-search-input {
+  height: 36px !important;
+  font-size: 0.82rem !important;
+  padding: 4px 30px 4px 10px !important;
+  border-radius: 9px !important;
+  box-sizing: border-box !important;
+}
+
+:root:not([data-theme="dark"]) .session-hv-search-input {
+  background: #ffffff !important;
+  color: #0f172a !important;
+  border: 1.5px solid #cbd5e1 !important;
+}
+
+[data-theme="dark"] .session-hv-search-input {
+  background: #1e293b !important;
+  color: #f8fafc !important;
+  border: 1.5px solid #334155 !important;
+}
+
+.session-hv-search-icon {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  pointer-events: none;
+}
+
+/* Date badge in header */
+.badge-date-label {
+  background: rgba(2, 132, 199, 0.12) !important;
+  color: var(--primary) !important;
+  font-size: 0.82rem !important;
+  font-weight: 800 !important;
+  white-space: nowrap !important;
+  border: 1px solid rgba(2, 132, 199, 0.25) !important;
+}
+
+/* ==========================================================================
+   STRICT TAB ISOLATION: HIDE / SHOW GUARANTEED
+   Overcomes .sessions-grid-container { display: grid !important }
+   ========================================================================== */
+#card-sessions-today[data-active-tab="home_visits"] #sessions-today-mobile-cards,
+#card-sessions-today[data-active-tab="home_visits"] #sessions-table-container,
+#card-sessions-today[data-active-tab="home_visits"] #clinic-sessions-header-meta {
+  display: none !important;
+}
+
+#card-sessions-today[data-active-tab="clinic"] #sessions-home-visits-view,
+#card-sessions-today[data-active-tab="clinic"] #home-visits-header-meta {
+  display: none !important;
+}
+
+#card-sessions-today[data-active-tab="home_visits"] #sessions-home-visits-view {
+  display: block !important;
+}
+
+#card-sessions-today[data-active-tab="home_visits"] #home-visits-header-meta {
+  display: flex !important;
+}
+
+#card-sessions-today[data-active-tab="clinic"] #clinic-sessions-header-meta {
+  display: flex !important;
 }
