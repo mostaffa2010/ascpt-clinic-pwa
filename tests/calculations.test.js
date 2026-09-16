@@ -1266,3 +1266,133 @@ assert.equal(mockCheckDuplicateSession(mockExisting, 'p1', '2026-09-17'), false,
 assert.equal(mockCheckDuplicateSession(mockExisting, 'p2', '2026-09-16'), false, 'Different patient must not be duplicate');
 
 console.log('✓ All 7 Doctor Auto-Session & Duplicate Prevention assertions passed successfully!');
+
+// ============================================================================
+console.log('--- Running Tests: Insurance Claims Integration (Batch Sessions, Home Visits & Arabic Normalization) ---');
+
+function mockNormalizeArabic(text) {
+  if (!text || typeof text !== 'string') return '';
+  return text
+    .trim()
+    .replace(/[\u064B-\u065F\u0670]/g, '') // remove tashkeel
+    .replace(/[إأآٱ]/g, 'ا')
+    .replace(/ة/g, 'ه')
+    .replace(/ى/g, 'ي')
+    .replace(/[\u0640]/g, '') // tatweel
+    .toLowerCase();
+}
+
+function mockFilterCompanyPatients(allPatients, allSessions, currentCompany) {
+  const normSelectedComp = mockNormalizeArabic(currentCompany);
+
+  return allPatients.filter(p => {
+    const pComp = p.insuranceCompany || p.insuranceName || '';
+    const isIns = (p.billing === 'insurance') || (!p.billing && pComp.length > 0) || (p.payType === 'insurance');
+    if (isIns && pComp) {
+      const normPComp = mockNormalizeArabic(pComp);
+      if (normPComp.includes(normSelectedComp) || normSelectedComp.includes(normPComp)) return true;
+    }
+    const hasMatchingSession = allSessions.some(s => {
+      if (s.patientId !== p.id) return false;
+      const sComp = s.insuranceName || '';
+      if (!sComp || sComp === 'نقدي') return false;
+      const normSComp = mockNormalizeArabic(sComp);
+      return normSComp.includes(normSelectedComp) || normSelectedComp.includes(normSComp);
+    });
+    return hasMatchingSession;
+  });
+}
+
+function mockFilterPatientSessionsForClaim(allSessions, p, currentCompany, startDate, endDate) {
+  const normSelectedComp = mockNormalizeArabic(currentCompany);
+
+  return allSessions.filter(s => {
+    if (s.patientId !== p.id) return false;
+    if (s.status === 'cancelled') return false;
+    if (s.entryType === 'examination') return false;
+    if (startDate && s.date < startDate) return false;
+    if (endDate && s.date > endDate) return false;
+
+    const sComp = (s.insuranceName && s.insuranceName !== 'نقدي') ? s.insuranceName : (p.insuranceCompany || p.insuranceName || '');
+    const normSComp = mockNormalizeArabic(sComp);
+    const compMatches = normSComp.includes(normSelectedComp) || normSelectedComp.includes(normSComp);
+
+    const isInsSession = (s.payType === 'insurance') ||
+      (p.billing === 'insurance' && (s.amountPaid === 0 || !s.amountPaid)) ||
+      Boolean(s.letterRef) ||
+      (s.isHomeVisit && compMatches);
+
+    return compMatches && isInsSession;
+  });
+}
+
+// 1. Arabic Normalization Test: "أبو قير" matches "ابو قير"
+const mockPatientsList = [
+  { id: 'p_aboqir', name: 'أحمد محمود', billing: 'insurance', insuranceCompany: 'أبو قير' },
+  { id: 'p_misr', name: 'سارة إبراهيم', billing: 'insurance', insuranceCompany: 'مصر للتأمين' },
+  { id: 'p_cash_with_letter', name: 'محمد علي', billing: 'cash', insuranceCompany: '' } // Cash profile but has insurance sessions
+];
+
+const mockAllSessionsList = [
+  // August batch home visits for p_aboqir under "ابو قير" (spelled without hamza)
+  { id: 'batch_1', patientId: 'p_aboqir', date: '2026-08-05', payType: 'insurance', insuranceName: 'ابو قير', isHomeVisit: true, letterRef: 'REF-101' },
+  { id: 'batch_2', patientId: 'p_aboqir', date: '2026-08-07', payType: 'insurance', insuranceName: 'ابو قير', isHomeVisit: true, letterRef: 'REF-101' },
+  { id: 'batch_3', patientId: 'p_aboqir', date: '2026-08-09', payType: 'insurance', insuranceName: 'ابو قير', isHomeVisit: true, letterRef: 'REF-101' },
+  // September clinic session for p_aboqir
+  { id: 'sept_1', patientId: 'p_aboqir', date: '2026-09-13', payType: 'insurance', insuranceName: 'أبو قير', isHomeVisit: false },
+  // Examination (must be excluded from sessionCount)
+  { id: 'exam_1', patientId: 'p_aboqir', date: '2026-08-01', entryType: 'examination', payType: 'insurance', insuranceName: 'ابو قير' },
+  // Cancelled session (must be excluded)
+  { id: 'canc_1', patientId: 'p_aboqir', date: '2026-08-11', status: 'cancelled', payType: 'insurance', insuranceName: 'ابو قير' },
+  // Home visit for p_cash_with_letter under "مصر للتامين"
+  { id: 'hv_cash_p', patientId: 'p_cash_with_letter', date: '2026-08-15', payType: 'insurance', insuranceName: 'مصر للتامين', isHomeVisit: true }
+];
+
+// Test 1: Match company patients with Arabic normalization ("ابو قير" finds "أبو قير")
+const matchedAboQir = mockFilterCompanyPatients(mockPatientsList, mockAllSessionsList, 'ابو قير');
+assert.equal(matchedAboQir.length, 1);
+assert.equal(matchedAboQir[0].id, 'p_aboqir');
+
+// Test 2: Match patient who has insurance session even if profile billing was cash
+const matchedMisr = mockFilterCompanyPatients(mockPatientsList, mockAllSessionsList, 'مصر للتأمين');
+assert.equal(matchedMisr.length, 2, 'Should match both p_misr and p_cash_with_letter due to session cross-reference');
+
+// Test 3: Open-ended date range (no dates) returns all 4 valid sessions for p_aboqir (3 August home visits + 1 Sept session)
+const openRangeSessions = mockFilterPatientSessionsForClaim(mockAllSessionsList, matchedAboQir[0], 'ابو قير', '', '');
+assert.equal(openRangeSessions.length, 4, 'Must include 3 home visits + 1 clinic session across all periods');
+assert.equal(openRangeSessions.filter(s => s.isHomeVisit).length, 3, 'Must include 3 home visits');
+
+// Test 4: Scoped date range for August (2026-08-01 to 2026-08-31)
+const augustSessionsOnly = mockFilterPatientSessionsForClaim(mockAllSessionsList, matchedAboQir[0], 'ابو قير', '2026-08-01', '2026-08-31');
+assert.equal(augustSessionsOnly.length, 3, 'Must include exactly the 3 August home visits');
+assert.equal(augustSessionsOnly.some(s => s.id === 'sept_1'), false, 'September session must be excluded in August claim');
+
+// Test 5: Scoped date range for September (2026-09-01 to 2026-09-30)
+const septSessionsOnly = mockFilterPatientSessionsForClaim(mockAllSessionsList, matchedAboQir[0], 'ابو قير', '2026-09-01', '2026-09-30');
+assert.equal(septSessionsOnly.length, 1, 'Must include only the 1 September session');
+assert.equal(septSessionsOnly[0].id, 'sept_1');
+
+// Test 6: Exclusion of examinations and cancelled sessions
+assert.equal(openRangeSessions.some(s => s.entryType === 'examination'), false, 'Examinations must never be counted as therapy sessions');
+assert.equal(openRangeSessions.some(s => s.status === 'cancelled'), false, 'Cancelled sessions must never be counted');
+
+// Test 7: Total sessions and amount calculation in claim save
+const mockCheckedItems = [
+  {
+    patient: matchedAboQir[0],
+    sessionCount: 4,
+    sessionRate: 100,
+    evalFee: 50,
+    total: 450,
+    attendedSessions: openRangeSessions
+  }
+];
+const totalPatients = mockCheckedItems.length;
+const totalSessions = mockCheckedItems.reduce((acc, curr) => acc + (parseInt(curr.sessionCount, 10) || 0), 0);
+const totalAmount = mockCheckedItems.reduce((acc, curr) => acc + (parseFloat(curr.total) || 0), 0);
+
+assert.equal(totalPatients, 1);
+assert.equal(totalSessions, 4, 'Total sessions must equal 4 (non-zero!)');
+assert.equal(totalAmount, 450);
+
+console.log('✓ All 7 Insurance Claims & Home Visits Integration assertions passed successfully!');

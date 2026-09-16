@@ -4330,20 +4330,25 @@ export class PatientsManager {
       (s.entryType === 'session' || !s.entryType) && s.status !== 'cancelled'
     );
 
-    // 2. Draft new batch sessions with unique IDs
+    // 2. Draft new batch sessions with unique IDs (ensuring insurance parity and active status)
+    const isInsurance = (p.billing === 'insurance') || Boolean(p.insuranceCompany && String(p.insuranceCompany).trim().length > 0) || (p.payType === 'insurance');
+    const insCompany = p.insuranceCompany || p.insuranceName || '';
+
     const newSessionDrafts = this.batchHvDates.map((dateStr) => {
       const sessionId = 'batch_' + Date.now() + '_' + Math.random().toString(36).substring(2, 9);
       return {
         id: sessionId,
+        entryType: 'session',
+        status: 'active',
         patientId: p.id,
         patientName: p.name,
         doctor: doctorName,
         doctorUid: doctorUid,
         date: dateStr,
-        payType: p.billing || 'insurance',
-        billing: p.billing || 'insurance',
+        payType: isInsurance ? 'insurance' : (p.billing || 'cash'),
+        billing: isInsurance ? 'insurance' : (p.billing || 'cash'),
         contractType: p.contractType || 'direct',
-        insuranceName: p.insuranceCompany || (p.billing === 'cash' ? 'نقدي' : 'تأمين'),
+        insuranceName: isInsurance ? (insCompany || 'تأمين') : 'نقدي',
         programType: p.programType || p.clinicalSheet?.programType || 'regular',
         sessionPricingType: p.programType || 'regular',
         bodyParts: p.treatedParts || p.clinicalSheet?.treatedParts || [],

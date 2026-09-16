@@ -655,21 +655,38 @@ class FirestoreDatabaseService {
     }
   }
 
-  // Targeted Date Range Query (Zero-Cost for Claims Calculation)
+  // Targeted Date Range Query (Zero-Cost for Claims Calculation & Open-Ended Range Support)
   async getSessionsInRange(startDate, endDate, forceRefresh = false) {
     this.ensureConnected();
     const now = Date.now();
-    const cacheKey = `range_${startDate}_${endDate}`;
+    const sTrim = (startDate || '').trim();
+    const eTrim = (endDate || '').trim();
+    const cacheKey = `range_${sTrim}_${eTrim}`;
     const cached = this._sessionsByDateCache.get(cacheKey);
     if (!forceRefresh && cached && (now - cached.time < this.CACHE_TTL)) {
       return [...cached.data];
     }
     try {
-      const q = query(
-        collection(firestoreDb, 'sessions'),
-        where('date', '>=', startDate),
-        where('date', '<=', endDate)
-      );
+      let q;
+      if (sTrim && eTrim) {
+        q = query(
+          collection(firestoreDb, 'sessions'),
+          where('date', '>=', sTrim),
+          where('date', '<=', eTrim)
+        );
+      } else if (sTrim) {
+        q = query(
+          collection(firestoreDb, 'sessions'),
+          where('date', '>=', sTrim)
+        );
+      } else if (eTrim) {
+        q = query(
+          collection(firestoreDb, 'sessions'),
+          where('date', '<=', eTrim)
+        );
+      } else {
+        return this.getSessions(null, forceRefresh);
+      }
       const snap = await getDocs(q);
       const list = snap.docs.map(d => ({ ...d.data(), id: d.id }));
       const sorted = this._filterAndSortSessions(list, null);
@@ -804,10 +821,7 @@ class FirestoreDatabaseService {
 
       // Update local and scoped caches in place (0 reads)
       this._sessionDocCache.set(sessionId, dataToSave);
-      if (dataToSave.date) {
-        this._sessionsByDateCache.delete(dataToSave.date);
-        this._sessionsByDateCache.delete(dataToSave.date.substring(0, 7));
-      }
+      this._sessionsByDateCache.clear();
       if (dataToSave.patientId) {
         this._sessionsByPatientCache.delete(dataToSave.patientId);
       }
@@ -870,10 +884,7 @@ class FirestoreDatabaseService {
 
       // In-memory caches update (0 reads)
       this._sessionDocCache.set(sessionId, dataToSave);
-      if (dataToSave.date) {
-        this._sessionsByDateCache.delete(dataToSave.date);
-        this._sessionsByDateCache.delete(dataToSave.date.substring(0, 7));
-      }
+      this._sessionsByDateCache.clear();
       if (dataToSave.patientId) {
         this._sessionsByPatientCache.delete(dataToSave.patientId);
       }

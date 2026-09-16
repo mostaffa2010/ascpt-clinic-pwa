@@ -1,5 +1,5 @@
 import { CLINIC_CONFIG } from './clinic-config.js';
-import { escapeHTML, getLocalDateStr } from './utils.js';
+import { escapeHTML, getLocalDateStr, normalizeArabic } from './utils.js';
 // ========================================================
 // PhysioFlow - Insurance Claims & Attendance Cards Module
 // نظام مطالبات شركات التأمين وبطاقات التردد
@@ -80,17 +80,33 @@ export class ClaimsManager {
 
     const companies = db.getAllInsuranceCompaniesWithTypes ? db.getAllInsuranceCompaniesWithTypes() : [];
 
-    // Also include any companies found on patients
+    // Also include any companies found on patients (with Arabic normalization)
     const patients = await db.getPatients();
     patients.forEach(p => {
-      if (p.billing === 'insurance' && p.insuranceCompany) {
-        const cName = p.insuranceCompany.trim();
-        const found = companies.find(c => c.name.toLowerCase() === cName.toLowerCase());
+      const cName = (p.insuranceCompany || p.insuranceName || '').trim();
+      if (cName) {
+        const found = companies.find(c => normalizeArabic(c.name) === normalizeArabic(cName));
         if (!found) {
           companies.push({
             name: cName,
             contractType: p.contractType || 'direct',
             label: `${cName} (${p.contractType === 'indirect' ? 'تعاقد غير مباشر' : 'تعاقد مباشر'})`
+          });
+        }
+      }
+    });
+
+    // Also include any companies recorded in home visits or batch sessions
+    const homeVisits = (typeof db.getHomeVisits === 'function') ? await db.getHomeVisits() : [];
+    homeVisits.forEach(s => {
+      const cName = (s.insuranceName || '').trim();
+      if (cName && cName !== 'نقدي') {
+        const found = companies.find(c => normalizeArabic(c.name) === normalizeArabic(cName));
+        if (!found) {
+          companies.push({
+            name: cName,
+            contractType: s.contractType || 'direct',
+            label: `${cName} (${s.contractType === 'indirect' ? 'تعاقد غير مباشر' : 'تعاقد مباشر'})`
           });
         }
       }
@@ -408,18 +424,35 @@ export class ClaimsManager {
     const defaultEval = parseFloat(defaultEvalInput?.value) || 0;
 
     const allPatients = await db.getPatients();
-    // Targeted Scoped Query: only fetch sessions within the requested claim date range (Prevents unbounded getSessions)
-    const defaultDates = this._getDefaultMonthDates();
-    const sDate = this.startDate || defaultDates.start;
-    const eDate = this.endDate || defaultDates.end;
-    const allSessions = await db.getSessionsInRange(sDate, eDate);
 
-    // Match patients belonging to selected company (flexible matching)
+    // Targeted / Scoped Session Fetching with Cache Busting:
+    // If dates are specified, query within range; if empty, fetch all sessions to avoid silently dropping prior months
+    let allSessions = [];
+    if (this.startDate || this.endDate) {
+      allSessions = await db.getSessionsInRange(this.startDate, this.endDate, true);
+    } else {
+      allSessions = await db.getSessions(null, true);
+    }
+
+    // Match patients belonging to selected company (flexible matching with Arabic normalization)
+    const normSelectedComp = normalizeArabic(this.currentCompany);
+
     const companyPatients = allPatients.filter(p => {
-      if (p.billing !== 'insurance' || !p.insuranceCompany) return false;
-      const c1 = p.insuranceCompany.trim().toLowerCase();
-      const c2 = this.currentCompany.trim().toLowerCase();
-      return c1.includes(c2) || c2.includes(c1);
+      const pComp = p.insuranceCompany || p.insuranceName || '';
+      const isIns = (p.billing === 'insurance') || (!p.billing && pComp.length > 0) || (p.payType === 'insurance');
+      if (isIns && pComp) {
+        const normPComp = normalizeArabic(pComp);
+        if (normPComp.includes(normSelectedComp) || normSelectedComp.includes(normPComp)) return true;
+      }
+      // Also match if patient has any insurance sessions for this company in allSessions
+      const hasMatchingSession = allSessions.some(s => {
+        if (s.patientId !== p.id) return false;
+        const sComp = s.insuranceName || '';
+        if (!sComp || sComp === 'نقدي') return false;
+        const normSComp = normalizeArabic(sComp);
+        return normSComp.includes(normSelectedComp) || normSelectedComp.includes(normSComp);
+      });
+      return hasMatchingSession;
     });
 
     if (companyPatients.length === 0) {
@@ -433,12 +466,24 @@ export class ClaimsManager {
     }
 
     this.claimPatientsData = companyPatients.map(p => {
-      // Sessions for this patient in selected date range
+      // Sessions for this patient in selected date range (including batch sessions & home visits)
       const patientSessions = allSessions.filter(s => {
         if (s.patientId !== p.id) return false;
+        if (s.status === 'cancelled') return false;
+        if (s.entryType === 'examination') return false;
         if (this.startDate && s.date < this.startDate) return false;
         if (this.endDate && s.date > this.endDate) return false;
-        return true;
+
+        const sComp = (s.insuranceName && s.insuranceName !== 'نقدي') ? s.insuranceName : (p.insuranceCompany || p.insuranceName || '');
+        const normSComp = normalizeArabic(sComp);
+        const compMatches = normSComp.includes(normSelectedComp) || normSelectedComp.includes(normSComp);
+
+        const isInsSession = (s.payType === 'insurance') ||
+          (p.billing === 'insurance' && (s.amountPaid === 0 || !s.amountPaid)) ||
+          Boolean(s.letterRef) ||
+          (s.isHomeVisit && compMatches);
+
+        return compMatches && isInsSession;
       });
 
       const sessionCount = patientSessions.length;
@@ -461,8 +506,10 @@ export class ClaimsManager {
         evalFee: defaultEval,
         sessionCount: sessionCount,
         sessionRate: defaultRate,
+        sessionsCost: sessionCount * defaultRate,
         total,
-        cardData
+        cardData,
+        attendedSessions: patientSessions
       };
     });
 
@@ -485,6 +532,8 @@ export class ClaimsManager {
       parts.push(`شركة: <strong style="color: var(--primary);">${escapeHTML(this.currentCompany)}</strong>`);
       if (this.startDate || this.endDate) {
         parts.push(`الفترة: <strong>${escapeHTML(this.startDate || 'البداية')}</strong> إلى <strong>${escapeHTML(this.endDate || 'الآن')}</strong>`);
+      } else {
+        parts.push(`الفترة: <strong>كافة الجلسات المسجلة</strong>`);
       }
       if (defaultRate > 0) parts.push(`سعر الجلسة: <strong>${defaultRate} ج.م</strong>`);
       if (defaultEval > 0) parts.push(`تقييم: <strong>${defaultEval} ج.م</strong>`);
@@ -577,6 +626,9 @@ export class ClaimsManager {
       const rowTotal = (item.sessionCount * item.sessionRate) + item.evalFee;
       item.total = rowTotal;
 
+      const hvCount = (item.attendedSessions || []).filter(s => s.isHomeVisit || s.visitType === 'home').length;
+      const hvBadge = hvCount > 0 ? `<span class="badge" style="background: rgba(5, 150, 105, 0.12); color: #059669; border: 1px solid rgba(5, 150, 105, 0.25); font-size: 0.72rem; padding: 2px 6px; border-radius: 4px; margin-right: 4px;"><i class="fa-solid fa-house-chimney-medical"></i> منها ${hvCount} منزلية</span>` : '';
+
       return `
         <tr style="${!item.isChecked ? 'opacity: 0.55; background-color: var(--bg-subtle);' : ''}">
           <td style="text-align: center;">
@@ -584,7 +636,10 @@ export class ClaimsManager {
           </td>
           <td style="text-align: center; font-weight: 700;">${idx + 1}</td>
           <td>
-            <div style="font-weight: 800; color: var(--text-main); font-size: 0.92rem;">${safeName}</div>
+            <div style="font-weight: 800; color: var(--text-main); font-size: 0.92rem; display: flex; align-items: center; gap: 6px;">
+              <span>${safeName}</span>
+              ${hvBadge}
+            </div>
             <small style="color: var(--text-muted); font-size: 0.76rem;"><i class="fa-solid fa-phone"></i> ${safePhone} • ${safeDoc}</small>
           </td>
           <td>
@@ -619,13 +674,19 @@ export class ClaimsManager {
         const rowChecked = item.isChecked ? 'checked' : '';
         const rowTotal = (item.sessionCount * item.sessionRate) + item.evalFee;
 
+        const hvCountMob = (item.attendedSessions || []).filter(s => s.isHomeVisit || s.visitType === 'home').length;
+        const hvBadgeMob = hvCountMob > 0 ? `<span class="badge" style="background: rgba(5, 150, 105, 0.12); color: #059669; border: 1px solid rgba(5, 150, 105, 0.25); font-size: 0.68rem; padding: 1px 5px; border-radius: 4px; margin-right: 4px;"><i class="fa-solid fa-house-chimney-medical"></i> ${hvCountMob} منزلية</span>` : '';
+
         return `
           <div class="hero-styled-card claim-patient-card-item ${!item.isChecked ? 'is-unchecked' : ''}" style="padding: 10px 12px; margin-bottom: 8px; border-radius: 14px; border: 1.5px solid var(--border-color); background: var(--bg-subtle); ${!item.isChecked ? 'opacity: 0.65;' : ''}">
             <div style="display: flex; align-items: center; justify-content: space-between; gap: 8px;">
               <div style="display: flex; align-items: center; gap: 8px; min-width: 0; flex: 1;">
                 <input type="checkbox" class="claim-patient-check" data-patient-id="${safeId}" style="width: 19px; height: 19px; cursor: pointer; accent-color: var(--primary); flex-shrink: 0;" ${rowChecked}>
                 <div style="min-width: 0; flex: 1;">
-                  <div style="font-weight: 800; font-size: 0.92rem; color: var(--text-main); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${safeName}</div>
+                  <div style="font-weight: 800; font-size: 0.92rem; color: var(--text-main); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: flex; align-items: center; gap: 4px;">
+                    <span>${safeName}</span>
+                    ${hvBadgeMob}
+                  </div>
                   <div style="font-size: 0.72rem; color: var(--text-muted); margin-top: 1px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;"><i class="fa-solid fa-phone" style="font-size: 0.68rem;"></i> ${safePhone} • ${safeDoc}</div>
                 </div>
               </div>
@@ -1355,7 +1416,7 @@ export class ClaimsManager {
     }
 
     const totalPatients = checkedItems.length;
-    const totalSessions = checkedItems.reduce((acc, curr) => acc + (curr.attendedSessions ? curr.attendedSessions.length : 0), 0);
+    const totalSessions = checkedItems.reduce((acc, curr) => acc + (parseInt(curr.sessionCount, 10) || (curr.attendedSessions ? curr.attendedSessions.length : 0)), 0);
     const totalAmount = checkedItems.reduce((acc, curr) => acc + (parseFloat(curr.total) || 0), 0);
     const claimDate = document.getElementById('claim-doc-date')?.value || new Date().toISOString().slice(0, 10);
     const taxNumber = document.getElementById('claim-tax-number')?.value.trim() || '';
@@ -1393,11 +1454,15 @@ export class ClaimsManager {
           id: s.id,
           date: s.date,
           doctor: s.doctor,
-          recordedAt: s.recordedAt
+          recordedAt: s.recordedAt || '',
+          isHomeVisit: Boolean(s.isHomeVisit || s.visitType === 'home'),
+          sessionNumber: s.sessionNumber || null,
+          cycleNumber: s.cycleNumber || null
         })),
+        sessionCount: parseInt(item.sessionCount, 10) || (item.attendedSessions ? item.attendedSessions.length : 0),
         evalFee: item.evalFee,
         sessionRate: item.sessionRate,
-        sessionsCost: item.sessionsCost,
+        sessionsCost: item.sessionsCost || (item.sessionCount * item.sessionRate),
         total: item.total,
         isChecked: true
       }))
