@@ -96,13 +96,16 @@ export function initStackDeck(config) {
   const updateContainerMinHeight = () => {
     if (isListMode) {
       container.style.minHeight = 'auto';
+      container.style.height = 'auto';
       return;
     }
-    let maxHeight = 160;
+    let maxHeight = 180;
     cards.forEach((c) => {
-      if (c.offsetHeight > maxHeight) maxHeight = c.offsetHeight;
+      const h = c.scrollHeight || c.offsetHeight || 180;
+      if (h > maxHeight) maxHeight = h;
     });
-    container.style.minHeight = `${maxHeight + 10}px`;
+    container.style.minHeight = `${maxHeight}px`;
+    container.style.height = `${maxHeight}px`;
   };
   requestAnimationFrame(updateContainerMinHeight);
 
@@ -113,21 +116,17 @@ export function initStackDeck(config) {
     if (isListMode) return;
     currentIndex = Math.max(0, Math.min(newIndex, cards.length - 1));
 
-    // Dynamic height adjustment to match active card
-    const activeC = cards[currentIndex];
-    if (activeC && activeC.offsetHeight > 0) {
-      container.style.minHeight = `${Math.max(activeC.offsetHeight + 10, 180)}px`;
-    }
+    updateContainerMinHeight();
 
     for (let idx = 0; idx < cards.length; idx++) {
       const card = cards[idx];
       const diff = idx - currentIndex;
 
       card.style.transition = animate ? springTransition : 'none';
-      card.style.transformOrigin = 'right center';
+      card.style.transformOrigin = 'center center';
 
       if (diff === 0) {
-        // Active front card: perfectly centered, clean, zero ghost background
+        // Active front card: perfectly positioned, top z-index, interactive
         card.style.transform = 'translate3d(0, 0, 0) scale(1)';
         card.style.zIndex = '12';
         card.style.opacity = '1';
@@ -136,26 +135,26 @@ export function initStackDeck(config) {
         card.classList.add('is-active-card');
         card.classList.remove('is-peeking-card', 'is-passed-card', 'is-hidden-card');
       } else if (diff === 1) {
-        // Next card peeking from underneath on the left (RTL peek)
-        card.style.transform = 'translate3d(-18px, 0, 0) scale(0.95)';
+        // Next card peeking prominently from underneath on the left (RTL peek)
+        card.style.transform = 'translate3d(-28px, 0, 0) scale(0.96)';
         card.style.zIndex = '8';
-        card.style.opacity = '0.88';
+        card.style.opacity = '0.94';
         card.style.visibility = 'visible';
         card.style.pointerEvents = 'auto';
         card.classList.add('is-peeking-card');
         card.classList.remove('is-active-card', 'is-passed-card', 'is-hidden-card');
       } else if (diff === 2) {
         // Second next card (subtle peek further left)
-        card.style.transform = 'translate3d(-20px, 0, 0) scale(0.90)';
+        card.style.transform = 'translate3d(-36px, 0, 0) scale(0.92)';
         card.style.zIndex = '4';
-        card.style.opacity = '0.45';
+        card.style.opacity = '0.55';
         card.style.visibility = 'visible';
         card.style.pointerEvents = 'auto';
         card.classList.add('is-peeking-card');
         card.classList.remove('is-active-card', 'is-passed-card', 'is-hidden-card');
       } else if (diff > 2) {
         // Inactive future cards: hidden
-        card.style.transform = 'translate3d(-24px, 0, 0) scale(0.85)';
+        card.style.transform = 'translate3d(-40px, 0, 0) scale(0.88)';
         card.style.zIndex = '2';
         card.style.opacity = '0';
         card.style.visibility = 'hidden';
@@ -164,7 +163,7 @@ export function initStackDeck(config) {
         card.classList.remove('is-active-card', 'is-peeking-card');
       } else {
         // Passed cards: smoothly swiped away to the right
-        card.style.transform = 'translate3d(120%, 0, 0) scale(0.95)';
+        card.style.transform = 'translate3d(120%, 0, 0) scale(0.96)';
         card.style.zIndex = '3';
         card.style.opacity = '0';
         card.style.visibility = 'hidden';
@@ -293,9 +292,9 @@ export function initStackDeck(config) {
 
           if (nextCard) {
             const progress = Math.min(1, Math.max(0, deltaX / (containerWidth * 0.65)));
-            const nextX = -18 * (1 - progress);
+            const nextX = -28 * (1 - progress);
             const nextScale = 0.96 + 0.04 * progress;
-            const nextOpacity = 0.88 + 0.12 * progress;
+            const nextOpacity = 0.94 + 0.06 * progress;
             nextCard.style.transform = `translate3d(${nextX}px, 0, 0) scale(${nextScale})`;
             nextCard.style.opacity = `${nextOpacity}`;
           }

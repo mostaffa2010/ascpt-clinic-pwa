@@ -1012,7 +1012,7 @@ export class AppointmentsManager {
       counterId: 'doc-stack-counter',
       nextBtnId: 'btn-doc-stack-next',
       prevBtnId: 'btn-doc-stack-prev',
-      activeOffsetPx: 18
+      activeOffsetPx: 28
     });
   }
 
