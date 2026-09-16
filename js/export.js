@@ -171,7 +171,7 @@ export class ExportManager {
       const totalSessionsIncome = allSessions.reduce((acc, curr) => acc + (parseFloat(curr.amountPaid) || 0), 0);
       const totalSettlementsNet = allSettlements.reduce((acc, s) => acc + (parseFloat(s.netAmount) || 0), 0);
       const totalIncome = totalSessionsIncome + totalSettlementsNet;
-      const totalExp = allExpenses.reduce((acc, curr) => acc + (parseFloat(curr.amount) || 0), 0);
+      const totalExp = allExpenses.reduce((acc, curr) => acc + (parseFloat(curr.amount) || 0), 0) + totalDoctorsSalaries;
       const netCash = totalIncome - totalExp;
 
       const cashCount = allSessions.filter(s => s.payType === 'cash').length;
@@ -234,9 +234,21 @@ export class ExportManager {
           'جلسات / كشوفات': `${sessionsCount} / ${examsCount}`,
           'مرضى (نقدي / شركات)': `${cashPatients} / ${insPatients}`,
           'نوع الجلسات (عادية / scoliosis / hemiplegia / quadriplegia)': `${regCount + specCount} / ${scolCount} / ${hemiCount} / ${quadCount}`,
-          'مجموع راتب الطبيب (ج.م)': totalSalary
+          'راتب الاطباء (ج.م)': totalSalary
         };
       });
+
+      const totalDoctorsSalaries = doctorsData.reduce((acc, d) => acc + (parseFloat(d['راتب الاطباء (ج.م)']) || 0), 0);
+      if (doctorsData.length > 0) {
+        doctorsData.push({
+          'م': 'المجموع',
+          'الطبيب المعالج': 'مجموع رواتب الاطباء',
+          'جلسات / كشوفات': '-',
+          'مرضى (نقدي / شركات)': '-',
+          'نوع الجلسات (عادية / scoliosis / hemiplegia / quadriplegia)': '-',
+          'راتب الاطباء (ج.م)': totalDoctorsSalaries
+        });
+      }
 
       // بيانات جلسات التأمين والنقدي
       let totalCashSessions = 0;
@@ -260,6 +272,17 @@ export class ExportManager {
         'المبلغ (ج.م)': e.amount,
         'المسؤول عن الصرف': e.recordedBy || '-'
       }));
+
+      if (totalDoctorsSalaries > 0) {
+        expensesData.unshift({
+          'م': 1,
+          'التاريخ': monthStr,
+          'بند المصروف': 'إجمالي راتب الاطباء',
+          'المبلغ (ج.م)': totalDoctorsSalaries,
+          'المسؤول عن الصرف': 'إدارة المركز'
+        });
+        expensesData.forEach((e, i) => { e['م'] = i + 1; });
+      }
 
       if (typeof XLSX !== 'undefined') {
         const wb = XLSX.utils.book_new();

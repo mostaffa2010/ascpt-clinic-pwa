@@ -766,6 +766,12 @@
     font-weight: 700 !important;
   }
 
+  body:not(.printing-sheet) #monthly-doctors-table tr.total-row td {
+    border-top: 1.8px solid #000000 !important;
+    background-color: #f1f5f9 !important;
+    font-weight: 900 !important;
+  }
+
   /* Crisp Monochrome Financial Overrides (No washed-out colors in B&W printing) */
   body:not(.printing-sheet) [style*="color: var(--success)"],
   body:not(.printing-sheet) [style*="color:var(--success)"],

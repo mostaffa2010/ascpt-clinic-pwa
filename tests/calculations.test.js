@@ -1206,7 +1206,10 @@ const indexHtmlContent = fs.readFileSync('index.html', 'utf8');
 assert.ok(indexHtmlContent.includes('جلسات / كشوفات'), 'Monthly doctors table must include "جلسات / كشوفات" header');
 assert.ok(indexHtmlContent.includes('مرضى (نقدي / شركات)'), 'Monthly doctors table must include "مرضى (نقدي / شركات)" header');
 assert.ok(indexHtmlContent.includes('نوع الجلسات (عادية / scoliosis / hemiplegia / quadriplegia)'), 'Monthly doctors table must include program types header');
-assert.ok(indexHtmlContent.includes('مجموع راتب الطبيب'), 'Monthly doctors table must include "مجموع راتب الطبيب" header');
+assert.ok(indexHtmlContent.includes('راتب الاطباء'), 'Monthly doctors table must include "راتب الاطباء" header');
+const financeJsContent = fs.readFileSync('js/finance.js', 'utf8');
+assert.ok(financeJsContent.includes('مجموع رواتب الاطباء'), 'finance.js must render "مجموع رواتب الاطباء" total row');
+assert.ok(financeJsContent.includes('إجمالي راتب الاطباء'), 'finance.js must inject "إجمالي راتب الاطباء" as monthly expense');
 assert.ok(indexHtmlContent.includes('عدد جلسات النقدي'), 'Monthly insurance table must include "عدد جلسات النقدي" header');
 assert.ok(indexHtmlContent.includes('عدد جلسات التأمين'), 'Monthly insurance table must include "عدد جلسات التأمين" header');
 

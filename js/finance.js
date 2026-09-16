@@ -1392,8 +1392,103 @@ export class FinanceManager {
     const totalSessionsIncome = allSessions.reduce((acc, curr) => acc + (parseFloat(curr.amountPaid) || 0), 0);
     const totalSettlementsNet = monthSettlements.reduce((acc, s) => acc + (parseFloat(s.netAmount) || 0), 0);
     const totalSettlementsDeductions = monthSettlements.reduce((acc, s) => acc + (parseFloat(s.deductions) || 0), 0);
-    const totalIncome = totalSessionsIncome + totalSettlementsNet;
-    const totalExpenses = allExpenses.reduce((acc, curr) => acc + (parseFloat(curr.amount) || 0), 0);
+    // Calculate Doctor Performance & Salaries upfront so it is available for tables, expenses & summary
+    let totalAllDoctorsSalaries = 0;
+    const doctorStats = doctors.map(doc => {
+      const docObj = docList.find(d =>
+        (d.name && d.name.trim() === doc.trim()) ||
+        (d.name && (d.name.includes(doc) || doc.includes(d.name)))
+      );
+
+      const docSessions = allSessions.filter(s =>
+        (s.doctor === doc || (s.doctor && s.doctor.trim() === doc.trim())) ||
+        (docObj && s.doctorUid === docObj.uid)
+      );
+
+      const sessionsCount = docSessions.filter(s => s.entryType !== 'examination').reduce((acc, s) => acc + (s.bodyPartsCount || 1), 0);
+      const examsCount = docSessions.filter(s => s.entryType === 'examination').length;
+
+      const cashPatientIds = new Set(docSessions.filter(s => s.payType === 'cash').map(s => s.patientId || s.patientName));
+      const insPatientIds = new Set(docSessions.filter(s => s.payType !== 'cash').map(s => s.patientId || s.patientName));
+      const cashPatients = cashPatientIds.size;
+      const insPatients = insPatientIds.size;
+
+      let regCount = 0;
+      let scolCount = 0;
+      let hemiCount = 0;
+      let quadCount = 0;
+      let specCount = 0;
+
+      docSessions.forEach(s => {
+        if (s.entryType === 'examination') return;
+        const count = s.bodyPartsCount || 1;
+
+        const patient = patientMap.get(s.patientId) || patientMap.get((s.patientName || '').trim());
+        let pType = (s.sessionPricingType || s.programType || '').toLowerCase().trim();
+
+        // Fallback to patient's assigned program if session didn't explicitly store specialized program
+        if (!pType || pType === 'regular') {
+          if (patient) {
+            const pProg = (patient.programType || patient.clinicalSheet?.programType || '').toLowerCase().trim();
+            if (pProg && pProg !== 'regular') {
+              pType = pProg;
+            }
+          }
+        }
+
+        // Fallback to diagnosis / affectedArea / notes
+        if (!pType || pType === 'regular') {
+          const diag = ((patient?.clinicalSheet?.diagnosis || '') + ' ' + (patient?.affectedArea || '') + ' ' + (s.notes || '')).toLowerCase();
+          if (diag.includes('scoliosis') || diag.includes('اعوجاج') || diag.includes('جنف')) {
+            pType = 'scoliosis';
+          } else if (diag.includes('hemiplegia') || diag.includes('شلل نصفي') || diag.includes('جلطة')) {
+            pType = 'hemiplegia';
+          } else if (diag.includes('quadriplegia') || diag.includes('pediatric') || diag.includes('شلل رباعي') || diag.includes('أطفال') || diag.includes('ضمور')) {
+            pType = 'quadriplegia';
+          }
+        }
+
+        if (pType === 'pediatric') pType = 'quadriplegia';
+
+        if (pType === 'scoliosis') scolCount += count;
+        else if (pType === 'hemiplegia') hemiCount += count;
+        else if (pType === 'quadriplegia') quadCount += count;
+        else if (pType === 'special' || pType === 'custom_special') specCount += count;
+        else regCount += count;
+      });
+
+      const regRate = (docObj && typeof docObj.regularSessionRate === 'number') ? docObj.regularSessionRate : 0;
+      const scolRate = (docObj && typeof docObj.scoliosisRate === 'number') ? docObj.scoliosisRate : 0;
+      const hemiRate = (docObj && typeof docObj.hemiplegiaRate === 'number') ? docObj.hemiplegiaRate : 0;
+      const quadRate = (docObj && typeof docObj.quadriplegiaRate === 'number') ? docObj.quadriplegiaRate : ((docObj && typeof docObj.pediatricRate === 'number') ? docObj.pediatricRate : 0);
+      const specRate = (docObj && typeof docObj.specialSessionRate === 'number') ? docObj.specialSessionRate : 0;
+
+      const totalSalary = (regCount * regRate) +
+                          (scolCount * scolRate) +
+                          (hemiCount * hemiRate) +
+                          (quadCount * quadRate) +
+                          (specCount * specRate);
+
+      totalAllDoctorsSalaries += totalSalary;
+
+      return {
+        doc,
+        docObj,
+        sessionsCount,
+        examsCount,
+        cashPatients,
+        insPatients,
+        regCount,
+        scolCount,
+        hemiCount,
+        quadCount,
+        specCount,
+        totalSalary
+      };
+    });
+
+    const recordedExpenses = allExpenses.reduce((acc, curr) => acc + (parseFloat(curr.amount) || 0), 0);
+    const totalExpenses = recordedExpenses + totalAllDoctorsSalaries;
     const netProfit = totalIncome - totalExpenses;
 
     // Update KPI UI
@@ -1555,98 +1650,27 @@ export class FinanceManager {
       if (doctors.length === 0 || totalPatients === 0) {
         docTbody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: var(--text-muted); padding: 16px;">لا توجد بيانات جلسات مسجلة لهذا الشهر.</td></tr>';
       } else {
-        docTbody.innerHTML = doctors.map(doc => {
-          const docObj = docList.find(d =>
-            (d.name && d.name.trim() === doc.trim()) ||
-            (d.name && (d.name.includes(doc) || doc.includes(d.name)))
-          );
-
-          const docSessions = allSessions.filter(s =>
-            (s.doctor === doc || (s.doctor && s.doctor.trim() === doc.trim())) ||
-            (docObj && s.doctorUid === docObj.uid)
-          );
-
-          const sessionsCount = docSessions.filter(s => s.entryType !== 'examination').reduce((acc, s) => acc + (s.bodyPartsCount || 1), 0);
-          const examsCount = docSessions.filter(s => s.entryType === 'examination').length;
-
-          const cashPatientIds = new Set(docSessions.filter(s => s.payType === 'cash').map(s => s.patientId || s.patientName));
-          const insPatientIds = new Set(docSessions.filter(s => s.payType !== 'cash').map(s => s.patientId || s.patientName));
-          const cashPatients = cashPatientIds.size;
-          const insPatients = insPatientIds.size;
-
-          let regCount = 0;
-          let scolCount = 0;
-          let hemiCount = 0;
-          let quadCount = 0;
-          let specCount = 0;
-
-          docSessions.forEach(s => {
-            if (s.entryType === 'examination') return;
-            const count = s.bodyPartsCount || 1;
-
-            const patient = patientMap.get(s.patientId) || patientMap.get((s.patientName || '').trim());
-            let pType = (s.sessionPricingType || s.programType || '').toLowerCase().trim();
-
-            // Fallback to patient's assigned program if session didn't explicitly store specialized program
-            if (!pType || pType === 'regular') {
-              if (patient) {
-                const pProg = (patient.programType || patient.clinicalSheet?.programType || '').toLowerCase().trim();
-                if (pProg && pProg !== 'regular') {
-                  pType = pProg;
-                }
-              }
-            }
-
-            // Fallback to diagnosis / affectedArea / notes
-            if (!pType || pType === 'regular') {
-              const diag = ((patient?.clinicalSheet?.diagnosis || '') + ' ' + (patient?.affectedArea || '') + ' ' + (s.notes || '')).toLowerCase();
-              if (diag.includes('scoliosis') || diag.includes('اعوجاج') || diag.includes('جنف')) {
-                pType = 'scoliosis';
-              } else if (diag.includes('hemiplegia') || diag.includes('شلل نصفي') || diag.includes('جلطة')) {
-                pType = 'hemiplegia';
-              } else if (diag.includes('quadriplegia') || diag.includes('pediatric') || diag.includes('شلل رباعي') || diag.includes('أطفال') || diag.includes('ضمور')) {
-                pType = 'quadriplegia';
-              }
-            }
-
-            if (pType === 'pediatric') pType = 'quadriplegia';
-
-            if (pType === 'scoliosis') scolCount += count;
-            else if (pType === 'hemiplegia') hemiCount += count;
-            else if (pType === 'quadriplegia') quadCount += count;
-            else if (pType === 'special' || pType === 'custom_special') specCount += count;
-            else regCount += count;
-          });
-
-          const regRate = (docObj && typeof docObj.regularSessionRate === 'number') ? docObj.regularSessionRate : 0;
-          const scolRate = (docObj && typeof docObj.scoliosisRate === 'number') ? docObj.scoliosisRate : 0;
-          const hemiRate = (docObj && typeof docObj.hemiplegiaRate === 'number') ? docObj.hemiplegiaRate : 0;
-          const quadRate = (docObj && typeof docObj.quadriplegiaRate === 'number') ? docObj.quadriplegiaRate : ((docObj && typeof docObj.pediatricRate === 'number') ? docObj.pediatricRate : 0);
-          const specRate = (docObj && typeof docObj.specialSessionRate === 'number') ? docObj.specialSessionRate : 0;
-
-          const totalSalary = (regCount * regRate) +
-                              (scolCount * scolRate) +
-                              (hemiCount * hemiRate) +
-                              (quadCount * quadRate) +
-                              (specCount * specRate);
-
-          const safeDoc = escapeHTML(doc);
-          // In LTR rendered numbers: left is first, right is last.
-          // Arabic headers read RTL: right word is first, left word is last.
-          // Therefore: right number must match right header, left number must match left header!
-          // Header: جلسات (Right) / كشوفات (Left) -> LTR string: ${examsCount} / ${sessionsCount}
-          // Header: نقدي (Right) / شركات (Left) -> LTR string: ${insPatients} / ${cashPatients}
-          // Header: عادية (Right) / scoliosis / hemiplegia / quadriplegia (Left) -> LTR string: ${quadCount} / ${hemiCount} / ${scolCount} / ${regCount + specCount}
+        const rowsHTML = doctorStats.map(stat => {
+          const safeDoc = escapeHTML(stat.doc);
           return `
             <tr>
               <td style="font-weight: 700;"><i class="fa-solid fa-user-doctor" style="color: var(--primary); margin-left: 6px;"></i> ${safeDoc}</td>
-              <td style="text-align: center; font-weight: 800; direction: ltr;">${examsCount} / ${sessionsCount}</td>
-              <td style="text-align: center; font-weight: 800; direction: ltr;">${insPatients} / ${cashPatients}</td>
-              <td style="text-align: center; font-weight: 800; direction: ltr;">${quadCount} / ${hemiCount} / ${scolCount} / ${regCount + specCount}</td>
-              <td style="text-align: center; font-weight: 900; color: var(--success); font-size: 0.95rem;">${totalSalary.toLocaleString('en-US')}</td>
+              <td style="text-align: center; font-weight: 800; direction: ltr;">${stat.examsCount} / ${stat.sessionsCount}</td>
+              <td style="text-align: center; font-weight: 800; direction: ltr;">${stat.insPatients} / ${stat.cashPatients}</td>
+              <td style="text-align: center; font-weight: 800; direction: ltr;">${stat.quadCount} / ${stat.hemiCount} / ${stat.scolCount} / ${stat.regCount + stat.specCount}</td>
+              <td style="text-align: center; font-weight: 900; color: var(--success); font-size: 0.95rem;">${stat.totalSalary.toLocaleString('en-US')}</td>
             </tr>
           `;
         }).join('');
+
+        const totalRowHTML = `
+          <tr class="total-row" style="background-color: #f1f5f9; font-weight: 900; border-top: 2px solid #000000;">
+            <td colspan="4" style="text-align: right; font-weight: 900; color: #000000; padding: 4px 8px;">مجموع رواتب الاطباء</td>
+            <td style="text-align: center; font-weight: 900; color: var(--success); font-size: 0.95rem;">${totalAllDoctorsSalaries.toLocaleString('en-US')}</td>
+          </tr>
+        `;
+
+        docTbody.innerHTML = rowsHTML + totalRowHTML;
       }
     }
 
@@ -1847,6 +1871,16 @@ export class FinanceManager {
       expCategories[cat].count++;
       expCategories[cat].total += (parseFloat(e.amount) || 0);
     });
+
+    if (totalAllDoctorsSalaries > 0) {
+      const docsWithSal = doctorStats.filter(d => d.totalSalary > 0).length || doctors.length;
+      expCategories['إجمالي راتب الاطباء'] = {
+        name: 'إجمالي راتب الاطباء',
+        count: docsWithSal,
+        total: (expCategories['إجمالي راتب الاطباء']?.total || 0) + totalAllDoctorsSalaries
+      };
+    }
+
     const sortedCats = Object.values(expCategories).sort((a, b) => b.total - a.total);
 
     if (mExpCatBadge) {
