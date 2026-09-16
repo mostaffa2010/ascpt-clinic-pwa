@@ -446,7 +446,7 @@
   }
 
   /* 3. Doctors Breakdown Container (Strictly bounded, no overflow, no clipped borders) */
-  body:not(.printing-sheet) #card-doctors-breakdown {
+  body:not(.printing-sheet):not(.printing-monthly):not(.finance-monthly-mode) #card-doctors-breakdown {
     display: block !important;
     border: 1px solid #000000 !important;
     box-shadow: none !important;
@@ -460,7 +460,7 @@
     page-break-inside: avoid !important;
   }
 
-  body:not(.printing-sheet) #card-doctors-breakdown .card-header {
+  body:not(.printing-sheet):not(.printing-monthly):not(.finance-monthly-mode) #card-doctors-breakdown .card-header {
     display: block !important;
     padding: 0 0 2px 0 !important;
     margin-bottom: 2px !important;
@@ -468,7 +468,7 @@
     background: transparent !important;
   }
 
-  body:not(.printing-sheet) #card-doctors-breakdown .card-title {
+  body:not(.printing-sheet):not(.printing-monthly):not(.finance-monthly-mode) #card-doctors-breakdown .card-title {
     font-size: 7.5pt !important;
     font-weight: 800 !important;
     color: #000000 !important;
@@ -512,7 +512,7 @@
   }
 
   /* 4. Ultra-Compact, High-Density Daily Sessions Table (Guaranteed Single Page for 20+ Cases) */
-  body:not(.printing-sheet) #card-finance-report-sessions {
+  body:not(.printing-sheet):not(.printing-monthly):not(.finance-monthly-mode) #card-finance-report-sessions {
     display: block !important;
     border: 1px solid #000000 !important;
     box-shadow: none !important;
@@ -525,7 +525,7 @@
     width: 100% !important;
   }
 
-  body:not(.printing-sheet) #card-finance-report-sessions .card-header {
+  body:not(.printing-sheet):not(.printing-monthly):not(.finance-monthly-mode) #card-finance-report-sessions .card-header {
     display: block !important;
     padding: 0 0 2px 0 !important;
     margin-bottom: 2px !important;
@@ -533,7 +533,7 @@
     background: transparent !important;
   }
 
-  body:not(.printing-sheet) #card-finance-report-sessions .card-title {
+  body:not(.printing-sheet):not(.printing-monthly):not(.finance-monthly-mode) #card-finance-report-sessions .card-title {
     font-size: 7.5pt !important;
     font-weight: 800 !important;
     color: #000000 !important;
@@ -572,7 +572,7 @@
   }
 
   /* 5. Daily Expenses Table (Ultra-Compact) */
-  body:not(.printing-sheet) #card-finance-daily-expenses {
+  body:not(.printing-sheet):not(.printing-monthly):not(.finance-monthly-mode) #card-finance-daily-expenses {
     display: block !important;
     border: 1px solid #000000 !important;
     box-shadow: none !important;
@@ -585,7 +585,7 @@
     width: 100% !important;
   }
 
-  body:not(.printing-sheet) #card-finance-daily-expenses .card-header {
+  body:not(.printing-sheet):not(.printing-monthly):not(.finance-monthly-mode) #card-finance-daily-expenses .card-header {
     display: block !important;
     padding: 0 0 2px 0 !important;
     margin-bottom: 2px !important;
@@ -593,7 +593,7 @@
     background: transparent !important;
   }
 
-  body:not(.printing-sheet) #card-finance-daily-expenses .card-title {
+  body:not(.printing-sheet):not(.printing-monthly):not(.finance-monthly-mode) #card-finance-daily-expenses .card-title {
     font-size: 7.5pt !important;
     font-weight: 800 !important;
     color: #000000 !important;
@@ -1318,6 +1318,45 @@
 
   [data-theme="dark"] .stat-info .stat-label {
     color: #334155 !important;
+  }
+
+
+  /* ================= ULTIMATE ZERO-GAP MONTHLY PRINT ISOLATION ================= */
+  body.printing-monthly #finance-daily-content,
+  body.printing-monthly #finance-daily-content *,
+  body.finance-monthly-mode #finance-daily-content,
+  body.finance-monthly-mode #finance-daily-content *,
+  body.printing-monthly #card-doctors-breakdown,
+  body.printing-monthly #card-finance-report-sessions,
+  body.printing-monthly #card-finance-daily-expenses,
+  body.finance-monthly-mode #card-doctors-breakdown,
+  body.finance-monthly-mode #card-finance-report-sessions,
+  body.finance-monthly-mode #card-finance-daily-expenses,
+  #view-finance.mode-monthly #finance-daily-content,
+  #view-finance.mode-monthly #finance-daily-content *,
+  #view-finance.mode-monthly #card-doctors-breakdown,
+  #view-finance.mode-monthly #card-finance-report-sessions,
+  #view-finance.mode-monthly #card-finance-daily-expenses {
+    display: none !important;
+    height: 0 !important;
+    min-height: 0 !important;
+    max-height: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    border: none !important;
+    visibility: hidden !important;
+    overflow: hidden !important;
+  }
+
+  body.printing-monthly .print-header,
+  body.finance-monthly-mode .print-header {
+    margin-bottom: 2mm !important;
+    padding-bottom: 1.5mm !important;
+  }
+
+  body.printing-monthly #card-monthly-doctors,
+  body.finance-monthly-mode #card-monthly-doctors {
+    margin-top: 0 !important;
   }
 
 }

@@ -1376,6 +1376,12 @@ export class FinanceManager {
     const rawDoctors = await db.getDoctors();
     const doctors = Array.from(new Set(rawDoctors.map(d => (d || '').trim().replace(/\s+/g, ' ')))).filter(Boolean);
     const docList = (typeof db.getDoctorsList === 'function') ? await db.getDoctorsList(true) : [];
+    const allPatients = (typeof db.getPatients === 'function') ? await db.getPatients() : [];
+    const patientMap = new Map();
+    allPatients.forEach(p => {
+      if (p.id) patientMap.set(p.id, p);
+      if (p.name) patientMap.set(p.name.trim(), p);
+    });
 
     const monthSettlements = await db.getInsuranceSettlements(null, this.currentMonth);
     const totalPatients = allSessions.length;
@@ -1577,10 +1583,37 @@ export class FinanceManager {
           docSessions.forEach(s => {
             if (s.entryType === 'examination') return;
             const count = s.bodyPartsCount || 1;
-            const pType = s.sessionPricingType || s.programType || (s.isSpecial ? 'special' : 'regular');
+
+            const patient = patientMap.get(s.patientId) || patientMap.get((s.patientName || '').trim());
+            let pType = (s.sessionPricingType || s.programType || '').toLowerCase().trim();
+
+            // Fallback to patient's assigned program if session didn't explicitly store specialized program
+            if (!pType || pType === 'regular') {
+              if (patient) {
+                const pProg = (patient.programType || patient.clinicalSheet?.programType || '').toLowerCase().trim();
+                if (pProg && pProg !== 'regular') {
+                  pType = pProg;
+                }
+              }
+            }
+
+            // Fallback to diagnosis / affectedArea / notes
+            if (!pType || pType === 'regular') {
+              const diag = ((patient?.clinicalSheet?.diagnosis || '') + ' ' + (patient?.affectedArea || '') + ' ' + (s.notes || '')).toLowerCase();
+              if (diag.includes('scoliosis') || diag.includes('اعوجاج') || diag.includes('جنف')) {
+                pType = 'scoliosis';
+              } else if (diag.includes('hemiplegia') || diag.includes('شلل نصفي') || diag.includes('جلطة')) {
+                pType = 'hemiplegia';
+              } else if (diag.includes('quadriplegia') || diag.includes('pediatric') || diag.includes('شلل رباعي') || diag.includes('أطفال') || diag.includes('ضمور')) {
+                pType = 'quadriplegia';
+              }
+            }
+
+            if (pType === 'pediatric') pType = 'quadriplegia';
+
             if (pType === 'scoliosis') scolCount += count;
             else if (pType === 'hemiplegia') hemiCount += count;
-            else if (pType === 'quadriplegia' || pType === 'pediatric') quadCount += count;
+            else if (pType === 'quadriplegia') quadCount += count;
             else if (pType === 'special' || pType === 'custom_special') specCount += count;
             else regCount += count;
           });
@@ -1601,10 +1634,32 @@ export class FinanceManager {
           return `
             <tr>
               <td style="font-weight: 700;"><i class="fa-solid fa-user-doctor" style="color: var(--primary); margin-left: 6px;"></i> ${safeDoc}</td>
-              <td style="text-align: center; font-weight: 800; direction: ltr;">${sessionsCount} / ${examsCount}</td>
-              <td style="text-align: center; font-weight: 800; direction: ltr;">${cashPatients} / ${insPatients}</td>
-              <td style="text-align: center; font-weight: 800; direction: ltr;">${regCount + specCount} / ${scolCount} / ${hemiCount} / ${quadCount}</td>
-              <td style="text-align: center; font-weight: 900; color: var(--success); font-size: 0.95rem;">${totalSalary.toLocaleString('en-US')} ج.م</td>
+              <td style="text-align: center; font-weight: 800;">
+                <div style="display: flex; direction: rtl; justify-content: center; align-items: center; gap: 4px; font-weight: 800;">
+                  <span>${sessionsCount}</span>
+                  <span style="color: #64748b;">/</span>
+                  <span>${examsCount}</span>
+                </div>
+              </td>
+              <td style="text-align: center; font-weight: 800;">
+                <div style="display: flex; direction: rtl; justify-content: center; align-items: center; gap: 4px; font-weight: 800;">
+                  <span>${cashPatients}</span>
+                  <span style="color: #64748b;">/</span>
+                  <span>${insPatients}</span>
+                </div>
+              </td>
+              <td style="text-align: center; font-weight: 800;">
+                <div style="display: flex; direction: rtl; justify-content: center; align-items: center; gap: 3px; font-weight: 800;">
+                  <span>${regCount + specCount}</span>
+                  <span style="color: #64748b;">/</span>
+                  <span>${scolCount}</span>
+                  <span style="color: #64748b;">/</span>
+                  <span>${hemiCount}</span>
+                  <span style="color: #64748b;">/</span>
+                  <span>${quadCount}</span>
+                </div>
+              </td>
+              <td style="text-align: center; font-weight: 900; color: var(--success); font-size: 0.95rem;">${totalSalary.toLocaleString('en-US')}</td>
             </tr>
           `;
         }).join('');
@@ -1637,10 +1692,32 @@ export class FinanceManager {
           docSessions.forEach(s => {
             if (s.entryType === 'examination') return;
             const count = s.bodyPartsCount || 1;
-            const pType = s.sessionPricingType || s.programType || (s.isSpecial ? 'special' : 'regular');
+            const patient = patientMap.get(s.patientId) || patientMap.get((s.patientName || '').trim());
+            let pType = (s.sessionPricingType || s.programType || '').toLowerCase().trim();
+
+            if (!pType || pType === 'regular') {
+              if (patient) {
+                const pProg = (patient.programType || patient.clinicalSheet?.programType || '').toLowerCase().trim();
+                if (pProg && pProg !== 'regular') pType = pProg;
+              }
+            }
+
+            if (!pType || pType === 'regular') {
+              const diag = ((patient?.clinicalSheet?.diagnosis || '') + ' ' + (patient?.affectedArea || '') + ' ' + (s.notes || '')).toLowerCase();
+              if (diag.includes('scoliosis') || diag.includes('اعوجاج') || diag.includes('جنف')) {
+                pType = 'scoliosis';
+              } else if (diag.includes('hemiplegia') || diag.includes('شلل نصفي') || diag.includes('جلطة')) {
+                pType = 'hemiplegia';
+              } else if (diag.includes('quadriplegia') || diag.includes('pediatric') || diag.includes('شلل رباعي') || diag.includes('أطفال') || diag.includes('ضمور')) {
+                pType = 'quadriplegia';
+              }
+            }
+
+            if (pType === 'pediatric') pType = 'quadriplegia';
+
             if (pType === 'scoliosis') scolCount += count;
             else if (pType === 'hemiplegia') hemiCount += count;
-            else if (pType === 'quadriplegia' || pType === 'pediatric') quadCount += count;
+            else if (pType === 'quadriplegia') quadCount += count;
             else if (pType === 'special' || pType === 'custom_special') specCount += count;
             else regCount += count;
           });
@@ -1666,23 +1743,27 @@ export class FinanceManager {
                     <div style="font-size: 0.78rem; color: var(--text-muted);">إحصائية وراتب الشهر</div>
                   </div>
                 </div>
-                <span class="badge badge-success" style="font-size: 0.85rem; font-weight: 900; padding: 4px 10px; border-radius: 999px;">
-                  ${totalSalary.toLocaleString('en-US')} ج.م
+                <span class="badge badge-success" style="font-size: 0.95rem; font-weight: 900; padding: 4px 10px; border-radius: 999px;">
+                  ${totalSalary.toLocaleString('en-US')}
                 </span>
               </div>
               <div class="hsc-divider" style="margin: 12px 0;"></div>
               <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
                 <div style="background: var(--bg-subtle); padding: 8px 10px; border-radius: 10px; text-align: center;">
                   <div style="font-size: 0.72rem; color: var(--text-muted); font-weight: 700;">جلسات / كشوفات</div>
-                  <div style="font-weight: 800; font-size: 0.96rem; color: var(--text-main); margin-top: 2px; direction: ltr;">${sessionsCount} / ${examsCount}</div>
+                  <div style="font-weight: 800; font-size: 0.96rem; color: var(--text-main); margin-top: 2px;">
+                    <span style="direction: rtl; display: inline-flex; gap: 4px;"><span>${sessionsCount}</span><span>/</span><span>${examsCount}</span></span>
+                  </div>
                 </div>
                 <div style="background: var(--bg-subtle); padding: 8px 10px; border-radius: 10px; text-align: center;">
                   <div style="font-size: 0.72rem; color: var(--text-muted); font-weight: 700;">مرضى (نقدي / شركات)</div>
-                  <div style="font-weight: 800; font-size: 0.96rem; color: var(--text-main); margin-top: 2px; direction: ltr;">${cashPatients} / ${insPatients}</div>
+                  <div style="font-weight: 800; font-size: 0.96rem; color: var(--text-main); margin-top: 2px;">
+                    <span style="direction: rtl; display: inline-flex; gap: 4px;"><span>${cashPatients}</span><span>/</span><span>${insPatients}</span></span>
+                  </div>
                 </div>
               </div>
               <div style="margin-top: 8px; font-size: 0.76rem; color: var(--text-muted); text-align: center; background: var(--bg-subtle); padding: 5px 8px; border-radius: 8px;">
-                <span style="font-weight: 700;">تفقيط الجلسات:</span> ${regCount + specCount} عادية • ${scolCount} Scoliosis • ${hemiCount} Hemiplegia • ${quadCount} Quadriplegia
+                <span style="font-weight: 700;">نوع الجلسات:</span> ${regCount + specCount} عادية • ${scolCount} Scoliosis • ${hemiCount} Hemiplegia • ${quadCount} Quadriplegia
               </div>
             </div>
           `;
@@ -1693,7 +1774,7 @@ export class FinanceManager {
         docMob.innerHTML = `
           <div class="doc-stack-wrapper">
             <div class="doc-stack-header-bar">
-              <span style="font-size: 0.86rem; font-weight: 800; color: var(--text-main);">
+              <span style="font-size: 0.86rem; font-weight: 800; color: var(--text-main); border-bottom: none;">
                 <i class="fa-solid fa-chart-pie" style="color: var(--primary); margin-left: 5px;"></i> ${doctors.length} أطباء بالمركز
               </span>
               <div style="display: flex; align-items: center; gap: 8px;">
@@ -1747,8 +1828,8 @@ export class FinanceManager {
     if (insTbody) {
       insTbody.innerHTML = `
         <tr>
-          <td style="text-align: center; font-weight: 900; font-size: 1.1rem; color: var(--success); padding: 8px;">${totalCashSessions} جلسة</td>
-          <td style="text-align: center; font-weight: 900; font-size: 1.1rem; color: var(--primary); padding: 8px;">${totalInsSessions} جلسة</td>
+          <td style="text-align: center; font-weight: 900; font-size: 1.1rem; color: var(--success); padding: 8px;">${totalCashSessions}</td>
+          <td style="text-align: center; font-weight: 900; font-size: 1.1rem; color: var(--primary); padding: 8px;">${totalInsSessions}</td>
         </tr>
       `;
     }
@@ -1758,11 +1839,11 @@ export class FinanceManager {
         <div class="hero-styled-card" style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 12px; text-align: center; margin-bottom: 8px;">
           <div style="background: rgba(16, 185, 129, 0.08); border: 1px solid rgba(16, 185, 129, 0.2); border-radius: 10px; padding: 10px;">
             <div style="font-size: 0.78rem; font-weight: 700; color: var(--text-muted);"><i class="fa-solid fa-money-bill-wave" style="color: var(--success);"></i> جلسات النقدي</div>
-            <div style="font-size: 1.25rem; font-weight: 900; color: var(--success); margin-top: 4px;">${totalCashSessions} <small style="font-size: 0.75rem;">جلسة</small></div>
+            <div style="font-size: 1.25rem; font-weight: 900; color: var(--success); margin-top: 4px;">${totalCashSessions}</div>
           </div>
           <div style="background: rgba(2, 132, 199, 0.08); border: 1px solid rgba(2, 132, 199, 0.2); border-radius: 10px; padding: 10px;">
             <div style="font-size: 0.78rem; font-weight: 700; color: var(--text-muted);"><i class="fa-solid fa-shield-halved" style="color: var(--primary);"></i> جلسات التأمين</div>
-            <div style="font-size: 1.25rem; font-weight: 900; color: var(--primary); margin-top: 4px;">${totalInsSessions} <small style="font-size: 0.75rem;">جلسة</small></div>
+            <div style="font-size: 1.25rem; font-weight: 900; color: var(--primary); margin-top: 4px;">${totalInsSessions}</div>
           </div>
         </div>
       `;

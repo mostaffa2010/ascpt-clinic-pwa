@@ -732,6 +732,10 @@ export class SessionsManager {
 
     this.selectedPatient = patient;
 
+    // Automatically synchronize session program type to patient's clinical program
+    const pProgType = patient.programType || patient.clinicalSheet?.programType || 'regular';
+    this.setSessionProgramType(pProgType);
+
     if (this.entryMode === 'examination') {
       const docSelect = document.getElementById('session-doctor-select');
       if (docSelect && !this.editingSessionId && patient.doctor) {

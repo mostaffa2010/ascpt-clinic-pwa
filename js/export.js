@@ -160,6 +160,12 @@ export class ExportManager {
       const allSettlements = (typeof db.getInsuranceSettlements === 'function') ? await db.getInsuranceSettlements(null, monthStr) : [];
       const doctors = await db.getDoctors();
       const docList = (typeof db.getDoctorsList === 'function') ? await db.getDoctorsList(true) : [];
+      const allPatients = (typeof db.getPatients === 'function') ? await db.getPatients() : [];
+      const patientMap = new Map();
+      allPatients.forEach(p => {
+        if (p.id) patientMap.set(p.id, p);
+        if (p.name) patientMap.set(p.name.trim(), p);
+      });
 
       const totalPatients = allSessions.length;
       const totalSessionsIncome = allSessions.reduce((acc, curr) => acc + (parseFloat(curr.amountPaid) || 0), 0);
@@ -188,10 +194,28 @@ export class ExportManager {
         docSessions.forEach(s => {
           if (s.entryType === 'examination') return;
           const count = s.bodyPartsCount || 1;
-          const pType = s.sessionPricingType || s.programType || (s.isSpecial ? 'special' : 'regular');
+          const patient = patientMap.get(s.patientId) || patientMap.get((s.patientName || '').trim());
+          let pType = (s.sessionPricingType || s.programType || '').toLowerCase().trim();
+
+          if (!pType || pType === 'regular') {
+            if (patient) {
+              const pProg = (patient.programType || patient.clinicalSheet?.programType || '').toLowerCase().trim();
+              if (pProg && pProg !== 'regular') pType = pProg;
+            }
+          }
+
+          if (!pType || pType === 'regular') {
+            const diag = ((patient?.clinicalSheet?.diagnosis || '') + ' ' + (patient?.affectedArea || '') + ' ' + (s.notes || '')).toLowerCase();
+            if (diag.includes('scoliosis') || diag.includes('اعوجاج') || diag.includes('جنف')) pType = 'scoliosis';
+            else if (diag.includes('hemiplegia') || diag.includes('شلل نصفي') || diag.includes('جلطة')) pType = 'hemiplegia';
+            else if (diag.includes('quadriplegia') || diag.includes('pediatric') || diag.includes('شلل رباعي') || diag.includes('أطفال') || diag.includes('ضمور')) pType = 'quadriplegia';
+          }
+
+          if (pType === 'pediatric') pType = 'quadriplegia';
+
           if (pType === 'scoliosis') scolCount += count;
           else if (pType === 'hemiplegia') hemiCount += count;
-          else if (pType === 'quadriplegia' || pType === 'pediatric') quadCount += count;
+          else if (pType === 'quadriplegia') quadCount += count;
           else if (pType === 'special' || pType === 'custom_special') specCount += count;
           else regCount += count;
         });

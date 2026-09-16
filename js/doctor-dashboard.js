@@ -270,12 +270,38 @@ export class DoctorDashboardManager {
     let monthQuadriplegiaCount = 0;
     let monthOtherCount = 0;
 
+    const patientLookup = new Map();
+    (allPatients || []).forEach(p => {
+      if (p.id) patientLookup.set(p.id, p);
+      if (p.name) patientLookup.set(p.name.trim(), p);
+    });
+
     monthSessions.forEach((s) => {
       if (s.entryType === 'examination') return;
       if (s.isHomeVisit || s.visitType === 'home') return;
       if (s.isPreSettled || (s.date && s.date < '2026-09-01')) return;
       const count = s.bodyPartsCount || 1;
-      const pType = s.sessionPricingType || s.programType || (s.isSpecial ? 'special' : 'regular');
+
+      const p = patientLookup.get(s.patientId) || patientLookup.get((s.patientName || '').trim());
+      let pType = (s.sessionPricingType || s.programType || '').toLowerCase().trim();
+
+      if (!pType || pType === 'regular') {
+        if (p) {
+          const pProg = (p.programType || p.clinicalSheet?.programType || '').toLowerCase().trim();
+          if (pProg && pProg !== 'regular') pType = pProg;
+        }
+      }
+
+      if (!pType || pType === 'regular') {
+        const diag = ((p?.clinicalSheet?.diagnosis || '') + ' ' + (p?.affectedArea || '') + ' ' + (s.notes || '')).toLowerCase();
+        if (diag.includes('scoliosis') || diag.includes('اعوجاج') || diag.includes('جنف')) pType = 'scoliosis';
+        else if (diag.includes('hemiplegia') || diag.includes('شلل نصفي') || diag.includes('جلطة')) pType = 'hemiplegia';
+        else if (diag.includes('quadriplegia') || diag.includes('pediatric') || diag.includes('شلل رباعي') || diag.includes('أطفال') || diag.includes('ضمور')) pType = 'quadriplegia';
+      }
+
+      if (pType === 'pediatric') pType = 'quadriplegia';
+      if (!pType) pType = s.isSpecial ? 'special' : 'regular';
+
       if (pType === 'scoliosis') {
         monthScoliosisCount += count;
       } else if (pType === 'hemiplegia') {
