@@ -1,5 +1,5 @@
 // ========================================================
-// ASCPT - PWA Network Status & Custom Force-Reload Engine
+// ASCPT - PWA Network Status & Context-Aware Force-Reload
 // ========================================================
 
 import { triggerHaptic } from './utils.js';
@@ -51,15 +51,32 @@ export class PWAManager {
 
     const indicator = document.getElementById('pull-to-reload-indicator');
     const icon = document.getElementById('pull-to-reload-icon');
-    const textEl = document.getElementById('pull-to-reload-text');
-    if (!indicator || !icon || !textEl) return;
+    const progressCircle = document.getElementById('pull-progress-circle');
+    if (!indicator || !icon || !progressCircle) return;
+
+    const CIRCLE_CIRCUMFERENCE = 119.38;
+
+    const getViewIcon = () => {
+      const activeNav = document.querySelector('.bottom-nav .b-nav-item.active, .sidebar .nav-link.active');
+      const view = activeNav?.getAttribute('data-view') || window.app?.currentView || 'dashboard';
+      const iconMap = {
+        'dashboard': 'fa-solid fa-chart-pie',
+        'patients': 'fa-solid fa-users',
+        'sessions': 'fa-solid fa-calendar-check',
+        'finance': 'fa-solid fa-file-invoice-dollar',
+        'appointments': 'fa-solid fa-calendar-week',
+        'claims': 'fa-solid fa-file-shield',
+        'doctor-dashboard': 'fa-solid fa-user-doctor'
+      };
+      return iconMap[view] || 'fa-solid fa-rotate';
+    };
 
     let startY = 0;
     let startX = 0;
     let isPulling = false;
     let isReady = false;
     let isExecuting = false;
-    const PULL_THRESHOLD = 90;
+    const PULL_THRESHOLD = 85;
 
     const canPull = () => {
       if (isExecuting) return false;
@@ -76,6 +93,11 @@ export class PWAManager {
       startX = e.touches[0].clientX;
       isPulling = false;
       isReady = false;
+
+      // Dynamically display the icon of the current active screen
+      const viewIconClass = getViewIcon();
+      icon.className = `${viewIconClass} pull-to-reload-icon`;
+      progressCircle.style.strokeDashoffset = CIRCLE_CIRCUMFERENCE;
     }, { passive: true });
 
     window.addEventListener('touchmove', (e) => {
@@ -87,26 +109,28 @@ export class PWAManager {
       const deltaY = currentY - startY;
       const deltaX = Math.abs(currentX - startX);
 
-      if (deltaY > 10 && deltaY > deltaX && canPull()) {
+      if (deltaY > 8 && deltaY > deltaX && canPull()) {
         isPulling = true;
         indicator.classList.add('active');
         indicator.style.transition = 'none';
 
-        const damped = Math.min(deltaY * 0.45, 110);
+        const damped = Math.min(deltaY * 0.42, 80);
         indicator.style.transform = `translate(-50%, ${damped}px)`;
+
+        const ratio = Math.min(Math.max(deltaY / PULL_THRESHOLD, 0), 1);
+        const offset = CIRCLE_CIRCUMFERENCE * (1 - ratio);
+        progressCircle.style.strokeDashoffset = offset;
 
         if (deltaY >= PULL_THRESHOLD) {
           if (!isReady) {
             isReady = true;
             indicator.classList.add('ready');
-            textEl.textContent = 'أفلت للتحديث الشامل وإعادة التحميل';
             triggerHaptic('medium');
           }
         } else {
           if (isReady) {
             isReady = false;
             indicator.classList.remove('ready');
-            textEl.textContent = 'اسحب للأسفل للتحديث الشامل';
           }
         }
       }
@@ -120,16 +144,16 @@ export class PWAManager {
 
       if (isReady) {
         isExecuting = true;
-        indicator.style.transition = 'transform 0.25s cubic-bezier(0.16, 1, 0.3, 1)';
-        indicator.style.transform = 'translate(-50%, 65px)';
-        icon.className = 'fa-solid fa-spinner fa-spin pull-to-reload-icon';
-        textEl.textContent = 'جاري التحديث الشامل وتخطي الكاش...';
+        indicator.classList.remove('ready');
+        indicator.classList.add('loading');
+        indicator.style.transition = 'transform 0.2s cubic-bezier(0.16, 1, 0.3, 1)';
+        indicator.style.transform = 'translate(-50%, 55px)';
         triggerHaptic('success');
 
         await PWAManager.forceReload();
       } else {
         indicator.style.transition = 'transform 0.25s ease, opacity 0.25s ease';
-        indicator.style.transform = 'translate(-50%, -130%)';
+        indicator.style.transform = 'translate(-50%, -150%)';
         indicator.classList.remove('active', 'ready');
       }
 
