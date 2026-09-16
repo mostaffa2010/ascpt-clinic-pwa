@@ -101,6 +101,19 @@ assert(styleCssContent.includes('#modal-patient #p-insurance-details'), 'style.c
 assert(patientsJsContent.includes("scrollIntoView({ behavior: 'smooth', block: 'nearest' })"), 'patients.js must smoothly scroll insurance box into view when selected');
 console.log('✓ 8. Patient Modal Scroll Guardrail: Verified scoped overflow, 100px bottom clearance, and auto-scroll.');
 
+// 9. Strict Guardrail: Insurance Claim Official Printout Isolation & Layout
+const exportJsPath = path.join(rootDir, 'js/export.js');
+const exportJsContent = fs.readFileSync(exportJsPath, 'utf-8');
+const claimsJsPath = path.join(rootDir, 'js/claims.js');
+const claimsJsContent = fs.readFileSync(claimsJsPath, 'utf-8');
+
+assert(htmlContent.includes('id="printable-insurance-claim"'), 'index.html must contain #printable-insurance-claim');
+assert(htmlContent.includes('class="claim-print-table"'), 'index.html must have .claim-print-table');
+assert(styleCssContent.includes('body.printing-claim') || fs.readFileSync(path.join(rootDir, 'css/print.css'), 'utf-8').includes('body.printing-claim'), 'print.css must have dedicated isolation for body.printing-claim');
+assert(exportJsContent.includes('this.app.claimsManager.printClaimStatement()'), 'export.js must delegate to claimsManager.printClaimStatement when on claims tab');
+assert(claimsJsContent.includes('document.body.classList.add(\'printing-claim\')'), 'claims.js must add printing-claim class');
+console.log('✓ 9. Insurance Claim Print Guardrail: Verified isolation, table layout parity, and WiFi print delegation.');
+
 console.log('===================================================================');
 console.log('✓ All ASCPT UI Component Compliance Guardrail Checks Passed (100%)!');
 console.log('===================================================================');

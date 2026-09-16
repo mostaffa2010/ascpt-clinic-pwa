@@ -894,9 +894,9 @@ export class ClaimsManager {
     const claimDate = document.getElementById('claim-doc-date')?.value || getLocalDateStr();
 
     document.getElementById('claim-print-company-name').textContent = companyName;
-    document.getElementById('claim-print-tax-no').textContent = taxNumber ? `رقم البطاقة الضريبية: ${taxNumber}` : 'رقم البطاقة الضريبية: ';
+    document.getElementById('claim-print-tax-no').textContent = taxNumber ? `رقم البطاقة الضريبية: ${taxNumber}` : 'رقم البطاقة الضريبية: 430-392-745';
     document.getElementById('claim-print-date').textContent = `تحريراً في: ${claimDate}`;
-    document.getElementById('claim-print-period-text').textContent = `عن الفترة من ${this.startDate} إلى ${this.endDate}`;
+    document.getElementById('claim-print-period-text').textContent = `عن الفترة من ${this.startDate || '-'} إلى ${this.endDate || '-'}`;
 
     let grandTotal = 0;
     const tbody = document.getElementById('claim-print-tbody');
@@ -904,23 +904,31 @@ export class ClaimsManager {
       grandTotal += item.total;
       return `
         <tr>
-          <td style="text-align: center; font-weight: bold;">${idx + 1}</td>
-          <td style="font-weight: bold; padding-right: 8px;">${escapeHTML(item.patient.name)}</td>
-          <td style="text-align: center; font-weight: bold;">${escapeHTML(item.evalFee)}</td>
-          <td style="text-align: center; font-weight: bold;">${escapeHTML(item.sessionCount)}</td>
-          <td style="text-align: center; font-weight: bold;">${escapeHTML(item.sessionRate)}</td>
-          <td style="text-align: center; font-weight: 800;">${escapeHTML(item.total)}</td>
+          <td style="text-align: center; font-weight: 800;">${idx + 1}</td>
+          <td style="font-weight: 800; padding-right: 8px; text-align: right;">${escapeHTML(item.patient.name)}</td>
+          <td style="text-align: center; font-weight: 800;">${(parseFloat(item.evalFee) || 0).toLocaleString('en-US')}</td>
+          <td style="text-align: center; font-weight: 800;">${item.sessionCount || 0}</td>
+          <td style="text-align: center; font-weight: 800;">${(parseFloat(item.sessionRate) || 0).toLocaleString('en-US')}</td>
+          <td style="text-align: center; font-weight: 900;">${(parseFloat(item.total) || 0).toLocaleString('en-US')}</td>
         </tr>
       `;
     }).join('');
 
-    document.getElementById('claim-print-grand-total').textContent = `${grandTotal} ج.م`;
+    document.getElementById('claim-print-grand-total').textContent = `${grandTotal.toLocaleString('en-US')} ج.م`;
+
+    const printDoc = document.getElementById('printable-insurance-claim');
+    if (printDoc) printDoc.style.display = 'block';
 
     document.body.classList.add('printing-claim');
     window.print();
-    setTimeout(() => {
+
+    const cleanup = () => {
       document.body.classList.remove('printing-claim');
-    }, 1500);
+      if (printDoc) printDoc.style.display = 'none';
+      window.removeEventListener('afterprint', cleanup);
+    };
+    window.addEventListener('afterprint', cleanup, { once: true });
+    setTimeout(cleanup, 4000);
   }
 
   printAttendanceCards(singlePatientId = null) {

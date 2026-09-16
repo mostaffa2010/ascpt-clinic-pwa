@@ -325,12 +325,12 @@
   }
 
   /* ================= CASE 2: PRINTING FINANCIAL REPORTS ================= */
-  body:not(.printing-sheet) #printable-patient-sheet {
+  body:not(.printing-sheet):not(.printing-claim):not(.printing-cards):not(.printing-insurance-letter):not(.printing-receipt):not(.printing-statement) #printable-patient-sheet {
     display: none !important;
   }
 
-  body:not(.printing-sheet) .app-container,
-  body:not(.printing-sheet) .main-content {
+  body:not(.printing-sheet):not(.printing-claim):not(.printing-cards):not(.printing-insurance-letter):not(.printing-receipt):not(.printing-statement) .app-container,
+  body:not(.printing-sheet):not(.printing-claim):not(.printing-cards):not(.printing-insurance-letter):not(.printing-receipt):not(.printing-statement) .main-content {
     display: block !important;
     margin: 0 !important;
     padding: 0 !important;
@@ -340,11 +340,11 @@
     height: auto !important;
   }
 
-  body:not(.printing-sheet) .view-section {
+  body:not(.printing-sheet):not(.printing-claim):not(.printing-cards):not(.printing-insurance-letter):not(.printing-receipt):not(.printing-statement) .view-section {
     display: none !important;
   }
 
-  body:not(.printing-sheet) #view-finance {
+  body:not(.printing-sheet):not(.printing-claim):not(.printing-cards):not(.printing-insurance-letter):not(.printing-receipt):not(.printing-statement) #view-finance {
     display: block !important;
     padding: 0 !important;
     margin: 0 !important;
@@ -370,7 +370,7 @@
   }
 
   /* 2. Compact Official Print Header (Monochrome / Grayscale Laser Optimized) */
-  body:not(.printing-sheet) .print-header {
+  body:not(.printing-sheet):not(.printing-claim):not(.printing-cards):not(.printing-insurance-letter):not(.printing-receipt):not(.printing-statement) .print-header {
     display: block !important;
     text-align: center !important;
     border-bottom: 2px solid #000000 !important;
@@ -582,7 +582,7 @@
   }
 
   /* 6. Signatures Footer */
-  body:not(.printing-sheet) .print-footer {
+  body:not(.printing-sheet):not(.printing-claim):not(.printing-cards):not(.printing-insurance-letter):not(.printing-receipt):not(.printing-statement) .print-footer {
     display: flex !important;
     justify-content: space-around !important;
     margin-top: 4px !important;
@@ -784,7 +784,7 @@
   }
 
   /* Signatures Footer: Crisp black dashed separator */
-  body:not(.printing-sheet) .print-footer {
+  body:not(.printing-sheet):not(.printing-claim):not(.printing-cards):not(.printing-insurance-letter):not(.printing-receipt):not(.printing-statement) .print-footer {
     display: flex !important;
     justify-content: space-around !important;
     margin-top: 6px !important;
@@ -812,7 +812,21 @@
     background: transparent !important;
   }
 
-  /* ================= CASE 3: PRINTING INSURANCE CLAIM STATEMENT (مطابقة للورقة 1) ================= */
+  /* ================= CASE 3: PRINTING INSURANCE CLAIM STATEMENT ================= */
+  body.printing-claim .app-container,
+  body.printing-claim .main-content,
+  body.printing-claim #view-finance,
+  body.printing-claim .view-section,
+  body.printing-claim .print-header,
+  body.printing-claim .print-footer,
+  body.printing-claim .top-header,
+  body.printing-claim .sidebar,
+  body.printing-claim .bottom-nav,
+  body.printing-claim #printable-patient-sheet,
+  body.printing-claim #printable-attendance-cards,
+  body.printing-claim #printable-insurance-letter,
+  body.printing-claim #printable-cash-receipt,
+  body.printing-claim #printable-medical-statement,
   body.printing-claim > *:not(#printable-insurance-claim) {
     display: none !important;
     height: 0 !important;
@@ -828,42 +842,42 @@
     display: block !important;
     position: relative !important;
     width: 100% !important;
-    margin: 0 !important;
-    padding: 4mm 2mm !important;
+    margin: 0 auto !important;
+    padding: 3mm 2mm !important;
     page-break-inside: avoid !important;
     page-break-after: avoid !important;
     page-break-before: avoid !important;
   }
 
-  body.printing-claim #printable-insurance-claim h2 {
-    color: #0369a1 !important;
-    font-weight: 800 !important;
-  }
-
   body.printing-claim table.claim-print-table {
     width: 100% !important;
     border-collapse: collapse !important;
-    margin: 12px 0 !important;
+    margin: 10px 0 !important;
   }
 
   body.printing-claim table.claim-print-table th,
   body.printing-claim table.claim-print-table td {
     border: 1.2px solid #000000 !important;
-    padding: 6px 8px !important;
-    font-size: 10pt !important;
-    line-height: 1.3 !important;
+    padding: 5px 6px !important;
+    font-size: 8.5pt !important;
+    line-height: 1.2 !important;
+    color: #000000 !important;
+    vertical-align: middle !important;
   }
 
   body.printing-claim table.claim-print-table th {
     background-color: #f1f5f9 !important;
     color: #000000 !important;
-    font-weight: 800 !important;
+    font-weight: 900 !important;
+    text-align: center !important;
   }
 
+  body.printing-claim table.claim-print-table tfoot th,
   body.printing-claim table.claim-print-table tfoot td {
     font-weight: 900 !important;
-    background-color: #e2e8f0 !important;
+    background-color: #f1f5f9 !important;
     border-top: 2px solid #000000 !important;
+    color: #000000 !important;
   }
 
   /* ================= CASE 4: PRINTING ATTENDANCE / TREATMENT CARDS (مطابقة للورقة 2) ================= */

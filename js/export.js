@@ -316,6 +316,14 @@ export class ExportManager {
         toast.classList.remove('show');
         toast.style.display = 'none';
       }
+
+      // If user is on the claims tab inside finance, delegate directly to claims print
+      const claimsContent = document.getElementById('finance-claims-content');
+      if (claimsContent && claimsContent.style.display !== 'none' && this.app?.claimsManager) {
+        this.app.claimsManager.printClaimStatement();
+        return;
+      }
+
       const meta = this.financeManager.getDataForExport();
       const metaEl = document.getElementById('print-report-meta');
       const subEl = document.getElementById('print-report-subtitle');
