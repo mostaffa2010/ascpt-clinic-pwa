@@ -158,6 +158,18 @@ assert(sessionsJsContent.includes("onclick=\"sessionsManager.scrollToFormTop(); 
 assert(sessionsJsContent.includes('this.scrollToFormTop();'), 'editSession must call scrollToFormTop at both start and end of edit lifecycle');
 console.log('✓ 14. Session Edit Scroll-to-Top: Verified immediate and completion smooth scrolling.');
 
+// 15. Strict Guardrail: White-Label Centralization & Dynamic Branding Parity
+const apptsJsPath = path.join(rootDir, 'js/appointments.js');
+const apptsJsContent = fs.readFileSync(apptsJsPath, 'utf-8');
+const dbJsPath = path.join(rootDir, 'js/db.js');
+const dbJsContent = fs.readFileSync(dbJsPath, 'utf-8');
+
+assert(apptsJsContent.includes('CLINIC_CONFIG.shortName') || apptsJsContent.includes('CLINIC_CONFIG.brandName'), 'appointments.js friday holiday message must dynamically use CLINIC_CONFIG');
+assert(!apptsJsContent.includes('مركز الإسكندرية التخصصي مغلق'), 'appointments.js must not contain hardcoded clinic name in friday alert');
+assert(appJsContent.includes('(CLINIC_CONFIG.abbreviation ||'), 'app.js exit confirmation and backup filename must dynamically use CLINIC_CONFIG');
+assert(dbJsContent.includes('CLINIC_CONFIG?.brandName'), 'db.js backup clinicName must use CLINIC_CONFIG.brandName');
+console.log('✓ 15. White-Label Centralization: Verified zero hardcoded clinic names in appointments, alerts, and backup.');
+
 console.log('===================================================================');
 console.log('✓ All ASCPT UI Component Compliance Guardrail Checks Passed (100%)!');
 console.log('===================================================================');

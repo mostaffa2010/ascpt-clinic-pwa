@@ -1021,7 +1021,7 @@ class App {
         // 3. وصل إلى الشاشة الرئيسية (Dashboard) ويريد الخروج من التطبيق
         if (this.currentView === 'dashboard') {
           const wantExit = await this.showConfirm(
-            'هل ترغب في الخروج من تطبيق ASCPT وإغلاقه؟',
+            'هل ترغب في الخروج من تطبيق ' + (CLINIC_CONFIG.abbreviation || 'العيادة') + ' وإغلاقه؟',
             'تأكيد الخروج'
           );
           if (wantExit) {
@@ -1347,7 +1347,7 @@ class App {
       const a = document.createElement('a');
       const dateStr = getLocalDateStr();
       a.href = url;
-      a.download = `نسخة_احتياطية_ASCPT_${dateStr}.json`;
+      a.download = `نسخة_احتياطية_${CLINIC_CONFIG.abbreviation || 'عيادة'}_${dateStr}.json`;
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);

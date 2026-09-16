@@ -1045,7 +1045,7 @@ export class ClaimsManager {
     const claimDate = document.getElementById('claim-doc-date')?.value || getLocalDateStr();
 
     const wsData = [
-      ['${CLINIC_CONFIG.brandName} (${CLINIC_CONFIG.abbreviation})'],
+      [`${CLINIC_CONFIG.brandName} (${CLINIC_CONFIG.abbreviation})`],
       [`السادة شركة: ${companyName}`, '', '', `تحريراً في: ${claimDate}`],
       ['بيان بأسماء السادة المحولين'],
       [`رقم البطاقة الضريبية: ${taxNumber}`, '', '', `الفترة: ${this.startDate} إلى ${this.endDate}`],

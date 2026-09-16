@@ -1,3 +1,4 @@
+import { CLINIC_CONFIG } from './clinic-config.js';
 // ========================================================
 // ASCPT - Weekly Recurring Appointments Schedule (Master Timetable & Daily Operations)
 // ========================================================
@@ -1071,7 +1072,7 @@ export class AppointmentsManager {
           </div>
           <h3 style="font-weight: 800; font-size: 1.3rem; color: var(--text-main); margin: 0 0 8px 0;">يوم الجمعة عطلة أسبوعية للمركز</h3>
           <p style="font-size: 0.92rem; color: var(--text-muted); max-width: 440px; margin: 0 auto 16px auto; line-height: 1.6;">
-            مركز الإسكندرية التخصصي مغلق يوم الجمعة، ولا توجد مواعيد أو جلسات علاجية مجدولة في هذا اليوم.
+            ${CLINIC_CONFIG.shortName || CLINIC_CONFIG.brandName || 'المركز'} مغلق يوم الجمعة، ولا توجد مواعيد أو جلسات علاجية مجدولة في هذا اليوم.
           </p>
           <div style="display: flex; justify-content: center; gap: 8px;">
             <span class="badge" style="background: rgba(239, 68, 68, 0.1); color: var(--danger); border: 1px solid rgba(239, 68, 68, 0.3); font-weight: 800; padding: 6px 18px; border-radius: 999px; font-size: 0.85rem;">

@@ -2096,7 +2096,7 @@ class FirestoreDatabaseService {
 
     return {
       backupVersion: 1,
-      clinicName: CLINIC_CONFIG?.name || 'ASCPT',
+      clinicName: CLINIC_CONFIG?.brandName || CLINIC_CONFIG?.abbreviation || 'عيادة',
       timestamp: new Date().toISOString(),
       counts: {
         patients: patients.length,
