@@ -228,7 +228,10 @@ export class SessionsManager {
         const editBtn = e.target.closest('.btn-edit-session');
         if (editBtn) {
           const sid = editBtn.getAttribute('data-session-id');
-          if (sid) this.editSession(sid);
+          if (sid) {
+            this.scrollToFormTop();
+            this.editSession(sid);
+          }
           return;
         }
         const delBtn = e.target.closest('.btn-delete-session');
@@ -1388,7 +1391,39 @@ export class SessionsManager {
     }
   }
 
+    scrollToFormTop() {
+    try {
+      window.scrollTo({ top: 0, left: 0, behavior: 'smooth' });
+    } catch (_) {
+      window.scrollTo(0, 0);
+    }
+    if (document.documentElement) {
+      try {
+        document.documentElement.scrollTo({ top: 0, left: 0, behavior: 'smooth' });
+      } catch (_) {
+        document.documentElement.scrollTop = 0;
+      }
+    }
+    if (document.body) {
+      try {
+        document.body.scrollTo({ top: 0, left: 0, behavior: 'smooth' });
+      } catch (_) {
+        document.body.scrollTop = 0;
+      }
+    }
+    const formEl = document.getElementById('form-log-session');
+    const target = formEl?.closest('.card') || formEl || document.getElementById('view-sessions');
+    if (target && typeof target.scrollIntoView === 'function') {
+      try {
+        target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      } catch (_) {
+        target.scrollIntoView(true);
+      }
+    }
+  }
+
   async editSession(sessionId) {
+    this.scrollToFormTop();
     const s = await db.getSessionById(sessionId);
     if (!s) return;
 
@@ -1456,7 +1491,13 @@ export class SessionsManager {
       submitBtn.className = 'btn btn-success';
     }
 
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    this.scrollToFormTop();
+    requestAnimationFrame(() => {
+      this.scrollToFormTop();
+    });
+    setTimeout(() => {
+      this.scrollToFormTop();
+    }, 120);
     this.app.showToast(`جاري تعديل جلسة: ${s.patientName}`);
   }
 
@@ -1679,7 +1720,7 @@ export class SessionsManager {
           <td style="font-size: 0.8rem; color: var(--text-muted);">${safeRecBy} (${safeRecAt})</td>
           <td>
             <div style="display: flex; gap: 4px;">
-              <button type="button" class="btn btn-outline btn-sm btn-edit-session" data-session-id="${safeId}" onclick="sessionsManager.editSession('${safeId}')" title="${isExam ? 'تعديل بيانات الكشف' : 'تعديل بيانات الجلسة'}">
+              <button type="button" class="btn btn-outline btn-sm btn-edit-session" data-session-id="${safeId}" onclick="sessionsManager.scrollToFormTop(); sessionsManager.editSession('${safeId}')" title="${isExam ? 'تعديل بيانات الكشف' : 'تعديل بيانات الجلسة'}">
                 <i class="fa-solid fa-pen-to-square"></i>
               </button>
               ${canDelete ? `
@@ -1776,7 +1817,7 @@ export class SessionsManager {
                 <span class="hsc-time-tag"><i class="fa-regular fa-clock"></i> ${safeRecAt}</span>
               </div>
               <div class="hsc-actions">
-                <button type="button" class="btn btn-outline btn-sm btn-icon-action btn-edit-session" data-session-id="${safeId}" onclick="sessionsManager.editSession('${safeId}')" title="${isExam ? 'تعديل بيانات الكشف' : 'تعديل بيانات الجلسة'}">
+                <button type="button" class="btn btn-outline btn-sm btn-icon-action btn-edit-session" data-session-id="${safeId}" onclick="sessionsManager.scrollToFormTop(); sessionsManager.editSession('${safeId}')" title="${isExam ? 'تعديل بيانات الكشف' : 'تعديل بيانات الجلسة'}">
                   <i class="fa-solid fa-pen-to-square"></i>
                 </button>
                 ${canDelete ? `

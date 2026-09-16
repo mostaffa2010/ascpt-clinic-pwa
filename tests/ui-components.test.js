@@ -150,6 +150,14 @@ assert(insLetterMatch, 'must find printable-insurance-letter');
 assert(!insLetterMatch[0].includes('خاتم واعتماد المركز'), 'insurance letter must have removed stamp heading text');
 console.log('✓ 13. Insurance Renewal Letter A5 Frame & Footer: Verified frame, removed stamp text, and pinned footer.');
 
+// 14. Strict Guardrail: Session Edit Immediate Scroll-to-Top Parity
+const sessionsJsPath = path.join(rootDir, 'js/sessions.js');
+const sessionsJsContent = fs.readFileSync(sessionsJsPath, 'utf-8');
+assert(sessionsJsContent.includes('scrollToFormTop()'), 'sessions.js must implement scrollToFormTop()');
+assert(sessionsJsContent.includes("onclick=\"sessionsManager.scrollToFormTop(); sessionsManager.editSession"), 'sessions card edit buttons must trigger scrollToFormTop synchronously on click');
+assert(sessionsJsContent.includes('this.scrollToFormTop();'), 'editSession must call scrollToFormTop at both start and end of edit lifecycle');
+console.log('✓ 14. Session Edit Scroll-to-Top: Verified immediate and completion smooth scrolling.');
+
 console.log('===================================================================');
 console.log('✓ All ASCPT UI Component Compliance Guardrail Checks Passed (100%)!');
 console.log('===================================================================');
