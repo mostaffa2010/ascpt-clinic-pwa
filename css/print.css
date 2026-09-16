@@ -967,10 +967,14 @@
     font-weight: 800 !important;
   }
 
-  /* ================= CASE 5: PRINTING INSURANCE RENEWAL LETTER (A5) ================= */
+  /* ================= CASE 5: PRINTING INSURANCE RENEWAL LETTER (A5 FULL-BLEED) ================= */
   @page insuranceLetterPage {
     size: A5 portrait;
-    margin: 10mm;
+    margin: 6mm 8mm;
+  }
+
+  body.printing-insurance-letter {
+    page: insuranceLetterPage;
   }
 
   body.printing-insurance-letter > *:not(#printable-insurance-letter) {
@@ -988,42 +992,64 @@
     display: block !important;
     position: relative !important;
     width: 100% !important;
-    margin: 0 !important;
+    margin: 0 auto !important;
     padding: 0 !important;
-    page: insuranceLetterPage;
+    box-sizing: border-box !important;
+    page-break-inside: avoid !important;
+    page-break-after: avoid !important;
+    page-break-before: avoid !important;
     font-size: 10pt !important;
     line-height: 1.6 !important;
     color: #000000 !important;
   }
 
+  body.printing-insurance-letter .ins-letter-frame {
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: space-between !important;
+    border: 2px solid #0284c7 !important;
+    border-radius: 8px !important;
+    box-sizing: border-box !important;
+    width: 100% !important;
+    height: 194mm !important;
+    min-height: 194mm !important;
+    max-height: 195mm !important;
+    padding: 14px 18px !important;
+    page-break-inside: avoid !important;
+  }
+
   body.printing-insurance-letter .ins-letter-header {
     text-align: center !important;
-    border-bottom: 2px solid #0369a1 !important;
+    border-bottom: 2px solid #0284c7 !important;
     padding-bottom: 6px !important;
-    margin-bottom: 14px !important;
+    margin-bottom: 12px !important;
   }
 
   body.printing-insurance-letter .ins-letter-header h1 {
     font-size: 12.5pt !important;
     margin: 0 0 3px 0 !important;
-    color: #0369a1 !important;
+    color: #0284c7 !important;
     font-weight: 800 !important;
   }
 
   body.printing-insurance-letter .ins-letter-header p {
     margin: 2px 0 !important;
     font-size: 8pt !important;
-    color: #000000 !important;
+    color: #0f172a !important;
     font-weight: 700 !important;
   }
 
   body.printing-insurance-letter .ins-letter-body {
+    flex: 1 !important;
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: flex-start !important;
     font-size: 10.5pt !important;
     padding: 0 4px !important;
   }
 
   body.printing-insurance-letter .ins-letter-body p {
-    margin: 8px 0 !important;
+    margin: 6px 0 !important;
   }
 
   body.printing-insurance-letter #ins-print-diagnosis {
@@ -1033,24 +1059,10 @@
     color: #000000 !important;
   }
 
-  body.printing-insurance-letter .ins-letter-footer {
-    margin-top: 30px !important;
-    font-size: 9.5pt !important;
-    font-weight: 800 !important;
-  }
-
-  body.printing-insurance-letter .ins-letter-signature-space {
-    height: 20mm !important;
-  }
-
-  body.printing-insurance-letter .ins-letter-footer-contact {
-    margin-top: 16px !important;
-    padding-top: 6px !important;
-    border-top: 1.2px dashed #475569 !important;
-    font-size: 7.5pt !important;
-    color: #334155 !important;
-    text-align: center !important;
-    font-weight: 600 !important;
+  body.printing-insurance-letter .ins-letter-footer-wrap {
+    margin-top: auto !important;
+    width: 100% !important;
+    page-break-inside: avoid !important;
   }
 
   /* ================= CASE 6: PRINTING CASH RECEIPT (A5 FULL-BLEED) ================= */

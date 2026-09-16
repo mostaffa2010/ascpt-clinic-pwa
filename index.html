@@ -2371,7 +2371,7 @@
         <div class="admin-system-footer no-print" style="margin-top: 32px; margin-bottom: 35px; text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px;">
           <div style="display: inline-flex; align-items: center; gap: 8px; background: var(--bg-surface); border: 1.5px solid var(--border-color); padding: 7px 18px; border-radius: 999px; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);">
             <span style="width: 8px; height: 8px; border-radius: 50%; background-color: var(--success); display: inline-block; box-shadow: 0 0 6px var(--success);"></span>
-            <span id="admin-system-version-label" data-clinic="version-badge" style="font-weight: 800; font-size: 0.88rem; color: var(--text-main);">نظام ASCPT — الإصدار 2.5.9</span>
+            <span id="admin-system-version-label" data-clinic="version-badge" style="font-weight: 800; font-size: 0.88rem; color: var(--text-main);">نظام ASCPT — الإصدار 2.6.0</span>
             <span class="badge badge-primary" style="font-size: 0.72rem; padding: 2px 10px; border-radius: 999px; font-weight: 800;">إصدار معتمد</span>
           </div>
           <div style="font-size: 0.76rem; color: var(--text-muted); font-weight: 700;">
@@ -4046,58 +4046,59 @@
   </div>
 
   <!-- ================= Printable Insurance Renewal Letter (A5) ================= -->
-  <div id="printable-insurance-letter" style="display: none;">
-    <div class="ins-letter-header">
-      <h1 style="margin: 0 0 4px 0;" data-clinic="full-brand">مركز العلاج الطبيعي والتأهيل</h1>
-      <p id="ins-print-director" data-clinic="director-full">المدير الطبي وإستشاري العلاج الطبيعي</p>
-    </div>
-
-    <div class="ins-letter-body">
-      <div class="ins-letter-recipient">
-        <span>السادة شركة / <span id="ins-print-company">-</span></span>
+  <div id="printable-insurance-letter" class="printable-doc" style="display: none;">
+    <div class="ins-letter-frame" style="border: 2px solid #0284c7; border-radius: 8px; padding: 14px 16px; position: relative; display: flex; flex-direction: column; justify-content: space-between; height: 194mm; min-height: 194mm; box-sizing: border-box; width: 100%;">
+      <div class="ins-letter-header" style="border-bottom: 2px solid #0284c7; padding-bottom: 6px; margin-bottom: 12px; text-align: center;">
+        <h1 style="margin: 0 0 3px 0; font-size: 12.5pt; font-weight: 800; color: #0284c7;" data-clinic="full-brand">مركز الإسكندرية التخصصي للعلاج الطبيعي (ASCPT)</h1>
+        <p id="ins-print-director" style="margin: 2px 0; font-size: 8pt; font-weight: 700; color: #0f172a;" data-clinic="director-full">المدير الطبي وإستشاري العلاج الطبيعي</p>
       </div>
 
-      <div class="ins-letter-salutation">
-        تحية طيبة وبعد،،،
-      </div>
+      <div class="ins-letter-body" style="flex: 1; display: flex; flex-direction: column; justify-content: flex-start; font-size: 10.5pt; line-height: 1.8;">
+        <div class="ins-letter-recipient" style="margin-bottom: 6px;">
+          <span>السادة شركة / <span id="ins-print-company" style="font-weight: 800;">-</span></span>
+        </div>
 
-      <p style="font-size: 10pt; line-height: 1.8; margin: 8px 0;">
-        يرجى التكرم بالعلم بأن <span id="ins-print-honorific">السيد/ة</span> <strong id="ins-print-patient-name" style="font-size: 11pt; color: #0369a1;">-</strong> <span id="ins-print-verb-suffer">يعاني/تعاني</span> من:
-      </p>
+        <div class="ins-letter-salutation" style="margin-bottom: 8px;">
+          تحية طيبة وبعد،،،
+        </div>
 
-      <div id="ins-print-diagnosis" dir="auto">-</div>
+        <p style="font-size: 10pt; line-height: 1.8; margin: 6px 0;">
+          يرجى التكرم بالعلم بأن <span id="ins-print-honorific">السيد/ة</span> <strong id="ins-print-patient-name" style="font-size: 11pt; color: #0369a1;">-</strong> <span id="ins-print-verb-suffer">يعاني/تعاني</span> من:
+        </p>
 
-      <p style="font-size: 10.5pt; line-height: 1.8; margin: 10px 0;">
-        وبناءً عليه، <span id="ins-print-verb-need">يحتاج/تحتاج</span> الحالة إلى <strong id="ins-print-sessions" style="font-size: 12pt; text-decoration: underline; color: #0f172a;">-</strong> جلسات علاج طبيعي وتأهيل حركي.
-      </p>
+        <div id="ins-print-diagnosis" dir="auto" style="border: 1.2px solid #64748b; background-color: #f8fafc; font-weight: 700; color: #000000; padding: 6px 10px; border-radius: 6px; margin: 4px 0;">-</div>
 
-      <div id="ins-print-notes-container" style="display: none;">
-        <strong style="color: #0369a1;">ملاحظات: </strong>
-        <span id="ins-print-notes" dir="auto"></span>
-      </div>
+        <p style="font-size: 10.5pt; line-height: 1.8; margin: 8px 0;">
+          وبناءً عليه، <span id="ins-print-verb-need">يحتاج/تحتاج</span> الحالة إلى <strong id="ins-print-sessions" style="font-size: 12pt; text-decoration: underline; color: #0f172a;">-</strong> جلسات علاج طبيعي وتأهيل حركي.
+        </p>
 
-      <div class="ins-letter-closing">
-        برجاء التكرم بالموافقة، ولكم منا جزيل الشكر والتقدير.
-      </div>
-    </div>
+        <div id="ins-print-notes-container" style="display: none; margin: 4px 0;">
+          <strong style="color: #0369a1;">ملاحظات: </strong>
+          <span id="ins-print-notes" dir="auto"></span>
+        </div>
 
-    <div class="ins-letter-footer">
-      <div class="ins-footer-col" style="text-align: right;">
-        <div id="ins-print-date" style="font-weight: 700; font-size: 9pt;">تحريراً في: -</div>
-        <div style="margin-top: 14px; font-size: 8.5pt; color: #475569; font-weight: 700;">خاتم واعتماد المركز</div>
-        <div class="ins-stamp-box">
-          موضع الختم
+        <div class="ins-letter-closing" style="margin-top: 8px;">
+          برجاء التكرم بالموافقة، ولكم منا جزيل الشكر والتقدير.
         </div>
       </div>
-      <div class="ins-footer-col" style="text-align: left;">
-        <div style="font-weight: 800; font-size: 9.5pt;">مدير المركز</div>
-        <div style="font-size: 8.5pt; color: #475569; margin-top: 2px;" data-clinic="director-name">المدير الطبي للمركز</div>
-        <div class="ins-letter-signature-space"></div>
-      </div>
-    </div>
 
-    <div class="ins-letter-footer-contact" id="ins-print-contact">
-      <span data-clinic="contact-info">عنوان وبيانات اتصال المركز</span>
+      <!-- Footer Wrap: Strictly pinned to the bottom of the frame without stamp placeholder -->
+      <div class="ins-letter-footer-wrap" style="margin-top: auto !important; width: 100%; box-sizing: border-box;">
+        <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 10px; padding: 0 8px; width: 100%; box-sizing: border-box;">
+          <div style="text-align: right;">
+            <div id="ins-print-date" style="font-weight: 800; font-size: 9.5pt; color: #0f172a;">تحريراً في: -</div>
+          </div>
+          <div style="text-align: center; width: 155px;">
+            <div style="font-weight: 800; font-size: 10.5pt; color: #0f172a;">مدير المركز</div>
+            <div style="font-size: 9pt; color: #475569; margin-top: 2px;" data-clinic="director-name">د. حسني أحمد الجويلي</div>
+            <div style="margin-top: 22px; border-bottom: 1.5px solid #000; width: 140px; margin-inline: auto;"></div>
+          </div>
+        </div>
+
+        <div style="padding-top: 6px; border-top: 1px dashed #cbd5e1; font-size: 7.2pt; color: #64748b; text-align: center; width: 100%; box-sizing: border-box; line-height: 1.4;" id="ins-print-contact">
+          <span data-clinic="contact-info">عنوان وبيانات اتصال المركز</span>
+        </div>
+      </div>
     </div>
   </div>
 

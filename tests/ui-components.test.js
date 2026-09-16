@@ -138,6 +138,16 @@ assert(printCssContent.includes('#printable-cash-receipt > div') && printCssCont
 assert(htmlContent.includes('class="receipt-print-footer-wrap"'), 'index.html must wrap receipt signatures and footer in .receipt-print-footer-wrap');
 console.log('✓ 12. Cash Receipt A5 Frame & Footer: Verified A5 page rule, 194mm height, and pinned footer.');
 
+// 13. Strict Guardrail: Insurance Letter A5 Frame & Footer Pin Parity
+assert(printCssContent.includes('.ins-letter-frame'), 'print.css must define .ins-letter-frame');
+assert(printCssContent.includes('.ins-letter-footer-wrap'), 'print.css must define .ins-letter-footer-wrap');
+assert(htmlContent.includes('class="ins-letter-footer-wrap"'), 'index.html must contain .ins-letter-footer-wrap');
+assert(!htmlContent.includes('موضع الختم'), 'index.html must have removed stamp placeholder text from insurance letter');
+const insLetterMatch = htmlContent.match(/<div id="printable-insurance-letter"[\s\S]*?<\/div>\s*<\/div>\s*<\/div>/);
+assert(insLetterMatch, 'must find printable-insurance-letter');
+assert(!insLetterMatch[0].includes('خاتم واعتماد المركز'), 'insurance letter must have removed stamp heading text');
+console.log('✓ 13. Insurance Renewal Letter A5 Frame & Footer: Verified frame, removed stamp text, and pinned footer.');
+
 console.log('===================================================================');
 console.log('✓ All ASCPT UI Component Compliance Guardrail Checks Passed (100%)!');
 console.log('===================================================================');
