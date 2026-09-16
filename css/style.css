@@ -11714,3 +11714,50 @@ body.role-doctor .btn-quick-attend {
   background: rgba(245, 158, 11, 0.2);
   border-color: #d97706;
 }
+
+/* Session View Switcher (جلسات المركز vs الزيارات المنزلية - v2.7.5) */
+.session-tab-segmented {
+  display: inline-flex;
+  align-items: center;
+  background: var(--bg-subtle);
+  border: 1.5px solid var(--border-color);
+  border-radius: 12px;
+  padding: 3px;
+  gap: 4px;
+}
+
+[data-theme="dark"] .session-tab-segmented {
+  background: #1e293b;
+  border-color: #334155;
+}
+
+.session-view-tab-btn {
+  border: none;
+  background: transparent;
+  color: var(--text-muted);
+  padding: 6px 14px;
+  border-radius: 9px;
+  font-weight: 800;
+  font-size: 0.84rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  transition: all 0.18s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.session-view-tab-btn:hover {
+  color: var(--text-main);
+}
+
+.session-view-tab-btn.active#btn-tab-clinic-sessions {
+  background: var(--primary) !important;
+  color: #ffffff !important;
+  box-shadow: 0 2px 8px rgba(2, 132, 199, 0.35);
+}
+
+.session-view-tab-btn.active#btn-tab-home-visits {
+  background: #059669 !important;
+  color: #ffffff !important;
+  box-shadow: 0 2px 8px rgba(5, 150, 105, 0.35);
+}

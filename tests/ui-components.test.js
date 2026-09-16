@@ -173,6 +173,17 @@ assert(appJsContent.includes('(CLINIC_CONFIG.abbreviation ||'), 'app.js exit con
 assert(dbJsContent.includes('CLINIC_CONFIG?.brandName'), 'db.js backup clinicName must use CLINIC_CONFIG.brandName');
 console.log('✓ 15. White-Label Centralization: Verified zero hardcoded clinic names in appointments, alerts, and backup.');
 
+// 16. Strict Guardrail: Sessions Screen View Switcher & Home Visits Tab Parity
+assert(htmlContent.includes('id="btn-tab-clinic-sessions"'), 'index.html must include #btn-tab-clinic-sessions');
+assert(htmlContent.includes('id="btn-tab-home-visits"'), 'index.html must include #btn-tab-home-visits');
+assert(htmlContent.includes('id="sessions-home-visits-view"'), 'index.html must include #sessions-home-visits-view');
+assert(htmlContent.includes('id="sessions-hv-tbody"'), 'index.html must include #sessions-hv-tbody');
+assert(htmlContent.includes('id="sessions-hv-mobile-cards"'), 'index.html must include #sessions-hv-mobile-cards');
+assert(sessionsJsContent.includes('switchSessionsTab(tab)'), 'sessions.js must implement switchSessionsTab(tab)');
+assert(sessionsJsContent.includes('renderHomeVisitsList()'), 'sessions.js must implement renderHomeVisitsList()');
+assert(sessionsJsContent.includes('updateHomeVisitsBadge()'), 'sessions.js must implement updateHomeVisitsBadge()');
+console.log('✓ 16. Sessions Screen Home Visits Tab: Verified view switcher, tabs, containers, and methods parity.');
+
 console.log('===================================================================');
 console.log('✓ All ASCPT UI Component Compliance Guardrail Checks Passed (100%)!');
 console.log('===================================================================');

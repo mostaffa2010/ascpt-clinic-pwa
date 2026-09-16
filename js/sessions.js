@@ -34,6 +34,9 @@ export class SessionsManager {
     this.newlyAddedSessionId = null;
     this.unsubscribeSessions = null;
     this._subscribedDate = null;
+    this.activeSessionsTab = 'clinic'; // 'clinic' | 'home_visits'
+    this.allHomeVisits = [];
+    this.homeVisitsSearchQuery = '';
     window.sessionsManager = this;
   }
 
@@ -63,6 +66,18 @@ export class SessionsManager {
     // Quick Date Buttons
     document.getElementById('btn-quick-sess-today')?.addEventListener('click', () => this.setDateQuick('today'));
     document.getElementById('btn-quick-sess-yesterday')?.addEventListener('click', () => this.setDateQuick('yesterday'));
+
+    // View Switcher Tabs: [ جلسات المركز ] [ الزيارات المنزلية ]
+    document.getElementById('btn-tab-clinic-sessions')?.addEventListener('click', () => {
+      this.switchSessionsTab('clinic');
+    });
+    document.getElementById('btn-tab-home-visits')?.addEventListener('click', () => {
+      this.switchSessionsTab('home_visits');
+    });
+    document.getElementById('input-search-home-visits')?.addEventListener('input', (e) => {
+      this.homeVisitsSearchQuery = e.target.value.trim();
+      this.renderHomeVisitsList();
+    });
 
     // View Mode Toggle (Cards vs Table v1.4.57)
     document.getElementById('sessions-view-mode-toggle')?.addEventListener('click', (e) => {
@@ -1579,6 +1594,7 @@ export class SessionsManager {
 
     const sessions = await db.getSessions(this.currentSessionDate);
     await this.renderTodaySessionsList(sessions);
+    this.updateHomeVisitsBadge().catch(() => {});
   }
 
   renderSkeleton() {
@@ -1963,4 +1979,245 @@ export class SessionsManager {
       await this.app.financeManager.loadDailyReport();
     }
   }
+
+  // ================= Sessions View Tabs & Home Visits Management (v2.7.5) =================
+  switchSessionsTab(tab) {
+    this.activeSessionsTab = tab;
+    const btnClinic = document.getElementById('btn-tab-clinic-sessions');
+    const btnHV = document.getElementById('btn-tab-home-visits');
+    const clinicMeta = document.getElementById('clinic-sessions-header-meta');
+    const hvMeta = document.getElementById('home-visits-header-meta');
+    const clinicTable = document.getElementById('sessions-table-container');
+    const clinicCards = document.getElementById('sessions-today-mobile-cards');
+    const hvView = document.getElementById('sessions-home-visits-view');
+
+    if (tab === 'home_visits') {
+      if (btnClinic) {
+        btnClinic.classList.remove('active');
+        btnClinic.style.background = 'transparent';
+        btnClinic.style.color = 'var(--text-muted)';
+      }
+      if (btnHV) {
+        btnHV.classList.add('active');
+        btnHV.style.background = '#059669';
+        btnHV.style.color = '#ffffff';
+      }
+      if (clinicMeta) clinicMeta.style.display = 'none';
+      if (hvMeta) hvMeta.style.display = 'flex';
+      if (clinicTable) clinicTable.style.display = 'none';
+      if (clinicCards) clinicCards.style.display = 'none';
+      if (hvView) hvView.style.display = 'block';
+
+      this.renderHomeVisitsList();
+    } else {
+      if (btnClinic) {
+        btnClinic.classList.add('active');
+        btnClinic.style.background = 'var(--primary)';
+        btnClinic.style.color = '#ffffff';
+      }
+      if (btnHV) {
+        btnHV.classList.remove('active');
+        btnHV.style.background = 'transparent';
+        btnHV.style.color = 'var(--text-muted)';
+      }
+      if (clinicMeta) clinicMeta.style.display = 'flex';
+      if (hvMeta) hvMeta.style.display = 'none';
+      if (hvView) hvView.style.display = 'none';
+      if (clinicCards) clinicCards.style.display = 'grid';
+
+      this.loadTodaySessions();
+    }
+  }
+
+  async updateHomeVisitsBadge() {
+    try {
+      const allHV = (typeof db.getHomeVisits === 'function') ? await db.getHomeVisits() : [];
+      this.allHomeVisits = allHV;
+      const hvBadge = document.getElementById('sessions-home-visits-count-badge');
+      if (hvBadge) hvBadge.textContent = allHV.length;
+      if (this.activeSessionsTab === 'home_visits') {
+        await this.renderHomeVisitsList();
+      }
+    } catch (_) {}
+  }
+
+  async renderHomeVisitsList() {
+    const tbody = document.getElementById('sessions-hv-tbody');
+    const mobileCards = document.getElementById('sessions-hv-mobile-cards');
+    const countBadge = document.getElementById('sessions-home-visits-count-badge');
+
+    try {
+      const allHV = (typeof db.getHomeVisits === 'function') ? await db.getHomeVisits() : [];
+      this.allHomeVisits = allHV;
+
+      if (countBadge) {
+        countBadge.textContent = allHV.length;
+      }
+
+      let filteredHV = allHV;
+      const q = (this.homeVisitsSearchQuery || '').toLowerCase();
+      if (q) {
+        filteredHV = allHV.filter(s =>
+          (s.patientName && s.patientName.toLowerCase().includes(q)) ||
+          (s.doctor && s.doctor.toLowerCase().includes(q)) ||
+          (s.insuranceName && s.insuranceName.toLowerCase().includes(q)) ||
+          (s.letterRef && s.letterRef.toLowerCase().includes(q))
+        );
+      }
+
+      if (filteredHV.length === 0) {
+        const emptyMsg = q
+          ? 'لا توجد زيارات منزلية مطابقة للبحث.'
+          : 'لا توجد زيارات منزلية مسجلة بالنظام حتى الآن.';
+        if (tbody) {
+          tbody.innerHTML = `
+            <tr>
+              <td colspan="7" style="text-align: center; color: var(--text-muted); padding: 36px 20px;">
+                <i class="fa-solid fa-house-chimney-medical" style="font-size: 2rem; color: #cbd5e1; margin-bottom: 10px; display: block;"></i>
+                <div style="font-weight: 800; font-size: 1rem; color: var(--text-main); margin-bottom: 4px;">${emptyMsg}</div>
+                <div style="font-size: 0.82rem; color: var(--text-muted);">يتم تسجيل جوابات الزيارات المنزلية من شاشة المرضى &gt; المستندات &gt; تسجيل جواب زيارات منزلية</div>
+              </td>
+            </tr>
+          `;
+        }
+        if (mobileCards) {
+          mobileCards.innerHTML = `
+            <div class="hero-styled-card" style="text-align: center; padding: 32px 20px; grid-column: 1 / -1;">
+              <i class="fa-solid fa-house-chimney-medical" style="font-size: 2rem; color: #cbd5e1; margin-bottom: 10px; display: block;"></i>
+              <div style="font-weight: 800; font-size: 1rem; color: var(--text-main); margin-bottom: 4px;">${emptyMsg}</div>
+              <div style="font-size: 0.82rem; color: var(--text-muted);">يتم تسجيل جوابات الزيارات المنزلية من شاشة المرضى &gt; المستندات &gt; تسجيل جواب زيارات منزلية</div>
+            </div>
+          `;
+        }
+        return;
+      }
+
+      // Group by patient & letterRef
+      const patientGroups = new Map();
+      filteredHV.forEach((s) => {
+        const key = (s.patientId ? `id_${s.patientId}` : `name_${s.patientName}`) + (s.letterRef ? `_${s.letterRef}` : '');
+        if (!patientGroups.has(key)) {
+          patientGroups.set(key, {
+            patientId: s.patientId,
+            patientName: s.patientName,
+            doctor: s.doctor || 'طبيب المركز',
+            insuranceName: s.insuranceName || (s.payType === 'cash' ? 'نقدي' : 'تأمين'),
+            contractType: s.contractType || 'direct',
+            letterRef: s.letterRef || '',
+            sessions: []
+          });
+        }
+        patientGroups.get(key).sessions.push(s);
+      });
+
+      const groupsList = Array.from(patientGroups.values());
+
+      // 1. Render Desktop Table
+      if (tbody) {
+        tbody.innerHTML = groupsList.map((group) => {
+          const sList = group.sessions.sort((a, b) => (a.date || '').localeCompare(b.date || ''));
+          const firstDate = sList[0]?.date || '-';
+          const lastDate = sList[sList.length - 1]?.date || '-';
+          const dateRange = (firstDate === lastDate) ? firstDate : `من ${firstDate} إلى ${lastDate}`;
+          const isPre = sList.every((s) => s.isPreSettled || (s.date && s.date < '2026-09-01'));
+          const statusBadge = isPre
+            ? '<span class="badge" style="background: rgba(100, 116, 139, 0.15); color: #475569; border: 1px solid #cbd5e1; font-weight: 800; font-size: 0.76rem;"><i class="fa-solid fa-box-archive"></i> مسواة مسبقاً</span>'
+            : '<span class="badge badge-warning" style="font-weight: 800; font-size: 0.76rem;"><i class="fa-solid fa-clock"></i> قيد التسوية</span>';
+
+          const cTypeLabel = group.contractType === 'indirect' ? 'غير مباشر' : 'مباشر';
+          const insBadge = `<span class="badge badge-direct"><i class="fa-solid fa-file-contract"></i> ${escapeHTML(group.insuranceName)} (${cTypeLabel})</span>`;
+
+          const safePid = escapeHTML(group.patientId || '');
+          const safeName = escapeHTML(group.patientName || '');
+          const safeDoc = escapeHTML(group.doctor || 'طبيب المركز');
+          const refBadge = group.letterRef ? `<span class="badge" style="background: var(--bg-subtle); color: var(--text-muted); border: 1px solid var(--border-color); font-size: 0.72rem; margin-right: 4px;">#${escapeHTML(group.letterRef)}</span>` : '';
+
+          return `
+            <tr>
+              <td style="font-weight: 800; color: var(--primary); cursor: pointer;" onclick="app.openPatientClinicalSheet('${safePid}')" title="فتح الشيت الطبي">
+                <i class="fa-solid fa-user-injured" style="margin-left: 6px;"></i> ${safeName} ${refBadge}
+              </td>
+              <td>${insBadge}</td>
+              <td style="font-weight: 700; color: var(--text-main);"><i class="fa-solid fa-user-doctor text-primary"></i> ${safeDoc}</td>
+              <td><span class="badge" style="background: rgba(5, 150, 105, 0.12); color: #059669; border: 1px solid rgba(5, 150, 105, 0.3); font-size: 0.82rem; font-weight: 800;"><i class="fa-solid fa-house-chimney-medical"></i> ${group.sessions.length} زيارات</span></td>
+              <td style="font-weight: 700; direction: ltr; text-align: right; white-space: nowrap;">${dateRange}</td>
+              <td>${statusBadge}</td>
+              <td style="text-align: center; white-space: nowrap;">
+                <button type="button" class="btn btn-outline btn-sm btn-icon-action" onclick="app.openPatientClinicalSheet('${safePid}')" title="فتح الشيت الطبي وسجل الجلسات">
+                  <i class="fa-solid fa-file-waveform text-primary"></i>
+                </button>
+                <button type="button" class="btn btn-outline btn-sm btn-icon-action" onclick="patientsManager.openPatientDocsModal('${safePid}')" title="مستندات المريض">
+                  <i class="fa-solid fa-file-invoice text-primary"></i>
+                </button>
+              </td>
+            </tr>
+          `;
+        }).join('');
+      }
+
+      // 2. Render Mobile / Responsive Cards
+      if (mobileCards) {
+        mobileCards.innerHTML = groupsList.map((group) => {
+          const sList = group.sessions.sort((a, b) => (a.date || '').localeCompare(b.date || ''));
+          const firstDate = sList[0]?.date || '-';
+          const lastDate = sList[sList.length - 1]?.date || '-';
+          const dateRange = (firstDate === lastDate) ? firstDate : `من ${firstDate} إلى ${lastDate}`;
+          const isPre = sList.every((s) => s.isPreSettled || (s.date && s.date < '2026-09-01'));
+          const statusBadge = isPre
+            ? '<span class="badge" style="background: rgba(100, 116, 139, 0.15); color: #475569; border: 1px solid #cbd5e1; font-weight: 800; font-size: 0.72rem; padding: 2px 7px;"><i class="fa-solid fa-box-archive"></i> مسواة مسبقاً</span>'
+            : '<span class="badge badge-warning" style="font-weight: 800; font-size: 0.72rem; padding: 2px 7px;"><i class="fa-solid fa-clock"></i> قيد التسوية</span>';
+
+          const safePid = escapeHTML(group.patientId || '');
+          const safeName = escapeHTML(group.patientName || '');
+          const safeDoc = escapeHTML(group.doctor || 'طبيب المركز');
+          const cTypeLabel = group.contractType === 'indirect' ? 'غير مباشر' : 'مباشر';
+
+          return `
+            <div class="hero-styled-card" style="padding: 12px 14px; margin-bottom: 10px; border-radius: 14px; border-right: 4px solid #059669;">
+              <div class="hsc-top" style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px;">
+                <div class="hsc-patient-meta" style="display: flex; align-items: center; gap: 10px;">
+                  <div class="hsc-avatar" style="background: rgba(5, 150, 105, 0.12); color: #059669;"><i class="fa-solid fa-house-chimney-medical"></i></div>
+                  <div class="hsc-name-box">
+                    <span class="hsc-patient-name" style="font-weight: 800; font-size: 0.96rem; cursor: pointer;" onclick="app.openPatientClinicalSheet('${safePid}')">${safeName}</span>
+                    <span class="hsc-doc-sub" style="margin-top: 2px;"><i class="fa-solid fa-user-doctor text-primary"></i> د. ${safeDoc}</span>
+                  </div>
+                </div>
+                <div class="hsc-amount-box">
+                  <span class="badge" style="background: rgba(5, 150, 105, 0.12); color: #059669; border: 1px solid rgba(5, 150, 105, 0.3); font-weight: 800; font-size: 0.78rem;">${group.sessions.length} زيارات</span>
+                </div>
+              </div>
+
+              <!-- Badges Row -->
+              <div class="hsc-badges-row" style="display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 8px;">
+                <span class="badge badge-direct"><i class="fa-solid fa-file-contract"></i> ${escapeHTML(group.insuranceName)} (${cTypeLabel})</span>
+                ${group.letterRef ? `<span class="badge" style="background: var(--bg-subtle); color: var(--text-muted); border: 1px solid var(--border-color); font-size: 0.72rem;">جواب #${escapeHTML(group.letterRef)}</span>` : ''}
+                ${statusBadge}
+              </div>
+
+              <div class="hsc-divider" style="margin: 8px 0 10px 0;"></div>
+
+              <div class="hsc-bottom" style="display: flex; justify-content: space-between; align-items: center;">
+                <div class="hsc-tags" style="display: flex; align-items: center; gap: 6px; font-size: 0.78rem; color: var(--text-muted); direction: ltr; font-weight: 700;">
+                  <i class="fa-regular fa-calendar text-primary"></i>
+                  <span>${dateRange}</span>
+                </div>
+                <div class="hsc-actions" style="display: flex; gap: 6px;">
+                  <button type="button" class="btn btn-outline btn-sm btn-icon-action" onclick="app.openPatientClinicalSheet('${safePid}')" title="فتح الشيت الطبي وسجل الجلسات">
+                    <i class="fa-solid fa-file-waveform text-primary"></i>
+                  </button>
+                  <button type="button" class="btn btn-outline btn-sm btn-icon-action" onclick="patientsManager.openPatientDocsModal('${safePid}')" title="مستندات المريض">
+                    <i class="fa-solid fa-file-invoice text-primary"></i>
+                  </button>
+                </div>
+              </div>
+            </div>
+          `;
+        }).join('');
+      }
+    } catch (err) {
+      console.error('renderHomeVisitsList error:', err);
+      if (tbody) tbody.innerHTML = `<tr><td colspan="7" style="text-align: center; color: var(--danger); padding: 20px;">تعذر تحميل الزيارات المنزلية: ${escapeHTML(err.message)}</td></tr>`;
+    }
+  }
+
 }

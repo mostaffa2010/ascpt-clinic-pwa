@@ -4347,6 +4347,9 @@ export class PatientsManager {
       if (this.app?.doctorDashboardManager && typeof this.app.doctorDashboardManager.render === 'function') {
         this.app.doctorDashboardManager.render().catch(() => {});
       }
+      if (this.app?.sessionsManager && typeof this.app.sessionsManager.updateHomeVisitsBadge === 'function') {
+        this.app.sessionsManager.updateHomeVisitsBadge().catch(() => {});
+      }
       this.activeBatchPatient = null;
       this.batchHvDates = [];
     } catch (err) {
