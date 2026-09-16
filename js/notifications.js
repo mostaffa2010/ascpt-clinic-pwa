@@ -443,22 +443,26 @@ export class NotificationsManager {
     if (Notification.permission === 'granted') {
       if (statusText) statusText.textContent = 'الإشعارات الفورية مفعلة بنجاح على هذا الجهاز';
       if (btnToggle) {
-        btnToggle.textContent = 'مفعل ✓';
-        btnToggle.classList.replace('btn-outline', 'btn-success');
-        btnToggle.style.borderColor = 'var(--success)';
-        btnToggle.style.color = 'var(--success)';
+        btnToggle.innerHTML = '<i class="fa-solid fa-check"></i> مفعل';
+        btnToggle.disabled = false;
+        btnToggle.className = 'btn btn-push-active';
+        btnToggle.style.cssText = 'font-weight: 800; font-size: 0.8rem; padding: 4px 14px; border-radius: 999px; white-space: nowrap; background: #10b981 !important; color: #ffffff !important; border: 1.5px solid #10b981 !important; cursor: pointer; display: inline-flex; align-items: center; gap: 5px; box-shadow: 0 2px 8px rgba(16, 185, 129, 0.35);';
       }
     } else if (Notification.permission === 'denied') {
       if (statusText) statusText.textContent = 'تم حظر الإشعارات من إعدادات المتصفح. يمكنك السماح بها من قفل الموقع';
       if (btnToggle) {
-        btnToggle.textContent = 'محظور';
+        btnToggle.innerHTML = '<i class="fa-solid fa-ban"></i> محظور';
         btnToggle.disabled = true;
+        btnToggle.className = 'btn btn-danger btn-sm';
+        btnToggle.style.cssText = 'font-weight: 800; font-size: 0.8rem; padding: 4px 14px; border-radius: 999px; white-space: nowrap; background: rgba(239, 68, 68, 0.15) !important; color: #ef4444 !important; border: 1.5px solid rgba(239, 68, 68, 0.3) !important; cursor: not-allowed; display: inline-flex; align-items: center; gap: 5px;';
       }
     } else {
       if (statusText) statusText.textContent = 'تلقي تنبيهات المرضى والمواعيد والعهد فورياً على هذا الجهاز';
       if (btnToggle) {
-        btnToggle.textContent = 'تفعيل';
+        btnToggle.innerHTML = '<i class="fa-solid fa-bell"></i> تفعيل';
         btnToggle.disabled = false;
+        btnToggle.className = 'btn btn-push-inactive';
+        btnToggle.style.cssText = 'font-weight: 800; font-size: 0.8rem; padding: 4px 14px; border-radius: 999px; white-space: nowrap; background: var(--primary) !important; color: #ffffff !important; border: none !important; cursor: pointer; display: inline-flex; align-items: center; gap: 5px; box-shadow: 0 2px 8px rgba(2, 132, 199, 0.35);';
       }
     }
   }

@@ -12314,3 +12314,33 @@ body.role-doctor .btn-quick-attend {
   max-width: 240px;
   margin: 0 auto;
 }
+
+.btn-push-active {
+  background: #10b981 !important;
+  color: #ffffff !important;
+  border: 1.5px solid #10b981 !important;
+  font-weight: 800 !important;
+  font-size: 0.8rem !important;
+  padding: 4px 14px !important;
+  border-radius: 999px !important;
+  white-space: nowrap !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 5px !important;
+  box-shadow: 0 2px 8px rgba(16, 185, 129, 0.35) !important;
+}
+
+.btn-push-inactive {
+  background: var(--primary) !important;
+  color: #ffffff !important;
+  border: none !important;
+  font-weight: 800 !important;
+  font-size: 0.8rem !important;
+  padding: 4px 14px !important;
+  border-radius: 999px !important;
+  white-space: nowrap !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 5px !important;
+  box-shadow: 0 2px 8px rgba(2, 132, 199, 0.35) !important;
+}
