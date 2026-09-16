@@ -1527,12 +1527,11 @@ export class FinanceManager {
           const cashCount = docSessions.filter(s => s.payType === 'cash').length;
           const insCount = docSessions.filter(s => s.payType === 'insurance').length;
           const total = docSessions.length;
-          const pct = totalClinicSessions > 0 ? ((creditedSessions / totalClinicSessions) * 100).toFixed(1) : 0;
-
           const creditedSessions = docSessions.reduce((acc, s) => {
             if (s.entryType === 'examination') return acc + 1;
             return acc + (s.bodyPartsCount || 1);
           }, 0);
+          const pct = totalClinicSessions > 0 ? ((creditedSessions / totalClinicSessions) * 100).toFixed(1) : 0;
 
           const safeDoc = escapeHTML(doc);
           return `
@@ -1571,11 +1570,11 @@ export class FinanceManager {
           const cashCount = docSessions.filter(s => s.payType === 'cash').length;
           const insCount = docSessions.filter(s => s.payType === 'insurance').length;
           const total = docSessions.length;
-          const pct = totalClinicSessions > 0 ? ((creditedSessions / totalClinicSessions) * 100).toFixed(1) : 0;
           const creditedSessions = docSessions.reduce((acc, s) => {
             if (s.entryType === 'examination') return acc + 1;
             return acc + (s.bodyPartsCount || 1);
           }, 0);
+          const pct = totalClinicSessions > 0 ? ((creditedSessions / totalClinicSessions) * 100).toFixed(1) : 0;
           const cleanDoc = (escapeHTML(doc)).replace(/^د\.\s*/, '');
 
           return `

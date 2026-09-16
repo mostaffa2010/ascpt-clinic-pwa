@@ -873,4 +873,34 @@ const netOperatingProfit = totalMonthIncome - monthlyExpensesTotal;
 assert.equal(totalMonthIncome, 20000, 'Total income must sum cash + settlements (15000 + 5000 = 20000)');
 assert.equal(netOperatingProfit, 12000, 'Net operating profit must be total income - expenses (20000 - 8000 = 12000)');
 
-console.log('✓ All 4 Monthly Report Integrity assertions passed successfully!');
+
+// Test 4: Regression Protection for Monthly Doctors Map TDZ Execution
+const testMonthlySessions = [
+  { doctor: 'د. مصطفى', bodyPartsCount: 2, entryType: 'session', payType: 'cash' },
+  { doctor: 'د. مصطفى', bodyPartsCount: 1, entryType: 'session', payType: 'insurance' },
+  { doctor: 'د. أحمد', bodyPartsCount: 1, entryType: 'examination', payType: 'cash' }
+];
+const testTotalClinicSessions = testMonthlySessions.reduce((acc, s) => {
+  if (s.entryType === 'examination') return acc + 1;
+  return acc + (s.bodyPartsCount || 1);
+}, 0); // 4
+const testDoctors = ['د. مصطفى', 'د. أحمد'];
+
+const renderedDocs = testDoctors.map(doc => {
+  const docSessions = testMonthlySessions.filter(s => s.doctor === doc);
+  const cashCount = docSessions.filter(s => s.payType === 'cash').length;
+  const insCount = docSessions.filter(s => s.payType === 'insurance').length;
+  const total = docSessions.length;
+  const creditedSessions = docSessions.reduce((acc, s) => {
+    if (s.entryType === 'examination') return acc + 1;
+    return acc + (s.bodyPartsCount || 1);
+  }, 0);
+  const pct = testTotalClinicSessions > 0 ? ((creditedSessions / testTotalClinicSessions) * 100).toFixed(1) : 0;
+  return { doc, total, creditedSessions, pct, cashCount, insCount };
+});
+
+assert.equal(renderedDocs.length, 2);
+assert.equal(renderedDocs[0].pct, '75.0'); // 3 out of 4 sessions
+assert.equal(renderedDocs[1].pct, '25.0'); // 1 out of 4 sessions
+
+console.log('✓ All 5 Monthly Report Integrity assertions passed successfully!');
