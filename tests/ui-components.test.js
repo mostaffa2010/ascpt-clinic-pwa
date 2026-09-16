@@ -248,6 +248,18 @@ jsFiles.forEach(file => {
 assert.equal(missingImportErrors.length, 0, 'Missing imports detected: ' + missingImportErrors.join(', '));
 console.log('✓ 17. ES Module Imports Integrity: Verified 100% of internal imports resolve to valid named exports.');
 
+// 18. Strict Guardrail: Custom Pull-to-Force-Reload Component & PWA Method Parity
+assert(htmlContent.includes('id="pull-to-reload-indicator"'), 'index.html must include #pull-to-reload-indicator');
+assert(htmlContent.includes('id="pull-to-reload-icon"'), 'index.html must include #pull-to-reload-icon');
+assert(htmlContent.includes('id="pull-to-reload-text"'), 'index.html must include #pull-to-reload-text');
+const cssContent = fs.readFileSync(path.join(rootDir, 'css/style.css'), 'utf-8');
+assert(cssContent.includes('.pull-to-reload-indicator'), 'style.css must define .pull-to-reload-indicator');
+assert(cssContent.includes('overscroll-behavior-y: contain'), 'style.css must contain overscroll-behavior-y: contain to suppress native pull refresh');
+const pwaJsContent = fs.readFileSync(path.join(rootDir, 'js/pwa.js'), 'utf-8');
+assert(pwaJsContent.includes('initPullToReload()'), 'pwa.js must implement initPullToReload()');
+assert(pwaJsContent.includes('forceReload()'), 'pwa.js must implement forceReload()');
+console.log('✓ 18. Pull-to-Force-Reload: Verified custom component, CSS styles, and PWA handler parity.');
+
 console.log('===================================================================');
 console.log('✓ All ASCPT UI Component Compliance Guardrail Checks Passed (100%)!');
 console.log('===================================================================');
