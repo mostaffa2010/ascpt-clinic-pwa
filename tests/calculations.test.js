@@ -720,7 +720,71 @@ assert.equal(groupedHV[1].patientName, 'فاطمة حسن');
 assert.equal(groupedHV[1].sessionCount, 6, 'Patient 2 must have 6 sessions');
 assert.equal(groupedHV[0].price, undefined, 'Must not contain any price or monetary dues');
 
-console.log('✓ All 8 Batch Home Visits & Doctor Dashboard Decoupling assertions passed successfully!');
+// 5. Test Daily Sessions Log Isolation: Home Visits strictly excluded, Clinic Batches preserved
+function filterSessionsForDailyLog(sessionsList) {
+  return (sessionsList || []).filter(s => !s.isHomeVisit && s.visitType !== 'home');
+}
+
+const mixedDailyLogSessions = [
+  { id: 's_clinic_1', patientName: 'علي كمال', isHomeVisit: false, visitType: 'clinic' },
+  { id: 's_hv_1', patientName: 'محمود عبد الله', isHomeVisit: true, visitType: 'home' },
+  { id: 's_clinic_batch', patientName: 'مريض أرشيف مركز', isHomeVisit: false, visitType: 'clinic' },
+  { id: 's_hv_2', patientName: 'محمود عبد الله', isHomeVisit: true, visitType: 'home' }
+];
+
+const dailyFiltered = filterSessionsForDailyLog(mixedDailyLogSessions);
+assert.equal(dailyFiltered.length, 2, 'Daily sessions log must strictly contain 2 clinic sessions and exclude 2 home visits');
+assert.equal(dailyFiltered[0].id, 's_clinic_1');
+assert.equal(dailyFiltered[1].id, 's_clinic_batch');
+
+// 6. Test Doctor Dashboard Cross-Month Home Visits Merging
+function mergeDoctorSessionsAndHomeVisits(monthSessions, allHomeVisits, docUid, docName) {
+  const isDocMatch = (s) => {
+    if (s.doctorUid && docUid && s.doctorUid === docUid) return true;
+    if (s.doctor && docName && (s.doctor.trim() === docName || s.doctor.includes(docName) || docName.includes(s.doctor))) return true;
+    return false;
+  };
+  const monthDocSessions = monthSessions.filter(isDocMatch);
+  const docHomeVisits = allHomeVisits.filter(isDocMatch);
+  const merged = [...monthDocSessions];
+  const existingIds = new Set(monthDocSessions.map(s => s.id));
+  docHomeVisits.forEach(s => {
+    if (!existingIds.has(s.id)) {
+      merged.push(s);
+      existingIds.add(s.id);
+    }
+  });
+  return merged;
+}
+
+const mockDocMonthSessions = [
+  { id: 's_sept_1', date: '2026-09-02', doctorUid: 'doc_1', isHomeVisit: false }
+];
+const mockAllHomeVisits = [
+  ...Array.from({ length: 12 }, (_, i) => ({
+    id: `hv_june_${i+1}`,
+    date: `2026-06-24`,
+    doctorUid: 'doc_1',
+    doctor: 'د. حسني أحمد الجويلي',
+    patientId: 'p_hv_1',
+    patientName: 'مريض زيارة منزلية',
+    isHomeVisit: true,
+    visitType: 'home'
+  })),
+  { id: 'hv_other_doc', date: '2026-06-25', doctorUid: 'doc_2', isHomeVisit: true, visitType: 'home' }
+];
+
+const docMerged = mergeDoctorSessionsAndHomeVisits(mockDocMonthSessions, mockAllHomeVisits, 'doc_1', 'د. حسني أحمد الجويلي');
+assert.equal(docMerged.length, 13, 'Merged sessions must include 1 September clinic session + 12 June home visits for doc_1');
+const docHVOnly = docMerged.filter(s => s.isHomeVisit || s.visitType === 'home');
+assert.equal(docHVOnly.length, 12, 'Must have exactly 12 home visits');
+assert.equal(docHVOnly[0].date.startsWith('2026-06'), true, 'Home visits from June must be present in doctor dashboard');
+
+const docGroupedHV = groupHomeVisitsForDoctor(docMerged);
+assert.equal(docGroupedHV.length, 1, 'Should group into exactly 1 patient in doctor home-visits tab');
+assert.equal(docGroupedHV[0].sessionCount, 12, 'Group must have all 12 sessions');
+
+console.log('✓ All 11 Batch Home Visits & Doctor Dashboard Decoupling assertions passed successfully!');
 
 // ============================================================================
 // 12. Doctor Dashboard Lifetime Patients Grouping & First Doctor Assignment

@@ -2634,6 +2634,9 @@ export class PatientsManager {
         let sessionBadgeHTML = '';
         if (isExam) {
           sessionBadgeHTML = `<span class="badge badge-examination"><i class="fa-solid fa-stethoscope"></i> كشف واستشارة</span>`;
+        } else if (s.isHomeVisit || s.visitType === 'home') {
+          sessionBadgeHTML = `<span class="stc-num-badge" style="background: rgba(5, 150, 105, 0.12); color: #059669; border: 1px solid rgba(5, 150, 105, 0.3);"><i class="fa-solid fa-house-chimney-medical"></i> زيارة منزلية #${therapyCounter}</span>`;
+          therapyCounter--;
         } else {
           sessionBadgeHTML = `<span class="stc-num-badge">الجلسة #${therapyCounter}</span>`;
           therapyCounter--;
@@ -4280,7 +4283,8 @@ export class PatientsManager {
 
     const docSelect = document.getElementById('batch-hv-doctor');
     const doctorUid = docSelect?.value;
-    const doctorName = docSelect?.options[docSelect.selectedIndex]?.getAttribute('data-name') || '';
+    const selectedOpt = docSelect && docSelect.selectedIndex >= 0 ? docSelect.options[docSelect.selectedIndex] : null;
+    const doctorName = selectedOpt ? (selectedOpt.getAttribute('data-name') || selectedOpt.text || '').trim() : '';
 
     if (!doctorUid) {
       this.app.showAlert('من فضلك اختر الطبيب المعالج الذي أجرى الزيارات.', 'بيانات ناقصة', 'warning');
@@ -4339,6 +4343,10 @@ export class PatientsManager {
         ? `تم بنجاح تسجيل جواب الزيارات المنزلية (${sessionsToCreate.length} زيارة) للمريض ${p.name}`
         : `تم بنجاح تسجيل الجلسات المجمعة بالمركز (${sessionsToCreate.length} جلسة) للمريض ${p.name}`
       );
+
+      if (this.app?.doctorDashboardManager && typeof this.app.doctorDashboardManager.render === 'function') {
+        this.app.doctorDashboardManager.render().catch(() => {});
+      }
       this.activeBatchPatient = null;
       this.batchHvDates = [];
     } catch (err) {

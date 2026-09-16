@@ -190,6 +190,10 @@ class FirestoreDatabaseService {
     this._patientsLastFetch = 0;
     this._sessionsCache = null;
     this._sessionsLastFetch = 0;
+    this._homeVisitsCache = null;
+    this._homeVisitsLastFetch = 0;
+    this._homeVisitsCache = null;
+    this._homeVisitsLastFetch = 0;
     this._expensesCache = null;
     this._expensesLastFetch = 0;
     this._usersCache = null;
@@ -679,6 +683,32 @@ class FirestoreDatabaseService {
     }
   }
 
+  // Dedicated Scoped Query for Home Visits (Zero-Cost Scoped & Cached)
+  async getHomeVisits(forceRefresh = false) {
+    this.ensureConnected();
+    const now = Date.now();
+    if (!forceRefresh && this._homeVisitsCache && (now - this._homeVisitsLastFetch < this.CACHE_TTL)) {
+      return [...this._homeVisitsCache];
+    }
+    try {
+      const q = query(
+        collection(firestoreDb, 'sessions'),
+        where('isHomeVisit', '==', true)
+      );
+      const snap = await getDocs(q);
+      const list = snap.docs.map(d => ({ ...d.data(), id: d.id }));
+      const sorted = this._filterAndSortSessions(list, null);
+      this._homeVisitsCache = sorted;
+      this._homeVisitsLastFetch = now;
+      list.forEach(s => this._sessionDocCache.set(s.id, s));
+      return [...sorted];
+    } catch (err) {
+      if (this._homeVisitsCache) return [...this._homeVisitsCache];
+      console.error('Firestore getHomeVisits error:', err);
+      return [];
+    }
+  }
+
   // Fast Single Session Lookup
   async getSessionById(sessionId) {
     if (!sessionId) return null;
@@ -781,6 +811,16 @@ class FirestoreDatabaseService {
       if (dataToSave.patientId) {
         this._sessionsByPatientCache.delete(dataToSave.patientId);
       }
+      if (dataToSave.isHomeVisit || dataToSave.visitType === 'home') {
+        if (!this._homeVisitsCache) this._homeVisitsCache = [];
+        const hIdx = this._homeVisitsCache.findIndex(s => s.id === sessionId);
+        if (hIdx !== -1) {
+          this._homeVisitsCache[hIdx] = { ...this._homeVisitsCache[hIdx], ...dataToSave };
+        } else {
+          this._homeVisitsCache.unshift(dataToSave);
+        }
+        this._homeVisitsLastFetch = Date.now();
+      }
       if (this._sessionsCache) {
         const idx = this._sessionsCache.findIndex(s => s.id === sessionId);
         if (idx !== -1) {
@@ -813,7 +853,7 @@ class FirestoreDatabaseService {
 
     sessionsList.forEach((sessionData) => {
       const sessionId = sessionData.id || doc(collection(firestoreDb, 'sessions')).id;
-      const dataToSave = {
+      const rawDataToSave = {
         ...sessionData,
         id: sessionId,
         recordedAt: sessionData.recordedAt || timeStr,
@@ -822,6 +862,7 @@ class FirestoreDatabaseService {
         lastEditedBy: recBy,
         lastEditedAt: timeStr
       };
+      const dataToSave = cleanFirestoreData(rawDataToSave);
 
       const ref = doc(firestoreDb, 'sessions', sessionId);
       batch.set(ref, dataToSave, { merge: true });
@@ -835,6 +876,16 @@ class FirestoreDatabaseService {
       }
       if (dataToSave.patientId) {
         this._sessionsByPatientCache.delete(dataToSave.patientId);
+      }
+      if (dataToSave.isHomeVisit || dataToSave.visitType === 'home') {
+        if (!this._homeVisitsCache) this._homeVisitsCache = [];
+        const hIdx = this._homeVisitsCache.findIndex(s => s.id === sessionId);
+        if (hIdx !== -1) {
+          this._homeVisitsCache[hIdx] = { ...this._homeVisitsCache[hIdx], ...dataToSave };
+        } else {
+          this._homeVisitsCache.unshift(dataToSave);
+        }
+        this._homeVisitsLastFetch = Date.now();
       }
       if (this._sessionsCache) {
         const idx = this._sessionsCache.findIndex((s) => s.id === sessionId);
@@ -866,6 +917,9 @@ class FirestoreDatabaseService {
       if (this._sessionsCache) {
         this._sessionsCache = this._sessionsCache.filter(s => s.id !== sessionId);
         this._sessionsLastFetch = Date.now();
+      }
+      if (this._homeVisitsCache) {
+        this._homeVisitsCache = this._homeVisitsCache.filter(s => s.id !== sessionId);
       }
       return true;
     } catch (err) {

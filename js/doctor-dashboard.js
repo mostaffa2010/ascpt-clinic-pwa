@@ -125,8 +125,11 @@ export class DoctorDashboardManager {
       });
     }
 
-    // Scoped query: fetch only current month's sessions (Zero-Cost Scoped)
+    // Scoped query: fetch current month's sessions and all home visits (Zero-Cost Scoped)
     const allSessions = await db.getSessions(currentMonth);
+    const allHomeVisits = (typeof db.getHomeVisits === 'function')
+      ? await db.getHomeVisits()
+      : [];
     const allPatients = await db.getPatients();
 
     const docUid = user.uid || user.id;
@@ -135,11 +138,26 @@ export class DoctorDashboardManager {
       this.app.appointmentsManager.renderForDoctor(docUid).catch((e) => console.warn('appointments schedule notice:', e));
     }
 
-    // Filter sessions matching this doctor by UID exclusively (with fallback for legacy records)
-    this.docSessions = allSessions.filter(s => {
-      if (s.doctorUid) return s.doctorUid === docUid;
-      return s.doctor && (s.doctor.includes(docName) || docName.includes(s.doctor));
+    const isDocMatch = (s) => {
+      if (s.doctorUid && docUid && s.doctorUid === docUid) return true;
+      if (s.doctor && docName && (s.doctor.trim() === docName || s.doctor.includes(docName) || docName.includes(s.doctor))) return true;
+      return false;
+    };
+
+    // Filter monthly sessions matching this doctor
+    const monthDocSessions = allSessions.filter(isDocMatch);
+    const docHomeVisits = allHomeVisits.filter(isDocMatch);
+
+    // Merge monthly sessions and home visits without duplicates
+    const mergedSessions = [...monthDocSessions];
+    const existingIds = new Set(monthDocSessions.map(s => s.id));
+    docHomeVisits.forEach(s => {
+      if (!existingIds.has(s.id)) {
+        mergedSessions.push(s);
+        existingIds.add(s.id);
+      }
     });
+    this.docSessions = mergedSessions;
 
     // Filter patients assigned to this doctor by UID exclusively (with fallback for legacy records)
     this.docPatients = allPatients.filter(p => {

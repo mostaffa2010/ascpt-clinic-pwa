@@ -734,6 +734,7 @@ export class SessionsManager {
           const checkDate = document.getElementById('session-date')?.value || this.currentSessionDate || getLocalDateStr();
           const existing = (await db.getSessions(checkDate) || []).filter(s =>
             s.patientId === patient.id &&
+            !s.isHomeVisit && s.visitType !== 'home' &&
             (s.entryType === 'session' || !s.entryType) &&
             s.status !== 'cancelled'
           );
@@ -984,6 +985,7 @@ export class SessionsManager {
       try {
         const existingOnDate = (await db.getSessions(sessionDateVal) || []).filter(s =>
           s.patientId === this.selectedPatientId &&
+          !s.isHomeVisit && s.visitType !== 'home' &&
           (s.entryType === 'session' || !s.entryType) &&
           s.status !== 'cancelled'
         );
@@ -1625,7 +1627,9 @@ export class SessionsManager {
 
   async renderTodaySessionsList(sessionsList) {
     this._hasLoadedOnce = true;
-    const sessions = Array.isArray(sessionsList) ? [...sessionsList] : [];
+    const rawSessions = Array.isArray(sessionsList) ? [...sessionsList] : [];
+    // Strict isolation: Home visits must NOT appear in clinic daily sessions log
+    const sessions = rawSessions.filter(s => !s.isHomeVisit && s.visitType !== 'home');
     sessions.sort((a, b) => {
       const timeA = a.createdAt || a.recordedAt || '';
       const timeB = b.createdAt || b.recordedAt || '';
