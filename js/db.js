@@ -24,6 +24,22 @@ import {
 import { firestoreDb, isConfigured } from './firebase-init.js';
 import { CLINIC_CONFIG } from './clinic-config.js';
 
+function cleanFirestoreData(obj) {
+  if (!obj || typeof obj !== 'object') return obj;
+  const cleaned = {};
+  for (const [key, val] of Object.entries(obj)) {
+    if (val === undefined) continue;
+    if (typeof val === 'number' && isNaN(val)) {
+      cleaned[key] = 0;
+    } else if (val && typeof val === 'object' && !Array.isArray(val) && !(val instanceof Date)) {
+      cleaned[key] = cleanFirestoreData(val);
+    } else {
+      cleaned[key] = val;
+    }
+  }
+  return cleaned;
+}
+
 function getLocalTodayDateStr() {
   const d = new Date();
   const y = d.getFullYear();
@@ -738,7 +754,7 @@ class FirestoreDatabaseService {
     const isEdit = Boolean(sessionData.id);
     const sessionId = sessionData.id || doc(collection(firestoreDb, 'sessions')).id;
 
-    const dataToSave = {
+    const rawDataToSave = {
       ...sessionData,
       id: sessionId,
       lastEditedBy: currentUser?.name || 'مستخدم المركز',
@@ -746,10 +762,12 @@ class FirestoreDatabaseService {
     };
 
     if (!isEdit) {
-      dataToSave.recordedAt = new Date().toLocaleTimeString('ar-EG-u-nu-latn', { hour: '2-digit', minute: '2-digit' });
-      dataToSave.recordedBy = currentUser?.name || 'استقبال المركز';
-      dataToSave.createdAt = new Date().toISOString();
+      rawDataToSave.recordedAt = new Date().toLocaleTimeString('ar-EG-u-nu-latn', { hour: '2-digit', minute: '2-digit' });
+      rawDataToSave.recordedBy = currentUser?.name || 'استقبال المركز';
+      rawDataToSave.createdAt = new Date().toISOString();
     }
+
+    const dataToSave = cleanFirestoreData(rawDataToSave);
 
     try {
       await setDoc(doc(firestoreDb, 'sessions', sessionId), dataToSave, { merge: true });
@@ -776,7 +794,9 @@ class FirestoreDatabaseService {
       return dataToSave;
     } catch (err) {
       console.error('Firestore saveSession error:', err);
-      throw new Error('فشل حفظ حركة الجلسة في قاعدة البيانات.');
+      const codeStr = err?.code ? `[${err.code}] ` : '';
+      const msgStr = err?.message || String(err);
+      throw new Error(`فشل حفظ حركة الجلسة في قاعدة البيانات: ${codeStr}${msgStr}`.trim());
     }
   }
 

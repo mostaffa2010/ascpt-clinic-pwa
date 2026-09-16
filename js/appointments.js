@@ -767,32 +767,39 @@ export class AppointmentsManager {
             partsToUse = [...patient.bodyParts];
           }
 
+          const safeDoctorUid = doctorUid || appt.doctorUid || auth.getCurrentUser()?.uid || '';
+          const safePatientName = appt.patientName || patientName || patient?.name || 'مريض غير محدد';
+          const safePatientId = targetPatientId || appt.patientId || patient?.id || '';
+          const safeApptId = apptId || appt.id || '';
+
           const newSessionData = {
+            id: null,
             entryType: 'session',
+            examType: null,
             isSpecial: Boolean(lastSession.isSpecial || lastSession.sessionPricingType === 'special'),
             sessionPricingType: lastSession.sessionPricingType || lastSession.programType || 'regular',
             programType: lastSession.programType || lastSession.sessionPricingType || 'regular',
             date: today,
-            patientId: targetPatientId || '',
-            patientName: appt.patientName || patientName,
+            patientId: safePatientId,
+            patientName: safePatientName,
             doctor: docName,
-            doctorUid: doctorUid,
+            doctorUid: safeDoctorUid,
             bodyParts: partsToUse,
             bodyPartsCount: partsToUse.length || 1,
             payType: lastSession.payType || (patient?.billing === 'insurance' ? 'insurance' : 'cash'),
             insuranceName: lastSession.insuranceName || patient?.insuranceCompany || '',
             contractType: lastSession.contractType || patient?.contractType || '-',
-            amountPaid: lastSession.amountPaid !== undefined ? lastSession.amountPaid : 0,
+            amountPaid: typeof lastSession.amountPaid === 'number' ? lastSession.amountPaid : 0,
             notes: `تم الإتمام والتسجيل تلقائياً بواسطة الطبيب (${docName.replace(/^د\.\s*/, '')})`,
-            sessionNumber,
-            approvedSessionsTotal,
-            approvedBodyPartsTotal: patient?.approvedBodyParts || 1,
+            sessionNumber: typeof sessionNumber === 'number' ? sessionNumber : (lastSession.sessionNumber ? lastSession.sessionNumber + 1 : 1),
+            approvedSessionsTotal: typeof approvedSessionsTotal === 'number' ? approvedSessionsTotal : (patient?.approvedSessions || 12),
+            approvedBodyPartsTotal: typeof patient?.approvedBodyParts === 'number' ? patient.approvedBodyParts : 1,
             autoCreatedByDoctor: true,
-            sourceAppointmentId: apptId,
+            sourceAppointmentId: safeApptId,
             status: 'active'
           };
 
-          const currentUser = auth.getCurrentUser() || { name: docName, role: 'doctor', uid: doctorUid };
+          const currentUser = auth.getCurrentUser() || { name: docName, role: 'doctor', uid: safeDoctorUid };
           const savedSession = await db.saveSession(newSessionData, currentUser);
           createdSessionId = savedSession?.id || null;
         } else {
@@ -800,8 +807,23 @@ export class AppointmentsManager {
         }
       } catch (err) {
         console.error('Error auto-creating session by doctor:', err);
-        await this.app.showAlert('تعذر حفظ الجلسة في سجل الاستقبال: ' + err.message, 'خطأ في الحفظ', 'danger');
-        return;
+        const errMsg = String(err?.message || err || '');
+        const isPermissionDenied = errMsg.toLowerCase().includes('permission-denied') ||
+                                   errMsg.toLowerCase().includes('permission') ||
+                                   err?.code === 'permission-denied';
+
+        if (isPermissionDenied) {
+          // If Firestore security rules restrict direct session writes for doctor role,
+          // complete the appointment in schedule so the doctor is not blocked, but warn clearly
+          await this.app.showAlert(
+            'تم تسجيل الموعد كمكتمل في جدولك، ولكن تعذر تسجيل الجلسة تلقائياً في سجل الاستقبال بسبب قيود صلاحيات Firestore السحابية (Permission Denied). يرجى السماح للأطباء بإنشاء الجلسات في Firestore Rules من Firebase Console أو تسجيلها يدوياً من الاستقبال.',
+            'تنبيه: قيود صلاحيات السحاب',
+            'warning'
+          );
+        } else {
+          await this.app.showAlert('تعذر حفظ الجلسة في سجل الاستقبال: ' + err.message, 'خطأ في الحفظ', 'danger');
+          return;
+        }
       }
 
       // 4. Update completed list in localStorage and appointment status
