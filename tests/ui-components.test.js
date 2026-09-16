@@ -136,7 +136,9 @@ assert(printCssContent.includes('body.printing-receipt') && printCssContent.incl
 assert(printCssContent.includes('.receipt-print-footer-wrap'), 'print.css must define .receipt-print-footer-wrap');
 assert(printCssContent.includes('#printable-cash-receipt > div') && printCssContent.includes('height: 194mm !important;'), 'print.css must give receipt frame full A5 height (194mm)');
 assert(htmlContent.includes('class="receipt-print-footer-wrap"'), 'index.html must wrap receipt signatures and footer in .receipt-print-footer-wrap');
-console.log('✓ 12. Cash Receipt A5 Frame & Footer: Verified A5 page rule, 194mm height, and pinned footer.');
+assert(htmlContent.includes('id="receipt-print-date"') && htmlContent.includes('id="receipt-print-date-val"'), 'receipt-print-date elements must exist');
+assert(htmlContent.indexOf('id="receipt-print-date"') > htmlContent.indexOf('id="receipt-print-item-desc"'), 'receipt-print-date must be placed at the bottom in the footer bar, not in the top header');
+console.log('✓ 12. Cash Receipt A5 Frame & Footer: Verified A5 page rule, 194mm height, and bottom-right date placement.');
 
 // 13. Strict Guardrail: Insurance Letter A5 Frame & Footer Pin Parity
 assert(printCssContent.includes('.ins-letter-frame'), 'print.css must define .ins-letter-frame');
