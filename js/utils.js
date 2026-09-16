@@ -32,6 +32,21 @@ export function getLocalDateStr(date = new Date()) {
 }
 
 /**
+ * Normalizes Arabic text by removing tashkeel, tatweel, and unifying alef, yaa, and taa marbuta.
+ * @param {string} text
+ * @returns {string} normalized string
+ */
+export function normalizeArabic(text) {
+  if (!text) return '';
+  return text.toString().trim().toLowerCase()
+    .replace(/[أإآٱ]/g, 'ا')
+    .replace(/ة/g, 'ه')
+    .replace(/ى/g, 'ي')
+    .replace(/[\u064B-\u065F\u0670]/g, '')
+    .replace(/[\u0640]/g, '');
+}
+
+/**
  * High-performance 60FPS 3D Stack Deck with horizontal swipe gestures:
  * - Left-peeking stack: under cards peek out from the left (RTL aesthetic).
  * - Drag/Swipe right: active card slides away to the right and reveals next card.

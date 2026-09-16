@@ -1,11 +1,11 @@
 // ========================================================
 // ASCPT - Service Worker & Offline PWA Cache Engine
 // Alexandria Specialized Center for Physical Therapy
-// Version: 2.8.1 (Cache: ascpt-clinic-v2.8.1)
+// Version: 2.8.2 (Cache: ascpt-clinic-v2.8.2)
 // True Offline Navigation & Fault-Tolerant Cache Architecture
 // ========================================================
 
-const CACHE_NAME = 'ascpt-clinic-v2.8.1';
+const CACHE_NAME = 'ascpt-clinic-v2.8.2';
 
 // Core App Shell assets required for offline rendering
 const APP_SHELL_ASSETS = [

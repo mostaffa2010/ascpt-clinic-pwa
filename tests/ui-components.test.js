@@ -191,6 +191,63 @@ const freshSessionsContent = fs.readFileSync(sessionsJsPath, 'utf-8');
 assert(freshSessionsContent.includes('btn-settle-hv'), 'sessions.js must include btn-settle-hv in home visits actions');
 console.log('✓ 16. Sessions Screen Home Visits Tab: Verified view switcher, tabs, containers, and delete methods parity.');
 
+// 17. Strict Guardrail: Zero Unresolved ES Module Imports & Named Exports Integrity
+const jsDir = path.join(rootDir, 'js');
+const jsFiles = fs.readdirSync(jsDir).filter(f => f.endsWith('.js'));
+const exportMap = {};
+
+jsFiles.forEach(file => {
+  const fContent = fs.readFileSync(path.join(jsDir, file), 'utf-8');
+  const exports = new Set();
+  const directRegex = /export\s+(?:function|class|const|let|var)\s+([a-zA-Z0-9_$]+)/g;
+  let m;
+  while ((m = directRegex.exec(fContent)) !== null) {
+    exports.add(m[1]);
+  }
+  const namedRegex = /export\s*\{([^}]+)\}/g;
+  while ((m = namedRegex.exec(fContent)) !== null) {
+    m[1].split(',').forEach(item => {
+      const parts = item.trim().split(/\s+as\s+/);
+      const expName = (parts[1] || parts[0]).trim();
+      if (expName) exports.add(expName);
+    });
+  }
+  if (/export\s+default/.test(fContent)) {
+    exports.add('default');
+  }
+  exportMap['./' + file] = exports;
+});
+
+let missingImportErrors = [];
+jsFiles.forEach(file => {
+  const fContent = fs.readFileSync(path.join(jsDir, file), 'utf-8');
+  const importRegex = /import\s+(?:(\*\s+as\s+[\w$]+)|([\w$]+)|(?:\{([^}]+)\}))?\s*(?:,\s*\{([^}]+)\})?\s*from\s*[\x27\x22]([^\x27\x22]+)[\x27\x22]/g;
+  let im;
+  while ((im = importRegex.exec(fContent)) !== null) {
+    const defaultImp = im[2];
+    const namedList1 = im[3];
+    const namedList2 = im[4];
+    const fromPath = im[5];
+    if (exportMap[fromPath]) {
+      const availableExports = exportMap[fromPath];
+      if (defaultImp && !availableExports.has('default')) {
+        missingImportErrors.push(`${file} imports default from ${fromPath}, but it has no default export!`);
+      }
+      const namedCombined = [namedList1, namedList2].filter(Boolean).join(',');
+      if (namedCombined) {
+        namedCombined.split(',').forEach(part => {
+          const cleanPart = part.trim().split(/\s+as\s+/)[0].trim();
+          if (cleanPart && !availableExports.has(cleanPart)) {
+            missingImportErrors.push(`${file} imports "${cleanPart}" from ${fromPath}, but it is not exported!`);
+          }
+        });
+      }
+    }
+  }
+});
+assert.equal(missingImportErrors.length, 0, 'Missing imports detected: ' + missingImportErrors.join(', '));
+console.log('✓ 17. ES Module Imports Integrity: Verified 100% of internal imports resolve to valid named exports.');
+
 console.log('===================================================================');
 console.log('✓ All ASCPT UI Component Compliance Guardrail Checks Passed (100%)!');
 console.log('===================================================================');
