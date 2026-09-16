@@ -122,9 +122,9 @@ export class PatientsManager {
 
     document.querySelectorAll('.btn-batch-pattern').forEach((btn) => {
       btn.addEventListener('click', (e) => {
-        document.querySelectorAll('.btn-batch-pattern').forEach((b) => b.classList.remove('active'));
-        e.currentTarget.classList.add('active');
-        this.batchHvSelectedPattern = e.currentTarget.getAttribute('data-pattern') || 'sat_mon_wed';
+        e.preventDefault();
+        const pat = e.currentTarget.getAttribute('data-pattern') || 'sat_mon_wed';
+        this.setBatchPattern(pat);
       });
     });
 
@@ -4054,6 +4054,30 @@ export class PatientsManager {
     }
   }
 
+  setBatchPattern(pattern) {
+    this.batchHvSelectedPattern = pattern || 'sat_mon_wed';
+    const patterns = ['sat_mon_wed', 'sun_tue_thu', 'both'];
+
+    patterns.forEach((p) => {
+      const btn = document.querySelector(`.btn-batch-pattern[data-pattern="${p}"]`);
+      if (!btn) return;
+      const isActive = p === this.batchHvSelectedPattern;
+      btn.classList.toggle('active', isActive);
+
+      if (isActive) {
+        btn.style.setProperty('background', 'var(--primary)', 'important');
+        btn.style.setProperty('color', '#ffffff', 'important');
+        btn.style.setProperty('border', '1.5px solid var(--primary)', 'important');
+        btn.style.setProperty('box-shadow', '0 2px 8px rgba(2, 132, 199, 0.35)', 'important');
+      } else {
+        btn.style.setProperty('background', 'transparent', 'important');
+        btn.style.setProperty('color', 'var(--text-main)', 'important');
+        btn.style.setProperty('border', '1.5px solid var(--border-color)', 'important');
+        btn.style.removeProperty('box-shadow');
+      }
+    });
+  }
+
   async openBatchHomeVisitsModal(patientId, defaultType = 'clinic_batch') {
     const p = this.patients.find((item) => item.id === patientId);
     if (!p) return;
@@ -4115,9 +4139,19 @@ export class PatientsManager {
     const countInput = document.getElementById('batch-hv-count');
     if (countInput) countInput.value = p.approvedSessions || 12;
 
-    // Reset pattern buttons
-    document.querySelectorAll('.btn-batch-pattern').forEach((b) => {
-      b.classList.toggle('active', b.getAttribute('data-pattern') === 'sat_mon_wed');
+    // Reset and visually apply default pattern selection
+    this.setBatchPattern('sat_mon_wed');
+
+    // Ensure pattern click listeners are actively wired
+    document.querySelectorAll('.btn-batch-pattern').forEach((btn) => {
+      if (!btn._hasPatternListener) {
+        btn._hasPatternListener = true;
+        btn.addEventListener('click', (e) => {
+          e.preventDefault();
+          const pat = e.currentTarget.getAttribute('data-pattern') || 'sat_mon_wed';
+          this.setBatchPattern(pat);
+        });
+      }
     });
 
     // Reset presettled checkbox
