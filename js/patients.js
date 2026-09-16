@@ -163,7 +163,13 @@ export class PatientsManager {
       r.addEventListener('change', (e) => {
         const insBox = document.getElementById('p-insurance-details');
         if (insBox) {
-          insBox.style.display = e.target.value === 'insurance' ? 'block' : 'none';
+          const isIns = e.target.value === 'insurance';
+          insBox.style.display = isIns ? 'block' : 'none';
+          if (isIns) {
+            setTimeout(() => {
+              insBox.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            }, 60);
+          }
         }
       });
     });

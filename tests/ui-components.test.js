@@ -77,6 +77,30 @@ assert(appJsContent.includes("'batch-hv-doctor'"), "app.js must register 'batch-
 assert(appJsContent.includes("this.updateCustomSelectDisplay('batch-hv-doctor')"), "app.js must call updateCustomSelectDisplay for batch-hv-doctor");
 console.log('✓ 5. App Coordinator Parity: batch-hv-doctor is registered in custom selects and sync loops.');
 
+// 6. Strict Guardrail: Sub-Modals Navigation from modal-patient-docs (Anti-Race Condition)
+const patientsJsPath = path.join(rootDir, 'js/patients.js');
+const patientsJsContent = fs.readFileSync(patientsJsPath, 'utf-8');
+
+assert(patientsJsContent.includes("this.app.closeModal('modal-patient-docs', { skipHistory: true });"), "patients.js must use skipHistory: true when transitioning from modal-patient-docs to sub-modals");
+assert(appJsContent.includes("this.closeModal(modalId, { skipHistory: true });"), "app.js must use skipHistory: true when returning to modal-patient-docs via close button");
+console.log('✓ 6. Sub-Modals Navigation Parity: Verified skipHistory guards on docs sub-modal transitions.');
+
+// 7. Strict Guardrail: Patient Form Radio Name Parity (Anti-Data Drift)
+assert(htmlContent.includes('name="p-contract-type"'), 'index.html must use name="p-contract-type" for contract switcher');
+assert(patientsJsContent.includes('input[name="p-contract-type"]:checked'), 'patients.js must read input[name="p-contract-type"]:checked during save');
+console.log('✓ 7. Contract Radio Name Parity: Verified HTML and JS contractType selector sync.');
+
+// 8. Strict Guardrail: Patient Registration Modal Scroll & Clearance Integrity
+const styleCssPath = path.join(rootDir, 'css/style.css');
+const styleCssContent = fs.readFileSync(styleCssPath, 'utf-8');
+
+assert(styleCssContent.includes('#modal-patient .modal-body'), 'style.css must have dedicated scoped rules for #modal-patient .modal-body');
+assert(styleCssContent.includes('padding: 16px 18px 100px 18px !important;'), 'modal-patient body must have at least 100px bottom padding to clear footer buttons');
+assert(styleCssContent.includes('touch-action: pan-y !important;'), 'modal-patient body must enable vertical touch gestures (touch-action: pan-y)');
+assert(styleCssContent.includes('#modal-patient #p-insurance-details'), 'style.css must scope #p-insurance-details');
+assert(patientsJsContent.includes("scrollIntoView({ behavior: 'smooth', block: 'nearest' })"), 'patients.js must smoothly scroll insurance box into view when selected');
+console.log('✓ 8. Patient Modal Scroll Guardrail: Verified scoped overflow, 100px bottom clearance, and auto-scroll.');
+
 console.log('===================================================================');
 console.log('✓ All ASCPT UI Component Compliance Guardrail Checks Passed (100%)!');
 console.log('===================================================================');
