@@ -185,6 +185,10 @@ assert(sessionsJsContent.includes('updateHomeVisitsBadge()'), 'sessions.js must 
 assert(dbJsContent.includes('deleteBatchSessions('), 'db.js must implement deleteBatchSessions(');
 assert(sessionsJsContent.includes('deleteHomeVisitsGroup('), 'sessions.js must implement deleteHomeVisitsGroup(');
 assert(fs.readFileSync(path.join(rootDir, 'js/patients.js'), 'utf-8').includes('deletePatientSession('), 'patients.js must implement deletePatientSession(');
+assert(dbJsContent.includes('settleBatchSessions('), 'db.js must implement settleBatchSessions(');
+assert(sessionsJsContent.includes('settleHomeVisitsGroup('), 'sessions.js must implement settleHomeVisitsGroup(');
+const freshSessionsContent = fs.readFileSync(sessionsJsPath, 'utf-8');
+assert(freshSessionsContent.includes('btn-settle-hv'), 'sessions.js must include btn-settle-hv in home visits actions');
 console.log('✓ 16. Sessions Screen Home Visits Tab: Verified view switcher, tabs, containers, and delete methods parity.');
 
 console.log('===================================================================');

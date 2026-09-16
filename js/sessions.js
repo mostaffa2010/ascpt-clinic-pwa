@@ -2142,6 +2142,11 @@ export class SessionsManager {
                 <button type="button" class="btn btn-outline btn-sm btn-icon-action" onclick="patientsManager.openPatientDocsModal('${safePid}')" title="مستندات المريض">
                   <i class="fa-solid fa-file-invoice text-primary"></i>
                 </button>
+                ${(!isPre && canDelete) ? `
+                  <button type="button" class="btn btn-outline btn-sm btn-icon-action btn-settle-hv" onclick="sessionsManager.settleHomeVisitsGroup('${safePid}', '${escapeHTML(group.letterRef || '')}', '${safeName}')" title="اعتماد تسوية هذا الجواب مع الطبيب">
+                    <i class="fa-solid fa-handshake"></i> <span>تسوية</span>
+                  </button>
+                ` : ''}
                 ${canDelete ? `
                   <button type="button" class="btn btn-outline btn-sm btn-icon-action btn-delete-hv" style="color: var(--danger); border-color: rgba(239, 68, 68, 0.35); background: rgba(239, 68, 68, 0.08);" onclick="sessionsManager.deleteHomeVisitsGroup('${safePid}', '${escapeHTML(group.letterRef || '')}', '${safeName}')" title="حذف جواب الزيارات المنزلية بالكامل">
                     <i class="fa-solid fa-trash"></i>
@@ -2206,6 +2211,11 @@ export class SessionsManager {
                   <button type="button" class="btn btn-outline btn-sm btn-icon-action" onclick="patientsManager.openPatientDocsModal('${safePid}')" title="مستندات المريض">
                     <i class="fa-solid fa-file-invoice text-primary"></i>
                   </button>
+                  ${(!isPre && canDelete) ? `
+                    <button type="button" class="btn btn-outline btn-sm btn-icon-action btn-settle-hv" onclick="sessionsManager.settleHomeVisitsGroup('${safePid}', '${escapeHTML(group.letterRef || '')}', '${safeName}')" title="اعتماد تسوية هذا الجواب مع الطبيب">
+                      <i class="fa-solid fa-handshake"></i> <span>تسوية</span>
+                    </button>
+                  ` : ''}
                   ${canDelete ? `
                     <button type="button" class="btn btn-outline btn-sm btn-icon-action btn-delete-hv" style="color: var(--danger); border-color: rgba(239, 68, 68, 0.35); background: rgba(239, 68, 68, 0.08);" onclick="sessionsManager.deleteHomeVisitsGroup('${safePid}', '${escapeHTML(group.letterRef || '')}', '${safeName}')" title="حذف جواب الزيارات بالكامل">
                       <i class="fa-solid fa-trash"></i>
@@ -2268,6 +2278,55 @@ export class SessionsManager {
     } catch (err) {
       console.error('deleteHomeVisitsGroup error:', err);
       this.app.showAlert('تعذر حذف الزيارات: ' + err.message, 'خطأ', 'danger');
+    }
+  }
+
+
+  async settleHomeVisitsGroup(patientId, letterRef, patientName) {
+    const currentUser = auth.getCurrentUser();
+    if (!RolesManager.canDelete(currentUser)) {
+      this.app.showAlert('عفواً، تسوية الجلسات متاحة لإدارة المركز والاستقبال فقط.', 'صلاحية غير كافية', 'warning');
+      return;
+    }
+
+    const matchingSessions = (this.allHomeVisits || []).filter(s => {
+      const matchP = patientId ? (s.patientId === patientId) : (s.patientName === patientName);
+      const matchRef = letterRef ? (s.letterRef === letterRef) : true;
+      return matchP && matchRef && !s.isPreSettled;
+    });
+
+    if (matchingSessions.length === 0) {
+      this.app.showToast('جميع زيارات هذا الجواب مسواة بالفعل', 'info');
+      return;
+    }
+
+    const count = matchingSessions.length;
+    const pName = patientName || matchingSessions[0]?.patientName || 'المريض';
+    const refTxt = letterRef ? ` برقم خطاب (${letterRef})` : '';
+
+    const confirmed = await this.app.showConfirm(
+      `هل أنت متأكد من اعتماد تسوية جواب الزيارات المنزلية للمريض (${pName})${refTxt}؟\n\nيشمل ذلك اعتماد تسوية عدد ${count} زيارة منزلية مع الطبيب المعالج وتحويل حالتها إلى مسواة.`,
+      'تأكيد تسوية الزيارات المنزلية'
+    );
+
+    if (!confirmed) return;
+
+    try {
+      const sessionIds = matchingSessions.map(s => s.id);
+      await db.settleBatchSessions(sessionIds, currentUser);
+
+      await db.logAudit('تسوية زيارات منزلية', `اعتماد تسوية جواب زيارات منزلية (${count} زيارة) للمريض ${pName}${refTxt}`, currentUser);
+      this.app.showToast(`تمت تسوية الزيارات المنزلية (${count} زيارة) للمريض ${pName} بنجاح`, 'success');
+
+      await this.updateHomeVisitsBadge();
+      await this.renderHomeVisitsList();
+
+      if (this.app?.doctorDashboardManager && typeof this.app.doctorDashboardManager.render === 'function') {
+        this.app.doctorDashboardManager.render().catch(() => {});
+      }
+    } catch (err) {
+      console.error('settleHomeVisitsGroup error:', err);
+      this.app.showAlert('تعذر إتمام التسوية: ' + err.message, 'خطأ', 'danger');
     }
   }
 

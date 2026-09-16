@@ -959,6 +959,62 @@ class FirestoreDatabaseService {
     }
   }
 
+  // Batch Sessions Settlement Engine (Zero-Cost Atomic Batch Update)
+  async settleBatchSessions(sessionIds = [], currentUser = null) {
+    this.ensureConnected();
+    if (!Array.isArray(sessionIds) || sessionIds.length === 0) return true;
+    const nowIso = new Date().toISOString();
+    const timeStr = new Date().toLocaleTimeString('ar-EG-u-nu-latn', { hour: '2-digit', minute: '2-digit' });
+    const settledBy = currentUser?.name || 'استقبال المركز';
+    try {
+      const batch = writeBatch(firestoreDb);
+      sessionIds.forEach(id => {
+        const ref = doc(firestoreDb, 'sessions', id);
+        batch.update(ref, {
+          isPreSettled: true,
+          settledAt: nowIso,
+          settledBy: settledBy,
+          lastEditedAt: timeStr,
+          lastEditedBy: settledBy
+        });
+        if (this._sessionDocCache.has(id)) {
+          const cached = this._sessionDocCache.get(id);
+          this._sessionDocCache.set(id, { ...cached, isPreSettled: true, settledAt: nowIso, settledBy });
+        }
+      });
+      await batch.commit();
+
+      // Update in-memory caches
+      if (this._homeVisitsCache) {
+        const idSet = new Set(sessionIds);
+        this._homeVisitsCache.forEach(s => {
+          if (idSet.has(s.id)) {
+            s.isPreSettled = true;
+            s.settledAt = nowIso;
+            s.settledBy = settledBy;
+          }
+        });
+      }
+      if (this._sessionsCache) {
+        const idSet = new Set(sessionIds);
+        this._sessionsCache.forEach(s => {
+          if (idSet.has(s.id)) {
+            s.isPreSettled = true;
+            s.settledAt = nowIso;
+            s.settledBy = settledBy;
+          }
+        });
+      }
+      this._sessionsByDateCache.clear();
+      this._sessionsByPatientCache.clear();
+      return true;
+    } catch (err) {
+      console.error('Firestore settleBatchSessions error:', err);
+      throw new Error('فشل تسجيل تسوية الجلسات في قاعدة البيانات.');
+    }
+  }
+
+
 
   // ================= 3. Expenses Management (Zero-Cost Scoped Architecture) =================
   async getExpenses(filterDate = null, forceRefresh = false) {

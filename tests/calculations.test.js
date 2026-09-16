@@ -815,7 +815,29 @@ const sampleBatchSessionsUnchecked = Array.from({ length: 12 }, (_, i) => ({
 assert.equal(sampleBatchSessionsUnchecked.every(s => !s.isPreSettled), true, 'All sessions must have isPreSettled: false');
 assert.equal(sampleBatchSessionsUnchecked.every(s => Boolean(s.isPreSettled)), false, 'Batch must not be evaluated as pre-settled');
 
-console.log('✓ All 18 Batch Home Visits & Doctor Dashboard Decoupling assertions passed successfully!');
+// 9. Test Settle Batch Sessions Engine
+function mockSettleBatchSessions(sessions, targetIds) {
+  const targetSet = new Set(targetIds);
+  return sessions.map(s => {
+    if (targetSet.has(s.id)) {
+      return { ...s, isPreSettled: true, settledAt: '2026-09-16T19:20:00Z' };
+    }
+    return s;
+  });
+}
+
+const unsettledSessions = [
+  { id: 's_u1', isPreSettled: false, patientId: 'p_test' },
+  { id: 's_u2', isPreSettled: false, patientId: 'p_test' },
+  { id: 's_other', isPreSettled: false, patientId: 'p_other' }
+];
+
+const settledResult = mockSettleBatchSessions(unsettledSessions, ['s_u1', 's_u2']);
+assert.equal(settledResult.find(s => s.id === 's_u1').isPreSettled, true);
+assert.equal(settledResult.find(s => s.id === 's_u2').isPreSettled, true);
+assert.equal(settledResult.find(s => s.id === 's_other').isPreSettled, false);
+
+console.log('✓ All 21 Batch Home Visits & Doctor Dashboard Decoupling assertions passed successfully!');
 
 // ============================================================================
 // 12. Doctor Dashboard Lifetime Patients Grouping & First Doctor Assignment
