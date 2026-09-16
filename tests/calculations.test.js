@@ -1210,6 +1210,7 @@ assert.ok(indexHtmlContent.includes('راتب الاطباء'), 'Monthly doctors
 const financeJsContent = fs.readFileSync('js/finance.js', 'utf8');
 assert.ok(financeJsContent.includes('مجموع رواتب الاطباء'), 'finance.js must render "مجموع رواتب الاطباء" total row');
 assert.ok(financeJsContent.includes('إجمالي راتب الاطباء'), 'finance.js must inject "إجمالي راتب الاطباء" as monthly expense');
+assert.ok(financeJsContent.includes('const totalIncome = totalSessionsIncome + totalSettlementsNet;'), 'finance.js must define totalIncome in loadMonthlyReport');
 assert.ok(indexHtmlContent.includes('عدد جلسات النقدي'), 'Monthly insurance table must include "عدد جلسات النقدي" header');
 assert.ok(indexHtmlContent.includes('عدد جلسات التأمين'), 'Monthly insurance table must include "عدد جلسات التأمين" header');
 

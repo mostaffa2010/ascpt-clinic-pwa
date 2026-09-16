@@ -1487,6 +1487,7 @@ export class FinanceManager {
       };
     });
 
+    const totalIncome = totalSessionsIncome + totalSettlementsNet;
     const recordedExpenses = allExpenses.reduce((acc, curr) => acc + (parseFloat(curr.amount) || 0), 0);
     const totalExpenses = recordedExpenses + totalAllDoctorsSalaries;
     const netProfit = totalIncome - totalExpenses;
