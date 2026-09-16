@@ -80,6 +80,8 @@
   .search-box,
   .filters-bar,
   .no-print,
+  #pull-to-reload-indicator,
+  .pull-to-reload-indicator,
   .sandbox-banner,
   #pwa-install-banner,
   .toast-box,
@@ -400,6 +402,8 @@
   }
 
   /* 1. Strictly Suppress All Interactive Controls, Filters, Duplicate Titles, and Settlements in Print */
+  body:not(.printing-sheet) #pull-to-reload-indicator,
+  body:not(.printing-sheet) .pull-to-reload-indicator,
   body:not(.printing-sheet) #finance-header-title,
   body:not(.printing-sheet) #finance-filter-bar-card,
   body:not(.printing-sheet) #filter-group-daily,
