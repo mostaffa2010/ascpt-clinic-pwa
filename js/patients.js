@@ -566,6 +566,7 @@ export class PatientsManager {
     this.patients = await db.getPatients(forceRefresh);
     this._hasLoadedOnce = true;
     this.renderPatients();
+    this.checkAndMigrateLegacyInsuranceNames();
   }
 
   // ================= Smart Arabic Search & Relevance Ranking =================
@@ -1351,7 +1352,8 @@ export class PatientsManager {
 
     // Show top 8 companies as quick chips
     const quickList = companies.slice(0, 8);
-    if (currentVal && !quickList.includes(currentVal)) {
+    // Strict contract isolation: ONLY include currentVal if it actually belongs to this contractType
+    if (currentVal && companies.includes(currentVal) && !quickList.includes(currentVal)) {
       quickList.unshift(currentVal);
     }
 
@@ -1394,6 +1396,13 @@ export class PatientsManager {
       btnText.innerHTML = `المختارة: <strong>${escapeHTML(compName)}</strong> (${cLabel}) - اضغط للتغيير`;
     }
 
+    // Keep contract switcher radio in strict sync
+    const contractRadios = document.querySelectorAll('input[name="p-contract-type"]');
+    contractRadios.forEach(r => {
+      if (r.value === contractType) r.checked = true;
+    });
+    this.currentContractType = contractType;
+
     this.renderInsuranceQuickChips(contractType);
   }
 
@@ -1403,6 +1412,19 @@ export class PatientsManager {
     const indirectCont = document.getElementById('p-ins-indirect-container');
     if (directCont) directCont.style.display = 'none';
     if (indirectCont) indirectCont.style.display = 'none';
+
+    // If current selected company does not belong to the newly selected contract, reset selection cleanly
+    const companies = db.getInsuranceCompanies(contractType) || [];
+    const compInput = document.getElementById('p-insurance-company');
+    const currentVal = compInput?.value || '';
+    if (currentVal && !companies.includes(currentVal)) {
+      if (compInput) compInput.value = '';
+      const preview = document.getElementById('p-selected-ins-preview');
+      if (preview) preview.innerHTML = '';
+      const btnText = document.getElementById('p-insurance-btn-text');
+      if (btnText) btnText.innerHTML = 'بحث في كل الشركات أو إضافة شركة جديدة...';
+    }
+
     this.renderInsuranceQuickChips(contractType);
   }
 
@@ -2279,6 +2301,64 @@ export class PatientsManager {
     this.app.showToast('تم حفظ وتحديث الشيت الطبي للمريض بنجاح');
     this.renderAllInsuranceChips();
     await this.loadPatients();
+  }
+
+  // Automated One-Time Unification for Legacy Insurance Names (أبوقير للأسمدة -> أبو قير)
+  async checkAndMigrateLegacyInsuranceNames() {
+    try {
+      const migrationDoneKey = 'ascpt_migrated_aboqir_legacy_v2';
+      if (localStorage.getItem(migrationDoneKey)) return;
+
+      const patients = this.patients || [];
+      const isLegacyAboQir = (name) => {
+        if (!name) return false;
+        const norm = this.normalizeArabic(name).replace(/\s+/g, '');
+        return norm.includes('ابوقير') && norm.includes('اسمد');
+      };
+
+      const targets = patients.filter(p => isLegacyAboQir(p.insuranceCompany));
+      if (targets.length === 0) {
+        localStorage.setItem(migrationDoneKey, 'true');
+        return;
+      }
+
+      console.log(`[ASCPT Migration] Unifying ${targets.length} legacy patient records from 'أبوقير للأسمدة' to 'أبو قير'...`);
+      const currentUser = auth.getCurrentUser() || { name: 'تحديث النظام التلقائي' };
+
+      for (const p of targets) {
+        const updated = {
+          ...p,
+          insuranceCompany: 'أبو قير',
+          contractType: 'direct'
+        };
+        await db.savePatient(updated, currentUser);
+      }
+
+      // Also update any sessions in local/remote db recorded with legacy name
+      try {
+        const sessions = await db.getSessions();
+        const sessionTargets = (sessions || []).filter(s => isLegacyAboQir(s.insuranceName));
+        for (const s of sessionTargets) {
+          await db.saveSession({
+            ...s,
+            insuranceName: 'أبو قير',
+            contractType: 'direct'
+          }, currentUser);
+        }
+      } catch (sessErr) {
+        console.warn('[ASCPT Migration] Sessions unification notice:', sessErr);
+      }
+
+      localStorage.setItem(migrationDoneKey, 'true');
+      await this.loadPatients(true);
+      this.renderPatients();
+      if (this.app?.financeManager?.loadMonthlyReport) {
+        try { this.app.financeManager.loadMonthlyReport(); } catch (_) {}
+      }
+      console.log('[ASCPT Migration] Completed unifying all records to "أبو قير" (تعاقد مباشر).');
+    } catch (err) {
+      console.warn('[ASCPT Migration] Migration notice:', err);
+    }
   }
 
   // ================= Dynamic Clinical Chips (Manager Controlled) =================

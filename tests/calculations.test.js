@@ -178,7 +178,45 @@ assert.equal(directCompanies.length, 4, 'Duplicate company must not increase cou
 directCompanies = mockDeleteInsuranceCompany(directCompanies, 'أكسا (AXA)');
 assert.equal(directCompanies.length, 3, 'Should have 3 companies after delete');
 assert.ok(!directCompanies.includes('أكسا (AXA)'));
-console.log('✓ All 4 Insurance Companies Sync & Mutation assertions passed successfully!');
+// Test 6: Insurance Contract Isolation & Quick Chips Guardrail
+const mockDirectCompanies = ['أكسا (AXA)', 'أبو قير', 'أليانز (Allianz)', 'ميتلايف (MetLife)'];
+const mockIndirectCompanies = ['ايجي كير', 'عناية', 'ميدي كونسالت', 'ايجي ميد'];
+
+function getMockQuickChips(contractType, currentVal) {
+  const companies = contractType === 'direct' ? mockDirectCompanies : mockIndirectCompanies;
+  const quickList = companies.slice(0, 8);
+  if (currentVal && companies.includes(currentVal) && !quickList.includes(currentVal)) {
+    quickList.unshift(currentVal);
+  }
+  return quickList;
+}
+
+// Case 1: Direct company 'أبو قير' must NOT appear in indirect quick chips even if currentVal is 'أبو قير'
+const indirectChipsWithDirectVal = getMockQuickChips('indirect', 'أبو قير');
+assert.ok(!indirectChipsWithDirectVal.includes('أبو قير'), 'Direct company must never leak into indirect chips deck');
+assert.equal(indirectChipsWithDirectVal.length, 4);
+
+// Case 2: Direct company 'أبو قير' must appear in direct quick chips
+const directChips = getMockQuickChips('direct', 'أبو قير');
+assert.ok(directChips.includes('أبو قير'), 'Direct company must appear in direct chips deck');
+
+// Case 3: Legacy Abo Qir normalizer check
+function isLegacyAboQir(name) {
+  if (!name) return false;
+  const norm = name.trim().toLowerCase()
+    .replace(/[أإآٱ]/g, 'ا')
+    .replace(/ة/g, 'ه')
+    .replace(/ى/g, 'ي')
+    .replace(/\s+/g, '');
+  return norm.includes('ابوقير') && norm.includes('اسمد');
+}
+
+assert.equal(isLegacyAboQir('أبوقير للأسمدة'), true, 'Must detect أبوقير للأسمدة as legacy');
+assert.equal(isLegacyAboQir('أبو قير للأسمدة'), true, 'Must detect أبو قير للأسمدة as legacy');
+assert.equal(isLegacyAboQir('أبو قير'), false, 'Clean أبو قير must not be flagged as legacy');
+assert.equal(isLegacyAboQir('ايجي كير'), false, 'Unrelated companies must not be flagged');
+
+console.log('✓ All 7 Insurance Companies Sync & Mutation assertions passed successfully!');
 
 // 8. Weekly Working Days & Friday Holiday Exclusion Tests
 console.log('--- Running Tests: Friday Exclusion & Appointment Copy Engine ---');
