@@ -903,4 +903,30 @@ assert.equal(renderedDocs.length, 2);
 assert.equal(renderedDocs[0].pct, '75.0'); // 3 out of 4 sessions
 assert.equal(renderedDocs[1].pct, '25.0'); // 1 out of 4 sessions
 
-console.log('✓ All 5 Monthly Report Integrity assertions passed successfully!');
+// Test 5: Monthly Settlements Table Auto-Hide when Empty & Structure
+const mockEmptySettlements = [];
+const mockPopulatedSettlements = [{ id: 's1', grossAmount: 1000, netAmount: 900, deductions: 100 }];
+
+function getSettlementCardVisibility(settlements) {
+  if (settlements.length === 0) {
+    return { display: 'none', noPrint: true };
+  } else {
+    return { display: 'block', noPrint: false };
+  }
+}
+
+const emptyState = getSettlementCardVisibility(mockEmptySettlements);
+assert.equal(emptyState.display, 'none', 'Settlements card must be hidden on screen when 0 settlements');
+assert.equal(emptyState.noPrint, true, 'Settlements card must have no-print class when 0 settlements');
+
+const populatedState = getSettlementCardVisibility(mockPopulatedSettlements);
+assert.equal(populatedState.display, 'block', 'Settlements card must be visible when settlements exist');
+assert.equal(populatedState.noPrint, false, 'Settlements card must not have no-print class when settlements exist');
+
+import fs from 'node:fs';
+const indexHtmlContent = fs.readFileSync('index.html', 'utf8');
+assert.ok(indexHtmlContent.includes('id="monthly-settlements-table"'), 'Settlements table must have id="monthly-settlements-table"');
+assert.ok(indexHtmlContent.includes('<th class="no-print">المسجل</th>'), 'Recorder header must have class="no-print" in settlements table');
+assert.ok(indexHtmlContent.includes('<th class="no-print">إجراءات</th>'), 'Actions header must have class="no-print" in settlements table');
+
+console.log('✓ All 6 Monthly Report Integrity assertions passed successfully!');

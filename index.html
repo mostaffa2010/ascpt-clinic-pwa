@@ -1613,17 +1613,17 @@
               <span id="monthly-settlements-total-badge" class="badge badge-success" style="font-size: 0.85rem; padding: 6px 12px;"></span>
             </div>
             <div class="table-responsive desktop-only-table">
-              <table class="data-table">
+              <table class="data-table" id="monthly-settlements-table">
                 <thead>
                   <tr>
                     <th>تاريخ التحصيل</th>
                     <th>شركة التأمين</th>
                     <th>فترة المطالبة</th>
                     <th>المبلغ الأصلي</th>
-                    <th>الاستقطاعات والخصومات</th>
+                    <th>الاستقطاعات</th>
                     <th>الصافي المحصل</th>
                     <th>طريقة الاستلام</th>
-                    <th>المسجل</th>
+                    <th class="no-print">المسجل</th>
                     <th class="no-print">إجراءات</th>
                   </tr>
                 </thead>
@@ -2371,7 +2371,7 @@
         <div class="admin-system-footer no-print" style="margin-top: 32px; margin-bottom: 35px; text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px;">
           <div style="display: inline-flex; align-items: center; gap: 8px; background: var(--bg-surface); border: 1.5px solid var(--border-color); padding: 7px 18px; border-radius: 999px; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);">
             <span style="width: 8px; height: 8px; border-radius: 50%; background-color: var(--success); display: inline-block; box-shadow: 0 0 6px var(--success);"></span>
-            <span id="admin-system-version-label" data-clinic="version-badge" style="font-weight: 800; font-size: 0.88rem; color: var(--text-main);">نظام ASCPT — الإصدار 2.5.0</span>
+            <span id="admin-system-version-label" data-clinic="version-badge" style="font-weight: 800; font-size: 0.88rem; color: var(--text-main);">نظام ASCPT — الإصدار 2.5.1</span>
             <span class="badge badge-primary" style="font-size: 0.72rem; padding: 2px 10px; border-radius: 999px; font-weight: 800;">إصدار معتمد</span>
           </div>
           <div style="font-size: 0.76rem; color: var(--text-muted); font-weight: 700;">

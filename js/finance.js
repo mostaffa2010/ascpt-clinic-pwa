@@ -1420,8 +1420,10 @@ export class FinanceManager {
     const mSetCard = document.getElementById('card-monthly-settlements');
     if (mSetCard) {
       if (monthSettlements.length === 0) {
+        mSetCard.style.display = 'none';
         mSetCard.classList.add('no-print');
       } else {
+        mSetCard.style.display = 'block';
         mSetCard.classList.remove('no-print');
       }
     }
@@ -1438,22 +1440,22 @@ export class FinanceManager {
         const canDel = RolesManager.canDeleteFinance(auth.getCurrentUser());
         mSetTbody.innerHTML = monthSettlements.map(s => `
           <tr>
-            <td style="font-weight: 700;">${escapeHTML(s.settlementDate || '-')}</td>
-            <td style="font-weight: 800; color: var(--text-main);">${escapeHTML(s.companyName)}</td>
-            <td style="font-size: 0.85rem;">${escapeHTML(s.claimPeriod || '-')}</td>
-            <td style="font-weight: 700;">${(parseFloat(s.grossAmount) || 0).toLocaleString('en-US')}</td>
-            <td style="color: var(--danger); font-size: 0.85rem;">
-              ${(parseFloat(s.deductions) || 0) > 0 ? `${(parseFloat(s.deductions) || 0).toLocaleString('en-US')} (${escapeHTML(s.deductionReason || '')})` : '-'}
+            <td style="font-weight: 700; text-align: center;">${escapeHTML(s.settlementDate || '-')}</td>
+            <td style="font-weight: 800; color: #000000;">${escapeHTML(s.companyName)}</td>
+            <td style="font-size: 0.85rem; text-align: center;">${escapeHTML(s.claimPeriod || '-')}</td>
+            <td style="font-weight: 700; text-align: center;">${(parseFloat(s.grossAmount) || 0).toLocaleString('en-US')} ج.م</td>
+            <td style="font-size: 0.85rem; text-align: center;">
+              ${(parseFloat(s.deductions) || 0) > 0 ? `${(parseFloat(s.deductions) || 0).toLocaleString('en-US')} ج.م (${escapeHTML(s.deductionReason || '')})` : '-'}
             </td>
-            <td style="font-weight: 800; color: var(--success); font-size: 0.95rem;">${(parseFloat(s.netAmount) || 0).toLocaleString('en-US')}</td>
-            <td>
+            <td style="font-weight: 800; text-align: center;">${(parseFloat(s.netAmount) || 0).toLocaleString('en-US')} ج.م</td>
+            <td style="text-align: center;">
               <span class="badge ${s.paymentMethod === 'cash' ? 'badge-cash' : 'badge-direct'}">
                 <i class="fa-solid ${s.paymentMethod === 'cash' ? 'fa-money-bill-wave' : 'fa-building-columns'}"></i>
                 ${s.paymentMethod === 'cash' ? 'نقداً بالدرج' : 'تحويل بنكي / شيك'}
               </span>
             </td>
-            <td class="no-print" style="font-size: 0.8rem; color: var(--text-muted);">${escapeHTML(s.recordedBy || '-')}</td>
-            <td class="no-print">
+            <td class="no-print" style="font-size: 0.8rem; color: var(--text-muted); text-align: center;">${escapeHTML(s.recordedBy || '-')}</td>
+            <td class="no-print" style="text-align: center;">
               ${canDel ? `
                 <button type="button" class="btn btn-outline btn-sm btn-delete-record btn-delete-settlement" style="color: var(--danger);" data-settlement-id="${s.id}" title="حذف حركة التحصيل">
                   <i class="fa-solid fa-trash"></i>

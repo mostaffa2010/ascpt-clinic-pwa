@@ -369,34 +369,43 @@
     visibility: hidden !important;
   }
 
-  /* 2. Compact Official Print Header */
+  /* 2. Compact Official Print Header (Monochrome / Grayscale Laser Optimized) */
   body:not(.printing-sheet) .print-header {
     display: block !important;
     text-align: center !important;
-    border-bottom: 1.5px solid #0369a1 !important;
-    padding-bottom: 2px !important;
-    margin-bottom: 4px !important;
+    border-bottom: 2px solid #000000 !important;
+    padding-bottom: 3px !important;
+    margin-bottom: 5px !important;
   }
 
   body:not(.printing-sheet) .print-header h1 {
-    font-size: 11pt !important;
+    font-size: 11.5pt !important;
     margin: 0 0 1px 0 !important;
-    color: #0369a1 !important;
-    font-weight: 800 !important;
+    color: #000000 !important;
+    font-weight: 900 !important;
   }
 
   body:not(.printing-sheet) .print-header p {
     margin: 0.5px 0 !important;
     font-size: 7.5pt !important;
-    color: #334155 !important;
-    font-weight: 600 !important;
+    color: #000000 !important;
+    font-weight: 700 !important;
     line-height: 1.15 !important;
+  }
+
+  body:not(.printing-sheet) .print-header #print-report-doctor {
+    color: #000000 !important;
+    font-weight: 800 !important;
+  }
+
+  body:not(.printing-sheet) .print-header #print-report-contact {
+    color: #222222 !important;
   }
 
   /* 3. Doctors Breakdown Container (Strictly bounded, no overflow, no clipped borders) */
   body:not(.printing-sheet) #card-doctors-breakdown {
     display: block !important;
-    border: 1px solid #cbd5e1 !important;
+    border: 1px solid #000000 !important;
     box-shadow: none !important;
     margin-top: 0 !important;
     margin-bottom: 4px !important;
@@ -412,7 +421,7 @@
     display: block !important;
     padding: 0 0 2px 0 !important;
     margin-bottom: 2px !important;
-    border-bottom: 1px solid #0369a1 !important;
+    border-bottom: 1.5px solid #000000 !important;
     background: transparent !important;
   }
 
@@ -462,7 +471,7 @@
   /* 4. Ultra-Compact, High-Density Daily Sessions Table (Guaranteed Single Page for 20+ Cases) */
   body:not(.printing-sheet) #card-finance-report-sessions {
     display: block !important;
-    border: 1px solid #cbd5e1 !important;
+    border: 1px solid #000000 !important;
     box-shadow: none !important;
     margin-top: 0 !important;
     margin-bottom: 4px !important;
@@ -477,7 +486,7 @@
     display: block !important;
     padding: 0 0 2px 0 !important;
     margin-bottom: 2px !important;
-    border-bottom: 1px solid #0369a1 !important;
+    border-bottom: 1.5px solid #000000 !important;
     background: transparent !important;
   }
 
@@ -499,7 +508,7 @@
 
   body:not(.printing-sheet) #finance-report-table th,
   body:not(.printing-sheet) #finance-report-table td {
-    border: 0.8px solid #64748b !important;
+    border: 1px solid #333333 !important;
     padding: 1px 2px !important;
     line-height: 1.05 !important;
     vertical-align: middle !important;
@@ -522,7 +531,7 @@
   /* 5. Daily Expenses Table (Ultra-Compact) */
   body:not(.printing-sheet) #card-finance-daily-expenses {
     display: block !important;
-    border: 1px solid #cbd5e1 !important;
+    border: 1px solid #000000 !important;
     box-shadow: none !important;
     margin-top: 0 !important;
     margin-bottom: 4px !important;
@@ -537,7 +546,7 @@
     display: block !important;
     padding: 0 0 2px 0 !important;
     margin-bottom: 2px !important;
-    border-bottom: 1px solid #0369a1 !important;
+    border-bottom: 1.5px solid #000000 !important;
     background: transparent !important;
   }
 
@@ -559,7 +568,7 @@
 
   body:not(.printing-sheet) #finance-expenses-table th,
   body:not(.printing-sheet) #finance-expenses-table td {
-    border: 0.8px solid #64748b !important;
+    border: 1px solid #333333 !important;
     padding: 1px 2px !important;
     line-height: 1.05 !important;
     font-size: 6.8pt !important;
@@ -600,14 +609,14 @@
     width: 100% !important;
   }
 
-  /* Monthly Tables: High-Contrast, 100% Full Width, Uniform Medical Borders */
+  /* Monthly Tables: High-Contrast, 100% Full Width, Uniform Black & White Laser Friendly Borders */
   body:not(.printing-sheet) #card-monthly-doctors,
   body:not(.printing-sheet) #card-monthly-insurance,
-  body:not(.printing-sheet) #card-monthly-settlements,
+  body:not(.printing-sheet) #card-monthly-settlements:not(.no-print),
   body:not(.printing-sheet) #card-monthly-expenses-categories,
   body:not(.printing-sheet) #card-monthly-financial-summary {
     display: block !important;
-    border: 1px solid #cbd5e1 !important;
+    border: 1px solid #000000 !important;
     box-shadow: none !important;
     margin-top: 0 !important;
     margin-bottom: 5px !important;
@@ -619,6 +628,17 @@
     max-width: 100% !important;
   }
 
+  /* Completely suppress insurance settlements card when no collections exist */
+  body:not(.printing-sheet) #card-monthly-settlements.no-print,
+  body:not(.printing-sheet) #card-monthly-settlements[style*="display: none"],
+  body:not(.printing-sheet) #card-monthly-settlements[style*="display:none"] {
+    display: none !important;
+    height: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    border: none !important;
+  }
+
   body:not(.printing-sheet) #card-monthly-doctors .card-header,
   body:not(.printing-sheet) #card-monthly-insurance .card-header,
   body:not(.printing-sheet) #card-monthly-settlements .card-header,
@@ -627,7 +647,7 @@
     display: block !important;
     padding: 0 0 2px 0 !important;
     margin-bottom: 2px !important;
-    border-bottom: 1px solid #0369a1 !important;
+    border-bottom: 1.5px solid #000000 !important;
     background: transparent !important;
   }
 
@@ -637,8 +657,12 @@
   body:not(.printing-sheet) #card-monthly-expenses-categories .card-title,
   body:not(.printing-sheet) #card-monthly-financial-summary .card-title {
     font-size: 7.5pt !important;
-    font-weight: 800 !important;
+    font-weight: 900 !important;
     color: #000000 !important;
+  }
+
+  body:not(.printing-sheet) .card-header i {
+    display: none !important;
   }
 
   body:not(.printing-sheet) #monthly-doctors-table,
@@ -656,38 +680,126 @@
   }
 
   body:not(.printing-sheet) #monthly-doctors-table th,
-  body:not(.printing-sheet) #monthly-doctors-table td,
-  body:not(.printing-sheet) #monthly-insurance-table th,
-  body:not(.printing-sheet) #monthly-insurance-table td,
-  body:not(.printing-sheet) #monthly-settlements-table th,
-  body:not(.printing-sheet) #monthly-settlements-table td,
-  body:not(.printing-sheet) #monthly-expenses-categories-table th,
-  body:not(.printing-sheet) #monthly-expenses-categories-table td,
-  body:not(.printing-sheet) #monthly-financial-summary-table th,
-  body:not(.printing-sheet) #monthly-financial-summary-table td {
-    border: 0.8px solid #64748b !important;
-    padding: 1.5px 2px !important;
-    line-height: 1.05 !important;
-    vertical-align: middle !important;
-    word-break: break-word !important;
-  }
-
-  body:not(.printing-sheet) #monthly-doctors-table th,
   body:not(.printing-sheet) #monthly-insurance-table th,
   body:not(.printing-sheet) #monthly-settlements-table th,
   body:not(.printing-sheet) #monthly-expenses-categories-table th,
   body:not(.printing-sheet) #monthly-financial-summary-table th {
-    background-color: #e2e8f0 !important;
+    background-color: #f1f5f9 !important;
     color: #000000 !important;
-    font-weight: 800 !important;
-    font-size: 6.5pt !important;
-    padding: 2px 2px !important;
+    font-weight: 900 !important;
+    font-size: 6.8pt !important;
+    padding: 2.5px 3px !important;
+    text-align: center !important;
+    border: 1px solid #000000 !important;
+  }
+
+  body:not(.printing-sheet) #monthly-doctors-table td,
+  body:not(.printing-sheet) #monthly-insurance-table td,
+  body:not(.printing-sheet) #monthly-settlements-table td,
+  body:not(.printing-sheet) #monthly-expenses-categories-table td,
+  body:not(.printing-sheet) #monthly-financial-summary-table td {
+    border: 1px solid #333333 !important;
+    padding: 2px 3px !important;
+    line-height: 1.1 !important;
+    vertical-align: middle !important;
+    word-break: break-word !important;
+    color: #000000 !important;
+    font-weight: 700 !important;
+  }
+
+  /* Crisp Monochrome Financial Overrides (No washed-out colors in B&W printing) */
+  body:not(.printing-sheet) [style*="color: var(--success)"],
+  body:not(.printing-sheet) [style*="color:var(--success)"],
+  body:not(.printing-sheet) [style*="color: var(--danger)"],
+  body:not(.printing-sheet) [style*="color:var(--danger)"],
+  body:not(.printing-sheet) [style*="color: var(--primary)"],
+  body:not(.printing-sheet) [style*="color:var(--primary)"],
+  body:not(.printing-sheet) [style*="color: var(--text-muted)"],
+  body:not(.printing-sheet) [style*="color:var(--text-muted)"],
+  body:not(.printing-sheet) td div,
+  body:not(.printing-sheet) td span {
+    color: #000000 !important;
+  }
+
+  /* Doctors table: Hide colored progress bar in print, show clean centered percentage */
+  body:not(.printing-sheet) #monthly-doctors-table i.fa-user-doctor,
+  body:not(.printing-sheet) #monthly-doctors-table div[style*="height: 8px"],
+  body:not(.printing-sheet) #monthly-doctors-table div[style*="height:8px"] {
+    display: none !important;
+  }
+
+  body:not(.printing-sheet) #monthly-doctors-table td:last-child div {
+    display: block !important;
     text-align: center !important;
   }
 
+  body:not(.printing-sheet) #monthly-doctors-table td:last-child span {
+    width: 100% !important;
+    display: block !important;
+    text-align: center !important;
+    font-weight: 800 !important;
+  }
+
+  /* Badge System: High-Contrast Crisp Black Borders, No Muddy Pastel Backgrounds */
+  body:not(.printing-sheet) .badge,
+  body:not(.printing-sheet) .badge-cash,
+  body:not(.printing-sheet) .badge-direct,
+  body:not(.printing-sheet) .badge-indirect,
+  body:not(.printing-sheet) .badge-success,
+  body:not(.printing-sheet) .badge-primary,
+  body:not(.printing-sheet) .badge-danger {
+    background-color: #ffffff !important;
+    color: #000000 !important;
+    border: 1px solid #000000 !important;
+    padding: 1px 5px !important;
+    font-size: 6.5pt !important;
+    font-weight: 800 !important;
+    display: inline-block !important;
+  }
+
+  body:not(.printing-sheet) .badge i {
+    display: none !important;
+  }
+
+  /* Financial Summary Table: Solid Black Borders and Clean High-Contrast Footers */
   body:not(.printing-sheet) #monthly-financial-summary-table tfoot td {
-    border: 0.8px solid #64748b !important;
-    padding: 2px 3px !important;
+    border: 1px solid #000000 !important;
+    padding: 2.5px 3px !important;
+    color: #000000 !important;
+  }
+
+  body:not(.printing-sheet) #monthly-financial-summary-table tfoot tr {
+    background-color: #f8fafc !important;
+  }
+
+  body:not(.printing-sheet) #monthly-financial-summary-table tfoot tr:last-child {
+    background-color: #f1f5f9 !important;
+    border-top: 2px solid #000000 !important;
+    border-bottom: 2px solid #000000 !important;
+  }
+
+  body:not(.printing-sheet) #monthly-financial-summary-table tfoot tr:last-child td {
+    color: #000000 !important;
+    font-weight: 900 !important;
+  }
+
+  /* Signatures Footer: Crisp black dashed separator */
+  body:not(.printing-sheet) .print-footer {
+    display: flex !important;
+    justify-content: space-around !important;
+    margin-top: 6px !important;
+    padding-top: 4px !important;
+    border-top: 1.5px dashed #000000 !important;
+    font-size: 7.5pt !important;
+    font-weight: 800 !important;
+    color: #000000 !important;
+    page-break-inside: avoid !important;
+  }
+
+  body:not(.printing-sheet) .print-footer .signature-line {
+    margin-top: 10px !important;
+    border-bottom: 1.5px solid #000000 !important;
+    width: 100px !important;
   }
 
   body:not(.printing-sheet) #card-monthly-doctors .card-header,
@@ -696,7 +808,7 @@
     display: block !important;
     padding: 0 0 3px 0 !important;
     margin-bottom: 3px !important;
-    border-bottom: 1.5px solid #0369a1 !important;
+    border-bottom: 1.5px solid #000000 !important;
     background: transparent !important;
   }
 
