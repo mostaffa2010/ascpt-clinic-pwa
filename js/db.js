@@ -1549,6 +1549,49 @@ class FirestoreDatabaseService {
     await deleteDoc(doc(firestoreDb, 'insurance_settlements', settlementId));
   }
 
+  // ================= 8.ب. Cash Safe Drawer Handoffs (سجل تسليم عهدة النقدية) =================
+  async getCashHandoff(dateStr) {
+    this.ensureConnected();
+    try {
+      const snap = await getDoc(doc(firestoreDb, 'cash_handoffs', dateStr));
+      return snap.exists() ? snap.data() : null;
+    } catch (err) {
+      console.warn('Get cash handoff notice:', err.message);
+      try {
+        const local = localStorage.getItem('ascpt_cash_handoff_' + dateStr);
+        return local ? JSON.parse(local) : null;
+      } catch (_) {
+        return null;
+      }
+    }
+  }
+
+  async saveCashHandoff(handoffData, currentUser) {
+    this.ensureConnected();
+    const now = new Date(); const dateStr = handoffData.date || (now.getFullYear() + "-" + String(now.getMonth() + 1).padStart(2, "0") + "-" + String(now.getDate()).padStart(2, "0"));
+    const dataToSave = {
+      ...handoffData,
+      date: dateStr,
+      time: new Date().toLocaleTimeString('ar-EG-u-nu-latn', { hour: '2-digit', minute: '2-digit' }),
+      handedBy: currentUser?.name || 'الاستقبال',
+      handedByUid: currentUser?.uid || '',
+      updatedAt: new Date().toISOString()
+    };
+    try {
+      await setDoc(doc(firestoreDb, 'cash_handoffs', dateStr), dataToSave);
+      try {
+        localStorage.setItem('ascpt_cash_handoff_' + dateStr, JSON.stringify(dataToSave));
+      } catch (_) {}
+      return dataToSave;
+    } catch (err) {
+      console.error('Save cash handoff notice:', err);
+      try {
+        localStorage.setItem('ascpt_cash_handoff_' + dateStr, JSON.stringify(dataToSave));
+      } catch (_) {}
+      return dataToSave;
+    }
+  }
+
   // ================= 8.أ. Insurance Claims (سجل مطالبات التأمين الصادرة) =================
   async getInsuranceClaims(companyName = null) {
     this.ensureConnected();

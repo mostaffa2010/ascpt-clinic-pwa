@@ -80,6 +80,7 @@ export class FinanceManager {
 
     // Add Expense Button
     document.getElementById('btn-add-expense')?.addEventListener('click', () => this.app.openAddExpenseModal());
+    document.getElementById('btn-confirm-cash-handoff')?.addEventListener('click', () => this.handleConfirmCashHandoff());
 
     // Insurance Claim Settlements Triggers & Forms
     document.getElementById('btn-add-settlement')?.addEventListener('click', () => this.openSettleClaimModal());
@@ -869,6 +870,27 @@ export class FinanceManager {
     }
     if (drawerBreakdownEl) {
       drawerBreakdownEl.textContent = `المقبوضات النقدية (${totalDrawerCash.toLocaleString('en-US')} ج.م) - المصروفات (${totalExpenses.toLocaleString('en-US')} ج.م)`;
+    // Check & Render Cash Handoff Status
+    try {
+      const handoff = await db.getCashHandoff(this.currentDate);
+      const statusEl = document.getElementById('drawer-handoff-status');
+      const btnHandoff = document.getElementById('btn-confirm-cash-handoff');
+      if (statusEl) {
+        if (handoff) {
+          const displayNet = handoff.netCash || netCash;
+          const displayBy = escapeHTML(handoff.handedBy || 'الاستقبال');
+          statusEl.innerHTML = '<span class="badge badge-success" style="font-size: 0.78rem; font-weight: 800; padding: 4px 10px; display: inline-flex; align-items: center; gap: 5px;"><i class="fa-solid fa-circle-check"></i><span>تم تسليم العهدة: ' + displayNet + ' ج.م بواسطة ' + displayBy + ' (' + handoff.time + ')</span></span>';
+          if (btnHandoff) {
+            btnHandoff.innerHTML = '<i class="fa-solid fa-check-double"></i> <span>تم التسليم (تحديث)</span>';
+          }
+        } else {
+          statusEl.innerHTML = '<span style="font-size: 0.8rem; color: var(--text-muted); display: inline-flex; align-items: center; gap: 6px;"><i class="fa-regular fa-clock"></i><span>لم يتم تسليم نقدية اليوم بعد</span></span>';
+          if (btnHandoff) {
+            btnHandoff.innerHTML = '<i class="fa-solid fa-hand-holding-dollar"></i> <span>تأكيد تسليم النقدية</span>';
+          }
+        }
+      }
+    } catch (_) {}
     }
 
     // Dynamic Doctor Filter
@@ -1818,6 +1840,44 @@ export class FinanceManager {
   // ================= 3D Stack Deck Handler (Daily & Monthly Doctors) =================
   initStackDeck(prefix) {
     initStackDeck(prefix);
+  }
+
+  async handleConfirmCashHandoff() {
+    const currentUser = auth.getCurrentUser();
+    if (!currentUser) return;
+
+    const drawerCashEl = document.getElementById('drawer-net-cash-display');
+    const currentNetCash = drawerCashEl ? drawerCashEl.textContent.replace(' ج.م', '').trim() : '0';
+
+    const confirmed = await this.app.showConfirm(
+      'هل ترغب في تأكيد تسليم عهدة نقدية اليوم بقيمة (' + currentNetCash + ' ج.م) باسمك (' + currentUser.name + ')؟',
+      'تأكيد تسليم نقدية الدرج'
+    );
+
+    if (!confirmed) return;
+
+    try {
+      await db.saveCashHandoff({
+        date: this.currentDate,
+        netCash: currentNetCash,
+        handedBy: currentUser.name,
+        handedByUid: currentUser.uid
+      }, currentUser);
+
+      try {
+        await this.app.auditManager?.logAction(
+          'تسليم نقدية الدرج',
+          'تم تسليم عهدة نقدية الدرج ليوم ' + this.currentDate + ' بمبلغ ' + currentNetCash + ' ج.م',
+          currentUser
+        );
+      } catch (_) {}
+
+      this.app.showToast('تم تسجيل وتأكيد تسليم النقدية بنجاح!', 'success');
+      await this.loadDailyReport();
+    } catch (err) {
+      console.error('Cash handoff error:', err);
+      this.app.showAlert('تعذر تسجيل تسليم النقدية: ' + err.message, 'خطأ', 'danger');
+    }
   }
 
   getDataForExport() {
