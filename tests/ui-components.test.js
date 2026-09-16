@@ -13,6 +13,8 @@ console.log('--- Running ASCPT UI Component Compliance Guardrail ---');
 
 const htmlContent = fs.readFileSync(htmlPath, 'utf-8');
 const appJsContent = fs.readFileSync(appJsPath, 'utf-8');
+const styleCssPath = path.join(rootDir, 'css/style.css');
+const styleCssContent = fs.readFileSync(styleCssPath, 'utf-8');
 const lines = htmlContent.split('\n');
 
 // 1. Strict Guardrail: ZERO Native Date Pickers (<input type="date"> is strictly prohibited across the entire app)
@@ -70,7 +72,10 @@ assert(batchModalHtml.includes('<select id="batch-hv-doctor" class="form-control
 // Assert session type toggle exists (Home Visits vs Clinic Batch)
 assert(batchModalHtml.includes('name="batch-session-type" value="home_visit"'), 'batch-session-type home_visit must exist');
 assert(batchModalHtml.includes('name="batch-session-type" value="clinic_batch"'), 'batch-session-type clinic_batch must exist');
-console.log('✓ 4. Batch Sessions Modal Compliance: Verified type toggle, custom picker, and custom calendar triggers.');
+assert(batchModalHtml.includes('id="btn-batch-pattern-both"'), 'btn-batch-pattern-both must exist in modal-batch-home-visits');
+assert(styleCssContent.includes('#modal-batch-home-visits .modal-body'), 'style.css must define scoped rules for #modal-batch-home-visits .modal-body');
+assert(styleCssContent.includes('.btn-batch-pattern.active'), 'style.css must define .btn-batch-pattern.active');
+console.log('✓ 4. Batch Sessions Modal Compliance: Verified type toggle, custom picker, combined pattern button, and desktop scroll guardrail.');
 
 // 5. Strict Guardrail: app.js registration of custom doctor selectors
 assert(appJsContent.includes("'batch-hv-doctor'"), "app.js must register 'batch-hv-doctor' in custom select lists");
@@ -91,8 +96,6 @@ assert(patientsJsContent.includes('input[name="p-contract-type"]:checked'), 'pat
 console.log('✓ 7. Contract Radio Name Parity: Verified HTML and JS contractType selector sync.');
 
 // 8. Strict Guardrail: Patient Registration Modal Scroll & Clearance Integrity
-const styleCssPath = path.join(rootDir, 'css/style.css');
-const styleCssContent = fs.readFileSync(styleCssPath, 'utf-8');
 
 assert(styleCssContent.includes('#modal-patient .modal-body'), 'style.css must have dedicated scoped rules for #modal-patient .modal-body');
 assert(styleCssContent.includes('padding: 16px 18px 100px 18px !important;'), 'modal-patient body must have at least 100px bottom padding to clear footer buttons');

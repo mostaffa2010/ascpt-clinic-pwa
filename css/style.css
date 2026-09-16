@@ -8228,6 +8228,53 @@ h1, h2, h3, h4, h5, h6 {
   z-index: 40 !important;
 }
 
+/* Hardened Modal Batch Sessions & Home Visits Scope (Guaranteed Desktop & Mobile Body Scroll & Sticky Header/Footer) */
+#modal-batch-home-visits .modal-content {
+  display: flex !important;
+  flex-direction: column !important;
+  max-height: 90vh !important;
+  overflow: hidden !important;
+}
+
+#modal-batch-home-visits #form-batch-home-visits {
+  display: flex !important;
+  flex-direction: column !important;
+  flex: 1 1 auto !important;
+  min-height: 0 !important;
+  overflow: hidden !important;
+}
+
+#modal-batch-home-visits .modal-header {
+  flex-shrink: 0 !important;
+}
+
+#modal-batch-home-visits .modal-body {
+  flex: 1 1 auto !important;
+  min-height: 0 !important;
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+  -webkit-overflow-scrolling: touch !important;
+  touch-action: pan-y !important;
+  overscroll-behavior-y: contain !important;
+}
+
+#modal-batch-home-visits .modal-footer {
+  flex-shrink: 0 !important;
+}
+
+.btn-batch-pattern.active {
+  background-color: var(--primary) !important;
+  color: #ffffff !important;
+  border-color: var(--primary) !important;
+  box-shadow: 0 2px 6px rgba(2, 132, 199, 0.35) !important;
+}
+
+[data-theme="dark"] .btn-batch-pattern.active {
+  background-color: var(--primary) !important;
+  color: #ffffff !important;
+  border-color: var(--primary) !important;
+}
+
 
 .form-group-modern {
   margin: 0 !important;

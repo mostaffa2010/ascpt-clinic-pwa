@@ -4140,7 +4140,14 @@ export class PatientsManager {
     const startStr = startDateInput?.value || getLocalDateStr();
 
     const pattern = this.batchHvSelectedPattern || 'sat_mon_wed';
-    const allowedDays = pattern === 'sun_tue_thu' ? [0, 2, 4] : [6, 1, 3];
+    let allowedDays;
+    if (pattern === 'sun_tue_thu') {
+      allowedDays = [0, 2, 4];
+    } else if (pattern === 'both' || pattern === 'sat_to_thu' || pattern === 'all_week') {
+      allowedDays = [0, 1, 2, 3, 4, 6];
+    } else {
+      allowedDays = [6, 1, 3];
+    }
 
     const generated = [];
     const curDate = new Date(startStr + 'T00:00:00');

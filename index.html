@@ -2371,7 +2371,7 @@
         <div class="admin-system-footer no-print" style="margin-top: 32px; margin-bottom: 35px; text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px;">
           <div style="display: inline-flex; align-items: center; gap: 8px; background: var(--bg-surface); border: 1.5px solid var(--border-color); padding: 7px 18px; border-radius: 999px; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);">
             <span style="width: 8px; height: 8px; border-radius: 50%; background-color: var(--success); display: inline-block; box-shadow: 0 0 6px var(--success);"></span>
-            <span id="admin-system-version-label" data-clinic="version-badge" style="font-weight: 800; font-size: 0.88rem; color: var(--text-main);">نظام ASCPT — الإصدار 2.6.7</span>
+            <span id="admin-system-version-label" data-clinic="version-badge" style="font-weight: 800; font-size: 0.88rem; color: var(--text-main);">نظام ASCPT — الإصدار 2.6.8</span>
             <span class="badge badge-primary" style="font-size: 0.72rem; padding: 2px 10px; border-radius: 999px; font-weight: 800;">إصدار معتمد</span>
           </div>
           <div style="font-size: 0.76rem; color: var(--text-muted); font-weight: 700;">
@@ -2707,16 +2707,16 @@
 
   <!-- Modal: Batch Sessions & Home Visits Entry (تسجيل الجلسات المجمعة والزيارات المنزلية - v2.2.7) -->
   <div class="modal-backdrop" id="modal-batch-home-visits" style="z-index: 220;">
-    <div class="modal-content" style="max-width: 540px; border-radius: 18px; overflow: hidden; box-shadow: 0 20px 40px rgba(0,0,0,0.35);">
-      <div class="modal-header" style="padding: 14px 18px; border-bottom: 1.5px solid var(--border-color); background: var(--bg-subtle);">
+    <div class="modal-content" style="max-width: 540px; border-radius: 18px; max-height: 90vh; display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 20px 40px rgba(0,0,0,0.35);">
+      <div class="modal-header" style="flex-shrink: 0; padding: 14px 18px; border-bottom: 1.5px solid var(--border-color); background: var(--bg-subtle);">
         <h3 id="modal-batch-title-text" style="font-size: 1.05rem; font-weight: 800; margin: 0; display: flex; align-items: center; gap: 8px;">
           <i class="fa-solid fa-house-chimney-medical" style="color: #059669;"></i>
           <span>تسجيل جواب زيارات منزلية</span>
         </h3>
         <button type="button" class="modal-close" data-close-modal="modal-batch-home-visits">&times;</button>
       </div>
-      <form id="form-batch-home-visits" novalidate>
-        <div class="modal-body" style="padding: 16px;">
+      <form id="form-batch-home-visits" novalidate style="display: flex; flex-direction: column; flex: 1 1 auto; min-height: 0; overflow: hidden;">
+        <div class="modal-body" style="padding: 16px; flex: 1 1 auto; min-height: 0; overflow-y: auto; -webkit-overflow-scrolling: touch; overscroll-behavior-y: contain;">
           <!-- Patient Summary Strip -->
           <div style="background: var(--bg-subtle); border-radius: 12px; padding: 12px 14px; margin-bottom: 14px; border: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; gap: 8px;">
             <div>
@@ -2795,6 +2795,7 @@
               <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
                 <button type="button" class="btn btn-outline btn-sm btn-batch-pattern active" data-pattern="sat_mon_wed" id="btn-batch-pattern-sat" style="padding: 8px; font-size: 0.8rem; font-weight: 800; border-radius: 8px; justify-content: center;">السبت • الإثنين • الأربعاء</button>
                 <button type="button" class="btn btn-outline btn-sm btn-batch-pattern" data-pattern="sun_tue_thu" id="btn-batch-pattern-sun" style="padding: 8px; font-size: 0.8rem; font-weight: 800; border-radius: 8px; justify-content: center;">الأحد • الثلاثاء • الخميس</button>
+                <button type="button" class="btn btn-outline btn-sm btn-batch-pattern" data-pattern="both" id="btn-batch-pattern-both" style="grid-column: span 2; padding: 8px; font-size: 0.8rem; font-weight: 800; border-radius: 8px; justify-content: center;">كلا النمطين معاً (السبت إلى الخميس)</button>
               </div>
             </div>
 
@@ -2847,7 +2848,7 @@
           </div>
         </div>
 
-        <div class="modal-footer" style="padding: 12px 18px; border-top: 1.5px solid var(--border-color); background: var(--bg-surface); display: flex; align-items: center; justify-content: space-between; gap: 10px;">
+        <div class="modal-footer" style="flex-shrink: 0; padding: 12px 18px; border-top: 1.5px solid var(--border-color); background: var(--bg-surface); display: flex; align-items: center; justify-content: space-between; gap: 10px;">
           <button type="button" class="btn btn-outline" data-close-modal="modal-batch-home-visits" style="border-radius: 12px; font-weight: 700; height: 44px; min-height: 44px; min-width: 80px;">إلغاء</button>
           <button type="submit" class="btn btn-primary" id="btn-submit-batch-hv" style="font-weight: 800; background: #059669; border-color: #059669; border-radius: 12px; padding: 10px 18px; height: 44px; min-height: 44px; flex: 1; display: inline-flex; align-items: center; justify-content: center; gap: 8px;">
             <i class="fa-solid fa-check-double"></i> <span>تأكيد وحفظ الجلسات بالكامل</span>

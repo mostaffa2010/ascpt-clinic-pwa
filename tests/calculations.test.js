@@ -565,7 +565,14 @@ console.log('✓ All 6 Today Patients Filter assertions passed successfully!');
 console.log('--- Running Tests: Batch Home Visits & Doctor Dashboard Decoupling ---');
 
 function mockGenerateBatchHomeVisitDates({ count = 12, startDate = '2026-09-12', pattern = 'sat_mon_wed' }) {
-  const allowedDays = pattern === 'sun_tue_thu' ? [0, 2, 4] : [6, 1, 3];
+  let allowedDays;
+  if (pattern === 'sun_tue_thu') {
+    allowedDays = [0, 2, 4];
+  } else if (pattern === 'both' || pattern === 'sat_to_thu' || pattern === 'all_week') {
+    allowedDays = [0, 1, 2, 3, 4, 6];
+  } else {
+    allowedDays = [6, 1, 3];
+  }
   const generated = [];
   const curDate = new Date(startDate + 'T00:00:00');
   let safety = 0;
@@ -599,6 +606,18 @@ assert.equal(sunBatch[0], '2026-09-13', 'First date Sunday');
 assert.equal(sunBatch[1], '2026-09-15', 'Second date Tuesday');
 assert.equal(sunBatch[2], '2026-09-17', 'Third date Thursday');
 assert.ok(!sunBatch.includes('2026-09-18'), 'Friday holiday must not appear');
+
+// 3. Test Both patterns together (Saturday to Thursday) for 12 sessions starting Saturday 2026-09-12
+const bothBatch = mockGenerateBatchHomeVisitDates({ count: 12, startDate: '2026-09-12', pattern: 'both' });
+assert.equal(bothBatch.length, 12, 'Must generate exactly 12 dates for both patterns');
+assert.equal(bothBatch[0], '2026-09-12', 'Day 1 Sat');
+assert.equal(bothBatch[1], '2026-09-13', 'Day 2 Sun');
+assert.equal(bothBatch[2], '2026-09-14', 'Day 3 Mon');
+assert.equal(bothBatch[3], '2026-09-15', 'Day 4 Tue');
+assert.equal(bothBatch[4], '2026-09-16', 'Day 5 Wed');
+assert.equal(bothBatch[5], '2026-09-17', 'Day 6 Thu');
+assert.ok(!bothBatch.includes('2026-09-18'), 'Friday 2026-09-18 must be strictly excluded');
+assert.equal(bothBatch[6], '2026-09-19', 'Day 7 next Sat');
 
 // 3. Test Doctor Dashboard In-Clinic Dues Exclusion Logic
 function calculateDoctorMonthDuesWithExclusions(sessions, regularRate = 50) {
