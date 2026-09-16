@@ -784,7 +784,24 @@ const docGroupedHV = groupHomeVisitsForDoctor(docMerged);
 assert.equal(docGroupedHV.length, 1, 'Should group into exactly 1 patient in doctor home-visits tab');
 assert.equal(docGroupedHV[0].sessionCount, 12, 'Group must have all 12 sessions');
 
-console.log('✓ All 11 Batch Home Visits & Doctor Dashboard Decoupling assertions passed successfully!');
+// 7. Test Batch Sessions & Home Visits Deletion Engine
+function mockDeleteBatchSessions(sessionsCache, sessionIdsToDelete) {
+  const idSet = new Set(sessionIdsToDelete);
+  return sessionsCache.filter(s => !idSet.has(s.id));
+}
+
+const initialHVCache = [
+  ...Array.from({ length: 12 }, (_, i) => ({ id: `hv_del_${i+1}`, patientId: 'p_del' })),
+  { id: 'hv_keep_1', patientId: 'p_keep' }
+];
+const idsToDelete = initialHVCache.filter(s => s.patientId === 'p_del').map(s => s.id);
+assert.equal(idsToDelete.length, 12, 'Must identify 12 sessions to delete for patient p_del');
+
+const remainingCache = mockDeleteBatchSessions(initialHVCache, idsToDelete);
+assert.equal(remainingCache.length, 1, 'Remaining cache must only contain p_keep session');
+assert.equal(remainingCache[0].id, 'hv_keep_1');
+
+console.log('✓ All 14 Batch Home Visits & Doctor Dashboard Decoupling assertions passed successfully!');
 
 // ============================================================================
 // 12. Doctor Dashboard Lifetime Patients Grouping & First Doctor Assignment

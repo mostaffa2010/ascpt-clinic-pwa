@@ -2597,6 +2597,8 @@ export class PatientsManager {
     if (!this.currentSheetPatient) return;
     const p = this.currentSheetPatient;
     const sessions = this.currentPatientSessions || [];
+    const currentUser = (typeof auth !== 'undefined' && auth.getCurrentUser) ? auth.getCurrentUser() : null;
+    const canDelete = RolesManager.canDelete(currentUser);
 
     const nameEl = document.getElementById('modal-p-sess-patient-name');
     if (nameEl) nameEl.textContent = p.name;
@@ -2704,8 +2706,13 @@ export class PatientsManager {
               </div>
             ` : ''}
 
-            <div class="stc-footer">
+            <div class="stc-footer" style="display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap;">
               <small><i class="fa-solid fa-user-check"></i> المسجل: ${escapeHTML(s.recordedBy || 'موظف الاستقبال')}</small>
+              ${canDelete ? `
+                <button type="button" class="btn btn-outline btn-sm btn-icon-action btn-delete-history-session" onclick="patientsManager.deletePatientSession('${escapeHTML(s.id)}')" style="color: var(--danger); border-color: rgba(239, 68, 68, 0.35); background: rgba(239, 68, 68, 0.06); padding: 2px 8px; font-size: 0.74rem; display: inline-flex; align-items: center; gap: 4px;" title="حذف هذه الجلسة">
+                  <i class="fa-solid fa-trash"></i> <span>حذف</span>
+                </button>
+              ` : ''}
             </div>
           </div>
         `;
@@ -4361,4 +4368,45 @@ export class PatientsManager {
       }
     }
   }
+
+  async deletePatientSession(sessionId) {
+    const currentUser = auth.getCurrentUser();
+    if (!RolesManager.canDelete(currentUser)) {
+      this.app.showAlert('عفواً، حذف الجلسات متاح للإدارة والاستقبال فقط.', 'صلاحية غير كافية', 'warning');
+      return;
+    }
+
+    const s = (await db.getSessionById(sessionId)) || (this.currentPatientSessions || []).find(x => x.id === sessionId);
+    const itemLabel = (s?.isHomeVisit || s?.visitType === 'home') ? 'الزيارة المنزلية' : (s?.entryType === 'examination' ? 'الكشف' : 'الجلسة');
+    const dateLabel = s?.date ? ` بتاريخ ${s.date}` : '';
+
+    const confirmed = await this.app.showConfirm(
+      `هل أنت متأكد من حذف ${itemLabel}${dateLabel} للمريض (${this.currentSheetPatient?.name || ''})؟`,
+      `تأكيد حذف ${itemLabel}`
+    );
+
+    if (!confirmed) return;
+
+    try {
+      await db.deleteSession(sessionId);
+      await db.logAudit(`حذف ${itemLabel}`, `حذف ${itemLabel} للمريض ${this.currentSheetPatient?.name || ''} برقم ${sessionId}`, currentUser);
+      this.app.showToast(`تم حذف ${itemLabel} بنجاح`);
+
+      if (this.currentSheetPatient) {
+        await this.openPatientClinicalSheet(this.currentSheetPatient.id);
+        this.openPatientSessionsModal();
+      }
+
+      if (this.app?.doctorDashboardManager && typeof this.app.doctorDashboardManager.render === 'function') {
+        this.app.doctorDashboardManager.render().catch(() => {});
+      }
+      if (this.app?.sessionsManager && typeof this.app.sessionsManager.updateHomeVisitsBadge === 'function') {
+        this.app.sessionsManager.updateHomeVisitsBadge().catch(() => {});
+      }
+    } catch (err) {
+      console.error('deletePatientSession error:', err);
+      this.app.showAlert('تعذر حذف الجلسة: ' + err.message, 'خطأ', 'danger');
+    }
+  }
+
 }

@@ -182,7 +182,10 @@ assert(htmlContent.includes('id="sessions-hv-mobile-cards"'), 'index.html must i
 assert(sessionsJsContent.includes('switchSessionsTab(tab)'), 'sessions.js must implement switchSessionsTab(tab)');
 assert(sessionsJsContent.includes('renderHomeVisitsList()'), 'sessions.js must implement renderHomeVisitsList()');
 assert(sessionsJsContent.includes('updateHomeVisitsBadge()'), 'sessions.js must implement updateHomeVisitsBadge()');
-console.log('✓ 16. Sessions Screen Home Visits Tab: Verified view switcher, tabs, containers, and methods parity.');
+assert(dbJsContent.includes('deleteBatchSessions('), 'db.js must implement deleteBatchSessions(');
+assert(sessionsJsContent.includes('deleteHomeVisitsGroup('), 'sessions.js must implement deleteHomeVisitsGroup(');
+assert(fs.readFileSync(path.join(rootDir, 'js/patients.js'), 'utf-8').includes('deletePatientSession('), 'patients.js must implement deletePatientSession(');
+console.log('✓ 16. Sessions Screen Home Visits Tab: Verified view switcher, tabs, containers, and delete methods parity.');
 
 console.log('===================================================================');
 console.log('✓ All ASCPT UI Component Compliance Guardrail Checks Passed (100%)!');

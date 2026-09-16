@@ -928,6 +928,38 @@ class FirestoreDatabaseService {
     }
   }
 
+  // Batch Sessions Deletion Engine (Zero-Cost Atomic Batch)
+  async deleteBatchSessions(sessionIds = []) {
+    this.ensureConnected();
+    if (!Array.isArray(sessionIds) || sessionIds.length === 0) return true;
+    try {
+      const batch = writeBatch(firestoreDb);
+      sessionIds.forEach(id => {
+        batch.delete(doc(firestoreDb, 'sessions', id));
+        this._sessionDocCache.delete(id);
+      });
+      await batch.commit();
+
+      this._sessionsByDateCache.clear();
+      this._sessionsByPatientCache.clear();
+      if (this._sessionsCache) {
+        const idSet = new Set(sessionIds);
+        this._sessionsCache = this._sessionsCache.filter(s => !idSet.has(s.id));
+        this._sessionsLastFetch = Date.now();
+      }
+      if (this._homeVisitsCache) {
+        const idSet = new Set(sessionIds);
+        this._homeVisitsCache = this._homeVisitsCache.filter(s => !idSet.has(s.id));
+        this._homeVisitsLastFetch = Date.now();
+      }
+      return true;
+    } catch (err) {
+      console.error('Firestore deleteBatchSessions error:', err);
+      throw new Error('فشل حذف الجلسات من قاعدة البيانات.');
+    }
+  }
+
+
   // ================= 3. Expenses Management (Zero-Cost Scoped Architecture) =================
   async getExpenses(filterDate = null, forceRefresh = false) {
     this.ensureConnected();

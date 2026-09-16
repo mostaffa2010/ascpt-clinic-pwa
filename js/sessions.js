@@ -2036,6 +2036,8 @@ export class SessionsManager {
     const tbody = document.getElementById('sessions-hv-tbody');
     const mobileCards = document.getElementById('sessions-hv-mobile-cards');
     const countBadge = document.getElementById('sessions-home-visits-count-badge');
+    const currentUser = auth.getCurrentUser();
+    const canDelete = RolesManager.canDelete(currentUser);
 
     try {
       const allHV = (typeof db.getHomeVisits === 'function') ? await db.getHomeVisits() : [];
@@ -2140,6 +2142,11 @@ export class SessionsManager {
                 <button type="button" class="btn btn-outline btn-sm btn-icon-action" onclick="patientsManager.openPatientDocsModal('${safePid}')" title="مستندات المريض">
                   <i class="fa-solid fa-file-invoice text-primary"></i>
                 </button>
+                ${canDelete ? `
+                  <button type="button" class="btn btn-outline btn-sm btn-icon-action btn-delete-hv" style="color: var(--danger); border-color: rgba(239, 68, 68, 0.35); background: rgba(239, 68, 68, 0.08);" onclick="sessionsManager.deleteHomeVisitsGroup('${safePid}', '${escapeHTML(group.letterRef || '')}', '${safeName}')" title="حذف جواب الزيارات المنزلية بالكامل">
+                    <i class="fa-solid fa-trash"></i>
+                  </button>
+                ` : ''}
               </td>
             </tr>
           `;
@@ -2199,6 +2206,11 @@ export class SessionsManager {
                   <button type="button" class="btn btn-outline btn-sm btn-icon-action" onclick="patientsManager.openPatientDocsModal('${safePid}')" title="مستندات المريض">
                     <i class="fa-solid fa-file-invoice text-primary"></i>
                   </button>
+                  ${canDelete ? `
+                    <button type="button" class="btn btn-outline btn-sm btn-icon-action btn-delete-hv" style="color: var(--danger); border-color: rgba(239, 68, 68, 0.35); background: rgba(239, 68, 68, 0.08);" onclick="sessionsManager.deleteHomeVisitsGroup('${safePid}', '${escapeHTML(group.letterRef || '')}', '${safeName}')" title="حذف جواب الزيارات بالكامل">
+                      <i class="fa-solid fa-trash"></i>
+                    </button>
+                  ` : ''}
                 </div>
               </div>
             </div>
@@ -2208,6 +2220,54 @@ export class SessionsManager {
     } catch (err) {
       console.error('renderHomeVisitsList error:', err);
       if (tbody) tbody.innerHTML = `<tr><td colspan="7" style="text-align: center; color: var(--danger); padding: 20px;">تعذر تحميل الزيارات المنزلية: ${escapeHTML(err.message)}</td></tr>`;
+    }
+  }
+
+
+  async deleteHomeVisitsGroup(patientId, letterRef, patientName) {
+    const currentUser = auth.getCurrentUser();
+    if (!RolesManager.canDelete(currentUser)) {
+      this.app.showAlert('عفواً، حذف الجلسات متاح لإدارة المركز والاستقبال فقط.', 'صلاحية غير كافية', 'warning');
+      return;
+    }
+
+    const matchingSessions = (this.allHomeVisits || []).filter(s => {
+      const matchP = patientId ? (s.patientId === patientId) : (s.patientName === patientName);
+      const matchRef = letterRef ? (s.letterRef === letterRef) : true;
+      return matchP && matchRef;
+    });
+
+    if (matchingSessions.length === 0) {
+      this.app.showToast('لم يتم العثور على الجلسات لحذفها', 'warning');
+      return;
+    }
+
+    const count = matchingSessions.length;
+    const pName = patientName || matchingSessions[0]?.patientName || 'المريض';
+    const refTxt = letterRef ? ` برقم خطاب (${letterRef})` : '';
+
+    const confirmed = await this.app.showConfirm(
+      `هل أنت متأكد من حذف جواب الزيارات المنزلية بالكامل للمريض (${pName})${refTxt}؟\n\nتنبيه: سيتم حذف ${count} زيارة مسجلة بتواريخها نهائياً من قاعدة البيانات وسجل الطبيب.`,
+      'تأكيد حذف الزيارات المنزلية'
+    );
+
+    if (!confirmed) return;
+
+    try {
+      const sessionIds = matchingSessions.map(s => s.id);
+      await db.deleteBatchSessions(sessionIds);
+
+      await db.logAudit('حذف زيارات منزلية', `حذف جواب زيارات منزلية (${count} زيارة) للمريض ${pName}${refTxt}`, currentUser);
+      this.app.showToast(`تم بنجاح حذف جواب الزيارات المنزلية (${count} زيارة) للمريض ${pName}`, 'success');
+
+      await this.updateHomeVisitsBadge();
+
+      if (this.app?.doctorDashboardManager && typeof this.app.doctorDashboardManager.render === 'function') {
+        this.app.doctorDashboardManager.render().catch(() => {});
+      }
+    } catch (err) {
+      console.error('deleteHomeVisitsGroup error:', err);
+      this.app.showAlert('تعذر حذف الزيارات: ' + err.message, 'خطأ', 'danger');
     }
   }
 
