@@ -198,9 +198,48 @@ class App {
     window.alert = (msg) => this.showAlert(msg, 'تنبيه المركز', 'info');
     window.confirm = (msg) => this.showConfirm(msg, 'تأكيد الإجراء');
 
-
+    // استعادة الشاشة النشطة قبل التحديث (View Persistence across Reloads)
+    await this.restoreActiveView();
 
     console.log('ASCPT Clinic Management System fully initialized.');
+  }
+
+  async restoreActiveView() {
+    try {
+      const urlParams = new URLSearchParams(window.location.search);
+      const urlView = urlParams.get('view');
+      const urlPatientId = urlParams.get('patientId');
+
+      const savedView = urlView || sessionStorage.getItem('ascpt_active_view');
+      const savedPatientId = urlPatientId || sessionStorage.getItem('ascpt_active_patient_id');
+
+      // Clean up reload/view query parameters from the browser address bar without reload
+      if (urlView || urlParams.has('reload')) {
+        const cleanUrl = window.location.pathname;
+        history.replaceState({ view: savedView || 'dashboard', depth: 1 }, '', cleanUrl);
+      }
+
+      if (savedView && savedView !== 'dashboard') {
+        const user = auth.getCurrentUser();
+        // Permission bounds
+        if (user?.role === 'doctor' && savedView !== 'patients' && savedView !== 'patient-sheet') {
+          return;
+        }
+        if (user?.role === 'receptionist' && (savedView === 'admin' || savedView === 'patient-sheet')) {
+          return;
+        }
+
+        if (savedView === 'patient-sheet' && savedPatientId) {
+          if (this.patientsManager && typeof this.patientsManager.openPatientSheet === 'function') {
+            await this.patientsManager.openPatientSheet(savedPatientId);
+          }
+        } else {
+          this.switchView(savedView, true);
+        }
+      }
+    } catch (e) {
+      console.warn('restoreActiveView notice:', e);
+    }
   }
 
   // ================= Dark / Light Theme Manager =================
@@ -376,6 +415,15 @@ class App {
     }
 
     this.currentView = viewName;
+    try {
+      sessionStorage.setItem('ascpt_active_view', viewName);
+      if (viewName === 'patient-sheet') {
+        const pid = this.patientsManager?.currentSheetPatient?.id;
+        if (pid) sessionStorage.setItem('ascpt_active_patient_id', pid);
+      } else {
+        sessionStorage.removeItem('ascpt_active_patient_id');
+      }
+    } catch (_) {}
 
     // Toggle active classes on view sections
     document.querySelectorAll('.view-section').forEach(sec => sec.classList.remove('active'));

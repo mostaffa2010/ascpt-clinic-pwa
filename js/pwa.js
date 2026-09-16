@@ -182,7 +182,21 @@ export class PWAManager {
       }
     } catch (_) {}
 
+    // Preserve active screen state across reload
+    const activeView = window.app?.currentView || 'dashboard';
+    let patientParam = '';
+    if (activeView === 'patient-sheet' && window.app?.patientsManager?.currentSheetPatient?.id) {
+      patientParam = `&patientId=${encodeURIComponent(window.app.patientsManager.currentSheetPatient.id)}`;
+    }
+
+    try {
+      sessionStorage.setItem('ascpt_active_view', activeView);
+      if (patientParam) {
+        sessionStorage.setItem('ascpt_active_patient_id', window.app.patientsManager.currentSheetPatient.id);
+      }
+    } catch (_) {}
+
     const cleanUrl = window.location.href.split('#')[0].split('?')[0];
-    window.location.replace(`${cleanUrl}?reload=${Date.now()}`);
+    window.location.replace(`${cleanUrl}?view=${encodeURIComponent(activeView)}${patientParam}&reload=${Date.now()}`);
   }
 }

@@ -262,6 +262,14 @@ assert(pwaJsContent.includes('forceReload()'), 'pwa.js must implement forceReloa
 assert(pwaJsContent.includes('getViewIcon()'), 'pwa.js must implement dynamic screen icon detection');
 console.log('✓ 18. Minimalist Pull-to-Force-Reload: Verified context-aware circular widget, SVG ring, and PWA handler parity.');
 
+// 19. Strict Guardrail: Active View Persistence & Force-Reload Restoration Parity
+const freshAppJsContent = fs.readFileSync(path.join(rootDir, 'js/app.js'), 'utf-8');
+assert(freshAppJsContent.includes('restoreActiveView()'), 'app.js must implement restoreActiveView()');
+assert(freshAppJsContent.includes('sessionStorage.setItem(\'ascpt_active_view\', viewName)'), 'switchView must persist active view to sessionStorage');
+assert(pwaJsContent.includes('?view='), 'pwa.js forceReload must pass current active view in reload query');
+assert(pwaJsContent.includes('sessionStorage.setItem(\'ascpt_active_view\', activeView)'), 'pwa.js forceReload must store active view in sessionStorage');
+console.log('✓ 19. Active View Persistence: Verified session and reload preservation for all views.');
+
 console.log('===================================================================');
 console.log('✓ All ASCPT UI Component Compliance Guardrail Checks Passed (100%)!');
 console.log('===================================================================');
