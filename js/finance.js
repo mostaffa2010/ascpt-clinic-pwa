@@ -1104,14 +1104,14 @@ export class FinanceManager {
             '<tr>' +
               '<td style="text-align: center; font-weight: 700;">' + (rowIdx++) + '</td>' +
               '<td style="font-weight: 700; color: #000000;">' + escapeHTML(patientName) + '</td>' +
-              '<td style="font-size: 8pt; font-weight: 600;">' + escapeHTML(treatedBodyParts) + '</td>' +
+              '<td style="font-weight: 600;">' + escapeHTML(treatedBodyParts) + '</td>' +
               '<td style="font-weight: 600;">' + escapeHTML(doctorText) + '</td>' +
               '<td style="text-align: center;">' +
-                '<span class="badge ' + (isInsurance ? 'badge-direct' : 'badge-cash') + '">' + payTypeText + '</span>' +
+                '<span class="badge ' + (isInsurance ? 'badge-direct' : 'badge-cash') + '" style="padding: 1px 3px; font-size: 6.5pt; font-weight: 800;">' + payTypeText + '</span>' +
               '</td>' +
               '<td style="font-weight: 600;">' + escapeHTML(companyName) + '</td>' +
               '<td style="text-align: center; font-weight: 800; color: #0369a1;">' + escapeHTML(actionType) + '</td>' +
-              '<td style="text-align: center; font-weight: 800; color: #15803d;">' + totalPaid.toLocaleString('en-US') + ' ج.م</td>' +
+              '<td style="text-align: center; font-weight: 800; color: #15803d; white-space: nowrap;">' + totalPaid.toLocaleString('en-US') + ' ج.م</td>' +
             '</tr>'
           );
         });
@@ -1128,7 +1128,7 @@ export class FinanceManager {
     const expTbody = document.getElementById('finance-expenses-tbody');
     if (expTbody) {
       if (allExpenses.length === 0) {
-        expTbody.innerHTML = `<tr><td colspan="5" style="text-align: center; color: var(--text-muted); padding: 20px;">لا توجد مصروفات مسجلة لهذا اليوم.</td></tr>`;
+        expTbody.innerHTML = `<tr><td colspan="5" style="text-align: center; color: var(--text-muted); padding: 4px; font-size: 7pt;">لا توجد مصروفات مسجلة لهذا اليوم.</td></tr>`;
       } else {
         expTbody.innerHTML = allExpenses.map(e => `
           <tr>
