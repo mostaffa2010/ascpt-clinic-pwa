@@ -851,18 +851,23 @@
 
   body.printing-claim table.claim-print-table {
     width: 100% !important;
+    table-layout: fixed !important;
     border-collapse: collapse !important;
+    box-sizing: border-box !important;
+    border: 1.5px solid #000000 !important;
     margin: 10px 0 !important;
   }
 
   body.printing-claim table.claim-print-table th,
   body.printing-claim table.claim-print-table td {
-    border: 1.2px solid #000000 !important;
+    border: 1px solid #000000 !important;
     padding: 5px 6px !important;
     font-size: 8.5pt !important;
     line-height: 1.2 !important;
     color: #000000 !important;
     vertical-align: middle !important;
+    box-sizing: border-box !important;
+    word-break: break-word !important;
   }
 
   body.printing-claim table.claim-print-table th {
