@@ -875,7 +875,7 @@ export class AppointmentsManager {
           ${slotsToDisplay.map(({ slot, cellAppts, uncompletedAppts, completedAppts, isSlotFullyDone }, index) => {
             const listToShow = isShowingCompleted ? completedAppts : uncompletedAppts;
             return `
-              <div class="doc-stack-card" data-card-index="${index}">
+              <div class="hero-styled-card doc-stack-card doc-slot-card ${index === initialIndex ? 'is-active-card' : 'is-peeking-card'}" data-card-index="${index}">
                 <div class="doc-stack-card-header">
                   <div class="doc-stack-time-badge">
                     <i class="fa-regular fa-clock"></i>
@@ -951,6 +951,24 @@ export class AppointmentsManager {
       `;
     }
 
+    const dotsHTML = slotsToDisplay.map((_, i) => `
+      <span class="doc-dot ${i === initialIndex ? 'active' : ''}" data-dot-index="${i}"></span>
+    `).join('');
+
+    const navBarHTML = slotsToDisplay.length > 1 ? `
+      <div class="doc-stack-nav-bar" id="doc-stack-nav-bar">
+        <button type="button" class="doc-stack-nav-btn" id="btn-doc-stack-prev">
+          <i class="fa-solid fa-chevron-right"></i> السابق
+        </button>
+        <div class="doc-stack-dots" id="doc-stack-dots">
+          ${dotsHTML}
+        </div>
+        <button type="button" class="doc-stack-nav-btn" id="btn-doc-stack-next">
+          التالي <i class="fa-solid fa-chevron-left"></i>
+        </button>
+      </div>
+    ` : '';
+
     return {
       html: `
         <div class="doc-schedule-wrapper">
@@ -966,7 +984,18 @@ export class AppointmentsManager {
               <span class="filter-count-badge">${totalCompletedPatients}</span>
             </div>
           </div>
+          ${slotsToDisplay.length > 1 ? `
+            <div class="doc-stack-header-bar" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; padding: 0 4px;">
+              <span style="font-size: 0.82rem; font-weight: 800; color: var(--text-main);">
+                <i class="fa-solid fa-layer-group text-primary"></i> فترات المواعيد لليوم
+              </span>
+              <span id="doc-stack-counter" style="font-size: 0.78rem; font-weight: 800; color: var(--primary); background: rgba(2, 132, 199, 0.12); padding: 2px 10px; border-radius: 999px;">
+                ${initialIndex + 1} من ${slotsToDisplay.length}
+              </span>
+            </div>
+          ` : ''}
           ${contentHTML}
+          ${navBarHTML}
         </div>
       `,
       initialIndex
@@ -978,7 +1007,12 @@ export class AppointmentsManager {
       containerId: 'doc-stack-container',
       cardSelector: '.doc-stack-card',
       initialIndex: initialIndex || 0,
-      activeOffsetPx: 12
+      prefix: 'doc-stack',
+      dotsId: 'doc-stack-dots',
+      counterId: 'doc-stack-counter',
+      nextBtnId: 'btn-doc-stack-next',
+      prevBtnId: 'btn-doc-stack-prev',
+      activeOffsetPx: 18
     });
   }
 

@@ -113,11 +113,18 @@ export function initStackDeck(config) {
     if (isListMode) return;
     currentIndex = Math.max(0, Math.min(newIndex, cards.length - 1));
 
+    // Dynamic height adjustment to match active card
+    const activeC = cards[currentIndex];
+    if (activeC && activeC.offsetHeight > 0) {
+      container.style.minHeight = `${Math.max(activeC.offsetHeight + 10, 180)}px`;
+    }
+
     for (let idx = 0; idx < cards.length; idx++) {
       const card = cards[idx];
       const diff = idx - currentIndex;
 
       card.style.transition = animate ? springTransition : 'none';
+      card.style.transformOrigin = 'right center';
 
       if (diff === 0) {
         // Active front card: perfectly centered, clean, zero ghost background
@@ -128,15 +135,42 @@ export function initStackDeck(config) {
         card.style.pointerEvents = 'auto';
         card.classList.add('is-active-card');
         card.classList.remove('is-peeking-card', 'is-passed-card', 'is-hidden-card');
-      } else {
-        // Inactive cards: smoothly hidden without peeking ghost background borders
-        card.style.transform = diff > 0 ? 'translate3d(-24px, 0, 0) scale(0.95)' : 'translate3d(100%, 0, 0) scale(0.95)';
+      } else if (diff === 1) {
+        // Next card peeking from underneath on the left (RTL peek)
+        card.style.transform = 'translate3d(-18px, 0, 0) scale(0.95)';
+        card.style.zIndex = '8';
+        card.style.opacity = '0.88';
+        card.style.visibility = 'visible';
+        card.style.pointerEvents = 'auto';
+        card.classList.add('is-peeking-card');
+        card.classList.remove('is-active-card', 'is-passed-card', 'is-hidden-card');
+      } else if (diff === 2) {
+        // Second next card (subtle peek further left)
+        card.style.transform = 'translate3d(-20px, 0, 0) scale(0.90)';
         card.style.zIndex = '4';
+        card.style.opacity = '0.45';
+        card.style.visibility = 'visible';
+        card.style.pointerEvents = 'auto';
+        card.classList.add('is-peeking-card');
+        card.classList.remove('is-active-card', 'is-passed-card', 'is-hidden-card');
+      } else if (diff > 2) {
+        // Inactive future cards: hidden
+        card.style.transform = 'translate3d(-24px, 0, 0) scale(0.85)';
+        card.style.zIndex = '2';
         card.style.opacity = '0';
         card.style.visibility = 'hidden';
         card.style.pointerEvents = 'none';
         card.classList.add('is-hidden-card');
         card.classList.remove('is-active-card', 'is-peeking-card');
+      } else {
+        // Passed cards: smoothly swiped away to the right
+        card.style.transform = 'translate3d(120%, 0, 0) scale(0.95)';
+        card.style.zIndex = '3';
+        card.style.opacity = '0';
+        card.style.visibility = 'hidden';
+        card.style.pointerEvents = 'none';
+        card.classList.add('is-passed-card');
+        card.classList.remove('is-active-card', 'is-peeking-card', 'is-hidden-card');
       }
     }
 

@@ -5071,20 +5071,21 @@ body {
 .doc-stack-container {
   position: relative;
   width: 100%;
-  min-height: 190px;
+  min-height: 200px;
   perspective: none;
   touch-action: pan-y;
   user-select: none;
   -webkit-user-select: none;
   box-sizing: border-box;
-  padding-left: 0 !important;
+  padding-left: 22px;
+  padding-right: 0;
 }
 
 .doc-stack-card {
   position: absolute;
   top: 0;
-  left: 0 !important;
-  right: 0 !important;
+  left: 22px;
+  right: 0;
   border-radius: 20px;
   box-sizing: border-box;
   cursor: pointer;
@@ -5119,13 +5120,16 @@ body {
 .doc-stack-wrapper .doc-stack-card.is-peeking-card, .doc-stack-container .doc-stack-card.is-peeking-card {
   cursor: pointer;
   pointer-events: auto;
-  border-color: var(--border-color);
+  border-color: rgba(2, 132, 199, 0.35);
+  box-shadow: -4px 6px 18px -2px rgba(15, 23, 42, 0.12);
   visibility: visible;
   opacity: 0.88;
 }
 
 [data-theme="dark"] .doc-stack-wrapper .doc-stack-card.is-peeking-card, .doc-stack-container .doc-stack-card.is-peeking-card {
-  opacity: 0.80;
+  border-color: rgba(56, 189, 248, 0.3);
+  box-shadow: -4px 6px 20px -2px rgba(0, 0, 0, 0.5);
+  opacity: 0.82;
 }
 
 .doc-stack-wrapper .doc-stack-card.is-passed-card,
@@ -6208,7 +6212,8 @@ body::-webkit-scrollbar,
   #admin-users-mobile-cards #btn-toggle-admin-stack,
   #admin-users-mobile-cards #admin-stack-counter,
   #my-appointments-grid #btn-toggle-doc-stack-layout,
-  #my-appointments-grid #doc-stack-counter {
+  #my-appointments-grid #doc-stack-counter,
+  #my-appointments-grid .doc-stack-header-bar {
     display: none !important;
   }
 }
@@ -11446,4 +11451,211 @@ body.role-doctor .btn-quick-attend {
 .print-only-card,
 #card-finance-report-sessions {
   display: none !important;
+}
+
+
+/* ==========================================================================
+   Doctor Slot Card (Cohesive Time-Slot Master Card Component)
+   ========================================================================== */
+.doc-slot-card {
+  background: var(--bg-surface);
+  border: 1.5px solid rgba(2, 132, 199, 0.28);
+  border-radius: 18px;
+  padding: 14px 16px;
+  box-shadow: 0 10px 28px -4px rgba(2, 132, 199, 0.18);
+  display: flex;
+  flex-direction: column;
+}
+
+:root:not([data-theme="dark"]) .doc-slot-card {
+  background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+  border-color: rgba(2, 132, 199, 0.25);
+  box-shadow: 0 10px 28px -4px rgba(2, 132, 199, 0.15);
+}
+
+[data-theme="dark"] .doc-slot-card {
+  background: linear-gradient(180deg, #1e293b 0%, #0f172a 100%);
+  border-color: rgba(56, 189, 248, 0.32);
+  box-shadow: 0 12px 32px -4px rgba(0, 0, 0, 0.6);
+}
+
+.doc-slot-card .doc-stack-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 14px;
+  margin-bottom: 12px;
+  background: linear-gradient(135deg, rgba(2, 132, 199, 0.12) 0%, rgba(2, 132, 199, 0.05) 100%);
+  border: 1.5px solid rgba(2, 132, 199, 0.25);
+  border-radius: 13px;
+  gap: 8px;
+}
+
+[data-theme="dark"] .doc-slot-card .doc-stack-card-header {
+  background: linear-gradient(135deg, rgba(56, 189, 248, 0.16) 0%, rgba(15, 23, 42, 0.7) 100%);
+  border-color: rgba(56, 189, 248, 0.3);
+}
+
+.doc-slot-card .doc-stack-time-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 1.12rem;
+  font-weight: 900;
+  color: var(--primary);
+  letter-spacing: 0.3px;
+}
+
+[data-theme="dark"] .doc-slot-card .doc-stack-time-badge {
+  color: #38bdf8;
+}
+
+.doc-slot-card .doc-stack-time-badge i {
+  font-size: 1.15rem;
+  color: var(--primary);
+}
+
+[data-theme="dark"] .doc-slot-card .doc-stack-time-badge i {
+  color: #38bdf8;
+}
+
+.doc-slot-card .doc-stack-patient-count {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.82rem;
+  font-weight: 700;
+  padding: 5px 12px;
+  border-radius: 999px;
+  background: var(--bg-surface);
+  color: var(--text-muted);
+  border: 1px solid var(--border-color);
+  white-space: nowrap;
+}
+
+.doc-slot-card .doc-stack-patient-count.done {
+  background: rgba(16, 185, 129, 0.12);
+  color: #059669;
+  border-color: rgba(16, 185, 129, 0.3);
+}
+
+[data-theme="dark"] .doc-slot-card .doc-stack-patient-count.done {
+  background: rgba(5, 150, 105, 0.2);
+  color: #34d399;
+  border-color: rgba(52, 211, 153, 0.3);
+}
+
+.doc-slot-card .doc-stack-patient-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  padding: 11px 14px;
+  border-radius: 12px;
+  background: #ffffff;
+  border: 1px solid rgba(2, 132, 199, 0.14);
+  box-shadow: 0 2px 6px -1px rgba(15, 23, 42, 0.04);
+  transition: all 0.2s ease;
+}
+
+[data-theme="dark"] .doc-slot-card .doc-stack-patient-row {
+  background: rgba(30, 41, 59, 0.85);
+  border-color: rgba(56, 189, 248, 0.2);
+  box-shadow: 0 2px 8px -2px rgba(0, 0, 0, 0.4);
+}
+
+.doc-slot-card .doc-stack-patient-row.completed-row {
+  opacity: 0.72;
+  background: rgba(16, 185, 129, 0.06);
+  border-color: rgba(16, 185, 129, 0.25);
+}
+
+[data-theme="dark"] .doc-slot-card .doc-stack-patient-row.completed-row {
+  background: rgba(5, 150, 105, 0.12);
+  border-color: rgba(52, 211, 153, 0.25);
+}
+
+.doc-slot-card .doc-stack-patient-name {
+  font-size: 0.94rem;
+  font-weight: 800;
+  color: var(--text-main);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+[data-theme="dark"] .doc-slot-card .doc-stack-patient-name {
+  color: #f8fafc;
+}
+
+.doc-slot-card .doc-stack-patient-details {
+  font-size: 0.80rem;
+  color: var(--text-muted);
+  margin-top: 4px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+[data-theme="dark"] .doc-slot-card .doc-stack-patient-details {
+  color: #94a3b8;
+}
+
+.doc-slot-card .patient-body-part {
+  color: var(--primary);
+  font-weight: 700;
+  font-size: 0.78rem;
+}
+
+[data-theme="dark"] .doc-slot-card .patient-body-part {
+  color: #38bdf8;
+}
+
+.doc-slot-card .btn-complete-patient {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  color: #ffffff;
+  border: none;
+  height: 34px;
+  padding: 0 14px;
+  border-radius: 9px;
+  font-size: 0.82rem;
+  font-weight: 800;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  box-shadow: 0 3px 10px -2px rgba(16, 185, 129, 0.4);
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.doc-slot-card .btn-complete-patient:hover,
+.doc-slot-card .btn-complete-patient:active {
+  transform: scale(0.97);
+  opacity: 0.92;
+}
+
+.doc-slot-card .btn-undo-patient {
+  background: rgba(245, 158, 11, 0.12);
+  color: #d97706;
+  border: 1px solid rgba(245, 158, 11, 0.35);
+  height: 34px;
+  padding: 0 12px;
+  border-radius: 9px;
+  font-size: 0.80rem;
+  font-weight: 700;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.doc-slot-card .btn-undo-patient:hover,
+.doc-slot-card .btn-undo-patient:active {
+  background: rgba(245, 158, 11, 0.2);
+  border-color: #d97706;
 }
