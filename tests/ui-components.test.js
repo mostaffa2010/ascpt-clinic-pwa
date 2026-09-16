@@ -130,6 +130,14 @@ console.log('✓ 10. Bottom Footers & Safe Print Margins: Verified attendance ca
 assert(htmlContent.includes('<h2 style="font-size: 13pt; margin: 0; font-weight: 800; color: #0284c7; white-space: nowrap;" data-clinic="brand-name">مركز الإسكندرية التخصصي للعلاج الطبيعي</h2>'), 'Medical statement header must be "مركز الإسكندرية التخصصي للعلاج الطبيعي"');
 console.log('✓ 11. Medical Statement Branding: Verified center name header in #printable-medical-statement.');
 
+// 12. Strict Guardrail: Cash Receipt A5 Full-Bleed Frame & Pinned Footer Integrity
+assert(printCssContent.includes('@page receiptPage'), 'print.css must define @page receiptPage');
+assert(printCssContent.includes('body.printing-receipt') && printCssContent.includes('page: receiptPage;'), 'print.css must assign page: receiptPage to body.printing-receipt');
+assert(printCssContent.includes('.receipt-print-footer-wrap'), 'print.css must define .receipt-print-footer-wrap');
+assert(printCssContent.includes('#printable-cash-receipt > div') && printCssContent.includes('height: 194mm !important;'), 'print.css must give receipt frame full A5 height (194mm)');
+assert(htmlContent.includes('class="receipt-print-footer-wrap"'), 'index.html must wrap receipt signatures and footer in .receipt-print-footer-wrap');
+console.log('✓ 12. Cash Receipt A5 Frame & Footer: Verified A5 page rule, 194mm height, and pinned footer.');
+
 console.log('===================================================================');
 console.log('✓ All ASCPT UI Component Compliance Guardrail Checks Passed (100%)!');
 console.log('===================================================================');

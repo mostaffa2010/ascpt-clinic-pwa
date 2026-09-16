@@ -2371,7 +2371,7 @@
         <div class="admin-system-footer no-print" style="margin-top: 32px; margin-bottom: 35px; text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px;">
           <div style="display: inline-flex; align-items: center; gap: 8px; background: var(--bg-surface); border: 1.5px solid var(--border-color); padding: 7px 18px; border-radius: 999px; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);">
             <span style="width: 8px; height: 8px; border-radius: 50%; background-color: var(--success); display: inline-block; box-shadow: 0 0 6px var(--success);"></span>
-            <span id="admin-system-version-label" data-clinic="version-badge" style="font-weight: 800; font-size: 0.88rem; color: var(--text-main);">نظام ASCPT — الإصدار 2.5.8</span>
+            <span id="admin-system-version-label" data-clinic="version-badge" style="font-weight: 800; font-size: 0.88rem; color: var(--text-main);">نظام ASCPT — الإصدار 2.5.9</span>
             <span class="badge badge-primary" style="font-size: 0.72rem; padding: 2px 10px; border-radius: 999px; font-weight: 800;">إصدار معتمد</span>
           </div>
           <div style="font-size: 0.76rem; color: var(--text-muted); font-weight: 700;">
@@ -5085,18 +5085,19 @@
         <div style="margin-top: 12px; font-weight: 800; font-size: 12pt; color: #0f172a;">ولكم جزيل الشكر .</div>
       </div>
 
-      <!-- Signatures Bar: ONLY Clinic Director on the left, Reception completely removed -->
-      <div style="display: flex; justify-content: flex-end; align-items: flex-end; margin-top: auto; padding: 6px 10px; width: 100%; box-sizing: border-box;">
-        <div style="text-align: center; width: 155px;">
-          <div style="font-size: 10.5pt; font-weight: 800; color: #0f172a;">مدير المركز</div>
-          <div style="font-size: 9pt; color: #475569; margin-top: 2px;" data-clinic="director-name">د. حسني أحمد الجويلي</div>
-          <div style="margin-top: 22px; border-bottom: 1.5px solid #000; width: 140px; margin-inline: auto;"></div>
+      <!-- Receipt Footer Wrap: Pinned to bottom of the frame -->
+      <div class="receipt-print-footer-wrap" style="margin-top: auto !important; width: 100%; box-sizing: border-box;">
+        <div style="display: flex; justify-content: flex-end; align-items: flex-end; margin-bottom: 10px; padding: 0 10px; width: 100%; box-sizing: border-box;">
+          <div style="text-align: center; width: 155px;">
+            <div style="font-size: 10.5pt; font-weight: 800; color: #0f172a;">مدير المركز</div>
+            <div style="font-size: 9pt; color: #475569; margin-top: 2px;" data-clinic="director-name">د. حسني أحمد الجويلي</div>
+            <div style="margin-top: 22px; border-bottom: 1.5px solid #000; width: 140px; margin-inline: auto;"></div>
+          </div>
         </div>
-      </div>
 
-      <!-- Footer: Clinic contact info fitting smoothly without wrapping -->
-      <div style="margin-top: 12px; padding-top: 6px; border-top: 1px dashed #cbd5e1; font-size: 7.2pt; color: #64748b; text-align: center; width: 100%; box-sizing: border-box; line-height: 1.4;">
-        <span data-clinic="contact-info">عنوان وبيانات اتصال المركز</span>
+        <div style="padding-top: 6px; border-top: 1px dashed #cbd5e1; font-size: 7.2pt; color: #64748b; text-align: center; width: 100%; box-sizing: border-box; line-height: 1.4;">
+          <span data-clinic="contact-info">عنوان وبيانات اتصال المركز</span>
+        </div>
       </div>
     </div>
   </div>

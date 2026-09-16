@@ -1053,7 +1053,16 @@
     font-weight: 600 !important;
   }
 
-  /* ================= CASE 6: PRINTING CASH RECEIPT ================= */
+  /* ================= CASE 6: PRINTING CASH RECEIPT (A5 FULL-BLEED) ================= */
+  @page receiptPage {
+    size: A5 portrait;
+    margin: 6mm 8mm;
+  }
+
+  body.printing-receipt {
+    page: receiptPage;
+  }
+
   body.printing-receipt > *:not(#printable-cash-receipt) {
     display: none !important;
     height: 0 !important;
@@ -1070,20 +1079,35 @@
     position: relative !important;
     width: 100% !important;
     margin: 0 auto !important;
-    padding: 6mm 4mm !important;
+    padding: 0 !important;
+    box-sizing: border-box !important;
+    page-break-inside: avoid !important;
+    page-break-after: avoid !important;
+    page-break-before: avoid !important;
   }
 
   body.printing-receipt #printable-cash-receipt > div {
-    border: 2px solid #000000 !important;
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: space-between !important;
+    border: 2px solid #0284c7 !important;
+    border-radius: 8px !important;
+    box-sizing: border-box !important;
+    width: 100% !important;
+    height: 194mm !important;
+    min-height: 194mm !important;
+    max-height: 195mm !important;
+    padding: 14px 16px !important;
+    page-break-inside: avoid !important;
   }
 
   body.printing-receipt #printable-cash-receipt h2 {
-    color: #0369a1 !important;
+    color: #0284c7 !important;
     font-weight: 800 !important;
   }
 
   body.printing-receipt #printable-cash-receipt div[style*="border-bottom: 2px solid"] {
-    border-bottom: 2px solid #000000 !important;
+    border-bottom: 2px solid #0284c7 !important;
   }
 
   body.printing-receipt #receipt-print-amount-box {
@@ -1091,6 +1115,11 @@
     background-color: #f0fdf4 !important;
     color: #14532d !important;
     font-weight: 900 !important;
+  }
+
+  body.printing-receipt .receipt-print-footer-wrap {
+    margin-top: auto !important;
+    width: 100% !important;
   }
 
   /* ================= CASE 7: PRINTING MEDICAL STATEMENT (A5 FULL-BLEED) ================= */
