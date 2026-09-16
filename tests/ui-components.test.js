@@ -270,6 +270,18 @@ assert(pwaJsContent.includes('?view='), 'pwa.js forceReload must pass current ac
 assert(pwaJsContent.includes('sessionStorage.setItem(\'ascpt_active_view\', activeView)'), 'pwa.js forceReload must store active view in sessionStorage');
 console.log('✓ 19. Active View Persistence: Verified session and reload preservation for all views.');
 
+// 20. Strict Guardrail: Doctor Rates Serverless Handler & Cache Invalidation Parity
+const apiUsersContent = fs.readFileSync(path.join(rootDir, 'api/admin/users.js'), 'utf-8');
+assert(apiUsersContent.includes('scoliosisRate !== undefined'), 'api/admin/users.js PATCH must persist scoliosisRate');
+assert(apiUsersContent.includes('hemiplegiaRate !== undefined'), 'api/admin/users.js PATCH must persist hemiplegiaRate');
+assert(apiUsersContent.includes('quadriplegiaRate !== undefined'), 'api/admin/users.js PATCH must persist quadriplegiaRate');
+assert(apiUsersContent.includes('seniorityLevel !== undefined'), 'api/admin/users.js PATCH must persist seniorityLevel');
+const freshDbJsContent = fs.readFileSync(path.join(rootDir, 'js/db.js'), 'utf-8');
+assert(freshDbJsContent.includes('invalidateUsersCache()'), 'db.js must implement invalidateUsersCache()');
+const freshAuthJsContent = fs.readFileSync(path.join(rootDir, 'js/auth.js'), 'utf-8');
+assert(freshAuthJsContent.includes('scoliosisRate: typeof profile.scoliosisRate === \'number\''), 'auth.js must map doctor clinical rates in resolveUserProfile');
+console.log('✓ 20. Doctor Rates & Cache Invalidation: Verified serverless API, auth profile mapper, and db cache bust parity.');
+
 console.log('===================================================================');
 console.log('✓ All ASCPT UI Component Compliance Guardrail Checks Passed (100%)!');
 console.log('===================================================================');

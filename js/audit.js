@@ -351,6 +351,7 @@ export class AuditAndAdminManager {
 
       this.app.closeModal('modal-change-doctor-shift');
       this.app.showToast('تم تحديث شفت وأسعار جلسات الطبيب بنجاح');
+      if (typeof db.invalidateUsersCache === 'function') db.invalidateUsersCache();
       if (db.invalidateAllCaches) db.invalidateAllCaches();
       await this.loadUsers(true);
       await this.app.populateDoctorDropdowns?.();

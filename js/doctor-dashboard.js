@@ -126,6 +126,8 @@ export class DoctorDashboardManager {
     }
 
     // Scoped query: fetch current month's sessions and all home visits (Zero-Cost Scoped)
+    // Always force-refresh doctor list to ensure newly configured rates from admin reflect immediately
+    const docList = await db.getDoctorsList(true);
     const allSessions = await db.getSessions(currentMonth);
     const allHomeVisits = (typeof db.getHomeVisits === 'function')
       ? await db.getHomeVisits()
@@ -255,8 +257,7 @@ export class DoctorDashboardManager {
     if (ratioEl) ratioEl.textContent = `${cashCount} نقدي • ${insCount} تأمين`;
 
     // 5. Monthly Earnings Calculation (KPI Card 5 - Cumulative for this month)
-    const docList = await db.getDoctorsList();
-    const docInfo = docList.find(d => d.uid === docUid || (d.name && user.name && d.name.trim() === user.name.trim())) || user;
+    const docInfo = (Array.isArray(docList) ? docList : await db.getDoctorsList(true)).find(d => d.uid === docUid || (d.name && user.name && d.name.trim() === user.name.trim())) || user;
     const regRate = typeof docInfo.regularSessionRate === 'number' ? docInfo.regularSessionRate : 0;
     const scolRate = typeof docInfo.scoliosisRate === 'number' ? docInfo.scoliosisRate : 0;
     const hemiRate = typeof docInfo.hemiplegiaRate === 'number' ? docInfo.hemiplegiaRate : 0;

@@ -1114,28 +1114,35 @@ console.log('✓ All 8 Daily Print Sheet Aggregation assertions passed successfu
 // 15. Monthly Report Calculations & Tables Integrity Tests
 console.log('--- Running Tests: Monthly Report Calculations & Tables Integrity ---');
 
-// Test 1: Doctor percentage based on credited sessions, NOT patient count
+// Test 1: Doctor Sessions vs Exams, Patients Cash/Ins, and Program Types
 const sampleMonthlySessions = [
-  { doctor: 'د. حسني', bodyPartsCount: 2, entryType: 'session' }, // 2 credited sessions
-  { doctor: 'د. حسني', bodyPartsCount: 1, entryType: 'session' }, // 1 credited session
-  { doctor: 'د. أحمد', bodyPartsCount: 1, entryType: 'session' }  // 1 credited session
+  { doctor: 'د. حسني', bodyPartsCount: 2, entryType: 'session', payType: 'cash', patientId: 'p1', sessionPricingType: 'regular' },
+  { doctor: 'د. حسني', bodyPartsCount: 1, entryType: 'examination', payType: 'cash', patientId: 'p1' },
+  { doctor: 'د. حسني', bodyPartsCount: 1, entryType: 'session', payType: 'insurance', patientId: 'p2', sessionPricingType: 'scoliosis' },
+  { doctor: 'د. أحمد', bodyPartsCount: 1, entryType: 'session', payType: 'cash', patientId: 'p3', sessionPricingType: 'regular' }
 ];
-const totalClinicCreditedSessions = sampleMonthlySessions.reduce((acc, s) => acc + (s.bodyPartsCount || 1), 0); // 4
-const docHosnySessions = sampleMonthlySessions.filter(s => s.doctor === 'د. حسني');
-const docHosnyCredited = docHosnySessions.reduce((acc, s) => acc + (s.bodyPartsCount || 1), 0); // 3
-const docHosnyPct = ((docHosnyCredited / totalClinicCreditedSessions) * 100).toFixed(1);
-assert.equal(docHosnyPct, '75.0', 'Doctor percentage must be based on credited sessions (3/4 = 75%), not patient count (2/3 = 66.7%)');
 
-// Test 2: Insurance Distribution Sorted Descending by Count
-const sampleInsCategories = {
-  'abo_qir': { name: 'أبو قير', count: 1 },
-  'cash': { name: 'سداد نقدي مباشر', count: 26 },
-  'amoc': { name: 'أموك', count: 5 }
-};
-const sortedIns = Object.values(sampleInsCategories).sort((a, b) => b.count - a.count);
-assert.equal(sortedIns[0].name, 'سداد نقدي مباشر', 'Highest count/percentage (26) must be top row');
-assert.equal(sortedIns[1].name, 'أموك', 'Second highest (5) must be second row');
-assert.equal(sortedIns[2].name, 'أبو قير', 'Lowest (1) must be last row');
+const docHosnySessions = sampleMonthlySessions.filter(s => s.doctor === 'د. حسني');
+const sessionsCount = docHosnySessions.filter(s => s.entryType !== 'examination').reduce((acc, s) => acc + (s.bodyPartsCount || 1), 0); // 2 + 1 = 3
+const examsCount = docHosnySessions.filter(s => s.entryType === 'examination').length; // 1
+assert.equal(sessionsCount, 3, 'Sessions count should sum non-exam bodyPartsCount');
+assert.equal(examsCount, 1, 'Exams count should be 1');
+
+const cashPatients = (new Set(docHosnySessions.filter(s => s.payType === 'cash').map(s => s.patientId))).size; // 1
+const insPatients = (new Set(docHosnySessions.filter(s => s.payType !== 'cash').map(s => s.patientId))).size; // 1
+assert.equal(cashPatients, 1, 'Cash patients count should be 1');
+assert.equal(insPatients, 1, 'Insurance patients count should be 1');
+
+// Test 2: Monthly Cash Sessions vs Insurance Sessions Counts
+let totalCashSessions = 0;
+let totalInsSessions = 0;
+sampleMonthlySessions.forEach(s => {
+  const count = (s.entryType === 'examination') ? 1 : (s.bodyPartsCount || 1);
+  if (s.payType === 'cash') totalCashSessions += count;
+  else totalInsSessions += count;
+});
+assert.equal(totalCashSessions, 4, 'Total cash sessions (including exams) should be 2 + 1 + 1 = 4');
+assert.equal(totalInsSessions, 1, 'Total insurance sessions should be 1');
 
 // Test 3: Monthly Financial Summary Totals
 const sessionsCashIncome = 15000;
@@ -1146,35 +1153,32 @@ const netOperatingProfit = totalMonthIncome - monthlyExpensesTotal;
 assert.equal(totalMonthIncome, 20000, 'Total income must sum cash + settlements (15000 + 5000 = 20000)');
 assert.equal(netOperatingProfit, 12000, 'Net operating profit must be total income - expenses (20000 - 8000 = 12000)');
 
-
-// Test 4: Regression Protection for Monthly Doctors Map TDZ Execution
-const testMonthlySessions = [
-  { doctor: 'د. مصطفى', bodyPartsCount: 2, entryType: 'session', payType: 'cash' },
-  { doctor: 'د. مصطفى', bodyPartsCount: 1, entryType: 'session', payType: 'insurance' },
-  { doctor: 'د. أحمد', bodyPartsCount: 1, entryType: 'examination', payType: 'cash' }
-];
-const testTotalClinicSessions = testMonthlySessions.reduce((acc, s) => {
-  if (s.entryType === 'examination') return acc + 1;
-  return acc + (s.bodyPartsCount || 1);
-}, 0); // 4
-const testDoctors = ['د. مصطفى', 'د. أحمد'];
-
-const renderedDocs = testDoctors.map(doc => {
-  const docSessions = testMonthlySessions.filter(s => s.doctor === doc);
-  const cashCount = docSessions.filter(s => s.payType === 'cash').length;
-  const insCount = docSessions.filter(s => s.payType === 'insurance').length;
-  const total = docSessions.length;
-  const creditedSessions = docSessions.reduce((acc, s) => {
-    if (s.entryType === 'examination') return acc + 1;
-    return acc + (s.bodyPartsCount || 1);
-  }, 0);
-  const pct = testTotalClinicSessions > 0 ? ((creditedSessions / testTotalClinicSessions) * 100).toFixed(1) : 0;
-  return { doc, total, creditedSessions, pct, cashCount, insCount };
+// Test 4: Doctor Salary Calculation from Rates
+const mockDocObj = {
+  regularSessionRate: 50,
+  scoliosisRate: 80,
+  hemiplegiaRate: 70,
+  quadriplegiaRate: 90,
+  specialSessionRate: 60
+};
+let regCount = 0, scolCount = 0, hemiCount = 0, quadCount = 0, specCount = 0;
+docHosnySessions.forEach(s => {
+  if (s.entryType === 'examination') return;
+  const count = s.bodyPartsCount || 1;
+  const pType = s.sessionPricingType || s.programType || 'regular';
+  if (pType === 'scoliosis') scolCount += count;
+  else if (pType === 'hemiplegia') hemiCount += count;
+  else if (pType === 'quadriplegia') quadCount += count;
+  else if (pType === 'special') specCount += count;
+  else regCount += count;
 });
-
-assert.equal(renderedDocs.length, 2);
-assert.equal(renderedDocs[0].pct, '75.0'); // 3 out of 4 sessions
-assert.equal(renderedDocs[1].pct, '25.0'); // 1 out of 4 sessions
+const totalSalary = (regCount * mockDocObj.regularSessionRate) +
+                    (scolCount * mockDocObj.scoliosisRate) +
+                    (hemiCount * mockDocObj.hemiplegiaRate) +
+                    (quadCount * mockDocObj.quadriplegiaRate) +
+                    (specCount * mockDocObj.specialSessionRate);
+// 2 regular @ 50 = 100, 1 scoliosis @ 80 = 80 -> total = 180
+assert.equal(totalSalary, 180, 'Total salary must be (2 * 50) + (1 * 80) = 180');
 
 // Test 5: Monthly Settlements Table Auto-Hide when Empty & Structure
 const mockEmptySettlements = [];
@@ -1196,11 +1200,15 @@ const populatedState = getSettlementCardVisibility(mockPopulatedSettlements);
 assert.equal(populatedState.display, 'block', 'Settlements card must be visible when settlements exist');
 assert.equal(populatedState.noPrint, false, 'Settlements card must not have no-print class when settlements exist');
 
+// Test 6: Verify HTML Headers
 import fs from 'node:fs';
 const indexHtmlContent = fs.readFileSync('index.html', 'utf8');
-assert.ok(indexHtmlContent.includes('id="monthly-settlements-table"'), 'Settlements table must have id="monthly-settlements-table"');
-assert.ok(indexHtmlContent.includes('<th class="no-print">المسجل</th>'), 'Recorder header must have class="no-print" in settlements table');
-assert.ok(indexHtmlContent.includes('<th class="no-print">إجراءات</th>'), 'Actions header must have class="no-print" in settlements table');
+assert.ok(indexHtmlContent.includes('جلسات / كشوفات'), 'Monthly doctors table must include "جلسات / كشوفات" header');
+assert.ok(indexHtmlContent.includes('مرضى (نقدي / شركات)'), 'Monthly doctors table must include "مرضى (نقدي / شركات)" header');
+assert.ok(indexHtmlContent.includes('نوع الجلسات (عادية / scoliosis / hemiplegia / quadriplegia)'), 'Monthly doctors table must include program types header');
+assert.ok(indexHtmlContent.includes('مجموع راتب الطبيب'), 'Monthly doctors table must include "مجموع راتب الطبيب" header');
+assert.ok(indexHtmlContent.includes('عدد جلسات النقدي'), 'Monthly insurance table must include "عدد جلسات النقدي" header');
+assert.ok(indexHtmlContent.includes('عدد جلسات التأمين'), 'Monthly insurance table must include "عدد جلسات التأمين" header');
 
 console.log('✓ All 6 Monthly Report Integrity assertions passed successfully!');
 

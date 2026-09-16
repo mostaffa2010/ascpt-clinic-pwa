@@ -645,6 +645,15 @@ export class FinanceManager {
       const sub = document.getElementById('finance-header-sub');
       if (title) title.innerHTML = '<i class="fa-solid fa-calculator" style="color: var(--primary);"></i> الحسابات والتقرير اليومي';
       if (sub) sub.style.display = 'none';
+      const viewFinance = document.getElementById('view-finance');
+      if (viewFinance) {
+        viewFinance.classList.toggle('mode-monthly', mode === 'monthly');
+        viewFinance.classList.toggle('mode-daily', mode === 'daily');
+        viewFinance.classList.toggle('mode-claims', mode === 'claims');
+      }
+      document.body.classList.toggle('finance-monthly-mode', mode === 'monthly');
+      document.body.classList.toggle('finance-daily-mode', mode === 'daily');
+      document.body.classList.toggle('finance-claims-mode', mode === 'claims');
       this.loadDailyReport();
     } else if (mode === 'monthly') {
       if (btnDaily) btnDaily.className = 'btn btn-outline btn-sm';
@@ -663,6 +672,15 @@ export class FinanceManager {
       const sub = document.getElementById('finance-header-sub');
       if (title) title.innerHTML = '<i class="fa-solid fa-chart-pie" style="color: var(--primary);"></i> التقرير الشهري الشامل';
       if (sub) sub.style.display = 'none';
+      const viewFinance = document.getElementById('view-finance');
+      if (viewFinance) {
+        viewFinance.classList.toggle('mode-monthly', mode === 'monthly');
+        viewFinance.classList.toggle('mode-daily', mode === 'daily');
+        viewFinance.classList.toggle('mode-claims', mode === 'claims');
+      }
+      document.body.classList.toggle('finance-monthly-mode', mode === 'monthly');
+      document.body.classList.toggle('finance-daily-mode', mode === 'daily');
+      document.body.classList.toggle('finance-claims-mode', mode === 'claims');
       this.loadMonthlyReport();
     } else if (mode === 'claims') {
       if (btnDaily) btnDaily.className = 'btn btn-outline btn-sm';
@@ -1347,10 +1365,17 @@ export class FinanceManager {
 
   // ================= 2. MONTHLY REPORT =================
   async loadMonthlyReport() {
-    const allSessions = await db.getSessions(this.currentMonth);
+    const rawSessions = await db.getSessions(this.currentMonth);
+    // Exclude home visits strictly from monthly clinic report as requested
+    const allSessions = (rawSessions || []).filter(s =>
+      s.status !== 'cancelled' &&
+      !s.isHomeVisit &&
+      s.visitType !== 'home'
+    );
     const allExpenses = await db.getExpenses(this.currentMonth);
     const rawDoctors = await db.getDoctors();
     const doctors = Array.from(new Set(rawDoctors.map(d => (d || '').trim().replace(/\s+/g, ' ')))).filter(Boolean);
+    const docList = (typeof db.getDoctorsList === 'function') ? await db.getDoctorsList(true) : [];
 
     const monthSettlements = await db.getInsuranceSettlements(null, this.currentMonth);
     const totalPatients = allSessions.length;
@@ -1522,35 +1547,64 @@ export class FinanceManager {
 
     if (docTbody) {
       if (doctors.length === 0 || totalPatients === 0) {
-        docTbody.innerHTML = `<tr><td colspan="6" style="text-align: center; color: var(--text-muted); padding: 20px;">لا توجد بيانات جلسات مسجلة لهذا الشهر.</td></tr>`;
+        docTbody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: var(--text-muted); padding: 16px;">لا توجد بيانات جلسات مسجلة لهذا الشهر.</td></tr>';
       } else {
         docTbody.innerHTML = doctors.map(doc => {
-          const docSessions = allSessions.filter(s => s.doctor === doc);
-          const cashCount = docSessions.filter(s => s.payType === 'cash').length;
-          const insCount = docSessions.filter(s => s.payType === 'insurance').length;
-          const total = docSessions.length;
-          const creditedSessions = docSessions.reduce((acc, s) => {
-            if (s.entryType === 'examination') return acc + 1;
-            return acc + (s.bodyPartsCount || 1);
-          }, 0);
-          const pct = totalClinicSessions > 0 ? ((creditedSessions / totalClinicSessions) * 100).toFixed(1) : 0;
+          const docObj = docList.find(d =>
+            (d.name && d.name.trim() === doc.trim()) ||
+            (d.name && (d.name.includes(doc) || doc.includes(d.name)))
+          );
+
+          const docSessions = allSessions.filter(s =>
+            (s.doctor === doc || (s.doctor && s.doctor.trim() === doc.trim())) ||
+            (docObj && s.doctorUid === docObj.uid)
+          );
+
+          const sessionsCount = docSessions.filter(s => s.entryType !== 'examination').reduce((acc, s) => acc + (s.bodyPartsCount || 1), 0);
+          const examsCount = docSessions.filter(s => s.entryType === 'examination').length;
+
+          const cashPatientIds = new Set(docSessions.filter(s => s.payType === 'cash').map(s => s.patientId || s.patientName));
+          const insPatientIds = new Set(docSessions.filter(s => s.payType !== 'cash').map(s => s.patientId || s.patientName));
+          const cashPatients = cashPatientIds.size;
+          const insPatients = insPatientIds.size;
+
+          let regCount = 0;
+          let scolCount = 0;
+          let hemiCount = 0;
+          let quadCount = 0;
+          let specCount = 0;
+
+          docSessions.forEach(s => {
+            if (s.entryType === 'examination') return;
+            const count = s.bodyPartsCount || 1;
+            const pType = s.sessionPricingType || s.programType || (s.isSpecial ? 'special' : 'regular');
+            if (pType === 'scoliosis') scolCount += count;
+            else if (pType === 'hemiplegia') hemiCount += count;
+            else if (pType === 'quadriplegia' || pType === 'pediatric') quadCount += count;
+            else if (pType === 'special' || pType === 'custom_special') specCount += count;
+            else regCount += count;
+          });
+
+          const regRate = (docObj && typeof docObj.regularSessionRate === 'number') ? docObj.regularSessionRate : 0;
+          const scolRate = (docObj && typeof docObj.scoliosisRate === 'number') ? docObj.scoliosisRate : 0;
+          const hemiRate = (docObj && typeof docObj.hemiplegiaRate === 'number') ? docObj.hemiplegiaRate : 0;
+          const quadRate = (docObj && typeof docObj.quadriplegiaRate === 'number') ? docObj.quadriplegiaRate : ((docObj && typeof docObj.pediatricRate === 'number') ? docObj.pediatricRate : 0);
+          const specRate = (docObj && typeof docObj.specialSessionRate === 'number') ? docObj.specialSessionRate : 0;
+
+          const totalSalary = (regCount * regRate) +
+                              (scolCount * scolRate) +
+                              (hemiCount * hemiRate) +
+                              (quadCount * quadRate) +
+                              (specCount * specRate);
 
           const safeDoc = escapeHTML(doc);
           return `
             <tr>
               <td style="font-weight: 700;"><i class="fa-solid fa-user-doctor" style="color: var(--primary); margin-left: 6px;"></i> ${safeDoc}</td>
-              <td style="color: var(--success); font-weight: 700;">${cashCount} مريض</td>
-              <td style="color: var(--primary); font-weight: 700;">${insCount} مريض</td>
-              <td style="font-weight: 800; font-size: 0.95rem;">${total} مريض</td>
-              <td style="font-weight: 800; color: var(--primary); font-size: 0.95rem;">${creditedSessions} جلسة</td>
-              <td>
-                <div style="display: flex; align-items: center; gap: 8px;">
-                  <span style="font-weight: 700; width: 45px;">${pct}%</span>
-                  <div style="flex: 1; background-color: var(--bg-subtle); height: 8px; border-radius: 4px; overflow: hidden;">
-                    <div style="width: ${pct}%; background-color: var(--primary); height: 100%;"></div>
-                  </div>
-                </div>
-              </td>
+              <td style="text-align: center; font-weight: 800; direction: ltr;">${sessionsCount} / ${examsCount}</td>
+              <td style="text-align: center; font-weight: 800; direction: ltr;">${cashPatients} / ${insPatients}</td>
+              <td style="text-align: center; font-weight: 800; direction: ltr;">${regCount + specCount} / ${scolCount} / ${hemiCount} / ${quadCount}</td>
+              <td style="text-align: center; font-weight: 900; color: var(--success); font-size: 0.95rem;">${totalSalary.toLocaleString('en-US')} ج.م</td>
             </tr>
           `;
         }).join('');
@@ -1563,20 +1617,41 @@ export class FinanceManager {
           <div style="background: var(--bg-surface); border: 1.5px dashed var(--border-color); border-radius: 12px; padding: 22px 14px; text-align: center; color: var(--text-muted); margin-bottom: 12px;">
             <i class="fa-solid fa-user-doctor" style="font-size: 1.8rem; color: var(--primary); opacity: 0.35; margin-bottom: 8px; display: block;"></i>
             <div style="font-weight: 700; font-size: 0.88rem; color: var(--text-main); margin-bottom: 3px;">لا توجد جلسات مسجلة للأطباء في هذا الشهر حتى الآن</div>
-            <div style="font-size: 0.75rem;">ستظهر إحصائية ونسب كل طبيب فور تسجيل أول جلسة بالشهر</div>
+            <div style="font-size: 0.75rem;">ستظهر إحصائية ورواتب الأطباء فور تسجيل أول جلسة بالشهر</div>
           </div>
         `;
       } else {
         const cardsHTML = doctors.map((doc, index) => {
-          const docSessions = allSessions.filter(s => s.doctor === doc);
-          const cashCount = docSessions.filter(s => s.payType === 'cash').length;
-          const insCount = docSessions.filter(s => s.payType === 'insurance').length;
-          const total = docSessions.length;
-          const creditedSessions = docSessions.reduce((acc, s) => {
-            if (s.entryType === 'examination') return acc + 1;
-            return acc + (s.bodyPartsCount || 1);
-          }, 0);
-          const pct = totalClinicSessions > 0 ? ((creditedSessions / totalClinicSessions) * 100).toFixed(1) : 0;
+          const docObj = docList.find(d =>
+            (d.name && d.name.trim() === doc.trim()) ||
+            (d.name && (d.name.includes(doc) || doc.includes(d.name)))
+          );
+          const docSessions = allSessions.filter(s => s.doctor === doc || (docObj && s.doctorUid === docObj.uid));
+          const sessionsCount = docSessions.filter(s => s.entryType !== 'examination').reduce((acc, s) => acc + (s.bodyPartsCount || 1), 0);
+          const examsCount = docSessions.filter(s => s.entryType === 'examination').length;
+
+          const cashPatients = (new Set(docSessions.filter(s => s.payType === 'cash').map(s => s.patientId || s.patientName))).size;
+          const insPatients = (new Set(docSessions.filter(s => s.payType !== 'cash').map(s => s.patientId || s.patientName))).size;
+
+          let regCount = 0, scolCount = 0, hemiCount = 0, quadCount = 0, specCount = 0;
+          docSessions.forEach(s => {
+            if (s.entryType === 'examination') return;
+            const count = s.bodyPartsCount || 1;
+            const pType = s.sessionPricingType || s.programType || (s.isSpecial ? 'special' : 'regular');
+            if (pType === 'scoliosis') scolCount += count;
+            else if (pType === 'hemiplegia') hemiCount += count;
+            else if (pType === 'quadriplegia' || pType === 'pediatric') quadCount += count;
+            else if (pType === 'special' || pType === 'custom_special') specCount += count;
+            else regCount += count;
+          });
+
+          const regRate = (docObj && typeof docObj.regularSessionRate === 'number') ? docObj.regularSessionRate : 0;
+          const scolRate = (docObj && typeof docObj.scoliosisRate === 'number') ? docObj.scoliosisRate : 0;
+          const hemiRate = (docObj && typeof docObj.hemiplegiaRate === 'number') ? docObj.hemiplegiaRate : 0;
+          const quadRate = (docObj && typeof docObj.quadriplegiaRate === 'number') ? docObj.quadriplegiaRate : ((docObj && typeof docObj.pediatricRate === 'number') ? docObj.pediatricRate : 0);
+          const specRate = (docObj && typeof docObj.specialSessionRate === 'number') ? docObj.specialSessionRate : 0;
+
+          const totalSalary = (regCount * regRate) + (scolCount * scolRate) + (hemiCount * hemiRate) + (quadCount * quadRate) + (specCount * specRate);
           const cleanDoc = (escapeHTML(doc)).replace(/^د\.\s*/, '');
 
           return `
@@ -1587,29 +1662,27 @@ export class FinanceManager {
                     <i class="fa-solid fa-user-doctor"></i>
                   </div>
                   <div>
-                    <div style="font-weight: 800; font-size: 1.02rem; color: var(--text-main);">د. ${cleanDoc}</div>
-                    <div style="font-size: 0.78rem; color: var(--text-muted);">إحصائية الشهر الحالي</div>
+                    <div style="font-weight: 800; font-size: 1.02rem; color: var(--text-main);">${cleanDoc}</div>
+                    <div style="font-size: 0.78rem; color: var(--text-muted);">إحصائية وراتب الشهر</div>
                   </div>
                 </div>
-                <span class="badge badge-primary" style="font-size: 0.82rem; font-weight: 800; padding: 4px 10px; border-radius: 999px;">
-                  ${pct}% من المركز
+                <span class="badge badge-success" style="font-size: 0.85rem; font-weight: 900; padding: 4px 10px; border-radius: 999px;">
+                  ${totalSalary.toLocaleString('en-US')} ج.م
                 </span>
               </div>
               <div class="hsc-divider" style="margin: 12px 0;"></div>
               <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
-                <div style="background: var(--bg-subtle); padding: 8px 12px; border-radius: 12px; text-align: center;">
-                  <div style="font-size: 0.74rem; color: var(--text-muted); font-weight: 700;">إجمالي الحالات</div>
-                  <div style="font-weight: 800; font-size: 1.05rem; color: var(--text-main); margin-top: 2px;">${total} مريض (${creditedSessions} جلسة)</div>
+                <div style="background: var(--bg-subtle); padding: 8px 10px; border-radius: 10px; text-align: center;">
+                  <div style="font-size: 0.72rem; color: var(--text-muted); font-weight: 700;">جلسات / كشوفات</div>
+                  <div style="font-weight: 800; font-size: 0.96rem; color: var(--text-main); margin-top: 2px; direction: ltr;">${sessionsCount} / ${examsCount}</div>
                 </div>
-                <div style="background: var(--bg-subtle); padding: 8px 12px; border-radius: 12px; text-align: center;">
-                  <div style="font-size: 0.74rem; color: var(--text-muted); font-weight: 700;">طبيعة السداد</div>
-                  <div style="font-weight: 800; font-size: 0.92rem; margin-top: 2px;">
-                    <span style="color: var(--success);">نقدي: ${cashCount}</span> • <span style="color: var(--primary);">تأمين: ${insCount}</span>
-                  </div>
+                <div style="background: var(--bg-subtle); padding: 8px 10px; border-radius: 10px; text-align: center;">
+                  <div style="font-size: 0.72rem; color: var(--text-muted); font-weight: 700;">مرضى (نقدي / شركات)</div>
+                  <div style="font-weight: 800; font-size: 0.96rem; color: var(--text-main); margin-top: 2px; direction: ltr;">${cashPatients} / ${insPatients}</div>
                 </div>
               </div>
-              <div style="width: 100%; height: 6px; background: var(--bg-subtle); border-radius: 999px; overflow: hidden; margin-top: 10px;">
-                <div style="width: ${pct}%; height: 100%; background: var(--primary); border-radius: 999px;"></div>
+              <div style="margin-top: 8px; font-size: 0.76rem; color: var(--text-muted); text-align: center; background: var(--bg-subtle); padding: 5px 8px; border-radius: 8px;">
+                <span style="font-weight: 700;">تفقيط الجلسات:</span> ${regCount + specCount} عادية • ${scolCount} Scoliosis • ${hemiCount} Hemiplegia • ${quadCount} Quadriplegia
               </div>
             </div>
           `;
@@ -1655,98 +1728,44 @@ export class FinanceManager {
       }
     }
 
-    // B. Insurance & Cash Distribution Table
+    // B. Insurance & Cash Sessions Distribution Table
     const insTbody = document.getElementById('monthly-insurance-tbody');
     const insMob = document.getElementById('monthly-insurance-mobile-cards');
 
-    if (insTbody) {
-      if (totalPatients === 0) {
-        insTbody.innerHTML = `<tr><td colspan="4" style="text-align: center; color: var(--text-muted); padding: 20px;">لا توجد حركات مسجلة لهذا الشهر.</td></tr>`;
-      } else {
-        const categories = {};
-        allSessions.forEach(s => {
-          if (s.payType === 'cash') {
-            const key = 'سداد نقدي';
-            if (!categories[key]) categories[key] = { name: key, type: 'سداد نقدي مباشر', count: 0 };
-            categories[key].count++;
-          } else {
-            const compName = s.insuranceName || 'شركة غير محددة';
-            const contract = s.contractType === 'direct' ? 'تعاقد مباشر' : 'تعاقد غير مباشر';
-            const key = `${compName} (${contract})`;
-            if (!categories[key]) categories[key] = { name: compName, type: contract, count: 0 };
-            categories[key].count++;
-          }
-        });
+    let totalCashSessions = 0;
+    let totalInsSessions = 0;
 
-        const sortedInsCats = Object.values(categories).sort((a, b) => b.count - a.count);
-        let insIdx = 1;
-        insTbody.innerHTML = sortedInsCats.map(item => {
-          const pct = totalPatients > 0 ? ((item.count / totalPatients) * 100).toFixed(1) : 0;
-          const safeName = escapeHTML(item.name);
-          const safeType = escapeHTML(item.type);
-          return `
-            <tr>
-              <td style="text-align: center; font-weight: 700;">${insIdx++}</td>
-              <td style="font-weight: 700; color: #000000;">${safeName}</td>
-              <td style="text-align: center;"><span class="badge ${item.type.includes('نقدي') ? 'badge-cash' : (item.type.includes('غير مباشر') ? 'badge-indirect' : 'badge-direct')}">${safeType}</span></td>
-              <td style="font-weight: 800; color: var(--primary); text-align: center;">${item.count} حالة</td>
-              <td style="font-weight: 800; text-align: center;">${pct}%</td>
-            </tr>
-          `;
-        }).join('');
+    allSessions.forEach(s => {
+      const count = (s.entryType === 'examination') ? 1 : (s.bodyPartsCount || 1);
+      if (s.payType === 'cash') {
+        totalCashSessions += count;
+      } else {
+        totalInsSessions += count;
       }
+    });
+
+    if (insTbody) {
+      insTbody.innerHTML = `
+        <tr>
+          <td style="text-align: center; font-weight: 900; font-size: 1.1rem; color: var(--success); padding: 8px;">${totalCashSessions} جلسة</td>
+          <td style="text-align: center; font-weight: 900; font-size: 1.1rem; color: var(--primary); padding: 8px;">${totalInsSessions} جلسة</td>
+        </tr>
+      `;
     }
 
     if (insMob) {
-      if (totalPatients === 0) {
-        insMob.innerHTML = `
-          <div style="background: var(--bg-surface); border: 1.5px dashed var(--border-color); border-radius: 12px; padding: 22px 14px; text-align: center; color: var(--text-muted); margin-bottom: 12px;">
-            <i class="fa-solid fa-shield-halved" style="font-size: 1.8rem; color: var(--primary); opacity: 0.35; margin-bottom: 8px; display: block;"></i>
-            <div style="font-weight: 700; font-size: 0.88rem; color: var(--text-main); margin-bottom: 3px;">لا توجد بيانات توزيع تأميني أو نقدي لهذا الشهر حتى الآن</div>
-            <div style="font-size: 0.75rem;">ستظهر نسب الشركات والتعاقدات والنقدي فور تسجيل الجلسات</div>
+      insMob.innerHTML = `
+        <div class="hero-styled-card" style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 12px; text-align: center; margin-bottom: 8px;">
+          <div style="background: rgba(16, 185, 129, 0.08); border: 1px solid rgba(16, 185, 129, 0.2); border-radius: 10px; padding: 10px;">
+            <div style="font-size: 0.78rem; font-weight: 700; color: var(--text-muted);"><i class="fa-solid fa-money-bill-wave" style="color: var(--success);"></i> جلسات النقدي</div>
+            <div style="font-size: 1.25rem; font-weight: 900; color: var(--success); margin-top: 4px;">${totalCashSessions} <small style="font-size: 0.75rem;">جلسة</small></div>
           </div>
-        `;
-      } else {
-        const categories = {};
-        allSessions.forEach(s => {
-          if (s.payType === 'cash') {
-            const key = 'سداد نقدي';
-            if (!categories[key]) categories[key] = { name: key, type: 'سداد نقدي مباشر', count: 0 };
-            categories[key].count++;
-          } else {
-            const compName = s.insuranceName || 'شركة غير محددة';
-            const contract = s.contractType === 'direct' ? 'تعاقد مباشر' : 'تعاقد غير مباشر';
-            const key = `${compName} (${contract})`;
-            if (!categories[key]) categories[key] = { name: compName, type: contract, count: 0 };
-            categories[key].count++;
-          }
-        });
-
-        insMob.innerHTML = Object.values(categories).map(item => {
-          const pct = ((item.count / totalPatients) * 100).toFixed(1);
-          const safeName = escapeHTML(item.name);
-          const safeType = escapeHTML(item.type);
-          const badgeClass = item.type.includes('نقدي') ? 'badge-cash' : (item.type.includes('غير مباشر') ? 'badge-indirect' : 'badge-direct');
-          const iconClass = item.type.includes('نقدي') ? 'fa-money-bill' : (item.type.includes('غير مباشر') ? 'fa-handshake' : 'fa-file-contract');
-
-          return `
-            <div class="hero-styled-card" style="margin-bottom: 0;">
-              <div style="display: flex; align-items: center; justify-content: space-between;">
-                <div style="font-weight: 800; font-size: 0.98rem; color: var(--text-main);">${safeName}</div>
-                <span class="badge ${badgeClass}"><i class="fa-solid ${iconClass}"></i> ${safeType}</span>
-              </div>
-              <div class="hsc-divider" style="margin: 10px 0;"></div>
-              <div style="display: flex; align-items: center; justify-content: space-between; font-size: 0.88rem;">
-                <span style="font-weight: 800; color: var(--primary);">${item.count} حالة مسجلة</span>
-                <span style="font-weight: 800; color: var(--text-muted);">${pct}%</span>
-              </div>
-              <div style="width: 100%; height: 6px; background: var(--bg-subtle); border-radius: 999px; overflow: hidden; margin-top: 8px;">
-                <div style="width: ${pct}%; height: 100%; background: ${item.type.includes('نقدي') ? 'var(--success)' : 'var(--primary)'}; border-radius: 999px;"></div>
-              </div>
-            </div>
-          `;
-        }).join('');
-      }
+          <div style="background: rgba(2, 132, 199, 0.08); border: 1px solid rgba(2, 132, 199, 0.2); border-radius: 10px; padding: 10px;">
+            <div style="font-size: 0.78rem; font-weight: 700; color: var(--text-muted);"><i class="fa-solid fa-shield-halved" style="color: var(--primary);"></i> جلسات التأمين</div>
+            <div style="font-size: 1.25rem; font-weight: 900; color: var(--primary); margin-top: 4px;">${totalInsSessions} <small style="font-size: 0.75rem;">جلسة</small></div>
+          </div>
+        </div>
+      `;
     }
 
     // Render Monthly Expenses Breakdown by Category (v1.4.48)

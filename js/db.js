@@ -1159,6 +1159,17 @@ class FirestoreDatabaseService {
     }
   }
 
+  invalidateUsersCache() {
+    this._usersCache = null;
+    this._usersLastFetch = 0;
+    try {
+      if (typeof idbCache !== 'undefined') {
+        idbCache.delete('ascpt_cached_users').catch(() => {});
+        idbCache.delete('ascpt_users_last_sync').catch(() => {});
+      }
+    } catch (_) {}
+  }
+
   // ================= 4. Users & Doctors Directory (Zero-Cost Local Caching) =================
   async getUsers(forceRefresh = false) {
     this.ensureConnected();

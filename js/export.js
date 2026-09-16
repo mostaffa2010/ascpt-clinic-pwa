@@ -154,10 +154,12 @@ export class ExportManager {
   // ================= 2. MONTHLY EXCEL EXPORT =================
   async exportMonthlyExcel(monthStr) {
     try {
-      const allSessions = await db.getSessions(monthStr);
+      const rawSessions = await db.getSessions(monthStr);
+      const allSessions = (rawSessions || []).filter(s => s.status !== 'cancelled' && !s.isHomeVisit && s.visitType !== 'home');
       const allExpenses = await db.getExpenses(monthStr);
       const allSettlements = (typeof db.getInsuranceSettlements === 'function') ? await db.getInsuranceSettlements(null, monthStr) : [];
       const doctors = await db.getDoctors();
+      const docList = (typeof db.getDoctorsList === 'function') ? await db.getDoctorsList(true) : [];
 
       const totalPatients = allSessions.length;
       const totalSessionsIncome = allSessions.reduce((acc, curr) => acc + (parseFloat(curr.amountPaid) || 0), 0);
@@ -169,49 +171,62 @@ export class ExportManager {
       const cashCount = allSessions.filter(s => s.payType === 'cash').length;
       const insCount = allSessions.filter(s => s.payType === 'insurance').length;
 
-      // بيانات إحصائية الأطباء
+      // بيانات إحصائية ورواتب الأطباء
       const doctorsData = doctors.map((doc, idx) => {
-        const docSessions = allSessions.filter(s => s.doctor === doc);
-        const docCash = docSessions.filter(s => s.payType === 'cash').length;
-        const docIns = docSessions.filter(s => s.payType === 'insurance').length;
-        const total = docSessions.length;
-        const pct = totalPatients > 0 ? ((total / totalPatients) * 100).toFixed(1) + '%' : '0%';
+        const docObj = docList.find(d =>
+          (d.name && d.name.trim() === doc.trim()) ||
+          (d.name && (d.name.includes(doc) || doc.includes(d.name)))
+        );
+        const docSessions = allSessions.filter(s => s.doctor === doc || (docObj && s.doctorUid === docObj.uid));
+        const sessionsCount = docSessions.filter(s => s.entryType !== 'examination').reduce((acc, s) => acc + (s.bodyPartsCount || 1), 0);
+        const examsCount = docSessions.filter(s => s.entryType === 'examination').length;
 
-        // Credited sessions rule:
-        // If session: s.bodyPartsCount || 1 (minimum 1)
-        // If examination: exactly 1 always
-        const creditedSessions = docSessions.reduce((acc, s) => {
-          if (s.entryType === 'examination') return acc + 1;
-          return acc + (s.bodyPartsCount || 1);
-        }, 0);
+        const cashPatients = (new Set(docSessions.filter(s => s.payType === 'cash').map(s => s.patientId || s.patientName))).size;
+        const insPatients = (new Set(docSessions.filter(s => s.payType !== 'cash').map(s => s.patientId || s.patientName))).size;
+
+        let regCount = 0, scolCount = 0, hemiCount = 0, quadCount = 0, specCount = 0;
+        docSessions.forEach(s => {
+          if (s.entryType === 'examination') return;
+          const count = s.bodyPartsCount || 1;
+          const pType = s.sessionPricingType || s.programType || (s.isSpecial ? 'special' : 'regular');
+          if (pType === 'scoliosis') scolCount += count;
+          else if (pType === 'hemiplegia') hemiCount += count;
+          else if (pType === 'quadriplegia' || pType === 'pediatric') quadCount += count;
+          else if (pType === 'special' || pType === 'custom_special') specCount += count;
+          else regCount += count;
+        });
+
+        const regRate = (docObj && typeof docObj.regularSessionRate === 'number') ? docObj.regularSessionRate : 0;
+        const scolRate = (docObj && typeof docObj.scoliosisRate === 'number') ? docObj.scoliosisRate : 0;
+        const hemiRate = (docObj && typeof docObj.hemiplegiaRate === 'number') ? docObj.hemiplegiaRate : 0;
+        const quadRate = (docObj && typeof docObj.quadriplegiaRate === 'number') ? docObj.quadriplegiaRate : ((docObj && typeof docObj.pediatricRate === 'number') ? docObj.pediatricRate : 0);
+        const specRate = (docObj && typeof docObj.specialSessionRate === 'number') ? docObj.specialSessionRate : 0;
+
+        const totalSalary = (regCount * regRate) + (scolCount * scolRate) + (hemiCount * hemiRate) + (quadCount * quadRate) + (specCount * specRate);
 
         return {
           'م': idx + 1,
           'الطبيب المعالج': doc,
-          'مرضى نقدي': docCash,
-          'مرضى شركات تأمين': docIns,
-          'إجمالي الحالات': total,
-          'عدد الجلسات المحتسبة': creditedSessions,
-          'النسبة من إجمالي المركز': pct
+          'جلسات / كشوفات': `${sessionsCount} / ${examsCount}`,
+          'مرضى (نقدي / شركات)': `${cashPatients} / ${insPatients}`,
+          'نوع الجلسات (عادية / scoliosis / hemiplegia / quadriplegia)': `${regCount + specCount} / ${scolCount} / ${hemiCount} / ${quadCount}`,
+          'مجموع راتب الطبيب (ج.م)': totalSalary
         };
       });
 
-      // بيانات شركات التأمين والنقدي
-      const catMap = {};
+      // بيانات جلسات التأمين والنقدي
+      let totalCashSessions = 0;
+      let totalInsSessions = 0;
       allSessions.forEach(s => {
-        const key = s.payType === 'cash' ? 'سداد نقدي' : (s.insuranceName || 'شركة تأمين');
-        const type = s.payType === 'cash' ? 'نقدي مباشر' : (s.contractType === 'direct' ? 'تعاقد مباشر' : 'تعاقد غير مباشر');
-        if (!catMap[key]) catMap[key] = { name: key, type, count: 0 };
-        catMap[key].count++;
+        const count = (s.entryType === 'examination') ? 1 : (s.bodyPartsCount || 1);
+        if (s.payType === 'cash') totalCashSessions += count;
+        else totalInsSessions += count;
       });
 
-      const insuranceData = Object.values(catMap).map((item, idx) => ({
-        'م': idx + 1,
-        'جهة السداد / شركة التأمين': item.name,
-        'نوع التعاقد': item.type,
-        'عدد الحالات في الشهر': item.count,
-        'النسبة المئوية': totalPatients > 0 ? ((item.count / totalPatients) * 100).toFixed(1) + '%' : '0%'
-      }));
+      const insuranceData = [
+        { 'نوع الجلسة': 'عدد جلسات النقدي', 'عدد الجلسات': totalCashSessions },
+        { 'نوع الجلسة': 'عدد جلسات التأمين', 'عدد الجلسات': totalInsSessions }
+      ];
 
       // بيانات المصروفات
       const expensesData = allExpenses.map((e, idx) => ({
@@ -330,9 +345,13 @@ export class ExportManager {
       const now = new Date().toLocaleTimeString('ar-EG-u-nu-latn', { hour: '2-digit', minute: '2-digit' });
 
       if (meta.mode === 'monthly') {
+        document.body.classList.add('printing-monthly');
+        document.body.classList.add('finance-monthly-mode');
         if (subEl) subEl.textContent = `التقرير المالي والإحصائي الشهري - شهر (${meta.month})`;
         if (metaEl) metaEl.textContent = `شهر: ${meta.month} | تاريخ ووقت الطباعة: ${new Date().toLocaleDateString('ar-EG-u-nu-latn')} ${now}`;
       } else {
+        document.body.classList.remove('printing-monthly');
+        document.body.classList.remove('finance-monthly-mode');
         if (subEl) subEl.textContent = 'تقرير إيرادات وحركات الجلسات اليومية';
         if (metaEl) metaEl.textContent = `تاريخ اليوم: ${meta.date} | وقت الطباعة: ${now}`;
       }
@@ -343,6 +362,9 @@ export class ExportManager {
 
       // إطلاق أمر الطباعة
       window.print();
+      setTimeout(() => {
+        document.body.classList.remove('printing-monthly');
+      }, 3000);
     } catch (err) {
       console.error('Print trigger error:', err);
       window.print();

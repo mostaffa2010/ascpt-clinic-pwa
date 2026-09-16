@@ -248,7 +248,7 @@ export default async function handler(req, res) {
 
   // ================= PATCH: Update Status or Reset Password =================
   if (req.method === 'PATCH') {
-    const { targetUid, active, password, shift, regularSessionRate, specialSessionRate } = req.body;
+    const { targetUid, active, password, shift, seniorityLevel, regularSessionRate, scoliosisRate, hemiplegiaRate, quadriplegiaRate, pediatricRate, specialSessionRate } = req.body;
 
     if ('role' in req.body) {
       return res.status(400).json({ error: 'تعديل الأدوار والصلاحيات غير مسموح به عبر هذه الواجهة.' });
@@ -292,8 +292,17 @@ export default async function handler(req, res) {
         return res.status(200).json({ success: true, targetUid, passwordReset: true });
       }
 
-      // 2. Doctor Settings Update (Shift & Session Rates)
-      if (shift !== undefined || regularSessionRate !== undefined || specialSessionRate !== undefined) {
+      // 2. Doctor Settings Update (Shift, Seniority & All Session Rates)
+      if (
+        shift !== undefined ||
+        seniorityLevel !== undefined ||
+        regularSessionRate !== undefined ||
+        scoliosisRate !== undefined ||
+        hemiplegiaRate !== undefined ||
+        quadriplegiaRate !== undefined ||
+        pediatricRate !== undefined ||
+        specialSessionRate !== undefined
+      ) {
         if (targetData?.role !== 'doctor') {
           return res.status(400).json({ error: 'تعديل الشفت وأسعار الجلسات متاح فقط للأطباء المعالجين.' });
         }
@@ -318,16 +327,42 @@ export default async function handler(req, res) {
           auditParts.push(`الشفت: ${shiftLabels[shift]}`);
         }
 
+        if (seniorityLevel !== undefined) {
+          const allowedSeniority = ['junior', 'senior', 'consultant'];
+          updates.seniorityLevel = allowedSeniority.includes(seniorityLevel) ? seniorityLevel : 'junior';
+          auditParts.push(`المستوى: ${updates.seniorityLevel}`);
+        }
+
         if (regularSessionRate !== undefined) {
           const rRate = Math.max(0, parseFloat(regularSessionRate) || 0);
           updates.regularSessionRate = rRate;
-          auditParts.push(`سعر العادية: ${rRate} ج.م`);
+          auditParts.push(`عادية: ${rRate} ج.م`);
+        }
+
+        if (scoliosisRate !== undefined) {
+          const scRate = Math.max(0, parseFloat(scoliosisRate) || 0);
+          updates.scoliosisRate = scRate;
+          auditParts.push(`اعوجاج: ${scRate} ج.م`);
+        }
+
+        if (hemiplegiaRate !== undefined) {
+          const hRate = Math.max(0, parseFloat(hemiplegiaRate) || 0);
+          updates.hemiplegiaRate = hRate;
+          auditParts.push(`شلل نصفي: ${hRate} ج.م`);
+        }
+
+        const effectiveQuadRate = (quadriplegiaRate !== undefined && quadriplegiaRate !== null) ? quadriplegiaRate : pediatricRate;
+        if (effectiveQuadRate !== undefined) {
+          const qRate = Math.max(0, parseFloat(effectiveQuadRate) || 0);
+          updates.quadriplegiaRate = qRate;
+          updates.pediatricRate = qRate;
+          auditParts.push(`شلل رباعي/أطفال: ${qRate} ج.م`);
         }
 
         if (specialSessionRate !== undefined) {
           const sRate = Math.max(0, parseFloat(specialSessionRate) || 0);
           updates.specialSessionRate = sRate;
-          auditParts.push(`سعر الخاصة: ${sRate} ج.م`);
+          auditParts.push(`خاصة: ${sRate} ج.م`);
         }
 
         await firestore.collection('users').doc(targetUid).update(updates);
@@ -347,7 +382,12 @@ export default async function handler(req, res) {
           success: true,
           targetUid,
           shift: updates.shift !== undefined ? updates.shift : targetData.shift,
+          seniorityLevel: updates.seniorityLevel !== undefined ? updates.seniorityLevel : targetData.seniorityLevel,
           regularSessionRate: updates.regularSessionRate !== undefined ? updates.regularSessionRate : targetData.regularSessionRate,
+          scoliosisRate: updates.scoliosisRate !== undefined ? updates.scoliosisRate : targetData.scoliosisRate,
+          hemiplegiaRate: updates.hemiplegiaRate !== undefined ? updates.hemiplegiaRate : targetData.hemiplegiaRate,
+          quadriplegiaRate: updates.quadriplegiaRate !== undefined ? updates.quadriplegiaRate : targetData.quadriplegiaRate,
+          pediatricRate: updates.pediatricRate !== undefined ? updates.pediatricRate : targetData.pediatricRate,
           specialSessionRate: updates.specialSessionRate !== undefined ? updates.specialSessionRate : targetData.specialSessionRate
         });
       }

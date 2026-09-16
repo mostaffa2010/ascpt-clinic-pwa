@@ -137,8 +137,8 @@
   
 
     <!-- Stylesheets -->
-  <link rel="stylesheet" href="css/style.css?v=2.8.5" media="screen">
-  <link rel="stylesheet" href="css/print.css?v=2.8.5" media="print">
+  <link rel="stylesheet" href="css/style.css?v=2.8.7" media="screen">
+  <link rel="stylesheet" href="css/print.css?v=2.8.7" media="print">
 </head>
 <body>
   <script>
@@ -1600,26 +1600,24 @@
           <!-- Doctors Performance Table -->
           <div class="card" id="card-monthly-doctors" style="margin-bottom: 16px;">
             <div class="card-header">
-              <span class="card-title"><i class="fa-solid fa-user-doctor"></i> إحصائية أطباء المركز للشهر (مصنفة نقدي وشركات)</span>
+              <span class="card-title"><i class="fa-solid fa-user-doctor"></i> إحصائية ورواتب أطباء المركز للشهر</span>
             </div>
             <div class="table-responsive desktop-only-table" id="monthly-doctors-table-container">
               <table class="data-table" id="monthly-doctors-table">
                 <colgroup>
-                  <col style="width: 25%;">
-                  <col style="width: 14%;">
-                  <col style="width: 16%;">
-                  <col style="width: 14%;">
-                  <col style="width: 16%;">
-                  <col style="width: 15%;">
+                  <col style="width: 22%;">
+                  <col style="width: 18%;">
+                  <col style="width: 18%;">
+                  <col style="width: 24%;">
+                  <col style="width: 18%;">
                 </colgroup>
                 <thead>
                   <tr>
                     <th>الطبيب المعالج</th>
-                    <th style="text-align: center;">مرضى نقدي</th>
-                    <th style="text-align: center;">مرضى شركات تأمين</th>
-                    <th style="text-align: center;">إجمالي الحالات</th>
-                    <th style="text-align: center;">عدد الجلسات المحتسبة</th>
-                    <th style="text-align: center;">النسبة من إجمالي المركز</th>
+                    <th style="text-align: center;">جلسات / كشوفات</th>
+                    <th style="text-align: center;">مرضى (نقدي / شركات)</th>
+                    <th style="text-align: center;">نوع الجلسات (عادية / scoliosis / hemiplegia / quadriplegia)</th>
+                    <th style="text-align: center;">مجموع راتب الطبيب</th>
                   </tr>
                 </thead>
                 <tbody id="monthly-doctors-tbody">
@@ -1633,24 +1631,18 @@
           <!-- Insurance and Cash Distribution Table -->
           <div class="card" id="card-monthly-insurance" style="margin-bottom: 16px;">
             <div class="card-header">
-              <span class="card-title"><i class="fa-solid fa-shield-halved"></i> توزيع المرضى حسب جهات الدفع والتأمين</span>
+              <span class="card-title"><i class="fa-solid fa-shield-halved"></i> توزيع الجلسات حسب طريقة السداد (نقدي وتأمين)</span>
             </div>
             <div class="table-responsive desktop-only-table" id="monthly-insurance-table-container">
               <table class="data-table" id="monthly-insurance-table">
                 <colgroup>
-                  <col style="width: 5%;">
-                  <col style="width: 40%;">
-                  <col style="width: 20%;">
-                  <col style="width: 18%;">
-                  <col style="width: 17%;">
+                  <col style="width: 50%;">
+                  <col style="width: 50%;">
                 </colgroup>
                 <thead>
                   <tr>
-                    <th style="text-align: center;">م</th>
-                    <th>جهة السداد / شركة التأمين</th>
-                    <th style="text-align: center;">نوع التعاقد</th>
-                    <th style="text-align: center;">عدد الحالات</th>
-                    <th style="text-align: center;">النسبة المئوية</th>
+                    <th style="text-align: center; font-weight: 800;">عدد جلسات النقدي</th>
+                    <th style="text-align: center; font-weight: 800;">عدد جلسات التأمين</th>
                   </tr>
                 </thead>
                 <tbody id="monthly-insurance-tbody">
@@ -2427,7 +2419,7 @@
         <div class="admin-system-footer no-print" style="margin-top: 32px; margin-bottom: 35px; text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px;">
           <div style="display: inline-flex; align-items: center; gap: 8px; background: var(--bg-surface); border: 1.5px solid var(--border-color); padding: 7px 18px; border-radius: 999px; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);">
             <span style="width: 8px; height: 8px; border-radius: 50%; background-color: var(--success); display: inline-block; box-shadow: 0 0 6px var(--success);"></span>
-            <span id="admin-system-version-label" data-clinic="version-badge" style="font-weight: 800; font-size: 0.88rem; color: var(--text-main);">نظام ASCPT — الإصدار 2.8.5</span>
+            <span id="admin-system-version-label" data-clinic="version-badge" style="font-weight: 800; font-size: 0.88rem; color: var(--text-main);">نظام ASCPT — الإصدار 2.8.7</span>
             <span class="badge badge-primary" style="font-size: 0.72rem; padding: 2px 10px; border-radius: 999px; font-weight: 800;">إصدار معتمد</span>
           </div>
           <div style="font-size: 0.76rem; color: var(--text-muted); font-weight: 700;">

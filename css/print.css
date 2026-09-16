@@ -354,6 +354,45 @@
     width: 100% !important;
   }
 
+  body.printing-monthly #view-finance,
+  body.finance-monthly-mode #view-finance,
+  #view-finance.mode-monthly {
+    min-height: 0 !important;
+    height: auto !important;
+    display: block !important;
+  }
+
+  /* Mode-Aware Complete Suppression to Prevent Phantom Margins and Blank White Spaces */
+  body.printing-monthly #finance-daily-content,
+  body.printing-monthly #card-doctors-breakdown,
+  body.printing-monthly #card-finance-report-sessions,
+  body.printing-monthly #card-finance-daily-expenses,
+  body.finance-monthly-mode #finance-daily-content,
+  body.finance-monthly-mode #card-doctors-breakdown,
+  body.finance-monthly-mode #card-finance-report-sessions,
+  body.finance-monthly-mode #card-finance-daily-expenses,
+  #view-finance.mode-monthly #finance-daily-content,
+  #view-finance.mode-monthly #card-doctors-breakdown,
+  #view-finance.mode-monthly #card-finance-report-sessions,
+  #view-finance.mode-monthly #card-finance-daily-expenses {
+    display: none !important;
+    height: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    border: none !important;
+    visibility: hidden !important;
+  }
+
+  body:not(.printing-monthly):not(.finance-monthly-mode) #finance-monthly-content,
+  #view-finance:not(.mode-monthly) #finance-monthly-content {
+    display: none !important;
+    height: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    border: none !important;
+    visibility: hidden !important;
+  }
+
   /* 1. Strictly Suppress All Interactive Controls, Filters, Duplicate Titles, and Settlements in Print */
   body:not(.printing-sheet) #finance-header-title,
   body:not(.printing-sheet) #finance-filter-bar-card,
@@ -376,9 +415,10 @@
   body:not(.printing-sheet):not(.printing-claim):not(.printing-cards):not(.printing-insurance-letter):not(.printing-receipt):not(.printing-statement) .print-header {
     display: block !important;
     text-align: center !important;
-    border-bottom: 2px solid #000000 !important;
-    padding-bottom: 3px !important;
-    margin-bottom: 5px !important;
+    border-bottom: 1.5px solid #000000 !important;
+    padding-bottom: 2px !important;
+    margin-bottom: 3.5px !important;
+    margin-top: 0 !important;
   }
 
   body:not(.printing-sheet) .print-header h1 {
@@ -624,10 +664,10 @@
     border: 1px solid #000000 !important;
     box-shadow: none !important;
     margin-top: 0 !important;
-    margin-bottom: 5px !important;
-    padding: 3px 5px !important;
+    margin-bottom: 2.8mm !important;
+    padding: 2px 4px !important;
     background: #ffffff !important;
-    page-break-inside: auto !important;
+    page-break-inside: avoid !important;
     box-sizing: border-box !important;
     width: 100% !important;
     max-width: 100% !important;

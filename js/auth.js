@@ -132,6 +132,14 @@ class AuthService {
       name: profile.name || firebaseUser.displayName || firebaseUser.email,
       email: firebaseUser.email,
       role: profile.role,
+      shift: profile.shift || (profile.role === 'doctor' ? 'sat_mon_wed' : 'all'),
+      seniorityLevel: profile.seniorityLevel || 'junior',
+      regularSessionRate: typeof profile.regularSessionRate === 'number' ? profile.regularSessionRate : 0,
+      scoliosisRate: typeof profile.scoliosisRate === 'number' ? profile.scoliosisRate : 0,
+      hemiplegiaRate: typeof profile.hemiplegiaRate === 'number' ? profile.hemiplegiaRate : 0,
+      quadriplegiaRate: typeof profile.quadriplegiaRate === 'number' ? profile.quadriplegiaRate : (typeof profile.pediatricRate === 'number' ? profile.pediatricRate : 0),
+      pediatricRate: typeof profile.quadriplegiaRate === 'number' ? profile.quadriplegiaRate : (typeof profile.pediatricRate === 'number' ? profile.pediatricRate : 0),
+      specialSessionRate: typeof profile.specialSessionRate === 'number' ? profile.specialSessionRate : 0,
       active: true
     };
     this.setCachedUser(resolvedUser);
