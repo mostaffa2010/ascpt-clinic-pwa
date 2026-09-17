@@ -34,6 +34,62 @@ export class ExportManager {
     if (btnPrint) {
       btnPrint.addEventListener('click', () => this.printReport());
     }
+
+    // Auto-sync responsive print tiers and modes on beforeprint
+    window.addEventListener('beforeprint', () => {
+      if (document.body.classList.contains('printing-sheet') || 
+          document.body.classList.contains('printing-claim') ||
+          document.body.classList.contains('printing-cards') ||
+          document.body.classList.contains('printing-insurance-letter') ||
+          document.body.classList.contains('printing-receipt') ||
+          document.body.classList.contains('printing-statement')) {
+        return;
+      }
+      this.syncPrintClasses();
+    });
+
+    window.addEventListener('afterprint', () => {
+      document.body.classList.remove(
+        'printing-monthly',
+        'finance-monthly-mode',
+        'printing-daily',
+        'finance-daily-mode',
+        'print-daily-spacious',
+        'print-daily-compact',
+        'print-daily-multipage'
+      );
+    });
+  }
+
+  syncPrintClasses() {
+    const meta = this.financeManager ? this.financeManager.getDataForExport() : { mode: 'daily' };
+    if (meta.mode === 'monthly') {
+      document.body.classList.add('printing-monthly', 'finance-monthly-mode');
+      document.body.classList.remove('printing-daily', 'finance-daily-mode', 'print-daily-spacious', 'print-daily-compact', 'print-daily-multipage');
+    } else {
+      document.body.classList.remove('printing-monthly', 'finance-monthly-mode');
+      document.body.classList.add('printing-daily', 'finance-daily-mode');
+
+      const rows = document.querySelectorAll('#finance-report-tbody tr');
+      let sessionCount = 0;
+      if (rows.length > 0) {
+        const firstTd = rows[0].querySelector('td');
+        if (rows.length === 1 && firstTd && firstTd.getAttribute('colspan')) {
+          sessionCount = 0;
+        } else {
+          sessionCount = rows.length;
+        }
+      }
+
+      document.body.classList.remove('print-daily-spacious', 'print-daily-compact', 'print-daily-multipage');
+      if (sessionCount <= 22) {
+        document.body.classList.add('print-daily-spacious');
+      } else if (sessionCount <= 35) {
+        document.body.classList.add('print-daily-compact');
+      } else {
+        document.body.classList.add('print-daily-multipage');
+      }
+    }
   }
 
   async exportToExcel() {
@@ -386,19 +442,16 @@ export class ExportManager {
         return;
       }
 
+      this.syncPrintClasses();
       const meta = this.financeManager.getDataForExport();
       const metaEl = document.getElementById('print-report-meta');
       const subEl = document.getElementById('print-report-subtitle');
       const now = new Date().toLocaleTimeString('ar-EG-u-nu-latn', { hour: '2-digit', minute: '2-digit' });
 
       if (meta.mode === 'monthly') {
-        document.body.classList.add('printing-monthly');
-        document.body.classList.add('finance-monthly-mode');
         if (subEl) subEl.textContent = `التقرير المالي والإحصائي الشهري - شهر (${meta.month})`;
         if (metaEl) metaEl.textContent = `شهر: ${meta.month} | تاريخ ووقت الطباعة: ${new Date().toLocaleDateString('ar-EG-u-nu-latn')} ${now}`;
       } else {
-        document.body.classList.remove('printing-monthly');
-        document.body.classList.remove('finance-monthly-mode');
         if (subEl) subEl.textContent = 'تقرير إيرادات وحركات الجلسات اليومية';
         if (metaEl) metaEl.textContent = `تاريخ اليوم: ${meta.date} | وقت الطباعة: ${now}`;
       }
@@ -410,7 +463,15 @@ export class ExportManager {
       // إطلاق أمر الطباعة
       window.print();
       setTimeout(() => {
-        document.body.classList.remove('printing-monthly');
+        document.body.classList.remove(
+          'printing-monthly',
+          'finance-monthly-mode',
+          'printing-daily',
+          'finance-daily-mode',
+          'print-daily-spacious',
+          'print-daily-compact',
+          'print-daily-multipage'
+        );
       }, 3000);
     } catch (err) {
       console.error('Print trigger error:', err);

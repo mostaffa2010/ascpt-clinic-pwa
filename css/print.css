@@ -361,15 +361,16 @@
     width: 100% !important;
   }
 
-  body.finance-daily-mode #view-finance {
+  body.finance-daily-mode:not(.print-daily-multipage) #view-finance,
+  body.printing-monthly #view-finance,
+  body.finance-monthly-mode #view-finance,
+  #view-finance.mode-monthly {
     min-height: 242mm !important;
     display: flex !important;
     flex-direction: column !important;
   }
 
-  body.printing-monthly #view-finance,
-  body.finance-monthly-mode #view-finance,
-  #view-finance.mode-monthly {
+  body.print-daily-multipage #view-finance {
     min-height: 0 !important;
     height: auto !important;
     display: block !important;
@@ -639,28 +640,125 @@
     padding: 2px 2px !important;
   }
 
-  /* 6. Signatures Footer (Pinned to bottom of daily report) */
+  /* ================= RESPONSIVE ADAPTIVE DAILY PRINT ENGINE ================= */
+  /* Level 1: Spacious Mode (1 to 22 Patients) - Fills page comfortably with elegant row heights & clear typography */
+  body.print-daily-spacious #card-doctors-breakdown {
+    padding: 5px 8px !important;
+    margin-bottom: 6px !important;
+  }
+  body.print-daily-spacious #card-doctors-breakdown .card-title {
+    font-size: 8.5pt !important;
+  }
+  body.print-daily-spacious #card-finance-report-sessions {
+    margin-top: 6px !important;
+    margin-bottom: 6px !important;
+  }
+  body.print-daily-spacious #card-finance-report-sessions .card-title {
+    font-size: 8.5pt !important;
+    margin-bottom: 3px !important;
+  }
+  body.print-daily-spacious #finance-report-table {
+    font-size: 8.2pt !important;
+  }
+  body.print-daily-spacious #finance-report-table th {
+    font-size: 8.2pt !important;
+    padding: 4px 3px !important;
+    line-height: 1.15 !important;
+  }
+  body.print-daily-spacious #finance-report-table td {
+    font-size: 8.2pt !important;
+    padding: 3.8px 3px !important;
+    line-height: 1.2 !important;
+  }
+  body.print-daily-spacious #card-finance-daily-expenses {
+    margin-top: 6px !important;
+  }
+  body.print-daily-spacious #card-finance-daily-expenses .card-title {
+    font-size: 8.5pt !important;
+  }
+  body.print-daily-spacious #finance-expenses-table th {
+    font-size: 8pt !important;
+    padding: 3.5px 3px !important;
+  }
+  body.print-daily-spacious #finance-expenses-table td {
+    font-size: 8pt !important;
+    padding: 3.5px 3px !important;
+  }
+
+  /* Level 2: Standard Compact Mode (23 to 35 Patients) */
+  body.print-daily-compact #finance-report-table {
+    font-size: 6.8pt !important;
+  }
+  body.print-daily-compact #finance-report-table th {
+    font-size: 6.5pt !important;
+    padding: 2px 2px !important;
+  }
+  body.print-daily-compact #finance-report-table td {
+    font-size: 6.8pt !important;
+    padding: 1px 2px !important;
+    line-height: 1.05 !important;
+  }
+
+  /* Level 3: Multi-Page Mode (> 35 Patients) - Clean multi-page pagination */
+  body.print-daily-multipage #finance-report-table {
+    font-size: 7.5pt !important;
+  }
+  body.print-daily-multipage #finance-report-table th {
+    font-size: 7.2pt !important;
+    padding: 3px 2px !important;
+  }
+  body.print-daily-multipage #finance-report-table td {
+    font-size: 7.5pt !important;
+    padding: 2.5px 2px !important;
+    line-height: 1.15 !important;
+  }
+  body.print-daily-multipage #finance-report-table thead {
+    display: table-header-group !important;
+  }
+  body.print-daily-multipage #finance-report-table tr {
+    page-break-inside: avoid !important;
+  }
+  body.print-daily-multipage #card-finance-report-sessions {
+    page-break-inside: auto !important;
+  }
+  body.print-daily-multipage #card-finance-daily-expenses {
+    page-break-inside: avoid !important;
+    margin-top: 6mm !important;
+  }
+
+  /* 6. Signatures Footer (Fixed Size, Pinned to Bottom, Manager Left & Reception Right) */
   body:not(.printing-sheet):not(.printing-claim):not(.printing-cards):not(.printing-insurance-letter):not(.printing-receipt):not(.printing-statement) .print-footer {
     display: flex !important;
-    justify-content: space-around !important;
+    justify-content: space-between !important;
+    align-items: flex-end !important;
     margin-top: 4mm !important;
-    padding-top: 4px !important;
+    padding-top: 6px !important;
+    padding-left: 20px !important;
+    padding-right: 20px !important;
     border-top: 1.5px dashed #000000 !important;
-    font-size: 7.5pt !important;
+    font-size: 8.5pt !important;
     font-weight: 800 !important;
     color: #000000 !important;
     page-break-inside: avoid !important;
     width: 100% !important;
+    box-sizing: border-box !important;
   }
 
-  body.finance-daily-mode .print-footer {
+  body.finance-daily-mode:not(.print-daily-multipage) .print-footer,
+  body.printing-monthly .print-footer,
+  body.finance-monthly-mode .print-footer {
     margin-top: auto !important;
   }
 
+  body.print-daily-multipage .print-footer {
+    margin-top: 15mm !important;
+    page-break-inside: avoid !important;
+  }
+
   body:not(.printing-sheet) .print-footer .signature-line {
-    margin-top: 8px !important;
-    border-bottom: 1.2px solid #000000 !important;
-    width: 90px !important;
+    margin-top: 14px !important;
+    border-bottom: 1.5px solid #000000 !important;
+    width: 120px !important;
   }
 
   /* Desktop & Mobile Responsive Table Visibility during Print */
@@ -720,7 +818,7 @@
   body:not(.printing-sheet) #card-monthly-settlements .card-title,
   body:not(.printing-sheet) #card-monthly-expenses-categories .card-title,
   body:not(.printing-sheet) #card-monthly-financial-summary .card-title {
-    font-size: 7.5pt !important;
+    font-size: 8.5pt !important;
     font-weight: 900 !important;
     color: #000000 !important;
   }
@@ -738,7 +836,7 @@
     width: 100% !important;
     table-layout: fixed !important;
     border-collapse: collapse !important;
-    font-size: 6.8pt !important;
+    font-size: 8pt !important;
     background: #ffffff !important;
     margin: 0 !important;
   }
@@ -751,8 +849,8 @@
     background-color: #f1f5f9 !important;
     color: #000000 !important;
     font-weight: 900 !important;
-    font-size: 6.8pt !important;
-    padding: 2.5px 3px !important;
+    font-size: 8pt !important;
+    padding: 3.5px 3px !important;
     text-align: center !important;
     border: 1px solid #000000 !important;
   }
@@ -763,8 +861,8 @@
   body:not(.printing-sheet) #monthly-expenses-categories-table td,
   body:not(.printing-sheet) #monthly-financial-summary-table td {
     border: 1px solid #333333 !important;
-    padding: 2px 3px !important;
-    line-height: 1.1 !important;
+    padding: 3px 3px !important;
+    line-height: 1.15 !important;
     vertical-align: middle !important;
     word-break: break-word !important;
     color: #000000 !important;
@@ -775,6 +873,8 @@
     border-top: 1.8px solid #000000 !important;
     background-color: #f1f5f9 !important;
     font-weight: 900 !important;
+    font-size: 8pt !important;
+    padding: 3.5px 3px !important;
   }
 
   /* Crisp Monochrome Financial Overrides (No washed-out colors in B&W printing) */
@@ -853,29 +953,7 @@
     font-weight: 900 !important;
   }
 
-  /* Signatures Footer: Crisp black dashed separator (Pinned to bottom of monthly report) */
-  body:not(.printing-sheet):not(.printing-claim):not(.printing-cards):not(.printing-insurance-letter):not(.printing-receipt):not(.printing-statement) .print-footer {
-    display: flex !important;
-    justify-content: space-around !important;
-    margin-top: 4mm !important;
-    padding-top: 4px !important;
-    border-top: 1.5px dashed #000000 !important;
-    font-size: 7.5pt !important;
-    font-weight: 800 !important;
-    color: #000000 !important;
-    page-break-inside: avoid !important;
-    width: 100% !important;
-  }
-
-  body.finance-daily-mode .print-footer {
-    margin-top: auto !important;
-  }
-
-  body:not(.printing-sheet) .print-footer .signature-line {
-    margin-top: 10px !important;
-    border-bottom: 1.5px solid #000000 !important;
-    width: 100px !important;
-  }
+  /* Duplicate monthly footer block consolidated into Section 6 above */
 
   body:not(.printing-sheet) #card-monthly-doctors .card-header,
   body:not(.printing-sheet) #card-monthly-insurance .card-header,

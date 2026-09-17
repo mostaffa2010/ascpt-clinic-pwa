@@ -127,6 +127,10 @@ assert(printCssContent.includes('padding: 8mm 14mm !important;'), 'print.css mus
 assert(htmlContent.includes('class="claim-print-footer-wrap"'), 'index.html must contain .claim-print-footer-wrap inside claim printable doc');
 assert(claimsJsContent.includes('class="attendance-card-footer-wrap"'), 'claims.js must generate .attendance-card-footer-wrap for attendance cards');
 assert(printCssContent.includes('min-height: 242mm !important;'), 'print.css must ensure #view-finance has min-height: 242mm to push footer to bottom');
+assert(printCssContent.includes('print-daily-spacious'), 'print.css must define print-daily-spacious mode for 1-22 patients');
+assert(printCssContent.includes('print-daily-compact'), 'print.css must define print-daily-compact mode for 23-35 patients');
+assert(printCssContent.includes('print-daily-multipage'), 'print.css must define print-daily-multipage mode for >35 patients');
+assert(exportJsContent.includes('syncPrintClasses'), 'export.js must define syncPrintClasses() for responsive print tiers');
 console.log('✓ 10. Bottom Footers & Safe Print Margins: Verified attendance cards, claims, and financial reports.');
 
 // 11. Strict Guardrail: Medical Statement Header Branding Parity
