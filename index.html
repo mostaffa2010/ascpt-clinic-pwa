@@ -206,14 +206,9 @@
             <i class="fa-solid fa-bell" style="color: var(--primary);"></i>
             <span>الإشعارات</span>
           </div>
-          <div style="display: flex; align-items: center; gap: 6px;">
-            <button type="button" class="btn-mark-all-read" id="btn-test-notif-dropdown" title="إرسال إشعار تجريبي فوري" style="color: var(--text-muted); font-size: 0.74rem;">
-              <i class="fa-solid fa-paper-plane"></i> <span>تجربة</span>
-            </button>
-            <button type="button" class="btn-mark-all-read" id="btn-mark-all-read" title="تحديد الكل كمقروء">
-              <i class="fa-solid fa-check-double"></i> <span>قراءة الكل</span>
-            </button>
-          </div>
+          <button type="button" class="btn-mark-all-read" id="btn-mark-all-read" title="تحديد الكل كمقروء">
+            <i class="fa-solid fa-check-double"></i> <span>قراءة الكل</span>
+          </button>
         </div>
         <div class="notification-dropdown-body" id="notifications-list">
           <!-- Rendered dynamically -->
@@ -3730,14 +3725,9 @@
                 <div style="font-size: 0.72rem; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" id="push-status-text">تلقي تنبيهات المرضى والمواعيد</div>
               </div>
             </div>
-            <div style="display: flex; align-items: center; gap: 8px;">
-              <button type="button" class="btn btn-outline btn-sm" id="btn-test-push-notification" style="display: none; font-weight: 700; font-size: 0.74rem; padding: 4px 10px; border-radius: 999px; white-space: nowrap; color: var(--primary); border-color: var(--primary);" title="إرسال إشعار تجريبي فوري لهاتفك للتأكد من عمل النظام">
-                <i class="fa-solid fa-paper-plane"></i> تجربة
-              </button>
-              <button type="button" class="btn btn-outline btn-sm" id="btn-toggle-push-notifications" style="font-weight: 800; font-size: 0.8rem; padding: 4px 12px; border-radius: 999px; white-space: nowrap;">
-                تفعيل
-              </button>
-            </div>
+            <button type="button" class="btn btn-outline btn-sm" id="btn-toggle-push-notifications" style="font-weight: 800; font-size: 0.8rem; padding: 4px 12px; border-radius: 999px; white-space: nowrap;">
+              تفعيل
+            </button>
           </div>
           <!-- 1. Admin Panel (Admin Only) -->
           <button type="button" class="btn btn-outline" id="btn-profile-admin-panel" style="width: 100%; display: none; align-items: center; justify-content: space-between; padding: 11px 14px; border-radius: 12px; font-weight: 800; font-size: 0.88rem; color: #b45309; border: 1.5px solid rgba(245, 158, 11, 0.35); background: rgba(245, 158, 11, 0.08); cursor: pointer; transition: all 0.2s ease;">

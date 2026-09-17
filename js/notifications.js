@@ -86,22 +86,7 @@ export class NotificationsManager {
     const btnPrimerDismiss = document.getElementById('btn-primer-dismiss');
     const btnPrimerX = document.getElementById('btn-close-primer-x');
 
-    const btnTestProfile = document.getElementById('btn-test-push-notification');
-    const btnTestDropdown = document.getElementById('btn-test-notif-dropdown');
 
-    if (btnTestProfile) {
-      btnTestProfile.addEventListener('click', (e) => {
-        e.stopPropagation();
-        this.sendTestNotification();
-      });
-    }
-
-    if (btnTestDropdown) {
-      btnTestDropdown.addEventListener('click', (e) => {
-        e.stopPropagation();
-        this.sendTestNotification();
-      });
-    }
 
     if (btnBell) {
       btnBell.addEventListener('click', (e) => {
@@ -641,11 +626,8 @@ export class NotificationsManager {
       return;
     }
 
-    const btnTest = document.getElementById('btn-test-push-notification');
-
     if (Notification.permission === 'granted') {
       if (statusText) statusText.textContent = 'الإشعارات الفورية مفعلة بنجاح على هذا الجهاز';
-      if (btnTest) btnTest.style.display = 'inline-flex';
       if (btnToggle) {
         btnToggle.innerHTML = '<i class="fa-solid fa-check"></i> مفعل';
         btnToggle.disabled = false;
