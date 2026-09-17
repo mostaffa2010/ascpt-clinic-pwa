@@ -2793,8 +2793,8 @@ export class PatientsManager {
             <div class="stc-footer" style="display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap;">
               <small><i class="fa-solid fa-user-check"></i> المسجل: ${escapeHTML(s.recordedBy || 'موظف الاستقبال')}</small>
               ${canDelete ? `
-                <button type="button" class="btn btn-outline btn-sm btn-icon-action btn-delete-history-session" onclick="patientsManager.deletePatientSession('${escapeHTML(s.id)}')" style="color: var(--danger); border-color: rgba(239, 68, 68, 0.35); background: rgba(239, 68, 68, 0.06); padding: 2px 8px; font-size: 0.74rem; display: inline-flex; align-items: center; gap: 4px;" title="حذف هذه الجلسة">
-                  <i class="fa-solid fa-trash"></i> <span>حذف</span>
+                <button type="button" class="btn btn-outline btn-sm btn-icon-action btn-delete-history-session" onclick="patientsManager.deletePatientSession('${escapeHTML(s.id)}')" style="color: var(--danger); border-color: rgba(239, 68, 68, 0.35); background: rgba(239, 68, 68, 0.06);" title="حذف هذه الجلسة" aria-label="حذف هذه الجلسة">
+                  <i class="fa-solid fa-trash"></i>
                 </button>
               ` : ''}
             </div>
