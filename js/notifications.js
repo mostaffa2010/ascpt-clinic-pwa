@@ -164,6 +164,21 @@ export class NotificationsManager {
         this.closeDropdown();
       }
     });
+
+    // Close dropdown on outside scroll (desktop wheel, window scroll, and mobile touch scroll)
+    const handleOutsideScroll = (e) => {
+      if (!this.isDropdownOpen || !dropdown) return;
+      // Allow scrolling inside the notifications list without closing
+      if (e.target && (dropdown === e.target || dropdown.contains(e.target))) {
+        return;
+      }
+      this.closeDropdown();
+    };
+
+    window.addEventListener('scroll', handleOutsideScroll, { passive: true, capture: true });
+    document.addEventListener('scroll', handleOutsideScroll, { passive: true, capture: true });
+    document.addEventListener('wheel', handleOutsideScroll, { passive: true, capture: true });
+    document.addEventListener('touchmove', handleOutsideScroll, { passive: true, capture: true });
   }
 
   openPrimerModal() {
@@ -593,11 +608,35 @@ export class NotificationsManager {
     const statusText = document.getElementById('push-status-text');
     const btnToggle = document.getElementById('btn-toggle-push-notifications');
 
+    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+    const isStandalone = Boolean(window.navigator.standalone || window.matchMedia('(display-mode: standalone)').matches);
+
     if (!('Notification' in window) || !('serviceWorker' in navigator)) {
-      if (statusText) statusText.textContent = 'الإشعارات الفورية غير مدعومة على هذا المتصفح';
-      if (btnToggle) {
-        btnToggle.disabled = true;
-        btnToggle.textContent = 'غير مدعوم';
+      if (isIOS && !isStandalone) {
+        if (statusText) statusText.textContent = 'على أجهزة آيفون: اضغط زر المشاركة ثم "إضافة للشاشة الرئيسية" لتفعيل الإشعارات';
+        if (btnToggle) {
+          btnToggle.innerHTML = '<i class="fa-solid fa-arrow-up-from-bracket"></i> إضافة للشاشة';
+          btnToggle.disabled = false;
+          btnToggle.className = 'btn btn-outline btn-sm';
+          btnToggle.style.cssText = 'font-weight: 800; font-size: 0.76rem; padding: 4px 10px; border-radius: 999px; white-space: nowrap; color: var(--primary); border-color: var(--primary); cursor: pointer;';
+          btnToggle.onclick = (e) => {
+            e.preventDefault();
+            this.app?.showAlert(
+              'خطوات تفعيل الإشعارات على هواتف آيفون (iOS 16.4+):\n\n' +
+              '1. في متصفح سفاري (Safari)، اضغط على زر المشاركة ⎋ (المربع بسهم لأعلى أسفل الشاشة).\n' +
+              '2. مرر للأسفل واختر "إضافة إلى الشاشة الرئيسية" (Add to Home Screen).\n' +
+              '3. افتح تطبيق ASCPT من شاشة الهاتف الرئيسية، وستتمكن من تفعيل الإشعارات فوراً.',
+              'تفعيل الإشعارات على آيفون',
+              'info'
+            );
+          };
+        }
+      } else {
+        if (statusText) statusText.textContent = 'الإشعارات الفورية غير مدعومة على هذا المتصفح';
+        if (btnToggle) {
+          btnToggle.disabled = true;
+          btnToggle.textContent = 'غير مدعوم';
+        }
       }
       return;
     }
@@ -640,7 +679,20 @@ export class NotificationsManager {
     }
 
     if (!('Notification' in window) || !('serviceWorker' in navigator)) {
-      if (this.app?.showAlert) this.app.showAlert('هذا المتصفح لا يدعم خدمة إشعارات الويب Web Push.', 'غير مدعوم', 'warning');
+      const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+      const isStandalone = Boolean(window.navigator.standalone || window.matchMedia('(display-mode: standalone)').matches);
+      if (isIOS && !isStandalone) {
+        this.app?.showAlert(
+          'على أجهزة آيفون (iOS 16.4+):\nتتطلب أبل إضافة التطبيق إلى الشاشة الرئيسية أولاً لتشغيل الإشعارات:\n\n' +
+          '1. اضغط على زر المشاركة ⎋ في سفاري.\n' +
+          '2. اختر "إضافة إلى الشاشة الرئيسية" (Add to Home Screen).\n' +
+          '3. افتح التطبيق من أيقونة الشاشة الرئيسية واضغط تفعيل.',
+          'مطلوب إضافة التطبيق للشاشة الرئيسية',
+          'info'
+        );
+      } else {
+        if (this.app?.showAlert) this.app.showAlert('هذا المتصفح لا يدعم خدمة إشعارات الويب Web Push.', 'غير مدعوم', 'warning');
+      }
       return;
     }
 
