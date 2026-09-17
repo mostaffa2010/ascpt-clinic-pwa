@@ -2025,7 +2025,7 @@ export class AppointmentsManager {
             type: 'appointment_booked',
             title: `حجز موعد جديد: ${this.selectedPatientName}`,
             body: `موعد دوري أسبوعياً (${daysText}) مع د. ${chosenName}`,
-            target: { doctorUid: chosenUid, role: 'doctor' },
+            target: { doctorUid: chosenUid, doctorName: chosenName },
             data: { screen: 'appointments', date: this.selectedDate || getLocalDateStr() }
           });
         } catch (notifErr) {
@@ -2624,6 +2624,20 @@ export class AppointmentsManager {
       this.app.closeModal('modal-copy-appointment');
       if (createdCount > 0) {
         this.app.showToast(`تم نسخ موعد ${this.copyingAppt.patientName} بنجاح إلى (${createdCount} أيام)!`);
+
+        if (chosenDocUid && window.app?.notificationsManager) {
+          try {
+            window.app.notificationsManager.sendNotification({
+              type: 'appointment_booked',
+              title: `تكرار موعد: ${this.copyingAppt.patientName}`,
+              body: `تم نسخ الموعد إلى (${createdCount} أيام) مع د. ${chosenDocName}`,
+              target: { doctorUid: chosenDocUid, doctorName: chosenDocName },
+              data: { screen: 'appointments' }
+            });
+          } catch (notifErr) {
+            console.warn('Copy appointment notification notice:', notifErr);
+          }
+        }
       } else {
         this.app.showToast(`الموعد مسجل بالفعل في الأيام المختارة.`);
       }

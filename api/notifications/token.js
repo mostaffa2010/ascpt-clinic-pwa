@@ -91,11 +91,21 @@ export default async function handler(req, res) {
         return res.status(400).json({ success: false, error: 'رمز الجهاز token مطلوب للتسجيل.' });
       }
 
-      const tokenKey = Buffer.from(token.slice(-32)).toString('base64').replace(/[/+=]/g, '_');
+      let cleanToken = token;
+      if (typeof cleanToken === 'string') {
+        if (cleanToken.includes('/fcm/send/')) {
+          cleanToken = cleanToken.split('/fcm/send/')[1];
+        } else if (cleanToken.includes('/gcm/send/')) {
+          cleanToken = cleanToken.split('/gcm/send/')[1];
+        }
+        cleanToken = cleanToken.trim();
+      }
+
+      const tokenKey = Buffer.from(cleanToken.slice(-32)).toString('base64').replace(/[/+=]/g, '_');
       const tokenRef = db.collection('users').doc(uid).collection('fcm_tokens').doc(tokenKey);
 
       await tokenRef.set({
-        token,
+        token: cleanToken,
         role: role || 'staff',
         name: name || '',
         updatedAt: FieldValue.serverTimestamp(),

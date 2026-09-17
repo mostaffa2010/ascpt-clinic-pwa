@@ -86,6 +86,23 @@ export class NotificationsManager {
     const btnPrimerDismiss = document.getElementById('btn-primer-dismiss');
     const btnPrimerX = document.getElementById('btn-close-primer-x');
 
+    const btnTestProfile = document.getElementById('btn-test-push-notification');
+    const btnTestDropdown = document.getElementById('btn-test-notif-dropdown');
+
+    if (btnTestProfile) {
+      btnTestProfile.addEventListener('click', (e) => {
+        e.stopPropagation();
+        this.sendTestNotification();
+      });
+    }
+
+    if (btnTestDropdown) {
+      btnTestDropdown.addEventListener('click', (e) => {
+        e.stopPropagation();
+        this.sendTestNotification();
+      });
+    }
+
     if (btnBell) {
       btnBell.addEventListener('click', (e) => {
         e.stopPropagation();
@@ -427,6 +444,108 @@ export class NotificationsManager {
     }
   }
 
+  async onUserAuthenticated(user) {
+    if (!user || !user.uid) return;
+    this.startListening();
+    this.checkCurrentPermissionState();
+
+    // Auto-sync token if browser permission is already granted
+    if ('Notification' in window && Notification.permission === 'granted') {
+      try {
+        await this.autoRegisterToken(user);
+      } catch (e) {
+        console.warn('Auto token registration notice:', e.message);
+      }
+    }
+  }
+
+  async autoRegisterToken(currentUser) {
+    if (!currentUser || !currentUser.uid) return;
+    if (!('serviceWorker' in navigator) || !('Notification' in window)) return;
+    if (Notification.permission !== 'granted') return;
+
+    try {
+      const reg = await navigator.serviceWorker.ready;
+      let subscription = await reg.pushManager.getSubscription();
+
+      const vapidKey = CLINIC_CONFIG.firebase?.vapidKey;
+      if (!subscription && vapidKey) {
+        subscription = await reg.pushManager.subscribe({
+          userVisibleOnly: true,
+          applicationServerKey: urlB64ToUint8Array(vapidKey)
+        });
+      }
+
+      if (!subscription) return;
+
+      const subJson = subscription.toJSON();
+      let tokenString = subJson.endpoint || '';
+      if (tokenString.includes('/fcm/send/')) {
+        tokenString = tokenString.split('/fcm/send/')[1];
+      } else if (tokenString.includes('/gcm/send/')) {
+        tokenString = tokenString.split('/gcm/send/')[1];
+      }
+      tokenString = tokenString.trim();
+
+      if (!tokenString) return;
+
+      await fetch('/api/notifications/token', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'register',
+          uid: currentUser.uid,
+          token: tokenString,
+          role: currentUser.role || 'staff',
+          name: currentUser.name || '',
+          userAgent: navigator.userAgent
+        })
+      });
+      console.log('FCM token auto-registered for:', currentUser.name);
+    } catch (err) {
+      console.warn('Auto register token notice:', err.message);
+    }
+  }
+
+  async sendTestNotification() {
+    const user = auth.getCurrentUser();
+    if (!user || !user.uid) {
+      if (this.app?.showAlert) this.app.showAlert('يرجى تسجيل الدخول أولاً.', 'تنبيه', 'warning');
+      return;
+    }
+
+    if (!('Notification' in window) || Notification.permission !== 'granted') {
+      this.openPrimerModal();
+      return;
+    }
+
+    if (this.app?.showToast) {
+      this.app.showToast('جاري إرسال إشعار تجريبي فوري لهاتفك... 🔔', 'info');
+    }
+
+    try {
+      const res = await this.sendNotification({
+        type: 'test_notification',
+        title: '🔔 تجربة الإشعارات — ASCPT',
+        body: `مرحباً د. ${user.name || ''}، نظام الإشعارات الفورية يعمل بنجاح على هذا الهاتف!`,
+        target: { recipientUid: user.uid },
+        data: { screen: 'dashboard' }
+      });
+      console.log('Test notification sent response:', res);
+      if (res && res.sentCount > 0) {
+        if (this.app?.showToast) {
+          this.app.showToast('تم إرسال الإشعار التجريبي لهاتفك بنجاح! ✓', 'success');
+        }
+      } else {
+        if (this.app?.showToast) {
+          this.app.showToast('تم حفظ الإشعار في القائمة، تأكد من اتصال هاتفك بالإنترنت.', 'info');
+        }
+      }
+    } catch (err) {
+      console.error('Test notification dispatch error:', err);
+    }
+  }
+
   async checkCurrentPermissionState() {
     const statusText = document.getElementById('push-status-text');
     const btnToggle = document.getElementById('btn-toggle-push-notifications');
@@ -440,8 +559,11 @@ export class NotificationsManager {
       return;
     }
 
+    const btnTest = document.getElementById('btn-test-push-notification');
+
     if (Notification.permission === 'granted') {
       if (statusText) statusText.textContent = 'الإشعارات الفورية مفعلة بنجاح على هذا الجهاز';
+      if (btnTest) btnTest.style.display = 'inline-flex';
       if (btnToggle) {
         btnToggle.innerHTML = '<i class="fa-solid fa-check"></i> مفعل';
         btnToggle.disabled = false;
@@ -505,7 +627,13 @@ export class NotificationsManager {
       }
 
       const subJson = subscription.toJSON();
-      const tokenString = subJson.endpoint;
+      let tokenString = subJson.endpoint || '';
+      if (tokenString.includes('/fcm/send/')) {
+        tokenString = tokenString.split('/fcm/send/')[1];
+      } else if (tokenString.includes('/gcm/send/')) {
+        tokenString = tokenString.split('/gcm/send/')[1];
+      }
+      tokenString = tokenString.trim();
 
       // 1. Save token via Serverless endpoint (Runs as Firebase Admin, completely bypassing client rules)
       let savedViaServer = false;

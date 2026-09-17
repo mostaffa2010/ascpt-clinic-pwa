@@ -1144,7 +1144,7 @@ export class SessionsManager {
           type: 'patient_checkin',
           title: titleText,
           body: bodyText,
-          target: { doctorUid: doctorUid || '', role: 'doctor' },
+          target: { doctorUid: doctorUid || '', doctorName: doctor },
           data: { screen: 'doctor-dashboard', patientId: this.selectedPatientId }
         });
       } catch (notifErr) {

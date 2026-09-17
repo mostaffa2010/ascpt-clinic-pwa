@@ -178,6 +178,7 @@ class App {
           try { await db.syncAndSeedCloudOptions(); } catch (_) {}
           this.updateBackupStatusHint();
           this.checkBackupReminderToast(user);
+          this.notificationsManager?.onUserAuthenticated(user);
         }
         await this.refreshAll();
       });

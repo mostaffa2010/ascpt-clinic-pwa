@@ -47,6 +47,17 @@ function initAdmin() {
   };
 }
 
+function normalizeToken(rawToken) {
+  if (!rawToken || typeof rawToken !== 'string') return '';
+  let t = rawToken.trim();
+  if (t.includes('/fcm/send/')) {
+    t = t.split('/fcm/send/')[1];
+  } else if (t.includes('/gcm/send/')) {
+    t = t.split('/gcm/send/')[1];
+  }
+  return t.trim();
+}
+
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
@@ -66,7 +77,6 @@ export default async function handler(req, res) {
   try {
     const { auth, db, messaging } = initAdmin();
 
-    // 1. Authorization check (Optional Bearer token verification if present)
     const authHeader = req.headers.authorization || '';
     if (authHeader.startsWith('Bearer ')) {
       const idToken = authHeader.split('Bearer ')[1];
@@ -89,16 +99,35 @@ export default async function handler(req, res) {
     const targetType = target || {};
     const recipientUids = new Set();
 
-    // 2. Resolve Target Users
-    if (targetType.doctorUid) {
-      recipientUids.add(targetType.doctorUid);
-    }
+    // 1. Direct Specific User UIDs (Highest priority)
     if (targetType.recipientUid) {
       recipientUids.add(targetType.recipientUid);
     }
 
-    // Role-based recipient resolution
-    if (targetType.role) {
+    if (targetType.doctorUid) {
+      recipientUids.add(targetType.doctorUid);
+
+      // Also match doctor by UID or Name in users collection
+      try {
+        const usersSnap = await db.collection('users').where('active', '==', true).get();
+        usersSnap.forEach(doc => {
+          const u = doc.data();
+          if (
+            doc.id === targetType.doctorUid ||
+            u.uid === targetType.doctorUid ||
+            (targetType.doctorName && u.name && u.name.trim() === targetType.doctorName.trim()) ||
+            (u.name && targetType.doctorUid.includes(u.name))
+          ) {
+            recipientUids.add(doc.id);
+          }
+        });
+      } catch (e) {
+        console.warn('Doctor recipient resolution notice:', e.message);
+      }
+    }
+
+    // 2. Role-based fallback (Only if no specific user UID was targeted)
+    if (recipientUids.size === 0 && targetType.role) {
       const role = targetType.role;
       let usersQuery = db.collection('users').where('active', '==', true);
       if (role !== 'all') {
@@ -123,11 +152,11 @@ export default async function handler(req, res) {
     const notificationId = 'notif_' + Date.now() + '_' + Math.random().toString(36).substring(2, 7);
     const nowIso = new Date().toISOString();
 
-    // 3. Collect Tokens and Save In-App Notifications
+    // 3. Save In-App Notifications and Collect FCM Tokens
     const batch = db.batch();
 
     for (const uid of targetUidList) {
-      // In-app notification record
+      // In-app notification document
       const notifRef = db.collection('users').doc(uid).collection('notifications').doc(notificationId);
       batch.set(notifRef, {
         id: notificationId,
@@ -139,18 +168,25 @@ export default async function handler(req, res) {
         createdAt: nowIso
       });
 
-      // Fetch FCM tokens for user
-      const tokensSnap = await db.collection('users').doc(uid).collection('fcm_tokens').get();
-      tokensSnap.forEach(tokenDoc => {
-        const tokenData = tokenDoc.data();
-        if (tokenData && tokenData.token) {
-          tokensWithMeta.push({
-            uid,
-            docId: tokenDoc.id,
-            token: tokenData.token
-          });
-        }
-      });
+      // Fetch user FCM tokens
+      try {
+        const tokensSnap = await db.collection('users').doc(uid).collection('fcm_tokens').get();
+        tokensSnap.forEach(tokenDoc => {
+          const tokenData = tokenDoc.data();
+          if (tokenData && tokenData.token) {
+            const cleanToken = normalizeToken(tokenData.token);
+            if (cleanToken) {
+              tokensWithMeta.push({
+                uid,
+                docId: tokenDoc.id,
+                cleanToken
+              });
+            }
+          }
+        });
+      } catch (tokErr) {
+        console.warn(`Could not read tokens for user ${uid}:`, tokErr.message);
+      }
     }
 
     await batch.commit();
@@ -164,8 +200,9 @@ export default async function handler(req, res) {
       });
     }
 
-    // 4. Send Push Notification via Firebase Cloud Messaging
-    const uniqueTokens = Array.from(new Set(tokensWithMeta.map(t => t.token)));
+    // 4. Send Push Notification via Firebase Cloud Messaging Multicast
+    const uniqueTokens = Array.from(new Set(tokensWithMeta.map(t => t.cleanToken)));
+
     const message = {
       tokens: uniqueTokens,
       notification: {
@@ -173,13 +210,13 @@ export default async function handler(req, res) {
         body
       },
       data: {
-        type: type || 'general',
-        title,
-        body,
-        screen: data?.screen || '',
-        patientId: data?.patientId || '',
-        date: data?.date || '',
-        url: data?.url || '/'
+        type: String(type || 'general'),
+        title: String(title || ''),
+        body: String(body || ''),
+        screen: String(data?.screen || ''),
+        patientId: String(data?.patientId || ''),
+        date: String(data?.date || ''),
+        url: String(data?.url || '/')
       },
       android: {
         priority: 'high',
@@ -200,15 +237,15 @@ export default async function handler(req, res) {
           badge: '/icons/favicon-32x32.png',
           dir: 'rtl',
           lang: 'ar',
-          tag: type || 'ascpt-notification',
+          tag: String(type || 'ascpt-notification'),
           renotify: true,
-          vibrate: [200, 100, 200],
-          data: {
-            screen: data?.screen || '',
-            patientId: data?.patientId || '',
-            date: data?.date || '',
-            url: data?.url || '/'
-          }
+          vibrate: [200, 100, 200]
+        },
+        data: {
+          screen: String(data?.screen || ''),
+          patientId: String(data?.patientId || ''),
+          date: String(data?.date || ''),
+          url: String(data?.url || '/')
         }
       }
     };
@@ -221,12 +258,11 @@ export default async function handler(req, res) {
       response.responses.forEach((resp, idx) => {
         if (!resp.success) {
           const errCode = resp.error?.code || '';
-          if (
-            errCode === 'messaging/registration-token-not-registered' ||
-            errCode === 'messaging/invalid-registration-token'
-          ) {
+          console.warn('FCM token response failure:', errCode, resp.error?.message);
+          // Only delete if device token is definitely expired / unregistered
+          if (errCode === 'messaging/registration-token-not-registered') {
             const badToken = uniqueTokens[idx];
-            tokensWithMeta.filter(t => t.token === badToken).forEach(t => deadTokenDocs.push(t));
+            tokensWithMeta.filter(t => t.cleanToken === badToken).forEach(t => deadTokenDocs.push(t));
           }
         }
       });
