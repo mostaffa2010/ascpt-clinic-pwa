@@ -222,7 +222,6 @@ export default async function handler(req, res) {
         priority: 'high',
         notification: {
           sound: 'default',
-          icon: '/icons/icon-192.png',
           color: '#0284c7',
           priority: 'max',
           defaultSound: true,
@@ -237,13 +236,12 @@ export default async function handler(req, res) {
           title,
           body,
           icon: '/icons/icon-192.png',
-          badge: '/icons/favicon-32x32.png',
           dir: 'rtl',
           lang: 'ar',
           tag: String(type || 'ascpt-notification'),
           renotify: true,
           requireInteraction: true,
-          vibrate: [300, 100, 300, 100, 300]
+          vibrate: [500, 200, 500, 200, 500]
         },
         data: {
           screen: String(data?.screen || ''),

@@ -2024,7 +2024,7 @@ export class AppointmentsManager {
           window.app.notificationsManager.sendNotification({
             type: 'appointment_booked',
             title: `حجز موعد جديد: ${this.selectedPatientName}`,
-            body: `موعد دوري أسبوعياً (${daysText}) مع د. ${chosenName}`,
+            body: `موعد دوري أسبوعياً (${daysText}) مع د. ${(chosenName || '').replace(/^د\.\s*/, '')}`,
             target: { doctorUid: chosenUid, doctorName: chosenName },
             data: { screen: 'appointments', date: this.selectedDate || getLocalDateStr() }
           });
@@ -2630,7 +2630,7 @@ export class AppointmentsManager {
             window.app.notificationsManager.sendNotification({
               type: 'appointment_booked',
               title: `تكرار موعد: ${this.copyingAppt.patientName}`,
-              body: `تم نسخ الموعد إلى (${createdCount} أيام) مع د. ${chosenDocName}`,
+              body: `تم نسخ الموعد إلى (${createdCount} أيام) مع د. ${(chosenDocName || '').replace(/^د\.\s*/, '')}`,
               target: { doctorUid: chosenDocUid, doctorName: chosenDocName },
               data: { screen: 'appointments' }
             });

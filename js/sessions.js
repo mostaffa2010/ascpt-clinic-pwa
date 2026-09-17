@@ -1138,7 +1138,8 @@ export class SessionsManager {
         const progLabel = sessionPricingType === 'scoliosis' ? 'Scoliosis' : (sessionPricingType === 'hemiplegia' ? 'تأهيل عصبي' : (sessionPricingType === 'quadriplegia' ? 'تأهيل شلل' : 'علاج طبيعي عام'));
         const partsText = selectedParts.length > 0 ? selectedParts.join('، ') : '';
         const titleText = this.entryMode === 'examination' ? `حضور كشف: ${patientName}` : `حضور مريض: ${patientName}`;
-        const bodyText = `${this.entryMode === 'examination' ? 'كشف سريري' : 'جلسة ' + progLabel}${partsText ? ' (' + partsText + ')' : ''} مع د. ${doctor}`;
+        const cleanDoctorName = (doctor || '').replace(/^د\.\s*/, '');
+        const bodyText = `${this.entryMode === 'examination' ? 'كشف سريري' : 'جلسة ' + progLabel}${partsText ? ' (' + partsText + ')' : ''} مع د. ${cleanDoctorName}`;
 
         window.app?.notificationsManager?.sendNotification({
           type: 'patient_checkin',

@@ -570,7 +570,7 @@ export class NotificationsManager {
       const res = await this.sendNotification({
         type: 'test_notification',
         title: '🔔 تجربة الإشعارات — ASCPT',
-        body: `مرحباً د. ${user.name || ''}، نظام الإشعارات الفورية يعمل بنجاح على هذا الهاتف!`,
+        body: `مرحباً د. ${(user.name || '').replace(/^د\.\s*/, '')}، نظام الإشعارات الفورية يعمل بنجاح على هذا الهاتف!`,
         target: { recipientUid: user.uid },
         data: { screen: 'dashboard' }
       });
