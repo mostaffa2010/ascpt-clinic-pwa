@@ -992,6 +992,48 @@ const secondSessionWithOtherDoctor = assignFirstDoctorRule(newPatient, 'د. أح
 assert.equal(secondSessionWithOtherDoctor, false, 'Existing assigned doctor must NOT be overwritten by subsequent doctors');
 assert.equal(newPatient.doctor, 'د. حسني أحمد الجويلي', 'Assigned doctor must remain the first doctor');
 
+// Test: Doctor Dashboard Month Unique Patients & Date Chips (Option A)
+function groupMonthPatientsForDoctor(sessions, currentMonth) {
+  const patientMap = new Map();
+  const monthSessions = sessions.filter((s) => s.date && s.date.startsWith(currentMonth) && !s.isHomeVisit && s.visitType !== 'home');
+
+  monthSessions.forEach((s) => {
+    const key = s.patientId || s.patientName;
+    if (!patientMap.has(key)) {
+      patientMap.set(key, {
+        patientId: s.patientId || '',
+        patientName: s.patientName || 'مريض',
+        monthSessionsCount: 0,
+        sessionDates: [],
+        lastDate: s.date || ''
+      });
+    }
+    const item = patientMap.get(key);
+    item.monthSessionsCount++;
+    if (s.date) {
+      if (!item.lastDate || s.date > item.lastDate) item.lastDate = s.date;
+      if (!item.sessionDates.includes(s.date)) item.sessionDates.push(s.date);
+    }
+  });
+
+  return Array.from(patientMap.values()).sort((a, b) => (b.lastDate || '').localeCompare(a.lastDate || ''));
+}
+
+const mockMonthSessions = [
+  { patientId: 'p1', patientName: 'أستاذ عماد', date: '2026-09-05' },
+  { patientId: 'p1', patientName: 'أستاذ عماد', date: '2026-09-07' },
+  { patientId: 'p1', patientName: 'أستاذ عماد', date: '2026-09-09' },
+  { patientId: 'p2', patientName: 'مريم أحمد', date: '2026-09-08' },
+  { patientId: 'p1', patientName: 'أستاذ عماد', date: '2026-08-28' } // Different month: must be excluded
+];
+
+const monthGrouped = groupMonthPatientsForDoctor(mockMonthSessions, '2026-09');
+assert.equal(monthGrouped.length, 2, 'Month grouping must combine 4 Sept sessions into 2 unique patients');
+const emad = monthGrouped.find(p => p.patientId === 'p1');
+assert.equal(emad.monthSessionsCount, 3, 'Mr. Emad must have exactly 3 sessions in September');
+assert.equal(emad.sessionDates.length, 3, 'Mr. Emad must have 3 date chips in September');
+assert.equal(emad.lastDate, '2026-09-09', 'Latest date for Emad must be 2026-09-09');
+
 console.log('✓ All 9 Lifetime Patients Grouping & First Doctor Rule assertions passed successfully!');
 
 // 14. Daily Print Sheet Sessions Aggregation Engine Tests (Ascending Arrival Order & Clean Columns)

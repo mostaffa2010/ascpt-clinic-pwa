@@ -759,11 +759,245 @@ export class DoctorDashboardManager {
       return;
     }
 
-    if (this.currentFilter === 'today') {
-      displayList = this.docSessions.filter((s) => s.date === todayStr && !s.isHomeVisit && s.visitType !== 'home');
-    } else if (this.currentFilter === 'month') {
-      displayList = this.docSessions.filter((s) => s.date && s.date.startsWith(currentMonth) && !s.isHomeVisit && s.visitType !== 'home');
+    if (this.currentFilter === 'month') {
+      // Month: Unique Patients treated by this doctor in current month (Option A: Date Chips Architecture)
+      const patientMap = new Map();
+      const monthSessions = this.docSessions.filter((s) => s.date && s.date.startsWith(currentMonth) && !s.isHomeVisit && s.visitType !== 'home');
+
+      monthSessions.forEach((s) => {
+        const key = s.patientId || s.patientName;
+        if (!patientMap.has(key)) {
+          patientMap.set(key, {
+            patientId: s.patientId || '',
+            patientName: s.patientName || 'مريض',
+            payType: s.payType || 'cash',
+            insuranceName: s.insuranceName || '',
+            contractType: s.contractType || 'direct',
+            monthSessionsCount: 0,
+            firstDate: s.date || '',
+            lastDate: s.date || '',
+            sessionDates: [],
+            programType: s.programType || s.sessionPricingType || 'regular',
+            bodyParts: new Set(),
+            sessionNumber: s.sessionNumber || 1,
+            approvedSessions: s.approvedSessionsTotal || 12,
+            notes: s.notes || ''
+          });
+        }
+        const item = patientMap.get(key);
+        item.monthSessionsCount++;
+        if (s.date) {
+          if (!item.firstDate || s.date < item.firstDate) item.firstDate = s.date;
+          if (!item.lastDate || s.date > item.lastDate) item.lastDate = s.date;
+          if (!item.sessionDates.includes(s.date)) item.sessionDates.push(s.date);
+        }
+        if (s.sessionNumber && s.sessionNumber > (item.sessionNumber || 0)) {
+          item.sessionNumber = s.sessionNumber;
+        }
+        if (s.approvedSessionsTotal) {
+          item.approvedSessions = s.approvedSessionsTotal;
+        }
+        if (Array.isArray(s.bodyParts)) {
+          s.bodyParts.forEach(p => { if (p) item.bodyParts.add(p.trim()); });
+        } else if (typeof s.bodyParts === 'string' && s.bodyParts.trim()) {
+          s.bodyParts.split(/[,،]/).forEach(p => { if (p.trim()) item.bodyParts.add(p.trim()); });
+        }
+        if (s.programType && s.programType !== 'regular') item.programType = s.programType;
+        if (s.notes) item.notes = s.notes;
+      });
+
+      const uniquePatients = Array.from(patientMap.values()).sort((a, b) => (b.lastDate || '').localeCompare(a.lastDate || ''));
+
+      const titleEl = document.getElementById('doc-table-title');
+      if (titleEl) titleEl.textContent = `حالات هذا الشهر بالمركز (${uniquePatients.length} مريض)`;
+
+      if (uniquePatients.length === 0) {
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="6" style="text-align: center; color: var(--text-muted); padding: 24px;">
+              <i class="fa-solid fa-folder-open" style="font-size: 1.5rem; margin-bottom: 8px; display: block; color: #cbd5e1;"></i>
+              لا توجد حالات مسجلة لك خلال هذا الشهر حتى الآن.
+            </td>
+          </tr>
+        `;
+        const mobCont = document.getElementById('doctor-personal-mobile-cards');
+        if (mobCont) {
+          mobCont.innerHTML = `
+            <div class="empty-state-card" style="text-align: center; padding: 28px 20px; color: var(--text-muted); background: var(--bg-surface); border-radius: 14px; border: 1.5px dashed var(--border-color);">
+              <i class="fa-solid fa-folder-open" style="font-size: 1.8rem; margin-bottom: 8px; display: block; color: #cbd5e1;"></i>
+              لا توجد حالات مسجلة لك خلال هذا الشهر حتى الآن.
+            </div>
+          `;
+        }
+        return;
+      }
+
+      // Helper function to build date chips
+      const renderDateChips = (dates) => {
+        const sorted = [...dates].sort();
+        return sorted.map(d => {
+          const dateObj = new Date(d + 'T00:00:00');
+          const dayName = !isNaN(dateObj) ? dateObj.toLocaleDateString('ar-EG', { weekday: 'short' }) : '';
+          const cleanD = d.slice(5);
+          return `<span class="doc-date-chip" style="display: inline-flex; align-items: center; gap: 4px; padding: 2px 8px; background: var(--bg-subtle); border: 1px solid var(--border-color); border-radius: 999px; font-size: 0.73rem; font-weight: 700; color: var(--text-main); margin: 1px;"><i class="fa-regular fa-calendar" style="font-size: 0.65rem; color: var(--primary);"></i> ${dayName} <bdi dir="ltr">${cleanD}</bdi></span>`;
+        }).join(' ');
+      };
+
+      // 1. Render Desktop Table for Month (Unique Patients)
+      tbody.innerHTML = uniquePatients.map((p) => {
+        let billingBadge = '';
+        if (p.payType === 'cash') {
+          billingBadge = `<span class="badge badge-cash"><i class="fa-solid fa-money-bill"></i> نقدي</span>`;
+        } else if (p.contractType === 'direct') {
+          billingBadge = `<span class="badge badge-direct"><i class="fa-solid fa-file-contract"></i> ${escapeHTML(p.insuranceName || 'شركة')} (مباشر)</span>`;
+        } else {
+          billingBadge = `<span class="badge badge-indirect"><i class="fa-solid fa-handshake"></i> ${escapeHTML(p.insuranceName || 'شركة')} (غير مباشر)</span>`;
+        }
+
+        const safePatientId = escapeHTML(p.patientId);
+        let progTag = '';
+        if (p.programType === 'scoliosis') {
+          progTag = `<span class="badge" style="background:rgba(2, 132, 199, 0.15); color:#0284c7; border:1px solid rgba(2, 132, 199, 0.35); font-size:0.7rem; font-weight:800;"><i class="fa-solid fa-arrows-split-up-and-left"></i> Scoliosis</span>`;
+        } else if (p.programType === 'hemiplegia') {
+          progTag = `<span class="badge" style="background:rgba(245, 158, 11, 0.15); color:#b45309; border:1px solid rgba(245, 158, 11, 0.35); font-size:0.7rem; font-weight:800;"><i class="fa-solid fa-brain"></i> Hemiplegia</span>`;
+        } else if (p.programType === 'quadriplegia' || p.programType === 'pediatric') {
+          progTag = `<span class="badge" style="background:rgba(225, 29, 72, 0.15); color:#e11d48; border:1px solid rgba(225, 29, 72, 0.35); font-size:0.7rem; font-weight:800;"><i class="fa-solid fa-wheelchair"></i> Quadriplegia</span>`;
+        }
+
+        const bodyPartsText = p.bodyParts.size > 0 ? Array.from(p.bodyParts).join(' • ') : 'علاج طبيعي عام';
+
+        return `
+          <tr>
+            <td style="font-weight: 800; color: var(--text-main); cursor: pointer;" onclick="patientsManager.openPatientSheet('${safePatientId}')" title="اضغط لفتح الشيت الطبي">
+              <i class="fa-solid fa-user-injured" style="color: var(--primary); margin-left: 6px;"></i>
+              ${escapeHTML(p.patientName)} ${progTag}
+            </td>
+            <td>${billingBadge}</td>
+            <td style="font-size: 0.85rem; color: var(--text-muted);">${escapeHTML(bodyPartsText)}</td>
+            <td>
+              <div style="display: flex; flex-direction: column; gap: 4px;">
+                <span class="badge" style="background: rgba(2, 132, 199, 0.12); color: #0284c7; border: 1px solid rgba(2, 132, 199, 0.28); font-weight: 800; font-size: 0.78rem; align-self: flex-start;">
+                  <i class="fa-solid fa-calendar-check"></i> ${p.monthSessionsCount} جلسات في الشهر
+                </span>
+                <div style="display: flex; flex-wrap: wrap; gap: 3px;">
+                  ${renderDateChips(p.sessionDates)}
+                </div>
+              </div>
+            </td>
+            <td style="font-size: 0.82rem; color: var(--text-muted); white-space: nowrap;">
+              أحدث جلسة: <bdi dir="ltr">${escapeHTML(p.lastDate || '-')}</bdi>
+            </td>
+            <td style="text-align: center;">
+              <button type="button" class="btn btn-primary btn-sm" onclick="patientsManager.openPatientSheet('${safePatientId}')" style="padding: 4px 10px; font-weight: 700; white-space: nowrap;">
+                <i class="fa-solid fa-file-waveform"></i> الشيت الطبي
+              </button>
+            </td>
+          </tr>
+        `;
+      }).join('');
+
+      // 2. Render Mobile Cards for Month (Unique Patients + Date Chips)
+      const mobileContainer = document.getElementById('doctor-personal-mobile-cards');
+      if (mobileContainer) {
+        mobileContainer.innerHTML = uniquePatients.map((p) => {
+          const patientObj = (this.app.patientsManager?.patients || []).find(pt => pt.id === p.patientId) ||
+                             (this.app.patientsManager?.patients || []).find(pt => pt.name === p.patientName);
+
+          let bodyPartsList = [];
+          if (patientObj) {
+            bodyPartsList = this.app.patientsManager?.getPatientBodyParts(patientObj) || [];
+          }
+          if (bodyPartsList.length === 0 && p.bodyParts.size > 0) {
+            bodyPartsList = Array.from(p.bodyParts);
+          }
+          if (bodyPartsList.length === 0 && patientObj?.affectedArea) {
+            bodyPartsList = [patientObj.affectedArea];
+          }
+
+          const displayParts = bodyPartsList.length > 0 ? bodyPartsList.join(' • ') : 'علاج طبيعي عام';
+          const safePatientId = escapeHTML(p.patientId);
+          const safeName = escapeHTML(p.patientName);
+
+          let billingBadge = '';
+          if (p.payType === 'cash') {
+            billingBadge = `<span class="badge badge-cash"><i class="fa-solid fa-money-bill"></i> نقدي</span>`;
+          } else if (p.contractType === 'direct') {
+            billingBadge = `<span class="badge badge-direct"><i class="fa-solid fa-file-contract"></i> ${escapeHTML(p.insuranceName || 'شركة')}</span>`;
+          } else {
+            billingBadge = `<span class="badge badge-indirect"><i class="fa-solid fa-handshake"></i> ${escapeHTML(p.insuranceName || 'شركة')}</span>`;
+          }
+
+          let progTag = '';
+          if (p.programType === 'scoliosis') {
+            progTag = `<span class="badge" style="background:rgba(2, 132, 199, 0.15); color:#0284c7; border:1px solid rgba(2, 132, 199, 0.35); font-size:0.7rem; font-weight:800;">Scoliosis</span>`;
+          } else if (p.programType === 'hemiplegia') {
+            progTag = `<span class="badge" style="background:rgba(245, 158, 11, 0.15); color:#b45309; border:1px solid rgba(245, 158, 11, 0.35); font-size:0.7rem; font-weight:800;">Hemiplegia</span>`;
+          } else if (p.programType === 'quadriplegia' || p.programType === 'pediatric') {
+            progTag = `<span class="badge" style="background:rgba(225, 29, 72, 0.15); color:#e11d48; border:1px solid rgba(225, 29, 72, 0.35); font-size:0.7rem; font-weight:800;">Quadriplegia</span>`;
+          }
+
+          const isInsurance = p.payType === 'insurance' || p.contractType === 'direct' || p.contractType === 'indirect';
+          const balanceBadge = isInsurance && p.sessionNumber && p.approvedSessions
+            ? `<span class="badge" style="background: rgba(16, 185, 129, 0.12); color: var(--success); border: 1px solid rgba(16, 185, 129, 0.3); font-size: 0.72rem; font-weight: 800;"><i class="fa-solid fa-clipboard-check"></i> الجلسة ${p.sessionNumber} من ${p.approvedSessions}</span>`
+            : '';
+
+          return `
+            <div class="hero-styled-card" style="margin-bottom: 12px; border-right: 4px solid var(--primary);">
+              <div class="hsc-top" style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px;">
+                <div class="hsc-patient-meta" style="display: flex; align-items: center; gap: 10px;">
+                  <div class="hsc-avatar" style="background: rgba(2, 132, 199, 0.12); color: var(--primary); width: 38px; height: 38px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; flex-shrink: 0;">
+                    <i class="fa-solid fa-user-injured"></i>
+                  </div>
+                  <div class="hsc-name-box">
+                    <span class="hsc-patient-name" style="font-size: 0.98rem; font-weight: 800; color: var(--text-main); cursor: pointer;" onclick="patientsManager.openPatientSheet('${safePatientId}')">
+                      ${safeName}
+                    </span>
+                    <span class="hsc-doc-sub" style="display: block; font-size: 0.8rem; color: var(--text-muted); font-weight: 600; margin-top: 2px;">
+                      ${escapeHTML(displayParts)}
+                    </span>
+                  </div>
+                </div>
+                <div class="hsc-amount-box">
+                  <span class="badge" style="background: rgba(2, 132, 199, 0.12); color: var(--primary); border: 1px solid rgba(2, 132, 199, 0.28); font-weight: 800; font-size: 0.82rem; padding: 4px 10px; border-radius: 999px;">
+                    <i class="fa-solid fa-calendar-check"></i> ${p.monthSessionsCount} جلسات
+                  </span>
+                </div>
+              </div>
+
+              <div class="hsc-badges-row" style="display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 8px;">
+                ${billingBadge}
+                ${progTag}
+                ${balanceBadge}
+              </div>
+
+              <!-- Date Chips Row (جلسات هذا الشهر) -->
+              <div style="background: var(--bg-subtle); border-radius: 10px; padding: 7px 10px; margin: 8px 0; border: 1px solid var(--border-color);">
+                <div style="font-size: 0.72rem; color: var(--text-muted); font-weight: 700; margin-bottom: 4px;">
+                  <i class="fa-regular fa-calendar-days" style="color: var(--primary);"></i> تواريخ الجلسات في هذا الشهر:
+                </div>
+                <div style="display: flex; flex-wrap: wrap; gap: 4px;">
+                  ${renderDateChips(p.sessionDates)}
+                </div>
+              </div>
+
+              <div class="hsc-divider" style="margin: 8px 0;"></div>
+
+              <div class="hsc-bottom" style="display: flex; justify-content: space-between; align-items: center;">
+                <span class="hsc-time-tag" style="font-size: 0.78rem; color: var(--text-muted);">
+                  <i class="fa-regular fa-clock"></i> أحدث جلسة: <bdi dir="ltr">${escapeHTML(p.lastDate || '-')}</bdi>
+                </span>
+                <button type="button" class="btn btn-outline btn-sm btn-icon-action" onclick="patientsManager.openPatientSheet('${safePatientId}', '${safeName}')" style="width: 32px; height: 32px; border-radius: 50%;" title="الشيت الطبي">
+                  <i class="fa-solid fa-file-waveform text-primary"></i>
+                </button>
+              </div>
+            </div>
+          `;
+        }).join('');
+      }
+      return;
     }
+
+    displayList = this.docSessions.filter((s) => s.date === todayStr && !s.isHomeVisit && s.visitType !== 'home');
 
     if (displayList.length === 0) {
       tbody.innerHTML = `
