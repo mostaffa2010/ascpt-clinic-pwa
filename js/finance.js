@@ -938,12 +938,30 @@ export class FinanceManager {
             return acc + (s.bodyPartsCount || 1);
           }, 0);
 
+          let generalCount = 0;
+          let specialCount = 0;
+          docSessions.forEach(s => {
+            if (s.entryType === 'examination') return;
+            const count = s.bodyPartsCount || 1;
+            const pType = (s.sessionPricingType || s.programType || '').toLowerCase().trim();
+            const isSpec = Boolean(
+              s.isSpecial ||
+              s.sessionPricingType === 'special' ||
+              pType === 'scoliosis' ||
+              pType === 'hemiplegia' ||
+              pType === 'quadriplegia' ||
+              pType === 'special'
+            );
+            if (isSpec) specialCount += count;
+            else generalCount += count;
+          });
+
           return `
             <div style="background-color: var(--bg-subtle); border: 1px solid var(--border-color); padding: 8px 14px; border-radius: var(--radius-md); display: flex; align-items: center; gap: 10px;">
               <i class="fa-solid fa-user-doctor" style="color: var(--primary); font-size: 1.1rem;"></i>
               <div>
                 <div style="font-weight: 700; font-size: 0.88rem;">${escapeHTML(doc)} ${shiftText ? `<span style="font-size: 0.72rem; color: var(--text-muted); font-weight: 600;">(${escapeHTML(shiftText)})</span>` : ''}</div>
-                <div style="font-size: 0.8rem; color: var(--text-muted); font-weight: 700;">${patientCount} مريض - ${creditedSessions} جلسة</div>
+                <div style="font-size: 0.8rem; color: var(--text-muted); font-weight: 700;">${patientCount} مريض - ${creditedSessions} جلسة (${generalCount} عام • ${specialCount} خاص)</div>
               </div>
             </div>
           `;
@@ -960,14 +978,37 @@ export class FinanceManager {
         dailyDocDeck.style.display = 'block';
         dailyDocDeck.style.display = 'block';
         const cardsHTML = doctors.map((doc, index) => {
-          const docSessions = allSessions.filter(s => s.doctor === doc);
+          const docObj = treatingDoctors.find(d => d.name === doc);
+          const docSessions = allSessions.filter(s => s.doctor === doc || (docObj && s.doctorUid === docObj.uid));
           const patientCount = docSessions.length;
           const creditedSessions = docSessions.reduce((acc, s) => {
             if (s.entryType === 'examination') return acc + 1;
             return acc + (s.bodyPartsCount || 1);
           }, 0);
-          const cashCount = docSessions.filter(s => s.payType === 'cash').length;
-          const insCount = docSessions.filter(s => s.payType === 'insurance').length;
+
+          let generalCount = 0;
+          let specialCount = 0;
+          let examCount = 0;
+
+          docSessions.forEach(s => {
+            if (s.entryType === 'examination') {
+              examCount++;
+              return;
+            }
+            const count = s.bodyPartsCount || 1;
+            const pType = (s.sessionPricingType || s.programType || '').toLowerCase().trim();
+            const isSpec = Boolean(
+              s.isSpecial ||
+              s.sessionPricingType === 'special' ||
+              pType === 'scoliosis' ||
+              pType === 'hemiplegia' ||
+              pType === 'quadriplegia' ||
+              pType === 'special'
+            );
+            if (isSpec) specialCount += count;
+            else generalCount += count;
+          });
+
           const cleanDoc = (escapeHTML(doc)).replace(/^د\.\s*/, '');
           const totalDailyPatients = allSessions.length;
           const pct = totalDailyPatients > 0 ? ((patientCount / totalDailyPatients) * 100).toFixed(1) : 0;
@@ -995,9 +1036,9 @@ export class FinanceManager {
                   <div style="font-weight: 800; font-size: 1.05rem; color: var(--text-main); margin-top: 2px;">${creditedSessions} جلسة</div>
                 </div>
                 <div style="background: var(--bg-subtle); padding: 8px 12px; border-radius: 12px; text-align: center;">
-                  <div style="font-size: 0.74rem; color: var(--text-muted); font-weight: 700;">طبيعة السداد</div>
+                  <div style="font-size: 0.74rem; color: var(--text-muted); font-weight: 700;">نوع الجلسات</div>
                   <div style="font-weight: 800; font-size: 0.92rem; margin-top: 2px;">
-                    <span style="color: var(--success);">نقدي: ${cashCount}</span> • <span style="color: var(--primary);">تأمين: ${insCount}</span>
+                    <span style="color: var(--primary);">عام: ${generalCount}</span> • <span style="color: #d97706;">خاص: ${specialCount}</span>${examCount > 0 ? ` • <span style="color: var(--text-muted);">كشف: ${examCount}</span>` : ''}
                   </div>
                 </div>
               </div>
@@ -1445,7 +1486,7 @@ export class FinanceManager {
 
     const monthSettlements = await db.getInsuranceSettlements(null, this.currentMonth);
     const totalPatients = allSessions.length;
-    const totalClinicSessions = allSessions.reduce((acc, s) => {
+    const _totalClinicSessions = allSessions.reduce((acc, s) => {
       if (s.entryType === 'examination') return acc + 1;
       return acc + (s.bodyPartsCount || 1);
     }, 0);
@@ -1754,8 +1795,6 @@ export class FinanceManager {
           const sessionsCount = docSessions.filter(s => s.entryType !== 'examination').reduce((acc, s) => acc + (s.bodyPartsCount || 1), 0);
           const examsCount = docSessions.filter(s => s.entryType === 'examination').length;
 
-          const cashPatients = (new Set(docSessions.filter(s => s.payType === 'cash').map(s => s.patientId || s.patientName))).size;
-          const insPatients = (new Set(docSessions.filter(s => s.payType !== 'cash').map(s => s.patientId || s.patientName))).size;
 
           let regCount = 0, scolCount = 0, hemiCount = 0, quadCount = 0, specCount = 0;
           docSessions.forEach(s => {
@@ -1825,14 +1864,14 @@ export class FinanceManager {
                   </div>
                 </div>
                 <div style="background: var(--bg-subtle); padding: 8px 10px; border-radius: 10px; text-align: center;">
-                  <div style="font-size: 0.72rem; color: var(--text-muted); font-weight: 700;">مرضى (نقدي / شركات)</div>
+                  <div style="font-size: 0.72rem; color: var(--text-muted); font-weight: 700;">نوع الجلسات</div>
                   <div style="font-weight: 800; font-size: 0.96rem; color: var(--text-main); margin-top: 2px;">
-                    <span style="direction: rtl; display: inline-flex; gap: 4px;"><span>${cashPatients}</span><span>/</span><span>${insPatients}</span></span>
+                    <span style="direction: rtl; display: inline-flex; gap: 4px;"><span style="color: var(--primary);">عام: ${regCount}</span><span>•</span><span style="color: #d97706;">خاص: ${scolCount + hemiCount + quadCount + specCount}</span></span>
                   </div>
                 </div>
               </div>
               <div style="margin-top: 8px; font-size: 0.76rem; color: var(--text-muted); text-align: center; background: var(--bg-subtle); padding: 5px 8px; border-radius: 8px;">
-                <span style="font-weight: 700;">نوع الجلسات:</span> ${regCount + specCount} عادية • ${scolCount} Scoliosis • ${hemiCount} Hemiplegia • ${quadCount} Quadriplegia
+                <span style="font-weight: 700;">تفاصيل الخاصة:</span> ${scolCount} Scoliosis • ${hemiCount} Hemiplegia • ${quadCount} Quadriplegia
               </div>
             </div>
           `;
