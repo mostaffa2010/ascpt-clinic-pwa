@@ -1225,7 +1225,25 @@ export class ClaimsManager {
     }
 
     if (filtered.length === 0) {
-      tbody.innerHTML = `<tr><td colspan="8" style="text-align: center; color: var(--text-muted); padding: 24px;">لا توجد مطالبات تأمين مسجلة مطابقة للبحث.</td></tr>`;
+      tbody.innerHTML = `
+        <tr>
+          <td colspan="8" style="text-align: center; color: var(--text-muted); padding: 32px 20px;">
+            <i class="fa-solid fa-file-invoice-dollar" style="font-size: 1.8rem; margin-bottom: 8px; display: block; opacity: 0.4;"></i>
+            <div style="font-weight: 800; font-size: 0.95rem; color: var(--text-main); margin-bottom: 4px;">لا توجد مطالبات مسجلة</div>
+            <div style="font-size: 0.82rem; color: var(--text-muted);">لم يتم العثور على أي مطالبات سابقة مطابقة للبحث الحالي.</div>
+          </td>
+        </tr>
+      `;
+      const mobLedger = document.getElementById('claims-ledger-mobile-cards');
+      if (mobLedger) {
+        mobLedger.innerHTML = `
+          <div class="hero-styled-card" style="text-align: center; padding: 28px 20px; color: var(--text-muted); background: var(--bg-surface); border-radius: 14px; border: 1.5px dashed var(--border-color); margin-top: 12px;">
+            <i class="fa-solid fa-file-invoice-dollar" style="font-size: 1.8rem; margin-bottom: 8px; display: block; opacity: 0.4;"></i>
+            <div style="font-weight: 800; font-size: 0.95rem; color: var(--text-main); margin-bottom: 4px;">لا توجد مطالبات مسجلة</div>
+            <div style="font-size: 0.8rem; color: var(--text-muted);">لم يتم العثور على أي مطالبات سابقة مطابقة للبحث الحالي.</div>
+          </div>
+        `;
+      }
       return;
     }
 

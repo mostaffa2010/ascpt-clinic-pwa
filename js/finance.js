@@ -1156,7 +1156,15 @@ export class FinanceManager {
     const expTbody = document.getElementById('finance-expenses-tbody');
     if (expTbody) {
       if (allExpenses.length === 0) {
-        expTbody.innerHTML = `<tr><td colspan="4" style="text-align: center; color: var(--text-muted); padding: 4px; font-size: 7pt; font-weight: 700;">لا توجد مصروفات مسجلة لهذا اليوم.</td></tr>`;
+        expTbody.innerHTML = `
+          <tr>
+            <td colspan="4" style="text-align: center; color: var(--text-muted); padding: 24px 12px;">
+              <i class="fa-solid fa-receipt" style="font-size: 1.6rem; opacity: 0.35; margin-bottom: 8px; display: block;"></i>
+              <div style="font-weight: 700; font-size: 0.88rem; color: var(--text-main); margin-bottom: 2px;">لا توجد مصروفات مسجلة لهذا اليوم</div>
+              <div style="font-size: 0.78rem; color: var(--text-muted);">جميع بنود الصرف والخزينة اليومية مستقرة</div>
+            </td>
+          </tr>
+        `;
       } else {
         expTbody.innerHTML = allExpenses.map(e => `
           <tr>
@@ -1364,7 +1372,59 @@ export class FinanceManager {
   }
 
   // ================= 2. MONTHLY REPORT =================
+  renderMonthlySkeleton() {
+    const docTbody = document.getElementById('monthly-doctors-tbody');
+    const docMob = document.getElementById('monthly-doctors-mobile-cards');
+    const summaryTbody = document.getElementById('monthly-financial-summary-tbody');
+    const profitDisplay = document.getElementById('monthly-net-profit-display');
+
+    if (profitDisplay) {
+      profitDisplay.innerHTML = '<span class="skeleton-shimmer skeleton-line" style="display: inline-block; width: 140px; height: 28px; vertical-align: middle;"></span>';
+    }
+
+    if (docTbody) {
+      docTbody.innerHTML = Array.from({ length: 4 }).map(() => `
+        <tr>
+          <td style="padding: 10px 8px;"><div class="skeleton-shimmer skeleton-line" style="width: 70%; height: 14px;"></div></td>
+          <td style="padding: 10px 8px;"><div class="skeleton-shimmer skeleton-line" style="width: 50%; height: 14px; margin: 0 auto;"></div></td>
+          <td style="padding: 10px 8px;"><div class="skeleton-shimmer skeleton-line" style="width: 50%; height: 14px; margin: 0 auto;"></div></td>
+          <td style="padding: 10px 8px;"><div class="skeleton-shimmer skeleton-line" style="width: 60%; height: 14px; margin: 0 auto;"></div></td>
+          <td style="padding: 10px 8px;"><div class="skeleton-shimmer skeleton-line" style="width: 40%; height: 14px; margin: 0 auto;"></div></td>
+        </tr>
+      `).join('');
+    }
+
+    if (docMob) {
+      docMob.innerHTML = Array.from({ length: 3 }).map(() => `
+        <div class="hero-styled-card skeleton-card" style="padding: 14px 16px; margin-bottom: 12px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+            <div class="skeleton-shimmer skeleton-line" style="width: 130px; height: 16px;"></div>
+            <div class="skeleton-shimmer skeleton-badge" style="width: 70px; height: 22px;"></div>
+          </div>
+          <div style="display: flex; gap: 8px; margin-bottom: 10px;">
+            <div class="skeleton-shimmer skeleton-line" style="width: 45%; height: 12px;"></div>
+            <div class="skeleton-shimmer skeleton-line" style="width: 45%; height: 12px;"></div>
+          </div>
+          <div class="skeleton-shimmer skeleton-line" style="width: 100%; height: 8px;"></div>
+        </div>
+      `).join('');
+    }
+
+    if (summaryTbody) {
+      summaryTbody.innerHTML = Array.from({ length: 3 }).map(() => `
+        <tr>
+          <td style="padding: 10px 8px;"><div class="skeleton-shimmer skeleton-line" style="width: 20px; height: 14px; margin: 0 auto;"></div></td>
+          <td style="padding: 10px 8px;"><div class="skeleton-shimmer skeleton-line" style="width: 65%; height: 14px;"></div></td>
+          <td style="padding: 10px 8px;"><div class="skeleton-shimmer skeleton-line" style="width: 50%; height: 14px; margin: 0 auto;"></div></td>
+          <td style="padding: 10px 8px;"><div class="skeleton-shimmer skeleton-line" style="width: 40%; height: 14px; margin: 0 auto;"></div></td>
+          <td style="padding: 10px 8px;"><div class="skeleton-shimmer skeleton-line" style="width: 30%; height: 14px; margin: 0 auto;"></div></td>
+        </tr>
+      `).join('');
+    }
+  }
+
   async loadMonthlyReport() {
+    this.renderMonthlySkeleton();
     const rawSessions = await db.getSessions(this.currentMonth);
     // Exclude home visits strictly from monthly clinic report as requested
     const allSessions = (rawSessions || []).filter(s =>

@@ -782,8 +782,14 @@ class App {
     document.getElementById('btn-cancel-login')?.addEventListener('click', () => auth.hideLoginModal());
 
     document.querySelectorAll('.modal-backdrop').forEach(modal => {
-      modal.addEventListener('click', (e) => {
+      modal.addEventListener('click', async (e) => {
         if (e.target === modal && modal.id !== 'modal-auth' && modal.id !== 'modal-custom-dialog') {
+          if (modal.id === 'modal-patient') {
+            if (this.patientsManager && typeof this.patientsManager.hasUnsavedChanges === 'function' && this.patientsManager.hasUnsavedChanges()) {
+              const confirmClose = await this.showConfirm('هل ترغب في إغلاق نافذة المريض دون حفظ البيانات المدخلة؟', 'بيانات غير محفوظة');
+              if (!confirmClose) return;
+            }
+          }
           const subModals = [
             'modal-batch-home-visits',
             'modal-medical-statement',
@@ -804,11 +810,17 @@ class App {
     });
 
     // Universal Modal Close Event Delegation ([data-close-modal])
-    document.addEventListener('click', (e) => {
+    document.addEventListener('click', async (e) => {
       const closeBtn = e.target.closest('[data-close-modal]');
       if (closeBtn) {
         const modalId = closeBtn.getAttribute('data-close-modal');
         if (modalId) {
+          if (modalId === 'modal-patient') {
+            if (this.patientsManager && typeof this.patientsManager.hasUnsavedChanges === 'function' && this.patientsManager.hasUnsavedChanges()) {
+              const confirmClose = await this.showConfirm('هل ترغب في إغلاق نافذة المريض دون حفظ البيانات المدخلة؟', 'بيانات غير محفوظة');
+              if (!confirmClose) return;
+            }
+          }
           const subModals = [
             'modal-batch-home-visits',
             'modal-medical-statement',

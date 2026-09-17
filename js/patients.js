@@ -1591,6 +1591,17 @@ export class PatientsManager {
     }
   }
 
+  hasUnsavedChanges() {
+    const pid = document.getElementById('p-id')?.value.trim() || '';
+    if (!pid) {
+      const name = document.getElementById('p-name')?.value.trim() || '';
+      const phone = document.getElementById('p-phone')?.value.trim() || '';
+      const diag = document.getElementById('p-diagnosis')?.value.trim() || '';
+      return name.length > 0 || phone.length > 0 || diag.length > 0;
+    }
+    return false;
+  }
+
   openAddModal() {
     document.getElementById('form-patient').reset();
     this.clearPhoneValidation();

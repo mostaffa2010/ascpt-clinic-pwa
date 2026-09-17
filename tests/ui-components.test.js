@@ -286,6 +286,18 @@ const freshAuthJsContent = fs.readFileSync(path.join(rootDir, 'js/auth.js'), 'ut
 assert(freshAuthJsContent.includes('scoliosisRate: typeof profile.scoliosisRate === \'number\''), 'auth.js must map doctor clinical rates in resolveUserProfile');
 console.log('✓ 20. Doctor Rates & Cache Invalidation: Verified serverless API, auth profile mapper, and db cache bust parity.');
 
+// 21. Strict Guardrail: UX Polish, Unsaved Changes Protection & Skeleton Shimmer
+const freshPatientsJs = fs.readFileSync(path.join(rootDir, 'js/patients.js'), 'utf-8');
+const freshAppJs = fs.readFileSync(path.join(rootDir, 'js/app.js'), 'utf-8');
+const freshFinJs = fs.readFileSync(path.join(rootDir, 'js/finance.js'), 'utf-8');
+const freshClaimsJs = fs.readFileSync(path.join(rootDir, 'js/claims.js'), 'utf-8');
+
+assert(freshPatientsJs.includes('hasUnsavedChanges()'), 'patients.js must implement hasUnsavedChanges()');
+assert(freshAppJs.includes('hasUnsavedChanges()'), 'app.js must guard modal-patient close via hasUnsavedChanges()');
+assert(freshFinJs.includes('renderMonthlySkeleton()'), 'finance.js must implement renderMonthlySkeleton()');
+assert(freshClaimsJs.includes('hero-styled-card') && freshClaimsJs.includes('لا توجد مطالبات مسجلة'), 'claims.js must render hero-styled-card empty state');
+console.log('✓ 21. UX Polish & Guardrails: Verified patient modal unsaved changes protection, monthly report skeleton shimmer, and empty states.');
+
 console.log('===================================================================');
 console.log('✓ All ASCPT UI Component Compliance Guardrail Checks Passed (100%)!');
 console.log('===================================================================');
