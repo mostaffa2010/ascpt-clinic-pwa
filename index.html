@@ -138,7 +138,7 @@
 
     <!-- Stylesheets -->
   <link rel="stylesheet" href="css/style.css?v=2.10.0" media="screen">
-  <link rel="stylesheet" href="css/print.css?v=2.10.17" media="print">
+  <link rel="stylesheet" href="css/print.css?v=2.10.18" media="print">
 </head>
 <body>
   <script>
@@ -723,6 +723,31 @@
 
         <!-- Patients List / Table with Top & Bottom Scrollbars -->
         <div class="card" id="card-patients-directory">
+          <!-- Top Horizontal Scrollbar (Synchronized for instant scrolling on desktop) -->
+          <div class="top-scrollbar-wrapper no-print" id="patients-top-scroll-wrap" style="display: none; overflow-x: auto; overflow-y: hidden; height: 12px; margin-bottom: 6px; border-radius: 4px; background: var(--bg-subtle);">
+            <div class="top-scrollbar-dummy" id="patients-top-scroll-dummy" style="height: 1px;"></div>
+          </div>
+          <div class="table-responsive desktop-only-table" id="patients-table-container" style="display: none;">
+            <table class="data-table" id="patients-data-table">
+              <thead>
+                <tr>
+                  <th>اسم المريض</th>
+                  <th>السن</th>
+                  <th>الموبايل</th>
+                  <th>العنوان</th>
+                  <th>العضو المعالج</th>
+                  <th>نظام الحساب</th>
+                  <th>آخر تعديل</th>
+                  <th>إجراءات</th>
+                </tr>
+              </thead>
+              <tbody id="patients-tbody">
+                <tr><td colspan="7" style="padding: 12px;"><div style="display: flex; align-items: center; gap: 12px;"><div class="skeleton-shimmer skeleton-avatar" style="width: 32px; height: 32px;"></div><div class="skeleton-shimmer skeleton-line" style="width: 25%; height: 14px;"></div><div class="skeleton-shimmer skeleton-line" style="width: 15%; height: 14px;"></div><div class="skeleton-shimmer skeleton-line" style="width: 20%; height: 14px;"></div><div class="skeleton-shimmer skeleton-line" style="width: 15%; height: 14px;"></div><div class="skeleton-shimmer skeleton-line" style="width: 15%; height: 14px;"></div></div></td></tr>
+                <tr><td colspan="7" style="padding: 12px;"><div style="display: flex; align-items: center; gap: 12px;"><div class="skeleton-shimmer skeleton-avatar" style="width: 32px; height: 32px;"></div><div class="skeleton-shimmer skeleton-line" style="width: 30%; height: 14px;"></div><div class="skeleton-shimmer skeleton-line" style="width: 12%; height: 14px;"></div><div class="skeleton-shimmer skeleton-line" style="width: 18%; height: 14px;"></div><div class="skeleton-shimmer skeleton-line" style="width: 15%; height: 14px;"></div><div class="skeleton-shimmer skeleton-line" style="width: 15%; height: 14px;"></div></div></td></tr>
+                <tr><td colspan="7" style="padding: 12px;"><div style="display: flex; align-items: center; gap: 12px;"><div class="skeleton-shimmer skeleton-avatar" style="width: 32px; height: 32px;"></div><div class="skeleton-shimmer skeleton-line" style="width: 22%; height: 14px;"></div><div class="skeleton-shimmer skeleton-line" style="width: 16%; height: 14px;"></div><div class="skeleton-shimmer skeleton-line" style="width: 24%; height: 14px;"></div><div class="skeleton-shimmer skeleton-line" style="width: 15%; height: 14px;"></div><div class="skeleton-shimmer skeleton-line" style="width: 15%; height: 14px;"></div></div></td></tr>
+              </tbody>
+            </table>
+          </div>
           <!-- Dedicated Modern Cards Grid for Patients (v1.4.80) -->
           <div id="patients-mobile-cards" class="patients-grid-container" style="padding: 10px 12px;">
             <div class="patient-card skeleton-card" style="padding: 11px 13px; margin-bottom: 10px; border-radius: 14px;">
@@ -1244,6 +1269,27 @@
                   </div>
                 </div>
               </div>
+            </div>
+            <div class="table-responsive desktop-only-table" id="sessions-table-container" style="display: none;">
+              <table class="data-table" id="sessions-today-table">
+                <thead>
+                  <tr>
+                    <th>المريض</th>
+                    <th>رقم الجلسة</th>
+                    <th>الدكتور</th>
+                    <th>الحساب</th>
+                    <th>الأعضاء</th>
+                    <th>المدفوع</th>
+                    <th>المسجل</th>
+                    <th>إجراء</th>
+                  </tr>
+                </thead>
+                <tbody id="sessions-today-tbody">
+                  <tr><td colspan="8" style="padding: 12px;"><div style="display: flex; align-items: center; gap: 12px;"><div class="skeleton-shimmer skeleton-avatar" style="width: 32px; height: 32px;"></div><div class="skeleton-shimmer skeleton-line" style="width: 20%; height: 14px;"></div><div class="skeleton-shimmer skeleton-line" style="width: 10%; height: 14px;"></div><div class="skeleton-shimmer skeleton-line" style="width: 15%; height: 14px;"></div><div class="skeleton-shimmer skeleton-line" style="width: 12%; height: 14px;"></div><div class="skeleton-shimmer skeleton-line" style="width: 12%; height: 14px;"></div><div class="skeleton-shimmer skeleton-line" style="width: 12%; height: 14px;"></div></div></td></tr>
+                  <tr><td colspan="8" style="padding: 12px;"><div style="display: flex; align-items: center; gap: 12px;"><div class="skeleton-shimmer skeleton-avatar" style="width: 32px; height: 32px;"></div><div class="skeleton-shimmer skeleton-line" style="width: 22%; height: 14px;"></div><div class="skeleton-shimmer skeleton-line" style="width: 10%; height: 14px;"></div><div class="skeleton-shimmer skeleton-line" style="width: 16%; height: 14px;"></div><div class="skeleton-shimmer skeleton-line" style="width: 12%; height: 14px;"></div><div class="skeleton-shimmer skeleton-line" style="width: 12%; height: 14px;"></div><div class="skeleton-shimmer skeleton-line" style="width: 12%; height: 14px;"></div></div></td></tr>
+                  <tr><td colspan="8" style="padding: 12px;"><div style="display: flex; align-items: center; gap: 12px;"><div class="skeleton-shimmer skeleton-avatar" style="width: 32px; height: 32px;"></div><div class="skeleton-shimmer skeleton-line" style="width: 18%; height: 14px;"></div><div class="skeleton-shimmer skeleton-line" style="width: 10%; height: 14px;"></div><div class="skeleton-shimmer skeleton-line" style="width: 14%; height: 14px;"></div><div class="skeleton-shimmer skeleton-line" style="width: 12%; height: 14px;"></div><div class="skeleton-shimmer skeleton-line" style="width: 12%; height: 14px;"></div><div class="skeleton-shimmer skeleton-line" style="width: 12%; height: 14px;"></div></div></td></tr>
+                </tbody>
+              </table>
             </div>
             <!-- Dedicated Modern Cards Grid for Sessions (v1.4.80) -->
             <div id="sessions-today-mobile-cards" class="sessions-grid-container" style="padding: 10px 12px;">
