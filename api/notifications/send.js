@@ -236,6 +236,7 @@ export default async function handler(req, res) {
           title,
           body,
           icon: '/icons/icon-192.png',
+          badge: '/icons/badge-96x96.png',
           dir: 'rtl',
           lang: 'ar',
           tag: String(type || 'ascpt-notification'),
