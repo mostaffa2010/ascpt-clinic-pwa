@@ -407,12 +407,17 @@ export function initStackDeck(config) {
   window.addEventListener('mousemove', onMouseMove);
   window.addEventListener('mouseup', onMouseUp);
 
+  const navBar = document.getElementById(typeof config === 'object' && config.navBarId ? config.navBarId : `${prefix}-nav-bar`);
+
   // Toggle Stack vs List Mode
   toggleBtn?.addEventListener('click', () => {
     isListMode = !isListMode;
     if (isListMode) {
       container.classList.add('is-list-layout');
       if (toggleIcon) toggleIcon.className = 'fa-solid fa-layer-group';
+      if (toggleBtn) toggleBtn.setAttribute('title', 'تبديل إلى نمط الكروت التراكمية');
+      if (counterEl) counterEl.style.display = 'none';
+      if (navBar) navBar.style.display = 'none';
       cards.forEach((card) => {
         card.style.transform = '';
         card.style.opacity = '1';
@@ -420,11 +425,19 @@ export function initStackDeck(config) {
         card.style.zIndex = '';
         card.style.pointerEvents = 'auto';
         card.style.transition = '';
+        card.style.height = 'auto';
       });
       container.style.minHeight = 'auto';
+      container.style.height = 'auto';
     } else {
       container.classList.remove('is-list-layout');
       if (toggleIcon) toggleIcon.className = 'fa-solid fa-list';
+      if (toggleBtn) toggleBtn.setAttribute('title', 'تبديل إلى نمط القائمة المنسدلة');
+      if (counterEl) counterEl.style.display = '';
+      if (navBar) navBar.style.display = '';
+      cards.forEach((card) => {
+        card.style.height = '';
+      });
       updateContainerMinHeight();
       updatePositions(currentIndex, true);
     }
