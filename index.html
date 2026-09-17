@@ -137,8 +137,8 @@
   
 
     <!-- Stylesheets -->
-  <link rel="stylesheet" href="css/style.css?v=2.10.0" media="screen">
-  <link rel="stylesheet" href="css/print.css?v=2.10.18" media="print">
+  <link rel="stylesheet" href="css/style.css?v=2.10.19" media="screen">
+  <link rel="stylesheet" href="css/print.css?v=2.10.19" media="print">
 </head>
 <body>
   <script>
@@ -4713,14 +4713,16 @@
   </div>
 
 <!-- Main Application Script (ES Module) -->
-  <script type="module" src="js/app.js?v=2.1.7"></script>
+  <script type="module" src="js/app.js?v=2.10.19"></script>
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
         navigator.serviceWorker.register('./sw.js').then((reg) => {
-          // Check for background updates gently without mid-session reloads
           reg.update();
         }).catch(err => console.log('SW registration skipped:', err));
+      });
+      navigator.serviceWorker.addEventListener('controllerchange', () => {
+        window.location.reload();
       });
     }
   </script>

@@ -71,7 +71,7 @@ export class DoctorDashboardManager {
     }
 
     if (tbody && (!this.docSessions || this.docSessions.length === 0)) {
-      tbody.innerHTML = Array.from({ length: 3 }).map(() => `
+      if (tbody) tbody.innerHTML = Array.from({ length: 3 }).map(() => `
         <tr>
           <td colspan="7" style="padding: 12px;">
             <div style="display: flex; align-items: center; gap: 12px;">
@@ -446,7 +446,8 @@ export class DoctorDashboardManager {
     }
     this._hasLoadedOnce = true;
     const tbody = document.getElementById('doctor-personal-tbody');
-    if (!tbody) return;
+    let mobileContainer = document.getElementById('doctor-personal-mobile-cards');
+    if (!tbody && !mobileContainer) return;
 
     const todayStr = getLocalDateStr();
     const currentMonth = todayStr.substring(0, 7);
@@ -456,7 +457,7 @@ export class DoctorDashboardManager {
     if (this.currentFilter === 'home-visits') {
       const hvSessions = this.docSessions.filter((s) => s.isHomeVisit || s.visitType === 'home');
       if (hvSessions.length === 0) {
-        tbody.innerHTML = `
+        if (tbody) tbody.innerHTML = `
           <tr>
             <td colspan="6" style="text-align: center; color: var(--text-muted); padding: 24px;">
               <i class="fa-solid fa-house-chimney-medical" style="font-size: 1.8rem; margin-bottom: 8px; display: block; color: #cbd5e1;"></i>
@@ -492,7 +493,7 @@ export class DoctorDashboardManager {
       });
 
       // Render Table Rows (NO PRICES SHOWN)
-      tbody.innerHTML = Array.from(patientGroups.values()).map((group) => {
+      if (tbody) tbody.innerHTML = Array.from(patientGroups.values()).map((group) => {
         const sList = group.sessions.sort((a, b) => (a.date || '').localeCompare(b.date || ''));
         const firstDate = sList[0]?.date || '-';
         const lastDate = sList[sList.length - 1]?.date || '-';
@@ -631,7 +632,7 @@ export class DoctorDashboardManager {
       if (titleEl) titleEl.textContent = `سجل جميع مرضاك بالمركز (${uniquePatients.length} مريض)`;
 
       if (uniquePatients.length === 0) {
-        tbody.innerHTML = `
+        if (tbody) tbody.innerHTML = `
           <tr>
             <td colspan="6" style="text-align: center; color: var(--text-muted); padding: 24px;">
               <i class="fa-solid fa-users-slash" style="font-size: 1.5rem; margin-bottom: 8px; display: block; color: #cbd5e1;"></i>
@@ -652,7 +653,7 @@ export class DoctorDashboardManager {
       }
 
       // Render Desktop Table for Lifetime (Unique Patients)
-      tbody.innerHTML = uniquePatients.map((p) => {
+      if (tbody) tbody.innerHTML = uniquePatients.map((p) => {
         let billingBadge = '';
         if (p.payType === 'cash') {
           billingBadge = `<span class="badge badge-cash"><i class="fa-solid fa-money-bill"></i> نقدي</span>`;
@@ -812,7 +813,7 @@ export class DoctorDashboardManager {
       if (titleEl) titleEl.textContent = `حالات هذا الشهر بالمركز (${uniquePatients.length} مريض)`;
 
       if (uniquePatients.length === 0) {
-        tbody.innerHTML = `
+        if (tbody) tbody.innerHTML = `
           <tr>
             <td colspan="6" style="text-align: center; color: var(--text-muted); padding: 24px;">
               <i class="fa-solid fa-folder-open" style="font-size: 1.5rem; margin-bottom: 8px; display: block; color: #cbd5e1;"></i>
@@ -844,7 +845,7 @@ export class DoctorDashboardManager {
       };
 
       // 1. Render Desktop Table for Month (Unique Patients)
-      tbody.innerHTML = uniquePatients.map((p) => {
+      if (tbody) tbody.innerHTML = uniquePatients.map((p) => {
         let billingBadge = '';
         if (p.payType === 'cash') {
           billingBadge = `<span class="badge badge-cash"><i class="fa-solid fa-money-bill"></i> نقدي</span>`;
@@ -1000,7 +1001,7 @@ export class DoctorDashboardManager {
     displayList = this.docSessions.filter((s) => s.date === todayStr && !s.isHomeVisit && s.visitType !== 'home');
 
     if (displayList.length === 0) {
-      tbody.innerHTML = `
+      if (tbody) tbody.innerHTML = `
         <tr>
           <td colspan="6" style="text-align: center; color: var(--text-muted); padding: 24px;">
             <i class="fa-solid fa-folder-open" style="font-size: 1.5rem; margin-bottom: 8px; display: block; color: #cbd5e1;"></i>
@@ -1020,10 +1021,10 @@ export class DoctorDashboardManager {
       return;
     }
 
-    const mobileContainer = document.getElementById('doctor-personal-mobile-cards');
+    mobileContainer = document.getElementById('doctor-personal-mobile-cards');
 
     // 1. Render Desktop Table
-    tbody.innerHTML = displayList.map(s => {
+    if (tbody) tbody.innerHTML = displayList.map(s => {
       let billingBadge = '';
       if (s.payType === 'cash') {
         billingBadge = `<span class="badge badge-cash"><i class="fa-solid fa-money-bill"></i> نقدي</span>`;

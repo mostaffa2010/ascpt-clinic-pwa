@@ -1728,10 +1728,10 @@ export class SessionsManager {
       }
     }
 
-    if (!tbody) return;
+    if (!tbody && !mobileCardsContainer) return;
 
     if (sessions.length === 0) {
-      tbody.innerHTML = `<tr><td colspan="8" style="text-align: center; color: var(--text-muted); padding: 36px 20px;">
+      if (tbody) tbody.innerHTML = `<tr><td colspan="8" style="text-align: center; color: var(--text-muted); padding: 36px 20px;">
         <i class="fa-solid fa-calendar-check" style="font-size: 1.8rem; color: var(--text-muted); margin-bottom: 8px; display: block;"></i>
         لا توجد حركات أو جلسات مسجلة لهذا التاريخ حتى الآن.
       </td></tr>`;
@@ -1759,7 +1759,7 @@ export class SessionsManager {
     const patientsMap = new Map(patientsList.map(p => [p.id, p]));
 
     // 1. Render Desktop Table
-    tbody.innerHTML = sessions.map(s => {
+    if (tbody) tbody.innerHTML = sessions.map(s => {
       const isNewlyAdded = Boolean(s.id && s.id === this.newlyAddedSessionId);
       const rowHighlightClass = isNewlyAdded ? 'session-row-newly-added' : '';
       const safeId = escapeHTML(s.id);
@@ -2095,7 +2095,7 @@ export class SessionsManager {
           ? 'لا توجد زيارات منزلية مطابقة للبحث.'
           : 'لا توجد زيارات منزلية مسجلة بالنظام حتى الآن.';
         if (tbody) {
-          tbody.innerHTML = `
+          if (tbody) tbody.innerHTML = `
             <tr>
               <td colspan="7" style="text-align: center; color: var(--text-muted); padding: 36px 20px;">
                 <i class="fa-solid fa-house-chimney-medical" style="font-size: 2rem; color: #cbd5e1; margin-bottom: 10px; display: block;"></i>
@@ -2261,7 +2261,7 @@ export class SessionsManager {
       }
     } catch (err) {
       console.error('renderHomeVisitsList error:', err);
-      if (tbody) tbody.innerHTML = `<tr><td colspan="7" style="text-align: center; color: var(--danger); padding: 20px;">تعذر تحميل الزيارات المنزلية: ${escapeHTML(err.message)}</td></tr>`;
+      if (tbody) if (tbody) tbody.innerHTML = `<tr><td colspan="7" style="text-align: center; color: var(--danger); padding: 20px;">تعذر تحميل الزيارات المنزلية: ${escapeHTML(err.message)}</td></tr>`;
     }
   }
 
