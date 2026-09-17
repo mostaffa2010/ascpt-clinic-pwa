@@ -223,7 +223,10 @@ export default async function handler(req, res) {
         notification: {
           sound: 'default',
           icon: '/icons/icon-192.png',
-          color: '#0284c7'
+          color: '#0284c7',
+          priority: 'max',
+          defaultSound: true,
+          defaultVibrateTimings: true
         }
       },
       webpush: {
@@ -239,7 +242,8 @@ export default async function handler(req, res) {
           lang: 'ar',
           tag: String(type || 'ascpt-notification'),
           renotify: true,
-          vibrate: [200, 100, 200]
+          requireInteraction: true,
+          vibrate: [300, 100, 300, 100, 300]
         },
         data: {
           screen: String(data?.screen || ''),

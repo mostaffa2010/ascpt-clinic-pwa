@@ -234,12 +234,32 @@ export class NotificationsManager {
       const q = query(notifCol, orderBy('createdAt', 'desc'), limit(25));
 
       this.unsubscribeListener = onSnapshot(q, (snapshot) => {
+        let freshIncoming = null;
+        snapshot.docChanges().forEach((change) => {
+          if (change.type === 'added') {
+            const data = change.doc.data();
+            const createdAt = new Date(data.createdAt || Date.now()).getTime();
+            if (!data.read && (Date.now() - createdAt < 35000)) {
+              freshIncoming = { id: change.doc.id, ...data };
+            }
+          }
+        });
+
         const notifs = [];
         snapshot.forEach((docSnap) => {
           notifs.push({ id: docSnap.id, ...docSnap.data() });
         });
         this.notifications = notifs;
         this.renderNotifications();
+
+        if (freshIncoming) {
+          if (navigator.vibrate) {
+            try { navigator.vibrate([250, 100, 250]); } catch (_) {}
+          }
+          if (this.app?.showToast) {
+            this.app.showToast(`🔔 ${freshIncoming.title} — ${freshIncoming.body}`, 'info');
+          }
+        }
       }, (err) => {
         console.warn('Notifications real-time listener notice (falling back to server API):', err.message);
         this.fetchNotificationsFromApi(currentUser.uid);
@@ -459,6 +479,49 @@ export class NotificationsManager {
     }
   }
 
+  async getFcmToken(reg) {
+    try {
+      const { getMessaging, getToken } = await import(
+        'https://www.gstatic.com/firebasejs/12.18.0/firebase-messaging.js'
+      );
+      const { firebaseApp } = await import('./firebase-init.js');
+      if (firebaseApp) {
+        const messaging = getMessaging(firebaseApp);
+        const vapidKey = CLINIC_CONFIG.firebase?.vapidKey;
+        const sdkToken = await getToken(messaging, {
+          vapidKey,
+          serviceWorkerRegistration: reg
+        });
+        if (sdkToken && typeof sdkToken === 'string' && sdkToken.length > 20) {
+          return sdkToken.trim();
+        }
+      }
+    } catch (sdkErr) {
+      console.warn('Firebase Messaging SDK getToken fallback:', sdkErr.message);
+    }
+
+    try {
+      const vapidKey = CLINIC_CONFIG.firebase?.vapidKey;
+      let sub = await reg.pushManager.getSubscription();
+      if (!sub && vapidKey) {
+        sub = await reg.pushManager.subscribe({
+          userVisibleOnly: true,
+          applicationServerKey: urlB64ToUint8Array(vapidKey)
+        });
+      }
+      if (sub) {
+        const subJson = sub.toJSON();
+        let ep = subJson.endpoint || '';
+        if (ep.includes('/fcm/send/')) ep = ep.split('/fcm/send/')[1];
+        else if (ep.includes('/gcm/send/')) ep = ep.split('/gcm/send/')[1];
+        return ep.trim();
+      }
+    } catch (pushErr) {
+      console.warn('pushManager.subscribe notice:', pushErr.message);
+    }
+    return null;
+  }
+
   async autoRegisterToken(currentUser) {
     if (!currentUser || !currentUser.uid) return;
     if (!('serviceWorker' in navigator) || !('Notification' in window)) return;
@@ -466,28 +529,8 @@ export class NotificationsManager {
 
     try {
       const reg = await navigator.serviceWorker.ready;
-      let subscription = await reg.pushManager.getSubscription();
-
-      const vapidKey = CLINIC_CONFIG.firebase?.vapidKey;
-      if (!subscription && vapidKey) {
-        subscription = await reg.pushManager.subscribe({
-          userVisibleOnly: true,
-          applicationServerKey: urlB64ToUint8Array(vapidKey)
-        });
-      }
-
-      if (!subscription) return;
-
-      const subJson = subscription.toJSON();
-      let tokenString = subJson.endpoint || '';
-      if (tokenString.includes('/fcm/send/')) {
-        tokenString = tokenString.split('/fcm/send/')[1];
-      } else if (tokenString.includes('/gcm/send/')) {
-        tokenString = tokenString.split('/gcm/send/')[1];
-      }
-      tokenString = tokenString.trim();
-
-      if (!tokenString) return;
+      const cleanToken = await this.getFcmToken(reg);
+      if (!cleanToken) return;
 
       await fetch('/api/notifications/token', {
         method: 'POST',
@@ -495,7 +538,7 @@ export class NotificationsManager {
         body: JSON.stringify({
           action: 'register',
           uid: currentUser.uid,
-          token: tokenString,
+          token: cleanToken,
           role: currentUser.role || 'staff',
           name: currentUser.name || '',
           userAgent: navigator.userAgent
@@ -617,23 +660,10 @@ export class NotificationsManager {
       }
 
       const reg = await navigator.serviceWorker.ready;
-      let subscription = await reg.pushManager.getSubscription();
-
-      if (!subscription) {
-        subscription = await reg.pushManager.subscribe({
-          userVisibleOnly: true,
-          applicationServerKey: urlB64ToUint8Array(vapidKey)
-        });
+      let tokenString = await this.getFcmToken(reg);
+      if (!tokenString) {
+        throw new Error('تعذر إنشاء رمز الجهاز من خدمة الإشعارات.');
       }
-
-      const subJson = subscription.toJSON();
-      let tokenString = subJson.endpoint || '';
-      if (tokenString.includes('/fcm/send/')) {
-        tokenString = tokenString.split('/fcm/send/')[1];
-      } else if (tokenString.includes('/gcm/send/')) {
-        tokenString = tokenString.split('/gcm/send/')[1];
-      }
-      tokenString = tokenString.trim();
 
       // 1. Save token via Serverless endpoint (Runs as Firebase Admin, completely bypassing client rules)
       let savedViaServer = false;
