@@ -1135,7 +1135,7 @@ export class SessionsManager {
     // Trigger Push Notification to Attending Doctor on Patient Arrival (v2.10.0)
     if (!isEdit && (doctorUid || doctor)) {
       try {
-        const progLabel = sessionPricingType === 'scoliosis' ? 'Scoliosis' : (sessionPricingType === 'hemiplegia' ? 'تأهيل عصبي' : (sessionPricingType === 'quadriplegia' ? 'تأهيل شلل' : 'علاج طبيعي عام'));
+        const progLabel = selectedProgram === 'scoliosis' ? 'Scoliosis' : (selectedProgram === 'hemiplegia' ? 'تأهيل عصبي' : (selectedProgram === 'quadriplegia' ? 'تأهيل شلل' : 'علاج طبيعي عام'));
         const partsText = selectedParts.length > 0 ? selectedParts.join('، ') : '';
         const titleText = this.entryMode === 'examination' ? `حضور كشف: ${patientName}` : `حضور مريض: ${patientName}`;
         const cleanDoctorName = (doctor || '').replace(/^د\.\s*/, '');
@@ -2175,7 +2175,7 @@ export class SessionsManager {
                   <i class="fa-solid fa-file-invoice text-primary"></i>
                 </button>
                 ${(!isPre && canDelete) ? `
-                  <button type="button" class="btn btn-outline btn-sm btn-icon-action btn-settle-hv" onclick="sessionsManager.settleHomeVisitsGroup('${safePid}', '${escapeHTML(group.letterRef || '')}', '${safeName}')" title="اعتماد تسوية هذا الجواب مع الطبيب">
+                  <button type="button" class="btn btn-outline btn-sm btn-settle-hv" onclick="sessionsManager.settleHomeVisitsGroup('${safePid}', '${escapeHTML(group.letterRef || '')}', '${safeName}')" title="اعتماد تسوية هذا الجواب مع الطبيب">
                     <i class="fa-solid fa-handshake"></i> <span>تسوية</span>
                   </button>
                 ` : ''}
@@ -2244,7 +2244,7 @@ export class SessionsManager {
                     <i class="fa-solid fa-file-invoice text-primary"></i>
                   </button>
                   ${(!isPre && canDelete) ? `
-                    <button type="button" class="btn btn-outline btn-sm btn-icon-action btn-settle-hv" onclick="sessionsManager.settleHomeVisitsGroup('${safePid}', '${escapeHTML(group.letterRef || '')}', '${safeName}')" title="اعتماد تسوية هذا الجواب مع الطبيب">
+                    <button type="button" class="btn btn-outline btn-sm btn-settle-hv" onclick="sessionsManager.settleHomeVisitsGroup('${safePid}', '${escapeHTML(group.letterRef || '')}', '${safeName}')" title="اعتماد تسوية هذا الجواب مع الطبيب">
                       <i class="fa-solid fa-handshake"></i> <span>تسوية</span>
                     </button>
                   ` : ''}
