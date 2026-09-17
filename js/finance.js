@@ -1451,6 +1451,7 @@ export class FinanceManager {
       `).join('');
     }
 
+    const summaryMob = document.getElementById('monthly-financial-summary-mobile');
     if (summaryTbody) {
       summaryTbody.innerHTML = Array.from({ length: 3 }).map(() => `
         <tr>
@@ -1461,6 +1462,16 @@ export class FinanceManager {
           <td style="padding: 10px 8px;"><div class="skeleton-shimmer skeleton-line" style="width: 30%; height: 14px; margin: 0 auto;"></div></td>
         </tr>
       `).join('');
+    }
+
+    if (summaryMob) {
+      summaryMob.innerHTML = `
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px;">
+          <div class="hero-styled-card skeleton-card" style="padding: 16px; border-radius: 14px; height: 85px;"><div class="skeleton-shimmer skeleton-line" style="width: 80%; height: 20px; margin: 0 auto;"></div></div>
+          <div class="hero-styled-card skeleton-card" style="padding: 16px; border-radius: 14px; height: 85px;"><div class="skeleton-shimmer skeleton-line" style="width: 80%; height: 20px; margin: 0 auto;"></div></div>
+        </div>
+        <div class="hero-styled-card skeleton-card" style="padding: 16px; border-radius: 14px; height: 110px;"><div class="skeleton-shimmer skeleton-line" style="width: 90%; height: 30px; margin: 0 auto;"></div></div>
+      `;
     }
   }
 
@@ -2086,6 +2097,67 @@ export class FinanceManager {
             <td style="text-align: center; font-weight: 900; color: #15803d; font-size: 8.5pt;">${netProfit.toLocaleString('en-US')} ج.م</td>
             <td style="text-align: center; font-weight: 900; color: #15803d;">هامش: ${marginPct}%</td>
           </tr>
+        `;
+      }
+
+      const finSummaryMob = document.getElementById('monthly-financial-summary-mobile');
+      if (finSummaryMob) {
+        finSummaryMob.innerHTML = `
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px;">
+            <!-- 1. Cash Sessions Receipts -->
+            <div class="hero-styled-card" style="padding: 12px; border-radius: 14px; background: rgba(16, 185, 129, 0.06); border: 1.5px solid rgba(16, 185, 129, 0.25); text-align: center;">
+              <div style="display: flex; align-items: center; justify-content: center; gap: 6px; font-size: 0.78rem; font-weight: 700; color: var(--text-muted);">
+                <i class="fa-solid fa-money-bill-wave" style="color: var(--success);"></i> إيرادات الجلسات
+              </div>
+              <div style="font-size: 1.15rem; font-weight: 900; color: var(--success); margin: 6px 0 2px 0;">
+                ${totalSessionsIncome.toLocaleString('en-US')} ج.م
+              </div>
+              <div style="font-size: 0.72rem; color: var(--text-muted); font-weight: 700;">
+                <span class="badge badge-cash" style="font-size: 0.7rem; padding: 2px 6px;">نقداً بالخزينة</span> • ${cashPct}%
+              </div>
+            </div>
+
+            <!-- 2. Insurance Claims Collections -->
+            <div class="hero-styled-card" style="padding: 12px; border-radius: 14px; background: rgba(2, 132, 199, 0.06); border: 1.5px solid rgba(2, 132, 199, 0.25); text-align: center;">
+              <div style="display: flex; align-items: center; justify-content: center; gap: 6px; font-size: 0.78rem; font-weight: 700; color: var(--text-muted);">
+                <i class="fa-solid fa-file-invoice-dollar" style="color: var(--primary);"></i> تحصيلات التأمين
+              </div>
+              <div style="font-size: 1.15rem; font-weight: 900; color: var(--primary); margin: 6px 0 2px 0;">
+                ${totalSettlementsNet.toLocaleString('en-US')} ج.م
+              </div>
+              <div style="font-size: 0.72rem; color: var(--text-muted); font-weight: 700;">
+                <span class="badge badge-direct" style="font-size: 0.7rem; padding: 2px 6px;">تحويلات/شيكات</span> • ${settlePct}%
+              </div>
+            </div>
+          </div>
+
+          <!-- 3. Total Income, Expenses & Net Profit Summary Card -->
+          <div class="hero-styled-card" style="padding: 14px 16px; border-radius: 14px; background: var(--bg-subtle); border: 1.5px solid var(--border-color);">
+            <div style="display: flex; justify-content: space-between; align-items: center; font-size: 0.85rem; margin-bottom: 8px;">
+              <span style="font-weight: 800; color: var(--text-main);">إجمالي دخل وتحصيلات المركز:</span>
+              <span style="font-weight: 900; color: var(--success); font-size: 0.95rem;">${totalIncome.toLocaleString('en-US')} ج.م</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; align-items: center; font-size: 0.85rem; margin-bottom: 10px;">
+              <span style="font-weight: 700; color: var(--danger);">إجمالي المصروفات التشغيلية:</span>
+              <span style="font-weight: 900; color: var(--danger); font-size: 0.95rem;">-${totalExpenses.toLocaleString('en-US')} ج.م</span>
+            </div>
+
+            <div class="hsc-divider" style="margin: 8px 0 12px 0;"></div>
+
+            <div style="background: rgba(16, 185, 129, 0.1); border: 1.5px solid rgba(16, 185, 129, 0.35); border-radius: 12px; padding: 12px 14px; display: flex; justify-content: space-between; align-items: center;">
+              <div>
+                <div style="font-size: 0.82rem; font-weight: 800; color: var(--success); display: flex; align-items: center; gap: 6px;">
+                  <i class="fa-solid fa-chart-line"></i> صافي الدخل التشغيلي (الأرباح)
+                </div>
+                <div style="font-size: 0.72rem; color: var(--text-muted); font-weight: 700; margin-top: 3px;">
+                  هامش الربح التشغيلي: <strong>${marginPct}%</strong>
+                </div>
+              </div>
+              <div style="font-size: 1.22rem; font-weight: 900; color: var(--success); direction: ltr;">
+                ${netProfit.toLocaleString('en-US')} ج.م
+              </div>
+            </div>
+          </div>
         `;
       }
     }
