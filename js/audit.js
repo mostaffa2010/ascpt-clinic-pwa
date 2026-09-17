@@ -61,8 +61,12 @@ export class AuditAndAdminManager {
           const userName = btnShift.getAttribute('data-user-name');
           const currentShift = btnShift.getAttribute('data-current-shift') || 'sat_mon_wed';
           const regRate = parseFloat(btnShift.getAttribute('data-regular-rate')) || 0;
+          const scolRate = parseFloat(btnShift.getAttribute('data-scoliosis-rate')) || 0;
+          const hemiRate = parseFloat(btnShift.getAttribute('data-hemiplegia-rate')) || 0;
+          const quadRate = parseFloat(btnShift.getAttribute('data-quadriplegia-rate') || btnShift.getAttribute('data-pediatric-rate')) || 0;
+          const seniority = btnShift.getAttribute('data-seniority') || 'junior';
           const specRate = parseFloat(btnShift.getAttribute('data-special-rate')) || 0;
-          this.openChangeShiftModal(userId, userName, currentShift, regRate, specRate);
+          this.openChangeShiftModal(userId, userName, currentShift, regRate, scolRate, hemiRate, quadRate, seniority, specRate);
           return;
         }
 
@@ -93,8 +97,12 @@ export class AuditAndAdminManager {
           const userName = btnShift.getAttribute('data-user-name');
           const currentShift = btnShift.getAttribute('data-current-shift') || 'sat_mon_wed';
           const regRate = parseFloat(btnShift.getAttribute('data-regular-rate')) || 0;
+          const scolRate = parseFloat(btnShift.getAttribute('data-scoliosis-rate')) || 0;
+          const hemiRate = parseFloat(btnShift.getAttribute('data-hemiplegia-rate')) || 0;
+          const quadRate = parseFloat(btnShift.getAttribute('data-quadriplegia-rate') || btnShift.getAttribute('data-pediatric-rate')) || 0;
+          const seniority = btnShift.getAttribute('data-seniority') || 'junior';
           const specRate = parseFloat(btnShift.getAttribute('data-special-rate')) || 0;
-          this.openChangeShiftModal(userId, userName, currentShift, regRate, specRate);
+          this.openChangeShiftModal(userId, userName, currentShift, regRate, scolRate, hemiRate, quadRate, seniority, specRate);
           return;
         }
 
@@ -287,20 +295,31 @@ export class AuditAndAdminManager {
       await this.app.showAlert(err.message || 'فشل حذف الموظف.', 'خطأ', 'danger');
     }
   }
-  openChangeShiftModal(userId, userName, currentShift, regularRate = 0, specialRate = 0) {
+  openChangeShiftModal(userId, userName, currentShift, regularRate = 0, scoliosisRate = 0, hemiplegiaRate = 0, quadriplegiaRate = 0, seniorityLevel = 'junior', specialRate = 0) {
     const modalNameEl = document.getElementById('shift-modal-doctor-name');
     const modalUidInp = document.getElementById('shift-modal-target-uid');
     const regInp = document.getElementById('shift-modal-regular-rate');
+    const scolInp = document.getElementById('shift-modal-scoliosis-rate');
+    const hemiInp = document.getElementById('shift-modal-hemiplegia-rate');
+    const quadInp = document.getElementById('shift-modal-quadriplegia-rate') || document.getElementById('shift-modal-pediatric-rate');
     const specInp = document.getElementById('shift-modal-special-rate');
 
     if (modalNameEl) modalNameEl.textContent = userName;
     if (modalUidInp) modalUidInp.value = userId;
     if (regInp) regInp.value = regularRate > 0 ? regularRate : '';
+    if (scolInp) scolInp.value = scoliosisRate > 0 ? scoliosisRate : '';
+    if (hemiInp) hemiInp.value = hemiplegiaRate > 0 ? hemiplegiaRate : '';
+    if (quadInp) quadInp.value = quadriplegiaRate > 0 ? quadriplegiaRate : '';
     if (specInp) specInp.value = specialRate > 0 ? specialRate : '';
 
     const radios = document.querySelectorAll('input[name="doctor-shift-choice"]');
     radios.forEach(r => {
       r.checked = (r.value === currentShift);
+    });
+
+    const seniorityRadios = document.querySelectorAll('input[name="shift-modal-seniority"]');
+    seniorityRadios.forEach(r => {
+      r.checked = (r.value === seniorityLevel);
     });
 
     this.app.openModal('modal-change-doctor-shift');
@@ -421,15 +440,19 @@ export class AuditAndAdminManager {
             const sLabel = getShiftLabel(sKey);
             const sIcon = sKey === 'sat_mon_wed' ? 'fa-calendar-days' : (sKey === 'sun_tue_thu' ? 'fa-calendar-week' : 'fa-calendar-check');
             const regRate = typeof u.regularSessionRate === 'number' ? u.regularSessionRate : 0;
+            const scolRate = typeof u.scoliosisRate === 'number' ? u.scoliosisRate : 0;
+            const hemiRate = typeof u.hemiplegiaRate === 'number' ? u.hemiplegiaRate : 0;
+            const quadRate = typeof u.quadriplegiaRate === 'number' ? u.quadriplegiaRate : (typeof u.pediatricRate === 'number' ? u.pediatricRate : 0);
+            const seniority = u.seniorityLevel || 'junior';
             const specRate = typeof u.specialSessionRate === 'number' ? u.specialSessionRate : 0;
             shiftDisplay = `
-              <button type="button" class="btn btn-outline btn-sm btn-change-doctor-shift" data-user-id="${escapeHTML(u.id)}" data-user-name="${safeName}" data-current-shift="${sKey}" data-regular-rate="${regRate}" data-special-rate="${specRate}" style="border-radius: 6px; padding: 5px 8px; font-size: 0.78rem; text-align: right; color: var(--text-main); border-color: var(--border-color); display: inline-flex; align-items: center; justify-content: space-between; gap: 8px; min-width: 175px;" title="اضغط لتعديل الشفت وأسعار الجلسات">
+              <button type="button" class="btn btn-outline btn-sm btn-change-doctor-shift" data-user-id="${escapeHTML(u.id)}" data-user-name="${safeName}" data-current-shift="${sKey}" data-regular-rate="${regRate}" data-scoliosis-rate="${scolRate}" data-hemiplegia-rate="${hemiRate}" data-quadriplegia-rate="${quadRate}" data-seniority="${seniority}" data-special-rate="${specRate}" style="border-radius: 6px; padding: 5px 8px; font-size: 0.78rem; text-align: right; color: var(--text-main); border-color: var(--border-color); display: inline-flex; align-items: center; justify-content: space-between; gap: 8px; min-width: 175px;" title="اضغط لتعديل الشفت وأسعار الجلسات">
                 <div>
                   <div style="font-weight: 800; color: var(--primary); display: flex; align-items: center; gap: 5px;">
                     <i class="fa-solid ${sIcon}"></i> <span>${escapeHTML(sLabel)}</span>
                   </div>
                   <div style="font-size: 0.72rem; color: var(--text-muted); margin-top: 2px;">
-                    عادية: <strong style="color: var(--text-main);">${regRate} ج.م</strong> • خاصة: <strong style="color: #b45309;">${specRate} ج.م</strong>
+                    عام: <strong style="color: var(--text-main);">${regRate} ج.م</strong>${scolRate > 0 || hemiRate > 0 ? ` • تخصصي: <strong style="color: #b45309;">${scolRate || hemiRate} ج.م</strong>` : ''}
                   </div>
                 </div>
                 <i class="fa-solid fa-pencil" style="font-size: 0.68rem; opacity: 0.7; color: var(--primary);"></i>
