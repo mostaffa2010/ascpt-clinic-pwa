@@ -143,6 +143,22 @@ export class PWAManager {
       }
 
       if (isReady) {
+        // Cancel pull-to-refresh when offline, smooth spring-back, and show toast
+        if (typeof navigator !== 'undefined' && !navigator.onLine) {
+          indicator.style.transition = 'transform 0.25s ease, opacity 0.25s ease';
+          indicator.style.transform = 'translate(-50%, -150%)';
+          indicator.classList.remove('active', 'ready', 'loading');
+          startY = 0;
+          isPulling = false;
+          isReady = false;
+          isExecuting = false;
+          triggerHaptic('warning');
+          if (window.app && typeof window.app.showToast === 'function') {
+            window.app.showToast('أنت غير متصل بالإنترنت حالياً', 'warning');
+          }
+          return;
+        }
+
         isExecuting = true;
         indicator.classList.remove('ready');
         indicator.classList.add('loading');
@@ -167,17 +183,18 @@ export class PWAManager {
   }
 
   static async forceReload() {
+    if (typeof navigator !== 'undefined' && !navigator.onLine) {
+      if (window.app && typeof window.app.showToast === 'function') {
+        window.app.showToast('أنت غير متصل بالإنترنت حالياً', 'warning');
+      }
+      return;
+    }
+
     try {
       if ('serviceWorker' in navigator) {
         const registrations = await navigator.serviceWorker.getRegistrations();
         for (const reg of registrations) {
           await reg.update().catch(() => {});
-        }
-      }
-      if ('caches' in window) {
-        const keys = await caches.keys();
-        for (const key of keys) {
-          await caches.delete(key);
         }
       }
     } catch (_) {}

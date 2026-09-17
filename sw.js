@@ -1,17 +1,18 @@
 // ========================================================
 // ASCPT - Service Worker & Offline PWA Cache Engine
 // Alexandria Specialized Center for Physical Therapy
-// Version: 2.10.20 (Cache: ascpt-clinic-v2.10.21)
+// Version: 2.10.20 (Cache: ascpt-clinic-v2.10.22)
 // True Offline Navigation & Fault-Tolerant Cache Architecture
 // ========================================================
 
-const CACHE_NAME = 'ascpt-clinic-v2.10.21';
+const CACHE_NAME = 'ascpt-clinic-v2.10.23';
 
 // Core App Shell assets required for offline rendering
 const APP_SHELL_ASSETS = [
   '/',
   '/index.html',
   '/manifest.json',
+  '/css/style.css',
   '/css/style.css?v=1.4.3',
   '/css/print.css',
   '/css/print.css?v=1.4.3',
@@ -131,17 +132,55 @@ self.addEventListener('fetch', (event) => {
           }
           return networkResponse;
         } catch (networkError) {
-          // Device is OFFLINE (e.g. Wi-Fi turned off): serve cached index.html immediately!
+          // Device is OFFLINE: serve cached index.html immediately with query-agnostic matching
           const cache = await caches.open(CACHE_NAME);
-          const cachedPage = (await cache.match('/index.html')) ||
-                             (await cache.match('/')) ||
-                             (await cache.match(event.request));
+          let cachedPage = (await cache.match('/index.html')) ||
+                           (await cache.match('/', { ignoreSearch: true })) ||
+                           (await cache.match(event.request, { ignoreSearch: true }));
+
+          // Fallback: search across all active/previous caches
+          if (!cachedPage) {
+            const allCacheKeys = await caches.keys();
+            for (const cKey of allCacheKeys) {
+              const anyCache = await caches.open(cKey);
+              cachedPage = (await anyCache.match('/index.html')) ||
+                           (await anyCache.match('/', { ignoreSearch: true })) ||
+                           (await anyCache.match(event.request, { ignoreSearch: true }));
+              if (cachedPage) break;
+            }
+          }
+
           if (cachedPage) {
             return cachedPage;
           }
-          return new Response('Offline - ASCPT Clinic', {
-            status: 503,
-            headers: { 'Content-Type': 'text/plain; charset=utf-8' }
+
+          // Resilient Offline Fallback Card (Never return raw black text screen)
+          return new Response(`<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>غير متصل بالإنترنت - ASCPT</title>
+  <style>
+    body { margin: 0; background: #0f172a; color: #f8fafc; font-family: system-ui, -apple-system, sans-serif; display: flex; align-items: center; justify-content: center; min-height: 100vh; text-align: center; padding: 20px; box-sizing: border-box; }
+    .offline-box { background: #1e293b; padding: 32px 24px; border-radius: 18px; max-width: 380px; width: 100%; border: 1.5px solid #334155; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+    .offline-icon { font-size: 2.8rem; margin-bottom: 14px; }
+    h2 { color: #38bdf8; margin: 0 0 10px; font-size: 1.25rem; font-weight: 800; }
+    p { color: #94a3b8; font-size: 0.92rem; line-height: 1.6; margin: 0 0 24px; }
+    .btn-retry { background: #0284c7; color: #ffffff; border: none; padding: 12px 28px; border-radius: 10px; font-weight: 800; font-size: 0.95rem; cursor: pointer; width: 100%; }
+  </style>
+</head>
+<body>
+  <div class="offline-box">
+    <div class="offline-icon">📡</div>
+    <h2>أنت غير متصل بالإنترنت</h2>
+    <p>لا يمكن تحديث التطبيق أثناء انقطاع الاتصال. يرجى التأكد من اتصال الإنترنت ثم إعادة المحاولة.</p>
+    <button class="btn-retry" onclick="window.location.href='/'">إعادة المحاولة</button>
+  </div>
+</body>
+</html>`, {
+            status: 200,
+            headers: { 'Content-Type': 'text/html; charset=utf-8' }
           });
         }
       })()
@@ -153,7 +192,8 @@ self.addEventListener('fetch', (event) => {
   event.respondWith(
     (async () => {
       const cache = await caches.open(CACHE_NAME);
-      const cachedResponse = await cache.match(event.request);
+      const cachedResponse = (await cache.match(event.request)) ||
+                             (await cache.match(event.request, { ignoreSearch: true }));
 
       if (cachedResponse) {
         // Revalidate in background if online
