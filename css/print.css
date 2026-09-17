@@ -352,15 +352,14 @@
   }
 
   body:not(.printing-sheet):not(.printing-claim):not(.printing-cards):not(.printing-insurance-letter):not(.printing-receipt):not(.printing-statement) #view-finance {
-    display: block !important;
     box-sizing: border-box !important;
-    min-height: 0 !important;
-    height: auto !important;
     padding: 0 !important;
     margin: 0 !important;
     width: 100% !important;
+    height: auto !important;
   }
 
+  body:not(.printing-sheet):not(.printing-claim):not(.printing-cards):not(.printing-insurance-letter):not(.printing-receipt):not(.printing-statement):not(.print-daily-multipage) #view-finance,
   body.finance-daily-mode:not(.print-daily-multipage) #view-finance,
   body.printing-monthly #view-finance,
   body.finance-monthly-mode #view-finance,
@@ -506,10 +505,9 @@
     min-width: 0 !important;
     max-width: 100% !important;
     box-sizing: border-box !important;
-    padding: 2px 4px !important;
-    font-size: 6.8pt !important;
-    border: 1px solid #94a3b8 !important;
-    border-radius: 4px !important;
+    padding: 6px 10px !important;
+    border: 1.5px solid #000000 !important;
+    border-radius: 6px !important;
     font-weight: 700 !important;
     overflow: hidden !important;
     background: #f8fafc !important;
@@ -521,10 +519,27 @@
   }
 
   body:not(.printing-sheet) #doctors-breakdown-container > div div {
+    line-height: 1.35 !important;
+  }
+
+  body:not(.printing-sheet) #doctors-breakdown-container > div div div:first-child {
+    font-size: 9.5pt !important;
+    font-weight: 900 !important;
+    color: #000000 !important;
     white-space: nowrap !important;
-    overflow: hidden !important;
-    text-overflow: ellipsis !important;
-    line-height: 1.15 !important;
+  }
+
+  body:not(.printing-sheet) #doctors-breakdown-container > div div div:last-child {
+    font-size: 8.5pt !important;
+    font-weight: 800 !important;
+    color: #000000 !important;
+    white-space: nowrap !important;
+  }
+
+  body:not(.printing-sheet) #doctors-breakdown-container > div span {
+    font-size: 8pt !important;
+    font-weight: 700 !important;
+    color: #334155 !important;
   }
 
   /* 4. Ultra-Compact, High-Density Daily Sessions Table (Guaranteed Single Page for 20+ Cases) */
@@ -643,10 +658,34 @@
   /* ================= RESPONSIVE ADAPTIVE DAILY PRINT ENGINE ================= */
   /* Level 1: Spacious Mode (1 to 22 Patients) - Fills page comfortably with elegant row heights & clear typography */
   body.print-daily-spacious #card-doctors-breakdown {
-    padding: 5px 8px !important;
-    margin-bottom: 6px !important;
+    padding: 8px 12px !important;
+    margin-bottom: 8px !important;
+    border: 1.5px solid #000000 !important;
+    border-radius: 8px !important;
   }
   body.print-daily-spacious #card-doctors-breakdown .card-title {
+    font-size: 10pt !important;
+    font-weight: 900 !important;
+    margin-bottom: 6px !important;
+  }
+  body.print-daily-spacious #doctors-breakdown-container {
+    gap: 10px !important;
+  }
+  body.print-daily-spacious #doctors-breakdown-container > div {
+    padding: 8px 14px !important;
+    border: 1.8px solid #000000 !important;
+    border-radius: 8px !important;
+  }
+  body.print-daily-spacious #doctors-breakdown-container > div div div:first-child {
+    font-size: 11pt !important;
+    font-weight: 900 !important;
+    margin-bottom: 3px !important;
+  }
+  body.print-daily-spacious #doctors-breakdown-container > div div div:last-child {
+    font-size: 10pt !important;
+    font-weight: 800 !important;
+  }
+  body.print-daily-spacious #doctors-breakdown-container > div span {
     font-size: 8.5pt !important;
   }
   body.print-daily-spacious #card-finance-report-sessions {
@@ -731,12 +770,12 @@
     display: flex !important;
     justify-content: space-between !important;
     align-items: flex-end !important;
-    margin-top: 4mm !important;
-    padding-top: 6px !important;
-    padding-left: 20px !important;
-    padding-right: 20px !important;
-    border-top: 1.5px dashed #000000 !important;
-    font-size: 8.5pt !important;
+    margin-top: auto !important;
+    padding-top: 8px !important;
+    padding-left: 24px !important;
+    padding-right: 24px !important;
+    border-top: 1.8px dashed #000000 !important;
+    font-size: 9pt !important;
     font-weight: 800 !important;
     color: #000000 !important;
     page-break-inside: avoid !important;
@@ -744,13 +783,8 @@
     box-sizing: border-box !important;
   }
 
-  body.finance-daily-mode:not(.print-daily-multipage) .print-footer,
-  body.printing-monthly .print-footer,
-  body.finance-monthly-mode .print-footer {
-    margin-top: auto !important;
-  }
-
-  body.print-daily-multipage .print-footer {
+  body.print-daily-multipage .print-footer,
+  body:not(.printing-sheet):not(.printing-claim):not(.printing-cards):not(.printing-insurance-letter):not(.printing-receipt):not(.printing-statement).print-daily-multipage .print-footer {
     margin-top: 15mm !important;
     page-break-inside: avoid !important;
   }
@@ -778,11 +812,12 @@
   body:not(.printing-sheet) #card-monthly-expenses-categories,
   body:not(.printing-sheet) #card-monthly-financial-summary {
     display: block !important;
-    border: 1px solid #000000 !important;
+    border: 1.5px solid #000000 !important;
+    border-radius: 6px !important;
     box-shadow: none !important;
     margin-top: 0 !important;
-    margin-bottom: 2.8mm !important;
-    padding: 2px 4px !important;
+    margin-bottom: 3.8mm !important;
+    padding: 5px 8px !important;
     background: #ffffff !important;
     page-break-inside: avoid !important;
     box-sizing: border-box !important;
@@ -807,9 +842,9 @@
   body:not(.printing-sheet) #card-monthly-expenses-categories .card-header,
   body:not(.printing-sheet) #card-monthly-financial-summary .card-header {
     display: block !important;
-    padding: 0 0 2px 0 !important;
-    margin-bottom: 2px !important;
-    border-bottom: 1.5px solid #000000 !important;
+    padding: 0 0 3px 0 !important;
+    margin-bottom: 4px !important;
+    border-bottom: 2px solid #000000 !important;
     background: transparent !important;
   }
 
@@ -818,7 +853,7 @@
   body:not(.printing-sheet) #card-monthly-settlements .card-title,
   body:not(.printing-sheet) #card-monthly-expenses-categories .card-title,
   body:not(.printing-sheet) #card-monthly-financial-summary .card-title {
-    font-size: 8.5pt !important;
+    font-size: 10pt !important;
     font-weight: 900 !important;
     color: #000000 !important;
   }
@@ -836,7 +871,7 @@
     width: 100% !important;
     table-layout: fixed !important;
     border-collapse: collapse !important;
-    font-size: 8pt !important;
+    font-size: 9pt !important;
     background: #ffffff !important;
     margin: 0 !important;
   }
@@ -849,8 +884,8 @@
     background-color: #f1f5f9 !important;
     color: #000000 !important;
     font-weight: 900 !important;
-    font-size: 8pt !important;
-    padding: 3.5px 3px !important;
+    font-size: 9pt !important;
+    padding: 5px 4px !important;
     text-align: center !important;
     border: 1px solid #000000 !important;
   }
@@ -861,8 +896,8 @@
   body:not(.printing-sheet) #monthly-expenses-categories-table td,
   body:not(.printing-sheet) #monthly-financial-summary-table td {
     border: 1px solid #333333 !important;
-    padding: 3px 3px !important;
-    line-height: 1.15 !important;
+    padding: 4.8px 4px !important;
+    line-height: 1.25 !important;
     vertical-align: middle !important;
     word-break: break-word !important;
     color: #000000 !important;
@@ -870,11 +905,11 @@
   }
 
   body:not(.printing-sheet) #monthly-doctors-table tr.total-row td {
-    border-top: 1.8px solid #000000 !important;
+    border-top: 2px solid #000000 !important;
     background-color: #f1f5f9 !important;
     font-weight: 900 !important;
-    font-size: 8pt !important;
-    padding: 3.5px 3px !important;
+    font-size: 9.5pt !important;
+    padding: 5.5px 4px !important;
   }
 
   /* Crisp Monochrome Financial Overrides (No washed-out colors in B&W printing) */
@@ -934,7 +969,9 @@
   /* Financial Summary Table: Solid Black Borders and Clean High-Contrast Footers */
   body:not(.printing-sheet) #monthly-financial-summary-table tfoot td {
     border: 1px solid #000000 !important;
-    padding: 2.5px 3px !important;
+    padding: 5.5px 4px !important;
+    font-size: 9.5pt !important;
+    font-weight: 800 !important;
     color: #000000 !important;
   }
 
@@ -944,13 +981,15 @@
 
   body:not(.printing-sheet) #monthly-financial-summary-table tfoot tr:last-child {
     background-color: #f1f5f9 !important;
-    border-top: 2px solid #000000 !important;
-    border-bottom: 2px solid #000000 !important;
+    border-top: 2.5px solid #000000 !important;
+    border-bottom: 2.5px solid #000000 !important;
   }
 
   body:not(.printing-sheet) #monthly-financial-summary-table tfoot tr:last-child td {
     color: #000000 !important;
     font-weight: 900 !important;
+    font-size: 11pt !important;
+    padding: 7px 5px !important;
   }
 
   /* Duplicate monthly footer block consolidated into Section 6 above */
