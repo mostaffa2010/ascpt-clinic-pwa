@@ -184,6 +184,13 @@ class FirestoreDatabaseService {
     this.clinicalOptionsCache = null;
     this.insuranceCompaniesCache = null;
     this._optionsLoaded = false;
+    try {
+      const storedClinical = localStorage.getItem('ascpt_cached_clinical_options');
+      const storedIns = localStorage.getItem('ascpt_cached_insurance_companies');
+      if (storedClinical) this.clinicalOptionsCache = JSON.parse(storedClinical);
+      if (storedIns) this.insuranceCompaniesCache = JSON.parse(storedIns);
+      if (storedClinical && storedIns) this._optionsLoaded = true;
+    } catch (_) {}
 
     // High-performance Zero-Cost in-memory data store (prevents redundant Firestore billing)
     this._patientsCache = null;
@@ -371,8 +378,8 @@ class FirestoreDatabaseService {
     try {
       let isFirstSnapshot = true;
 
-      // On first attach, always do one initial fetch to get current data
-      this.getPatients(true)
+      // On first attach, load from local cache first if available (Zero Firestore reads)
+      this.getPatients(false)
         .then((list) => {
           if (typeof callback === 'function') callback(list);
         })
@@ -394,7 +401,70 @@ class FirestoreDatabaseService {
 
         if (isFirstSnapshot) {
           isFirstSnapshot = false;
+          let localVersion = null;
+          try {
+            localVersion = await idbCache.get('ascpt_patients_cached_version');
+          } catch (_) {}
+
           this._lastSeenPatientsVersion = currentVersion;
+
+          // If local version matches current remote version and cache exists, we are already synchronized! (0 reads)
+          if (localVersion === currentVersion && Array.isArray(this._patientsCache) && this._patientsCache.length > 0) {
+            return;
+          }
+
+          // If single sequential version difference (+1) while app was asleep, do a single doc delta-fetch (1 read)!
+          if (typeof localVersion === 'number' && currentVersion === localVersion + 1) {
+            const action = data ? data.lastChangedPatientAction : null;
+            const targetId = data ? data.lastChangedPatientId : null;
+            if (targetId && (action === 'created' || action === 'updated' || action === 'deleted') && Array.isArray(this._patientsCache)) {
+              if (action === 'deleted') {
+                this._patientsCache = this._patientsCache.filter(p => p.id !== targetId);
+                this._patientsLastFetch = Date.now();
+                try {
+                  idbCache.set('ascpt_cached_patients', this._patientsCache);
+                  idbCache.set('ascpt_patients_cached_version', currentVersion);
+                } catch (_) {}
+                if (typeof callback === 'function') callback([...this._patientsCache]);
+                return;
+              }
+              try {
+                const pSnap = await getDoc(doc(firestoreDb, 'patients', targetId));
+                if (pSnap.exists()) {
+                  const docData = { id: pSnap.id, ...pSnap.data() };
+                  const idx = this._patientsCache.findIndex(p => p.id === targetId);
+                  if (idx !== -1) {
+                    this._patientsCache[idx] = { ...this._patientsCache[idx], ...docData };
+                  } else {
+                    this._patientsCache.unshift(docData);
+                  }
+                  this._patientsCache.sort((a, b) => {
+                    const tA = a.createdAt || a.lastUpdatedAt || '';
+                    const tB = b.createdAt || b.lastUpdatedAt || '';
+                    return tB.localeCompare(tA);
+                  });
+                  this._patientsLastFetch = Date.now();
+                  try {
+                    idbCache.set('ascpt_cached_patients', this._patientsCache);
+                    idbCache.set('ascpt_patients_cached_version', currentVersion);
+                  } catch (_) {}
+                  if (typeof callback === 'function') callback([...this._patientsCache]);
+                  return;
+                }
+              } catch (_) {}
+            }
+          }
+
+          // Fallback: If cache was missing or version gap > 1, do full getPatients refresh
+          if (!this._patientsCache || this._patientsCache.length === 0 || !localVersion || currentVersion > localVersion + 1) {
+            try {
+              const list = await this.getPatients(true);
+              try {
+                await idbCache.set('ascpt_patients_cached_version', currentVersion);
+              } catch (_) {}
+              if (typeof callback === 'function') callback(list);
+            } catch (_) {}
+          }
           return;
         }
 
@@ -500,6 +570,10 @@ class FirestoreDatabaseService {
           lastChangedPatientId: patientId,
           lastChangedPatientAction: isEdit ? 'updated' : 'created'
         }, { merge: true });
+        if (typeof this._lastSeenPatientsVersion === 'number') {
+          this._lastSeenPatientsVersion++;
+          try { idbCache.set('ascpt_patients_cached_version', this._lastSeenPatientsVersion); } catch (_) {}
+        }
       } catch (verErr) {
         console.warn('Failed to increment patientsVersion:', verErr);
       }
@@ -1595,8 +1669,9 @@ class FirestoreDatabaseService {
     this.clinicalOptionsCache = this.clinicalOptionsCache || {};
     this.insuranceCompaniesCache = this.insuranceCompaniesCache || {};
 
-    // 1. Seed & Sync Clinical Options
-    for (const cat of ['modality', 'procedure', 'exercise', 'body_parts', 'expense_categories']) {
+    // 1. Seed & Sync Clinical Options (Parallel fetch)
+    const cats = ['modality', 'procedure', 'exercise', 'body_parts', 'expense_categories'];
+    await Promise.all(cats.map(async (cat) => {
       try {
         const docRef = doc(firestoreDb, 'clinical_options', cat);
         const snap = await getDoc(docRef);
@@ -1615,10 +1690,11 @@ class FirestoreDatabaseService {
           this.clinicalOptionsCache[cat] = defaults[cat] || [];
         }
       }
-    }
+    }));
 
-    // 2. Seed & Sync Insurance Companies
-    for (const cType of ['direct', 'indirect']) {
+    // 2. Seed & Sync Insurance Companies (Parallel fetch)
+    const cTypes = ['direct', 'indirect'];
+    await Promise.all(cTypes.map(async (cType) => {
       try {
         const docRef = doc(firestoreDb, 'insurance_companies', cType);
         const snap = await getDoc(docRef);
@@ -1637,7 +1713,7 @@ class FirestoreDatabaseService {
           this.insuranceCompaniesCache[cType] = insuranceDefaults[cType] || [];
         }
       }
-    }
+    }));
 
     try {
       localStorage.setItem('ascpt_cached_clinical_options', JSON.stringify(this.clinicalOptionsCache));
@@ -2120,12 +2196,31 @@ class FirestoreDatabaseService {
     this.ensureConnected();
     const now = Date.now();
 
-    // 1. Fast in-memory cache check (valid for 60 seconds if not force-refresh)
-    if (!forceRefresh && this._appointmentsCache && (now - this._appointmentsLastFetch < 60000)) {
+    // 1. Fast in-memory cache check (valid for 30 minutes if not force-refresh)
+    if (!forceRefresh && this._appointmentsCache && (now - this._appointmentsLastFetch < this.APPT_CACHE_TTL)) {
       return [...this._appointmentsCache];
     }
 
-    // 2. Query Firestore directly (Firestore SDK provides its own persistent offline cache!)
+    // 2. Persistent LocalStorage cache check (Zero Firestore reads)
+    if (!forceRefresh) {
+      try {
+        const local = localStorage.getItem('ascpt_cached_appointments');
+        const lastSync = localStorage.getItem('ascpt_appointments_last_sync');
+        if (local && lastSync) {
+          const syncTime = parseInt(lastSync, 10);
+          if (now - syncTime < this.APPT_CACHE_TTL) {
+            const parsed = JSON.parse(local);
+            if (Array.isArray(parsed) && parsed.length > 0) {
+              this._appointmentsCache = parsed;
+              this._appointmentsLastFetch = now;
+              return [...parsed];
+            }
+          }
+        }
+      } catch (_) {}
+    }
+
+    // 3. Query Firestore directly
     try {
       const snap = await getDocs(collection(firestoreDb, 'appointments'));
       const list = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
@@ -2161,8 +2256,8 @@ class FirestoreDatabaseService {
     try {
       let isFirstSnapshot = true;
 
-      // On first attach, always do one initial fetch to get current data
-      this.getAppointments(true)
+      // On first attach, load from cache if available (Zero Firestore reads)
+      this.getAppointments(false)
         .then((list) => {
           if (typeof callback === 'function') callback(list);
         })
@@ -2184,7 +2279,66 @@ class FirestoreDatabaseService {
 
         if (isFirstSnapshot) {
           isFirstSnapshot = false;
+          let localVersion = null;
+          try {
+            const rawVer = localStorage.getItem('ascpt_appointments_cached_version');
+            if (rawVer) localVersion = parseInt(rawVer, 10);
+          } catch (_) {}
+
           this._lastSeenAppointmentsVersion = currentVersion;
+
+          // If local version matches current remote version and cache exists, we are already synchronized! (0 reads)
+          if (localVersion === currentVersion && Array.isArray(this._appointmentsCache) && this._appointmentsCache.length > 0) {
+            return;
+          }
+
+          // If single sequential version difference (+1) while app was asleep, do a single doc delta-fetch (1 read)!
+          if (typeof localVersion === 'number' && currentVersion === localVersion + 1) {
+            const action = data ? data.lastChangedAppointmentAction : null;
+            const targetId = data ? data.lastChangedAppointmentId : null;
+            if (targetId && (action === 'created' || action === 'updated' || action === 'deleted') && Array.isArray(this._appointmentsCache)) {
+              if (action === 'deleted') {
+                this._appointmentsCache = this._appointmentsCache.filter(a => a.id !== targetId);
+                this._appointmentsLastFetch = Date.now();
+                try {
+                  localStorage.setItem('ascpt_cached_appointments', JSON.stringify(this._appointmentsCache));
+                  localStorage.setItem('ascpt_appointments_cached_version', String(currentVersion));
+                } catch (_) {}
+                if (typeof callback === 'function') callback([...this._appointmentsCache]);
+                return;
+              }
+              try {
+                const aSnap = await getDoc(doc(firestoreDb, 'appointments', targetId));
+                if (aSnap.exists()) {
+                  const docData = { id: aSnap.id, ...aSnap.data() };
+                  const idx = this._appointmentsCache.findIndex(a => a.id === targetId);
+                  if (idx !== -1) {
+                    this._appointmentsCache[idx] = { ...this._appointmentsCache[idx], ...docData };
+                  } else {
+                    this._appointmentsCache.push(docData);
+                  }
+                  this._appointmentsLastFetch = Date.now();
+                  try {
+                    localStorage.setItem('ascpt_cached_appointments', JSON.stringify(this._appointmentsCache));
+                    localStorage.setItem('ascpt_appointments_cached_version', String(currentVersion));
+                  } catch (_) {}
+                  if (typeof callback === 'function') callback([...this._appointmentsCache]);
+                  return;
+                }
+              } catch (_) {}
+            }
+          }
+
+          // Fallback: If cache was missing or version gap > 1, do full getAppointments refresh
+          if (!this._appointmentsCache || this._appointmentsCache.length === 0 || !localVersion || currentVersion > localVersion + 1) {
+            try {
+              const list = await this.getAppointments(true);
+              try {
+                localStorage.setItem('ascpt_appointments_cached_version', String(currentVersion));
+              } catch (_) {}
+              if (typeof callback === 'function') callback(list);
+            } catch (_) {}
+          }
           return;
         }
 
@@ -2275,6 +2429,10 @@ class FirestoreDatabaseService {
         lastChangedAppointmentId: ref.id,
         lastChangedAppointmentAction: 'created'
       }, { merge: true });
+      if (typeof this._lastSeenAppointmentsVersion === 'number') {
+        this._lastSeenAppointmentsVersion++;
+        try { localStorage.setItem('ascpt_appointments_cached_version', String(this._lastSeenAppointmentsVersion)); } catch (_) {}
+      }
     } catch (verErr) {
       console.warn('Failed to increment appointmentsVersion:', verErr);
     }

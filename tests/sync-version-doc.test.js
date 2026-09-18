@@ -801,7 +801,18 @@ async function runTests() {
   console.log('✓ Scenario 9 passed: Insurance renewal letters scoped query by patientId and in-memory cache verified.');
 
   console.log('\n===================================================================');
-  console.log('✓ All 9 Sync Engine Regression Test Scenarios Passed Successfully!');
+  
+  // -----------------------------------------------------------------------
+  // Scenario 10: Appointments Cache TTL (30 min) & Persistent Guard (Opportunity 5)
+  // -----------------------------------------------------------------------
+  const apptsReadsBefore = service.stats.appointmentsFullGetDocsCount;
+  const appts1 = await service.getAppointments();
+  assert.equal(service.stats.appointmentsFullGetDocsCount, apptsReadsBefore, 'Valid appointments cache must produce 0 Firestore reads');
+  assert.ok(Array.isArray(appts1), 'Must return appointments array');
+
+  console.log('✓ Scenario 10 passed: Appointments 30-minute cache TTL prevents redundant collection reads.');
+
+  console.log('✓ All 10 Sync Engine Regression Test Scenarios Passed Successfully!');
   console.log('===================================================================');
 }
 
