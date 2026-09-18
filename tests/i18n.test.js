@@ -84,6 +84,12 @@ assert(indexHtml.includes('id="btn-profile-toggle-lang"'), 'index.html must incl
 assert(indexHtml.includes('data-i18n="nav_dashboard"'), 'index.html must bind nav_dashboard');
 assert(indexHtml.includes('data-i18n="nav_patients"'), 'index.html must bind nav_patients');
 assert(indexHtml.includes('data-i18n="bnav_patients"'), 'index.html must bind bnav_patients');
+// 6.5 Verify Zero Inline Onclick on Language Toggle Buttons (Double-Trigger Prevention)
+assert(!indexHtml.includes('id="btn-lang-toggle" onclick='), 'btn-lang-toggle must not have inline onclick');
+assert(!indexHtml.includes('id="btn-lang-toggle-desktop" onclick='), 'btn-lang-toggle-desktop must not have inline onclick');
+assert(!indexHtml.includes('id="btn-profile-toggle-lang" onclick='), 'btn-profile-toggle-lang must not have inline onclick');
+console.log('✓ 6.5 Double-Trigger Guard: Verified zero inline onclick handlers on language toggle buttons.');
+
 console.log('✓ 6. UI Bindings: Verified quick toggle buttons, profile modal controls, and navigation tags.');
 
 // 7. Verify Patient Data Preservation Rule

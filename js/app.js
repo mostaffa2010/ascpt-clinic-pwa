@@ -296,6 +296,13 @@ class App {
   }
 
   toggleLanguage() {
+    // Debounce to prevent duplicate event dispatching within 350ms
+    const now = Date.now();
+    if (this._lastLangToggle && now - this._lastLangToggle < 350) {
+      return;
+    }
+    this._lastLangToggle = now;
+
     try {
       const current = this.i18n ? this.i18n.getLanguage() : (localStorage.getItem('ascpt_language') || 'ar');
       const next = current === 'ar' ? 'en' : 'ar';
