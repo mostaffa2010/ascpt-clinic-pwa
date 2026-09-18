@@ -11830,11 +11830,12 @@ body.role-doctor .btn-quick-attend {
 }
 
 /* ==========================================================================
-   SESSION VIEW SWITCHER & HOME VISITS TAB (v2.7.6)
+   SESSION VIEW SWITCHER & HOME VISITS TAB (v2.7.6, full-width v2.10.22)
    Light & Dark Mode Harmonized
    ========================================================================== */
 .session-tab-segmented {
-  display: inline-flex;
+  display: flex !important;
+  width: 100% !important;
   align-items: center;
   border-radius: 12px;
   padding: 4px;
@@ -11853,19 +11854,23 @@ body.role-doctor .btn-quick-attend {
 }
 
 .session-view-tab-btn {
+  flex: 1 1 0% !important;
   border: 1px solid transparent;
   background: transparent;
-  padding: 8px 16px;
+  padding: 9px 12px !important;
   border-radius: 9px;
   font-weight: 800;
-  font-size: 0.85rem;
-  display: inline-flex;
-  align-items: center;
+  font-size: 0.88rem;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  text-align: center !important;
   gap: 8px;
   cursor: pointer;
   white-space: nowrap;
   transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   box-sizing: border-box;
+  min-height: 42px !important;
 }
 
 /* Inactive states */
@@ -11952,15 +11957,17 @@ body.role-doctor .btn-quick-attend {
 .session-header-meta-row {
   display: flex;
   align-items: center;
+  justify-content: space-between;
   gap: 8px;
   flex-wrap: wrap;
+  width: 100%;
 }
 
 /* Search input for Home Visits */
 .session-hv-search-wrap {
   position: relative;
-  min-width: 200px;
-  max-width: 280px;
+  width: 100%;
+  max-width: 100%;
 }
 
 .session-hv-search-input {
@@ -12361,4 +12368,64 @@ body.role-doctor .btn-quick-attend {
   align-items: center !important;
   gap: 5px !important;
   box-shadow: 0 2px 8px rgba(2, 132, 199, 0.35) !important;
+}
+
+/* ========================================================
+   ASCPT - Multi-Language LTR Layout Overrides (Phase 1)
+   Preserves full RTL layout in Arabic mode and ensures
+   clean alignment and spacing in English LTR mode.
+   ======================================================== */
+
+[dir="ltr"] {
+  text-align: left;
+}
+
+[dir="ltr"] .top-header {
+  flex-direction: row;
+}
+
+[dir="ltr"] .sidebar {
+  right: auto;
+  left: 0;
+  border-left: none;
+  border-right: 1px solid var(--border-color);
+}
+
+@media screen and (min-width: 992px) {
+  [dir="ltr"] .main-content {
+    margin-right: 0;
+    margin-left: var(--sidebar-width);
+  }
+}
+
+[dir="ltr"] .nav-link {
+  flex-direction: row;
+}
+
+[dir="ltr"] .modal-header {
+  flex-direction: row;
+}
+
+[dir="ltr"] .modal-close {
+  margin-left: auto;
+  margin-right: 0;
+}
+
+[dir="ltr"] .sidebar-user-box i.fa-chevron-left {
+  transform: rotate(180deg);
+}
+
+[dir="ltr"] .profile-setting-row i.fa-chevron-left {
+  transform: rotate(180deg);
+}
+
+/* Strict Print Direction Isolation: Never allow LTR in print mode! */
+@media print {
+  :root, html, body, #printable-area, #printable-cash-receipt,
+  #printable-insurance-letter, #printable-financial-report,
+  #printable-monthly-report, #printable-medical-statement,
+  .printable-sheet, .printable-card, .attendance-print-card {
+    direction: rtl !important;
+    text-align: right !important;
+  }
 }

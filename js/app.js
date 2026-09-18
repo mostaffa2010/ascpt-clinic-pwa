@@ -86,10 +86,13 @@ import { AuditAndAdminManager } from './audit.js';
 import { RolesManager } from './roles.js';
 import { NotificationsManager } from './notifications.js';
 import { CLINIC_CONFIG } from './clinic-config.js';
+import { i18n } from './i18n.js';
 
 class App {
   constructor() {
     this.currentView = 'dashboard';
+    this.i18n = i18n;
+    window.i18n = i18n;
     this.dialogResolve = null;
 
     // ربط مبكر وفوري لضمان عمل كافة الأزرار بدون أي تأخير
@@ -131,6 +134,7 @@ class App {
     // 1. تفعيل PWA والوضع الليلي
     PWAManager.init();
     this.initTheme();
+    this.initLanguage();
     this.applyClinicBranding();
     const adminVerEl = document.getElementById('admin-system-version-label');
     if (adminVerEl) {

@@ -10,7 +10,7 @@ export const CLINIC_CONFIG = {
  englishName: 'Alexandria Specialized Center for Physical Therapy',
  abbreviation: 'ASCPT',
  tagline: 'نظام إدارة مراكز وعيادات العلاج الطبيعي',
- version: '2.10.26',
+ version: '2.10.27',
  director: {
   name: 'د. حسني أحمد الجويلي',
   title: 'إستشاري العلاج الطبيعي والتقويم الحركي للعمود الفقري'

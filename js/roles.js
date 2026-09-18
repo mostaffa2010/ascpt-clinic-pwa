@@ -16,6 +16,10 @@ export const ROLE_LABELS = {
 
 export class RolesManager {
   static getRoleLabel(role) {
+    const i18nService = (typeof window !== 'undefined' && window.i18n) || (typeof globalThis !== 'undefined' && globalThis.i18n);
+    if (i18nService && typeof i18nService.t === 'function') {
+      return i18nService.t(`role_${role}`, ROLE_LABELS[role] || role);
+    }
     return ROLE_LABELS[role] || role;
   }
 
