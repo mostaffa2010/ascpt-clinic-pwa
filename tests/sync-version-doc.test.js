@@ -48,6 +48,16 @@ class MockFirestoreSyncService {
 
     this._patientSubscribers = [];
     this._appointmentSubscribers = [];
+    this._sessionsByDateCache = new Map();
+    this._lettersCache = new Map();
+    this._allLettersCache = null;
+    this._allLettersLastFetch = 0;
+    this._todaySubscribers = [];
+    this.remoteStore.sessions = new Map();
+    this.remoteStore.insuranceLetters = new Map();
+    this.stats.sessionsMonthGetDocsCount = 0;
+    this.stats.lettersScopedGetDocsCount = 0;
+    this.stats.lettersFullGetDocsCount = 0;
   }
 
   // --- Firestore mock primitives ---
@@ -396,6 +406,113 @@ class MockFirestoreSyncService {
     Object.assign(this.remoteStore.metaSyncVersion, remoteData);
     await this.dispatchVersionDoc();
   }
+
+  _filterAndSortSessions(list, filterDate) {
+    let res = [...list];
+    if (filterDate) {
+      if (filterDate.length === 7) {
+        res = res.filter(s => s.date && s.date.startsWith(filterDate));
+      } else {
+        res = res.filter(s => s.date === filterDate);
+      }
+    }
+    return res.sort((a, b) => (b.date || '').localeCompare(a.date || ''));
+  }
+
+  async getSessions(filterDate, forceRefresh = false) {
+    const now = Date.now();
+    if (filterDate && filterDate.length === 7) {
+      const cached = this._sessionsByDateCache.get(filterDate);
+      if (!forceRefresh && cached && (now - cached.time < 300000)) {
+        return [...cached.data];
+      }
+      this.stats.sessionsMonthGetDocsCount++;
+      const all = Array.from(this.remoteStore.sessions.values());
+      const filtered = this._filterAndSortSessions(all, filterDate);
+      this._sessionsByDateCache.set(filterDate, { data: filtered, time: now });
+      return [...filtered];
+    }
+    return [];
+  }
+
+  subscribeToTodaySessions(targetDate, callback) {
+    this._todaySubscribers.push({ targetDate, callback });
+    return () => {
+      this._todaySubscribers = this._todaySubscribers.filter(s => s.callback !== callback);
+    };
+  }
+
+  async dispatchTodaySessions(targetDate, docsList) {
+    const sorted = this._filterAndSortSessions(docsList, targetDate);
+    this._sessionsByDateCache.set(targetDate, { data: sorted, time: Date.now() });
+
+    // In-memory Month Cache Patching parity with js/db.js
+    if (targetDate && targetDate.length >= 7) {
+      const targetMonth = targetDate.substring(0, 7);
+      const cachedMonth = this._sessionsByDateCache.get(targetMonth);
+      if (cachedMonth && Array.isArray(cachedMonth.data)) {
+        const otherDays = cachedMonth.data.filter(s => s.date !== targetDate);
+        const mergedMonth = this._filterAndSortSessions([...otherDays, ...docsList], targetMonth);
+        this._sessionsByDateCache.set(targetMonth, { data: mergedMonth, time: Date.now() });
+      }
+    }
+
+    for (const sub of this._todaySubscribers) {
+      if (sub.targetDate === targetDate && typeof sub.callback === 'function') {
+        await sub.callback(sorted);
+      }
+    }
+  }
+
+  async addInsuranceLetter(letterData) {
+    const id = 'letter_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4);
+    const payload = { ...letterData, id, createdAt: new Date().toISOString() };
+    this.remoteStore.insuranceLetters.set(id, payload);
+
+    if (payload.patientId) {
+      if (this._lettersCache.has(payload.patientId)) {
+        const cached = this._lettersCache.get(payload.patientId);
+        if (Array.isArray(cached.data)) {
+          cached.data = [payload, ...cached.data.filter(l => l.id !== payload.id)];
+          cached.time = Date.now();
+        }
+      } else {
+        this._lettersCache.set(payload.patientId, { data: [payload], time: Date.now() });
+      }
+    }
+    if (this._allLettersCache && Array.isArray(this._allLettersCache)) {
+      this._allLettersCache = [payload, ...this._allLettersCache.filter(l => l.id !== payload.id)];
+      this._allLettersLastFetch = Date.now();
+    }
+    return payload;
+  }
+
+  async getInsuranceLetters(patientId = null, forceRefresh = false) {
+    const now = Date.now();
+    if (patientId) {
+      const cached = this._lettersCache.get(patientId);
+      if (!forceRefresh && cached && (now - cached.time < 300000)) {
+        return [...cached.data];
+      }
+      this.stats.lettersScopedGetDocsCount++;
+      const all = Array.from(this.remoteStore.insuranceLetters.values());
+      const list = all.filter(l => l.patientId === patientId);
+      list.sort((a, b) => (b.createdAt || '').localeCompare(a.createdAt || ''));
+      this._lettersCache.set(patientId, { data: list, time: now });
+      return [...list];
+    }
+
+    if (!forceRefresh && this._allLettersCache && (now - this._allLettersLastFetch < 300000)) {
+      return [...this._allLettersCache];
+    }
+    this.stats.lettersFullGetDocsCount++;
+    const all = Array.from(this.remoteStore.insuranceLetters.values());
+    all.sort((a, b) => (b.createdAt || '').localeCompare(a.createdAt || ''));
+    this._allLettersCache = all;
+    this._allLettersLastFetch = now;
+    return [...all];
+  }
+
 }
 
 // =========================================================================
@@ -608,8 +725,83 @@ async function runTests() {
 
   console.log('✓ Scenario 7 passed: Patients and Appointments sync listeners are completely isolated.');
 
+  
+  // -----------------------------------------------------------------------
+  // Scenario 8: Doctor Dashboard Real-time Session Sync with Month Cache In-Memory Patching (Opportunity 1)
+  // -----------------------------------------------------------------------
+  const initialSessions = [
+    { id: 's1', patientId: 'p1', date: '2026-09-01', amountPaid: 100 },
+    { id: 's2', patientId: 'p2', date: '2026-09-10', amountPaid: 150 }
+  ];
+  initialSessions.forEach(s => service.remoteStore.sessions.set(s.id, s));
+
+  // Initial load of month sessions (e.g. 2026-09)
+  const monthBefore = await service.getSessions('2026-09');
+  assert.equal(service.stats.sessionsMonthGetDocsCount, 1, 'Initial month fetch must query Firestore');
+  assert.equal(monthBefore.length, 2, 'Must contain 2 sessions initially');
+
+  // Doctor subscribes to today's sessions (2026-09-18)
+  let todayCallbackList = null;
+  service.subscribeToTodaySessions('2026-09-18', (list) => {
+    todayCallbackList = list;
+  });
+
+  // Receptionist adds a new session today remotely (s3)
+  const newTodaySession = { id: 's3', patientId: 'p1', date: '2026-09-18', amountPaid: 200 };
+  service.remoteStore.sessions.set('s3', newTodaySession);
+
+  // Today snapshot fires
+  await service.dispatchTodaySessions('2026-09-18', [newTodaySession]);
+  assert.equal(todayCallbackList.length, 1, 'Today callback must receive 1 session');
+
+  // Now, Doctor Dashboard render calls getSessions('2026-09')
+  const readsBeforeMonthRequery = service.stats.sessionsMonthGetDocsCount;
+  const monthAfter = await service.getSessions('2026-09');
+  assert.equal(service.stats.sessionsMonthGetDocsCount, readsBeforeMonthRequery, 'Re-fetching month must cost 0 Firestore reads (cache hit)');
+  assert.equal(monthAfter.length, 3, 'Month cache must reflect newly added today session in-place');
+  assert.ok(monthAfter.some(s => s.id === 's3'), 'Month cache must contain s3');
+
+  console.log('✓ Scenario 8 passed: Doctor Dashboard session real-time sync patches month cache in-place with 0 Firestore reads.');
+
+  // -----------------------------------------------------------------------
+  // Scenario 9: Insurance Renewal Letters Scoped Query & In-Memory Caching (Opportunity 3)
+  // -----------------------------------------------------------------------
+  const initialLetters = [
+    { id: 'l1', patientId: 'p1', companyName: 'أكسا', letterNumber: 'AX-101' },
+    { id: 'l2', patientId: 'p1', companyName: 'أكسا', letterNumber: 'AX-102' },
+    { id: 'l3', patientId: 'p2', companyName: 'بوبا', letterNumber: 'BP-201' }
+  ];
+  initialLetters.forEach(l => service.remoteStore.insuranceLetters.set(l.id, l));
+
+  // 1. Scoped lookup for patient p1
+  const p1Letters = await service.getInsuranceLetters('p1');
+  assert.equal(service.stats.lettersScopedGetDocsCount, 1, 'First fetch for p1 must execute 1 scoped query');
+  assert.equal(service.stats.lettersFullGetDocsCount, 0, 'Must NOT execute unbounded full collection read');
+  assert.equal(p1Letters.length, 2, 'p1 has 2 letters');
+
+  // 2. Repeat lookup for patient p1 (Cache hit)
+  const p1LettersRepeat = await service.getInsuranceLetters('p1');
+  assert.equal(service.stats.lettersScopedGetDocsCount, 1, 'Repeat fetch for p1 must cost 0 Firestore reads (in-memory cache hit)');
+  assert.equal(p1LettersRepeat.length, 2);
+
+  // 3. Add new letter for patient p1
+  await service.addInsuranceLetter({ patientId: 'p1', companyName: 'أكسا', letterNumber: 'AX-103' });
+  const p1LettersAfterAdd = await service.getInsuranceLetters('p1');
+  assert.equal(service.stats.lettersScopedGetDocsCount, 1, 'Fetch after add must cost 0 Firestore reads (in-place cache update)');
+  assert.equal(p1LettersAfterAdd.length, 3, 'p1 letters cache must now contain 3 letters');
+
+  // 4. Unbounded lookup without patientId (e.g. backup)
+  const allLetters = await service.getInsuranceLetters();
+  assert.equal(service.stats.lettersFullGetDocsCount, 1, 'Full archive fetch executed once');
+  assert.equal(allLetters.length, 4, 'Must return all 4 letters');
+
+  const allLettersRepeat = await service.getInsuranceLetters();
+  assert.equal(service.stats.lettersFullGetDocsCount, 1, 'Repeat full archive fetch must cost 0 reads (cached)');
+
+  console.log('✓ Scenario 9 passed: Insurance renewal letters scoped query by patientId and in-memory cache verified.');
+
   console.log('\n===================================================================');
-  console.log('✓ All 7 Sync Engine Regression Test Scenarios Passed Successfully!');
+  console.log('✓ All 9 Sync Engine Regression Test Scenarios Passed Successfully!');
   console.log('===================================================================');
 }
 

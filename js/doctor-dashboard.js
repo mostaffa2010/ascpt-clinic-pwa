@@ -126,8 +126,7 @@ export class DoctorDashboardManager {
     }
 
     // Scoped query: fetch current month's sessions and all home visits (Zero-Cost Scoped)
-    // Always force-refresh doctor list to ensure newly configured rates from admin reflect immediately
-    const docList = await db.getDoctorsList(true);
+    const docList = await db.getDoctorsList();
     const allSessions = await db.getSessions(currentMonth);
     const allHomeVisits = (typeof db.getHomeVisits === 'function')
       ? await db.getHomeVisits()
