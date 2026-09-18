@@ -182,14 +182,30 @@ export class AppointmentsManager {
     });
 
     // Patient picker trigger
-    document.getElementById('appt-patient-picker-trigger')?.addEventListener('click', () => this.openPatientPicker());
+    document.getElementById('appt-patient-picker-trigger')?.addEventListener('click', () => this.openPatientPicker('appointment'));
+    document.getElementById('walkin-patient-picker-trigger')?.addEventListener('click', () => this.openPatientPicker('walkin'));
 
     const searchInput = document.getElementById('appt-picker-search-input');
     if (searchInput) searchInput.addEventListener('input', () => this.renderPickerPatients());
 
     document.getElementById('appt-picker-patients-list')?.addEventListener('click', (e) => {
       const item = e.target.closest('.picker-item');
-      if (item) this.selectPatientFromPicker(item.getAttribute('data-patient-id'));
+      if (item) {
+        const pId = item.getAttribute('data-patient-id');
+        if (this.pickerTarget === 'walkin') {
+          this.selectWalkInPatient(pId);
+        } else {
+          this.selectPatientFromPicker(pId);
+        }
+      }
+    });
+
+    // Walk-in direct attendance triggers
+    document.getElementById('btn-reception-walkin')?.addEventListener('click', () => {
+      this.openWalkInModal();
+    });
+    document.getElementById('modal-walkin-form')?.addEventListener('submit', (e) => {
+      this.handleWalkInSubmit(e);
     });
 
     // Move / Reschedule Appointment Form
@@ -689,7 +705,7 @@ export class AppointmentsManager {
     if (!appt) return;
 
     if (!isCompleted) {
-      // 1. Resolve Patient Object
+      // 1. Resolve Patient Object & Names
       let patient = (this.patients || []).find(p => p.id === appt.patientId);
       if (!patient) {
         try {
@@ -698,166 +714,21 @@ export class AppointmentsManager {
         } catch (_) {}
       }
 
-      const targetPatientId = appt.patientId || patient?.id;
+      const safePatientName = appt.patientName || patientName || patient?.name || 'مريض غير محدد';
+      const safePatientId = appt.patientId || patient?.id || '';
+      const docObj = (this.doctors || []).find(d => d.uid === doctorUid || d.id === doctorUid);
+      const docName = appt.doctorName || docObj?.name || 'طبيب المركز';
 
-      // 2. First Session Restriction: Check if patient has any previous session
-      let allPatientSessions = [];
-      if (targetPatientId) {
-        try {
-          allPatientSessions = (await db.getSessionsForPatient(targetPatientId) || []).filter(s =>
-            s.status !== 'cancelled' && (s.entryType === 'session' || !s.entryType)
-          );
-        } catch (_) {}
-      }
-
-      // Fallback search by patient name if ID search returned empty
-      if (allPatientSessions.length === 0 && (appt.patientName || patientName)) {
-        try {
-          const allSess = await db.getSessions();
-          allPatientSessions = (allSess || []).filter(s =>
-            s.patientName === (appt.patientName || patientName) &&
-            s.status !== 'cancelled' &&
-            (s.entryType === 'session' || !s.entryType)
-          );
-        } catch (_) {}
-      }
-
-      const lastSession = getLatestTherapySession(allPatientSessions);
-      if (!lastSession) {
-        await this.app.showAlert(
-          `عذراً يا دكتور، هذه الجلسة الأولى للمريض (${patientName}). طبقاً لتعليمات الإدارة، يجب أن يقوم الاستقبال بتسجيل الجلسة الأولى واستلام الحساب أولاً.`,
-          'تنبيه: الجلسة الأولى للمريض',
-          'warning'
-        );
-        return;
-      }
-
-      // 3. Subsequent Session: Auto-create session in sessions collection copying last session settings
-      let createdSessionId = null;
-      try {
-        const todaySessions = (await db.getSessions(today) || []).filter(s =>
-          (s.patientId === targetPatientId || s.patientName === (appt.patientName || patientName)) &&
-          s.status !== 'cancelled' &&
-          (s.entryType === 'session' || !s.entryType)
-        );
-
-        if (todaySessions.length === 0) {
-          const docObj = (this.doctors || []).find(d => d.uid === doctorUid || d.id === doctorUid);
-          const docName = appt.doctorName || docObj?.name || 'طبيب المركز';
-
-          let sessionNumber = 1;
-          let cycleNumber = 1;
-          let approvedSessionsTotal = 12;
-          if (patient) {
-            const approvedTotal = parseInt(patient.approvedSessions, 10) || 12;
-            const therapySessions = allPatientSessions.filter(x => (x.entryType === 'session' || !x.entryType) && x.status !== 'cancelled');
-            const totalCount = therapySessions.length;
-            sessionNumber = (totalCount % approvedTotal) + 1;
-            cycleNumber = Math.floor(totalCount / approvedTotal) + 1;
-            approvedSessionsTotal = approvedTotal;
-          }
-
-          let partsToUse = [];
-          if (Array.isArray(lastSession.bodyParts) && lastSession.bodyParts.length > 0) {
-            partsToUse = [...lastSession.bodyParts];
-          } else if (appt.bodyPart) {
-            partsToUse = [appt.bodyPart];
-          } else if (patient?.bodyParts) {
-            partsToUse = [...patient.bodyParts];
-          }
-
-          const safeDoctorUid = doctorUid || appt.doctorUid || auth.getCurrentUser()?.uid || '';
-          const safePatientName = appt.patientName || patientName || patient?.name || 'مريض غير محدد';
-          const safePatientId = targetPatientId || appt.patientId || patient?.id || '';
-          const safeApptId = apptId || appt.id || '';
-
-          const newSessionData = {
-            id: null,
-            entryType: 'session',
-            examType: null,
-            isSpecial: Boolean(lastSession.isSpecial || lastSession.sessionPricingType === 'special'),
-            sessionPricingType: lastSession.sessionPricingType || lastSession.programType || 'regular',
-            programType: lastSession.programType || lastSession.sessionPricingType || 'regular',
-            date: today,
-            patientId: safePatientId,
-            patientName: safePatientName,
-            doctor: docName,
-            doctorUid: safeDoctorUid,
-            bodyParts: partsToUse,
-            bodyPartsCount: partsToUse.length || 1,
-            payType: lastSession.payType || (patient?.billing === 'insurance' ? 'insurance' : 'cash'),
-            insuranceName: lastSession.insuranceName || patient?.insuranceCompany || '',
-            contractType: lastSession.contractType || patient?.contractType || '-',
-            amountPaid: typeof lastSession.amountPaid === 'number' ? lastSession.amountPaid : 0,
-            notes: `تم الإتمام والتسجيل تلقائياً بواسطة الطبيب (${docName.replace(/^د\.\s*/, '')})`,
-            sessionNumber: typeof sessionNumber === 'number' ? sessionNumber : (lastSession.sessionNumber ? lastSession.sessionNumber + 1 : 1),
-            cycleNumber: typeof cycleNumber === 'number' ? cycleNumber : 1,
-            approvedSessionsTotal: typeof approvedSessionsTotal === 'number' ? approvedSessionsTotal : (patient?.approvedSessions || 12),
-            approvedBodyPartsTotal: typeof patient?.approvedBodyParts === 'number' ? patient.approvedBodyParts : 1,
-            autoCreatedByDoctor: true,
-            sourceAppointmentId: safeApptId,
-            status: 'active'
-          };
-
-          const currentUser = auth.getCurrentUser() || { name: docName, role: 'doctor', uid: safeDoctorUid };
-          const savedSession = await db.saveSession(newSessionData, currentUser);
-          createdSessionId = savedSession?.id || null;
-          if (savedSession && window.app?.notificationsManager) {
-            try {
-              window.app.notificationsManager.sendNotification({
-                type: 'session_completed',
-                title: 'تم تسجيل جلسة من جدول الطبيب',
-                body: `المريض: ${safePatientName} بواسطة د. ${docName}`,
-                target: { role: 'receptionist' },
-                data: { screen: 'sessions', date: today, patientId: safePatientId }
-              });
-            } catch (notifErr) {
-              console.warn('Notification to reception notice:', notifErr);
-            }
-          }
-        } else {
-          createdSessionId = todaySessions[0]?.id || null;
-        }
-      } catch (err) {
-        console.error('Error auto-creating session by doctor:', err);
-        const errMsg = String(err?.message || err || '');
-        const isPermissionDenied = errMsg.toLowerCase().includes('permission-denied') ||
-                                   errMsg.toLowerCase().includes('permission') ||
-                                   err?.code === 'permission-denied';
-
-        if (isPermissionDenied) {
-          // If Firestore security rules restrict direct session writes for doctor role,
-          // complete the appointment in schedule so the doctor is not blocked, but warn clearly
-          await this.app.showAlert(
-            'تم تسجيل الموعد كمكتمل في جدولك، ولكن تعذر تسجيل الجلسة تلقائياً في سجل الاستقبال بسبب قيود صلاحيات Firestore السحابية (Permission Denied). يرجى السماح للأطباء بإنشاء الجلسات في Firestore Rules من Firebase Console أو تسجيلها يدوياً من الاستقبال.',
-            'تنبيه: قيود صلاحيات السحاب',
-            'warning'
-          );
-        } else {
-          await this.app.showAlert('تعذر حفظ الجلسة في سجل الاستقبال: ' + err.message, 'خطأ في الحفظ', 'danger');
-          return;
-        }
-      }
-
-      // 4. Update completed list in localStorage and appointment status
-      const updated = [...completedApptIds, apptId];
-      try {
-        localStorage.setItem(`ascpt_completed_appts_${doctorUid}_${today}`, JSON.stringify(updated));
-      } catch (_) {}
-
+      // 2. Mark appointment as completed_clinically (DOCTOR NEVER auto-creates financial session)
       const isRecurring = Array.isArray(appt.daysOfWeek) && appt.daysOfWeek.length > 0;
       const dailyStatuses = { ...(appt.dailyStatuses || {}) };
-      dailyStatuses[today] = 'completed';
-
-      const dailySessionIds = { ...(appt.dailySessionIds || {}) };
-      if (createdSessionId) {
-        dailySessionIds[today] = createdSessionId;
-      }
+      dailyStatuses[today] = 'completed_clinically';
 
       const updates = {
         dailyStatuses,
-        dailySessionIds,
-        statusUpdatedAt: new Date().toISOString()
+        statusUpdatedAt: new Date().toISOString(),
+        completedClinicallyAt: new Date().toISOString(),
+        completedClinicallyDoctorUid: doctorUid
       };
       if (isRecurring) {
         if (appt.status === 'completed') {
@@ -865,69 +736,76 @@ export class AppointmentsManager {
           appt.status = 'scheduled';
         }
       } else {
-        updates.status = 'completed';
+        updates.status = 'completed_clinically';
         updates.completedAt = new Date().toISOString();
         updates.doctorUid = doctorUid;
       }
       await db.updateAppointment(apptId, updates);
       appt.dailyStatuses = dailyStatuses;
-      appt.dailySessionIds = dailySessionIds;
+      if (!isRecurring) appt.status = 'completed_clinically';
+
+      // 3. Update completed list in doctor's localStorage
+      const updated = [...completedApptIds, apptId];
+      try {
+        localStorage.setItem(`ascpt_completed_appts_${doctorUid}_${today}`, JSON.stringify(updated));
+      } catch (_) {}
+
+      // 4. Dispatch notification to reception that session is clinically completed and ready for checkout
+      if (window.app?.notificationsManager) {
+        try {
+          window.app.notificationsManager.sendNotification({
+            type: 'session_completed',
+            title: `أنهى الطبيب الجلسة: ${safePatientName}`,
+            body: `المريض ${safePatientName} أنهى جلسته مع د. ${docName}. يرجى تسجيل الجلسة والمحاسبة بالاستقبال.`,
+            target: { role: 'receptionist' },
+            data: { screen: 'dashboard', date: today, patientId: safePatientId }
+          });
+        } catch (notifErr) {
+          console.warn('Notification to reception notice:', notifErr);
+        }
+      }
 
       if (this.app?.showToast) {
-        this.app.showToast(`عاش يا دكتور! تم إنهاء وتسجيل جلسة: ${patientName}`, 'success');
+        this.app.showToast(`عاش يا دكتور! تم إنهاء الجلسة مع: ${safePatientName} (بانتظار التسجيل بالاستقبال)`, 'success');
       }
     } else {
-      // 5. Doctor Undo (زر التراجع):
-      try {
-        let sessionIdToDelete = appt?.dailySessionIds?.[today];
-        if (!sessionIdToDelete) {
-          const todaySessions = (await db.getSessions(today) || []).filter(s =>
-            (s.patientId === appt.patientId || s.patientName === (appt.patientName || patientName)) &&
-            s.status !== 'cancelled' &&
-            s.autoCreatedByDoctor
-          );
-          if (todaySessions.length > 0) {
-            sessionIdToDelete = todaySessions[0].id;
-          }
-        }
-        if (sessionIdToDelete) {
-          await db.deleteSession(sessionIdToDelete);
-        }
-      } catch (delErr) {
-        console.warn('Error deleting auto-created session on undo:', delErr);
-      }
-
+      // 5. Doctor Undo: Revert clinical completion
       const updated = completedApptIds.filter(id => id !== apptId);
       try {
         localStorage.setItem(`ascpt_completed_appts_${doctorUid}_${today}`, JSON.stringify(updated));
       } catch (_) {}
 
       const dailyStatuses = { ...(appt.dailyStatuses || {}) };
-      delete dailyStatuses[today];
-
-      const dailySessionIds = { ...(appt.dailySessionIds || {}) };
-      delete dailySessionIds[today];
+      const wasWaiting = Boolean(appt.arrivedAt || appt.isWalkIn);
+      if (wasWaiting) {
+        dailyStatuses[today] = 'waiting';
+      } else {
+        delete dailyStatuses[today];
+      }
 
       const isRecurring = Array.isArray(appt.daysOfWeek) && appt.daysOfWeek.length > 0;
       const updates = {
         dailyStatuses,
-        dailySessionIds,
         statusUpdatedAt: new Date().toISOString()
       };
       if (!isRecurring) {
-        updates.status = 'scheduled';
+        updates.status = wasWaiting ? 'waiting' : 'scheduled';
         updates.completedAt = null;
+        updates.completedClinicallyAt = null;
       }
       await db.updateAppointment(apptId, updates);
       appt.dailyStatuses = dailyStatuses;
-      appt.dailySessionIds = dailySessionIds;
+      if (!isRecurring) appt.status = updates.status;
 
       if (this.app?.showToast) {
-        this.app.showToast(`تم التراجع عن إكمال حالة: ${patientName} وإلغاء تسجيل الجلسة`, 'info');
+        this.app.showToast(`تم التراجع عن إنهاء جلسة: ${patientName}`, 'info');
       }
     }
 
     await this.renderForDoctor(doctorUid);
+    if (this.app?.appointmentsManager?.renderReceptionWaitingList) {
+      this.app.appointmentsManager.renderReceptionWaitingList().catch((e) => console.warn('renderReceptionWaitingList notice:', e));
+    }
   }
 
   findClosestSlotIndex(slots) {
@@ -1031,8 +909,8 @@ export class AppointmentsManager {
       const cellAppts = this.getCellAppointments(doctorUid, slot.key, targetDate);
       if (cellAppts.length === 0) return null;
 
-      const uncompletedAppts = cellAppts.filter(a => a.effectiveStatus !== 'completed' && a.effectiveStatus !== 'attended' && !completedApptIds.includes(a.id));
-      const completedAppts = cellAppts.filter(a => a.effectiveStatus === 'completed' || a.effectiveStatus === 'attended' || completedApptIds.includes(a.id));
+      const uncompletedAppts = cellAppts.filter(a => a.effectiveStatus !== 'completed' && a.effectiveStatus !== 'completed_clinically' && a.effectiveStatus !== 'attended' && !completedApptIds.includes(a.id));
+      const completedAppts = cellAppts.filter(a => a.effectiveStatus === 'completed' || a.effectiveStatus === 'completed_clinically' || a.effectiveStatus === 'attended' || completedApptIds.includes(a.id));
       const isSlotFullyDone = uncompletedAppts.length === 0;
 
       return {
@@ -1109,7 +987,8 @@ export class AppointmentsManager {
 
                 <div class="doc-stack-patients-list">
                   ${listToShow.map(a => {
-                    const isDone = completedApptIds.includes(a.id) || a.effectiveStatus === 'completed' || a.effectiveStatus === 'attended';
+                    const isDone = completedApptIds.includes(a.id) || a.effectiveStatus === 'completed' || a.effectiveStatus === 'completed_clinically' || a.effectiveStatus === 'attended';
+                    const isWaiting = a.effectiveStatus === 'waiting';
                     const daysStr = formatRecurringDays(a.daysOfWeek);
                     const patientObj = (this.patients || []).find(p => p.id === a.patientId) ||
                                        (this.app?.patientsManager?.patients || []).find(p => p.id === a.patientId) ||
@@ -1143,6 +1022,7 @@ export class AppointmentsManager {
                           <div class="doc-stack-patient-name">
                             <i class="fa-solid fa-user-injured text-primary"></i>
                             <span>${escapeHTML(a.patientName)}</span>
+                            ${isWaiting ? '<span class="badge" style="font-size: 0.65rem; background: rgba(245, 158, 11, 0.15); color: #d97706; border: 1px solid rgba(245, 158, 11, 0.35); padding: 1px 6px; border-radius: 999px; margin-right: 5px;"><i class="fa-solid fa-hourglass-half"></i> في الانتظار</span>' : ''}
                             ${daysStr ? `<span class="badge" style="font-size: 0.65rem; background: rgba(2, 132, 199, 0.1); color: #0284c7; padding: 1px 5px; border-radius: 4px; margin-right: 5px;">${escapeHTML(daysStr)}</span>` : ''}
                           </div>
                           <div class="doc-stack-patient-details">
@@ -1868,7 +1748,8 @@ export class AppointmentsManager {
     this.app.openModal('modal-appointment');
   }
 
-  async openPatientPicker() {
+  async openPatientPicker(target = 'appointment') {
+    this.pickerTarget = target;
     const searchInput = document.getElementById('appt-picker-search-input');
     if (searchInput) searchInput.value = '';
     await this.renderPickerPatients();
@@ -2648,6 +2529,438 @@ export class AppointmentsManager {
       this.app.showAlert('تعذر نسخ الموعد: ' + err.message, 'خطأ', 'danger');
     } finally {
       if (btnSubmit) btnSubmit.disabled = false;
+    }
+  }
+
+
+  // ================= Reception Waiting List & Walk-in Engine (Visit Lifecycle v2.10.27) =================
+  async renderReceptionWaitingList() {
+    const tableTbody = document.getElementById('dashboard-waiting-tbody');
+    const mobileCards = document.getElementById('dashboard-waiting-mobile-cards');
+    const badgeCounter = document.getElementById('badge-waiting-count');
+    const filterBar = document.getElementById('reception-doc-filter-bar');
+
+    if (!tableTbody && !mobileCards) return;
+
+    try {
+      const today = getLocalDateStr();
+      if (!this.appointments || this.appointments.length === 0) {
+        await this.loadAll();
+      }
+
+      const allTodayAppts = this.getAppointmentsForDate(today).filter(a => a.effectiveStatus !== 'cancelled');
+
+      // Populate doctor filter pills
+      if (filterBar) {
+        const activeDoctors = (this.doctors || []).filter(d =>
+          allTodayAppts.some(a => a.doctorUid === d.uid || (a.doctorName && a.doctorName.includes(d.name)))
+        );
+        const currentFilter = this.receptionDocFilter || 'all';
+
+        let pillsHtml = `
+          <button type="button" class="doc-filter-pill ${currentFilter === 'all' ? 'active' : ''}" data-filter-doctor="all" style="font-size: 0.8rem; font-weight: 800; padding: 5px 12px; border-radius: 999px; border: 1.5px solid ${currentFilter === 'all' ? 'var(--primary)' : 'var(--border-color)'}; background: ${currentFilter === 'all' ? 'var(--primary)' : 'transparent'}; color: ${currentFilter === 'all' ? '#fff' : 'var(--text-main)'}; cursor: pointer; display: inline-flex; align-items: center; gap: 5px; white-space: nowrap;">
+            <i class="fa-solid fa-user-doctor"></i> <span>كل الأطباء (${allTodayAppts.length})</span>
+          </button>
+        `;
+
+        activeDoctors.forEach(d => {
+          const docCount = allTodayAppts.filter(a => a.doctorUid === d.uid || (a.doctorName && a.doctorName.includes(d.name))).length;
+          const isSel = currentFilter === d.uid;
+          pillsHtml += `
+            <button type="button" class="doc-filter-pill ${isSel ? 'active' : ''}" data-filter-doctor="${escapeHTML(d.uid)}" style="font-size: 0.8rem; font-weight: 800; padding: 5px 12px; border-radius: 999px; border: 1.5px solid ${isSel ? 'var(--primary)' : 'var(--border-color)'}; background: ${isSel ? 'var(--primary)' : 'transparent'}; color: ${isSel ? '#fff' : 'var(--text-main)'}; cursor: pointer; display: inline-flex; align-items: center; gap: 5px; white-space: nowrap;">
+              <span>د. ${escapeHTML(d.name.replace(/^د\.\s*/, ''))} (${docCount})</span>
+            </button>
+          `;
+        });
+        filterBar.innerHTML = pillsHtml;
+
+        filterBar.querySelectorAll('.doc-filter-pill').forEach(btn => {
+          btn.addEventListener('click', () => {
+            this.receptionDocFilter = btn.getAttribute('data-filter-doctor');
+            this.renderReceptionWaitingList();
+          });
+        });
+      }
+
+      // Filter by doctor if selected
+      let apptsToRender = allTodayAppts;
+      if (this.receptionDocFilter && this.receptionDocFilter !== 'all') {
+        const docUid = this.receptionDocFilter;
+        const docObj = (this.doctors || []).find(d => d.uid === docUid);
+        const docName = docObj?.name || '';
+        apptsToRender = apptsToRender.filter(a =>
+          a.doctorUid === docUid || (docName && a.doctorName && (a.doctorName === docName || a.doctorName.includes(docName)))
+        );
+      }
+
+      // Chronological sort
+      apptsToRender.sort((a, b) => {
+        const { h24: ha, minute: ma } = parseSlotKey(a.timeSlot || a.time || '12:00');
+        const { h24: hb, minute: mb } = parseSlotKey(b.timeSlot || b.time || '12:00');
+        const minA = ha * 60 + parseInt(ma, 10);
+        const minB = hb * 60 + parseInt(mb, 10);
+        return minA - minB;
+      });
+
+      // Update badge counter
+      const waitingCount = allTodayAppts.filter(a => a.effectiveStatus === 'waiting').length;
+      const completedClinicallyCount = allTodayAppts.filter(a => a.effectiveStatus === 'completed_clinically').length;
+      if (badgeCounter) {
+        if (completedClinicallyCount > 0) {
+          badgeCounter.textContent = `${completedClinicallyCount} أنهى الجلسة`;
+          badgeCounter.style.background = 'var(--success)';
+        } else if (waitingCount > 0) {
+          badgeCounter.textContent = `${waitingCount} في الانتظار`;
+          badgeCounter.style.background = '#d97706';
+        } else {
+          badgeCounter.textContent = `${allTodayAppts.length}`;
+          badgeCounter.style.background = 'var(--primary)';
+        }
+      }
+
+      if (apptsToRender.length === 0) {
+        const emptyMsg = 'لا توجد مواعيد أو حالات مسجلة في جدول اليوم.';
+        if (tableTbody) {
+          tableTbody.innerHTML = `<tr><td colspan="6" style="text-align: center; color: var(--text-muted); padding: 20px;">${emptyMsg}</td></tr>`;
+        }
+        if (mobileCards) {
+          mobileCards.innerHTML = `<div class="empty-state-card" style="padding: 24px; text-align: center;"><i class="fa-regular fa-calendar-check" style="font-size: 1.8rem; margin-bottom: 8px; color: var(--primary);"></i><div style="font-weight: 700;">${emptyMsg}</div></div>`;
+        }
+        return;
+      }
+
+      // Render Desktop Rows
+      if (tableTbody) {
+        tableTbody.innerHTML = apptsToRender.map(a => {
+          const slotObj = (this.slots || []).find(s => s.key === a.timeSlot);
+          const timeDisplay = slotObj ? slotObj.label : (a.time || a.timeSlot || 'موعد اليوم');
+          const docName = a.doctorName || (this.doctors.find(d => d.uid === a.doctorUid)?.name) || 'طبيب المركز';
+
+          let statusBadge = '';
+          let actionBtn = '';
+
+          if (a.effectiveStatus === 'completed_clinically') {
+            statusBadge = `<span class="badge" style="background: rgba(16, 185, 129, 0.15); color: #059669; border: 1.5px solid rgba(16, 185, 129, 0.4); padding: 4px 10px; border-radius: 999px; font-size: 0.8rem; font-weight: 900;"><i class="fa-solid fa-circle-check"></i> أنهى الجلسة (بانتظار التسجيل)</span>`;
+            actionBtn = `
+              <button type="button" class="btn btn-success btn-sm btn-record-session-now" data-appt-id="${escapeHTML(a.id)}" data-patient-id="${escapeHTML(a.patientId || '')}" data-patient-name="${escapeHTML(a.patientName)}" data-doc-uid="${escapeHTML(a.doctorUid || '')}" data-doc-name="${escapeHTML(docName)}" style="font-weight: 800; border-radius: 999px; box-shadow: 0 2px 8px rgba(16, 185, 129, 0.35);">
+                <i class="fa-solid fa-file-invoice-dollar"></i> <span>تسجيل الجلسة</span>
+              </button>
+            `;
+          } else if (a.effectiveStatus === 'waiting') {
+            statusBadge = `<span class="badge" style="background: rgba(245, 158, 11, 0.15); color: #d97706; border: 1px solid rgba(245, 158, 11, 0.35); padding: 4px 10px; border-radius: 999px; font-size: 0.78rem; font-weight: 800;"><i class="fa-solid fa-hourglass-half"></i> في الانتظار</span>`;
+            actionBtn = `
+              <span style="font-size: 0.8rem; color: var(--text-muted); font-weight: 700;"><i class="fa-solid fa-bell text-warning"></i> أُخطر الطبيب</span>
+            `;
+          } else if (a.effectiveStatus === 'attended' || a.effectiveStatus === 'completed') {
+            statusBadge = `<span class="badge" style="background: rgba(2, 132, 199, 0.12); color: #0284c7; padding: 4px 10px; border-radius: 999px; font-size: 0.78rem; font-weight: 700;"><i class="fa-solid fa-check-double"></i> سُجلت الجلسة</span>`;
+            actionBtn = `
+              <button type="button" class="btn btn-outline btn-sm" onclick="window.app?.patientsManager?.openPatientSheet('${escapeHTML(a.patientId || '')}')" style="border-radius: 999px; font-size: 0.78rem; padding: 3px 10px;">
+                <i class="fa-solid fa-file-waveform"></i> الشيت الطبي
+              </button>
+            `;
+          } else {
+            statusBadge = `<span class="badge" style="background: rgba(100, 116, 139, 0.1); color: #64748b; padding: 4px 10px; border-radius: 999px; font-size: 0.78rem; font-weight: 700;"><i class="fa-regular fa-clock"></i> مجدول</span>`;
+            actionBtn = `
+              <button type="button" class="btn btn-primary btn-sm btn-mark-arrived" data-appt-id="${escapeHTML(a.id)}" data-patient-name="${escapeHTML(a.patientName)}" data-doc-uid="${escapeHTML(a.doctorUid || '')}" data-doc-name="${escapeHTML(docName)}" style="font-weight: 800; border-radius: 999px;">
+                <i class="fa-solid fa-user-check"></i> <span>حضر المريض</span>
+              </button>
+            `;
+          }
+
+          return `
+            <tr style="${a.effectiveStatus === 'completed_clinically' ? 'background: rgba(16, 185, 129, 0.05);' : ''}">
+              <td style="font-weight: 800; color: var(--text-main);">
+                <i class="fa-solid fa-user text-primary" style="margin-left: 6px;"></i>
+                ${escapeHTML(a.patientName)}
+                ${a.isWalkIn ? '<span class="badge" style="background: rgba(139, 92, 246, 0.12); color: #8b5cf6; font-size: 0.65rem; border-radius: 4px; margin-right: 4px;">حضور مباشر</span>' : ''}
+              </td>
+              <td>د. ${escapeHTML(docName.replace(/^د\.\s*/, ''))}</td>
+              <td style="font-weight: 700;"><i class="fa-regular fa-clock text-muted" style="margin-left: 4px;"></i> ${escapeHTML(timeDisplay)}</td>
+              <td>${statusBadge}</td>
+              <td style="font-size: 0.8rem; color: var(--text-muted);">${escapeHTML(a.notes || a.bodyPart || '-')}</td>
+              <td style="text-align: center;">${actionBtn}</td>
+            </tr>
+          `;
+        }).join('');
+      }
+
+      // Render Dedicated Mobile Cards
+      if (mobileCards) {
+        mobileCards.innerHTML = apptsToRender.map(a => {
+          const slotObj = (this.slots || []).find(s => s.key === a.timeSlot);
+          const timeDisplay = slotObj ? slotObj.label : (a.time || a.timeSlot || 'موعد اليوم');
+          const docName = a.doctorName || (this.doctors.find(d => d.uid === a.doctorUid)?.name) || 'طبيب المركز';
+
+          let statusBadge = '';
+          let actionBtn = '';
+
+          if (a.effectiveStatus === 'completed_clinically') {
+            statusBadge = `<span class="badge" style="background: rgba(16, 185, 129, 0.15); color: #059669; border: 1.5px solid rgba(16, 185, 129, 0.4); padding: 4px 10px; border-radius: 999px; font-size: 0.78rem; font-weight: 900;"><i class="fa-solid fa-circle-check"></i> أنهى الجلسة (بانتظار التسجيل)</span>`;
+            actionBtn = `
+              <button type="button" class="btn btn-success btn-record-session-now" data-appt-id="${escapeHTML(a.id)}" data-patient-id="${escapeHTML(a.patientId || '')}" data-patient-name="${escapeHTML(a.patientName)}" data-doc-uid="${escapeHTML(a.doctorUid || '')}" data-doc-name="${escapeHTML(docName)}" style="width: 100%; font-weight: 800; border-radius: 999px; padding: 8px 14px; box-shadow: 0 2px 8px rgba(16, 185, 129, 0.35);">
+                <i class="fa-solid fa-file-invoice-dollar"></i> <span>تسجيل الجلسة والمحاسبة</span>
+              </button>
+            `;
+          } else if (a.effectiveStatus === 'waiting') {
+            statusBadge = `<span class="badge" style="background: rgba(245, 158, 11, 0.15); color: #d97706; border: 1px solid rgba(245, 158, 11, 0.35); padding: 4px 10px; border-radius: 999px; font-size: 0.76rem; font-weight: 800;"><i class="fa-solid fa-hourglass-half"></i> في الانتظار</span>`;
+            actionBtn = `
+              <div style="text-align: center; font-size: 0.82rem; color: #d97706; font-weight: 700; padding: 6px;"><i class="fa-solid fa-bell"></i> أُخطر الطبيب وفي انتظار دخوله</div>
+            `;
+          } else if (a.effectiveStatus === 'attended' || a.effectiveStatus === 'completed') {
+            statusBadge = `<span class="badge" style="background: rgba(2, 132, 199, 0.12); color: #0284c7; padding: 4px 10px; border-radius: 999px; font-size: 0.76rem; font-weight: 700;"><i class="fa-solid fa-check-double"></i> سُجلت الجلسة</span>`;
+            actionBtn = `
+              <button type="button" class="btn btn-outline btn-sm" onclick="window.app?.patientsManager?.openPatientSheet('${escapeHTML(a.patientId || '')}')" style="width: 100%; border-radius: 999px; font-size: 0.8rem; padding: 6px;">
+                <i class="fa-solid fa-file-waveform"></i> الشيت الطبي
+              </button>
+            `;
+          } else {
+            statusBadge = `<span class="badge" style="background: rgba(100, 116, 139, 0.1); color: #64748b; padding: 4px 10px; border-radius: 999px; font-size: 0.76rem; font-weight: 700;"><i class="fa-regular fa-clock"></i> مجدول</span>`;
+            actionBtn = `
+              <button type="button" class="btn btn-primary btn-mark-arrived" data-appt-id="${escapeHTML(a.id)}" data-patient-name="${escapeHTML(a.patientName)}" data-doc-uid="${escapeHTML(a.doctorUid || '')}" data-doc-name="${escapeHTML(docName)}" style="width: 100%; font-weight: 800; border-radius: 999px; padding: 8px;">
+                <i class="fa-solid fa-user-check"></i> <span>حضر المريض</span>
+              </button>
+            `;
+          }
+
+          return `
+            <div class="hero-styled-card" style="margin-bottom: 10px; padding: 14px; border-radius: 14px; border: ${a.effectiveStatus === 'completed_clinically' ? '1.5px solid rgba(16, 185, 129, 0.4)' : '1px solid var(--border-color)'}; background: ${a.effectiveStatus === 'completed_clinically' ? 'rgba(16, 185, 129, 0.04)' : 'var(--bg-surface)'};">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                <div style="font-weight: 800; font-size: 0.95rem; color: var(--text-main);">
+                  <i class="fa-solid fa-user text-primary"></i> ${escapeHTML(a.patientName)}
+                  ${a.isWalkIn ? '<span class="badge" style="background: rgba(139, 92, 246, 0.12); color: #8b5cf6; font-size: 0.65rem; border-radius: 4px;">حضور مباشر</span>' : ''}
+                </div>
+                ${statusBadge}
+              </div>
+              <div style="display: flex; justify-content: space-between; font-size: 0.84rem; color: var(--text-muted); margin-bottom: 10px;">
+                <span><i class="fa-solid fa-user-doctor text-primary"></i> د. ${escapeHTML(docName.replace(/^د\.\s*/, ''))}</span>
+                <span><i class="fa-regular fa-clock"></i> ${escapeHTML(timeDisplay)}</span>
+              </div>
+              ${a.notes ? `<div style="font-size: 0.78rem; color: var(--text-muted); margin-bottom: 10px; background: var(--bg-subtle); padding: 4px 8px; border-radius: 6px;">${escapeHTML(a.notes)}</div>` : ''}
+              <div style="margin-top: 6px;">${actionBtn}</div>
+            </div>
+          `;
+        }).join('');
+      }
+
+      // Bind Action Button Listeners
+      const container = document.getElementById('card-dashboard-recent');
+      if (container) {
+        container.querySelectorAll('.btn-mark-arrived').forEach(btn => {
+          btn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const apptId = btn.getAttribute('data-appt-id');
+            this.markPatientArrived(apptId);
+          });
+        });
+
+        container.querySelectorAll('.btn-record-session-now').forEach(btn => {
+          btn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const apptId = btn.getAttribute('data-appt-id');
+            const patientId = btn.getAttribute('data-patient-id');
+            const patientName = btn.getAttribute('data-patient-name');
+            const docUid = btn.getAttribute('data-doc-uid');
+            const docName = btn.getAttribute('data-doc-name');
+            if (window.app?.openSessionForAppointment) {
+              window.app.openSessionForAppointment({ apptId, patientId, patientName, docUid, docName });
+            }
+          });
+        });
+      }
+    } catch (err) {
+      console.error('Error rendering reception waiting list:', err);
+    }
+  }
+
+  async markPatientArrived(apptId) {
+    const today = getLocalDateStr();
+    const appt = (this.appointments || []).find(a => a.id === apptId);
+    if (!appt) return;
+
+    try {
+      const dailyStatuses = { ...(appt.dailyStatuses || {}) };
+      dailyStatuses[today] = 'waiting';
+
+      const updates = {
+        dailyStatuses,
+        statusUpdatedAt: new Date().toISOString(),
+        arrivedAt: new Date().toISOString()
+      };
+      const isRecurring = Array.isArray(appt.daysOfWeek) && appt.daysOfWeek.length > 0;
+      if (!isRecurring) {
+        updates.status = 'waiting';
+      }
+      await db.updateAppointment(apptId, updates);
+      appt.dailyStatuses = dailyStatuses;
+      if (!isRecurring) appt.status = 'waiting';
+
+      const docName = appt.doctorName || (this.doctors.find(d => d.uid === appt.doctorUid)?.name) || '';
+      // Dispatch Push Notification to the doctor
+      if (window.app?.notificationsManager) {
+        try {
+          window.app.notificationsManager.sendNotification({
+            type: 'patient_checkin',
+            title: `حضور مريض: ${appt.patientName}`,
+            body: `المريض ${appt.patientName} وصل الاستقبال وفي انتظار جلسته معك (د. ${docName.replace(/^د\.\s*/, '')}).`,
+            target: { doctorUid: appt.doctorUid || '', doctorName: docName },
+            data: { screen: 'dashboard', patientId: appt.patientId }
+          });
+        } catch (notifErr) {
+          console.warn('Patient arrival notification notice:', notifErr);
+        }
+      }
+
+      if (this.app?.showToast) {
+        this.app.showToast(`تم تأكيد حضور المريض (${appt.patientName}) وإرسال إشعار فوري للطبيب! ✓`, 'success');
+      }
+
+      await this.renderReceptionWaitingList();
+    } catch (err) {
+      console.error('Error marking patient arrived:', err);
+      if (this.app?.showAlert) {
+        this.app.showAlert('تعذر تسجيل حضور المريض: ' + err.message, 'خطأ', 'danger');
+      }
+    }
+  }
+
+  openWalkInModal() {
+    const pIdInput = document.getElementById('walkin-patient-id');
+    const pNameInput = document.getElementById('walkin-patient-name');
+    const trigger = document.getElementById('walkin-patient-picker-trigger');
+    const notesInput = document.getElementById('walkin-notes');
+
+    if (pIdInput) pIdInput.value = '';
+    if (pNameInput) pNameInput.value = '';
+    if (trigger) trigger.querySelector('.btn-text').textContent = '-- اضغط للبحث واختيار المريض --';
+    if (notesInput) notesInput.value = '';
+
+    // Populate Doctors Dropdown
+    const docSel = document.getElementById('walkin-doctor-select');
+    if (docSel) {
+      docSel.innerHTML = `<option value="">-- اضغط لاختيار الطبيب المعالج --</option>` + (this.doctors || []).map(d =>
+        `<option value="${escapeHTML(d.uid)}" data-name="${escapeHTML(d.name)}">${escapeHTML(d.name)}</option>`
+      ).join('');
+      this.app?.updateCustomSelectDisplay('walkin-doctor-select');
+    }
+
+    // Populate Slots Dropdown
+    const slotSel = document.getElementById('walkin-slot-select');
+    if (slotSel) {
+      const slotsToUse = (this.slots && this.slots.length > 0) ? this.slots : DEFAULT_APPT_SLOTS;
+      const bestIdx = this.findClosestSlotIndex(slotsToUse.map(s => ({ slot: s })));
+      const defaultSlotKey = slotsToUse[bestIdx]?.key || '15:30';
+
+      slotSel.innerHTML = slotsToUse.map(s =>
+        `<option value="${escapeHTML(s.key)}" ${s.key === defaultSlotKey ? 'selected' : ''}>${escapeHTML(s.label)}</option>`
+      ).join('');
+      this.app?.updateCustomSelectDisplay('walkin-slot-select');
+    }
+
+    this.app?.openModal('modal-walkin-attendance');
+  }
+
+  selectWalkInPatient(patientId) {
+    const patient = (this.patients || []).find(p => p.id === patientId);
+    if (!patient) return;
+
+    const pIdInput = document.getElementById('walkin-patient-id');
+    const pNameInput = document.getElementById('walkin-patient-name');
+    const trigger = document.getElementById('walkin-patient-picker-trigger');
+
+    if (pIdInput) pIdInput.value = patient.id;
+    if (pNameInput) pNameInput.value = patient.name;
+    if (trigger) trigger.querySelector('.btn-text').textContent = patient.name;
+
+    // Pre-select patient's attending doctor if set
+    if (patient.doctor) {
+      const docSel = document.getElementById('walkin-doctor-select');
+      if (docSel) {
+        const matchingOpt = Array.from(docSel.options).find(o =>
+          o.getAttribute('data-name') === patient.doctor || o.textContent.includes(patient.doctor) || patient.doctor.includes(o.textContent)
+        );
+        if (matchingOpt) {
+          docSel.value = matchingOpt.value;
+          this.app?.updateCustomSelectDisplay('walkin-doctor-select');
+        }
+      }
+    }
+
+    this.app?.closeModal('modal-appt-patient-picker');
+  }
+
+  async handleWalkInSubmit(e) {
+    if (e) e.preventDefault();
+    const patientId = document.getElementById('walkin-patient-id')?.value;
+    const patientName = document.getElementById('walkin-patient-name')?.value;
+    const docSel = document.getElementById('walkin-doctor-select');
+    const doctorUid = docSel?.value;
+    const doctorName = docSel?.selectedOptions[0]?.getAttribute('data-name') || docSel?.selectedOptions[0]?.textContent || '';
+    const slotKey = document.getElementById('walkin-slot-select')?.value || '15:30';
+    const notes = document.getElementById('walkin-notes')?.value || '';
+
+    if (!patientId || !patientName) {
+      this.app?.showAlert('يرجى اختيار المريض أولاً من السجل الطبي.', 'تنبيه', 'warning');
+      return;
+    }
+    if (!doctorUid) {
+      this.app?.showAlert('يرجى اختيار الطبيب المعالج.', 'تنبيه', 'warning');
+      return;
+    }
+
+    try {
+      const today = getLocalDateStr();
+      const patientObj = (this.patients || []).find(p => p.id === patientId);
+
+      const walkInAppt = {
+        patientId,
+        patientName,
+        phone: patientObj?.phone || '',
+        doctor: doctorName,
+        doctorName,
+        doctorUid,
+        date: today,
+        timeSlot: slotKey,
+        time: new Date().toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' }),
+        status: 'waiting',
+        dailyStatuses: { [today]: 'waiting' },
+        isWalkIn: true,
+        arrivedAt: new Date().toISOString(),
+        notes: notes ? `حضور مباشر: ${notes}` : 'حضور مباشر (بدون موعد مسبق)',
+        createdAt: new Date().toISOString()
+      };
+
+      const savedAppt = await db.addAppointment(walkInAppt);
+      if (savedAppt) {
+        this.appointments.push(savedAppt);
+      }
+
+      // Dispatch Push Notification to the doctor
+      if (window.app?.notificationsManager) {
+        try {
+          window.app.notificationsManager.sendNotification({
+            type: 'patient_checkin',
+            title: `حضور مباشر: ${patientName}`,
+            body: `المريض ${patientName} حضر في الاستقبال بدون حجز مسبق وفي انتظارك.`,
+            target: { doctorUid, doctorName },
+            data: { screen: 'dashboard', patientId }
+          });
+        } catch (notifErr) {
+          console.warn('Walk-in arrival notification notice:', notifErr);
+        }
+      }
+
+      this.app?.closeModal('modal-walkin-attendance');
+      if (this.app?.showToast) {
+        this.app.showToast(`تم تأكيد حضور المريض (${patientName}) وإرسال إشعار فوري للطبيب! ✓`, 'success');
+      }
+
+      await this.renderReceptionWaitingList();
+      if (this.selectedDate === today) {
+        await this.render();
+      }
+    } catch (err) {
+      console.error('Error submitting walk-in attendance:', err);
+      this.app?.showAlert('تعذر تسجيل الحضور المباشر: ' + err.message, 'خطأ', 'danger');
     }
   }
 

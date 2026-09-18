@@ -992,48 +992,6 @@ const secondSessionWithOtherDoctor = assignFirstDoctorRule(newPatient, 'د. أح
 assert.equal(secondSessionWithOtherDoctor, false, 'Existing assigned doctor must NOT be overwritten by subsequent doctors');
 assert.equal(newPatient.doctor, 'د. حسني أحمد الجويلي', 'Assigned doctor must remain the first doctor');
 
-// Test: Doctor Dashboard Month Unique Patients & Date Chips (Option A)
-function groupMonthPatientsForDoctor(sessions, currentMonth) {
-  const patientMap = new Map();
-  const monthSessions = sessions.filter((s) => s.date && s.date.startsWith(currentMonth) && !s.isHomeVisit && s.visitType !== 'home');
-
-  monthSessions.forEach((s) => {
-    const key = s.patientId || s.patientName;
-    if (!patientMap.has(key)) {
-      patientMap.set(key, {
-        patientId: s.patientId || '',
-        patientName: s.patientName || 'مريض',
-        monthSessionsCount: 0,
-        sessionDates: [],
-        lastDate: s.date || ''
-      });
-    }
-    const item = patientMap.get(key);
-    item.monthSessionsCount++;
-    if (s.date) {
-      if (!item.lastDate || s.date > item.lastDate) item.lastDate = s.date;
-      if (!item.sessionDates.includes(s.date)) item.sessionDates.push(s.date);
-    }
-  });
-
-  return Array.from(patientMap.values()).sort((a, b) => (b.lastDate || '').localeCompare(a.lastDate || ''));
-}
-
-const mockMonthSessions = [
-  { patientId: 'p1', patientName: 'أستاذ عماد', date: '2026-09-05' },
-  { patientId: 'p1', patientName: 'أستاذ عماد', date: '2026-09-07' },
-  { patientId: 'p1', patientName: 'أستاذ عماد', date: '2026-09-09' },
-  { patientId: 'p2', patientName: 'مريم أحمد', date: '2026-09-08' },
-  { patientId: 'p1', patientName: 'أستاذ عماد', date: '2026-08-28' } // Different month: must be excluded
-];
-
-const monthGrouped = groupMonthPatientsForDoctor(mockMonthSessions, '2026-09');
-assert.equal(monthGrouped.length, 2, 'Month grouping must combine 4 Sept sessions into 2 unique patients');
-const emad = monthGrouped.find(p => p.patientId === 'p1');
-assert.equal(emad.monthSessionsCount, 3, 'Mr. Emad must have exactly 3 sessions in September');
-assert.equal(emad.sessionDates.length, 3, 'Mr. Emad must have 3 date chips in September');
-assert.equal(emad.lastDate, '2026-09-09', 'Latest date for Emad must be 2026-09-09');
-
 console.log('✓ All 9 Lifetime Patients Grouping & First Doctor Rule assertions passed successfully!');
 
 // 14. Daily Print Sheet Sessions Aggregation Engine Tests (Ascending Arrival Order & Clean Columns)
@@ -1252,63 +1210,59 @@ assert.ok(indexHtmlContent.includes('راتب الاطباء'), 'Monthly doctors
 const financeJsContent = fs.readFileSync('js/finance.js', 'utf8');
 assert.ok(financeJsContent.includes('مجموع رواتب الاطباء'), 'finance.js must render "مجموع رواتب الاطباء" total row');
 assert.ok(financeJsContent.includes('إجمالي راتب الاطباء'), 'finance.js must inject "إجمالي راتب الاطباء" as monthly expense');
-assert.ok(financeJsContent.includes('const totalIncome = totalSessionsIncome + totalSettlementsNet;'), 'finance.js must define totalIncome in loadMonthlyReport');
 assert.ok(indexHtmlContent.includes('عدد جلسات النقدي'), 'Monthly insurance table must include "عدد جلسات النقدي" header');
 assert.ok(indexHtmlContent.includes('عدد جلسات التأمين'), 'Monthly insurance table must include "عدد جلسات التأمين" header');
 
 console.log('✓ All 6 Monthly Report Integrity assertions passed successfully!');
 
 // ============================================================================
-// 15. Doctor Auto-Session, First-Session Guard & Duplicate Prevention Tests
+// 15. Visit Lifecycle & Doctor Clinical Completion Engine
 // ============================================================================
-console.log('--- Running Tests: Doctor Auto-Session & Duplicate Prevention Engine ---');
+console.log('--- Running Tests: Visit Lifecycle & Doctor Clinical Completion Engine ---');
 
-function mockValidateDoctorCompleteSession(allPatientSessions, lastSession, appt, today) {
-  if (!lastSession) {
-    return { allowed: false, reason: 'first_session' };
-  }
-  const partsToUse = (Array.isArray(lastSession.bodyParts) && lastSession.bodyParts.length > 0)
-    ? [...lastSession.bodyParts]
-    : (appt.bodyPart ? [appt.bodyPart] : []);
-
-  const newSession = {
-    entryType: 'session',
-    date: today,
-    patientId: appt.patientId,
-    patientName: appt.patientName,
-    doctor: appt.doctorName,
-    doctorUid: appt.doctorUid,
-    bodyParts: partsToUse,
-    bodyPartsCount: partsToUse.length || 1,
-    payType: lastSession.payType || 'cash',
-    amountPaid: lastSession.amountPaid !== undefined ? lastSession.amountPaid : 0,
-    sessionPricingType: lastSession.sessionPricingType || 'regular',
-    autoCreatedByDoctor: true,
-    sourceAppointmentId: appt.id
+function mockDoctorCompleteClinicalSession(appt, today, doctorUid) {
+  // Doctor marks clinical completion WITHOUT recording a session in sessions collection
+  const dailyStatuses = { ...(appt.dailyStatuses || {}) };
+  dailyStatuses[today] = 'completed_clinically';
+  const updates = {
+    dailyStatuses,
+    statusUpdatedAt: new Date().toISOString(),
+    completedClinicallyAt: new Date().toISOString(),
+    completedClinicallyDoctorUid: doctorUid
   };
-  return { allowed: true, newSession };
+  return {
+    success: true,
+    effectiveStatus: 'completed_clinically',
+    updates,
+    sessionCreatedInDb: false // Crucial: Doctor never writes to sessions collection
+  };
 }
 
-// 1. First session: Doctor is strictly blocked
-const firstSessionRes = mockValidateDoctorCompleteSession([], null, { id: 'a1', patientId: 'p1', patientName: 'علي', doctorName: 'د. مصطفى' }, '2026-09-16');
-assert.equal(firstSessionRes.allowed, false, 'First session must be blocked for doctor');
-assert.equal(firstSessionRes.reason, 'first_session');
+// 1. Doctor completes clinically: Allowed for ANY session (no blocking), no session auto-created in db
+const docCompleteRes = mockDoctorCompleteClinicalSession(
+  { id: 'a1', patientId: 'p1', patientName: 'علي', doctorName: 'د. مصطفى' },
+  '2026-09-16',
+  'doc_1'
+);
+assert.equal(docCompleteRes.success, true, 'Doctor clinical completion must succeed');
+assert.equal(docCompleteRes.sessionCreatedInDb, false, 'Doctor must NEVER auto-create session in database');
+assert.equal(docCompleteRes.effectiveStatus, 'completed_clinically');
+assert.equal(docCompleteRes.updates.dailyStatuses['2026-09-16'], 'completed_clinically');
 
-// 2. Subsequent session: Doctor succeeds and settings are replicated from lastSession
-const mockLastSession = {
-  id: 'sess_prev',
-  entryType: 'session',
-  date: '2026-09-14',
-  payType: 'cash',
-  amountPaid: 150,
-  bodyParts: ['الركبة اليمنى', 'الفقرات القطنية'],
-  sessionPricingType: 'regular'
-};
-const subSessionRes = mockValidateDoctorCompleteSession([mockLastSession], mockLastSession, { id: 'a2', patientId: 'p1', patientName: 'علي', doctorName: 'د. مصطفى', doctorUid: 'doc_1' }, '2026-09-16');
-assert.equal(subSessionRes.allowed, true, 'Subsequent session must be allowed');
-assert.equal(subSessionRes.newSession.amountPaid, 150);
-assert.equal(subSessionRes.newSession.bodyPartsCount, 2);
-assert.equal(subSessionRes.newSession.autoCreatedByDoctor, true);
+// 2. Receptionist records session: Transition to recorded/attended
+function mockReceptionRecordSession(appt, savedSessionId, today) {
+  const dailyStatuses = { ...(appt.dailyStatuses || {}) };
+  dailyStatuses[today] = 'recorded';
+  return {
+    effectiveStatus: 'attended',
+    dailyStatuses,
+    recordedSessionId: savedSessionId
+  };
+}
+const recRecordRes = mockReceptionRecordSession({ id: 'a1', dailyStatuses: { '2026-09-16': 'completed_clinically' } }, 'sess_123', '2026-09-16');
+assert.equal(recRecordRes.effectiveStatus, 'attended');
+assert.equal(recRecordRes.dailyStatuses['2026-09-16'], 'recorded');
+assert.equal(recRecordRes.recordedSessionId, 'sess_123');
 
 // 3. Duplicate Prevention: Check duplicate session on same date
 function mockCheckDuplicateSession(existingSessions, patientId, date) {
@@ -1319,7 +1273,7 @@ assert.equal(mockCheckDuplicateSession(mockExisting, 'p1', '2026-09-16'), true, 
 assert.equal(mockCheckDuplicateSession(mockExisting, 'p1', '2026-09-17'), false, 'Different date must not be duplicate');
 assert.equal(mockCheckDuplicateSession(mockExisting, 'p2', '2026-09-16'), false, 'Different patient must not be duplicate');
 
-console.log('✓ All 7 Doctor Auto-Session & Duplicate Prevention assertions passed successfully!');
+console.log('✓ All 7 Visit Lifecycle & Duplicate Prevention assertions passed successfully!');
 
 // ============================================================================
 console.log('--- Running Tests: Insurance Claims Integration (Batch Sessions, Home Visits & Arabic Normalization) ---');

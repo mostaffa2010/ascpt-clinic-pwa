@@ -195,13 +195,47 @@ class App {
     this.notificationsManager.init(); } catch (e) { console.warn('appointmentsManager init notice:', e); }
 
     // مزامنة أزرار القوائم المخصصة
-    ['claim-company-select', 'patient-filter-type', 'session-doctor-select', 'finance-doctor-filter', 'newuser-role', 'p-gender', 'p-approved-body-parts', 'renew-approved-body-parts', 'appt-doctor-select', 'batch-hv-doctor'].forEach(id => {
+    ['claim-company-select', 'patient-filter-type', 'session-doctor-select', 'finance-doctor-filter', 'newuser-role', 'p-gender', 'p-approved-body-parts', 'renew-approved-body-parts', 'appt-doctor-select', 'batch-hv-doctor', 'walkin-doctor-select', 'walkin-slot-select'].forEach(id => {
       this.updateCustomSelectDisplay(id);
     });
 
     // توجيه أي تنبيهات لتبدو بهوية التطبيق المخصصة
     window.alert = (msg) => this.showAlert(msg, 'تنبيه المركز', 'info');
     window.confirm = (msg) => this.showConfirm(msg, 'تأكيد الإجراء');
+
+    // مزامنة وتبديل تبويبات لوحة تحكم الاستقبال (المرضى المنتظرون / آخر الجلسات)
+    const tabWaiting = document.getElementById('tab-btn-waiting-patients');
+    const tabRecent = document.getElementById('tab-btn-recent-sessions');
+    const contentWaiting = document.getElementById('dashboard-tab-content-waiting');
+    const contentRecent = document.getElementById('dashboard-tab-content-recent');
+    const viewAllSessionsBtn = document.getElementById('btn-dashboard-view-all-sessions');
+    const walkinActions = document.getElementById('waiting-tab-actions');
+
+    if (tabWaiting && tabRecent) {
+      tabWaiting.addEventListener('click', () => {
+        tabWaiting.classList.add('active');
+        tabWaiting.classList.remove('btn-outline');
+        tabRecent.classList.remove('active');
+        tabRecent.classList.add('btn-outline');
+        if (contentWaiting) contentWaiting.style.display = 'block';
+        if (contentRecent) contentRecent.style.display = 'none';
+        if (viewAllSessionsBtn) viewAllSessionsBtn.style.display = 'none';
+        if (walkinActions) walkinActions.style.display = 'flex';
+        this.appointmentsManager?.renderReceptionWaitingList();
+      });
+
+      tabRecent.addEventListener('click', () => {
+        tabRecent.classList.add('active');
+        tabRecent.classList.remove('btn-outline');
+        tabWaiting.classList.remove('active');
+        tabWaiting.classList.add('btn-outline');
+        if (contentRecent) contentRecent.style.display = 'block';
+        if (contentWaiting) contentWaiting.style.display = 'none';
+        if (viewAllSessionsBtn) viewAllSessionsBtn.style.display = 'inline-block';
+        if (walkinActions) walkinActions.style.display = 'none';
+        this.financeManager?.loadDailyReport();
+      });
+    }
 
     // استعادة الشاشة النشطة قبل التحديث (View Persistence across Reloads)
     await this.restoreActiveView();
@@ -454,6 +488,7 @@ class App {
         if (this.doctorDashboardManager) this.doctorDashboardManager.render();
       } else {
         if (this.financeManager) this.financeManager.loadDailyReport();
+        if (this.appointmentsManager) this.appointmentsManager.renderReceptionWaitingList();
       }
     }
     if (viewName === 'finance') this.financeManager.loadDailyReport();
@@ -1542,8 +1577,10 @@ class App {
     if (textSpan) {
       const selectedOpt = select.options[select.selectedIndex];
       if (!selectedOpt || !selectedOpt.value) {
-        if (selectId === 'session-doctor-select' || selectId === 'appt-doctor-select' || selectId === 'batch-hv-doctor') {
+        if (selectId === 'session-doctor-select' || selectId === 'appt-doctor-select' || selectId === 'batch-hv-doctor' || selectId === 'walkin-doctor-select') {
           textSpan.textContent = '-- اضغط لاختيار الطبيب المعالج --';
+        } else if (selectId === 'walkin-slot-select') {
+          textSpan.textContent = '-- اختر الفترة --';
         } else {
           textSpan.textContent = selectedOpt ? selectedOpt.text : '-- اختر --';
         }
@@ -1990,8 +2027,18 @@ class App {
       batchDoc.value = (prev && doctorObjects.some(d => d.uid === prev)) ? prev : '';
     }
 
+    const walkinDoc = document.getElementById('walkin-doctor-select');
+    if (walkinDoc) {
+      const prev = walkinDoc.value;
+      walkinDoc.innerHTML = `<option value="">-- اضغط لاختيار الطبيب المعالج --</option>` + doctorObjects.map(d =>
+        `<option value="${escapeHTML(d.uid)}" data-name="${escapeHTML(d.name)}">${escapeHTML(d.name)}</option>`
+      ).join('');
+      walkinDoc.value = (prev && doctorObjects.some(d => d.uid === prev)) ? prev : '';
+    }
+
     this.updateCustomSelectDisplay('appt-doctor-select');
     this.updateCustomSelectDisplay('batch-hv-doctor');
+    this.updateCustomSelectDisplay('walkin-doctor-select');
     this.updateCustomSelectDisplay('finance-doctor-filter');
   }
 
@@ -2029,6 +2076,31 @@ class App {
       if (this.auditManager) {
         if (typeof this.auditManager.loadUsers === 'function') await this.auditManager.loadUsers();
         if (typeof this.auditManager.loadAuditLogs === 'function') await this.auditManager.loadAuditLogs();
+      }
+    }
+  }
+
+  // ================= Open Session Form Pre-filled for Finished Patient (v2.10.27) =================
+  async openSessionForAppointment({ apptId, patientId, patientName, docUid, docName }) {
+    this.switchView('sessions');
+    if (patientId && this.sessionsManager) {
+      await this.sessionsManager.selectPatient(patientId);
+      if (docName) {
+        const docSel = document.getElementById('session-doctor-select');
+        if (docSel) {
+          const match = Array.from(docSel.options).find(o =>
+            o.value === docName || o.textContent.includes(docName) || docName.includes(o.textContent)
+          );
+          if (match) {
+            docSel.value = match.value;
+            this.updateCustomSelectDisplay('session-doctor-select');
+          }
+        }
+      }
+      this.sessionsManager.sourceAppointmentId = apptId;
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      if (this.showToast) {
+        this.showToast(`تم تجهيز نموذج تسجيل الجلسة للمريض (${patientName}) مع د. ${docName.replace(/^د\.\s*/, '')}`, 'info');
       }
     }
   }

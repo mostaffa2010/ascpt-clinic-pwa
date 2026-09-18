@@ -137,8 +137,8 @@
   
 
     <!-- Stylesheets -->
-  <link rel="stylesheet" href="css/style.css?v=2.10.26" media="screen">
-  <link rel="stylesheet" href="css/print.css?v=2.10.26" media="print">
+  <link rel="stylesheet" href="css/style.css?v=2.10.27" media="screen">
+  <link rel="stylesheet" href="css/print.css?v=2.10.27" media="print">
 </head>
 <body>
   <script>
@@ -403,29 +403,81 @@
           </div>
 
           <div class="card" id="card-dashboard-recent">
-            <div class="card-header">
-              <span class="card-title"><i class="fa-solid fa-clock-rotate-left"></i> آخر الجلسات المسجلة اليوم</span>
-              <button type="button" class="btn btn-outline btn-sm" data-view-target="sessions">عرض الكل</button>
+            <div class="card-header" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+              <!-- Tabs Header -->
+              <div class="dashboard-tabs-nav" style="display: flex; align-items: center; gap: 8px;">
+                <button type="button" class="btn btn-tab active" id="tab-btn-waiting-patients" style="font-weight: 800; border-radius: 999px; padding: 6px 14px; font-size: 0.88rem; display: inline-flex; align-items: center; gap: 6px;">
+                  <i class="fa-solid fa-users-viewfinder text-primary"></i> <span>المرضى المنتظرون اليوم</span>
+                  <span class="badge badge-counter" id="badge-waiting-count" style="background: var(--primary); color: #fff; font-size: 0.75rem; border-radius: 999px; padding: 2px 7px;">0</span>
+                </button>
+                <button type="button" class="btn btn-tab btn-outline" id="tab-btn-recent-sessions" style="font-weight: 700; border-radius: 999px; padding: 6px 14px; font-size: 0.88rem; display: inline-flex; align-items: center; gap: 6px;">
+                  <i class="fa-solid fa-clock-rotate-left"></i> <span>آخر الجلسات المسجلة اليوم</span>
+                </button>
+              </div>
+
+              <!-- Quick Actions -->
+              <div class="dashboard-tab-actions" style="display: flex; align-items: center; gap: 8px;">
+                <button type="button" class="btn btn-primary btn-sm" id="btn-reception-walkin" style="font-weight: 800; border-radius: 999px; display: inline-flex; align-items: center; gap: 6px; box-shadow: 0 2px 8px rgba(2, 132, 199, 0.25);">
+                  <i class="fa-solid fa-user-plus"></i> <span>حضور مباشر (بدون موعد)</span>
+                </button>
+                <button type="button" class="btn btn-outline btn-sm" id="btn-dashboard-view-all-sessions" data-view-target="sessions" style="display: none;">عرض الكل</button>
+              </div>
             </div>
-            <div class="table-responsive desktop-only-table">
-              <table class="data-table" id="dashboard-recent-table">
-                <thead>
-                  <tr>
-                    <th>المريض</th>
-                    <th>الدكتور</th>
-                    <th>الدفع</th>
-                    <th>الأعضاء</th>
-                    <th>المبلغ</th>
-                    <th>الوقت</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <!-- Populated by JS -->
-                </tbody>
-              </table>
+
+            <!-- TAB 1 CONTENT: Waiting Patients Today (Default) -->
+            <div id="dashboard-tab-content-waiting">
+              <!-- Doctor Filter Pills Bar -->
+              <div class="reception-doc-filter-bar no-print" id="reception-doc-filter-bar" style="display: flex; align-items: center; gap: 6px; overflow-x: auto; padding: 8px 14px; border-bottom: 1px solid var(--border-color); -webkit-overflow-scrolling: touch;">
+                <button type="button" class="doc-filter-pill active" data-filter-doctor="all" style="font-size: 0.8rem; font-weight: 800; padding: 5px 12px; border-radius: 999px; border: 1.5px solid var(--primary); background: var(--primary); color: #fff; cursor: pointer; display: inline-flex; align-items: center; gap: 5px; white-space: nowrap;">
+                  <i class="fa-solid fa-user-doctor"></i> <span>كل الأطباء</span>
+                </button>
+              </div>
+
+              <!-- Desktop Table -->
+              <div class="table-responsive desktop-only-table">
+                <table class="data-table" id="dashboard-waiting-table">
+                  <thead>
+                    <tr>
+                      <th>المريض</th>
+                      <th>الطبيب</th>
+                      <th>الموعد</th>
+                      <th>حالة الزيارة</th>
+                      <th>الملاحظات</th>
+                      <th style="text-align: center;">الإجراء</th>
+                    </tr>
+                  </thead>
+                  <tbody id="dashboard-waiting-tbody">
+                    <tr><td colspan="6" style="text-align: center; color: var(--text-muted); padding: 15px;">جاري تحميل جدول مواعيد وحالات اليوم...</td></tr>
+                  </tbody>
+                </table>
+              </div>
+
+              <!-- Dedicated Mobile Cards for Waiting Patients -->
+              <div id="dashboard-waiting-mobile-cards" class="mobile-only-cards-container" style="padding: 10px 14px;"></div>
             </div>
-            <!-- Handcrafted Dedicated Mobile Cards for Recent Sessions -->
-            <div id="dashboard-recent-mobile-cards" class="mobile-only-cards-container"></div>
+
+            <!-- TAB 2 CONTENT: Recent Sessions Today -->
+            <div id="dashboard-tab-content-recent" style="display: none;">
+              <div class="table-responsive desktop-only-table">
+                <table class="data-table" id="dashboard-recent-table">
+                  <thead>
+                    <tr>
+                      <th>المريض</th>
+                      <th>الدكتور</th>
+                      <th>الدفع</th>
+                      <th>الأعضاء</th>
+                      <th>المبلغ</th>
+                      <th>الوقت</th>
+                    </tr>
+                  </thead>
+                  <tbody id="dashboard-recent-tbody">
+                    <!-- Populated by JS -->
+                  </tbody>
+                </table>
+              </div>
+              <!-- Handcrafted Dedicated Mobile Cards for Recent Sessions -->
+              <div id="dashboard-recent-mobile-cards" class="mobile-only-cards-container"></div>
+            </div>
           </div>
         </div>
 
@@ -3312,7 +3364,67 @@
     </div>
   </div>
 
-  <!-- Modal: Insurance Renewal Letter Data Entry -->
+    <!-- Modal: Walk-in Direct Attendance (Without prior appointment) -->
+  <div class="modal-backdrop" id="modal-walkin-attendance" style="display: none;">
+    <div class="modal-content" style="max-width: 480px;">
+      <div class="modal-header">
+        <h3><i class="fa-solid fa-user-plus text-primary"></i> تسجيل حضور مباشر (بدون موعد)</h3>
+        <button type="button" class="modal-close" data-close-modal="modal-walkin-attendance">&times;</button>
+      </div>
+      <form id="modal-walkin-form" novalidate>
+        <div class="modal-body">
+          <!-- 1. Patient Selection -->
+          <div class="form-group" style="margin-bottom: 14px;">
+            <label style="display: inline-block; font-size: 0.88rem; font-weight: 700; color: var(--text-main); margin-bottom: 6px;">المريض (من السجل الطبي) *</label>
+            <button type="button" class="custom-select-btn" id="walkin-patient-picker-trigger" style="width: 100%; height: 42px;">
+              <span class="btn-text">-- اضغط للبحث واختيار المريض --</span>
+              <i class="fa-solid fa-magnifying-glass text-primary"></i>
+            </button>
+            <input type="hidden" id="walkin-patient-id" required>
+            <input type="hidden" id="walkin-patient-name" required>
+          </div>
+
+          <!-- 2. Doctor Selection -->
+          <div class="form-group" style="margin-bottom: 14px;" id="form-group-walkin-doctor">
+            <label style="display: inline-block; font-size: 0.88rem; font-weight: 700; color: var(--text-main); margin-bottom: 6px;">الطبيب المعالج *</label>
+            <div class="custom-select-wrapper">
+              <select id="walkin-doctor-select" class="form-control d-none" required></select>
+              <button type="button" class="custom-select-btn" id="btn-select-walkin-doctor-select" data-open-picker="walkin-doctor-select" data-picker-title="اختر الطبيب المعالج للحالة" style="width: 100%; height: 42px;">
+                <span class="btn-text">-- اضغط لاختيار الطبيب المعالج --</span>
+                <i class="fa-solid fa-chevron-down"></i>
+              </button>
+            </div>
+          </div>
+
+          <!-- 3. Time Slot Selection -->
+          <div class="form-group" style="margin-bottom: 14px;" id="form-group-walkin-slot">
+            <label style="display: inline-block; font-size: 0.88rem; font-weight: 700; color: var(--text-main); margin-bottom: 6px;">فترة الحضور (الساعة) *</label>
+            <div class="custom-select-wrapper">
+              <select id="walkin-slot-select" class="form-control d-none" required></select>
+              <button type="button" class="custom-select-btn" id="btn-select-walkin-slot-select" data-open-picker="walkin-slot-select" data-picker-title="اختر فترة الحضور" style="width: 100%; height: 42px;">
+                <span class="btn-text">-- اختر الفترة --</span>
+                <i class="fa-solid fa-chevron-down"></i>
+              </button>
+            </div>
+          </div>
+
+          <!-- 4. Notes -->
+          <div class="form-group" style="margin-bottom: 10px;">
+            <label style="display: inline-block; font-size: 0.88rem; font-weight: 700; color: var(--text-main); margin-bottom: 6px;">ملاحظات الحضور (اختياري)</label>
+            <input type="text" id="walkin-notes" class="form-control modern-input" placeholder="مثال: مريض مباشر، كشف طارئ...">
+          </div>
+        </div>
+        <div class="modal-footer" style="display: flex; justify-content: flex-end; gap: 8px;">
+          <button type="button" class="btn btn-outline" data-close-modal="modal-walkin-attendance">إلغاء</button>
+          <button type="submit" class="btn btn-primary" id="btn-submit-walkin" style="font-weight: 800;">
+            <i class="fa-solid fa-check"></i> تأكيد الحضور وإخطار الطبيب
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+<!-- Modal: Insurance Renewal Letter Data Entry -->
   <div class="modal-backdrop" id="modal-insurance-letter">
     <div class="modal-content" style="max-width: 460px;">
       <div class="modal-header">
@@ -4714,7 +4826,7 @@
   </div>
 
 <!-- Main Application Script (ES Module) -->
-  <script type="module" src="js/app.js?v=2.10.26"></script>
+  <script type="module" src="js/app.js?v=2.10.27"></script>
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
