@@ -372,6 +372,184 @@ body {
   transition: box-shadow var(--duration-normal) var(--ease-standard);
 }
 
+/* --------------------------------------------------------------------------
+   3. Canonical Button System (.ui-btn)
+   -------------------------------------------------------------------------- */
+
+.ui-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  min-height: 42px;
+  padding: 0 var(--space-4);
+  border-radius: var(--radius-canonical-md, 12px);
+  font-family: var(--font-family);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
+  line-height: 1;
+  text-decoration: none;
+  cursor: pointer;
+  border: 1px solid transparent;
+  outline: none;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  transition: all var(--duration-fast) var(--ease-standard);
+  box-sizing: border-box;
+}
+
+.ui-btn:focus-visible {
+  outline: 2px solid var(--color-brand-500);
+  outline-offset: 2px;
+}
+
+.ui-btn:disabled,
+.ui-btn.is-disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+/* Button Variants */
+.ui-btn-primary {
+  background-color: var(--color-brand-500);
+  color: #ffffff;
+  border-color: transparent;
+}
+
+.ui-btn-primary:hover:not(:disabled) {
+  background-color: var(--color-brand-600);
+}
+
+.ui-btn-primary:active:not(:disabled) {
+  transform: scale(0.98);
+}
+
+.ui-btn-secondary {
+  background-color: var(--color-slate-100);
+  color: var(--color-slate-700);
+  border-color: var(--color-slate-200);
+}
+
+.ui-btn-secondary:hover:not(:disabled) {
+  background-color: var(--color-slate-200);
+  color: var(--color-slate-900);
+}
+
+.ui-btn-secondary:active:not(:disabled) {
+  transform: scale(0.98);
+}
+
+.ui-btn-ghost {
+  background-color: transparent;
+  color: var(--color-slate-700);
+  border-color: transparent;
+}
+
+.ui-btn-ghost:hover:not(:disabled) {
+  background-color: var(--color-slate-100);
+  color: var(--color-slate-900);
+}
+
+.ui-btn-ghost:active:not(:disabled) {
+  transform: scale(0.98);
+}
+
+.ui-btn-danger {
+  background-color: var(--color-danger-bg);
+  color: var(--color-danger);
+  border-color: var(--color-danger-border);
+}
+
+.ui-btn-danger:hover:not(:disabled) {
+  background-color: var(--color-danger);
+  color: #ffffff;
+  border-color: var(--color-danger);
+}
+
+.ui-btn-danger:active:not(:disabled) {
+  transform: scale(0.98);
+}
+
+/* Button Size Modifiers */
+.ui-btn-sm {
+  min-height: 34px;
+  font-size: var(--text-xs);
+  padding: 0 var(--space-3);
+  gap: var(--space-1);
+}
+
+.ui-btn-icon {
+  width: 42px;
+  height: 42px;
+  min-height: 42px;
+  padding: 0;
+  flex-shrink: 0;
+}
+
+.ui-btn-icon.ui-btn-sm {
+  width: 34px;
+  height: 34px;
+  min-height: 34px;
+}
+
+/* --------------------------------------------------------------------------
+   4. Canonical Form Controls (.ui-input, .ui-select, .ui-label)
+   -------------------------------------------------------------------------- */
+
+.ui-label {
+  display: block;
+  font-family: var(--font-family);
+  font-size: var(--text-xs);
+  font-weight: var(--weight-medium);
+  color: var(--color-slate-700);
+  margin-bottom: var(--space-1);
+  text-align: start;
+}
+
+.ui-input,
+.ui-select {
+  display: block;
+  width: 100%;
+  min-height: 42px;
+  padding: 0 var(--space-3);
+  border: 1px solid var(--color-slate-200);
+  border-radius: var(--radius-canonical-md, 12px);
+  background-color: var(--color-slate-0);
+  font-family: var(--font-family);
+  font-size: var(--text-sm);
+  color: var(--color-slate-900);
+  outline: none;
+  box-sizing: border-box;
+  text-align: start;
+  direction: inherit;
+  transition: border-color var(--duration-fast) var(--ease-standard),
+              box-shadow var(--duration-fast) var(--ease-standard);
+  -webkit-user-select: text !important;
+  user-select: text !important;
+}
+
+.ui-input::placeholder {
+  color: var(--color-slate-500);
+  opacity: 0.8;
+}
+
+.ui-input:focus,
+.ui-select:focus {
+  border-color: var(--color-brand-500);
+  box-shadow: 0 0 0 3px var(--color-brand-100);
+  outline: none;
+}
+
+.ui-input:disabled,
+.ui-select:disabled {
+  background-color: var(--color-slate-100);
+  color: var(--color-slate-500);
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
 /* ================= Custom Minimalist Pull-to-Force-Reload (v2.8.4) ================= */
 .pull-to-reload-indicator {
   position: fixed;
