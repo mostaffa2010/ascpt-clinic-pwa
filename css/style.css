@@ -12369,24 +12369,3 @@ body.role-doctor .btn-quick-attend {
   gap: 5px !important;
   box-shadow: 0 2px 8px rgba(2, 132, 199, 0.35) !important;
 }
-
-/* ========================================================
-   ASCPT - Multi-Language Engine & Direction Guardrails (v2.10.28)
-   Preserves full mobile touch hit-testing stability by keeping
-   the root layout in RTL, while rendering clean English typography.
-   ======================================================== */
-
-.lang-en {
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-}
-
-/* Strict Print Direction Isolation: Never allow LTR in print mode! */
-@media print {
-  :root, html, body, #printable-area, #printable-cash-receipt,
-  #printable-insurance-letter, #printable-financial-report,
-  #printable-monthly-report, #printable-medical-statement,
-  .printable-sheet, .printable-card, .attendance-print-card {
-    direction: rtl !important;
-    text-align: right !important;
-  }
-}

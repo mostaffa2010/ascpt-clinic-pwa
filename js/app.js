@@ -86,13 +86,10 @@ import { AuditAndAdminManager } from './audit.js';
 import { RolesManager } from './roles.js';
 import { NotificationsManager } from './notifications.js';
 import { CLINIC_CONFIG } from './clinic-config.js';
-import { i18n } from './i18n.js';
 
 class App {
   constructor() {
     this.currentView = 'dashboard';
-    this.i18n = i18n;
-    window.i18n = i18n;
     this.dialogResolve = null;
 
     // ربط مبكر وفوري لضمان عمل كافة الأزرار بدون أي تأخير
@@ -134,7 +131,6 @@ class App {
     // 1. تفعيل PWA والوضع الليلي
     PWAManager.init();
     this.initTheme();
-    this.initLanguage();
     this.applyClinicBranding();
     const adminVerEl = document.getElementById('admin-system-version-label');
     if (adminVerEl) {
@@ -280,46 +276,6 @@ class App {
         }
       }
     } catch (_) {}
-  }
-
-  initLanguage() {
-    if (this.i18n && typeof this.i18n.init === 'function') {
-      this.i18n.init();
-    }
-
-    const toggleBtns = document.querySelectorAll('#btn-lang-toggle, #btn-lang-toggle-desktop, #btn-profile-toggle-lang');
-    toggleBtns.forEach(btn => {
-      btn.addEventListener('click', () => {
-        this.toggleLanguage();
-      });
-    });
-  }
-
-  toggleLanguage() {
-    // Debounce to prevent duplicate event dispatching within 350ms
-    const now = Date.now();
-    if (this._lastLangToggle && now - this._lastLangToggle < 350) {
-      return;
-    }
-    this._lastLangToggle = now;
-
-    try {
-      const current = this.i18n ? this.i18n.getLanguage() : (localStorage.getItem('ascpt_language') || 'ar');
-      const next = current === 'ar' ? 'en' : 'ar';
-      if (this.i18n) {
-        this.i18n.setLanguage(next);
-      } else {
-        localStorage.setItem('ascpt_language', next);
-      }
-      this.showToast(next === 'en' ? 'Switched to English 🌐' : 'تم التحويل إلى اللغة العربية 🌐');
-    } catch (err) {
-      console.warn('Language toggle notice:', err);
-      try {
-        localStorage.setItem('ascpt_language', 'ar');
-        document.documentElement.setAttribute('lang', 'ar');
-        document.documentElement.setAttribute('dir', 'rtl');
-      } catch (_) {}
-    }
   }
 
   initTheme() {

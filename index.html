@@ -9,14 +9,6 @@
     <script>
       (function() {
         try {
-          // Emergency unfreeze: strictly preserve dir="rtl" to protect mobile touch hit-testing
-          const lang = localStorage.getItem("ascpt_language") || "ar";
-          document.documentElement.setAttribute("lang", lang);
-          document.documentElement.setAttribute("dir", "rtl");
-          if (lang === "en") document.documentElement.classList.add("lang-en");
-        } catch (e) {}
-
-        try {
           const saved = localStorage.getItem("ascpt_theme");
           if (saved === "dark" || (!saved && window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches)) {
             document.documentElement.setAttribute("data-theme", "dark");
@@ -145,8 +137,8 @@
   
 
     <!-- Stylesheets -->
-  <link rel="stylesheet" href="css/style.css?v=2.10.29" media="screen">
-  <link rel="stylesheet" href="css/print.css?v=2.10.29" media="print">
+  <link rel="stylesheet" href="css/style.css?v=2.10.26" media="screen">
+  <link rel="stylesheet" href="css/print.css?v=2.10.26" media="print">
 </head>
 <body>
   <script>
@@ -200,12 +192,6 @@
       </script>
     </button>
 
-    <!-- Language Switcher Quick Button (v2.10.27 Phase 1) -->
-    <button type="button" class="btn-lang-toggle no-print" id="btn-lang-toggle" aria-label="تبديل اللغة / Change Language" title="English / عربي" style="background: var(--bg-subtle); border: 1.5px solid var(--border-color); border-radius: 999px; padding: 5px 10px; color: var(--text-main); font-size: 0.78rem; font-weight: 800; cursor: pointer; display: inline-flex; align-items: center; gap: 5px; transition: all 0.15s ease;">
-      <i class="fa-solid fa-globe" style="color: var(--primary); font-size: 0.85rem;"></i>
-      <span id="lang-toggle-text">EN</span>
-    </button>
-
     <!-- Notifications Bell Button with Red Counter Badge & Dropdown (v2.10.0) -->
     <div class="notification-bell-wrapper no-print" style="position: relative;">
       <button type="button" class="btn-notification-bell" id="btn-notifications-bell" aria-label="الإشعارات" title="مركز الإشعارات">
@@ -254,27 +240,27 @@
       <nav class="sidebar-nav">
         <button class="nav-link active" data-view="dashboard">
           <i class="fa-solid fa-chart-pie"></i>
-          <span data-i18n="nav_dashboard">الرئيسية</span>
+          <span>الرئيسية</span>
         </button>
         <button class="nav-link" data-view="patients">
           <i class="fa-solid fa-users"></i>
-          <span data-i18n="nav_patients">سجل المرضى</span>
+          <span>سجل المرضى</span>
         </button>
         <button class="nav-link" data-view="sessions">
           <i class="fa-solid fa-calendar-check"></i>
-          <span data-i18n="nav_sessions">تسجيل الجلسات</span>
+          <span>تسجيل الجلسات</span>
         </button>
         <button class="nav-link" data-view="finance">
           <i class="fa-solid fa-file-invoice-dollar"></i>
-          <span data-i18n="nav_finance">الحسابات والتقرير اليومي</span>
+          <span>الحسابات والتقرير اليومي</span>
         </button>
         <button class="nav-link" data-view="appointments">
           <i class="fa-solid fa-calendar-week"></i>
-          <span data-i18n="nav_appointments">جدول المواعيد</span>
+          <span>جدول المواعيد</span>
         </button>
         <button class="nav-link admin-only" data-view="admin">
           <i class="fa-solid fa-user-shield"></i>
-          <span data-i18n="nav_admin">لوحة المدير والصلاحيات</span>
+          <span>لوحة المدير والصلاحيات</span>
         </button>
         
       </nav>
@@ -310,9 +296,6 @@
           <div style="display: flex; gap: 8px; width: 100%; border-top: 1px solid var(--border-color); padding-top: 8px;">
             <button type="button" class="btn btn-outline btn-sm" id="btn-toggle-theme-desktop" style="flex: 1; height: 32px; padding: 0 6px; display: inline-flex; align-items: center; justify-content: center; gap: 6px; border-radius: 8px; font-size: 0.78rem; font-weight: 700; color: var(--text-main); background: var(--bg-surface);" title="التبديل بين الوضع الليلي والنهاري">
               <i class="fa-solid fa-moon"></i> <span>المظهر</span>
-            </button>
-            <button type="button" class="btn btn-outline btn-sm" id="btn-lang-toggle-desktop" style="flex: 1; height: 32px; padding: 0 6px; display: inline-flex; align-items: center; justify-content: center; gap: 6px; border-radius: 8px; font-size: 0.78rem; font-weight: 700; color: var(--text-main); background: var(--bg-surface);" title="تبديل اللغة / Switch Language">
-              <i class="fa-solid fa-globe"></i> <span id="lang-toggle-text-desktop">EN</span>
             </button>
             <button type="button" class="btn btn-outline btn-sm" id="btn-logout-desktop" style="flex: 1; height: 32px; padding: 0 6px; display: inline-flex; align-items: center; justify-content: center; gap: 6px; border-radius: 8px; font-size: 0.78rem; font-weight: 700; color: var(--danger); border-color: var(--danger); background: var(--bg-surface);" title="تسجيل الخروج">
               <i class="fa-solid fa-right-from-bracket"></i> <span>خروج</span>
@@ -2513,23 +2496,23 @@
     <nav class="bottom-nav no-print">
       <button class="b-nav-item active" data-view="dashboard">
         <i class="fa-solid fa-chart-pie"></i>
-        <span data-i18n="bnav_dashboard">الرئيسية</span>
+        <span>الرئيسية</span>
       </button>
       <button class="b-nav-item" data-view="patients">
         <i class="fa-solid fa-users"></i>
-        <span data-i18n="bnav_patients">المرضى</span>
+        <span>المرضى</span>
       </button>
       <button class="b-nav-item" data-view="sessions">
         <i class="fa-solid fa-calendar-check"></i>
-        <span data-i18n="bnav_sessions">الجلسات</span>
+        <span>الجلسات</span>
       </button>
       <button class="b-nav-item" data-view="finance">
         <i class="fa-solid fa-file-invoice-dollar"></i>
-        <span data-i18n="bnav_finance">الحسابات</span>
+        <span>الحسابات</span>
       </button>
       <button class="b-nav-item" data-view="appointments">
         <i class="fa-solid fa-calendar-week"></i>
-        <span data-i18n="bnav_appointments">المواعيد</span>
+        <span>المواعيد</span>
       </button>
     </nav>
   </div>
@@ -3703,8 +3686,8 @@
             <i class="fa-solid fa-id-badge"></i>
           </div>
           <div>
-            <h3 style="margin: 0; font-size: 1.1rem; color: #ffffff; font-weight: 800;" data-i18n="profile_modal_title">الملف الشخصي</h3>
-            <p style="margin: 2px 0 0 0; font-size: 0.76rem; opacity: 0.9; color: #e0f2fe;" data-i18n="profile_modal_subtitle">بيانات وإعدادات حساب المستخدم</p>
+            <h3 style="margin: 0; font-size: 1.1rem; color: #ffffff; font-weight: 800;">الملف الشخصي</h3>
+            <p style="margin: 2px 0 0 0; font-size: 0.76rem; opacity: 0.9; color: #e0f2fe;">بيانات وإعدادات حساب المستخدم</p>
           </div>
         </div>
         <button type="button" class="modal-close" id="btn-close-user-profile-modal" style="font-size: 1.3rem; background: none; border: none; cursor: pointer; color: #ffffff;">&times;</button>
@@ -3767,17 +3750,6 @@
               <span id="profile-theme-label">الوضع الليلي (داكن)</span>
             </span>
             <i class="fa-solid fa-chevron-left" style="color: var(--text-muted); font-size: 0.8rem;"></i>
-          </button>
-
-          <!-- 2.5 Language Selection Toggle (v2.10.27 Phase 1) -->
-          <button type="button" class="btn btn-outline" id="btn-profile-toggle-lang" style="width: 100%; display: flex; align-items: center; justify-content: space-between; padding: 11px 14px; border-radius: 12px; font-weight: 800; font-size: 0.88rem; color: var(--text-main); border: 1.5px solid var(--border-color); background: var(--bg-surface); cursor: pointer; transition: all 0.2s ease;">
-            <span style="display: flex; align-items: center; gap: 10px;">
-              <span style="width: 32px; height: 32px; border-radius: 8px; background: rgba(2, 132, 199, 0.12); color: var(--primary); display: flex; align-items: center; justify-content: center; font-size: 0.95rem; flex-shrink: 0;">
-                <i class="fa-solid fa-globe" id="profile-lang-icon"></i>
-              </span>
-              <span id="profile-lang-label">اللغة: English</span>
-            </span>
-            <span class="badge" id="profile-lang-badge" style="font-size: 0.76rem; font-weight: 800; background: var(--bg-subtle); color: var(--primary); border: 1px solid var(--border-color); padding: 3px 8px; border-radius: 6px;">EN</span>
           </button>
 
           <!-- 3. Change Password -->
@@ -4742,7 +4714,7 @@
   </div>
 
 <!-- Main Application Script (ES Module) -->
-  <script type="module" src="js/app.js?v=2.10.29"></script>
+  <script type="module" src="js/app.js?v=2.10.26"></script>
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
