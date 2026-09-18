@@ -1,26 +1,184 @@
+/* ==========================================================================
+   ASCPT Design System
+   Version: 3.0 Foundation
+   
+   Rules:
+   - Canonical tokens are the future source of truth for all components.
+   - Legacy variables remain temporarily for strict backward compatibility.
+   - Existing components will be migrated gradually in subsequent phases.
+   - Do not introduce new arbitrary colors, spacing values, radii, shadows,
+     or typography values without a design-system reason.
+   ========================================================================== */
+
+/* ==========================================================================
+   CANONICAL RESPONSIVE BREAKPOINT SPECIFICATION (Future Standard)
+   - Mobile:   < 768px        (Single-column flow, bottom navigation, mobile cards)
+   - Tablet:   768px - 1024px (2-column flow, adaptable navigation)
+   - Desktop:  >= 1024px      (Persistent 260px sidebar, multi-column dashboard)
+   ========================================================================== */
+
 :root {
-  --primary: #0284c7;
-  --primary-hover: #0369a1;
+  /* --------------------------------------------------------------------------
+     1. CANONICAL COLOR SYSTEM
+     -------------------------------------------------------------------------- */
+  /* Brand Palette (Clinical Blue) */
+  --color-brand-50: #f0f7ff;
+  --color-brand-100: #e0effe;
+  --color-brand-200: #b9ddfd;
+  --color-brand-500: #0284c7;
+  --color-brand-600: #0369a1;
+  --color-brand-700: #075985;
+  --color-brand-900: #0c3249;
+
+  /* Neutral Palette (Slate) */
+  --color-slate-0: #ffffff;
+  --color-slate-50: #f8fafc;
+  --color-slate-100: #f1f5f9;
+  --color-slate-200: #e2e8f0;
+  --color-slate-300: #cbd5e1;
+  --color-slate-500: #64748b;
+  --color-slate-700: #334155;
+  --color-slate-900: #0f172a;
+
+  /* Semantic Status Palette */
+  --color-success: #059669;
+  --color-success-bg: #ecfdf5;
+  --color-success-border: #a7f3d0;
+
+  --color-warning: #d97706;
+  --color-warning-bg: #fffbeb;
+  --color-warning-border: #fde68a;
+
+  --color-danger: #dc2626;
+  --color-danger-bg: #fef2f2;
+  --color-danger-border: #fecaca;
+
+  --color-info: #0284c7;
+  --color-info-bg: #f0f9ff;
+  --color-info-border: #bae6fd;
+
+  /* --------------------------------------------------------------------------
+     2. CANONICAL TYPOGRAPHY SYSTEM (Cairo Arabic Optimized)
+     -------------------------------------------------------------------------- */
+  --font-family: 'Cairo', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+
+  /* Font Size Scale */
+  --text-xs: 0.75rem;    /* 12px - Badges, captions, helper text */
+  --text-sm: 0.875rem;   /* 14px - Secondary body, compact items */
+  --text-base: 1rem;     /* 16px - Standard body text, form controls */
+  --text-md: 1.125rem;   /* 18px - Subheadings, card titles */
+  --text-lg: 1.25rem;    /* 20px - Section headers, modal titles */
+  --text-xl: 1.5rem;     /* 24px - Primary page titles */
+  --text-kpi: 1.75rem;   /* 28px - Metric/numerical stats readouts */
+
+  /* Line Heights */
+  --lh-tight: 1.25;
+  --lh-snug: 1.375;
+  --lh-normal: 1.5;
+  --lh-loose: 1.7;
+
+  /* Font Weights */
+  --weight-regular: 500;
+  --weight-medium: 600;
+  --weight-bold: 700;
+
+  /* --------------------------------------------------------------------------
+     3. CANONICAL SPACING SCALE (8px Rhythm with 4px Half-Step)
+     -------------------------------------------------------------------------- */
+  --space-0: 0;
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-12: 48px;
+
+  /* --------------------------------------------------------------------------
+     4. CANONICAL BORDER RADIUS SYSTEM (Target Primitives)
+     -------------------------------------------------------------------------- */
+  /* Target Canonical Tokens for future component refactoring */
+  --radius-canonical-sm: 8px;
+  --radius-canonical-md: 12px;
+  --radius-canonical-lg: 16px;
+  --radius-canonical-full: 9999px;
+
+  /* --------------------------------------------------------------------------
+     5. CANONICAL ELEVATION & SHADOW SCALE
+     -------------------------------------------------------------------------- */
+  --shadow-none: none;
+  --shadow-sm: 0 1px 2px 0 rgba(15, 23, 42, 0.05);
+  --shadow-md: 0 4px 6px -1px rgba(15, 23, 42, 0.07), 0 2px 4px -2px rgba(15, 23, 42, 0.05);
+  --shadow-lg: 0 10px 15px -3px rgba(15, 23, 42, 0.08), 0 4px 6px -4px rgba(15, 23, 42, 0.03);
+
+  /* --------------------------------------------------------------------------
+     6. CANONICAL LAYOUT TOKENS
+     -------------------------------------------------------------------------- */
+  --layout-sidebar-width: 260px;
+  --layout-topbar-height: 60px;
+  --layout-bottom-nav-height: 68px;
+
+  /* --------------------------------------------------------------------------
+     7. CANONICAL SEMANTIC Z-INDEX SCALE (Future Migration Tier)
+     -------------------------------------------------------------------------- */
+  --z-base: 1;
+  --z-sticky: 100;
+  --z-navigation: 200;
+  --z-dropdown: 300;
+  --z-drawer: 400;
+  --z-modal-backdrop: 500;
+  --z-modal: 600;
+  --z-popover: 700;
+  --z-toast: 800;
+  --z-tooltip: 900;
+  --z-system: 1000;
+  --z-max: 999999;
+
+  /* --------------------------------------------------------------------------
+     8. CANONICAL MOTION TOKENS
+     -------------------------------------------------------------------------- */
+  --duration-fast: 150ms;
+  --duration-normal: 200ms;
+  --ease-standard: cubic-bezier(0.16, 1, 0.3, 1);
+
+  /* --------------------------------------------------------------------------
+     9. CANONICAL ACCESSIBILITY TOKENS
+     -------------------------------------------------------------------------- */
+  --touch-target-min: 44px;
+  --focus-ring-color: var(--color-brand-500);
+  --focus-ring-width: 2px;
+  --focus-ring-offset: 2px;
+  --focus-ring: 0 0 0 var(--focus-ring-width) var(--color-brand-100);
+
+  /* ==========================================================================
+     10. LEGACY ALIAS MAP & PRESERVED TOKENS (Strict Backward Compatibility)
+     ========================================================================== */
+  /* Aliased Color Variables */
+  --primary: var(--color-brand-500);
+  --primary-hover: var(--color-brand-600);
   --primary-light: #e0f2fe;
-  --primary-subtle: #f0f9ff;
-  --primary-dark: #072032;
+  --primary-subtle: var(--color-brand-50);
+  --primary-dark: var(--color-brand-900);
   --primary-gradient: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
-  --secondary: #64748b;
-  --success: #10b981;
+  --secondary: var(--color-slate-500);
+
+  --success: var(--color-success);
   --success-light: #d1fae5;
-  --warning: #f59e0b;
+  --warning: var(--color-warning);
   --warning-light: #fef3c7;
-  --danger: #ef4444;
+  --danger: var(--color-danger);
   --danger-light: #fee2e2;
-  
-  --bg-main: #f8fafc;
-  --bg-surface: #ffffff;
-  --bg-subtle: #f1f5f9;
-  
-  --text-main: #0f172a;
-  --text-muted: #64748b;
-  --border-color: #e2e8f0;
-  
+
+  --bg-main: var(--color-slate-50);
+  --bg-surface: var(--color-slate-0);
+  --bg-subtle: var(--color-slate-100);
+
+  --text-main: var(--color-slate-900);
+  --text-muted: var(--color-slate-500);
+  --border-color: var(--color-slate-200);
+
+  /* Preserved Legacy Radii (Kept identical to preserve existing component geometry) */
   --radius-xs: 6px;
   --radius-sm: 10px;
   --radius-md: 16px;
@@ -28,22 +186,23 @@
   --radius-xl: 28px;
   --radius-full: 9999px;
   --radius-pill: 9999px;
-  
+
+  /* Preserved Legacy Shadows */
   --shadow-xs: 0 1px 2px rgba(15, 23, 42, 0.04);
-  --shadow-sm: 0 2px 6px -1px rgba(15, 23, 42, 0.05), 0 1px 3px -1px rgba(15, 23, 42, 0.03);
-  --shadow-md: 0 6px 18px -3px rgba(15, 23, 42, 0.07), 0 3px 8px -2px rgba(15, 23, 42, 0.04);
-  --shadow-lg: 0 16px 32px -4px rgba(15, 23, 42, 0.09), 0 6px 12px -4px rgba(15, 23, 42, 0.04);
   --shadow-glow: 0 8px 22px -4px rgba(2, 132, 199, 0.3);
-  
+
+  /* Preserved Legacy Glass Tokens */
   --bg-glass: rgba(255, 255, 255, 0.78);
   --bg-glass-card: rgba(255, 255, 255, 0.82);
   --bg-glass-subtle: rgba(241, 245, 249, 0.65);
   --glass-border: rgba(255, 255, 255, 0.7);
   --glass-blur: blur(20px) saturate(180%);
   --glass-shadow: 0 8px 32px 0 rgba(2, 132, 199, 0.08);
-  --sidebar-width: 260px;
-  --bottom-nav-height: 68px;
-  --topbar-height: 60px;
+
+  /* Preserved Layout Legacy Aliases */
+  --sidebar-width: var(--layout-sidebar-width);
+  --bottom-nav-height: var(--layout-bottom-nav-height);
+  --topbar-height: var(--layout-topbar-height);
 }
 
 * {
@@ -2276,6 +2435,40 @@ body.not-authenticated #modal-auth #btn-cancel-login {
 
 /* ================= Modern Dark Theme Tokens ================= */
 [data-theme="dark"] {
+  /* Canonical Design System (v3.0) Dark Theme Overrides */
+  --color-brand-50: rgba(56, 189, 248, 0.08);
+  --color-brand-100: rgba(56, 189, 248, 0.15);
+  --color-brand-200: rgba(56, 189, 248, 0.25);
+  --color-brand-500: #38bdf8;
+  --color-brand-600: #0ea5e9;
+  --color-brand-700: #0284c7;
+  --color-brand-900: #e0f2fe;
+
+  --color-slate-0: #1e293b;
+  --color-slate-50: #0b1120;
+  --color-slate-100: #0f172a;
+  --color-slate-200: #334155;
+  --color-slate-300: #475569;
+  --color-slate-500: #94a3b8;
+  --color-slate-700: #cbd5e1;
+  --color-slate-900: #f8fafc;
+
+  --color-success: #34d399;
+  --color-success-bg: rgba(52, 211, 153, 0.15);
+  --color-success-border: rgba(52, 211, 153, 0.3);
+
+  --color-warning: #fbbf24;
+  --color-warning-bg: rgba(251, 191, 36, 0.15);
+  --color-warning-border: rgba(251, 191, 36, 0.3);
+
+  --color-danger: #f87171;
+  --color-danger-bg: rgba(248, 113, 113, 0.15);
+  --color-danger-border: rgba(248, 113, 113, 0.3);
+
+  --color-info: #38bdf8;
+  --color-info-bg: rgba(56, 189, 248, 0.15);
+  --color-info-border: rgba(56, 189, 248, 0.3);
+
   --bg-glass: rgba(15, 23, 42, 0.75);
   --bg-glass-card: rgba(30, 41, 59, 0.72);
   --bg-glass-subtle: rgba(15, 23, 42, 0.65);
