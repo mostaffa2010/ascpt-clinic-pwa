@@ -282,6 +282,39 @@ class App {
     } catch (_) {}
   }
 
+  initLanguage() {
+    if (this.i18n && typeof this.i18n.init === 'function') {
+      this.i18n.init();
+    }
+
+    const toggleBtns = document.querySelectorAll('#btn-lang-toggle, #btn-lang-toggle-desktop, #btn-profile-toggle-lang');
+    toggleBtns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        this.toggleLanguage();
+      });
+    });
+  }
+
+  toggleLanguage() {
+    try {
+      const current = this.i18n ? this.i18n.getLanguage() : (localStorage.getItem('ascpt_language') || 'ar');
+      const next = current === 'ar' ? 'en' : 'ar';
+      if (this.i18n) {
+        this.i18n.setLanguage(next);
+      } else {
+        localStorage.setItem('ascpt_language', next);
+      }
+      this.showToast(next === 'en' ? 'Switched to English 🌐' : 'تم التحويل إلى اللغة العربية 🌐');
+    } catch (err) {
+      console.warn('Language toggle notice:', err);
+      try {
+        localStorage.setItem('ascpt_language', 'ar');
+        document.documentElement.setAttribute('lang', 'ar');
+        document.documentElement.setAttribute('dir', 'rtl');
+      } catch (_) {}
+    }
+  }
+
   initTheme() {
     const saved = localStorage.getItem('ascpt_theme');
     const isDark = saved === 'dark' || (!saved && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches);

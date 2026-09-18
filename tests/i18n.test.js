@@ -74,7 +74,7 @@ assert(printCss.includes('direction: rtl !important'), 'print.css must enforce d
 const styleCss = fs.readFileSync(path.join(rootDir, 'css/style.css'), 'utf-8');
 assert(styleCss.includes('@media print'), 'style.css must include @media print guardrails');
 assert(styleCss.includes('direction: rtl !important'), 'style.css @media print must force direction: rtl !important');
-assert(styleCss.includes('[dir="ltr"] .sidebar'), 'style.css must support LTR sidebar alignment');
+assert(styleCss.includes('.lang-en'), 'style.css must support .lang-en styling while preserving mobile touch stability');
 console.log('✓ 5. Print Isolation Guardrail: Verified strict direction: rtl !important for all print contexts.');
 
 // 6. Verify HTML Bindings and data-i18n Attributes

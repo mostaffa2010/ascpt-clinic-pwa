@@ -182,7 +182,11 @@ class I18nService {
     if (typeof document !== 'undefined') {
       const docEl = document.documentElement;
       docEl.setAttribute('lang', lang);
-      docEl.setAttribute('dir', lang === 'en' ? 'ltr' : 'rtl');
+      // Strictly maintain dir="rtl" to protect mobile touch hit-testing and avoid UI freeze
+      docEl.setAttribute('dir', 'rtl');
+      if (document.body) {
+        document.body.setAttribute('dir', 'rtl');
+      }
 
       if (lang === 'en') {
         docEl.classList.add('lang-en');
