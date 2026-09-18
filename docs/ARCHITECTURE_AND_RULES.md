@@ -1,6 +1,6 @@
-# PhysioFlow — Permanent Code & Project Organization Rules
+# ASCPT — Permanent Code & Project Organization Rules
 
-وثيقة القواعد الهندسية الدائمة لمشروع PhysioFlow.
+وثيقة القواعد الهندسية الدائمة لمشروع مركز الإسكندرية التخصصي للعلاج الطبيعي (ASCPT).
 يلتزم فريق التطوير بهذه القواعد في أي تعديل أو ميزة (Feature) أو إصلاح (Bug Fix) أو إعادة هيكلة (Refactoring).
 
 ---
@@ -20,7 +20,7 @@
 ## 2. تنظيم المشروع (Project Structure)
 فصل واضح وحاسم بين أنواع الملفات:
 ```
-physioflow/
+ascpt-clinic-pwa/
 │
 ├── index.html
 ├── manifest.json

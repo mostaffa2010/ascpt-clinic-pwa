@@ -1,6 +1,6 @@
 import { escapeHTML, getLocalDateStr, getLatestTherapySession } from './utils.js';
 // ========================================================
-// PhysioFlow - Daily Sessions & Check-in Module
+// ASCPT - Daily Sessions & Check-in Module
 // ========================================================
 
 import { db } from './db.js';

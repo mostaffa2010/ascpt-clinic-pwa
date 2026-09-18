@@ -175,6 +175,10 @@ assert(apptsJsContent.includes('CLINIC_CONFIG.shortName') || apptsJsContent.incl
 assert(!apptsJsContent.includes('مركز الإسكندرية التخصصي مغلق'), 'appointments.js must not contain hardcoded clinic name in friday alert');
 assert(appJsContent.includes('(CLINIC_CONFIG.abbreviation ||'), 'app.js exit confirmation and backup filename must dynamically use CLINIC_CONFIG');
 assert(dbJsContent.includes('CLINIC_CONFIG?.brandName'), 'db.js backup clinicName must use CLINIC_CONFIG.brandName');
+const exportJsPathCheck = path.join(rootDir, 'js/export.js');
+const exportJsContentCheck = fs.readFileSync(exportJsPathCheck, 'utf-8');
+assert(exportJsContentCheck.includes('CLINIC_CONFIG.abbreviation'), 'export.js must dynamically use CLINIC_CONFIG.abbreviation for report filenames');
+assert(!exportJsContentCheck.includes('PhysioFlow'), 'export.js must not contain hardcoded PhysioFlow');
 console.log('✓ 15. White-Label Centralization: Verified zero hardcoded clinic names in appointments, alerts, and backup.');
 
 // 16. Strict Guardrail: Sessions Screen View Switcher & Home Visits Tab Parity

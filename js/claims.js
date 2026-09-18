@@ -1,7 +1,7 @@
 import { CLINIC_CONFIG } from './clinic-config.js';
 import { escapeHTML, getLocalDateStr, normalizeArabic } from './utils.js';
 // ========================================================
-// PhysioFlow - Insurance Claims & Attendance Cards Module
+// ASCPT - Insurance Claims & Attendance Cards Module
 // نظام مطالبات شركات التأمين وبطاقات التردد
 // ========================================================
 
@@ -1022,7 +1022,7 @@ export class ClaimsManager {
       const treatments = card.treatments && card.treatments.length > 0
         ? card.treatments
         : ['pulsed Ultrasound', 'Heat application', 'Interferential current', 'Therapeutic ex'];
-      const itemCompany = p.insuranceCompany || this.currentCompany || 'شركة التأمين';
+      const itemCompany = p.insuranceCompany || companyName;
 
       return `
         <div class="attendance-card-print-page">

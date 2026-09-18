@@ -2,6 +2,7 @@
 // ASCPT - Export & Wi-Fi Printing Module (Daily & Monthly)
 // ========================================================
 
+import { CLINIC_CONFIG } from './clinic-config.js';
 import { db } from './db.js';
 
 /**
@@ -183,14 +184,14 @@ export class ExportManager {
           XLSX.utils.book_append_sheet(wb, wsSet, 'تحصيلات التأمين');
         }
 
-        XLSX.writeFile(wb, `تقرير_PhysioFlow_اليومي_${dateStr}.xlsx`);
+        XLSX.writeFile(wb, `تقرير_${CLINIC_CONFIG.abbreviation}_اليومي_${dateStr}.xlsx`);
         this.app.showToast('تم تصدير تقرير اليوم بنجاح');
         return;
       }
 
       // ب. Fallback CSV بترميز عربي
       let csv = '\uFEFF';
-      csv += `نظام PhysioFlow لإدارة مراكز العلاج الطبيعي - التقرير اليومي: ${dateStr}\r\n\r\n`;
+      csv += `${CLINIC_CONFIG.brandName} (${CLINIC_CONFIG.abbreviation}) - التقرير اليومي: ${dateStr}\r\n\r\n`;
       csv += `إجمالي المرضى: ${allSessions.length}, إيرادات: ${totalDrawerCash} ج.م, مصروفات: ${totalExp} ج.م, صافي الدرج: ${netCash} ج.م\r\n\r\n`;
       csv += 'م,اسم المريض,الطبيب المعالج,نظام الحساب,شركة التأمين,نوع التعاقد,الأعضاء المعالجة,المبلغ المسدد (ج.م),المسؤول,الوقت\r\n';
 
@@ -200,7 +201,7 @@ export class ExportManager {
         csv += `${idx + 1},"${csvSafe(s.patientName)}","${csvSafe(s.doctor)}",${s.payType === 'cash' ? 'نقدي' : 'تأمين'},"${csvSafe(s.insuranceName || '-')}","${csvSafe(contract)}","${csvSafe(parts)}",${s.amountPaid},"${csvSafe(s.recordedBy)}","${csvSafe(s.recordedAt)}"\r\n`;
       });
 
-      this.downloadCSV(csv, `تقرير_PhysioFlow_اليومي_${dateStr}.csv`);
+      this.downloadCSV(csv, `تقرير_${CLINIC_CONFIG.abbreviation}_اليومي_${dateStr}.csv`);
     } catch (err) {
       console.error('Export error:', err);
       this.app.showAlert('تعذر تصدير التقرير: ' + err.message, 'خطأ', 'danger');
@@ -389,14 +390,14 @@ export class ExportManager {
           XLSX.utils.book_append_sheet(wb, wsSet, 'تحصيلات التأمين للشهر');
         }
 
-        XLSX.writeFile(wb, `تقرير_PhysioFlow_الشهري_${monthStr}.xlsx`);
+        XLSX.writeFile(wb, `تقرير_${CLINIC_CONFIG.abbreviation}_الشهري_${monthStr}.xlsx`);
         this.app.showToast('تم تصدير التقرير الشهري بنجاح');
         return;
       }
 
       // Fallback CSV
       let csv = '\uFEFF';
-      csv += `نظام PhysioFlow لإدارة مراكز العلاج الطبيعي - التقرير الشهري: ${monthStr}\r\n\r\n`;
+      csv += `${CLINIC_CONFIG.brandName} (${CLINIC_CONFIG.abbreviation}) - التقرير الشهري: ${monthStr}\r\n\r\n`;
       csv += `إجمالي مرضى الشهر,${totalPatients},نقدي,${cashCount},تأمين,${insCount},إيرادات,${totalIncome} ج.م,مصروفات,${totalExp} ج.م,صافي الأرباح,${netCash} ج.م\r\n\r\n`;
       csv += 'إحصائية الأطباء الشهرية:\r\nم,الطبيب المعالج,مرضى نقدي,مرضى شركات تأمين,إجمالي الحالات,عدد الجلسات المحتسبة,النسبة\r\n';
       doctorsData.forEach(d => {
@@ -407,7 +408,7 @@ export class ExportManager {
         csv += `${i['م']},"${csvSafe(i['جهة السداد / شركة التأمين'])}","${csvSafe(i['نوع التعاقد'])}",${i['عدد الحالات في الشهر']},${i['النسبة المئوية']}\r\n`;
       });
 
-      this.downloadCSV(csv, `تقرير_PhysioFlow_الشهري_${monthStr}.csv`);
+      this.downloadCSV(csv, `تقرير_${CLINIC_CONFIG.abbreviation}_الشهري_${monthStr}.csv`);
     } catch (err) {
       console.error('Export error:', err);
       this.app.showAlert('تعذر تصدير التقرير الشهري: ' + err.message, 'خطأ', 'danger');

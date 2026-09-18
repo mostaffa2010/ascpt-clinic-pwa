@@ -1,7 +1,7 @@
 import { CLINIC_CONFIG } from './clinic-config.js';
 import { escapeHTML, getLocalDateStr, sequencePatientSessionsChronologically } from './utils.js';
 // ========================================================
-// PhysioFlow - Patients Management Module
+// ASCPT - Patients Management Module
 // ========================================================
 
 import { db } from './db.js';
