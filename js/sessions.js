@@ -1031,9 +1031,10 @@ export class SessionsManager {
         const approvedTotal = parseInt(patient.approvedSessions, 10) || 12;
         approvedSessionsTotal = approvedTotal;
 
+        const hasExplicitRenewal = Boolean(patient.lastRenewalDate || (Array.isArray(patient.approvalCycles) && patient.approvalCycles.length > 1));
         const cycleOpts = {
-          currentApprovalStartDate: patient.currentApprovalStartDate,
-          approvalCycles: patient.approvalCycles
+          currentApprovalStartDate: hasExplicitRenewal ? patient.currentApprovalStartDate : '',
+          approvalCycles: hasExplicitRenewal ? patient.approvalCycles : null
         };
 
         if (isEdit && this.editingSessionId) {

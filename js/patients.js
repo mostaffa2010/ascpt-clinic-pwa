@@ -1853,7 +1853,7 @@ export class PatientsManager {
     if (!id && billing === 'insurance') {
       patientData.currentApprovalStartDate = getLocalDateStr();
     } else if (id && billing === 'insurance') {
-      patientData.currentApprovalStartDate = existingP?.currentApprovalStartDate || getLocalDateStr();
+      patientData.currentApprovalStartDate = existingP?.currentApprovalStartDate || '';
     }
 
     try {
@@ -2276,7 +2276,8 @@ export class PatientsManager {
         const badgeClass = p.contractType === 'direct' ? 'badge-direct' : 'badge-indirect';
         const iconClass = p.contractType === 'direct' ? 'fa-file-contract' : 'fa-handshake';
         const approvedTotal = p.approvedSessions || 12;
-        const cycleStart = p.currentApprovalStartDate || '';
+        const hasExplicitRenewal = Boolean(p.lastRenewalDate || (Array.isArray(p.approvalCycles) && p.approvalCycles.length > 1));
+        const cycleStart = hasExplicitRenewal ? (p.currentApprovalStartDate || '') : '';
         const cycleSessions = this.currentPatientSessions.filter(s => s.entryType !== 'examination' && (!cycleStart || (s.date || '').localeCompare(cycleStart) >= 0));
         const currentCount = cycleSessions.length;
         const isNearLimit = currentCount >= approvedTotal - 2;
@@ -2780,9 +2781,10 @@ export class PatientsManager {
       `;
     } else {
       const approvedTotal = parseInt(p.approvedSessions, 10) || 12;
+      const hasExplicitRenewal = Boolean(p.lastRenewalDate || (Array.isArray(p.approvalCycles) && p.approvalCycles.length > 1));
       const seqMap = sequencePatientSessionsChronologically(sessions, approvedTotal, {
-        currentApprovalStartDate: p.currentApprovalStartDate,
-        approvalCycles: p.approvalCycles
+        currentApprovalStartDate: hasExplicitRenewal ? p.currentApprovalStartDate : '',
+        approvalCycles: hasExplicitRenewal ? p.approvalCycles : null
       });
 
       listEl.innerHTML = sessions.map((s, idx) => {
@@ -4530,9 +4532,10 @@ export class PatientsManager {
     const newIds = new Set(newSessionDrafts.map(n => n.id));
     const sessionsToCreate = [];
 
+    const hasExplicitRenewal = Boolean(p.lastRenewalDate || (Array.isArray(p.approvalCycles) && p.approvalCycles.length > 1));
     const seqMap = sequencePatientSessionsChronologically(combined, approvedTotal, {
-      currentApprovalStartDate: p.currentApprovalStartDate,
-      approvalCycles: p.approvalCycles
+      currentApprovalStartDate: hasExplicitRenewal ? p.currentApprovalStartDate : '',
+      approvalCycles: hasExplicitRenewal ? p.approvalCycles : null
     });
 
     combined.forEach((s, idx) => {
