@@ -9,7 +9,6 @@ import {
   doc,
   setDoc,
   updateDoc,
-  deleteDoc,
   onSnapshot,
   query,
   orderBy,
@@ -385,7 +384,7 @@ export class NotificationsManager {
     }).join('');
 
     listEl.querySelectorAll('.notification-item').forEach((item) => {
-      item.addEventListener('click', (e) => {
+      item.addEventListener('click', () => {
         const notifId = item.dataset.notifId;
         const notif = this.notifications.find(n => n.id === notifId);
         if (notif) {
@@ -726,6 +725,11 @@ export class NotificationsManager {
 
       // 2. Direct Firestore fallback (wrapped safely so permission-denied never blocks the user)
       if (!savedViaServer && firestoreDb) {
+        let subJson = null;
+        try {
+          const sub = await reg.pushManager.getSubscription();
+          if (sub) subJson = sub.toJSON();
+        } catch (_) {}
         try {
           let tokenHash = 0;
           for (let i = 0; i < tokenString.length; i++) {
