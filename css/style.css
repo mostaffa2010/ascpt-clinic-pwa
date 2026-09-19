@@ -12369,3 +12369,120 @@ body.role-doctor .btn-quick-attend {
   gap: 5px !important;
   box-shadow: 0 2px 8px rgba(2, 132, 199, 0.35) !important;
 }
+
+/* ==========================================================================
+   RECEPTION DASHBOARD TABS & COMPACT CARDS (v2.10.29)
+   Unified Segmented Control, Compact Cards & Expandable Preview
+   Strict Zero-Overflow Guarantee for Mobile Screens
+   ========================================================================== */
+.dashboard-tabs-segmented {
+  display: flex !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  align-items: center !important;
+  border-radius: 12px !important;
+  padding: 3px !important;
+  gap: 4px !important;
+  box-sizing: border-box !important;
+  overflow: hidden !important;
+}
+
+:root:not([data-theme="dark"]) .dashboard-tabs-segmented {
+  background: #f1f5f9;
+  border: 1.5px solid #e2e8f0;
+}
+
+[data-theme="dark"] .dashboard-tabs-segmented {
+  background: #1e293b;
+  border: 1.5px solid #334155;
+}
+
+.dashboard-segmented-tab-btn {
+  flex: 1 1 0% !important;
+  width: 50% !important;
+  min-width: 0 !important;
+  max-width: 50% !important;
+  border: 1px solid transparent !important;
+  background: transparent !important;
+  padding: 7px 4px !important;
+  border-radius: 9px !important;
+  font-family: var(--font-family, inherit) !important;
+  font-weight: 800 !important;
+  font-size: 0.82rem !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  text-align: center !important;
+  gap: 5px !important;
+  cursor: pointer !important;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  box-sizing: border-box !important;
+  min-height: 38px !important;
+  overflow: hidden !important;
+}
+
+.dashboard-segmented-tab-btn .tab-text {
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  white-space: nowrap !important;
+}
+
+:root:not([data-theme="dark"]) .dashboard-segmented-tab-btn {
+  color: #64748b !important;
+}
+
+:root:not([data-theme="dark"]) .dashboard-segmented-tab-btn:hover {
+  color: #0f172a !important;
+  background: rgba(255, 255, 255, 0.6) !important;
+}
+
+[data-theme="dark"] .dashboard-segmented-tab-btn {
+  color: #94a3b8 !important;
+}
+
+[data-theme="dark"] .dashboard-segmented-tab-btn:hover {
+  color: #f8fafc !important;
+  background: rgba(255, 255, 255, 0.05) !important;
+}
+
+:root:not([data-theme="dark"]) .dashboard-segmented-tab-btn.active {
+  background: #ffffff !important;
+  color: #0284c7 !important;
+  border-color: rgba(2, 132, 199, 0.25) !important;
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.08) !important;
+}
+
+[data-theme="dark"] .dashboard-segmented-tab-btn.active {
+  background: #0f172a !important;
+  color: #38bdf8 !important;
+  border-color: rgba(56, 189, 248, 0.35) !important;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.4) !important;
+}
+
+.dashboard-segmented-tab-btn .badge-counter {
+  font-size: 0.72rem !important;
+  font-weight: 800 !important;
+  border-radius: 999px !important;
+  padding: 1px 6px !important;
+  line-height: 1 !important;
+  min-width: 18px !important;
+  flex-shrink: 0 !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+#dashboard-waiting-mobile-cards .compact-waiting-card {
+  padding: 10px 12px !important;
+  margin-bottom: 8px !important;
+  border-radius: 12px !important;
+}
+
+.btn-toggle-expand-appts {
+  transition: all 0.2s ease-in-out !important;
+}
+
+.btn-toggle-expand-appts:hover {
+  border-color: var(--primary, #0284c7) !important;
+  transform: translateY(-1px) !important;
+}

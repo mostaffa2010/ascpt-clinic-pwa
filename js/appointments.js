@@ -2602,19 +2602,25 @@ export class AppointmentsManager {
         return minA - minB;
       });
 
-      // Update badge counter
+      // Update badge counter with compact numeric indicator
       const waitingCount = allTodayAppts.filter(a => a.effectiveStatus === 'waiting').length;
       const completedClinicallyCount = allTodayAppts.filter(a => a.effectiveStatus === 'completed_clinically').length;
       if (badgeCounter) {
         if (completedClinicallyCount > 0) {
-          badgeCounter.textContent = `${completedClinicallyCount} أنهى الجلسة`;
+          badgeCounter.textContent = `${completedClinicallyCount}`;
+          badgeCounter.title = `${completedClinicallyCount} أنهى الجلسة وبانتظار التسجيل`;
           badgeCounter.style.background = 'var(--success)';
+          badgeCounter.style.color = '#fff';
         } else if (waitingCount > 0) {
-          badgeCounter.textContent = `${waitingCount} في الانتظار`;
+          badgeCounter.textContent = `${waitingCount}`;
+          badgeCounter.title = `${waitingCount} في الانتظار`;
           badgeCounter.style.background = '#d97706';
+          badgeCounter.style.color = '#fff';
         } else {
           badgeCounter.textContent = `${allTodayAppts.length}`;
+          badgeCounter.title = 'إجمالي مواعيد اليوم';
           badgeCounter.style.background = 'var(--primary)';
+          badgeCounter.style.color = '#fff';
         }
       }
 
@@ -2629,9 +2635,17 @@ export class AppointmentsManager {
         return;
       }
 
+      // Smart Preview Window: Default to first 5 appointments to keep home screen clean
+      const PREVIEW_LIMIT = 5;
+      const isExpanded = !!this.isReceptionListExpanded;
+      const totalCount = apptsToRender.length;
+      const visibleAppts = (!isExpanded && totalCount > PREVIEW_LIMIT)
+        ? apptsToRender.slice(0, PREVIEW_LIMIT)
+        : apptsToRender;
+
       // Render Desktop Rows
       if (tableTbody) {
-        tableTbody.innerHTML = apptsToRender.map(a => {
+        let rowsHtml = visibleAppts.map(a => {
           const slotObj = (this.slots || []).find(s => s.key === a.timeSlot);
           const timeDisplay = slotObj ? slotObj.label : (a.time || a.timeSlot || 'موعد اليوم');
           const docName = a.doctorName || (this.doctors.find(d => d.uid === a.doctorUid)?.name) || 'طبيب المركز';
@@ -2682,11 +2696,26 @@ export class AppointmentsManager {
             </tr>
           `;
         }).join('');
+
+        if (totalCount > PREVIEW_LIMIT) {
+          rowsHtml += `
+            <tr>
+              <td colspan="6" style="text-align: center; padding: 10px; background: var(--bg-subtle);">
+                <button type="button" class="btn btn-outline btn-sm btn-toggle-expand-appts" style="font-weight: 800; font-size: 0.82rem; border-radius: 999px; padding: 5px 18px; cursor: pointer; background: var(--bg-surface);">
+                  <i class="fa-solid ${isExpanded ? 'fa-chevron-up' : 'fa-chevron-down'}" style="margin-left: 5px;"></i>
+                  <span>${isExpanded ? 'عرض أقل (إظهار أول 5 مواعيد فقط)' : `عرض باقي مواعيد اليوم (متبقي ${totalCount - PREVIEW_LIMIT} مواعيد)`}</span>
+                </button>
+              </td>
+            </tr>
+          `;
+        }
+
+        tableTbody.innerHTML = rowsHtml;
       }
 
-      // Render Dedicated Mobile Cards
+      // Render Dedicated Compact Mobile Cards
       if (mobileCards) {
-        mobileCards.innerHTML = apptsToRender.map(a => {
+        let cardsHtml = visibleAppts.map(a => {
           const slotObj = (this.slots || []).find(s => s.key === a.timeSlot);
           const timeDisplay = slotObj ? slotObj.label : (a.time || a.timeSlot || 'موعد اليوم');
           const docName = a.doctorName || (this.doctors.find(d => d.uid === a.doctorUid)?.name) || 'طبيب المركز';
@@ -2695,51 +2724,70 @@ export class AppointmentsManager {
           let actionBtn = '';
 
           if (a.effectiveStatus === 'completed_clinically') {
-            statusBadge = `<span class="badge" style="background: rgba(16, 185, 129, 0.15); color: #059669; border: 1.5px solid rgba(16, 185, 129, 0.4); padding: 4px 10px; border-radius: 999px; font-size: 0.78rem; font-weight: 900;"><i class="fa-solid fa-circle-check"></i> أنهى الجلسة (بانتظار التسجيل)</span>`;
+            statusBadge = `<span class="badge" style="background: rgba(16, 185, 129, 0.15); color: #059669; border: 1px solid rgba(16, 185, 129, 0.4); padding: 2px 6px; border-radius: 6px; font-size: 0.72rem; font-weight: 900;"><i class="fa-solid fa-circle-check"></i> أنهى الجلسة</span>`;
             actionBtn = `
-              <button type="button" class="btn btn-success btn-record-session-now" data-appt-id="${escapeHTML(a.id)}" data-patient-id="${escapeHTML(a.patientId || '')}" data-patient-name="${escapeHTML(a.patientName)}" data-doc-uid="${escapeHTML(a.doctorUid || '')}" data-doc-name="${escapeHTML(docName)}" style="width: 100%; font-weight: 800; border-radius: 999px; padding: 8px 14px; box-shadow: 0 2px 8px rgba(16, 185, 129, 0.35);">
-                <i class="fa-solid fa-file-invoice-dollar"></i> <span>تسجيل الجلسة والمحاسبة</span>
+              <button type="button" class="btn btn-success btn-sm btn-record-session-now" data-appt-id="${escapeHTML(a.id)}" data-patient-id="${escapeHTML(a.patientId || '')}" data-patient-name="${escapeHTML(a.patientName)}" data-doc-uid="${escapeHTML(a.doctorUid || '')}" data-doc-name="${escapeHTML(docName)}" style="font-weight: 800; border-radius: 8px; padding: 6px 11px; font-size: 0.78rem; box-shadow: 0 2px 6px rgba(16, 185, 129, 0.35); white-space: nowrap; display: inline-flex; align-items: center; gap: 4px;">
+                <i class="fa-solid fa-file-invoice-dollar"></i> <span>تسجيل</span>
               </button>
             `;
           } else if (a.effectiveStatus === 'waiting') {
-            statusBadge = `<span class="badge" style="background: rgba(245, 158, 11, 0.15); color: #d97706; border: 1px solid rgba(245, 158, 11, 0.35); padding: 4px 10px; border-radius: 999px; font-size: 0.76rem; font-weight: 800;"><i class="fa-solid fa-hourglass-half"></i> في الانتظار</span>`;
+            statusBadge = `<span class="badge" style="background: rgba(245, 158, 11, 0.15); color: #d97706; border: 1px solid rgba(245, 158, 11, 0.35); padding: 2px 6px; border-radius: 6px; font-size: 0.72rem; font-weight: 800;"><i class="fa-solid fa-hourglass-half"></i> بالانتظار</span>`;
             actionBtn = `
-              <div style="text-align: center; font-size: 0.82rem; color: #d97706; font-weight: 700; padding: 6px;"><i class="fa-solid fa-bell"></i> أُخطر الطبيب وفي انتظار دخوله</div>
+              <span class="badge" style="background: rgba(245, 158, 11, 0.1); color: #d97706; border: 1px solid rgba(245, 158, 11, 0.3); border-radius: 8px; font-size: 0.74rem; font-weight: 800; padding: 5px 8px; display: inline-flex; align-items: center; gap: 4px; white-space: nowrap;">
+                <i class="fa-solid fa-bell"></i> أُخطر الطبيب
+              </span>
             `;
           } else if (a.effectiveStatus === 'attended' || a.effectiveStatus === 'completed') {
-            statusBadge = `<span class="badge" style="background: rgba(2, 132, 199, 0.12); color: #0284c7; padding: 4px 10px; border-radius: 999px; font-size: 0.76rem; font-weight: 700;"><i class="fa-solid fa-check-double"></i> سُجلت الجلسة</span>`;
+            statusBadge = `<span class="badge" style="background: rgba(2, 132, 199, 0.12); color: #0284c7; padding: 2px 6px; border-radius: 6px; font-size: 0.72rem; font-weight: 700;"><i class="fa-solid fa-check-double"></i> سُجلت</span>`;
             actionBtn = `
-              <button type="button" class="btn btn-outline btn-sm" onclick="window.app?.patientsManager?.openPatientSheet('${escapeHTML(a.patientId || '')}')" style="width: 100%; border-radius: 999px; font-size: 0.8rem; padding: 6px;">
-                <i class="fa-solid fa-file-waveform"></i> الشيت الطبي
+              <button type="button" class="btn btn-outline btn-sm" onclick="window.app?.patientsManager?.openPatientSheet('${escapeHTML(a.patientId || '')}')" style="border-radius: 8px; font-size: 0.76rem; padding: 5px 9px; white-space: nowrap; font-weight: 700;">
+                <i class="fa-solid fa-file-waveform"></i> الشيت
               </button>
             `;
           } else {
-            statusBadge = `<span class="badge" style="background: rgba(100, 116, 139, 0.1); color: #64748b; padding: 4px 10px; border-radius: 999px; font-size: 0.76rem; font-weight: 700;"><i class="fa-regular fa-clock"></i> مجدول</span>`;
+            statusBadge = `<span class="badge" style="background: rgba(100, 116, 139, 0.1); color: #64748b; padding: 2px 6px; border-radius: 6px; font-size: 0.72rem; font-weight: 700;"><i class="fa-regular fa-clock"></i> مجدول</span>`;
             actionBtn = `
-              <button type="button" class="btn btn-primary btn-mark-arrived" data-appt-id="${escapeHTML(a.id)}" data-patient-name="${escapeHTML(a.patientName)}" data-doc-uid="${escapeHTML(a.doctorUid || '')}" data-doc-name="${escapeHTML(docName)}" style="width: 100%; font-weight: 800; border-radius: 999px; padding: 8px;">
-                <i class="fa-solid fa-user-check"></i> <span>حضر المريض</span>
+              <button type="button" class="btn btn-primary btn-sm btn-mark-arrived" data-appt-id="${escapeHTML(a.id)}" data-patient-name="${escapeHTML(a.patientName)}" data-doc-uid="${escapeHTML(a.doctorUid || '')}" data-doc-name="${escapeHTML(docName)}" style="font-weight: 800; border-radius: 8px; padding: 6px 12px; font-size: 0.8rem; box-shadow: 0 2px 6px rgba(2, 132, 199, 0.25); white-space: nowrap; display: inline-flex; align-items: center; gap: 4px;">
+                <i class="fa-solid fa-user-check"></i> <span>حضر</span>
               </button>
             `;
           }
 
           return `
-            <div class="hero-styled-card" style="margin-bottom: 10px; padding: 14px; border-radius: 14px; border: ${a.effectiveStatus === 'completed_clinically' ? '1.5px solid rgba(16, 185, 129, 0.4)' : '1px solid var(--border-color)'}; background: ${a.effectiveStatus === 'completed_clinically' ? 'rgba(16, 185, 129, 0.04)' : 'var(--bg-surface)'};">
-              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-                <div style="font-weight: 800; font-size: 0.95rem; color: var(--text-main);">
-                  <i class="fa-solid fa-user text-primary"></i> ${escapeHTML(a.patientName)}
-                  ${a.isWalkIn ? '<span class="badge" style="background: rgba(139, 92, 246, 0.12); color: #8b5cf6; font-size: 0.65rem; border-radius: 4px;">حضور مباشر</span>' : ''}
+            <div class="hero-styled-card compact-waiting-card" style="margin-bottom: 8px; padding: 10px 12px; border-radius: 12px; border: ${a.effectiveStatus === 'completed_clinically' ? '1.5px solid rgba(16, 185, 129, 0.45)' : '1px solid var(--border-color)'}; background: ${a.effectiveStatus === 'completed_clinically' ? 'rgba(16, 185, 129, 0.05)' : 'var(--bg-surface)'}; display: flex; align-items: center; justify-content: space-between; gap: 10px;">
+              <div style="flex: 1; min-width: 0;">
+                <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 4px;">
+                  <i class="fa-solid fa-user text-primary" style="font-size: 0.82rem; flex-shrink: 0;"></i>
+                  <span style="font-weight: 800; font-size: 0.92rem; color: var(--text-main); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${escapeHTML(a.patientName)}</span>
+                  ${a.isWalkIn ? '<span class="badge" style="background: rgba(139, 92, 246, 0.12); color: #8b5cf6; font-size: 0.65rem; border-radius: 4px; padding: 1px 5px; flex-shrink: 0;">مباشر</span>' : ''}
                 </div>
-                ${statusBadge}
+                <div style="display: flex; align-items: center; gap: 7px; font-size: 0.78rem; color: var(--text-muted); flex-wrap: wrap;">
+                  <span><i class="fa-solid fa-user-doctor text-primary" style="margin-left: 3px;"></i>د. ${escapeHTML(docName.replace(/^د\.\s*/, ''))}</span>
+                  <span>•</span>
+                  <span><i class="fa-regular fa-clock" style="margin-left: 3px;"></i>${escapeHTML(timeDisplay)}</span>
+                  ${statusBadge ? `<span>•</span> ${statusBadge}` : ''}
+                </div>
+                ${a.notes ? `<div style="font-size: 0.74rem; color: var(--text-muted); margin-top: 3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;"><i class="fa-regular fa-comment-dots" style="margin-left: 3px;"></i>${escapeHTML(a.notes)}</div>` : ''}
               </div>
-              <div style="display: flex; justify-content: space-between; font-size: 0.84rem; color: var(--text-muted); margin-bottom: 10px;">
-                <span><i class="fa-solid fa-user-doctor text-primary"></i> د. ${escapeHTML(docName.replace(/^د\.\s*/, ''))}</span>
-                <span><i class="fa-regular fa-clock"></i> ${escapeHTML(timeDisplay)}</span>
+              <div style="flex-shrink: 0; display: flex; align-items: center;">
+                ${actionBtn}
               </div>
-              ${a.notes ? `<div style="font-size: 0.78rem; color: var(--text-muted); margin-bottom: 10px; background: var(--bg-subtle); padding: 4px 8px; border-radius: 6px;">${escapeHTML(a.notes)}</div>` : ''}
-              <div style="margin-top: 6px;">${actionBtn}</div>
             </div>
           `;
         }).join('');
+
+        if (totalCount > PREVIEW_LIMIT) {
+          cardsHtml += `
+            <div class="expand-appts-wrapper" style="text-align: center; margin-top: 6px;">
+              <button type="button" class="btn btn-outline btn-sm w-100 btn-toggle-expand-appts" style="padding: 8px 12px; font-weight: 800; font-size: 0.82rem; border-radius: 10px; display: inline-flex; align-items: center; justify-content: center; gap: 6px; border: 1.5px dashed var(--border-color); background: var(--bg-surface); color: ${isExpanded ? 'var(--text-muted)' : 'var(--primary)'}; cursor: pointer;">
+                <i class="fa-solid ${isExpanded ? 'fa-chevron-up' : 'fa-chevron-down'}"></i>
+                <span>${isExpanded ? 'عرض أقل (إظهار أول 5 مواعيد فقط)' : `عرض باقي مواعيد اليوم (متبقي ${totalCount - PREVIEW_LIMIT} مواعيد)`}</span>
+              </button>
+            </div>
+          `;
+        }
+
+        mobileCards.innerHTML = cardsHtml;
       }
 
       // Bind Action Button Listeners
@@ -2764,6 +2812,14 @@ export class AppointmentsManager {
             if (window.app?.openSessionForAppointment) {
               window.app.openSessionForAppointment({ apptId, patientId, patientName, docUid, docName });
             }
+          });
+        });
+
+        container.querySelectorAll('.btn-toggle-expand-appts').forEach(btn => {
+          btn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            this.isReceptionListExpanded = !this.isReceptionListExpanded;
+            this.renderReceptionWaitingList();
           });
         });
       }
