@@ -56,6 +56,20 @@ export class PatientsManager {
   async init() {
     this.bindEvents();
     this.renderAllInsuranceChips();
+    this.attachRealtimeSync();
+  }
+
+  attachRealtimeSync() {
+    if (db.subscribeToPatients && !this._patientsSubscribed) {
+      this._patientsSubscribed = true;
+      db.subscribeToPatients((updatedPatients) => {
+        this.patients = updatedPatients;
+        this._hasLoadedOnce = true;
+        if (this.app?.currentView === 'patients') {
+          this.renderPatients();
+        }
+      });
+    }
   }
 
   bindEvents() {
@@ -566,14 +580,7 @@ export class PatientsManager {
       this.renderSkeleton();
     }
     // Real-time zero-cost listener: subscribe to changes across the patients directory
-    if (db.subscribeToPatients && !this._patientsSubscribed) {
-      this._patientsSubscribed = true;
-      db.subscribeToPatients((updatedPatients) => {
-        this.patients = updatedPatients;
-        this._hasLoadedOnce = true;
-        this.renderPatients();
-      });
-    }
+    this.attachRealtimeSync();
 
     // Pre-load today and current month sessions to populate real-time patient metrics & body parts
     if (this.app?.sessionsManager) {

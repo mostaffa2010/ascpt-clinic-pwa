@@ -4837,7 +4837,7 @@
   </div>
 
 <!-- Main Application Script (ES Module) -->
-  <script type="module" src="js/app.js?v=2.10.30"></script>
+  <script type="module" src="js/app.js?v=2.10.31"></script>
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
@@ -4847,6 +4847,13 @@
       });
       navigator.serviceWorker.addEventListener('controllerchange', () => {
         window.location.reload();
+      });
+      document.addEventListener('visibilitychange', () => {
+        if (document.visibilityState === 'visible') {
+          navigator.serviceWorker.getRegistration().then((reg) => {
+            if (reg) reg.update();
+          }).catch(() => {});
+        }
       });
     }
   </script>
