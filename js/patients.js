@@ -2280,17 +2280,40 @@ export class PatientsManager {
         const cycleStart = hasExplicitRenewal ? (p.currentApprovalStartDate || '') : '';
         const cycleSessions = this.currentPatientSessions.filter(s => s.entryType !== 'examination' && (!cycleStart || (s.date || '').localeCompare(cycleStart) >= 0));
         const currentCount = cycleSessions.length;
-        const isNearLimit = currentCount >= approvedTotal - 2;
-        const isCompleted = currentCount >= approvedTotal;
+
+        // Calculate smart cycle progress (Option A Rollover awareness)
+        let displayCount = currentCount;
+        let cycleText = '';
+        let isCompleted = false;
+        let isNearLimit = false;
+
+        if (hasExplicitRenewal) {
+          const activeCycleNum = p.approvalCycles?.length || 2;
+          const posInCycle = currentCount > 0 ? (((currentCount - 1) % approvedTotal) + 1) : 0;
+          displayCount = posInCycle;
+          cycleText = ` (دورة ${activeCycleNum})`;
+          isCompleted = (displayCount === approvedTotal);
+          isNearLimit = (displayCount >= approvedTotal - 2 && !isCompleted);
+        } else if (currentCount > approvedTotal) {
+          const calculatedCycle = Math.floor((currentCount - 1) / approvedTotal) + 1;
+          const inCycleCount = ((currentCount - 1) % approvedTotal) + 1;
+          displayCount = inCycleCount;
+          cycleText = ` (دورة ${calculatedCycle}) • إجمالي: ${currentCount}`;
+          isCompleted = (inCycleCount === approvedTotal);
+          isNearLimit = (inCycleCount >= approvedTotal - 2 && !isCompleted);
+        } else {
+          isCompleted = (currentCount >= approvedTotal);
+          isNearLimit = (currentCount >= approvedTotal - 2 && !isCompleted);
+        }
 
         badgeEl.innerHTML = `<span class="badge ${badgeClass}" style="font-size: 0.78rem; padding: 4px 10px; font-weight: 700; display: inline-flex; align-items: center; gap: 5px;"><i class="fa-solid ${iconClass}"></i> ${escapeHTML(p.insuranceCompany || 'تأمين')} (${cType})</span>`;
 
         if (sessBtnText) {
           let extraStatus = '';
-          if (isCompleted) extraStatus = ' <i class="fa-solid fa-circle-exclamation text-danger" title="اكتملت الموافقة"></i>';
+          if (isCompleted) extraStatus = ' <i class="fa-solid fa-circle-check text-success" title="اكتمل الجواب"></i>';
           else if (isNearLimit) extraStatus = ' <i class="fa-solid fa-triangle-exclamation text-warning" title="اقتراب الانتهاء"></i>';
           const examExtra = examCount > 0 ? ` • <strong>${examCount}</strong> كشف` : '';
-          sessBtnText.innerHTML = `سجل الجلسات: <strong>${currentCount} من ${approvedTotal}</strong>${examExtra}${extraStatus}`;
+          sessBtnText.innerHTML = `سجل الجلسات: <strong>${displayCount} من ${approvedTotal}</strong>${cycleText}${examExtra}${extraStatus}`;
         }
         if (sessBtn) {
           sessBtn.className = 'pcm-sessions-chip';

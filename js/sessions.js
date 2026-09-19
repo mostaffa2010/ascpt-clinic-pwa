@@ -2137,7 +2137,21 @@ export class SessionsManager {
         byPatient.get(pKey).push(s);
       });
 
-      const addSingleGroup = (sList, subKey, cycleNumOverride = null) => {
+      const chunkAndAddGroups = (sList, baseKey) => {
+        const rawApproved = parseInt(sList[0]?.approvedSessionsTotal, 10);
+        const approvedTotal = (rawApproved > 0 && rawApproved <= 30) ? rawApproved : 12;
+        if (sList.length <= approvedTotal) {
+          addSingleGroupInternal(sList, baseKey, sList[0]?.cycleNumber || 1);
+        } else {
+          for (let i = 0; i < sList.length; i += approvedTotal) {
+            const chunk = sList.slice(i, i + approvedTotal);
+            const partNum = Math.floor(i / approvedTotal) + 1;
+            addSingleGroupInternal(chunk, `${baseKey}_p${partNum}`, partNum);
+          }
+        }
+      };
+
+      const addSingleGroupInternal = (sList, subKey, cycleNumOverride = null) => {
         if (!sList || sList.length === 0) return;
         const first = sList[0];
         const cycleNum = cycleNumOverride || first.cycleNumber || 1;
@@ -2161,16 +2175,15 @@ export class SessionsManager {
         groupsList.push(groupObj);
       };
 
-      const chunkAndAddGroups = (sList, baseKey) => {
-        const approvedTotal = parseInt(sList[0]?.approvedSessionsTotal, 10) || 12;
-        if (sList.length <= approvedTotal) {
-          addSingleGroup(sList, baseKey, 1);
+      const addSingleGroup = (sList, subKey, cycleNumOverride = null) => {
+        if (!sList || sList.length === 0) return;
+        const rawApproved = parseInt(sList[0]?.approvedSessionsTotal, 10);
+        const approvedTotal = (rawApproved > 0 && rawApproved <= 30) ? rawApproved : 12;
+        // Strictly guarantee that any group with more than approvedTotal is partitioned into cards of 12
+        if (sList.length > approvedTotal) {
+          chunkAndAddGroups(sList, subKey);
         } else {
-          for (let i = 0; i < sList.length; i += approvedTotal) {
-            const chunk = sList.slice(i, i + approvedTotal);
-            const partNum = Math.floor(i / approvedTotal) + 1;
-            addSingleGroup(chunk, `${baseKey}_p${partNum}`, partNum);
-          }
+          addSingleGroupInternal(sList, subKey, cycleNumOverride);
         }
       };
 
