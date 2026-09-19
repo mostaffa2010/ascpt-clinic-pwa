@@ -8946,28 +8946,152 @@ h1, h2, h3, h4, h5, h6 {
   transform: translateY(-1px) !important;
 }
 
-/* Secondary Utility Action Icons (WhatsApp, Docs, Edit, Delete) */
-.hero-patient-card .btn-icon-action {
-  width: 30px !important;
-  height: 30px !important;
-  min-height: 30px !important;
+/* ==========================================================================
+   PATIENT CARD QUICK ACTION BUTTONS - VIBRANT COLOR IDENTITY & ERGONOMICS
+   ========================================================================== */
+
+.hero-patient-card .btn-icon-action,
+.patient-card .btn-icon-action {
+  width: 38px !important;
+  height: 38px !important;
+  min-width: 38px !important;
+  min-height: 38px !important;
   border-radius: 50% !important;
-  border: 1px solid var(--color-slate-200) !important;
-  background: var(--color-slate-0) !important;
-  color: var(--color-slate-700) !important;
   display: inline-flex !important;
   align-items: center !important;
   justify-content: center !important;
   cursor: pointer !important;
   transition: all var(--duration-fast) var(--ease-standard) !important;
   padding: 0 !important;
+  flex-shrink: 0 !important;
+  box-sizing: border-box !important;
+  background: rgba(148, 163, 184, 0.12) !important;
+  border: 1px solid rgba(148, 163, 184, 0.25) !important;
+  color: var(--color-slate-700) !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04) !important;
 }
 
-.hero-patient-card .btn-icon-action:hover {
-  background: var(--color-slate-100) !important;
-  border-color: var(--color-slate-300) !important;
-  color: var(--color-slate-900) !important;
-  transform: scale(1.06) !important;
+.hero-patient-card .btn-icon-action:hover,
+.patient-card .btn-icon-action:hover {
+  transform: translateY(-1px) scale(1.05) !important;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08) !important;
+}
+
+.hero-patient-card .btn-icon-action:active,
+.patient-card .btn-icon-action:active {
+  transform: scale(0.96) !important;
+}
+
+.hero-patient-card .btn-icon-action:focus-visible,
+.patient-card .btn-icon-action:focus-visible {
+  outline: 2px solid var(--color-brand-400) !important;
+  outline-offset: 2px !important;
+}
+
+.hero-patient-card .btn-icon-action i,
+.patient-card .btn-icon-action i {
+  color: inherit !important;
+  line-height: 1 !important;
+  font-size: 0.95rem !important;
+  transition: color var(--duration-fast) var(--ease-standard) !important;
+}
+
+/* 1. WhatsApp Action - Vibrant Emerald */
+.hero-patient-card .btn-whatsapp-action,
+.patient-card .btn-whatsapp-action {
+  background: rgba(16, 185, 129, 0.12) !important;
+  border: 1px solid rgba(16, 185, 129, 0.30) !important;
+  color: #059669 !important;
+}
+
+.hero-patient-card .btn-whatsapp-action i,
+.patient-card .btn-whatsapp-action i {
+  font-size: 1.08rem !important;
+  color: inherit !important;
+}
+
+.hero-patient-card .btn-whatsapp-action:hover,
+.patient-card .btn-whatsapp-action:hover {
+  background: rgba(16, 185, 129, 0.22) !important;
+  border-color: rgba(16, 185, 129, 0.60) !important;
+  color: #047857 !important;
+  box-shadow: 0 0 10px rgba(16, 185, 129, 0.35) !important;
+  transform: translateY(-1px) scale(1.05) !important;
+}
+
+/* 2. Edit Action - Crisp Brand Blue / Cyan */
+.hero-patient-card .btn-edit-patient,
+.patient-card .btn-edit-patient {
+  background: rgba(2, 132, 199, 0.10) !important;
+  border: 1px solid rgba(2, 132, 199, 0.28) !important;
+  color: #0284c7 !important;
+}
+
+.hero-patient-card .btn-edit-patient i,
+.patient-card .btn-edit-patient i {
+  font-size: 0.95rem !important;
+  color: inherit !important;
+}
+
+.hero-patient-card .btn-edit-patient:hover,
+.patient-card .btn-edit-patient:hover {
+  background: rgba(2, 132, 199, 0.20) !important;
+  border-color: rgba(2, 132, 199, 0.60) !important;
+  color: #0369a1 !important;
+  box-shadow: 0 0 10px rgba(2, 132, 199, 0.35) !important;
+  transform: translateY(-1px) scale(1.05) !important;
+}
+
+/* 3. History / Docs / Sheet Action - Soft Indigo Accent */
+.hero-patient-card .btn-patient-docs,
+.patient-card .btn-patient-docs,
+.hero-patient-card .btn-patient-sheet-action.btn-icon-action,
+.patient-card .btn-patient-sheet-action.btn-icon-action {
+  background: rgba(99, 102, 241, 0.10) !important;
+  border: 1px solid rgba(99, 102, 241, 0.28) !important;
+  color: #4f46e5 !important;
+}
+
+.hero-patient-card .btn-patient-docs i,
+.patient-card .btn-patient-docs i,
+.hero-patient-card .btn-patient-sheet-action.btn-icon-action i,
+.patient-card .btn-patient-sheet-action.btn-icon-action i {
+  font-size: 0.95rem !important;
+  color: inherit !important;
+}
+
+.hero-patient-card .btn-patient-docs:hover,
+.patient-card .btn-patient-docs:hover,
+.hero-patient-card .btn-patient-sheet-action.btn-icon-action:hover,
+.patient-card .btn-patient-sheet-action.btn-icon-action:hover {
+  background: rgba(99, 102, 241, 0.20) !important;
+  border-color: rgba(99, 102, 241, 0.60) !important;
+  color: #4338ca !important;
+  box-shadow: 0 0 10px rgba(99, 102, 241, 0.35) !important;
+  transform: translateY(-1px) scale(1.05) !important;
+}
+
+/* 4. Delete Action - Clear Red Danger */
+.hero-patient-card .btn-delete-patient,
+.patient-card .btn-delete-patient {
+  background: rgba(239, 68, 68, 0.10) !important;
+  border: 1px solid rgba(239, 68, 68, 0.28) !important;
+  color: #dc2626 !important;
+}
+
+.hero-patient-card .btn-delete-patient i,
+.patient-card .btn-delete-patient i {
+  font-size: 0.95rem !important;
+  color: inherit !important;
+}
+
+.hero-patient-card .btn-delete-patient:hover,
+.patient-card .btn-delete-patient:hover {
+  background: rgba(239, 68, 68, 0.20) !important;
+  border-color: rgba(239, 68, 68, 0.60) !important;
+  color: #b91c1c !important;
+  box-shadow: 0 0 10px rgba(239, 68, 68, 0.35) !important;
+  transform: translateY(-1px) scale(1.05) !important;
 }
 
 /* Dark Theme Patient Cards */
@@ -9001,15 +9125,76 @@ h1, h2, h3, h4, h5, h6 {
   color: var(--color-slate-900) !important;
 }
 
-[data-theme="dark"] .hero-patient-card .btn-icon-action {
-  background: var(--color-slate-100) !important;
-  border-color: var(--color-slate-200) !important;
-  color: var(--color-slate-500) !important;
+/* Dark Theme Patient Quick Action Buttons */
+[data-theme="dark"] .hero-patient-card .btn-icon-action,
+[data-theme="dark"] .patient-card .btn-icon-action {
+  background: rgba(148, 163, 184, 0.15) !important;
+  border-color: rgba(148, 163, 184, 0.28) !important;
+  color: var(--color-slate-300) !important;
 }
 
-[data-theme="dark"] .hero-patient-card .btn-icon-action:hover {
-  background: var(--color-slate-200) !important;
-  color: var(--color-slate-900) !important;
+[data-theme="dark"] .hero-patient-card .btn-whatsapp-action,
+[data-theme="dark"] .patient-card .btn-whatsapp-action {
+  background: rgba(16, 185, 129, 0.18) !important;
+  border-color: rgba(52, 211, 153, 0.35) !important;
+  color: #34d399 !important;
+}
+
+[data-theme="dark"] .hero-patient-card .btn-whatsapp-action:hover,
+[data-theme="dark"] .patient-card .btn-whatsapp-action:hover {
+  background: rgba(16, 185, 129, 0.28) !important;
+  border-color: rgba(52, 211, 153, 0.70) !important;
+  color: #6ee7b7 !important;
+  box-shadow: 0 0 12px rgba(52, 211, 153, 0.45) !important;
+}
+
+[data-theme="dark"] .hero-patient-card .btn-edit-patient,
+[data-theme="dark"] .patient-card .btn-edit-patient {
+  background: rgba(2, 132, 199, 0.18) !important;
+  border-color: rgba(56, 189, 248, 0.35) !important;
+  color: #38bdf8 !important;
+}
+
+[data-theme="dark"] .hero-patient-card .btn-edit-patient:hover,
+[data-theme="dark"] .patient-card .btn-edit-patient:hover {
+  background: rgba(2, 132, 199, 0.28) !important;
+  border-color: rgba(56, 189, 248, 0.70) !important;
+  color: #7dd3fc !important;
+  box-shadow: 0 0 12px rgba(56, 189, 248, 0.45) !important;
+}
+
+[data-theme="dark"] .hero-patient-card .btn-patient-docs,
+[data-theme="dark"] .patient-card .btn-patient-docs,
+[data-theme="dark"] .hero-patient-card .btn-patient-sheet-action.btn-icon-action,
+[data-theme="dark"] .patient-card .btn-patient-sheet-action.btn-icon-action {
+  background: rgba(99, 102, 241, 0.18) !important;
+  border-color: rgba(129, 140, 248, 0.35) !important;
+  color: #818cf8 !important;
+}
+
+[data-theme="dark"] .hero-patient-card .btn-patient-docs:hover,
+[data-theme="dark"] .patient-card .btn-patient-docs:hover,
+[data-theme="dark"] .hero-patient-card .btn-patient-sheet-action.btn-icon-action:hover,
+[data-theme="dark"] .patient-card .btn-patient-sheet-action.btn-icon-action:hover {
+  background: rgba(99, 102, 241, 0.28) !important;
+  border-color: rgba(129, 140, 248, 0.70) !important;
+  color: #a5b4fc !important;
+  box-shadow: 0 0 12px rgba(129, 140, 248, 0.45) !important;
+}
+
+[data-theme="dark"] .hero-patient-card .btn-delete-patient,
+[data-theme="dark"] .patient-card .btn-delete-patient {
+  background: rgba(239, 68, 68, 0.18) !important;
+  border-color: rgba(248, 113, 113, 0.35) !important;
+  color: #f87171 !important;
+}
+
+[data-theme="dark"] .hero-patient-card .btn-delete-patient:hover,
+[data-theme="dark"] .patient-card .btn-delete-patient:hover {
+  background: rgba(239, 68, 68, 0.28) !important;
+  border-color: rgba(248, 113, 113, 0.70) !important;
+  color: #fca5a5 !important;
+  box-shadow: 0 0 12px rgba(248, 113, 113, 0.45) !important;
 }
 
 /* ==========================================================================
