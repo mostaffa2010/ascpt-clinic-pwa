@@ -2125,25 +2125,118 @@ export class SessionsManager {
         return;
       }
 
-      // Group by patient & letterRef
-      const patientGroups = new Map();
+      // Group by patient & individual letter/cycle batch (كل جواب كارت منفصل)
+      this.homeVisitsGroupsMap = new Map();
+      const groupsList = [];
+
+      // 1. Group all filtered home visits by patient
+      const byPatient = new Map();
       filteredHV.forEach((s) => {
-        const key = (s.patientId ? `id_${s.patientId}` : `name_${s.patientName}`) + (s.letterRef ? `_${s.letterRef}` : '');
-        if (!patientGroups.has(key)) {
-          patientGroups.set(key, {
-            patientId: s.patientId,
-            patientName: s.patientName,
-            doctor: s.doctor || 'طبيب المركز',
-            insuranceName: s.insuranceName || (s.payType === 'cash' ? 'نقدي' : 'تأمين'),
-            contractType: s.contractType || 'direct',
-            letterRef: s.letterRef || '',
-            sessions: []
-          });
-        }
-        patientGroups.get(key).sessions.push(s);
+        const pKey = s.patientId ? `id_${s.patientId}` : `name_${s.patientName}`;
+        if (!byPatient.has(pKey)) byPatient.set(pKey, []);
+        byPatient.get(pKey).push(s);
       });
 
-      const groupsList = Array.from(patientGroups.values());
+      const chunkAndAddGroups = (sList, baseKey) => {
+        const rawApproved = parseInt(sList[0]?.approvedSessionsTotal, 10);
+        const approvedTotal = (rawApproved > 0 && rawApproved <= 30) ? rawApproved : 12;
+        if (sList.length <= approvedTotal) {
+          addSingleGroupInternal(sList, baseKey, sList[0]?.cycleNumber || 1);
+        } else {
+          for (let i = 0; i < sList.length; i += approvedTotal) {
+            const chunk = sList.slice(i, i + approvedTotal);
+            const partNum = Math.floor(i / approvedTotal) + 1;
+            addSingleGroupInternal(chunk, `${baseKey}_p${partNum}`, partNum);
+          }
+        }
+      };
+
+      const addSingleGroupInternal = (sList, subKey, cycleNumOverride = null) => {
+        if (!sList || sList.length === 0) return;
+        const first = sList[0];
+        const cycleNum = cycleNumOverride || first.cycleNumber || 1;
+        const safePId = first.patientId || first.patientName || 'p';
+        const groupId = `grp_${safePId}_${subKey}_${first.id}`;
+
+        const groupObj = {
+          groupId,
+          patientId: first.patientId,
+          patientName: first.patientName,
+          doctor: first.doctor || 'طبيب المركز',
+          doctorUid: first.doctorUid || '',
+          insuranceName: first.insuranceName || (first.payType === 'cash' ? 'نقدي' : 'تأمين'),
+          contractType: first.contractType || 'direct',
+          letterRef: first.letterRef || '',
+          cycleNumber: cycleNum,
+          sessions: sList
+        };
+
+        this.homeVisitsGroupsMap.set(groupId, groupObj);
+        groupsList.push(groupObj);
+      };
+
+      const addSingleGroup = (sList, subKey, cycleNumOverride = null) => {
+        if (!sList || sList.length === 0) return;
+        const rawApproved = parseInt(sList[0]?.approvedSessionsTotal, 10);
+        const approvedTotal = (rawApproved > 0 && rawApproved <= 30) ? rawApproved : 12;
+        // Strictly guarantee that any group with more than approvedTotal is partitioned into cards of 12
+        if (sList.length > approvedTotal) {
+          chunkAndAddGroups(sList, subKey);
+        } else {
+          addSingleGroupInternal(sList, subKey, cycleNumOverride);
+        }
+      };
+
+      // 2. Partition each patient's visits into distinct letter/cycle batches
+      byPatient.forEach((patientSessions, pKey) => {
+        patientSessions.sort((a, b) => {
+          const dComp = (a.date || '').localeCompare(b.date || '');
+          if (dComp !== 0) return dComp;
+          const tA = a.createdAt || a.recordedAt || '';
+          const tB = b.createdAt || b.recordedAt || '';
+          if (tA && tB) return tA.localeCompare(tB);
+          return (a.id || '').localeCompare(b.id || '');
+        });
+
+        const hasBatchId = patientSessions.some(s => s.batchId);
+        const hasLetterRef = patientSessions.some(s => s.letterRef && s.letterRef.trim());
+        const hasDistinctCycle = new Set(patientSessions.map(s => s.cycleNumber).filter(Boolean)).size > 1;
+
+        if (hasBatchId) {
+          const bMap = new Map();
+          patientSessions.forEach(s => {
+            const bKey = s.batchId || 'default';
+            if (!bMap.has(bKey)) bMap.set(bKey, []);
+            bMap.get(bKey).push(s);
+          });
+          bMap.forEach((sList, bKey) => {
+            addSingleGroup(sList, bKey);
+          });
+        } else if (hasLetterRef) {
+          const rMap = new Map();
+          patientSessions.forEach(s => {
+            const rKey = s.letterRef ? s.letterRef.trim() : 'no_ref';
+            if (!rMap.has(rKey)) rMap.set(rKey, []);
+            rMap.get(rKey).push(s);
+          });
+          rMap.forEach((sList, rKey) => {
+            chunkAndAddGroups(sList, rKey);
+          });
+        } else if (hasDistinctCycle) {
+          const cMap = new Map();
+          patientSessions.forEach(s => {
+            const cKey = s.cycleNumber || 1;
+            if (!cMap.has(cKey)) cMap.set(cKey, []);
+            cMap.get(cKey).push(s);
+          });
+          const sortedCycleKeys = Array.from(cMap.keys()).sort((a, b) => Number(a) - Number(b));
+          sortedCycleKeys.forEach(cKey => {
+            addSingleGroup(cMap.get(cKey), `cycle_${cKey}`, cKey);
+          });
+        } else {
+          chunkAndAddGroups(patientSessions, 'pkg');
+        }
+      });
 
       // 1. Render Desktop Table
       if (tbody) {
@@ -2158,12 +2251,14 @@ export class SessionsManager {
             : '<span class="badge badge-warning" style="font-weight: 800; font-size: 0.76rem;"><i class="fa-solid fa-clock"></i> قيد التسوية</span>';
 
           const cTypeLabel = group.contractType === 'indirect' ? 'غير مباشر' : 'مباشر';
-          const insBadge = `<span class="badge badge-direct"><i class="fa-solid fa-file-contract"></i> ${escapeHTML(group.insuranceName)} (${cTypeLabel})</span>`;
+          const cycleBadge = group.cycleNumber ? `<span class="badge" style="background: rgba(2, 132, 199, 0.12); color: #0284c7; font-weight: 800; font-size: 0.72rem; border: 1px solid rgba(2, 132, 199, 0.25); margin-right: 4px;"><i class="fa-solid fa-rotate-right"></i> جواب (دورة ${group.cycleNumber})</span>` : '';
+          const refBadge = group.letterRef ? `<span class="badge" style="background: var(--bg-subtle); color: var(--text-muted); border: 1px solid var(--border-color); font-size: 0.72rem; margin-right: 4px;">#${escapeHTML(group.letterRef)}</span>` : '';
+          const insBadge = `<span class="badge badge-direct"><i class="fa-solid fa-file-contract"></i> ${escapeHTML(group.insuranceName)} (${cTypeLabel})</span> ${cycleBadge} ${refBadge}`;
 
           const safePid = escapeHTML(group.patientId || '');
           const safeName = escapeHTML(group.patientName || '');
           const safeDoc = escapeHTML(group.doctor || 'طبيب المركز');
-          const refBadge = group.letterRef ? `<span class="badge" style="background: var(--bg-subtle); color: var(--text-muted); border: 1px solid var(--border-color); font-size: 0.72rem; margin-right: 4px;">#${escapeHTML(group.letterRef)}</span>` : '';
+          const safeGid = escapeHTML(group.groupId || '');
 
           return `
             <tr>
@@ -2183,12 +2278,12 @@ export class SessionsManager {
                   <i class="fa-solid fa-file-invoice text-primary"></i>
                 </button>
                 ${(!isPre && canDelete) ? `
-                  <button type="button" class="btn btn-outline btn-sm btn-settle-hv" onclick="sessionsManager.settleHomeVisitsGroup('${safePid}', '${escapeHTML(group.letterRef || '')}', '${safeName}')" title="اعتماد تسوية هذا الجواب مع الطبيب">
+                  <button type="button" class="btn btn-outline btn-sm btn-settle-hv" onclick="sessionsManager.settleHomeVisitsGroup('${safeGid}', '${safePid}', '${escapeHTML(group.letterRef || '')}', '${safeName}')" title="اعتماد تسوية هذا الجواب مع الطبيب">
                     <i class="fa-solid fa-handshake"></i> <span>تسوية</span>
                   </button>
                 ` : ''}
                 ${canDelete ? `
-                  <button type="button" class="btn btn-outline btn-sm btn-icon-action btn-delete-hv" style="color: var(--danger); border-color: rgba(239, 68, 68, 0.35); background: rgba(239, 68, 68, 0.08);" onclick="sessionsManager.deleteHomeVisitsGroup('${safePid}', '${escapeHTML(group.letterRef || '')}', '${safeName}')" title="حذف جواب الزيارات المنزلية بالكامل">
+                  <button type="button" class="btn btn-outline btn-sm btn-icon-action btn-delete-hv" style="color: var(--danger); border-color: rgba(239, 68, 68, 0.35); background: rgba(239, 68, 68, 0.08);" onclick="sessionsManager.deleteHomeVisitsGroup('${safeGid}', '${safePid}', '${escapeHTML(group.letterRef || '')}', '${safeName}')" title="حذف جواب الزيارات المنزلية بالكامل">
                     <i class="fa-solid fa-trash"></i>
                   </button>
                 ` : ''}
@@ -2233,7 +2328,8 @@ export class SessionsManager {
               <!-- Badges Row -->
               <div class="hsc-badges-row" style="display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 8px;">
                 <span class="badge badge-direct"><i class="fa-solid fa-file-contract"></i> ${escapeHTML(group.insuranceName)} (${cTypeLabel})</span>
-                ${group.letterRef ? `<span class="badge" style="background: var(--bg-subtle); color: var(--text-muted); border: 1px solid var(--border-color); font-size: 0.72rem;">جواب #${escapeHTML(group.letterRef)}</span>` : ''}
+                ${group.cycleNumber ? `<span class="badge" style="background: rgba(2, 132, 199, 0.12); color: #0284c7; font-weight: 800; font-size: 0.72rem; border: 1px solid rgba(2, 132, 199, 0.25);"><i class="fa-solid fa-rotate-right"></i> جواب (دورة ${group.cycleNumber})</span>` : ''}
+                ${group.letterRef ? `<span class="badge" style="background: var(--bg-subtle); color: var(--text-muted); border: 1px solid var(--border-color); font-size: 0.72rem;">خطاب #${escapeHTML(group.letterRef)}</span>` : ''}
                 ${statusBadge}
               </div>
 
@@ -2252,12 +2348,12 @@ export class SessionsManager {
                     <i class="fa-solid fa-file-invoice text-primary"></i>
                   </button>
                   ${(!isPre && canDelete) ? `
-                    <button type="button" class="btn btn-outline btn-sm btn-settle-hv" onclick="sessionsManager.settleHomeVisitsGroup('${safePid}', '${escapeHTML(group.letterRef || '')}', '${safeName}')" title="اعتماد تسوية هذا الجواب مع الطبيب">
+                    <button type="button" class="btn btn-outline btn-sm btn-settle-hv" onclick="sessionsManager.settleHomeVisitsGroup('${escapeHTML(group.groupId || '')}', '${safePid}', '${escapeHTML(group.letterRef || '')}', '${safeName}')" title="اعتماد تسوية هذا الجواب مع الطبيب">
                       <i class="fa-solid fa-handshake"></i> <span>تسوية</span>
                     </button>
                   ` : ''}
                   ${canDelete ? `
-                    <button type="button" class="btn btn-outline btn-sm btn-icon-action btn-delete-hv" style="color: var(--danger); border-color: rgba(239, 68, 68, 0.35); background: rgba(239, 68, 68, 0.08);" onclick="sessionsManager.deleteHomeVisitsGroup('${safePid}', '${escapeHTML(group.letterRef || '')}', '${safeName}')" title="حذف جواب الزيارات بالكامل">
+                    <button type="button" class="btn btn-outline btn-sm btn-icon-action btn-delete-hv" style="color: var(--danger); border-color: rgba(239, 68, 68, 0.35); background: rgba(239, 68, 68, 0.08);" onclick="sessionsManager.deleteHomeVisitsGroup('${escapeHTML(group.groupId || '')}', '${safePid}', '${escapeHTML(group.letterRef || '')}', '${safeName}')" title="حذف جواب الزيارات بالكامل">
                       <i class="fa-solid fa-trash"></i>
                     </button>
                   ` : ''}
@@ -2274,18 +2370,36 @@ export class SessionsManager {
   }
 
 
-  async deleteHomeVisitsGroup(patientId, letterRef, patientName) {
+  async deleteHomeVisitsGroup(groupIdOrPatientId, patientIdOrRef, letterRefOrName, patientNameParam) {
     const currentUser = auth.getCurrentUser();
     if (!RolesManager.canDelete(currentUser)) {
       this.app.showAlert('عفواً، حذف الجلسات متاح لإدارة المركز والاستقبال فقط.', 'صلاحية غير كافية', 'warning');
       return;
     }
 
-    const matchingSessions = (this.allHomeVisits || []).filter(s => {
-      const matchP = patientId ? (s.patientId === patientId) : (s.patientName === patientName);
-      const matchRef = letterRef ? (s.letterRef === letterRef) : true;
-      return matchP && matchRef;
-    });
+    let matchingSessions = [];
+    let pName = '';
+    let refTxt = '';
+
+    const group = this.homeVisitsGroupsMap?.get(groupIdOrPatientId);
+    if (group) {
+      matchingSessions = group.sessions || [];
+      pName = group.patientName || 'المريض';
+      const cycleTxt = group.cycleNumber ? ` (دورة ${group.cycleNumber})` : '';
+      const lRef = group.letterRef ? ` برقم خطاب (${group.letterRef})` : '';
+      refTxt = `${cycleTxt}${lRef}`;
+    } else {
+      const patientId = groupIdOrPatientId;
+      const letterRef = patientIdOrRef;
+      const patientName = letterRefOrName;
+      matchingSessions = (this.allHomeVisits || []).filter(s => {
+        const matchP = patientId ? (s.patientId === patientId) : (s.patientName === patientName);
+        const matchRef = letterRef ? (s.letterRef === letterRef) : true;
+        return matchP && matchRef;
+      });
+      pName = patientName || matchingSessions[0]?.patientName || 'المريض';
+      refTxt = letterRef ? ` برقم خطاب (${letterRef})` : '';
+    }
 
     if (matchingSessions.length === 0) {
       this.app.showToast('لم يتم العثور على الجلسات لحذفها', 'warning');
@@ -2293,11 +2407,8 @@ export class SessionsManager {
     }
 
     const count = matchingSessions.length;
-    const pName = patientName || matchingSessions[0]?.patientName || 'المريض';
-    const refTxt = letterRef ? ` برقم خطاب (${letterRef})` : '';
-
     const confirmed = await this.app.showConfirm(
-      `هل أنت متأكد من حذف جواب الزيارات المنزلية بالكامل للمريض (${pName})${refTxt}؟\n\nتنبيه: سيتم حذف ${count} زيارة مسجلة بتواريخها نهائياً من قاعدة البيانات وسجل الطبيب.`,
+      `هل أنت متأكد من حذف جواب الزيارات المنزلية بالكامل للمريض (${pName})${refTxt}؟\n\nتنبيه: سيتم حذف عدد ${count} زيارة مسجلة لهذا الجواب نهائياً من قاعدة البيانات وسجل الطبيب.`,
       'تأكيد حذف الزيارات المنزلية'
     );
 
@@ -2311,6 +2422,7 @@ export class SessionsManager {
       this.app.showToast(`تم بنجاح حذف جواب الزيارات المنزلية (${count} زيارة) للمريض ${pName}`, 'success');
 
       await this.updateHomeVisitsBadge();
+      await this.renderHomeVisitsList();
 
       if (this.app?.doctorDashboardManager && typeof this.app.doctorDashboardManager.render === 'function') {
         this.app.doctorDashboardManager.render().catch(() => {});
@@ -2322,18 +2434,36 @@ export class SessionsManager {
   }
 
 
-  async settleHomeVisitsGroup(patientId, letterRef, patientName) {
+  async settleHomeVisitsGroup(groupIdOrPatientId, patientIdOrRef, letterRefOrName, patientNameParam) {
     const currentUser = auth.getCurrentUser();
     if (!RolesManager.canDelete(currentUser)) {
       this.app.showAlert('عفواً، تسوية الجلسات متاحة لإدارة المركز والاستقبال فقط.', 'صلاحية غير كافية', 'warning');
       return;
     }
 
-    const matchingSessions = (this.allHomeVisits || []).filter(s => {
-      const matchP = patientId ? (s.patientId === patientId) : (s.patientName === patientName);
-      const matchRef = letterRef ? (s.letterRef === letterRef) : true;
-      return matchP && matchRef && !s.isPreSettled;
-    });
+    let matchingSessions = [];
+    let pName = '';
+    let refTxt = '';
+
+    const group = this.homeVisitsGroupsMap?.get(groupIdOrPatientId);
+    if (group) {
+      matchingSessions = (group.sessions || []).filter(s => !s.isPreSettled);
+      pName = group.patientName || 'المريض';
+      const cycleTxt = group.cycleNumber ? ` (دورة ${group.cycleNumber})` : '';
+      const lRef = group.letterRef ? ` برقم خطاب (${group.letterRef})` : '';
+      refTxt = `${cycleTxt}${lRef}`;
+    } else {
+      const patientId = groupIdOrPatientId;
+      const letterRef = patientIdOrRef;
+      const patientName = letterRefOrName;
+      matchingSessions = (this.allHomeVisits || []).filter(s => {
+        const matchP = patientId ? (s.patientId === patientId) : (s.patientName === patientName);
+        const matchRef = letterRef ? (s.letterRef === letterRef) : true;
+        return matchP && matchRef && !s.isPreSettled;
+      });
+      pName = patientName || matchingSessions[0]?.patientName || 'المريض';
+      refTxt = letterRef ? ` برقم خطاب (${letterRef})` : '';
+    }
 
     if (matchingSessions.length === 0) {
       this.app.showToast('جميع زيارات هذا الجواب مسواة بالفعل', 'info');
@@ -2341,11 +2471,8 @@ export class SessionsManager {
     }
 
     const count = matchingSessions.length;
-    const pName = patientName || matchingSessions[0]?.patientName || 'المريض';
-    const refTxt = letterRef ? ` برقم خطاب (${letterRef})` : '';
-
     const confirmed = await this.app.showConfirm(
-      `هل أنت متأكد من اعتماد تسوية جواب الزيارات المنزلية للمريض (${pName})${refTxt}؟\n\nيشمل ذلك اعتماد تسوية عدد ${count} زيارة منزلية مع الطبيب المعالج وتحويل حالتها إلى مسواة.`,
+      `هل أنت متأكد من اعتماد تسوية جواب الزيارات المنزلية للمريض (${pName})${refTxt}؟\n\nيشمل ذلك اعتماد تسوية عدد ${count} زيارة منزلية لهذا الجواب مع الطبيب المعالج وتحويل حالتها إلى مسواة.`,
       'تأكيد تسوية الزيارات المنزلية'
     );
 
@@ -2356,7 +2483,7 @@ export class SessionsManager {
       await db.settleBatchSessions(sessionIds, currentUser);
 
       await db.logAudit('تسوية زيارات منزلية', `اعتماد تسوية جواب زيارات منزلية (${count} زيارة) للمريض ${pName}${refTxt}`, currentUser);
-      this.app.showToast(`تمت تسوية الزيارات المنزلية (${count} زيارة) للمريض ${pName} بنجاح`, 'success');
+      this.app.showToast(`تمت تسوية جواب الزيارات المنزلية (${count} زيارة) للمريض ${pName} بنجاح`, 'success');
 
       await this.updateHomeVisitsBadge();
       await this.renderHomeVisitsList();
