@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { getDayShiftKey, isDoctorOnDuty, getShiftLabel, getLatestTherapySession } from '../js/utils.js';
+import { getDayShiftKey, isDoctorOnDuty, getShiftLabel, getLatestTherapySession, sequencePatientSessionsChronologically } from '../js/utils.js';
 
 console.log('--- Running ASCPT Unit Tests: Calculations & Shift Engine ---');
 
@@ -919,6 +919,24 @@ assert.equal(seqExtendedMap.get('sept_6').sessionNumber, 1, '13th session must r
 assert.equal(seqExtendedMap.get('sept_6').cycleNumber, 2, '13th session must be in cycle 2');
 assert.equal(seqExtendedMap.get('sept_7').sessionNumber, 2, '14th session must be #2 of cycle 2');
 assert.equal(seqExtendedMap.get('sept_7').cycleNumber, 2);
+
+// Scenario 3: Explicit Cycle Start Date on Approval Renewal (Cycle 2 starts from 2026-09-15)
+const cycleRenewalSessions = [
+  { id: 'c1_1', date: '2026-09-01', entryType: 'session' },
+  { id: 'c1_2', date: '2026-09-05', entryType: 'session' },
+  { id: 'c1_3', date: '2026-09-10', entryType: 'session' }, // Cycle 1 ended at 3 sessions
+  { id: 'c2_1', date: '2026-09-15', entryType: 'session' }, // Cycle 2 starts at 2026-09-15 -> Session #1
+  { id: 'c2_2', date: '2026-09-17', entryType: 'session' }  // Cycle 2 Session #2
+];
+const seqCycleMap = sequencePatientSessionsChronologically(cycleRenewalSessions, 12, { currentApprovalStartDate: '2026-09-15' });
+assert.equal(seqCycleMap.get('c1_1').sessionNumber, 1, 'Pre-renewal session must be in cycle 1');
+assert.equal(seqCycleMap.get('c1_1').cycleNumber, 1);
+assert.equal(seqCycleMap.get('c1_3').sessionNumber, 3, 'Pre-renewal session 3 must be #3 of cycle 1');
+assert.equal(seqCycleMap.get('c1_3').cycleNumber, 1);
+assert.equal(seqCycleMap.get('c2_1').sessionNumber, 1, 'Session on new cycle start date must be #1 of cycle 2');
+assert.equal(seqCycleMap.get('c2_1').cycleNumber, 2, 'Session on new cycle start date must be in cycle 2');
+assert.equal(seqCycleMap.get('c2_2').sessionNumber, 2, 'Next session in new cycle must be #2 of cycle 2');
+assert.equal(seqCycleMap.get('c2_2').cycleNumber, 2);
 
 console.log('✓ All 28 Batch Home Visits & Option A Chronological Sequencing assertions passed successfully!');
 
