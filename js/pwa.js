@@ -78,17 +78,32 @@ export class PWAManager {
     let isExecuting = false;
     const PULL_THRESHOLD = 85;
 
-    const canPull = () => {
+    const canPull = (targetEl = null) => {
       if (isExecuting) return false;
       const scrollY = window.scrollY || document.documentElement.scrollTop || 0;
       if (scrollY > 5) return false;
-      const openModal = document.querySelector('.modal-backdrop.show, .modal-backdrop[style*="display: block"], .modal-backdrop[style*="display: flex"]');
-      return !openModal;
+
+      // 1. Strict Modal Guard: Never pull-to-reload if ANY modal or dialog is currently open (.active / .show / stack)
+      const hasOpenModal = document.querySelector(
+        '.modal-backdrop.active, .modal-backdrop.show, .modal-backdrop[style*="display: block"], .modal-backdrop[style*="display: flex"], [role="dialog"].active'
+      );
+      if (hasOpenModal) return false;
+
+      if (window.app?._openModalStack && window.app._openModalStack.length > 0) return false;
+
+      // 2. Strict Target Guard: Never pull-to-reload if touch originates inside any form or modal element
+      if (targetEl && typeof targetEl.closest === 'function') {
+        if (targetEl.closest('.modal-backdrop, .modal-content, .modal-body, .custom-picker-content, [role="dialog"], form, .drawer')) {
+          return false;
+        }
+      }
+
+      return true;
     };
 
     window.addEventListener('touchstart', (e) => {
       if (e.touches.length !== 1) return;
-      if (!canPull()) return;
+      if (!canPull(e.target)) return;
       startY = e.touches[0].clientY;
       startX = e.touches[0].clientX;
       isPulling = false;
@@ -104,12 +119,20 @@ export class PWAManager {
       if (!startY || isExecuting) return;
       if (e.touches.length !== 1) return;
 
+      if (!canPull(e.target)) {
+        startY = 0;
+        isPulling = false;
+        indicator.classList.remove('active', 'ready');
+        indicator.style.transform = 'translate(-50%, -150%)';
+        return;
+      }
+
       const currentY = e.touches[0].clientY;
       const currentX = e.touches[0].clientX;
       const deltaY = currentY - startY;
       const deltaX = Math.abs(currentX - startX);
 
-      if (deltaY > 8 && deltaY > deltaX && canPull()) {
+      if (deltaY > 8 && deltaY > deltaX && canPull(e.target)) {
         isPulling = true;
         indicator.classList.add('active');
         indicator.style.transition = 'none';

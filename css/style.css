@@ -12486,3 +12486,13 @@ body.role-doctor .btn-quick-attend {
   border-color: var(--primary, #0284c7) !important;
   transform: translateY(-1px) !important;
 }
+
+/* Strict Mobile Overscroll Containment for Modals & Forms */
+.modal-backdrop,
+.modal-content,
+.modal-body,
+.custom-picker-content,
+.modal-scrollable-body {
+  overscroll-behavior-y: contain !important;
+  overscroll-behavior: contain !important;
+}
