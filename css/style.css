@@ -3466,22 +3466,30 @@ body.not-authenticated #modal-auth #btn-cancel-login {
 
 /* ================= Next-Level UI Polish (v1.4.0-beta.2) ================= */
 
-/* 1. Hero Dashboard Banner */
+/* 1. Hero Dashboard Banner (Restored Premium Glassmorphism & Gradient) */
 .hero-dashboard-banner {
-  background: var(--color-slate-0);
-  border: 1px solid var(--color-slate-200);
+  background: linear-gradient(135deg, #072032 0%, #0284c7 100%);
   border-radius: var(--radius-canonical-lg, 16px);
-  padding: var(--space-5, 20px) var(--space-6, 24px);
-  color: var(--color-slate-900);
+  padding: 22px 24px;
+  color: #ffffff;
   position: relative;
   overflow: hidden;
   margin-bottom: var(--space-6, 24px);
-  box-shadow: var(--shadow-sm);
-  transition: all var(--duration-fast) var(--ease-standard);
+  box-shadow: 0 12px 28px -6px rgba(2, 132, 199, 0.35);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  transition: all 0.3s ease;
 }
 
 .hero-banner-glass-bg {
-  display: none !important;
+  display: block !important;
+  position: absolute;
+  top: -40px;
+  left: -40px;
+  width: 180px;
+  height: 180px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.22) 0%, rgba(255, 255, 255, 0) 70%);
+  pointer-events: none;
 }
 
 .hero-banner-content {
@@ -3492,28 +3500,30 @@ body.not-authenticated #modal-auth #btn-cancel-login {
 .hero-greeting-pill {
   display: inline-flex;
   align-items: center;
-  gap: var(--space-2, 8px);
-  background: var(--color-brand-50);
-  border: 1px solid var(--color-brand-100);
+  gap: 8px;
+  background: rgba(255, 255, 255, 0.18);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
   border-radius: var(--radius-full);
   padding: 4px 12px;
   font-family: var(--font-family);
   font-size: var(--text-xs);
-  font-weight: var(--weight-medium);
-  margin-bottom: var(--space-2, 8px);
-  color: var(--color-brand-600);
+  font-weight: 700;
+  margin-bottom: 12px;
+  color: #e0f2fe;
 }
 
 .hero-greeting-icon {
-  color: var(--color-warning);
+  color: #fde047;
 }
 
 .hero-banner-title {
   font-family: var(--font-family);
   font-size: var(--text-xl);
-  font-weight: var(--weight-bold);
-  color: var(--color-slate-900);
-  margin-bottom: var(--space-1, 4px);
+  font-weight: 800;
+  color: #ffffff;
+  margin-bottom: 4px;
   letter-spacing: -0.01em;
   line-height: var(--lh-tight);
 }
@@ -3521,80 +3531,87 @@ body.not-authenticated #modal-auth #btn-cancel-login {
 .hero-banner-sub {
   font-family: var(--font-family);
   font-size: var(--text-sm);
-  color: var(--color-slate-500);
-  font-weight: var(--weight-regular);
-  margin-bottom: var(--space-4, 16px);
+  color: rgba(224, 242, 254, 0.88);
+  font-weight: 500;
+  margin-bottom: 16px;
 }
 
 .hero-banner-footer {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: var(--space-3, 12px);
+  gap: 12px;
   flex-wrap: wrap;
-  padding-top: var(--space-3, 12px);
-  border-top: 1px solid var(--color-slate-100);
+  padding-top: 12px;
+  border-top: 1px solid rgba(255, 255, 255, 0.2);
 }
 
 .hero-date-chip {
   display: inline-flex;
   align-items: center;
-  gap: var(--space-2, 8px);
+  gap: 8px;
   font-family: var(--font-family);
   font-size: var(--text-sm);
-  color: var(--color-slate-500);
-  font-weight: var(--weight-regular);
+  color: #e0f2fe;
+  font-weight: 600;
 }
 
 .btn-hero-action {
-  background: var(--color-brand-500);
-  color: #ffffff;
-  border: 1px solid transparent;
-  padding: 0 var(--space-4, 16px);
+  background: #ffffff;
+  color: #0369a1;
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  padding: 8px 18px;
   min-height: 40px;
-  border-radius: var(--radius-canonical-md, 12px);
+  border-radius: var(--radius-full);
   font-family: var(--font-family);
-  font-weight: var(--weight-medium);
+  font-weight: 800;
   font-size: var(--text-sm);
-  box-shadow: var(--shadow-sm);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.16);
   transition: all var(--duration-fast) var(--ease-standard);
   display: inline-flex;
   align-items: center;
-  gap: var(--space-2, 8px);
+  gap: 6px;
   cursor: pointer;
   text-decoration: none;
 }
 
 .btn-hero-action:hover {
-  background: var(--color-brand-600);
-  transform: translateY(-1px);
-  box-shadow: var(--shadow-md);
-  color: #ffffff;
+  background: #f0f9ff;
+  color: #0284c7;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.22);
 }
 
 .btn-hero-action:active {
-  transform: scale(0.98);
+  transform: scale(0.96);
 }
 
-/* Doctor Hero Banner Theme */
+/* Doctor Hero Banner Theme (Rich Indigo/Purple Gradient) */
 .hero-doctor-banner {
-  background: var(--color-slate-0);
-  border: 1px solid var(--color-slate-200);
-  box-shadow: var(--shadow-sm);
+  background: linear-gradient(135deg, #0f172a 0%, #3730a3 100%);
+  box-shadow: 0 12px 28px -6px rgba(55, 48, 163, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.15);
 }
 
 .hero-doctor-banner .hero-banner-title {
-  color: var(--color-slate-900);
-}
-
-.hero-doctor-banner .btn-hero-action {
-  background: var(--color-brand-500);
   color: #ffffff;
 }
 
-/* 2. Quick Access Bar */
+.hero-doctor-banner .btn-hero-action {
+  background: #ffffff;
+  color: #3730a3;
+}
+
+.hero-doctor-banner .btn-hero-action:hover {
+  background: #f5f3ff;
+  color: #312e81;
+}
+
+/* 2. Quick Access Bar (Compact Vertical Layout - 4 Equal Columns) */
 .quick-access-bar {
   margin-bottom: var(--space-6, 24px);
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .quick-access-header {
@@ -3617,84 +3634,101 @@ body.not-authenticated #modal-auth #btn-cancel-login {
 
 .quick-access-items {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: var(--space-3, 12px);
-}
-
-@media screen and (min-width: 768px) {
-  .quick-access-items {
-    grid-template-columns: repeat(4, 1fr);
-    gap: var(--space-4, 16px);
-  }
+  grid-template-columns: repeat(4, 1fr) !important;
+  gap: 8px !important;
+  width: 100% !important;
+  box-sizing: border-box !important;
 }
 
 .quick-action-btn {
-  display: flex;
-  align-items: center;
-  justify-content: flex-start;
-  gap: var(--space-3, 12px);
-  background: var(--color-slate-0);
-  border: 1px solid var(--color-slate-200);
-  border-radius: var(--radius-canonical-md, 12px);
-  padding: var(--space-3, 12px) var(--space-4, 16px);
-  cursor: pointer;
-  transition: all var(--duration-fast) var(--ease-standard);
-  box-shadow: var(--shadow-sm);
-  text-decoration: none;
-  width: 100%;
-  min-height: 52px;
-  box-sizing: border-box;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 6px !important;
+  background: var(--color-slate-0) !important;
+  border: 1px solid var(--color-slate-200) !important;
+  border-radius: var(--radius-canonical-md, 12px) !important;
+  padding: 10px 4px !important;
+  cursor: pointer !important;
+  transition: all var(--duration-fast) var(--ease-standard) !important;
+  box-shadow: var(--shadow-sm) !important;
+  text-decoration: none !important;
+  width: 100% !important;
+  min-height: 76px !important;
+  box-sizing: border-box !important;
+  text-align: center !important;
 }
 
 .quick-action-btn:hover {
-  background: var(--color-slate-50);
-  border-color: var(--color-brand-200);
-  transform: translateY(-1px);
-  box-shadow: var(--shadow-md);
+  background: var(--color-slate-50) !important;
+  border-color: var(--color-brand-200) !important;
+  transform: translateY(-2px) !important;
+  box-shadow: var(--shadow-md) !important;
 }
 
 .quick-action-btn:active {
-  transform: scale(0.98);
+  transform: scale(0.96) !important;
 }
 
 .quick-action-icon {
-  width: 36px;
-  height: 36px;
-  border-radius: var(--radius-canonical-sm, 8px);
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1rem;
-  flex-shrink: 0;
-  transition: all var(--duration-fast) var(--ease-standard);
+  width: 36px !important;
+  height: 36px !important;
+  border-radius: var(--radius-canonical-sm, 8px) !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  font-size: 1.1rem !important;
+  flex-shrink: 0 !important;
+  transition: all var(--duration-fast) var(--ease-standard) !important;
 }
 
 .quick-action-icon.qa-blue {
-  background: var(--color-brand-50);
-  color: var(--color-brand-600);
+  background: rgba(2, 132, 199, 0.12) !important;
+  color: var(--color-brand-500) !important;
 }
 
 .quick-action-icon.qa-emerald {
-  background: var(--color-success-bg);
-  color: var(--color-success);
+  background: rgba(16, 185, 129, 0.12) !important;
+  color: var(--color-success) !important;
 }
 
 .quick-action-icon.qa-indigo {
-  background: #eef2ff;
-  color: #4f46e5;
+  background: rgba(79, 70, 229, 0.12) !important;
+  color: #4f46e5 !important;
 }
 
 .quick-action-icon.qa-amber {
-  background: var(--color-warning-bg);
-  color: var(--color-warning);
+  background: rgba(245, 158, 11, 0.12) !important;
+  color: var(--color-warning) !important;
 }
 
 .quick-action-label {
-  font-family: var(--font-family);
-  font-size: var(--text-sm);
-  font-weight: var(--weight-medium);
-  color: var(--color-slate-900);
-  white-space: nowrap;
+  font-family: var(--font-family) !important;
+  font-size: 0.76rem !important;
+  font-weight: var(--weight-bold) !important;
+  color: var(--color-slate-900) !important;
+  white-space: nowrap !important;
+  text-align: center !important;
+  line-height: 1.2 !important;
+}
+
+@media screen and (max-width: 380px) {
+  .quick-access-items {
+    gap: 5px !important;
+  }
+  .quick-action-btn {
+    padding: 8px 2px !important;
+    min-height: 70px !important;
+  }
+  .quick-action-icon {
+    width: 30px !important;
+    height: 30px !important;
+    font-size: 0.95rem !important;
+  }
+  .quick-action-label {
+    font-size: 0.7rem !important;
+  }
 }
 
 .quick-action-icon {
@@ -3873,28 +3907,33 @@ body.not-authenticated #modal-auth #btn-cancel-login {
 }
 
 /* 5. Refined Dark Mode Overrides for New Components */
-[data-theme="dark"] .hero-dashboard-banner,
+[data-theme="dark"] .hero-dashboard-banner {
+  background: linear-gradient(135deg, #090d16 0%, #0369a1 100%) !important;
+  border-color: rgba(56, 189, 248, 0.25) !important;
+  box-shadow: 0 12px 30px -6px rgba(0, 0, 0, 0.6) !important;
+}
+
 [data-theme="dark"] .hero-doctor-banner {
-  background: var(--color-slate-0);
-  border-color: var(--color-slate-200);
-  box-shadow: var(--shadow-sm);
+  background: linear-gradient(135deg, #090d16 0%, #3730a3 100%) !important;
+  border-color: rgba(129, 140, 248, 0.25) !important;
+  box-shadow: 0 12px 30px -6px rgba(0, 0, 0, 0.6) !important;
 }
 
 [data-theme="dark"] .hero-dashboard-banner .hero-banner-title,
 [data-theme="dark"] .hero-doctor-banner .hero-banner-title {
-  color: var(--color-slate-900);
+  color: #ffffff !important;
 }
 
 [data-theme="dark"] .hero-dashboard-banner .hero-greeting-pill,
 [data-theme="dark"] .hero-doctor-banner .hero-greeting-pill {
-  background: var(--color-brand-50);
-  border-color: var(--color-brand-100);
-  color: var(--color-brand-600);
+  background: rgba(255, 255, 255, 0.14) !important;
+  border-color: rgba(255, 255, 255, 0.25) !important;
+  color: #e0f2fe !important;
 }
 
 [data-theme="dark"] .hero-dashboard-banner .hero-banner-footer,
 [data-theme="dark"] .hero-doctor-banner .hero-banner-footer {
-  border-top-color: var(--color-slate-200);
+  border-top-color: rgba(255, 255, 255, 0.15) !important;
 }
 
 [data-theme="dark"] .btn-hero-action {
@@ -8784,132 +8823,193 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 /* ==========================================================================
-   PATIENT DIRECTORY MOBILE CARDS - GENDER THEMING (v1.4.39)
+   PATIENT DIRECTORY MOBILE CARDS - CANONICAL DESIGN (v3.0)
    ========================================================================== */
 
 .hero-patient-card {
-  border-radius: 14px !important;
-  transition: all 0.2s ease !important;
-  position: relative;
-  overflow: hidden;
-  border: 1px solid var(--border-color);
+  background: var(--color-slate-0) !important;
+  border: 1px solid var(--color-slate-200) !important;
+  border-radius: var(--radius-canonical-md, 12px) !important;
+  padding: var(--space-4, 16px) !important;
+  box-shadow: var(--shadow-sm) !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  transition: all var(--duration-fast) var(--ease-standard) !important;
+  position: relative !important;
+  overflow: hidden !important;
+  display: flex !important;
+  flex-direction: column !important;
+  justify-content: space-between !important;
+  box-sizing: border-box !important;
 }
 
-/* Male Patient Card (ذكر) */
+.hero-patient-card:hover {
+  border-color: var(--color-brand-200) !important;
+  box-shadow: var(--shadow-md) !important;
+  transform: translateY(-1px) !important;
+}
+
+/* Gender Accents (Crisp top indicator without body gradients) */
 .hero-patient-card.gender-male {
-  border-top: 3.5px solid #0284c7 !important;
+  border-top: 3px solid var(--color-brand-500) !important;
 }
-:root:not([data-theme="dark"]) .hero-patient-card.gender-male {
-  background: linear-gradient(180deg, #f0f9ff 0%, #ffffff 50%) !important;
-  border-color: #bae6fd !important;
-  border-top-color: #0284c7 !important;
-}
-[data-theme="dark"] .hero-patient-card.gender-male {
-  background: linear-gradient(180deg, #0c2340 0%, #1e293b 50%) !important;
-  border-color: #1e3a5f !important;
-  border-top-color: #38bdf8 !important;
-  box-shadow: 0 4px 16px -2px rgba(0, 0, 0, 0.4) !important;
+
+.hero-patient-card.gender-female {
+  border-top: 3px solid #ec4899 !important;
 }
 
 .hero-patient-card.gender-male .patient-avatar {
-  background: linear-gradient(135deg, rgba(2, 132, 199, 0.15) 0%, rgba(2, 132, 199, 0.25) 100%) !important;
-  color: #0284c7 !important;
-  border: 1.5px solid rgba(2, 132, 199, 0.35) !important;
-}
-[data-theme="dark"] .hero-patient-card.gender-male .patient-avatar {
-  background: linear-gradient(135deg, rgba(56, 189, 248, 0.18) 0%, rgba(56, 189, 248, 0.28) 100%) !important;
-  color: #38bdf8 !important;
-  border: 1.5px solid rgba(56, 189, 248, 0.45) !important;
-}
-
-/* Female Patient Card (أنثى) */
-.hero-patient-card.gender-female {
-  border-top: 3.5px solid #ec4899 !important;
-}
-:root:not([data-theme="dark"]) .hero-patient-card.gender-female {
-  background: linear-gradient(180deg, #fdf2f8 0%, #ffffff 50%) !important;
-  border-color: #fbcfe8 !important;
-  border-top-color: #ec4899 !important;
-}
-[data-theme="dark"] .hero-patient-card.gender-female {
-  background: linear-gradient(180deg, #38122c 0%, #1e293b 50%) !important;
-  border-color: #5b2148 !important;
-  border-top-color: #f472b6 !important;
-  box-shadow: 0 4px 16px -2px rgba(0, 0, 0, 0.4) !important;
+  background: var(--color-brand-50) !important;
+  color: var(--color-brand-600) !important;
+  border: 1px solid var(--color-brand-100) !important;
 }
 
 .hero-patient-card.gender-female .patient-avatar {
-  background: linear-gradient(135deg, rgba(236, 72, 153, 0.15) 0%, rgba(236, 72, 153, 0.25) 100%) !important;
+  background: #fdf2f8 !important;
   color: #db2777 !important;
-  border: 1.5px solid rgba(236, 72, 153, 0.35) !important;
-}
-[data-theme="dark"] .hero-patient-card.gender-female .patient-avatar {
-  background: linear-gradient(135deg, rgba(244, 114, 182, 0.18) 0%, rgba(244, 114, 182, 0.28) 100%) !important;
-  color: #f472b6 !important;
-  border: 1.5px solid rgba(244, 114, 182, 0.45) !important;
+  border: 1px solid #fbcfe8 !important;
 }
 
-/* Twin Matched Action Buttons in Mobile Patient Directory: Quick Session & Clinical Sheet */
-.hero-patient-card .btn-quick-attend,
+/* Patient Name & Title */
+.hero-patient-card .hsc-patient-name {
+  font-family: var(--font-family) !important;
+  font-size: var(--text-md) !important;
+  font-weight: var(--weight-bold) !important;
+  color: var(--color-slate-900) !important;
+  line-height: var(--lh-snug) !important;
+  cursor: pointer !important;
+  transition: color var(--duration-fast) var(--ease-standard) !important;
+}
+
+.hero-patient-card .hsc-patient-name:hover {
+  color: var(--color-brand-600) !important;
+}
+
+/* Action Buttons: Quick Attend & Open Sheet */
+.hero-patient-card .btn-quick-attend {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 4px !important;
+  font-family: var(--font-family) !important;
+  font-size: var(--text-xs) !important;
+  font-weight: var(--weight-bold) !important;
+  padding: 0 var(--space-3, 12px) !important;
+  border-radius: var(--radius-canonical-sm, 8px) !important;
+  height: 32px !important;
+  min-height: 32px !important;
+  line-height: 1 !important;
+  white-space: nowrap !important;
+  transition: all var(--duration-fast) var(--ease-standard) !important;
+  cursor: pointer !important;
+  background: var(--color-success-bg) !important;
+  border: 1px solid var(--color-success-border) !important;
+  color: var(--color-success) !important;
+  box-shadow: none !important;
+}
+
+.hero-patient-card .btn-quick-attend:hover,
+.hero-patient-card .btn-quick-attend:active {
+  background: var(--color-success) !important;
+  color: #ffffff !important;
+  border-color: var(--color-success) !important;
+  transform: translateY(-1px) !important;
+}
+
 .hero-patient-card .btn-hero-sheet {
   display: inline-flex !important;
   align-items: center !important;
   justify-content: center !important;
   gap: 4px !important;
-  font-size: 0.76rem !important;
-  font-weight: 800 !important;
-  padding: 4px 10px !important;
-  border-radius: 8px !important;
-  height: 30px !important;
+  font-family: var(--font-family) !important;
+  font-size: var(--text-xs) !important;
+  font-weight: var(--weight-bold) !important;
+  padding: 0 var(--space-3, 12px) !important;
+  border-radius: var(--radius-canonical-sm, 8px) !important;
+  height: 32px !important;
+  min-height: 32px !important;
   line-height: 1 !important;
   white-space: nowrap !important;
-  transition: all 0.18s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  transition: all var(--duration-fast) var(--ease-standard) !important;
   cursor: pointer !important;
+  background: var(--color-brand-50) !important;
+  border: 1px solid var(--color-brand-100) !important;
+  color: var(--color-brand-600) !important;
   box-shadow: none !important;
 }
 
-/* Quick Session Button (Amber outline identity) */
-.hero-patient-card .btn-quick-attend {
-  background: rgba(245, 158, 11, 0.08) !important;
-  border: 1.5px solid rgba(245, 158, 11, 0.4) !important;
-  color: #d97706 !important;
-}
-.hero-patient-card .btn-quick-attend:hover,
-.hero-patient-card .btn-quick-attend:active {
-  background: rgba(245, 158, 11, 0.22) !important;
-  border-color: #f59e0b !important;
-  transform: translateY(-1px);
-}
-[data-theme="dark"] .hero-patient-card .btn-quick-attend {
-  background: rgba(245, 158, 11, 0.15) !important;
-  color: #fbbf24 !important;
-  border-color: rgba(251, 191, 36, 0.35) !important;
-}
-[data-theme="dark"] .hero-patient-card .btn-quick-attend:hover {
-  background: rgba(245, 158, 11, 0.25) !important;
-  border-color: #fbbf24 !important;
-}
-
-/* Sheet Button (Matching geometry, Primary Blue outline identity) */
-.hero-patient-card .btn-hero-sheet {
-  background: rgba(2, 132, 199, 0.08) !important;
-  border: 1.5px solid rgba(2, 132, 199, 0.4) !important;
-  color: var(--primary) !important;
-}
 .hero-patient-card .btn-hero-sheet:hover,
 .hero-patient-card .btn-hero-sheet:active {
-  background: rgba(2, 132, 199, 0.18) !important;
-  border-color: var(--primary) !important;
-  transform: translateY(-1px);
+  background: var(--color-brand-500) !important;
+  color: #ffffff !important;
+  border-color: var(--color-brand-500) !important;
+  transform: translateY(-1px) !important;
 }
-[data-theme="dark"] .hero-patient-card .btn-hero-sheet {
-  background: rgba(56, 189, 248, 0.15) !important;
-  color: #38bdf8 !important;
-  border-color: rgba(56, 189, 248, 0.35) !important;
+
+/* Secondary Utility Action Icons (WhatsApp, Docs, Edit, Delete) */
+.hero-patient-card .btn-icon-action {
+  width: 30px !important;
+  height: 30px !important;
+  min-height: 30px !important;
+  border-radius: 50% !important;
+  border: 1px solid var(--color-slate-200) !important;
+  background: var(--color-slate-0) !important;
+  color: var(--color-slate-700) !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  cursor: pointer !important;
+  transition: all var(--duration-fast) var(--ease-standard) !important;
+  padding: 0 !important;
 }
-[data-theme="dark"] .hero-patient-card .btn-hero-sheet:hover {
-  background: rgba(56, 189, 248, 0.25) !important;
-  border-color: #38bdf8 !important;
+
+.hero-patient-card .btn-icon-action:hover {
+  background: var(--color-slate-100) !important;
+  border-color: var(--color-slate-300) !important;
+  color: var(--color-slate-900) !important;
+  transform: scale(1.06) !important;
+}
+
+/* Dark Theme Patient Cards */
+[data-theme="dark"] .hero-patient-card {
+  background: var(--color-slate-0) !important;
+  border-color: var(--color-slate-200) !important;
+  box-shadow: var(--shadow-sm) !important;
+}
+
+[data-theme="dark"] .hero-patient-card.gender-male {
+  border-top-color: var(--color-brand-500) !important;
+}
+
+[data-theme="dark"] .hero-patient-card.gender-female {
+  border-top-color: #f472b6 !important;
+}
+
+[data-theme="dark"] .hero-patient-card.gender-male .patient-avatar {
+  background: var(--color-brand-100) !important;
+  color: var(--color-brand-500) !important;
+  border-color: var(--color-brand-200) !important;
+}
+
+[data-theme="dark"] .hero-patient-card.gender-female .patient-avatar {
+  background: rgba(244, 114, 182, 0.18) !important;
+  color: #f472b6 !important;
+  border-color: rgba(244, 114, 182, 0.35) !important;
+}
+
+[data-theme="dark"] .hero-patient-card .hsc-patient-name {
+  color: var(--color-slate-900) !important;
+}
+
+[data-theme="dark"] .hero-patient-card .btn-icon-action {
+  background: var(--color-slate-100) !important;
+  border-color: var(--color-slate-200) !important;
+  color: var(--color-slate-500) !important;
+}
+
+[data-theme="dark"] .hero-patient-card .btn-icon-action:hover {
+  background: var(--color-slate-200) !important;
+  color: var(--color-slate-900) !important;
 }
 
 /* ==========================================================================
@@ -13089,4 +13189,194 @@ body.role-doctor .btn-quick-attend {
 #dashboard-waiting-mobile-cards .hsc-divider {
   border-top: 1px solid var(--color-slate-100) !important;
   margin: var(--space-2, 8px) 0 var(--space-3, 12px) 0 !important;
+}
+
+/* ==========================================================================
+   PATIENTS VIEW CANONICAL REFACTOR (Task 4.1)
+   ========================================================================== */
+
+#view-patients {
+  width: 100%;
+}
+
+#view-patients h2 {
+  font-family: var(--font-family) !important;
+  font-size: var(--text-xl) !important;
+  font-weight: var(--weight-bold) !important;
+  color: var(--color-slate-900) !important;
+}
+
+#patients-total-count-badge {
+  background: var(--color-brand-50) !important;
+  color: var(--color-brand-600) !important;
+  border: 1px solid var(--color-brand-100) !important;
+  font-family: var(--font-family) !important;
+  font-size: var(--text-xs) !important;
+  font-weight: var(--weight-medium) !important;
+  border-radius: var(--radius-full) !important;
+  padding: 3px 10px !important;
+}
+
+#view-patients > .card:first-of-type {
+  background: var(--color-slate-0) !important;
+  border: 1px solid var(--color-slate-200) !important;
+  border-radius: var(--radius-canonical-md, 12px) !important;
+  padding: var(--space-4, 16px) !important;
+  box-shadow: var(--shadow-sm) !important;
+  margin-bottom: var(--space-4, 16px) !important;
+}
+
+#patient-search-input {
+  height: 42px !important;
+  min-height: 42px !important;
+  padding: 0 var(--space-3, 12px) 0 38px !important;
+  border: 1px solid var(--color-slate-200) !important;
+  border-radius: var(--radius-canonical-md, 12px) !important;
+  background-color: var(--color-slate-0) !important;
+  font-family: var(--font-family) !important;
+  font-size: var(--text-sm) !important;
+  color: var(--color-slate-900) !important;
+  outline: none !important;
+  box-sizing: border-box !important;
+  transition: border-color var(--duration-fast) var(--ease-standard),
+              box-shadow var(--duration-fast) var(--ease-standard) !important;
+}
+
+#patient-search-input:focus {
+  border-color: var(--color-brand-500) !important;
+  box-shadow: 0 0 0 3px var(--color-brand-100) !important;
+}
+
+#btn-select-patient-filter-type {
+  height: 42px !important;
+  min-height: 42px !important;
+  border-radius: var(--radius-canonical-md, 12px) !important;
+  border: 1px solid var(--color-slate-200) !important;
+  background-color: var(--color-slate-0) !important;
+  color: var(--color-slate-700) !important;
+  font-family: var(--font-family) !important;
+  font-size: var(--text-sm) !important;
+  font-weight: var(--weight-medium) !important;
+  padding: 0 var(--space-3, 12px) !important;
+  box-sizing: border-box !important;
+  transition: border-color var(--duration-fast) var(--ease-standard),
+              box-shadow var(--duration-fast) var(--ease-standard) !important;
+}
+
+#btn-select-patient-filter-type:hover {
+  border-color: var(--color-slate-300) !important;
+  background-color: var(--color-slate-50) !important;
+}
+
+#btn-filter-today-patients {
+  height: 42px !important;
+  min-height: 42px !important;
+  border-radius: var(--radius-canonical-md, 12px) !important;
+  border: 1px solid var(--color-slate-200) !important;
+  background-color: var(--color-slate-0) !important;
+  color: var(--color-slate-700) !important;
+  font-family: var(--font-family) !important;
+  font-size: var(--text-sm) !important;
+  font-weight: var(--weight-medium) !important;
+  padding: 0 var(--space-3, 12px) !important;
+  box-sizing: border-box !important;
+  transition: all var(--duration-fast) var(--ease-standard) !important;
+}
+
+#btn-filter-today-patients:hover {
+  background-color: var(--color-slate-50) !important;
+  border-color: var(--color-slate-300) !important;
+  color: var(--color-slate-900) !important;
+}
+
+#btn-filter-today-patients #badge-today-patients-count {
+  background: var(--color-slate-100) !important;
+  color: var(--color-slate-700) !important;
+  border: 1px solid var(--color-slate-200) !important;
+  font-size: var(--text-xs) !important;
+  border-radius: var(--radius-full) !important;
+  padding: 2px 7px !important;
+}
+
+#btn-filter-today-patients.btn-today-active {
+  background-color: var(--color-brand-50) !important;
+  color: var(--color-brand-600) !important;
+  border-color: var(--color-brand-200) !important;
+  font-weight: var(--weight-bold) !important;
+}
+
+#btn-filter-today-patients.btn-today-active #badge-today-patients-count {
+  background: var(--color-brand-500) !important;
+  color: #ffffff !important;
+  border-color: transparent !important;
+}
+
+.patients-sort-segmented {
+  display: inline-flex !important;
+  align-items: center !important;
+  background: var(--color-slate-100) !important;
+  border: 1px solid var(--color-slate-200) !important;
+  border-radius: var(--radius-canonical-md, 12px) !important;
+  padding: 3px !important;
+  gap: 3px !important;
+  height: 38px !important;
+  box-sizing: border-box !important;
+}
+
+.sort-seg-btn {
+  border: none !important;
+  background: transparent !important;
+  color: var(--color-slate-700) !important;
+  font-family: var(--font-family) !important;
+  font-size: var(--text-xs) !important;
+  font-weight: var(--weight-medium) !important;
+  padding: 0 var(--space-3, 12px) !important;
+  height: 100% !important;
+  border-radius: var(--radius-canonical-sm, 8px) !important;
+  cursor: pointer !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 5px !important;
+  transition: all var(--duration-fast) var(--ease-standard) !important;
+}
+
+.sort-seg-btn:hover {
+  color: var(--color-slate-900) !important;
+}
+
+.sort-seg-btn.active {
+  background: var(--color-slate-0) !important;
+  color: var(--color-brand-600) !important;
+  font-weight: var(--weight-bold) !important;
+  box-shadow: var(--shadow-sm) !important;
+}
+
+#btn-open-add-patient {
+  height: 38px !important;
+  min-height: 38px !important;
+  padding: 0 var(--space-4, 16px) !important;
+  background-color: var(--color-brand-500) !important;
+  color: #ffffff !important;
+  border: 1px solid transparent !important;
+  border-radius: var(--radius-canonical-md, 12px) !important;
+  font-family: var(--font-family) !important;
+  font-size: var(--text-sm) !important;
+  font-weight: var(--weight-bold) !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: var(--space-2, 8px) !important;
+  cursor: pointer !important;
+  box-shadow: var(--shadow-sm) !important;
+  transition: all var(--duration-fast) var(--ease-standard) !important;
+}
+
+#btn-open-add-patient:hover {
+  background-color: var(--color-brand-600) !important;
+  transform: translateY(-1px) !important;
+  box-shadow: var(--shadow-md) !important;
+}
+
+#btn-open-add-patient:active {
+  transform: scale(0.98) !important;
 }
