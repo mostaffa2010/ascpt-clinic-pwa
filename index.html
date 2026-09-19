@@ -3103,7 +3103,7 @@
   <div class="modal-backdrop" id="modal-renew-approval" style="z-index: 220;">
     <div class="modal-content" style="max-width: 440px;">
       <div class="modal-header">
-        <h3><i class="fa-solid fa-rotate-right text-primary"></i> تجديد موافقة التأمين</h3>
+        <h3><i class="fa-solid fa-rotate-right text-primary"></i> تجديد موافقة التأمين وبدء دورة جديدة</h3>
         <button type="button" class="modal-close" data-close-modal="modal-renew-approval">&times;</button>
       </div>
       <form id="form-renew-approval" novalidate>
@@ -3144,9 +3144,12 @@
           </div>
           <div class="form-group" style="margin-bottom: 12px;">
             <label for="renew-approval-date" style="font-weight: 800; font-size: 0.88rem; color: var(--text-main);">
-              <i class="fa-solid fa-calendar-day text-primary"></i> تاريخ سريان الجواب الجديد *
+              <i class="fa-solid fa-calendar-day text-primary"></i> تاريخ بداية الدورة الجديدة (سريان الجواب) *
             </label>
-            <input type="text" id="renew-approval-date" readonly class="form-control date-picker-clickable" required style="height: 40px; font-weight: 700;" data-open-calendar="renew-approval-date" placeholder="اختر التاريخ...">
+            <input type="text" id="renew-approval-date" readonly class="form-control date-picker-clickable" required style="height: 40px; font-weight: 700;" data-open-calendar="renew-approval-date" placeholder="اختر تاريخ بداية الدورة...">
+            <small style="color: var(--text-muted); font-size: 0.76rem; display: block; margin-top: 4px;">
+              اختر تاريخ بدء الدورة لتصفير العداد واحتساب الجلسات الجديدة من الجلسة 1 بدءاً من هذا التاريخ.
+            </small>
           </div>
           <div class="form-group">
             <label for="renew-approval-no" style="font-weight: 700; font-size: 0.85rem; color: var(--text-main);">

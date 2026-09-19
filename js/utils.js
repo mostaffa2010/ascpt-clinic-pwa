@@ -602,7 +602,7 @@ export function getLatestTherapySession(sessions) {
  * @param {number} approvedTotal - Approved sessions per cycle (defaults to 12)
  * @returns {Map<string, {sessionNumber: number, cycleNumber: number, overallNumber: number, displayLabel: string}>}
  */
-export function sequencePatientSessionsChronologically(sessions = [], approvedTotal = 12) {
+export function sequencePatientSessionsChronologically(sessions = [], approvedTotal = 12, cycleOptions = null) {
   const therapySessions = (sessions || []).filter(s =>
     (s.entryType === 'session' || !s.entryType) && s.status !== 'cancelled'
   );
@@ -619,21 +619,73 @@ export function sequencePatientSessionsChronologically(sessions = [], approvedTo
   const total = parseInt(approvedTotal, 10) > 0 ? parseInt(approvedTotal, 10) : 12;
   const map = new Map();
 
-  therapySessions.forEach((s, idx) => {
-    const numInCycle = (idx % total) + 1;
-    const cycleNum = Math.floor(idx / total) + 1;
-    const isHome = s.isHomeVisit || s.visitType === 'home';
-    const label = isHome ? 'زيارة' : 'جلسة';
-    const cycleSuffix = cycleNum > 1 ? ` (دورة ${cycleNum})` : '';
+  let cycles = [];
+  if (cycleOptions && Array.isArray(cycleOptions.approvalCycles) && cycleOptions.approvalCycles.length > 0) {
+    cycles = [...cycleOptions.approvalCycles].filter(c => c && c.startDate).sort((a, b) => (a.startDate || '').localeCompare(b.startDate || ''));
+  } else if (cycleOptions && cycleOptions.currentApprovalStartDate) {
+    cycles = [
+      { cycleNumber: 1, startDate: '1970-01-01', approvedSessions: total },
+      { cycleNumber: 2, startDate: cycleOptions.currentApprovalStartDate, approvedSessions: total }
+    ];
+  }
 
-    map.set(s.id, {
-      sessionNumber: numInCycle,
-      cycleNumber: cycleNum,
-      overallNumber: idx + 1,
-      displayLabel: `${label} ${numInCycle} من ${total}${cycleSuffix}`,
-      shortLabel: `${label} ${numInCycle}${cycleSuffix}`
+  if (cycles.length > 0) {
+    // Map each session to its corresponding cycle bucket based on date >= cycle.startDate
+    const cycleBuckets = cycles.map(() => []);
+
+    therapySessions.forEach(s => {
+      let matchedCycleIdx = 0;
+      for (let i = cycles.length - 1; i >= 0; i--) {
+        if (!cycles[i].startDate || (s.date || '').localeCompare(cycles[i].startDate) >= 0) {
+          matchedCycleIdx = i;
+          break;
+        }
+      }
+      cycleBuckets[matchedCycleIdx].push(s);
     });
-  });
+
+    let globalOverall = 0;
+    cycles.forEach((c, cIdx) => {
+      const cSessions = cycleBuckets[cIdx] || [];
+      const cTotal = parseInt(c.approvedSessions, 10) || total;
+      const baseCycleNum = c.cycleNumber || (cIdx + 1);
+
+      cSessions.forEach((s, idxInCycle) => {
+        globalOverall++;
+        const numInCycle = (idxInCycle % cTotal) + 1;
+        const subCycleRollover = Math.floor(idxInCycle / cTotal);
+        const effectiveCycleNum = baseCycleNum + subCycleRollover;
+        const isHome = s.isHomeVisit || s.visitType === 'home';
+        const label = isHome ? 'زيارة' : 'جلسة';
+        const cycleSuffix = effectiveCycleNum > 1 ? ` (دورة ${effectiveCycleNum})` : '';
+
+        map.set(s.id, {
+          sessionNumber: numInCycle,
+          cycleNumber: effectiveCycleNum,
+          overallNumber: globalOverall,
+          displayLabel: `${label} ${numInCycle} من ${cTotal}${cycleSuffix}`,
+          shortLabel: `${label} ${numInCycle}${cycleSuffix}`
+        });
+      });
+    });
+  } else {
+    // Default fallback: pure chronological modulo rollover (100% backwards compatible)
+    therapySessions.forEach((s, idx) => {
+      const numInCycle = (idx % total) + 1;
+      const cycleNum = Math.floor(idx / total) + 1;
+      const isHome = s.isHomeVisit || s.visitType === 'home';
+      const label = isHome ? 'زيارة' : 'جلسة';
+      const cycleSuffix = cycleNum > 1 ? ` (دورة ${cycleNum})` : '';
+
+      map.set(s.id, {
+        sessionNumber: numInCycle,
+        cycleNumber: cycleNum,
+        overallNumber: idx + 1,
+        displayLabel: `${label} ${numInCycle} من ${total}${cycleSuffix}`,
+        shortLabel: `${label} ${numInCycle}${cycleSuffix}`
+      });
+    });
+  }
 
   return map;
 }

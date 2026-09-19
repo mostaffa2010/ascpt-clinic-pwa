@@ -1937,7 +1937,7 @@ export class PatientsManager {
     e.preventDefault();
     const pid = document.getElementById('renew-patient-id')?.value;
     const newSessions = parseInt(document.getElementById('renew-sessions-count')?.value) || 12;
-    const newParts = parseInt(document.getElementById('renew-approved-body-parts')?.value) || patient?.approvedBodyParts || 1;
+    const newParts = parseInt(document.getElementById('renew-approved-body-parts')?.value) || 1;
     const renewDate = document.getElementById('renew-approval-date')?.value || getLocalDateStr();
     const newApprovalNo = document.getElementById('renew-approval-no')?.value?.trim() || '';
 
@@ -1946,31 +1946,92 @@ export class PatientsManager {
 
     try {
       const currentUser = auth.getCurrentUser();
+
+      // Maintain approval cycles history in database for audit & precision
+      const existingCycles = Array.isArray(patient.approvalCycles) ? [...patient.approvalCycles] : [];
+      if (existingCycles.length === 0) {
+        const initialStart = patient.currentApprovalStartDate || patient.createdAt?.substring(0, 10) || renewDate;
+        existingCycles.push({
+          cycleNumber: 1,
+          startDate: initialStart,
+          approvedSessions: patient.approvedSessions || 12,
+          approvedBodyParts: patient.approvedBodyParts || 1,
+          approvalNo: patient.insuranceApprovalNo || ''
+        });
+      }
+
+      const nextCycleNumber = existingCycles.length + 1;
+      const newCycleEntry = {
+        cycleNumber: nextCycleNumber,
+        startDate: renewDate,
+        approvedSessions: newSessions,
+        approvedBodyParts: newParts,
+        approvalNo: newApprovalNo,
+        renewedAt: new Date().toISOString(),
+        renewedBy: currentUser?.name || 'الاستقبال'
+      };
+      existingCycles.push(newCycleEntry);
+
       const updates = {
         approvedSessions: newSessions,
         approvedBodyParts: newParts,
         currentApprovalStartDate: renewDate,
         lastRenewalDate: renewDate,
-        lastRenewedBy: currentUser?.name || 'الاستقبال'
+        lastRenewedBy: currentUser?.name || 'الاستقبال',
+        approvalCycles: existingCycles
       };
       if (newApprovalNo) {
         updates.insuranceApprovalNo = newApprovalNo;
       }
 
       await db.savePatient({ ...patient, ...updates }, currentUser);
+
+      // Re-sequence existing sessions in Firestore to align with new cycle start date
+      try {
+        const allSessions = (await db.getSessionsForPatient(patient.id)).filter(
+          s => (s.entryType === 'session' || !s.entryType) && s.status !== 'cancelled'
+        );
+        if (allSessions.length > 0) {
+          const seqMap = sequencePatientSessionsChronologically(allSessions, newSessions, {
+            currentApprovalStartDate: renewDate,
+            approvalCycles: existingCycles
+          });
+          const sessionsToUpdate = [];
+          allSessions.forEach(s => {
+            const seq = seqMap.get(s.id);
+            if (seq && (s.sessionNumber !== seq.sessionNumber || s.cycleNumber !== seq.cycleNumber)) {
+              sessionsToUpdate.push({
+                ...s,
+                sessionNumber: seq.sessionNumber,
+                cycleNumber: seq.cycleNumber,
+                approvedSessionsTotal: newSessions
+              });
+            }
+          });
+          if (sessionsToUpdate.length > 0) {
+            await db.saveBatchSessions(sessionsToUpdate, currentUser);
+          }
+        }
+      } catch (seqErr) {
+        console.warn('Session re-sequencing notice on renewal:', seqErr);
+      }
+
       try {
         await db.logAudit(
           'تجديد موافقة تأمين',
-          `تجديد موافقة التأمين للمريض ${patient.name} (${newSessions} جلسة - سريان من ${renewDate})`,
+          `تجديد موافقة التأمين للمريض ${patient.name} (دورة جديدة ${newSessions} جلسة - بداية من ${renewDate})`,
           currentUser
         );
       } catch (_) {}
 
       this.app.closeModal('modal-renew-approval');
-      this.app.showToast(`تم تجديد جواب الموافقة للمريض (${patient.name}) وبدء دورة جديدة (${newSessions} جلسة) بنجاح.`);
+      this.app.showToast(`تم تجديد جواب الموافقة للمريض (${patient.name}) وبدء دورة جديدة (${newSessions} جلسة من ${renewDate}) بنجاح.`);
       await this.loadPatients();
       if (this.app?.sessionsManager?.loadTodaySessions) {
         await this.app.sessionsManager.loadTodaySessions();
+      }
+      if (this.activePatientSheetId === pid) {
+        await this.openPatientSheet(pid);
       }
     } catch (err) {
       this.app.showAlert('تعذر تجديد الموافقة: ' + err.message, 'خطأ', 'danger');
@@ -2719,7 +2780,10 @@ export class PatientsManager {
       `;
     } else {
       const approvedTotal = parseInt(p.approvedSessions, 10) || 12;
-      const seqMap = sequencePatientSessionsChronologically(sessions, approvedTotal);
+      const seqMap = sequencePatientSessionsChronologically(sessions, approvedTotal, {
+        currentApprovalStartDate: p.currentApprovalStartDate,
+        approvalCycles: p.approvalCycles
+      });
 
       listEl.innerHTML = sessions.map((s, idx) => {
         const isExam = (s.entryType === 'examination');
@@ -4462,13 +4526,19 @@ export class PatientsManager {
       return (a.id || '').localeCompare(b.id || '');
     });
 
-    // 4. Assign sessionNumber and cycleNumber to all sessions in the sequence
+    // 4. Assign sessionNumber and cycleNumber to all sessions in the sequence using cycle start dates
     const newIds = new Set(newSessionDrafts.map(n => n.id));
     const sessionsToCreate = [];
 
+    const seqMap = sequencePatientSessionsChronologically(combined, approvedTotal, {
+      currentApprovalStartDate: p.currentApprovalStartDate,
+      approvalCycles: p.approvalCycles
+    });
+
     combined.forEach((s, idx) => {
-      const numInCycle = (idx % approvedTotal) + 1;
-      const cycleNum = Math.floor(idx / approvedTotal) + 1;
+      const seqInfo = seqMap.get(s.id);
+      const numInCycle = seqInfo ? seqInfo.sessionNumber : ((idx % approvedTotal) + 1);
+      const cycleNum = seqInfo ? seqInfo.cycleNumber : (Math.floor(idx / approvedTotal) + 1);
 
       if (newIds.has(s.id)) {
         s.sessionNumber = numInCycle;

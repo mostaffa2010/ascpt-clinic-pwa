@@ -1,4 +1,4 @@
-import { escapeHTML, getLocalDateStr, getLatestTherapySession } from './utils.js';
+import { escapeHTML, getLocalDateStr, getLatestTherapySession, sequencePatientSessionsChronologically } from './utils.js';
 // ========================================================
 // ASCPT - Daily Sessions & Check-in Module
 // ========================================================
@@ -1021,7 +1021,7 @@ export class SessionsManager {
       } catch (_) {}
     }
 
-    // Calculate session number for patient's approval cycle (Option A rollover)
+    // Calculate session number for patient's approval cycle (Option A rollover & explicit cycle start dates)
     let sessionNumber = 1;
     let cycleNumber = 1;
     let approvedSessionsTotal = 12;
@@ -1031,19 +1031,26 @@ export class SessionsManager {
         const approvedTotal = parseInt(patient.approvedSessions, 10) || 12;
         approvedSessionsTotal = approvedTotal;
 
+        const cycleOpts = {
+          currentApprovalStartDate: patient.currentApprovalStartDate,
+          approvalCycles: patient.approvalCycles
+        };
+
         if (isEdit && this.editingSessionId) {
-          const sorted = [...allPatientSessions].sort((a, b) => (a.date || '').localeCompare(b.date || ''));
-          const editIdx = sorted.findIndex(x => x.id === this.editingSessionId);
-          const seqIdx = editIdx >= 0 ? editIdx : sorted.length;
-          sessionNumber = (seqIdx % approvedTotal) + 1;
-          cycleNumber = Math.floor(seqIdx / approvedTotal) + 1;
+          const seqMap = sequencePatientSessionsChronologically(allPatientSessions, approvedTotal, cycleOpts);
+          const info = seqMap.get(this.editingSessionId);
+          if (info) {
+            sessionNumber = info.sessionNumber;
+            cycleNumber = info.cycleNumber;
+          }
         } else {
-          const simulated = [...allPatientSessions, { id: 'temp_new', date: sessionDateVal }];
-          simulated.sort((a, b) => (a.date || '').localeCompare(b.date || ''));
-          const myIdx = simulated.findIndex(x => x.id === 'temp_new');
-          const seqIdx = myIdx >= 0 ? myIdx : allPatientSessions.length;
-          sessionNumber = (seqIdx % approvedTotal) + 1;
-          cycleNumber = Math.floor(seqIdx / approvedTotal) + 1;
+          const simulated = [...allPatientSessions, { id: 'temp_new', date: sessionDateVal, entryType: 'session' }];
+          const seqMap = sequencePatientSessionsChronologically(simulated, approvedTotal, cycleOpts);
+          const info = seqMap.get('temp_new');
+          if (info) {
+            sessionNumber = info.sessionNumber;
+            cycleNumber = info.cycleNumber;
+          }
         }
       } catch (_) {}
     }
