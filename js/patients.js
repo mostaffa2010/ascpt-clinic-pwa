@@ -4489,10 +4489,12 @@ export class PatientsManager {
     const isInsurance = (p.billing === 'insurance') || Boolean(p.insuranceCompany && String(p.insuranceCompany).trim().length > 0) || (p.payType === 'insurance');
     const insCompany = p.insuranceCompany || p.insuranceName || '';
 
+    const batchPackageId = 'pkg_' + Date.now() + '_' + Math.random().toString(36).substring(2, 7);
     const newSessionDrafts = this.batchHvDates.map((dateStr) => {
       const sessionId = 'batch_' + Date.now() + '_' + Math.random().toString(36).substring(2, 9);
       return {
         id: sessionId,
+        batchId: batchPackageId,
         entryType: 'session',
         status: 'active',
         patientId: p.id,
