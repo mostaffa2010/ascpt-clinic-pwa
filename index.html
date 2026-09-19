@@ -403,34 +403,36 @@
           </div>
 
           <div class="card" id="card-dashboard-recent">
-            <div class="card-header" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
-              <!-- Tabs Header -->
-              <div class="dashboard-tabs-nav" style="display: flex; align-items: center; gap: 8px;">
-                <button type="button" class="btn btn-tab active" id="tab-btn-waiting-patients" style="font-weight: 800; border-radius: 999px; padding: 6px 14px; font-size: 0.88rem; display: inline-flex; align-items: center; gap: 6px;">
-                  <i class="fa-solid fa-users-viewfinder text-primary"></i> <span>المرضى المنتظرون اليوم</span>
-                  <span class="badge badge-counter" id="badge-waiting-count" style="background: var(--primary); color: #fff; font-size: 0.75rem; border-radius: 999px; padding: 2px 7px;">0</span>
+            <div class="card-header" style="padding: 10px 14px; border-bottom: 1px solid var(--border-color);">
+              <!-- Segmented Control Bar -->
+              <div class="dashboard-tabs-segmented" role="tablist">
+                <button type="button" class="btn btn-tab dashboard-segmented-tab-btn active" id="tab-btn-waiting-patients" role="tab" aria-selected="true">
+                  <i class="fa-solid fa-users-viewfinder"></i> <span>المرضى المنتظرون اليوم</span>
+                  <span class="badge badge-counter" id="badge-waiting-count">0</span>
                 </button>
-                <button type="button" class="btn btn-tab btn-outline" id="tab-btn-recent-sessions" style="font-weight: 700; border-radius: 999px; padding: 6px 14px; font-size: 0.88rem; display: inline-flex; align-items: center; gap: 6px;">
-                  <i class="fa-solid fa-clock-rotate-left"></i> <span>آخر الجلسات المسجلة اليوم</span>
+                <button type="button" class="btn btn-tab btn-outline dashboard-segmented-tab-btn" id="tab-btn-recent-sessions" role="tab" aria-selected="false">
+                  <i class="fa-solid fa-clock-rotate-left"></i> <span>آخر الجلسات المسجلة</span>
                 </button>
-              </div>
-
-              <!-- Quick Actions -->
-              <div class="dashboard-tab-actions" style="display: flex; align-items: center; gap: 8px;">
-                <button type="button" class="btn btn-primary btn-sm" id="btn-reception-walkin" style="font-weight: 800; border-radius: 999px; display: inline-flex; align-items: center; gap: 6px; box-shadow: 0 2px 8px rgba(2, 132, 199, 0.25);">
-                  <i class="fa-solid fa-user-plus"></i> <span>حضور مباشر (بدون موعد)</span>
-                </button>
-                <button type="button" class="btn btn-outline btn-sm" id="btn-dashboard-view-all-sessions" data-view-target="sessions" style="display: none;">عرض الكل</button>
               </div>
             </div>
 
             <!-- TAB 1 CONTENT: Waiting Patients Today (Default) -->
             <div id="dashboard-tab-content-waiting">
-              <!-- Doctor Filter Pills Bar -->
-              <div class="reception-doc-filter-bar no-print" id="reception-doc-filter-bar" style="display: flex; align-items: center; gap: 6px; overflow-x: auto; padding: 8px 14px; border-bottom: 1px solid var(--border-color); -webkit-overflow-scrolling: touch;">
-                <button type="button" class="doc-filter-pill active" data-filter-doctor="all" style="font-size: 0.8rem; font-weight: 800; padding: 5px 12px; border-radius: 999px; border: 1.5px solid var(--primary); background: var(--primary); color: #fff; cursor: pointer; display: inline-flex; align-items: center; gap: 5px; white-space: nowrap;">
-                  <i class="fa-solid fa-user-doctor"></i> <span>كل الأطباء</span>
-                </button>
+              <!-- Reception Toolbar: Doctor Filter Pills + Walk-in Button -->
+              <div class="reception-action-filter-bar no-print" style="display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 8px 14px; border-bottom: 1px solid var(--border-color);">
+                <!-- Doctor Filter Pills Bar -->
+                <div class="reception-doc-filter-bar" id="reception-doc-filter-bar" style="display: flex; align-items: center; gap: 6px; overflow-x: auto; -webkit-overflow-scrolling: touch; flex: 1;">
+                  <button type="button" class="doc-filter-pill active" data-filter-doctor="all" style="font-size: 0.8rem; font-weight: 800; padding: 5px 12px; border-radius: 999px; border: 1.5px solid var(--primary); background: var(--primary); color: #fff; cursor: pointer; display: inline-flex; align-items: center; gap: 5px; white-space: nowrap;">
+                    <i class="fa-solid fa-user-doctor"></i> <span>كل الأطباء</span>
+                  </button>
+                </div>
+
+                <!-- Quick Walk-in Action -->
+                <div id="waiting-tab-actions" style="flex-shrink: 0;">
+                  <button type="button" class="btn btn-primary btn-sm" id="btn-reception-walkin" style="font-weight: 800; border-radius: 999px; padding: 5px 12px; font-size: 0.8rem; display: inline-flex; align-items: center; gap: 5px; box-shadow: 0 2px 6px rgba(2, 132, 199, 0.25); white-space: nowrap;">
+                    <i class="fa-solid fa-user-plus"></i> <span>حضور مباشر</span>
+                  </button>
+                </div>
               </div>
 
               <!-- Desktop Table -->
@@ -458,6 +460,12 @@
 
             <!-- TAB 2 CONTENT: Recent Sessions Today -->
             <div id="dashboard-tab-content-recent" style="display: none;">
+              <div class="recent-sessions-toolbar no-print" style="display: flex; justify-content: space-between; align-items: center; padding: 8px 14px; border-bottom: 1px solid var(--border-color); background: var(--bg-subtle);">
+                <span style="font-size: 0.84rem; font-weight: 700; color: var(--text-muted);"><i class="fa-solid fa-receipt text-primary" style="margin-left: 4px;"></i> آخر الجلسات المسجلة اليوم</span>
+                <button type="button" class="btn btn-outline btn-sm" id="btn-dashboard-view-all-sessions" data-view-target="sessions" style="font-weight: 700; border-radius: 999px; font-size: 0.78rem; padding: 4px 12px; background: var(--bg-surface);">
+                  <i class="fa-solid fa-list-ul"></i> عرض كل الجلسات
+                </button>
+              </div>
               <div class="table-responsive desktop-only-table">
                 <table class="data-table" id="dashboard-recent-table">
                   <thead>
