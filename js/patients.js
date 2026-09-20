@@ -239,6 +239,21 @@ export class PatientsManager {
 
     // Patient Sheet Navigation & Print Buttons
     document.getElementById('btn-back-to-patients-top')?.addEventListener('click', () => this.app.switchView('patients'));
+
+    // Patient Sheet Header Card Collapse / Expand Toggle (v2.10.41)
+    const sheetHeaderToggle = document.getElementById('sheet-card-header-toggle');
+    if (sheetHeaderToggle) {
+      sheetHeaderToggle.addEventListener('click', (e) => {
+        if (e.target.closest('button, a, input, select, textarea')) return;
+        this.togglePatientSheetCard();
+      });
+      sheetHeaderToggle.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          this.togglePatientSheetCard();
+        }
+      });
+    }
     document.getElementById('btn-back-to-patients-bottom')?.addEventListener('click', () => this.app.switchView('patients'));
         const btnTop = document.getElementById('btn-print-sheet-top');
     if (btnTop) {
@@ -2097,6 +2112,27 @@ export class PatientsManager {
     };
   }
 
+  togglePatientSheetCard(forceExpand) {
+    const card = document.getElementById('patient-clinical-card');
+    const chevron = document.getElementById('sheet-card-chevron');
+    const toggleText = document.getElementById('sheet-card-toggle-text');
+    if (!card) return;
+
+    const shouldExpand = (typeof forceExpand === 'boolean')
+      ? forceExpand
+      : card.classList.contains('pcm-collapsed');
+
+    if (shouldExpand) {
+      card.classList.remove('pcm-collapsed');
+      if (chevron) chevron.className = 'fa-solid fa-chevron-up pcm-toggle-icon';
+      if (toggleText) toggleText.textContent = 'طي';
+    } else {
+      card.classList.add('pcm-collapsed');
+      if (chevron) chevron.className = 'fa-solid fa-chevron-down pcm-toggle-icon';
+      if (toggleText) toggleText.textContent = 'التفاصيل';
+    }
+  }
+
   async openPatientSheet(patientId, fallbackName = null) {
     const currentUser = auth.getCurrentUser();
     if (!RolesManager.canAccessClinicalSheet(currentUser)) {
@@ -2162,6 +2198,9 @@ export class PatientsManager {
     if (avatarIcon) {
       avatarIcon.className = isFemale ? 'fa-solid fa-person-dress' : 'fa-solid fa-person';
     }
+
+    // Ensure header card starts collapsed by default on open (v2.10.41)
+    this.togglePatientSheetCard(false);
 
     const nameEl = document.getElementById('sheet-patient-name');
     if (nameEl) nameEl.textContent = p.name;

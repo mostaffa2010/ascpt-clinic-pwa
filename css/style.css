@@ -7167,14 +7167,86 @@ h1, h2, h3, h4, h5, h6 {
 
 /* 1. Patient Clinical Main Card (Clean, Modern & Uncluttered) */
 .patient-clinical-main-card {
-  border-radius: 20px !important;
-  padding: 16px 18px !important;
-  margin-bottom: 18px !important;
+  border-radius: 18px !important;
+  padding: 12px 16px !important;
+  margin-bottom: 14px !important;
   transition: all 0.25s ease !important;
   position: relative !important;
   background: var(--bg-surface) !important;
   border: 1.5px solid var(--border-color) !important;
   box-shadow: 0 4px 18px -2px rgba(15, 23, 42, 0.06) !important;
+}
+
+/* Collapsed State (Default on Sheet Open) */
+.patient-clinical-main-card.pcm-collapsed {
+  padding: 9px 14px !important;
+  margin-bottom: 12px !important;
+}
+
+.patient-clinical-main-card.pcm-collapsed .pcm-expandable-content {
+  display: none !important;
+}
+
+.patient-clinical-main-card.pcm-collapsed .pcm-row-top {
+  margin-bottom: 4px !important;
+}
+
+.patient-clinical-main-card.pcm-collapsed .pcm-row-meta {
+  margin-bottom: 0 !important;
+}
+
+/* Clickable Header Bar for Toggling */
+.pcm-header-bar {
+  cursor: pointer !important;
+  user-select: none !important;
+  -webkit-tap-highlight-color: transparent !important;
+}
+
+.pcm-toggle-pill {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 5px !important;
+  padding: 3px 9px !important;
+  border-radius: 999px !important;
+  background: var(--bg-subtle) !important;
+  border: 1px solid var(--border-color) !important;
+  color: var(--text-muted) !important;
+  font-size: 0.72rem !important;
+  font-weight: 700 !important;
+  transition: all 0.2s ease !important;
+  flex-shrink: 0 !important;
+}
+
+.patient-clinical-main-card:hover .pcm-toggle-pill {
+  border-color: var(--primary) !important;
+  color: var(--primary) !important;
+}
+
+.pcm-toggle-icon {
+  font-size: 0.68rem !important;
+  transition: transform 0.2s ease !important;
+}
+
+/* Expandable Content Area */
+.pcm-expandable-content {
+  border-top: 1px dashed var(--border-color) !important;
+  padding-top: 10px !important;
+  margin-top: 8px !important;
+  animation: pcmFadeIn 0.22s ease forwards !important;
+}
+
+@keyframes pcmFadeIn {
+  from { opacity: 0; transform: translateY(-4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Row: Company & Program */
+.pcm-row-company-prog {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 10px !important;
+  margin-bottom: 8px !important;
 }
 
 /* 1.1 Side Accents (Right Border & Subtle Soft Glow, No Top Bar) */

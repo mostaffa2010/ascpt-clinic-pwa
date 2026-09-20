@@ -137,8 +137,8 @@
   
 
     <!-- Stylesheets -->
-  <link rel="stylesheet" href="css/style.css?v=2.10.40" media="screen">
-  <link rel="stylesheet" href="css/print.css?v=2.10.40" media="print">
+  <link rel="stylesheet" href="css/style.css?v=2.10.41" media="screen">
+  <link rel="stylesheet" href="css/print.css?v=2.10.41" media="print">
 </head>
 <body>
   <script>
@@ -889,66 +889,80 @@
           </h2>
         </div>
 
-        <!-- Patient Clinical Record Header Card (Clean, Modern & Uncluttered) -->
-        <div class="card patient-clinical-main-card gender-male" id="patient-clinical-card">
-          <!-- Row 1: Patient Name on Right, Company/Billing on Left -->
-          <div class="pcm-row-top">
-            <h2 id="sheet-patient-name" class="pcm-patient-name">اسم المريض</h2>
-            <div class="pcm-billing-container" id="sheet-patient-billing-badge">
-              <!-- Populated dynamically -->
+        <!-- Patient Clinical Record Header Card (Clean, Modern & Collapsible by Default) -->
+        <div class="card patient-clinical-main-card gender-male pcm-collapsed" id="patient-clinical-card">
+          <!-- Bar 1: Always-Visible Summary Header (Clickable to Toggle Collapse/Expand) -->
+          <div class="pcm-header-bar" id="sheet-card-header-toggle" role="button" tabindex="0" title="اضغط لعرض أو طي تفاصيل المريض">
+            <!-- Row 1: Patient Name (Right) & Details Toggle Pill (Left) -->
+            <div class="pcm-row-top">
+              <h2 id="sheet-patient-name" class="pcm-patient-name">اسم المريض</h2>
+              <div class="pcm-toggle-pill">
+                <span class="pcm-toggle-text" id="sheet-card-toggle-text">التفاصيل</span>
+                <i class="fa-solid fa-chevron-down pcm-toggle-icon" id="sheet-card-chevron"></i>
+              </div>
+            </div>
+
+            <!-- Row 2: Gender & Age (Right) + Treating Doctor (Left) -->
+            <div class="pcm-row-meta">
+              <div class="pcm-tags-group">
+                <span id="sheet-patient-gender-badge" class="badge badge-gender-male">
+                  <i class="fa-solid fa-mars" id="sheet-gender-icon"></i>
+                  <span id="sheet-patient-gender-text">ذكر</span> • <strong id="sheet-patient-age">-</strong> سنة
+                </span>
+                <span class="patient-doc-badge">
+                  <i class="fa-solid fa-user-doctor"></i> <strong id="sheet-patient-doctor">-</strong>
+                </span>
+              </div>
             </div>
           </div>
 
-          <!-- Row 2: Gender & Age + Treating Doctor -->
-          <div class="pcm-row-meta">
-            <div class="pcm-tags-group">
-              <span id="sheet-patient-gender-badge" class="badge badge-gender-male">
-                <i class="fa-solid fa-mars" id="sheet-gender-icon"></i>
-                <span id="sheet-patient-gender-text">ذكر</span> • <strong id="sheet-patient-age">-</strong> سنة
-              </span>
-              <span class="patient-doc-badge">
-                <i class="fa-solid fa-user-doctor"></i> <strong id="sheet-patient-doctor">-</strong>
-              </span>
+          <!-- Bar 2: Expandable Content (Hidden when collapsed / visible when expanded) -->
+          <div class="pcm-expandable-content" id="sheet-card-expanded-content">
+            <!-- Row 3: Company/Billing (Right) & Program Type (Left) -->
+            <div class="pcm-row-company-prog">
+              <div class="pcm-billing-container" id="sheet-patient-billing-badge">
+                <!-- Populated dynamically -->
+              </div>
+              <div class="pcm-prog-clean" id="sheet-patient-program-badge" style="cursor: pointer;" title="البرنامج العلاجي التخصصي">
+                <!-- Populated dynamically without background -->
+              </div>
             </div>
-          </div>
 
-          <!-- Row 3: Phone Number (Right) + Program Type (Clean without background) -->
-          <div class="pcm-row-contact-prog">
-            <div class="pcm-info-item pcm-phone-item">
-              <i class="fa-solid fa-phone text-primary"></i>
-              <a href="#" id="sheet-patient-phone-link" class="pcm-phone-link">
-                <bdi dir="ltr" id="sheet-patient-phone">-</bdi>
-              </a>
+            <!-- Row 4: Phone Number (Right) & Location (Left) -->
+            <div class="pcm-row-contact-prog">
+              <div class="pcm-info-item pcm-phone-item">
+                <i class="fa-solid fa-phone text-primary"></i>
+                <a href="#" id="sheet-patient-phone-link" class="pcm-phone-link">
+                  <bdi dir="ltr" id="sheet-patient-phone">-</bdi>
+                </a>
+              </div>
+              <div class="pcm-info-item pcm-location-item">
+                <i class="fa-solid fa-location-dot text-primary"></i>
+                <span id="sheet-patient-address">غير محدد</span>
+              </div>
             </div>
-            <div class="pcm-prog-clean" id="sheet-patient-program-badge" style="cursor: pointer;" title="البرنامج العلاجي التخصصي">
-              <!-- Populated dynamically without background -->
-            </div>
-          </div>
 
-          <!-- Row 4: Sessions Record (سجل الجلسات) -->
-          <div class="pcm-row-sessions">
-            <button type="button" class="pcm-sessions-chip" id="btn-view-patient-sessions" title="فتح سجل جلسات المريض">
-              <i class="fa-solid fa-calendar-check text-primary"></i>
-              <span id="sheet-sessions-btn-text">سجل الجلسات (0)</span>
-            </button>
-          </div>
-
-          <!-- Row 5: Action Buttons (Right) & Location (Left) -->
-          <div class="pcm-row-actions-location">
-            <div id="sheet-patient-quick-actions" class="pcm-actions-hub">
-              <!-- Populated dynamically with square buttons -->
+            <!-- Row 5: Sessions Record (سجل الجلسات) -->
+            <div class="pcm-row-sessions">
+              <button type="button" class="pcm-sessions-chip" id="btn-view-patient-sessions" title="فتح سجل جلسات المريض">
+                <i class="fa-solid fa-calendar-check text-primary"></i>
+                <span id="sheet-sessions-btn-text">سجل الجلسات (0)</span>
+              </button>
             </div>
-            <div class="pcm-info-item pcm-location-item">
-              <i class="fa-solid fa-location-dot text-primary"></i>
-              <span id="sheet-patient-address">غير محدد</span>
-            </div>
-          </div>
 
-          <!-- Row 6: Last Update -->
-          <div class="pcm-footer-row">
-            <div class="pcm-update-time">
-              <i class="fa-solid fa-clock-rotate-left"></i>
-              <span>آخر تحديث: <strong id="sheet-last-update-text">لم يتم تعديل الشيت بعد (شيت جديد)</strong></span>
+            <!-- Row 6: Action Buttons (Right) -->
+            <div class="pcm-row-actions-location">
+              <div id="sheet-patient-quick-actions" class="pcm-actions-hub">
+                <!-- Populated dynamically with square buttons -->
+              </div>
+            </div>
+
+            <!-- Row 7: Last Update -->
+            <div class="pcm-footer-row">
+              <div class="pcm-update-time">
+                <i class="fa-solid fa-clock-rotate-left"></i>
+                <span>آخر تحديث: <strong id="sheet-last-update-text">لم يتم تعديل الشيت بعد (شيت جديد)</strong></span>
+              </div>
             </div>
           </div>
         </div>
@@ -4848,7 +4862,7 @@
   </div>
 
 <!-- Main Application Script (ES Module) -->
-  <script type="module" src="js/app.js?v=2.10.40"></script>
+  <script type="module" src="js/app.js?v=2.10.41"></script>
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
