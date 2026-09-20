@@ -1,0 +1,395 @@
+/* ==========================================================================
+   ASCPT CLINIC PWA - ADMIN & STAFF MANAGEMENT VIEW
+   File: css/views/admin.css
+   Scope: Admin Hero Banner, KPI Stats Grid, Add User Form & Rates Matrix,
+          Staff & Roles Stack Deck, Audit Trail Log, Backup & Restore,
+          System Version Footer (Steps 56-57)
+   Clean Specificity: Zero !important & Strict Theme Isolation
+   ========================================================================== */
+
+/* ----------------------------------------------------------------------------
+   1. Admin View Container & Shell Spacing
+   ---------------------------------------------------------------------------- */
+#view-admin {
+  width: 100%;
+  max-width: var(--max-content-width, 1440px);
+  margin: 0 auto;
+  padding-bottom: 24px;
+}
+
+.admin-card-spaced {
+  margin-top: 20px;
+}
+
+/* ----------------------------------------------------------------------------
+   2. Hero Admin Banner
+   ---------------------------------------------------------------------------- */
+.hero-admin-banner {
+  background: linear-gradient(135deg, #1e1b4b 0%, #6b21a8 55%, #0284c7 100%);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  box-shadow: 0 12px 28px -6px rgba(107, 33, 168, 0.35);
+  color: #ffffff;
+  margin-bottom: 20px;
+}
+
+.hero-admin-banner .hero-banner-title {
+  color: #ffffff;
+}
+
+.hero-admin-banner .hero-banner-sub {
+  color: rgba(255, 255, 255, 0.88);
+}
+
+.hero-admin-banner .hero-greeting-pill {
+  background: rgba(255, 255, 255, 0.18);
+  color: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+}
+
+.hero-admin-banner .hero-date-chip {
+  background: rgba(255, 255, 255, 0.16);
+  color: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.22);
+}
+
+[data-theme="dark"] .hero-admin-banner {
+  background: linear-gradient(135deg, #090514 0%, #4c1d95 60%, #0c1527 100%);
+  border-color: rgba(168, 85, 247, 0.35);
+  box-shadow: 0 14px 34px -6px rgba(0, 0, 0, 0.7);
+}
+
+/* ----------------------------------------------------------------------------
+   3. Admin KPI Stats Grid
+   ---------------------------------------------------------------------------- */
+#admin-kpi-stats-grid {
+  margin-bottom: 20px;
+}
+
+.stat-icon.purple {
+  background-color: rgba(147, 51, 234, 0.15);
+  color: #9333ea;
+}
+
+[data-theme="dark"] .stat-icon.purple {
+  background-color: rgba(147, 51, 234, 0.25);
+  color: #c084fc;
+}
+
+/* ----------------------------------------------------------------------------
+   4. Add User Form & Doctor Rates Matrix
+   ---------------------------------------------------------------------------- */
+.admin-input-wrap {
+  position: relative;
+}
+
+.admin-input-icon {
+  position: absolute;
+  right: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-muted);
+  pointer-events: none;
+}
+
+.admin-input-field {
+  padding-right: 38px;
+}
+
+.admin-password-field {
+  padding-right: 38px;
+  -webkit-text-security: disc;
+}
+
+.admin-rates-section-label {
+  font-size: 0.84rem;
+  font-weight: 800;
+  margin-bottom: 6px;
+  display: block;
+  color: var(--text-main);
+}
+
+.admin-seniority-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.admin-seniority-btn {
+  padding: 7px 10px;
+}
+
+.admin-rates-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.admin-rates-row-last {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.admin-rate-label {
+  font-size: 0.76rem;
+  font-weight: 700;
+  color: var(--text-main);
+}
+
+.admin-rate-input {
+  height: 38px;
+  font-weight: 700;
+}
+
+.btn-add-user-submit {
+  margin-top: 8px;
+  width: 100%;
+  height: 44px;
+  font-size: 0.95rem;
+  font-weight: 800;
+}
+
+/* ----------------------------------------------------------------------------
+   5. Staff & Roles List (Desktop & Mobile)
+   ---------------------------------------------------------------------------- */
+.admin-user-mobile-card {
+  margin-bottom: 10px;
+  border-radius: 18px;
+  padding: 14px 16px;
+}
+
+@media screen and (min-width: 768px) {
+  #admin-users-mobile-cards {
+    display: block;
+    width: 100%;
+  }
+
+  #admin-users-mobile-cards .doc-stack-wrapper {
+    display: block;
+    width: 100%;
+  }
+
+  #admin-users-mobile-cards .doc-stack-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 16px;
+    min-height: auto;
+    perspective: none;
+    padding: 4px 0 10px 0;
+    position: static;
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  #admin-users-mobile-cards .doc-stack-card {
+    position: relative;
+    top: auto;
+    left: auto;
+    right: auto;
+    bottom: auto;
+    height: auto;
+    transform: none;
+    opacity: 1;
+    visibility: visible;
+    z-index: 1;
+    pointer-events: auto;
+    will-change: auto;
+    box-shadow: var(--shadow-sm);
+    border-color: var(--border-color);
+    cursor: default;
+    transition: box-shadow 0.2s ease, border-color 0.2s ease;
+    margin-bottom: 0;
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  #admin-users-mobile-cards .doc-stack-card:hover {
+    border-color: rgba(2, 132, 199, 0.4);
+    box-shadow: var(--shadow-md);
+  }
+
+  #admin-users-mobile-cards .doc-stack-nav-bar,
+  #admin-users-mobile-cards .doc-stack-header-bar,
+  #admin-users-mobile-cards #btn-toggle-admin-stack,
+  #admin-users-mobile-cards #admin-stack-counter {
+    display: none;
+  }
+}
+
+/* ----------------------------------------------------------------------------
+   6. Audit Log Card & Mobile Timeline
+   ---------------------------------------------------------------------------- */
+.admin-audit-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.admin-audit-badge {
+  font-size: 0.74rem;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 999px;
+}
+
+.audit-mobile-timeline {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-height: none;
+  overflow-y: visible;
+  padding-right: 2px;
+}
+
+.audit-mobile-item {
+  background: var(--bg-surface);
+  border: 1.5px solid var(--border-color);
+  border-radius: 16px;
+  padding: 13px 15px;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 8px -2px rgba(15, 23, 42, 0.04);
+}
+
+[data-theme="dark"] .audit-mobile-item {
+  background: linear-gradient(145deg, #1e293b 0%, #172337 100%);
+  border: 1.5px solid #334155;
+  box-shadow: 0 4px 14px -2px rgba(0, 0, 0, 0.35);
+}
+
+/* ----------------------------------------------------------------------------
+   7. Backup & Restore Unwrapped Component
+   ---------------------------------------------------------------------------- */
+.backup-restore-body {
+  background: var(--bg-surface);
+  border: 1.5px solid var(--border-color);
+  border-radius: 20px;
+  padding: 16px 18px;
+  box-shadow: 0 4px 16px -2px rgba(15, 23, 42, 0.05);
+}
+
+[data-theme="dark"] .backup-restore-body {
+  background: #1e293b;
+  border-color: #334155;
+}
+
+.backup-description {
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  margin-bottom: 8px;
+  line-height: 1.5;
+}
+
+.btn-backup-action {
+  font-weight: 800;
+  height: 42px;
+  border-radius: 12px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+/* ----------------------------------------------------------------------------
+   8. Admin Panel System Version Footer
+   ---------------------------------------------------------------------------- */
+.admin-system-footer {
+  margin-top: 32px;
+  margin-bottom: 35px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.admin-version-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--bg-surface);
+  border: 1.5px solid var(--border-color);
+  padding: 7px 18px;
+  border-radius: 999px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+[data-theme="dark"] .admin-version-pill {
+  background: #1e293b;
+  border-color: #334155;
+}
+
+.admin-version-indicator {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: var(--success);
+  display: inline-block;
+  box-shadow: 0 0 6px var(--success);
+}
+
+.admin-version-text {
+  font-weight: 800;
+  font-size: 0.88rem;
+  color: var(--text-main);
+}
+
+.admin-version-badge {
+  font-size: 0.72rem;
+  padding: 2px 10px;
+  border-radius: 999px;
+  font-weight: 800;
+}
+
+.admin-version-sub {
+  font-size: 0.76rem;
+  color: var(--text-muted);
+  font-weight: 700;
+}
+
+/* ----------------------------------------------------------------------------
+   9. Mobile Unwrapped Cards for Admin View (<= 991px)
+   ---------------------------------------------------------------------------- */
+@media screen and (max-width: 991px) {
+  #view-admin .card,
+  #card-admin-add-user,
+  #card-admin-staff-list,
+  #card-admin-audit-log,
+  #card-admin-backup-restore {
+    background: transparent;
+    border: none;
+    box-shadow: none;
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    padding: 0;
+    margin-bottom: 18px;
+  }
+
+  #view-admin .card > .card-header,
+  #card-admin-add-user > .card-header,
+  #card-admin-staff-list > .card-header,
+  #card-admin-audit-log > .card-header,
+  #card-admin-backup-restore > .card-header {
+    padding: 4px 2px 12px 2px;
+    border-bottom: none;
+    background: transparent;
+  }
+
+  #card-admin-add-user form {
+    background: var(--bg-surface);
+    border: 1.5px solid var(--border-color);
+    border-radius: 20px;
+    padding: 16px 14px;
+    box-shadow: 0 4px 18px -2px rgba(15, 23, 42, 0.05);
+  }
+
+  [data-theme="dark"] #card-admin-add-user form {
+    background: linear-gradient(145deg, #1e293b 0%, #172337 100%);
+    border: 1.5px solid #334155;
+    box-shadow: 0 8px 24px -4px rgba(0, 0, 0, 0.4);
+  }
+}

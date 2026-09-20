@@ -25,6 +25,7 @@ const APP_SHELL_ASSETS = [
   '/css/views/patients.css',
   '/css/views/doctor.css',
   '/css/views/sessions.css',
+  '/css/views/admin.css',
   '/css/style.css',
   '/css/style.css?v=1.4.3',
   '/css/print.css',

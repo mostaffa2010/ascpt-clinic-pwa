@@ -152,6 +152,7 @@
   <link rel="stylesheet" href="css/views/patients.css?v=2.10.42" media="screen">
   <link rel="stylesheet" href="css/views/doctor.css?v=2.10.42" media="screen">
   <link rel="stylesheet" href="css/views/sessions.css?v=2.10.42" media="screen">
+  <link rel="stylesheet" href="css/views/admin.css?v=2.10.42" media="screen">
   <link rel="stylesheet" href="css/style.css?v=2.10.42" media="screen">
   <link rel="stylesheet" href="css/print.css?v=2.10.42" media="print">
 </head>
@@ -2353,7 +2354,7 @@
       <!-- ================= View 5: Admin Panel & Permissions ================= -->
       <section id="view-admin" class="view-section">
         <!-- Hero Admin Banner -->
-        <div class="hero-dashboard-banner hero-admin-banner" style="margin-bottom: 20px;">
+        <div class="hero-dashboard-banner hero-admin-banner">
           <div class="hero-banner-glass-bg"></div>
           <div class="hero-banner-content">
             <div class="hero-greeting-pill">
@@ -2373,9 +2374,9 @@
         </div>
 
         <!-- Admin KPI Stats Grid -->
-        <div class="stats-grid" id="admin-kpi-stats-grid" style="margin-bottom: 20px;">
+        <div class="stats-grid" id="admin-kpi-stats-grid">
           <div class="stat-box">
-            <div class="stat-icon purple" style="background-color: rgba(147, 51, 234, 0.15); color: #9333ea;">
+            <div class="stat-icon purple">
               <i class="fa-solid fa-users-gear"></i>
             </div>
             <div class="stat-info">
@@ -2425,23 +2426,23 @@
               <div class="form-grid">
                 <div class="form-group">
                   <label>الاسم بالكامل *</label>
-                  <div style="position: relative;">
-                    <input type="text" id="newuser-name" class="form-control" placeholder="د. محمد / أ. منار" required style="padding-right: 38px;">
-                    <i class="fa-solid fa-user" style="position: absolute; right: 14px; top: 50%; transform: translateY(-50%); color: var(--text-muted); pointer-events: none;"></i>
+                  <div class="admin-input-wrap">
+                    <input type="text" id="newuser-name" class="form-control admin-input-field" placeholder="د. محمد / أ. منار" required>
+                    <i class="fa-solid fa-user admin-input-icon"></i>
                   </div>
                 </div>
                 <div class="form-group">
                   <label>اسم المستخدم أو الإيميل *</label>
-                  <div style="position: relative;">
-                    <input type="email" id="newuser-email" class="form-control" placeholder="user@clinic.com" required style="padding-right: 38px;">
-                    <i class="fa-solid fa-envelope" style="position: absolute; right: 14px; top: 50%; transform: translateY(-50%); color: var(--text-muted); pointer-events: none;"></i>
+                  <div class="admin-input-wrap">
+                    <input type="email" id="newuser-email" class="form-control admin-input-field" placeholder="user@clinic.com" required>
+                    <i class="fa-solid fa-envelope admin-input-icon"></i>
                   </div>
                 </div>
                 <div class="form-group">
                   <label>كلمة المرور *</label>
-                  <div style="position: relative;">
-                    <input type="text" id="newuser-password" class="form-control" placeholder="6 أحرف على الأقل" required autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" style="padding-right: 38px; -webkit-text-security: disc;">
-                    <i class="fa-solid fa-lock" style="position: absolute; right: 14px; top: 50%; transform: translateY(-50%); color: var(--text-muted); pointer-events: none;"></i>
+                  <div class="admin-input-wrap">
+                    <input type="text" id="newuser-password" class="form-control admin-password-field" placeholder="6 أحرف على الأقل" required autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+                    <i class="fa-solid fa-lock admin-input-icon"></i>
                   </div>
                 </div>
                 <div class="form-group">
@@ -2473,46 +2474,46 @@
                   </div>
                 </div>
                 <div class="form-group" id="form-group-newuser-rates">
-                  <label style="font-size: 0.84rem; font-weight: 800; margin-bottom: 6px; display: block;">مستوى الطبيب الوظيفي:</label>
-                  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 10px;">
+                  <label class="admin-rates-section-label">مستوى الطبيب الوظيفي:</label>
+                  <div class="admin-seniority-grid">
                     <label class="program-pill-opt">
                       <input type="radio" name="newuser-seniority" value="junior" checked>
-                      <span class="program-pill-btn" id="btn-newuser-tier-junior" style="padding: 7px 10px;">
+                      <span class="program-pill-btn admin-seniority-btn" id="btn-newuser-tier-junior">
                         <i class="fa-solid fa-user-graduate"></i> ممارس (Junior)
                       </span>
                     </label>
                     <label class="program-pill-opt">
                       <input type="radio" name="newuser-seniority" value="senior">
-                      <span class="program-pill-btn" id="btn-newuser-tier-senior" style="padding: 7px 10px;">
+                      <span class="program-pill-btn admin-seniority-btn" id="btn-newuser-tier-senior">
                         <i class="fa-solid fa-user-tie"></i> أخصائي أول (Senior)
                       </span>
                     </label>
                   </div>
 
-                  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px;">
+                  <div class="admin-rates-row">
                     <div>
-                      <label style="font-size: 0.76rem; font-weight: 700;">جلسة عادية (ج.م):</label>
-                      <input type="number" id="newuser-regular-rate" class="form-control" placeholder="0" min="0" style="height: 38px; font-weight: 700;">
+                      <label class="admin-rate-label">جلسة عادية (ج.م):</label>
+                      <input type="number" id="newuser-regular-rate" class="form-control admin-rate-input" placeholder="0" min="0">
                     </div>
                     <div>
-                      <label style="font-size: 0.76rem; font-weight: 700;">Scoliosis (ج.م):</label>
-                      <input type="number" id="newuser-scoliosis-rate" class="form-control" placeholder="0" min="0" style="height: 38px; font-weight: 700;">
+                      <label class="admin-rate-label">Scoliosis (ج.م):</label>
+                      <input type="number" id="newuser-scoliosis-rate" class="form-control admin-rate-input" placeholder="0" min="0">
                     </div>
                   </div>
 
-                  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+                  <div class="admin-rates-row-last">
                     <div>
-                      <label style="font-size: 0.76rem; font-weight: 700;">Hemiplegia (ج.م):</label>
-                      <input type="number" id="newuser-hemiplegia-rate" class="form-control" placeholder="0" min="0" style="height: 38px; font-weight: 700;">
+                      <label class="admin-rate-label">Hemiplegia (ج.م):</label>
+                      <input type="number" id="newuser-hemiplegia-rate" class="form-control admin-rate-input" placeholder="0" min="0">
                     </div>
                     <div>
-                      <label style="font-size: 0.76rem; font-weight: 700;">Quadriplegia (ج.م):</label>
-                      <input type="number" id="newuser-quadriplegia-rate" class="form-control" placeholder="0" min="0" style="height: 38px; font-weight: 700;">
+                      <label class="admin-rate-label">Quadriplegia (ج.م):</label>
+                      <input type="number" id="newuser-quadriplegia-rate" class="form-control admin-rate-input" placeholder="0" min="0">
                     </div>
                   </div>
                   <input type="hidden" id="newuser-special-rate" value="80">
                 </div>
-                <button type="submit" class="btn btn-primary" style="margin-top: 8px; width: 100%; height: 44px; font-size: 0.95rem; font-weight: 800;">
+                <button type="submit" class="btn btn-primary btn-add-user-submit">
                   <i class="fa-solid fa-plus"></i> إنشاء الحساب
                 </button>
               </div>
@@ -2530,10 +2531,10 @@
         </div>
 
         <!-- Audit Log (Who changed what) -->
-        <div class="card" id="card-admin-audit-log" style="margin-top: 20px;">
-          <div class="card-header" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
+        <div class="card admin-card-spaced" id="card-admin-audit-log">
+          <div class="card-header admin-audit-header">
             <span class="card-title"><i class="fa-solid fa-shield-halved"></i> سجل التعديلات والرقابة</span>
-            <span class="badge badge-direct" style="font-size: 0.74rem; font-weight: 700; padding: 4px 10px; border-radius: 999px;">آخر ٥٠ حركة • تنظيف تلقائي ٦٠ يوم</span>
+            <span class="badge badge-direct admin-audit-badge">آخر ٥٠ حركة • تنظيف تلقائي ٦٠ يوم</span>
           </div>
           <div class="table-responsive desktop-only-table">
             <table class="data-table">
@@ -2555,20 +2556,20 @@
         </div>
 
         <!-- Backup & Restore Section (Admin only - Unwrapped on mobile) -->
-        <div class="card admin-only" id="card-admin-backup-restore" style="margin-top: 20px;">
+        <div class="card admin-only admin-card-spaced" id="card-admin-backup-restore">
           <div class="card-header">
             <span class="card-title"><i class="fa-solid fa-database"></i> النسخ الاحتياطي واستعادة البيانات</span>
           </div>
           <div class="backup-restore-body">
-            <p style="font-size: 0.82rem; color: var(--text-muted); margin-bottom: 8px; line-height: 1.5;">
+            <p class="backup-description">
               تنزيل نسخة كاملة من سجلات المركز (مرضى، جلسات، حسابات) أو استعادتها بضغطة زر. احتفظ بالملف في مكان آمن.
             </p>
-            <div id="backup-status-hint" style="font-size: 0.78rem; margin-bottom: 12px; font-weight: 700; color: var(--primary);"></div>
+            <div id="backup-status-hint"></div>
             <div class="backup-buttons-row">
-              <button type="button" class="btn btn-outline btn-sm" id="btn-download-backup" style="font-weight: 800; height: 42px; border-radius: 12px; display: inline-flex; align-items: center; justify-content: center; gap: 6px;">
+              <button type="button" class="btn btn-outline btn-sm btn-backup-action" id="btn-download-backup">
                 <i class="fa-solid fa-download"></i> <span>تنزيل نسخة احتياطية</span>
               </button>
-              <button type="button" class="btn btn-primary btn-sm" id="btn-restore-backup" style="font-weight: 800; height: 42px; border-radius: 12px; display: inline-flex; align-items: center; justify-content: center; gap: 6px;">
+              <button type="button" class="btn btn-primary btn-sm btn-backup-action" id="btn-restore-backup">
                 <i class="fa-solid fa-upload"></i> <span>استعادة من ملف</span>
               </button>
               <input type="file" id="backup-file-input" accept=".json" style="display: none;">
@@ -2577,13 +2578,13 @@
         </div>
 
         <!-- Admin Panel System Version Footer -->
-        <div class="admin-system-footer no-print" style="margin-top: 32px; margin-bottom: 35px; text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px;">
-          <div style="display: inline-flex; align-items: center; gap: 8px; background: var(--bg-surface); border: 1.5px solid var(--border-color); padding: 7px 18px; border-radius: 999px; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);">
-            <span style="width: 8px; height: 8px; border-radius: 50%; background-color: var(--success); display: inline-block; box-shadow: 0 0 6px var(--success);"></span>
-            <span id="admin-system-version-label" data-clinic="version-badge" style="font-weight: 800; font-size: 0.88rem; color: var(--text-main);">نظام ASCPT — الإصدار 2.10.0</span>
-            <span class="badge badge-primary" style="font-size: 0.72rem; padding: 2px 10px; border-radius: 999px; font-weight: 800;">إصدار معتمد</span>
+        <div class="admin-system-footer no-print">
+          <div class="admin-version-pill">
+            <span class="admin-version-indicator"></span>
+            <span id="admin-system-version-label" data-clinic="version-badge" class="admin-version-text">نظام ASCPT — الإصدار 2.10.0</span>
+            <span class="badge badge-primary admin-version-badge">إصدار معتمد</span>
           </div>
-          <div style="font-size: 0.76rem; color: var(--text-muted); font-weight: 700;">
+          <div class="admin-version-sub">
             <span data-clinic="footer-brand">مركز العلاج الطبيعي والتأهيل</span> • جميع التحديثات مستقرة
           </div>
         </div>
