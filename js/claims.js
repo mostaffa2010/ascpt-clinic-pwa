@@ -1663,8 +1663,10 @@ export class ClaimsManager {
     const syncMetrics = () => {
       if (table.scrollWidth > container.clientWidth) {
         dummy.style.width = table.scrollWidth + 'px';
+        topWrap.classList.remove('d-none');
         topWrap.style.display = 'block';
       } else {
+        topWrap.classList.add('d-none');
         topWrap.style.display = 'none';
       }
     };

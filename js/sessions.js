@@ -2019,9 +2019,18 @@ export class SessionsManager {
     const cardsContainer = document.getElementById('sessions-today-mobile-cards');
     const toggleGroup = document.getElementById('sessions-view-mode-toggle');
 
-    if (tableContainer) tableContainer.style.display = 'none';
-    if (cardsContainer && this.activeSessionsTab !== 'home_visits') cardsContainer.style.display = 'grid';
-    if (toggleGroup) toggleGroup.style.display = 'none';
+    if (tableContainer) {
+      tableContainer.classList.add('d-none');
+      tableContainer.style.display = 'none';
+    }
+    if (cardsContainer && this.activeSessionsTab !== 'home_visits') {
+      cardsContainer.classList.remove('d-none');
+      cardsContainer.style.display = 'grid';
+    }
+    if (toggleGroup) {
+      toggleGroup.classList.add('d-none');
+      toggleGroup.style.display = 'none';
+    }
   }
 
   async deleteSession(sessionId) {

@@ -2066,10 +2066,22 @@ export class PatientsManager {
     const topWrap = document.getElementById('patients-top-scroll-wrap');
     const toggleGroup = document.getElementById('patients-view-mode-toggle');
 
-    if (tableContainer) tableContainer.style.display = 'none';
-    if (cardsContainer) cardsContainer.style.display = 'grid';
-    if (topWrap) topWrap.style.display = 'none';
-    if (toggleGroup) toggleGroup.style.display = 'none';
+    if (tableContainer) {
+      tableContainer.classList.add('d-none');
+      tableContainer.style.display = 'none';
+    }
+    if (cardsContainer) {
+      cardsContainer.classList.remove('d-none');
+      cardsContainer.style.display = 'grid';
+    }
+    if (topWrap) {
+      topWrap.classList.add('d-none');
+      topWrap.style.display = 'none';
+    }
+    if (toggleGroup) {
+      toggleGroup.classList.add('d-none');
+      toggleGroup.style.display = 'none';
+    }
   }
 
   setupScrollSync() {
@@ -2083,8 +2095,10 @@ export class PatientsManager {
     const syncMetrics = () => {
       if (table.scrollWidth > container.clientWidth) {
         dummy.style.width = table.scrollWidth + 'px';
+        topWrap.classList.remove('d-none');
         topWrap.style.display = 'block';
       } else {
+        topWrap.classList.add('d-none');
         topWrap.style.display = 'none';
       }
     };
