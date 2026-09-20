@@ -71,6 +71,7 @@ export class NotificationsManager {
 
   init() {
     this.closeDropdown();
+    this.updateBadge(0);
     this.bindDomEvents();
     this.bindServiceWorkerMessages();
     this.setupAuthSync();
@@ -314,13 +315,14 @@ export class NotificationsManager {
   updateBadge(count) {
     const badge = document.getElementById('notification-badge');
     if (!badge) return;
-    if (count > 0) {
-      badge.textContent = count > 99 ? '99+' : count;
+    const num = Number(count) || 0;
+    if (num > 0) {
+      badge.textContent = num > 99 ? '99+' : String(num);
       badge.classList.add('is-open');
       badge.hidden = false;
       badge.style.display = 'flex';
     } else {
-      badge.textContent = '0';
+      badge.textContent = '';
       badge.classList.remove('is-open');
       badge.hidden = true;
       badge.style.display = 'none';

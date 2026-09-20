@@ -12345,10 +12345,6 @@ button.btn-settle-hv {
   color: var(--primary);
 }
 
-.notification-badge.is-open {
-  display: flex;
-}
-
 .notification-badge {
   position: absolute;
   top: -4px;
@@ -12361,7 +12357,7 @@ button.btn-settle-hv {
   height: 18px;
   border-radius: 999px;
   padding: 0 4px;
-  display: flex;
+  display: none;
   align-items: center;
   justify-content: center;
   border: 2px solid var(--bg-surface);
@@ -12369,6 +12365,10 @@ button.btn-settle-hv {
   line-height: 1;
   pointer-events: none;
   animation: notifPulse 2s infinite ease-in-out;
+}
+
+.notification-badge.is-open {
+  display: flex;
 }
 
 @keyframes notifPulse {

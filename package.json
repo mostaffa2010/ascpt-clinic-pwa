@@ -1,6 +1,6 @@
 {
   "name": "ascpt-clinic-pwa",
-  "version": "2.10.42",
+  "version": "3.0.0",
   "description": "Alexandria Specialized Center for Physical Therapy (ASCPT) Management System",
   "type": "module",
   "scripts": {

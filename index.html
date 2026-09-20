@@ -140,27 +140,27 @@
 
     <!-- Stylesheets (Standardized Cascade Hierarchy v3.0.0) -->
     <!-- 1. Tokens & Design System Foundation -->
-  <link rel="stylesheet" href="css/design-tokens.css?v=2.10.42" media="screen">
-  <link rel="stylesheet" href="css/base.css?v=2.10.42" media="screen">
+  <link rel="stylesheet" href="css/design-tokens.css?v=3.0.0" media="screen">
+  <link rel="stylesheet" href="css/base.css?v=3.0.0" media="screen">
 
     <!-- 2. Reusable Modular Components -->
-  <link rel="stylesheet" href="css/components/skeletons.css?v=2.10.42" media="screen">
-  <link rel="stylesheet" href="css/components/buttons.css?v=2.10.42" media="screen">
-  <link rel="stylesheet" href="css/components/chips-badges.css?v=2.10.42" media="screen">
-  <link rel="stylesheet" href="css/components/cards.css?v=2.10.42" media="screen">
-  <link rel="stylesheet" href="css/components/forms.css?v=2.10.42" media="screen">
-  <link rel="stylesheet" href="css/components/modals.css?v=2.10.42" media="screen">
-  <link rel="stylesheet" href="css/components/tables.css?v=2.10.42" media="screen">
-  <link rel="stylesheet" href="css/views/shell.css?v=2.10.42" media="screen">
-  <link rel="stylesheet" href="css/views/reception.css?v=2.10.42" media="screen">
-  <link rel="stylesheet" href="css/views/patients.css?v=2.10.42" media="screen">
-  <link rel="stylesheet" href="css/views/doctor.css?v=2.10.42" media="screen">
-  <link rel="stylesheet" href="css/views/sessions.css?v=2.10.42" media="screen">
-  <link rel="stylesheet" href="css/views/admin.css?v=2.10.42" media="screen">
-  <link rel="stylesheet" href="css/views/finance.css?v=2.10.42" media="screen">
-  <link rel="stylesheet" href="css/views/claims.css?v=2.10.42" media="screen">
-  <link rel="stylesheet" href="css/style.css?v=2.10.42" media="screen">
-  <link rel="stylesheet" href="css/print.css?v=2.10.42" media="print">
+  <link rel="stylesheet" href="css/components/skeletons.css?v=3.0.0" media="screen">
+  <link rel="stylesheet" href="css/components/buttons.css?v=3.0.0" media="screen">
+  <link rel="stylesheet" href="css/components/chips-badges.css?v=3.0.0" media="screen">
+  <link rel="stylesheet" href="css/components/cards.css?v=3.0.0" media="screen">
+  <link rel="stylesheet" href="css/components/forms.css?v=3.0.0" media="screen">
+  <link rel="stylesheet" href="css/components/modals.css?v=3.0.0" media="screen">
+  <link rel="stylesheet" href="css/components/tables.css?v=3.0.0" media="screen">
+  <link rel="stylesheet" href="css/views/shell.css?v=3.0.0" media="screen">
+  <link rel="stylesheet" href="css/views/reception.css?v=3.0.0" media="screen">
+  <link rel="stylesheet" href="css/views/patients.css?v=3.0.0" media="screen">
+  <link rel="stylesheet" href="css/views/doctor.css?v=3.0.0" media="screen">
+  <link rel="stylesheet" href="css/views/sessions.css?v=3.0.0" media="screen">
+  <link rel="stylesheet" href="css/views/admin.css?v=3.0.0" media="screen">
+  <link rel="stylesheet" href="css/views/finance.css?v=3.0.0" media="screen">
+  <link rel="stylesheet" href="css/views/claims.css?v=3.0.0" media="screen">
+  <link rel="stylesheet" href="css/style.css?v=3.0.0" media="screen">
+  <link rel="stylesheet" href="css/print.css?v=3.0.0" media="print">
 </head>
 <body>
   <script>
@@ -218,7 +218,7 @@
     <div class="notification-bell-wrapper no-print">
       <button type="button" class="btn-notification-bell" id="btn-notifications-bell" aria-label="الإشعارات" title="مركز الإشعارات">
         <i class="fa-solid fa-bell"></i>
-        <span class="notification-badge" id="notification-badge">0</span>
+        <span class="notification-badge" id="notification-badge" style="display: none;" hidden></span>
       </button>
 
       <!-- Notifications Dropdown Menu -->
@@ -2587,7 +2587,7 @@
         <div class="admin-system-footer no-print">
           <div class="admin-version-pill">
             <span class="admin-version-indicator"></span>
-            <span id="admin-system-version-label" data-clinic="version-badge" class="admin-version-text">نظام ASCPT — الإصدار 2.10.0</span>
+            <span id="admin-system-version-label" data-clinic="version-badge" class="admin-version-text">نظام ASCPT — الإصدار 3.0.0</span>
             <span class="badge badge-primary admin-version-badge">إصدار معتمد</span>
           </div>
           <div class="admin-version-sub">
@@ -4884,7 +4884,7 @@
   </div>
 
 <!-- Main Application Script (ES Module) -->
-  <script type="module" src="js/app.js?v=2.10.42"></script>
+  <script type="module" src="js/app.js?v=3.0.0"></script>
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {

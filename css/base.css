@@ -155,13 +155,17 @@ input, textarea, select, [contenteditable="true"] {
   height: 18px;
   border-radius: var(--radius-full);
   padding: 0 4px;
-  display: flex;
+  display: none;
   align-items: center;
   justify-content: center;
   border: 2px solid var(--bg-surface);
   box-shadow: 0 2px 6px rgba(244, 63, 94, 0.45);
   line-height: 1;
   pointer-events: none;
+}
+
+.notification-badge.is-open {
+  display: flex;
 }
 
 .notification-dropdown {
