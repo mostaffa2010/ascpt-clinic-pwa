@@ -14,6 +14,8 @@ const APP_SHELL_ASSETS = [
   '/manifest.json',
   '/css/design-tokens.css',
   '/css/components/skeletons.css',
+  '/css/components/buttons.css',
+  '/css/components/chips-badges.css',
   '/css/style.css',
   '/css/style.css?v=1.4.3',
   '/css/print.css',

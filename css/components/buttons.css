@@ -1,0 +1,157 @@
+/* ==========================================================================
+   ASCPT CLINIC PWA - MODULAR CSS REBUILD: PHASE 1
+   File: css/components/buttons.css
+   Scope: Action squircles, CTAs, interactive press effects
+   ========================================================================== */
+
+.btn, button.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-family: inherit;
+  font-size: var(--fs-body);
+  font-weight: 700;
+  border-radius: var(--radius-squircle);
+  padding: 8px 16px;
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: all 0.18s ease;
+  text-decoration: none;
+  touch-action: manipulation;
+  user-select: none;
+}
+
+.btn:active {
+  transform: scale(0.97);
+}
+
+.btn-primary {
+  background-color: var(--primary);
+  color: #ffffff;
+  border-color: var(--primary);
+}
+
+.btn-primary:hover {
+  background-color: var(--primary-hover);
+  border-color: var(--primary-hover);
+}
+
+.btn-secondary {
+  background-color: var(--bg-surface-elevated);
+  color: var(--text-main);
+  border-color: var(--border-subtle);
+}
+
+.btn-secondary:hover {
+  border-color: var(--border-hover);
+}
+
+.btn-outline {
+  background-color: transparent;
+  color: var(--text-main);
+  border-color: var(--border-subtle);
+}
+
+.btn-outline:hover {
+  border-color: var(--border-hover);
+  background-color: var(--bg-surface-elevated);
+}
+
+.btn-danger {
+  background-color: var(--rose);
+  color: #ffffff;
+  border-color: var(--rose);
+}
+
+.btn-success {
+  background-color: var(--emerald);
+  color: #ffffff;
+  border-color: var(--emerald);
+}
+
+/* Batch Pattern Toggle Buttons (Home Visits & Clinic Batch) */
+.btn-batch-pattern {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 14px;
+  border-radius: var(--radius-squircle);
+  border: 1px solid var(--border-subtle);
+  background: var(--bg-surface-elevated);
+  color: var(--text-muted);
+  font-weight: 600;
+  font-size: var(--fs-subtext);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.btn-batch-pattern.active {
+  background-color: var(--primary) !important;
+  color: #ffffff !important;
+  border-color: var(--primary) !important;
+  box-shadow: 0 2px 6px rgba(2, 132, 199, 0.35) !important;
+}
+
+[data-theme="dark"] .btn-batch-pattern.active {
+  background-color: var(--primary) !important;
+  color: #ffffff !important;
+  border-color: var(--primary) !important;
+}
+
+/* ==========================================================================
+   Specialized Clinic Action Buttons (Clean Specificity - Zero !important)
+   ========================================================================== */
+
+/* Settle Home Visits Action Pill Button */
+.btn-settle-hv,
+.btn-icon-action.btn-settle-hv,
+button.btn-settle-hv {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  font-weight: 800;
+  font-size: 0.8rem;
+  padding: 0 14px;
+  height: 38px;
+  min-height: 38px;
+  width: auto;
+  min-width: fit-content;
+  border-radius: 20px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.18s ease;
+  flex-shrink: 0;
+  line-height: 1;
+}
+
+:root:not([data-theme="dark"]) .btn-settle-hv,
+:root:not([data-theme="dark"]) .btn-icon-action.btn-settle-hv {
+  color: #059669;
+  border: 1.5px solid rgba(5, 150, 105, 0.4);
+  background: rgba(5, 150, 105, 0.1);
+}
+
+:root:not([data-theme="dark"]) .btn-settle-hv:hover,
+:root:not([data-theme="dark"]) .btn-icon-action.btn-settle-hv:hover {
+  background: #059669;
+  color: #ffffff;
+  border-color: #059669;
+  box-shadow: 0 2px 8px rgba(5, 150, 105, 0.3);
+}
+
+[data-theme="dark"] .btn-settle-hv,
+[data-theme="dark"] .btn-icon-action.btn-settle-hv {
+  color: #34d399;
+  border: 1.5px solid rgba(52, 211, 153, 0.4);
+  background: rgba(5, 150, 105, 0.2);
+}
+
+[data-theme="dark"] .btn-settle-hv:hover,
+[data-theme="dark"] .btn-icon-action.btn-settle-hv:hover {
+  background: #059669;
+  color: #ffffff;
+  border-color: #059669;
+  box-shadow: 0 2px 8px rgba(5, 150, 105, 0.3);
+}
