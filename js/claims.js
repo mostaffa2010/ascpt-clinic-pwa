@@ -465,7 +465,8 @@ export class ClaimsManager {
       return;
     }
 
-    this.claimPatientsData = companyPatients.map(p => {
+    const items = [];
+    companyPatients.forEach(p => {
       // Sessions for this patient in selected date range (including batch sessions & home visits)
       const patientSessions = allSessions.filter(s => {
         if (s.patientId !== p.id) return false;
@@ -486,9 +487,12 @@ export class ClaimsManager {
         return compMatches && isInsSession;
       });
 
-      const sessionCount = patientSessions.length;
-      const isChecked = false; // غير محدد افتراضياً حتى يبحث الطبيب ويحدد براحته
-      const total = (sessionCount * defaultRate) + defaultEval;
+      // Sort sessions chronologically ascending
+      patientSessions.sort((a, b) => {
+        const dateA = a.date || a.createdAt || '';
+        const dateB = b.date || b.createdAt || '';
+        return dateA.localeCompare(dateB);
+      });
 
       const clinical = p.clinicalSheet || {};
       const cardData = this.attendanceCardsStore[p.id] || {
@@ -500,18 +504,84 @@ export class ClaimsManager {
       };
       this.attendanceCardsStore[p.id] = cardData;
 
-      return {
-        patient: p,
-        isChecked,
-        evalFee: defaultEval,
-        sessionCount: sessionCount,
-        sessionRate: defaultRate,
-        sessionsCost: sessionCount * defaultRate,
-        total,
-        cardData,
-        attendedSessions: patientSessions
-      };
+      if (patientSessions.length === 0) {
+        items.push({
+          claimItemId: `${p.id}_0`,
+          patient: p,
+          isChecked: false,
+          evalFee: defaultEval,
+          sessionCount: 0,
+          sessionRate: defaultRate,
+          sessionsCost: 0,
+          total: defaultEval,
+          cardData: { ...cardData },
+          attendedSessions: []
+        });
+        return;
+      }
+
+      // Group sessions into letters:
+      // Checks for distinct batches / letters or chunks by approvedSessions (v2.10.42)
+      const hasBatchId = patientSessions.some(s => s.batchId);
+      const hasLetterRef = patientSessions.some(s => s.letterRef && s.letterRef.trim());
+      const approvedTotal = parseInt(p.approvedSessions, 10) || 12;
+
+      const sessionGroups = [];
+
+      if (hasBatchId) {
+        const bMap = new Map();
+        patientSessions.forEach(s => {
+          const bKey = s.batchId || 'no_batch';
+          if (!bMap.has(bKey)) bMap.set(bKey, []);
+          bMap.get(bKey).push(s);
+        });
+        bMap.forEach((sList) => {
+          for (let i = 0; i < sList.length; i += approvedTotal) {
+            sessionGroups.push(sList.slice(i, i + approvedTotal));
+          }
+        });
+      } else if (hasLetterRef) {
+        const rMap = new Map();
+        patientSessions.forEach(s => {
+          const rKey = s.letterRef ? s.letterRef.trim() : 'no_ref';
+          if (!rMap.has(rKey)) rMap.set(rKey, []);
+          rMap.get(rKey).push(s);
+        });
+        rMap.forEach((sList) => {
+          for (let i = 0; i < sList.length; i += approvedTotal) {
+            sessionGroups.push(sList.slice(i, i + approvedTotal));
+          }
+        });
+      } else {
+        // Chunk into groups of approvedTotal (default 12)
+        for (let i = 0; i < patientSessions.length; i += approvedTotal) {
+          sessionGroups.push(patientSessions.slice(i, i + approvedTotal));
+        }
+      }
+
+      sessionGroups.forEach((sGroup, groupIdx) => {
+        const count = sGroup.length;
+        const evalFee = (groupIdx === 0) ? defaultEval : 0;
+        const total = (count * defaultRate) + evalFee;
+        const itemId = `${p.id}_letter_${groupIdx}`;
+
+        items.push({
+          claimItemId: itemId,
+          patient: p,
+          isChecked: false,
+          evalFee: evalFee,
+          sessionCount: count,
+          sessionRate: defaultRate,
+          sessionsCost: count * defaultRate,
+          total: total,
+          cardData: { ...cardData },
+          attendedSessions: sGroup,
+          letterIndex: groupIdx + 1
+        });
+      });
     });
+
+    this.claimPatientsData = items;
 
     this.searchQuery = '';
     const sInput = document.getElementById('claim-patient-search-input');
@@ -618,7 +688,7 @@ export class ClaimsManager {
     this.setupScrollSync();
     tbody.innerHTML = filtered.map((item, idx) => {
       const p = item.patient;
-      const safeId = escapeHTML(p.id);
+      const safeId = escapeHTML(item.claimItemId || p.id);
       const safeName = escapeHTML(p.name);
       const safePhone = escapeHTML(p.phone);
       const safeDoc = escapeHTML(p.doctor);
@@ -667,7 +737,7 @@ export class ClaimsManager {
     if (mobContainer) {
       mobContainer.innerHTML = filtered.map((item) => {
         const p = item.patient;
-        const safeId = escapeHTML(p.id);
+        const safeId = escapeHTML(item.claimItemId || p.id);
         const safeName = escapeHTML(p.name);
         const safePhone = escapeHTML(p.phone);
         const safeDoc = escapeHTML(p.doctor);
@@ -715,7 +785,7 @@ export class ClaimsManager {
 
             <div style="display: flex; align-items: center; justify-content: space-between; margin-top: 8px; padding-top: 6px; border-top: 1px dashed var(--border-color);">
               <span style="font-size: 0.74rem; font-weight: 700; color: var(--text-muted);">إجمالي مستحقات المريض:</span>
-              <span style="font-size: 0.94rem; font-weight: 800; color: var(--success);">${rowTotal.toLocaleString('en-US')} ج.م</span>
+              <span id="claim-mob-total-${safeId}" style="font-size: 0.94rem; font-weight: 800; color: var(--success);">${rowTotal.toLocaleString('en-US')} ج.م</span>
             </div>
           </div>
         `;
@@ -726,7 +796,7 @@ export class ClaimsManager {
   }
 
   togglePatientCheck(patientId, checked) {
-    const item = this.claimPatientsData.find(i => i.patient.id === patientId);
+    const item = this.claimPatientsData.find(i => (i.claimItemId === patientId || i.patient.id === patientId));
     if (item) {
       item.isChecked = checked;
       this.renderPatientsTable();
@@ -736,12 +806,14 @@ export class ClaimsManager {
 
   updatePatientNumber(patientId, field, val) {
     const num = parseFloat(val) || 0;
-    const item = this.claimPatientsData.find(i => i.patient.id === patientId);
+    const item = this.claimPatientsData.find(i => (i.claimItemId === patientId || i.patient.id === patientId));
     if (item) {
       item[field] = num;
       item.total = (item.sessionCount * item.sessionRate) + item.evalFee;
       const totalCell = document.getElementById(`claim-row-total-${patientId}`);
       if (totalCell) totalCell.textContent = item.total.toLocaleString('en-US');
+      const mobTotal = document.getElementById(`claim-mob-total-${patientId}`);
+      if (mobTotal) mobTotal.textContent = `${item.total.toLocaleString('en-US')} ج.م`;
       this.recalcGrandTotals();
     }
   }
@@ -770,12 +842,15 @@ export class ClaimsManager {
 
   // ================= Attendance Card Management =================
   openAttendanceCardModal(patientId) {
-    this.activeCardPatientId = patientId;
-    const item = this.claimPatientsData.find(i => i.patient.id === patientId);
+    const item = this.claimPatientsData.find(i => (i.claimItemId === patientId || i.patient.id === patientId));
     if (!item) return;
 
+    this.activeCardItemId = item.claimItemId || item.patient.id;
+    this.activeCardPatientId = item.patient.id;
+
     const p = item.patient;
-    const cardData = this.attendanceCardsStore[patientId] || item.cardData;
+    const cardData = this.attendanceCardsStore[this.activeCardItemId] || this.attendanceCardsStore[item.patient.id] || item.cardData;
+    item.cardData = cardData;
 
     document.getElementById('card-modal-patient-name').textContent = p.name;
     document.getElementById('card-modal-company-name').textContent = this.currentCompany || p.insuranceCompany;
@@ -927,15 +1002,16 @@ export class ClaimsManager {
       ? this.activeCardTreatments
       : Array.from(document.querySelectorAll('#card-treatment-chips-container .sheet-chip.selected')).map(b => b.getAttribute('data-val'));
 
-    this.attendanceCardsStore[this.activeCardPatientId] = {
+    const key = this.activeCardItemId || this.activeCardPatientId;
+    this.attendanceCardsStore[key] = {
       diagnosis,
       evaluation,
       treatments
     };
 
-    const item = this.claimPatientsData.find(i => i.patient.id === this.activeCardPatientId);
+    const item = this.claimPatientsData.find(i => (i.claimItemId === key || i.patient.id === key));
     if (item) {
-      item.cardData = this.attendanceCardsStore[this.activeCardPatientId];
+      item.cardData = this.attendanceCardsStore[key];
     }
 
     this.app.closeModal('modal-attendance-card');
@@ -999,7 +1075,7 @@ export class ClaimsManager {
 
     let itemsToPrint = [];
     if (singlePatientId) {
-      const found = this.claimPatientsData.find(i => i.patient.id === singlePatientId);
+      const found = this.claimPatientsData.find(i => (i.claimItemId === singlePatientId || i.patient.id === singlePatientId));
       if (found) itemsToPrint = [found];
     } else {
       itemsToPrint = this.claimPatientsData.filter(i => i.isChecked);
@@ -1460,6 +1536,7 @@ export class ClaimsManager {
       settledDate: existing ? existing.settledDate : null,
       settlementId: existing ? existing.settlementId : null,
       patientsData: checkedItems.map(item => ({
+        claimItemId: item.claimItemId || item.patient.id,
         patient: {
           id: item.patient.id,
           name: item.patient.name,
@@ -1542,6 +1619,7 @@ export class ClaimsManager {
     if (Array.isArray(claim.patientsData) && claim.patientsData.length > 0) {
       this.claimPatientsData = claim.patientsData.map(p => ({
         ...p,
+        claimItemId: p.claimItemId || p.patient?.id,
         isChecked: true
       }));
       this.renderPatientsTable();
