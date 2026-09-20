@@ -1,0 +1,183 @@
+/* ==========================================================================
+   ASCPT CLINIC PWA - MODULAR CSS REBUILD: PHASE 1
+   File: css/components/modals.css
+   Scope: Modal frames, dark glassmorphism backdrops, drawers, modal scroll guardrails
+   ========================================================================== */
+
+.modal-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.72);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  z-index: 1000;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  box-sizing: border-box;
+}
+
+.modal-backdrop.active,
+.modal-backdrop.show {
+  display: flex;
+}
+
+.modal-content {
+  background-color: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-sticky);
+  width: 100%;
+  max-width: 600px;
+  max-height: calc(100dvh - 32px);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  position: relative;
+}
+
+.modal-header {
+  padding: 14px 18px;
+  border-bottom: 1px solid var(--border-subtle);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background-color: var(--bg-surface-elevated);
+}
+
+.modal-header h3 {
+  font-size: var(--fs-title);
+  font-weight: 700;
+  color: var(--text-main);
+  margin: 0;
+}
+
+.modal-close {
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  font-size: 1.4rem;
+  line-height: 1;
+  cursor: pointer;
+  padding: 4px;
+}
+
+.modal-close:hover {
+  color: var(--text-main);
+}
+
+.modal-body {
+  padding: 16px 18px;
+  overflow-y: auto;
+  overscroll-behavior-y: contain;
+}
+
+.modal-footer {
+  padding: 12px 18px;
+  border-top: 1px solid var(--border-subtle);
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+  background-color: var(--bg-surface-elevated);
+}
+
+/* --------------------------------------------------------------------------
+   STRICT COMPLIANCE GUARDRAILS: MODAL SCROLL & INTEGRITY
+   -------------------------------------------------------------------------- */
+
+/* Batch Home Visits Modal Body */
+#modal-batch-home-visits .modal-body {
+  flex: 1 1 auto !important;
+  min-height: 0 !important;
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+  -webkit-overflow-scrolling: touch !important;
+  touch-action: pan-y !important;
+  overscroll-behavior-y: contain !important;
+}
+
+/* Patient Registration Modal Scroll & Clearance Integrity */
+#modal-patient .modal-body {
+  flex: 1 1 auto !important;
+  min-height: 0 !important;
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+  -webkit-overflow-scrolling: touch !important;
+  touch-action: pan-y !important;
+  overscroll-behavior-y: contain !important;
+  padding: 16px 18px 100px 18px !important;
+}
+
+/* Patient Insurance Details Box Visibility Guardrail */
+#modal-patient #p-insurance-details {
+  overflow: visible !important;
+  max-width: 100% !important;
+  box-sizing: border-box !important;
+}
+
+/* Image Polish Crop Toolbar */
+.polish-crop-toolbar {
+  margin-top: 8px;
+  gap: 8px;
+  z-index: 2;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+/* Auth & Dialog Modals Controls */
+.login-error-msg {
+  background-color: rgba(239, 68, 68, 0.15);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  color: #f87171;
+  border-radius: 8px;
+  padding: 9px 12px;
+  font-size: 0.82rem;
+  margin-bottom: 14px;
+  line-height: 1.4;
+}
+
+.btn-cancel-login {
+  border-radius: 8px;
+  font-weight: 700;
+}
+
+.btn-profile-admin-panel {
+  width: 100%;
+  align-items: center;
+  justify-content: space-between;
+  padding: 11px 14px;
+  border-radius: 12px;
+  font-weight: 800;
+  font-size: 0.88rem;
+  color: #b45309;
+  border: 1.5px solid rgba(245, 158, 11, 0.35);
+  background: rgba(245, 158, 11, 0.08);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.change-pwd-error {
+  background-color: rgba(239, 68, 68, 0.15);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  color: #f87171;
+  border-radius: 8px;
+  padding: 8px 12px;
+  font-size: 0.82rem;
+  margin-bottom: 14px;
+  line-height: 1.4;
+}
+
+.dialog-input {
+  margin: 12px 0 6px 0;
+  width: 100%;
+  border-radius: 8px;
+  padding: 10px 12px;
+  font-size: 0.95rem;
+  text-align: center;
+  border: 1.5px solid var(--border-color);
+}

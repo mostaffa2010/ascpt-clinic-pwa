@@ -1986,7 +1986,7 @@
                     <i class="fa-solid fa-building-shield text-primary"></i> شركة التأمين <span class="required-star">*</span>
                   </label>
                   <div class="custom-select-wrapper">
-                    <select id="claim-company-select" class="form-control d-none" style="display: none;"></select>
+                    <select id="claim-company-select" class="form-control d-none"></select>
                     <button type="button" class="custom-select-btn modern-select-btn" id="btn-select-claim-company-select" data-open-picker="claim-company-select" data-picker-title="اختر شركة التأمين">
                       <span class="select-btn-val">
                         <i class="fa-solid fa-handshake text-primary"></i>
@@ -2216,7 +2216,7 @@
                     <i class="fa-solid fa-filter text-primary"></i> الشركة:
                   </label>
                   <div class="custom-select-wrapper claims-ledger-select-wrapper">
-                    <select id="claims-ledger-company-filter" style="display: none;">
+                    <select id="claims-ledger-company-filter" class="d-none">
                       <option value="all">كل شركات التأمين</option>
                     </select>
                     <button type="button" class="custom-select-btn claims-ledger-select-btn" id="btn-select-claims-ledger-company-filter" data-open-picker="claims-ledger-company-filter" data-picker-title="تصفية سجل المطالبات بالشركة">
@@ -2574,7 +2574,7 @@
               <button type="button" class="btn btn-primary btn-sm btn-backup-action" id="btn-restore-backup">
                 <i class="fa-solid fa-upload"></i> <span>استعادة من ملف</span>
               </button>
-              <input type="file" id="backup-file-input" accept=".json" style="display: none;">
+              <input type="file" id="backup-file-input" class="d-none" accept=".json">
             </div>
           </div>
         </div>
@@ -2776,7 +2776,7 @@
           </div>
 
           <!-- Insurance Details Box in Patient Modal -->
-          <div id="p-insurance-details" style="display: none; background-color: var(--bg-subtle); padding: 12px; border-radius: 10px; margin-top: 10px; border: 1px solid var(--border-color);">
+          <div id="p-insurance-details" class="p-insurance-details-box" style="display: none;">
             <!-- نوع التعاقد Switcher -->
             <div class="form-group" style="margin-bottom: 12px;">
               <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
@@ -2945,13 +2945,13 @@
             </label>
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
               <label class="segmented-option" style="margin: 0; cursor: pointer;">
-                <input type="radio" name="batch-session-type" value="home_visit" checked style="display: none;">
+                <input type="radio" name="batch-session-type" value="home_visit" checked class="d-none">
                 <div class="segmented-btn" id="btn-type-home-visit" style="padding: 10px 8px; text-align: center; font-weight: 800; font-size: 0.85rem; border-radius: 10px; display: flex; align-items: center; justify-content: center; gap: 6px; border: 1.5px solid #059669; background: rgba(5, 150, 105, 0.12); color: #059669; transition: all 0.2s ease;">
                   <i class="fa-solid fa-house-chimney-medical"></i> <span>زيارات منزلية</span>
                 </div>
               </label>
               <label class="segmented-option" style="margin: 0; cursor: pointer;">
-                <input type="radio" name="batch-session-type" value="clinic_batch" style="display: none;">
+                <input type="radio" name="batch-session-type" value="clinic_batch" class="d-none">
                 <div class="segmented-btn" id="btn-type-clinic-batch" style="padding: 10px 8px; text-align: center; font-weight: 800; font-size: 0.85rem; border-radius: 10px; display: flex; align-items: center; justify-content: center; gap: 6px; border: 1.5px solid var(--border-color); background: var(--bg-surface); color: var(--text-muted); transition: all 0.2s ease;">
                   <i class="fa-solid fa-hospital-user"></i> <span>جلسات مجمعة (بالمركز)</span>
                 </div>
@@ -3328,7 +3328,7 @@
                 <i class="fa-solid fa-chevron-down"></i>
               </button>
             </div>
-            <div id="appt-doc-shift-warning" style="display: none; font-size: 0.76rem; color: #b45309; background: rgba(245, 158, 11, 0.1); border: 1px solid rgba(245, 158, 11, 0.3); border-radius: 8px; padding: 6px 10px; margin-top: 6px; line-height: 1.4;">
+            <div id="appt-doc-shift-warning" class="appt-doc-shift-warning" style="display: none;">
               <i class="fa-solid fa-circle-info"></i> <span>تم ضبط أيام الحضور لتطابق شيفت هذا الطبيب تلقائياً.</span>
             </div>
           </div>
@@ -3419,7 +3419,7 @@
   </div>
 
     <!-- Modal: Walk-in Direct Attendance (Without prior appointment) -->
-  <div class="modal-backdrop" id="modal-walkin-attendance" style="display: none;">
+  <div class="modal-backdrop" id="modal-walkin-attendance">
     <div class="modal-content" style="max-width: 480px;">
       <div class="modal-header">
         <h3><i class="fa-solid fa-user-plus text-primary"></i> تسجيل حضور مباشر (بدون موعد)</h3>
@@ -3553,7 +3553,7 @@
             <button type="button" class="btn-cat-chip" data-cat="report"><i class="fa-solid fa-file-medical"></i> تقرير</button>
             <button type="button" class="btn-cat-chip" data-cat="other"><i class="fa-solid fa-file"></i> أخرى</button>
           </div>
-          <select id="polish-category-select" style="display: none;">
+          <select id="polish-category-select" class="d-none">
             <option value="xray" selected>أشعة عادية (X-Ray)</option>
             <option value="mri">رنين مغناطيسي (MRI)</option>
             <option value="ct">أشعة مقطعية (CT Scan)</option>
@@ -3598,7 +3598,7 @@
             </div>
 
             <!-- Active Crop Toolbar (Visible during crop mode) -->
-            <div id="polish-crop-toolbar" style="display: none; margin-top: 8px; gap: 8px; z-index: 2; flex-wrap: wrap; justify-content: center;">
+            <div id="polish-crop-toolbar" class="polish-crop-toolbar" style="display: none;">
               <button type="button" class="btn btn-primary btn-sm" id="btn-apply-crop" style="font-size: 0.8rem; font-weight: 800; padding: 5px 14px;">
                 <i class="fa-solid fa-check"></i> تطبيق القص
               </button>
@@ -3825,7 +3825,7 @@
           </div>
 
           <!-- Error message container -->
-          <div id="login-error-msg" style="display: none; background-color: rgba(239, 68, 68, 0.15); border: 1px solid rgba(239, 68, 68, 0.3); color: #f87171; border-radius: 8px; padding: 9px 12px; font-size: 0.82rem; margin-bottom: 14px; line-height: 1.4;"></div>
+          <div id="login-error-msg" class="login-error-msg" style="display: none;"></div>
 
           <button type="submit" id="btn-do-login" class="btn btn-primary" style="width: 100%; padding: 11px; border-radius: 8px; font-weight: 800; font-size: 0.92rem; display: flex; align-items: center; justify-content: center; gap: 8px;">
             <i class="fa-solid fa-right-to-bracket"></i>
@@ -3837,7 +3837,7 @@
       <!-- Footer -->
       <div class="modal-footer" style="padding: 10px 20px; background: var(--bg-subtle); display: flex; justify-content: space-between; align-items: center;">
         <span style="font-size: 0.74rem; color: var(--text-muted);">نظام آمن • إدارة المراكز الطبية</span>
-        <button type="button" class="btn btn-outline btn-sm" id="btn-cancel-login" style="border-radius: 8px; font-weight: 700; display: none;">إلغاء</button>
+        <button type="button" class="btn btn-outline btn-sm btn-cancel-login" id="btn-cancel-login" style="display: none;">إلغاء</button>
       </div>
     </div>
   </div>
@@ -3897,7 +3897,7 @@
             </button>
           </div>
           <!-- 1. Admin Panel (Admin Only) -->
-          <button type="button" class="btn btn-outline" id="btn-profile-admin-panel" style="width: 100%; display: none; align-items: center; justify-content: space-between; padding: 11px 14px; border-radius: 12px; font-weight: 800; font-size: 0.88rem; color: #b45309; border: 1.5px solid rgba(245, 158, 11, 0.35); background: rgba(245, 158, 11, 0.08); cursor: pointer; transition: all 0.2s ease;">
+          <button type="button" class="btn btn-outline btn-profile-admin-panel" id="btn-profile-admin-panel" style="display: none;">
             <span style="display: flex; align-items: center; gap: 10px;">
               <span style="width: 32px; height: 32px; border-radius: 8px; background: rgba(245, 158, 11, 0.18); color: #d97706; display: flex; align-items: center; justify-content: center; font-size: 0.95rem; flex-shrink: 0;">
                 <i class="fa-solid fa-user-shield"></i>
@@ -4076,7 +4076,7 @@
           </div>
 
           <!-- Error Alert -->
-          <div id="change-pwd-error" style="display: none; background-color: rgba(239, 68, 68, 0.15); border: 1px solid rgba(239, 68, 68, 0.3); color: #f87171; border-radius: 8px; padding: 8px 12px; font-size: 0.82rem; margin-bottom: 14px; line-height: 1.4;"></div>
+          <div id="change-pwd-error" class="change-pwd-error" style="display: none;"></div>
 
           <div style="display: flex; gap: 8px; justify-content: flex-end;">
             <button type="button" class="btn btn-outline btn-sm" id="btn-cancel-change-pwd" style="border-radius: 8px; padding: 8px 16px; font-weight: 700;">إلغاء</button>
@@ -4280,7 +4280,7 @@
       </div>
       <h3 class="custom-dialog-title" id="dialog-title">تنبيه</h3>
       <p class="custom-dialog-text" id="dialog-message"></p>
-      <input type="text" id="dialog-input" class="form-control" style="display: none; margin: 12px 0 6px 0; width: 100%; border-radius: 8px; padding: 10px 12px; font-size: 0.95rem; text-align: center; border: 1.5px solid var(--border-color);" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+      <input type="text" id="dialog-input" class="form-control dialog-input" style="display: none;" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
       <div class="custom-dialog-actions">
         <button type="button" class="btn btn-outline" id="dialog-btn-cancel" style="display: none;">إلغاء</button>
         <button type="button" class="btn btn-primary" id="dialog-btn-confirm">موافق</button>
@@ -4431,7 +4431,7 @@
           وبناءً عليه، <span id="ins-print-verb-need">يحتاج/تحتاج</span> الحالة إلى <strong id="ins-print-sessions" style="font-size: 12pt; text-decoration: underline; color: #0f172a;">-</strong> جلسات علاج طبيعي وتأهيل حركي.
         </p>
 
-        <div id="ins-print-notes-container" style="display: none; margin: 4px 0;">
+        <div id="ins-print-notes-container" class="ins-print-notes-container" style="display: none;">
           <strong style="color: #0369a1;">ملاحظات: </strong>
           <span id="ins-print-notes" dir="auto"></span>
         </div>
@@ -4935,7 +4935,7 @@
               <div>
                 <label style="font-size: 0.75rem; color: var(--text-muted); font-weight: 700; margin-bottom: 4px; display: block; text-align: center;">الساعة</label>
                 <div class="custom-select-wrapper">
-                  <select id="slot-input-hour" style="display: none;">
+                  <select id="slot-input-hour" class="d-none">
                     <option value="1">1</option>
                     <option value="2">2</option>
                     <option value="3" selected>3</option>
@@ -4962,7 +4962,7 @@
               <div>
                 <label style="font-size: 0.75rem; color: var(--text-muted); font-weight: 700; margin-bottom: 4px; display: block; text-align: center;">الدقيقة</label>
                 <div class="custom-select-wrapper">
-                  <select id="slot-input-minute" style="display: none;">
+                  <select id="slot-input-minute" class="d-none">
                     <option value="00">00</option>
                     <option value="15">15</option>
                     <option value="30" selected>30</option>
@@ -4978,7 +4978,7 @@
               <!-- Period Segmented Switcher (مساءً / صباحاً) -->
               <div>
                 <label style="font-size: 0.75rem; color: var(--text-muted); font-weight: 700; margin-bottom: 4px; display: block; text-align: center;">الفترة</label>
-                <select id="slot-input-period" style="display: none;">
+                <select id="slot-input-period" class="d-none">
                   <option value="PM" selected>مساءً (م)</option>
                   <option value="AM">صباحاً (ص)</option>
                 </select>
@@ -5322,13 +5322,13 @@
             </label>
             <div class="insurance-contract-segmented" style="display: flex; gap: 6px; padding: 4px; background: var(--bg-subtle); border: 1.5px solid var(--border-color); border-radius: 12px;">
               <label class="segmented-option" style="flex: 1; margin: 0; cursor: pointer;">
-                <input type="radio" name="settle-pay-method" value="bank" checked style="display: none;">
+                <input type="radio" name="settle-pay-method" value="bank" checked class="d-none">
                 <div class="segmented-btn" style="padding: 8px 12px; text-align: center; font-weight: 700; font-size: 0.86rem; border-radius: 8px; display: flex; align-items: center; justify-content: center; gap: 6px;">
                   <i class="fa-solid fa-building-columns"></i> <span>تحويل بنكي / شيك</span>
                 </div>
               </label>
               <label class="segmented-option" style="flex: 1; margin: 0; cursor: pointer;">
-                <input type="radio" name="settle-pay-method" value="cash" style="display: none;">
+                <input type="radio" name="settle-pay-method" value="cash" class="d-none">
                 <div class="segmented-btn" style="padding: 8px 12px; text-align: center; font-weight: 700; font-size: 0.86rem; border-radius: 8px; display: flex; align-items: center; justify-content: center; gap: 6px;">
                   <i class="fa-solid fa-money-bill-wave"></i> <span>نقداً بالدرج</span>
                 </div>

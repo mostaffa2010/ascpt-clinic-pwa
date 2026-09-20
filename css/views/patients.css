@@ -1616,3 +1616,12 @@
 #btn-save-sheet:active {
   transform: scale(0.98);
 }
+
+/* Insurance Details Box */
+.p-insurance-details-box {
+  background-color: var(--bg-subtle);
+  padding: 12px;
+  border-radius: 10px;
+  margin-top: 10px;
+  border: 1px solid var(--border-color);
+}
