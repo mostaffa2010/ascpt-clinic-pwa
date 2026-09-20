@@ -1079,13 +1079,10 @@ export class PatientsManager {
         let billingBadge = '';
         const safeComp = escapeHTML(p.insuranceCompany || 'تأمين');
         const approvedVisits = p.approvedSessions || 12;
-        const approvedParts = p.approvedBodyParts || 1;
         if (p.billing === 'cash') {
-          billingBadge = `<span class="badge badge-cash" style="font-size: 0.72rem; padding: 2px 7px; font-weight: 700; white-space: nowrap;"><i class="fa-solid fa-money-bill"></i> نقدي</span>`;
-        } else if (p.contractType === 'direct') {
-          billingBadge = `<span class="badge badge-direct" style="font-size: 0.72rem; padding: 2px 7px; font-weight: 700; max-width: 135px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; display: inline-flex; align-items: center; gap: 3px;" title="${safeComp} - ${approvedVisits} زيارة (${approvedParts} أعضاء)"><i class="fa-solid fa-file-contract"></i> ${safeComp}</span>`;
+          billingBadge = `<span class="pc-billing-tag cash"><i class="fa-solid fa-money-bill-wave"></i> <span>نقدي</span></span>`;
         } else {
-          billingBadge = `<span class="badge badge-indirect" style="font-size: 0.72rem; padding: 2px 7px; font-weight: 700; max-width: 135px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; display: inline-flex; align-items: center; gap: 3px;" title="${safeComp} - ${approvedVisits} زيارة (${approvedParts} أعضاء)"><i class="fa-solid fa-handshake"></i> ${safeComp}</span>`;
+          billingBadge = `<span class="pc-billing-tag insurance" title="${safeComp} - ${approvedVisits} زيارة"><i class="fa-solid fa-building"></i> <span>${safeComp}</span></span>`;
         }
 
         const safeId = escapeHTML(p.id);
@@ -1097,85 +1094,75 @@ export class PatientsManager {
   
         const isFemale = (p.gender === 'female');
         const genderClass = isFemale ? 'gender-female' : 'gender-male';
-        const genderBadgeClass = isFemale ? 'badge-gender-female' : 'badge-gender-male';
         const genderIcon = isFemale ? 'fa-solid fa-venus' : 'fa-solid fa-mars';
         const genderText = isFemale ? 'أنثى' : 'ذكر';
         const avatarIcon = isFemale ? 'fa-solid fa-person-dress' : 'fa-solid fa-person';
 
-
         return `
           <div class="hero-styled-card hero-patient-card patient-card ${genderClass} ${rowHighlightClass}">
-            <!-- Row 1: Identity (Right) & Action Hub (Left) -->
-            <div style="display: flex; align-items: flex-start; justify-content: space-between; gap: 8px;">
-              <!-- Right Info: Avatar, Name, Gender/Age (No Phone Number) -->
-              <div style="display: flex; align-items: center; gap: 10px; min-width: 0; flex: 1;">
-                <div class="hsc-avatar patient-avatar" style="width: 40px; height: 40px; font-size: 1.2rem; flex-shrink: 0; border-radius: 50%;">
+            <!-- Top Row: Identity (Right) & Action Hub (Left) -->
+            <div class="pc-top-header">
+              <!-- Right Info: Avatar Icon, Name, Gender/Age Subtitle -->
+              <div class="pc-right-info">
+                <div class="pc-avatar-icon ${isFemale ? 'female' : 'male'}">
                   <i class="${avatarIcon}"></i>
                 </div>
-                <div style="display: flex; flex-direction: column; gap: 3px; min-width: 0;">
-                  <div style="display: flex; align-items: center; gap: 6px; flex-wrap: wrap;">
-                    <span class="hsc-patient-name" style="cursor: pointer; font-size: 1.05rem; font-weight: 700; line-height: 1.35;" onclick="patientsManager.openPatientSheet('${safeId}')" title="اضغط لفتح الشيت الطبي">${safeName}</span>
-                    <span class="badge ${genderBadgeClass}" style="font-size: 0.74rem; padding: 2px 7px; border-radius: 999px;">
-                      <i class="${genderIcon}"></i> ${genderText} • ${safeAge} سنة
-                    </span>
+                <div class="pc-name-block">
+                  <span class="pc-name-title" onclick="patientsManager.openPatientSheet('${safeId}')" title="اضغط لفتح الشيت الطبي">${safeName}</span>
+                  <div class="pc-meta-sub ${isFemale ? 'female' : 'male'}">
+                    <i class="${genderIcon}"></i> <span>${genderText} ▪ ${safeAge} سنة</span>
                   </div>
                 </div>
               </div>
 
               <!-- Left Action Hub: Insurance Badge on Top, Action Pills Below -->
-              <div class="patient-card-badges-hub" style="display: flex; flex-direction: column; align-items: flex-end; gap: 6px; flex-shrink: 0;">
-                <div class="patient-billing-wrap">${billingBadge}</div>
-                <div class="patient-action-pills-wrap" style="display: flex; align-items: center; gap: 5px;">
+              <div class="pc-left-hub">
+                <div class="pc-billing-wrap">${billingBadge}</div>
+                <div class="pc-pill-actions">
                   ${!isDoctor ? `
-                    <button type="button" class="btn btn-quick-attend" onclick="patientsManager.quickLogSession('${safeId}')" title="تسجيل جلسة سريعة لهذا المريض">
+                    <button type="button" class="btn-pc-pill btn-pc-session btn-quick-attend" onclick="patientsManager.quickLogSession('${safeId}')" title="تسجيل جلسة سريعة لهذا المريض">
                       <i class="fa-solid fa-bolt"></i> <span>جلسة</span>
                     </button>
                   ` : ''}
                   ${canAccessSheet ? `
-                    <button type="button" class="btn btn-hero-sheet btn-patient-sheet-action" onclick="patientsManager.openPatientSheet('${safeId}')" title="فتح الشيت الطبي">
-                      <i class="fa-solid fa-file-waveform"></i> <span>الشيت</span>
+                    <button type="button" class="btn-pc-pill btn-pc-sheet btn-hero-sheet btn-patient-sheet-action" onclick="patientsManager.openPatientSheet('${safeId}')" title="فتح الشيت الطبي">
+                      <i class="fa-solid fa-file-circle-plus"></i> <span>الشيت</span>
                     </button>
                   ` : ''}
                 </div>
               </div>
             </div>
 
-            <!-- Diagnosis Box: Placed on a full-width flexible row -->
-            <div class="patient-diagnosis-row" style="margin-top: 8px; width: 100%;">
-              <div class="patient-tags-container" style="background: rgba(0, 0, 0, 0.22); border-radius: 8px; padding: 7px 10px; display: flex; flex-wrap: wrap; gap: 6px; align-items: center; box-sizing: border-box;">
-                <span class="patient-area-badge ${mobileAreaInfo.badgeClass}" style="font-size: 0.77rem; padding: 2px 8px; border-radius: 6px; display: inline-flex; align-items: center; gap: 5px; flex-grow: 1; word-break: break-word; border: 1px solid rgba(255, 255, 255, 0.12);">
-                  <i class="${mobileAreaInfo.icon}"></i> ${escapeHTML(mobileAreaInfo.text)}
-                </span>
-              </div>
+            <!-- Row 2: Diagnosis / Body Parts / Program Strip -->
+            <div class="pc-condition-strip">
+              <i class="${mobileAreaInfo.icon}"></i>
+              <span>${escapeHTML((mobileAreaInfo.text || '').replace(/ • /g, ' ▪ '))}</span>
             </div>
 
             <!-- Row 3: Location/Address (Right) & Squircle Action Buttons (Left) -->
-            <div class="patient-card-footer" style="display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-top: 10px; padding-top: 8px; border-top: 1px solid rgba(255, 255, 255, 0.08);">
-              <!-- Right: Address / Location -->
-              <div class="patient-card-location" style="display: flex; align-items: center; gap: 5px; font-size: 0.76rem; min-width: 0; flex: 1;">
-                <span class="hsc-meta-text" style="font-size: 0.74rem; gap: 4px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
-                  <i class="fa-solid fa-location-dot" style="color: var(--primary);"></i> ${safeAddress && safeAddress !== '-' ? safeAddress : (CLINIC_CONFIG.contact?.city || 'المركز')}
-                </span>
+            <div class="pc-footer-row">
+              <div class="pc-location-info">
+                <i class="fa-solid fa-location-dot"></i>
+                <span>${safeAddress && safeAddress !== '-' ? safeAddress : (CLINIC_CONFIG.contact?.city || 'الإسكندرية')}</span>
               </div>
 
-              <!-- Left: Squircle Action Buttons (WhatsApp, Docs/Report, Edit, Delete) -->
-              <div class="patient-card-actions" style="display: flex; align-items: center; gap: 6px; flex-shrink: 0;">
-                <button type="button" class="btn btn-outline btn-sm btn-icon-action btn-whatsapp-action" onclick="patientsManager.openWhatsAppTemplates('${escapeHTML(p.phone || '')}', '${safeName}', '${safeDoctor}')" aria-label="خيارات واتساب الذكية" title="خيارات واتساب الذكية">
-                  <i class="fa-brands fa-whatsapp"></i>
-                </button>
-                ${!isDoctor ? `
-                  <button type="button" class="btn btn-outline btn-sm btn-icon-action btn-patient-docs" onclick="event.stopPropagation(); patientsManager.openPatientDocsModal('${safeId}')" aria-label="المستندات والتقارير الطبية" title="المستندات والتقارير الطبية">
-                    <i class="fa-solid fa-file-invoice"></i>
+              <div class="pc-squircle-actions">
+                ${!isDoctor && canDeletePatient ? `
+                  <button type="button" class="btn-pc-squircle btn-pc-del btn-delete-patient" onclick="patientsManager.confirmDelete('${safeId}')" aria-label="حذف المريض" title="حذف">
+                    <i class="fa-solid fa-trash-can"></i>
                   </button>
-                  <button type="button" class="btn btn-outline btn-sm btn-icon-action btn-edit-patient" onclick="patientsManager.openEditModal('${safeId}')" aria-label="تعديل بيانات المريض" title="تعديل">
+                ` : ''}
+                ${!isDoctor ? `
+                  <button type="button" class="btn-pc-squircle btn-pc-edit btn-edit-patient" onclick="patientsManager.openEditModal('${safeId}')" aria-label="تعديل بيانات المريض" title="تعديل">
                     <i class="fa-solid fa-pen-to-square"></i>
                   </button>
-                ` : ''}
-                ${!isDoctor && canDeletePatient ? `
-                  <button type="button" class="btn btn-outline btn-sm btn-icon-action btn-delete-patient" onclick="patientsManager.confirmDelete('${safeId}')" aria-label="حذف المريض" title="حذف">
-                    <i class="fa-solid fa-trash"></i>
+                  <button type="button" class="btn-pc-squircle btn-pc-docs btn-patient-docs" onclick="event.stopPropagation(); patientsManager.openPatientDocsModal('${safeId}')" aria-label="المستندات والتقارير الطبية" title="المستندات">
+                    <i class="fa-solid fa-file-circle-plus"></i>
                   </button>
                 ` : ''}
+                <button type="button" class="btn-pc-squircle btn-pc-wa btn-whatsapp-action" onclick="patientsManager.openWhatsAppTemplates('${escapeHTML(p.phone || '')}', '${safeName}', '${safeDoctor}')" aria-label="خيارات واتساب الذكية" title="واتساب">
+                  <i class="fa-brands fa-whatsapp"></i>
+                </button>
               </div>
             </div>
           </div>
