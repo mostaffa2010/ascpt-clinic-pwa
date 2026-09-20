@@ -12376,10 +12376,6 @@ button.btn-settle-hv {
   50% { transform: scale(1.15); }
 }
 
-.notification-dropdown.is-open {
-  display: flex;
-}
-
 .notification-dropdown {
   position: fixed;
   top: calc(var(--topbar-height, 60px) + env(safe-area-inset-top, 0px) + 8px);
@@ -12395,10 +12391,14 @@ button.btn-settle-hv {
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
   z-index: 10000;
-  display: flex;
+  display: none;
   flex-direction: column;
   overflow: hidden;
   animation: notifSlideDown 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.notification-dropdown.is-open {
+  display: flex;
 }
 
 @media screen and (min-width: 768px) {

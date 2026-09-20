@@ -70,6 +70,7 @@ export class NotificationsManager {
   }
 
   init() {
+    this.closeDropdown();
     this.bindDomEvents();
     this.bindServiceWorkerMessages();
     this.setupAuthSync();

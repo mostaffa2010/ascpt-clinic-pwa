@@ -177,9 +177,13 @@ input, textarea, select, [contenteditable="true"] {
   border-radius: var(--radius-card);
   box-shadow: var(--shadow-sticky);
   z-index: 10000;
-  display: flex;
+  display: none;
   flex-direction: column;
   overflow: hidden;
+}
+
+.notification-dropdown.is-open {
+  display: flex;
 }
 
 /* Mobile Bottom Nav (.bottom-nav): Viewports < 768px with 5 tabs and safe-area */
