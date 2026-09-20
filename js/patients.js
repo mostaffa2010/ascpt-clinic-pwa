@@ -2203,23 +2203,24 @@ export class PatientsManager {
     }
     const progHeaderBadge = document.getElementById('sheet-patient-program-badge');
     if (progHeaderBadge) {
-      let bClass = 'badge badge-primary';
       let bIcon = 'fa-solid fa-bone';
       let bText = 'علاج عام';
+      let bColor = 'var(--primary)';
       if (currentProg === 'scoliosis') {
-        bClass = 'badge badge-warning';
         bIcon = 'fa-solid fa-arrows-split-up-and-left';
         bText = 'Scoliosis';
+        bColor = 'var(--warning)';
       } else if (currentProg === 'hemiplegia') {
-        bClass = 'badge badge-role-rec';
         bIcon = 'fa-solid fa-brain';
         bText = 'Hemiplegia';
+        bColor = '#a855f7';
       } else if (currentProg === 'quadriplegia' || currentProg === 'pediatric') {
-        bClass = 'badge badge-role-admin';
         bIcon = 'fa-solid fa-wheelchair';
         bText = 'Quadriplegia';
+        bColor = '#38bdf8';
       }
-      progHeaderBadge.innerHTML = `<span class="${bClass}" style="font-size: 0.74rem; font-weight: 800; padding: 4px 9px; border-radius: 999px; display: inline-flex; align-items: center; gap: 5px;"><i class="${bIcon}"></i> ${bText}</span>`;
+      // Clean display without background as requested
+      progHeaderBadge.innerHTML = `<span class="pcm-clean-prog" style="font-size: 0.85rem; font-weight: 700; color: ${bColor}; display: inline-flex; align-items: center; gap: 6px;"><i class="${bIcon}"></i> ${bText}</span>`;
     }
 
     // Auto-resolve first session doctor if patient.doctor is empty
@@ -2328,15 +2329,15 @@ export class PatientsManager {
       const canDelete = RolesManager.canDelete(currentUser);
 
       actionsEl.innerHTML = `
-        <a href="https://wa.me/${cleanPhone}" target="_blank" class="btn btn-outline btn-sm pcm-action-circle wa" title="محادثة واتساب">
+        <a href="https://wa.me/${cleanPhone}" target="_blank" class="btn btn-pc-squircle btn-pc-wa pcm-action-square wa" title="واتساب" aria-label="واتساب">
           <i class="fa-brands fa-whatsapp"></i>
         </a>
-        <button type="button" class="btn btn-outline btn-sm pcm-action-circle edit" onclick="patientsManager.openEditModalFromSheet('${p.id}')" title="تعديل بيانات المريض">
+        <button type="button" class="btn btn-pc-squircle btn-pc-edit pcm-action-square edit" onclick="patientsManager.openEditModalFromSheet('${p.id}')" title="تعديل بيانات المريض" aria-label="تعديل">
           <i class="fa-solid fa-pen-to-square"></i>
         </button>
         ${canDelete ? `
-          <button type="button" class="btn btn-outline btn-sm pcm-action-circle del" onclick="patientsManager.confirmDeleteFromSheet('${p.id}')" title="حذف المريض">
-            <i class="fa-solid fa-trash"></i>
+          <button type="button" class="btn btn-pc-squircle btn-pc-del pcm-action-square del" onclick="patientsManager.confirmDeleteFromSheet('${p.id}')" title="حذف المريض" aria-label="حذف">
+            <i class="fa-solid fa-trash-can"></i>
           </button>
         ` : ''}
       `;

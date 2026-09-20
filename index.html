@@ -137,8 +137,8 @@
   
 
     <!-- Stylesheets -->
-  <link rel="stylesheet" href="css/style.css?v=2.10.39" media="screen">
-  <link rel="stylesheet" href="css/print.css?v=2.10.39" media="print">
+  <link rel="stylesheet" href="css/style.css?v=2.10.40" media="screen">
+  <link rel="stylesheet" href="css/print.css?v=2.10.40" media="print">
 </head>
 <body>
   <script>
@@ -889,15 +889,18 @@
           </h2>
         </div>
 
-        <!-- Patient Clinical Record Header Card (Clean, Modern & Uncluttered v1.4.80) -->
+        <!-- Patient Clinical Record Header Card (Clean, Modern & Uncluttered) -->
         <div class="card patient-clinical-main-card gender-male" id="patient-clinical-card">
-          <!-- 1. Patient Name (Standalone, Full-Width) -->
-          <div class="pcm-name-bar">
+          <!-- Row 1: Patient Name on Right, Company/Billing on Left -->
+          <div class="pcm-row-top">
             <h2 id="sheet-patient-name" class="pcm-patient-name">اسم المريض</h2>
+            <div class="pcm-billing-container" id="sheet-patient-billing-badge">
+              <!-- Populated dynamically -->
+            </div>
           </div>
 
-          <!-- 2. Badges & Quick Actions Hub -->
-          <div class="pcm-meta-bar">
+          <!-- Row 2: Gender & Age + Treating Doctor -->
+          <div class="pcm-row-meta">
             <div class="pcm-tags-group">
               <span id="sheet-patient-gender-badge" class="badge badge-gender-male">
                 <i class="fa-solid fa-mars" id="sheet-gender-icon"></i>
@@ -907,38 +910,41 @@
                 <i class="fa-solid fa-user-doctor"></i> <strong id="sheet-patient-doctor">-</strong>
               </span>
             </div>
-
-            <!-- Quick Action Hub (WhatsApp, Edit, Delete) -->
-            <div id="sheet-patient-quick-actions" class="pcm-actions-hub">
-              <!-- Populated dynamically -->
-            </div>
           </div>
 
-          <!-- 3. Contact & Billing / Sessions Strip -->
-          <div class="pcm-info-strip">
-            <div class="pcm-info-item">
+          <!-- Row 3: Phone Number (Right) + Program Type (Clean without background) -->
+          <div class="pcm-row-contact-prog">
+            <div class="pcm-info-item pcm-phone-item">
               <i class="fa-solid fa-phone text-primary"></i>
               <a href="#" id="sheet-patient-phone-link" class="pcm-phone-link">
                 <bdi dir="ltr" id="sheet-patient-phone">-</bdi>
               </a>
             </div>
-            <div class="pcm-info-item">
-              <i class="fa-solid fa-location-dot text-primary"></i>
-              <span id="sheet-patient-address">غير محدد</span>
+            <div class="pcm-prog-clean" id="sheet-patient-program-badge" style="cursor: pointer;" title="البرنامج العلاجي التخصصي">
+              <!-- Populated dynamically without background -->
             </div>
-            <div class="pcm-info-item pcm-info-billing" id="sheet-patient-billing-badge">
-              <!-- Populated dynamically -->
-            </div>
-            <div class="pcm-info-item" id="sheet-patient-program-badge" style="cursor: pointer;" title="البرنامج العلاجي التخصصي">
-              <!-- Populated dynamically -->
-            </div>
+          </div>
+
+          <!-- Row 4: Sessions Record (سجل الجلسات) -->
+          <div class="pcm-row-sessions">
             <button type="button" class="pcm-sessions-chip" id="btn-view-patient-sessions" title="فتح سجل جلسات المريض">
               <i class="fa-solid fa-calendar-check text-primary"></i>
               <span id="sheet-sessions-btn-text">سجل الجلسات (0)</span>
             </button>
           </div>
 
-          <!-- 4. Footer: Last Update ONLY (Nothing after it) -->
+          <!-- Row 5: Action Buttons (Right) & Location (Left) -->
+          <div class="pcm-row-actions-location">
+            <div id="sheet-patient-quick-actions" class="pcm-actions-hub">
+              <!-- Populated dynamically with square buttons -->
+            </div>
+            <div class="pcm-info-item pcm-location-item">
+              <i class="fa-solid fa-location-dot text-primary"></i>
+              <span id="sheet-patient-address">غير محدد</span>
+            </div>
+          </div>
+
+          <!-- Row 6: Last Update -->
           <div class="pcm-footer-row">
             <div class="pcm-update-time">
               <i class="fa-solid fa-clock-rotate-left"></i>
@@ -4842,7 +4848,7 @@
   </div>
 
 <!-- Main Application Script (ES Module) -->
-  <script type="module" src="js/app.js?v=2.10.39"></script>
+  <script type="module" src="js/app.js?v=2.10.40"></script>
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {

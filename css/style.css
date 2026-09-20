@@ -7165,230 +7165,179 @@ h1, h2, h3, h4, h5, h6 {
    PATIENT CLINICAL SHEET CLEAN ORGANIZED CARD & FIXED ACTION BAR (v1.4.25)
    ========================================================================== */
 
-/* 1. Patient Clinical Main Card (Clean, Modern & Uncluttered v1.4.36) */
+/* 1. Patient Clinical Main Card (Clean, Modern & Uncluttered) */
 .patient-clinical-main-card {
-  border-radius: 18px;
-  padding: 16px 18px;
-  margin-bottom: 18px;
-  transition: all 0.25s ease;
-  position: relative;
-  background: var(--bg-surface);
-  border: 1px solid var(--border-color);
-  box-shadow: 0 4px 16px -2px rgba(15, 23, 42, 0.05);
+  border-radius: 20px !important;
+  padding: 16px 18px !important;
+  margin-bottom: 18px !important;
+  transition: all 0.25s ease !important;
+  position: relative !important;
+  background: var(--bg-surface) !important;
+  border: 1.5px solid var(--border-color) !important;
+  box-shadow: 0 4px 18px -2px rgba(15, 23, 42, 0.06) !important;
 }
 
-/* 1.1 Gender Accents */
+/* 1.1 Side Accents (Right Border & Subtle Soft Glow, No Top Bar) */
 .patient-clinical-main-card.gender-male {
-  border-top: 4px solid #0284c7 !important;
+  border: 1.5px solid rgba(14, 165, 233, 0.28) !important;
+  border-right: 4px solid #0ea5e9 !important;
+  box-shadow: -4px 0 16px -2px rgba(14, 165, 233, 0.25), 0 4px 18px -2px rgba(0, 0, 0, 0.4) !important;
 }
 :root:not([data-theme="dark"]) .patient-clinical-main-card.gender-male {
-  background: linear-gradient(180deg, #f0f9ff 0%, #ffffff 40%) !important;
-  border-color: #bae6fd;
-  border-top-color: #0284c7 !important;
-}
-[data-theme="dark"] .patient-clinical-main-card.gender-male {
-  background: linear-gradient(180deg, #0c2340 0%, #1e293b 45%) !important;
-  border-color: #1e3a5f !important;
-  border-top-color: #38bdf8 !important;
-  box-shadow: 0 8px 26px -4px rgba(0, 0, 0, 0.6) !important;
+  background: #ffffff !important;
+  border: 1.5px solid rgba(14, 165, 233, 0.3) !important;
+  border-right: 4px solid #0284c7 !important;
+  box-shadow: -4px 0 14px -2px rgba(14, 165, 233, 0.18), 0 3px 12px rgba(15, 23, 42, 0.04) !important;
 }
 
 .patient-clinical-main-card.gender-female {
-  border-top: 4px solid #ec4899 !important;
+  border: 1.5px solid rgba(244, 114, 182, 0.28) !important;
+  border-right: 4px solid #f43f5e !important;
+  box-shadow: -4px 0 16px -2px rgba(244, 114, 182, 0.25), 0 4px 18px -2px rgba(0, 0, 0, 0.4) !important;
 }
 :root:not([data-theme="dark"]) .patient-clinical-main-card.gender-female {
-  background: linear-gradient(180deg, #fdf2f8 0%, #ffffff 40%) !important;
-  border-color: #fbcfe8;
-  border-top-color: #ec4899 !important;
-}
-[data-theme="dark"] .patient-clinical-main-card.gender-female {
-  background: linear-gradient(180deg, #38122c 0%, #1e293b 45%) !important;
-  border-color: #5b2148 !important;
-  border-top-color: #f472b6 !important;
-  box-shadow: 0 8px 26px -4px rgba(0, 0, 0, 0.6) !important;
+  background: #ffffff !important;
+  border: 1.5px solid rgba(236, 72, 153, 0.3) !important;
+  border-right: 4px solid #ec4899 !important;
+  box-shadow: -4px 0 14px -2px rgba(236, 72, 153, 0.18), 0 3px 12px rgba(15, 23, 42, 0.04) !important;
 }
 
-/* 1.2 Row 1: Patient Name Standalone & Full Width */
-.pcm-name-bar {
-  width: 100%;
-  padding-bottom: 8px;
+/* Row 1: Name (Right) & Company (Left) */
+.pcm-row-top {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 12px !important;
+  width: 100% !important;
+  margin-bottom: 8px !important;
 }
 
 .pcm-patient-name {
-  font-size: 1.45rem;
-  font-weight: 900;
-  color: var(--text-main);
-  margin: 0;
-  line-height: 1.35;
-  text-align: right;
-  letter-spacing: -0.01em;
+  font-size: 1.25rem !important;
+  font-weight: 800 !important;
+  color: var(--text-main) !important;
+  margin: 0 !important;
+  line-height: 1.3 !important;
+  text-align: right !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: clip !important;
+  flex: 1 !important;
+  min-width: 0 !important;
 }
 
-/* 1.3 Row 2: Badges & Quick Action Hub */
-.pcm-meta-bar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 10px;
-  flex-wrap: wrap;
-  padding-bottom: 12px;
-  border-bottom: 1px solid var(--border-color);
+.pcm-billing-container {
+  display: inline-flex !important;
+  align-items: center !important;
+  flex-shrink: 0 !important;
+}
+
+/* Row 2: Gender & Age + Doctor */
+.pcm-row-meta {
+  display: flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  flex-wrap: wrap !important;
+  margin-bottom: 10px !important;
 }
 
 .pcm-tags-group {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  flex-wrap: wrap;
+  display: flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  flex-wrap: wrap !important;
 }
 
-.badge-gender-male {
-  background: rgba(2, 132, 199, 0.12) !important;
-  color: #0284c7 !important;
-  border: 1px solid rgba(2, 132, 199, 0.28) !important;
-  font-weight: 800 !important;
-  font-size: 0.76rem !important;
-  padding: 4px 10px !important;
-  border-radius: 999px !important;
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-}
-[data-theme="dark"] .badge-gender-male {
-  background: rgba(56, 189, 248, 0.16) !important;
-  color: #38bdf8 !important;
-  border-color: rgba(56, 189, 248, 0.35) !important;
+/* Row 3: Phone & Clean Program */
+.pcm-row-contact-prog {
+  display: flex !important;
+  align-items: center !important;
+  gap: 12px !important;
+  flex-wrap: wrap !important;
+  margin-bottom: 10px !important;
 }
 
-.badge-gender-female {
-  background: rgba(236, 72, 153, 0.12) !important;
-  color: #db2777 !important;
-  border: 1px solid rgba(236, 72, 153, 0.28) !important;
-  font-weight: 800 !important;
-  font-size: 0.76rem !important;
-  padding: 4px 10px !important;
-  border-radius: 999px !important;
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-}
-[data-theme="dark"] .badge-gender-female {
-  background: rgba(244, 114, 182, 0.18) !important;
-  color: #f472b6 !important;
-  border-color: rgba(244, 114, 182, 0.35) !important;
-}
-
-.patient-doc-badge {
-  background: var(--bg-subtle);
-  color: var(--text-muted);
-  border: 1px solid var(--border-color);
-  font-size: 0.76rem;
-  font-weight: 700;
-  padding: 4px 10px;
-  border-radius: 999px;
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-}
-[data-theme="dark"] .patient-doc-badge {
-  background: rgba(15, 23, 42, 0.5);
-  border-color: #334155;
-  color: #cbd5e1;
-}
-
-.pcm-actions-hub {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.pcm-action-circle {
-  width: 36px !important;
-  height: 36px !important;
-  min-width: 36px !important;
-  min-height: 36px !important;
-  border-radius: 50% !important;
-  padding: 0 !important;
+.pcm-phone-item {
   display: inline-flex !important;
   align-items: center !important;
-  justify-content: center !important;
-  border: 1px solid transparent !important;
-  transition: all 0.18s cubic-bezier(0.4, 0, 0.2, 1) !important;
-}
-
-.pcm-action-circle.wa {
-  color: #10b981 !important;
-  border-color: rgba(16, 185, 129, 0.35) !important;
-  background: rgba(16, 185, 129, 0.1) !important;
-  font-size: 1.15rem !important;
-}
-.pcm-action-circle.wa:hover {
-  background: #10b981 !important;
-  color: #ffffff !important;
-  transform: translateY(-2px);
-}
-
-.pcm-action-circle.edit {
-  color: var(--primary) !important;
-  border-color: var(--border-color) !important;
+  gap: 6px !important;
+  font-size: 0.85rem !important;
+  color: var(--text-muted) !important;
   background: var(--bg-subtle) !important;
-  font-size: 0.92rem !important;
+  padding: 5px 12px !important;
+  border-radius: 8px !important;
+  border: 1px solid var(--border-color) !important;
 }
-.pcm-action-circle.edit:hover {
-  border-color: var(--primary) !important;
-  background: var(--primary-light) !important;
-  transform: translateY(-2px);
-}
-
-.pcm-action-circle.del {
-  color: var(--danger) !important;
-  border-color: rgba(239, 68, 68, 0.3) !important;
-  background: rgba(239, 68, 68, 0.08) !important;
-  font-size: 0.92rem !important;
-}
-.pcm-action-circle.del:hover {
-  background: var(--danger) !important;
-  color: #ffffff !important;
-  transform: translateY(-2px);
-}
-
-/* 1.4 Row 3: Info Strip (Phone, Address, Billing & Sessions Chip) */
-.pcm-info-strip {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  flex-wrap: wrap;
-  padding: 10px 0;
-  border-bottom: 1px solid var(--border-color);
-}
-
-.pcm-info-item {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 0.80rem;
-  color: var(--text-muted);
-  background: var(--bg-subtle);
-  padding: 5px 12px;
-  border-radius: 8px;
-  border: 1px solid var(--border-color);
-}
-[data-theme="dark"] .pcm-info-item {
-  background: rgba(15, 23, 42, 0.5);
-  border-color: #334155;
-  color: #cbd5e1;
+[data-theme="dark"] .pcm-phone-item {
+  background: rgba(15, 23, 42, 0.5) !important;
+  border-color: #334155 !important;
+  color: #cbd5e1 !important;
 }
 
 .pcm-phone-link {
-  font-weight: 800;
-  color: var(--primary);
-  text-decoration: none;
+  font-weight: 800 !important;
+  color: var(--primary) !important;
+  text-decoration: none !important;
 }
 
-.pcm-info-billing {
+.pcm-prog-clean {
+  display: inline-flex !important;
+  align-items: center !important;
   background: transparent !important;
   border: none !important;
   padding: 0 !important;
+}
+
+/* Row 4: Sessions */
+.pcm-row-sessions {
+  margin-bottom: 10px !important;
+  width: 100% !important;
+}
+
+/* Row 5: Actions (Right) & Location (Left) */
+.pcm-row-actions-location {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 10px !important;
+  width: 100% !important;
+  margin-bottom: 10px !important;
+}
+
+.pcm-actions-hub {
+  display: flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  flex-shrink: 0 !important;
+}
+
+.pcm-location-item {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+  font-size: 0.82rem !important;
+  color: var(--text-muted) !important;
+  background: var(--bg-subtle) !important;
+  padding: 5px 12px !important;
+  border-radius: 8px !important;
+  border: 1px solid var(--border-color) !important;
+  max-width: 160px !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  white-space: nowrap !important;
+}
+[data-theme="dark"] .pcm-location-item {
+  background: rgba(15, 23, 42, 0.5) !important;
+  border-color: #334155 !important;
+  color: #cbd5e1 !important;
+}
+
+/* Row 6: Footer */
+.pcm-footer-row {
+  border-top: 1px solid var(--border-color) !important;
+  padding-top: 8px !important;
+  margin-top: 4px !important;
+  width: 100% !important;
 }
 
 /* Redesigned Compact Sessions Chip inside Info Strip */
