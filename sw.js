@@ -5,7 +5,7 @@
 // True Offline Navigation & Fault-Tolerant Cache Architecture
 // ========================================================
 
-const CACHE_NAME = 'ascpt-clinic-v2.10.33';
+const CACHE_NAME = 'ascpt-clinic-v2.10.34';
 
 // Core App Shell assets required for offline rendering
 const APP_SHELL_ASSETS = [
@@ -57,7 +57,7 @@ const APP_SHELL_ASSETS = [
   'https://www.gstatic.com/firebasejs/12.18.0/firebase-auth.js',
   'https://www.gstatic.com/firebasejs/12.18.0/firebase-firestore.js',
   'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css',
-  'https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&display=swap'
+  'https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap'
 ];
 
 // 1. Install Event: Cache all shell assets resiliently one by one
