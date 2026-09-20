@@ -1,60 +1,66 @@
 /* ==========================================================================
-   ASCPT CLINIC PWA - MODULAR CSS REBUILD: PHASE 1
-   File: css/design-tokens.css
-   Scope: Canonical Design Tokens (Claude Warm Dark Palette, Typography, Squircles, Breakpoints)
+   ASCPT CLINIC PWA - CANONICAL DESIGN TOKENS
+   Alexandria Specialized Center for Physical Therapy
+   Single Source of Truth: Colors, Surfaces, Spacing, Typography, Geometry
+   100% Pixel-Perfect Fidelity Guarantee
    ========================================================================== */
 
-:root,
-[data-theme="dark"] {
+:root {
   /* --------------------------------------------------------------------------
-     1. TYPOGRAPHY
+     1. TYPOGRAPHY & FONT SYSTEM
      -------------------------------------------------------------------------- */
-  --font-family: 'IBM Plex Sans Arabic', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-family: 'IBM Plex Sans Arabic', 'Cairo', system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   --font-sans: var(--font-family);
 
-  /* Compact Scales */
+  /* Fluid Type Scale */
   --fs-display: clamp(1.25rem, 4vw, 1.45rem);
   --fs-title: clamp(1.05rem, 3vw, 1.2rem);
   --fs-body: clamp(0.85rem, 2.5vw, 0.95rem);
   --fs-subtext: 0.78rem;
   --fs-micro: 0.72rem;
 
-  /* --------------------------------------------------------------------------
-     2. COLOR SYSTEM (Claude-Inspired Muted Warm Dark Palette)
-     -------------------------------------------------------------------------- */
-  --bg-app: #0e131f;
-  --bg-surface: #151c2e;
-  --bg-surface-elevated: #1c253c;
-  --border-subtle: rgba(255, 255, 255, 0.07);
-  --border-hover: rgba(255, 255, 255, 0.14);
-  --text-main: #f8fafc;
-  --text-muted: #94a3b8;
-  --text-faint: #64748b;
+  /* Font Weights */
+  --fw-normal: 400;
+  --fw-medium: 500;
+  --fw-semibold: 600;
+  --fw-bold: 700;
+  --fw-extrabold: 800;
 
-  /* Brand & Medical */
+  /* --------------------------------------------------------------------------
+     2. COLOR SYSTEM (LIGHT MODE - DEFAULT CLINIC BASELINE)
+     -------------------------------------------------------------------------- */
+  /* Brand & Primary */
   --primary: #0284c7;
   --primary-hover: #0369a1;
-  --primary-tint: rgba(2, 132, 199, 0.14);
+  --primary-light: #e0f2fe;
+  --primary-subtle: #f0f9ff;
+  --primary-dark: #072032;
+  --primary-tint: rgba(2, 132, 199, 0.12);
+  --primary-gradient: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
 
-  /* Functional Colors */
+  /* Neutrals & Secondary */
+  --secondary: #64748b;
+  --secondary-light: #f1f5f9;
+
+  /* Semantic Feedback Colors */
+  --success: #10b981;
+  --success-light: #d1fae5;
+  --warning: #f59e0b;
+  --warning-light: #fef3c7;
+  --danger: #ef4444;
+  --danger-light: #fee2e2;
+
+  /* Specialized Medical & Accent Colors */
   --emerald: #10b981;
   --emerald-tint: rgba(16, 185, 129, 0.12);
   --amber: #f59e0b;
   --amber-tint: rgba(245, 158, 11, 0.12);
-  --rose: #f43f5e;
-  --rose-tint: rgba(244, 63, 94, 0.12);
+  --rose: #ef4444;
+  --rose-tint: rgba(239, 68, 68, 0.12);
   --whatsapp: #25d366;
   --whatsapp-tint: rgba(37, 211, 102, 0.12);
 
-  /* Semantic Aliases & Compatibility */
-  --success: #10b981;
-  --success-light: var(--emerald-tint);
-  --warning: #f59e0b;
-  --warning-light: var(--amber-tint);
-  --danger: #f43f5e;
-  --danger-light: var(--rose-tint);
-
-  /* Gender Identity Subtle Edge Colors */
+  /* Gender Accent Indicators */
   --male: #38bdf8;
   --male-edge: rgba(56, 189, 248, 0.6);
   --male-tint: rgba(56, 189, 248, 0.12);
@@ -62,63 +68,129 @@
   --female-edge: rgba(244, 114, 182, 0.6);
   --female-tint: rgba(244, 114, 182, 0.12);
 
-  /* Surface & Border Backwards Compatibility */
-  --bg-main: var(--bg-app);
-  --bg-subtle: var(--bg-surface-elevated);
-  --border-color: var(--border-subtle);
+  /* Specialized Clinical Programs */
+  --prog-scoliosis: #0284c7;
+  --prog-hemiplegia: #8b5cf6;
+  --prog-quadriplegia: #d97706;
+
+  /* Surfaces & Backgrounds (Light Mode) */
+  --bg-main: #f8fafc;
+  --bg-app: #f8fafc;
+  --bg-surface: #ffffff;
+  --bg-surface-elevated: #f1f5f9;
+  --bg-subtle: #f1f5f9;
+
+  /* Text & Borders (Light Mode) */
+  --text-main: #0f172a;
+  --text-muted: #64748b;
+  --text-faint: #94a3b8;
+  --border-color: #e2e8f0;
+  --border-subtle: #e2e8f0;
+  --border-hover: #cbd5e1;
+
+  /* Glassmorphism Variables (Light Mode) */
+  --bg-glass: rgba(255, 255, 255, 0.78);
+  --bg-glass-card: rgba(255, 255, 255, 0.82);
+  --bg-glass-subtle: rgba(241, 245, 249, 0.65);
+  --glass-border: rgba(255, 255, 255, 0.7);
+  --glass-blur: blur(20px) saturate(180%);
+  --glass-shadow: 0 8px 32px 0 rgba(2, 132, 199, 0.08);
 
   /* --------------------------------------------------------------------------
-     3. GEOMETRIC PROPORTIONS (Squircles & Corners, Elevation & Depth)
+     3. SPACING SCALE (MODULAR 4PX GRID)
+     -------------------------------------------------------------------------- */
+  --space-0: 0;
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-10: 40px;
+  --space-12: 48px;
+
+  /* --------------------------------------------------------------------------
+     4. GEOMETRIC PROPORTIONS (SQUIRCLES, RADIUS & SHADOWS)
      -------------------------------------------------------------------------- */
   --radius-xs: 6px;
-  --radius-sm: 8px;
+  --radius-sm: 10px;
   --radius-squircle: 10px;
-  --radius-card: 16px;
   --radius-md: 16px;
-  --radius-lg: 20px;
+  --radius-card: 16px;
+  --radius-lg: 22px;
   --radius-xl: 28px;
   --radius-full: 9999px;
   --radius-pill: 9999px;
 
-  /* Elevation & Depth */
-  --shadow-sm: 0 2px 6px -1px rgba(0, 0, 0, 0.2);
-  --shadow-card: 0 4px 18px rgba(0, 0, 0, 0.28);
-  --shadow-sticky: 0 10px 25px rgba(0, 0, 0, 0.45);
-  --shadow-md: var(--shadow-card);
-  --shadow-lg: 0 16px 32px -4px rgba(0, 0, 0, 0.45);
+  /* Elevation & Shadows (Light Mode) */
+  --shadow-xs: 0 1px 2px rgba(15, 23, 42, 0.04);
+  --shadow-sm: 0 2px 6px -1px rgba(15, 23, 42, 0.05), 0 1px 3px -1px rgba(15, 23, 42, 0.03);
+  --shadow-md: 0 6px 18px -3px rgba(15, 23, 42, 0.07), 0 3px 8px -2px rgba(15, 23, 42, 0.04);
+  --shadow-lg: 0 16px 32px -4px rgba(15, 23, 42, 0.09), 0 6px 12px -4px rgba(15, 23, 42, 0.04);
+  --shadow-card: var(--shadow-md);
+  --shadow-glow: 0 8px 22px -4px rgba(2, 132, 199, 0.3);
+  --shadow-sticky: 0 10px 25px rgba(15, 23, 42, 0.08);
 
   /* App Shell Geometry */
-  --topbar-height: 60px;
-  --bottom-nav-height: 64px;
   --sidebar-width: 260px;
+  --bottom-nav-height: 68px;
+  --topbar-height: 60px;
   --max-content-width: 1440px;
 }
 
 /* ----------------------------------------------------------------------------
-   Light Mode ([data-theme="light"])
+   5. MODERN DARK THEME TOKENS ([data-theme="dark"])
+   100% Harmonic Parity with ASCPT Production Dark Mode
    ---------------------------------------------------------------------------- */
-[data-theme="light"] {
-  --bg-app: #f8fafc;
-  --bg-surface: #ffffff;
-  --bg-surface-elevated: #f1f5f9;
-  --border-subtle: #e2e8f0;
-  --border-hover: #cbd5e1;
-  --text-main: #0f172a;
-  --text-muted: #475569;
-  --text-faint: #94a3b8;
+[data-theme="dark"] {
+  /* Surfaces & Backgrounds */
+  --bg-main: #0b1120;
+  --bg-app: #0b1120;
+  --bg-surface: #1e293b;
+  --bg-surface-elevated: #1e293b;
+  --bg-subtle: #0f172a;
 
-  --bg-main: var(--bg-app);
-  --bg-subtle: var(--bg-surface-elevated);
-  --border-color: var(--border-subtle);
+  /* Text & Borders */
+  --text-main: #f8fafc;
+  --text-muted: #94a3b8;
+  --text-faint: #64748b;
+  --border-color: #334155;
+  --border-subtle: #334155;
+  --border-hover: rgba(255, 255, 255, 0.15);
 
-  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.05);
-  --shadow-card: 0 4px 18px rgba(0, 0, 0, 0.06);
-  --shadow-sticky: 0 10px 25px rgba(0, 0, 0, 0.08);
+  /* Brand & Primary (Luminous Sky Blue for Dark Theme) */
+  --primary: #38bdf8;
+  --primary-hover: #0ea5e9;
+  --primary-light: rgba(56, 189, 248, 0.15);
+  --primary-subtle: rgba(56, 189, 248, 0.08);
+  --primary-tint: rgba(56, 189, 248, 0.15);
+  --primary-gradient: linear-gradient(135deg, #0284c7 0%, #0ea5e9 100%);
+
+  /* Neutrals & Secondary */
+  --secondary: #94a3b8;
+  --secondary-light: rgba(148, 163, 184, 0.15);
+
+  /* Semantic Feedback Colors */
+  --success: #34d399;
+  --success-light: rgba(52, 211, 153, 0.15);
+  --warning: #fbbf24;
+  --warning-light: rgba(251, 191, 36, 0.15);
+  --danger: #f87171;
+  --danger-light: rgba(248, 113, 113, 0.15);
+
+  /* Glassmorphism Variables (Dark Mode) */
+  --bg-glass: rgba(15, 23, 42, 0.75);
+  --bg-glass-card: rgba(30, 41, 59, 0.72);
+  --bg-glass-subtle: rgba(15, 23, 42, 0.65);
+  --glass-border: rgba(255, 255, 255, 0.1);
+  --glass-blur: blur(20px) saturate(180%);
+  --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.45);
+
+  /* Elevation & Shadows (Dark Mode) */
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.35);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.45), 0 2px 4px -2px rgba(0, 0, 0, 0.35);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.55), 0 4px 6px -4px rgba(0, 0, 0, 0.45);
+  --shadow-card: var(--shadow-md);
+  --shadow-sticky: 0 10px 25px rgba(0, 0, 0, 0.45);
 }
-
-/* ----------------------------------------------------------------------------
-   4. RESPONSIVE BREAKPOINTS (3 Tiers Specification)
-   Tier 1 - Mobile:          < 768px        (1 Column / Full-width cards / Bottom Navigation)
-   Tier 2 - Tablet:          768px - 1023px (2 Columns Grid / Collapsible or Persistent Rail)
-   Tier 3 - Desktop/Laptop:  >= 1024px      (3 Columns Grid / Permanent Sidebar / 1440px max-width)
-   ---------------------------------------------------------------------------- */
