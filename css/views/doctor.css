@@ -1,0 +1,786 @@
+/* ==========================================================================
+   ASCPT CLINIC PWA - DOCTOR PERSONAL CLINICAL DASHBOARD VIEW
+   File: css/views/doctor.css
+   Scope: Doctor Personal Dashboard, KPI Cards, Earnings & Program Chips,
+          Weekly Schedule Grid & Stack Deck, 2x2 Sessions Filter,
+          Personal Patients Table & Mobile Cards (Steps 48-51)
+   Clean Specificity: Zero !important & Strict Theme Isolation
+   ========================================================================== */
+
+/* ----------------------------------------------------------------------------
+   1. Doctor Dashboard Container & Shell Spacing
+   ---------------------------------------------------------------------------- */
+#dashboard-doctor-view {
+  width: 100%;
+  max-width: var(--max-content-width, 1440px);
+  margin: 0 auto;
+  padding-bottom: 24px;
+}
+
+.doc-card-spaced {
+  margin-top: 20px;
+}
+
+/* ----------------------------------------------------------------------------
+   2. Doctor Hero Banner Theme
+   ---------------------------------------------------------------------------- */
+.hero-doctor-banner {
+  background: linear-gradient(135deg, #0f172a 0%, #4338ca 100%);
+  box-shadow: 0 12px 28px -6px rgba(67, 56, 202, 0.35);
+}
+
+.hero-doctor-banner .btn-hero-action {
+  color: #4338ca;
+}
+
+[data-theme="dark"] .hero-doctor-banner {
+  background: linear-gradient(135deg, #090d16 0%, #3730a3 100%);
+  border-color: rgba(99, 102, 241, 0.25);
+  box-shadow: 0 12px 30px -6px rgba(0, 0, 0, 0.6);
+}
+
+/* ----------------------------------------------------------------------------
+   3. Doctor Personal KPI Stats Grid (Hero Metric Stack)
+   ---------------------------------------------------------------------------- */
+.doc-kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  width: 100%;
+  margin-bottom: 16px;
+  box-sizing: border-box;
+}
+
+@media screen and (min-width: 992px) {
+  .doc-kpi-grid {
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+  }
+}
+
+.doc-kpi-card {
+  background: var(--bg-surface);
+  border: 1.5px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  box-shadow: var(--shadow-sm);
+  box-sizing: border-box;
+  min-height: 114px;
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+:root:not([data-theme="dark"]) .doc-kpi-card {
+  background: linear-gradient(145deg, #ffffff 0%, #f8fafc 100%);
+  border-color: rgba(226, 232, 240, 0.95);
+  box-shadow: 0 4px 14px rgba(15, 23, 42, 0.04);
+}
+
+[data-theme="dark"] .doc-kpi-card {
+  background: linear-gradient(145deg, #1e293b 0%, #0f172a 100%);
+  border-color: rgba(56, 189, 248, 0.18);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25);
+}
+
+.doc-kpi-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+  border-color: rgba(2, 132, 199, 0.4);
+}
+
+.dkc-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  margin-bottom: 6px;
+}
+
+.dkc-title {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  line-height: 1.2;
+}
+
+.dkc-mini-icon {
+  width: 30px;
+  height: 30px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.85rem;
+  flex-shrink: 0;
+}
+
+.dkc-mini-icon.blue { background: rgba(2, 132, 199, 0.12); color: var(--primary); }
+.dkc-mini-icon.green { background: rgba(16, 185, 129, 0.12); color: var(--success); }
+.dkc-mini-icon.purple { background: rgba(139, 92, 246, 0.12); color: #8b5cf6; }
+.dkc-mini-icon.amber { background: rgba(245, 158, 11, 0.12); color: var(--warning); }
+.dkc-mini-icon.teal { background: rgba(20, 184, 166, 0.14); color: #0d9488; }
+
+[data-theme="dark"] .dkc-mini-icon.teal {
+  background: rgba(20, 184, 166, 0.22);
+  color: #2dd4bf;
+}
+
+.dkc-metric {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  margin-bottom: 4px;
+}
+
+.dkc-value {
+  font-size: 1.85rem;
+  font-weight: 900;
+  color: var(--text-main);
+  line-height: 1;
+  letter-spacing: -0.5px;
+  font-family: 'IBM Plex Sans Arabic', 'Cairo', system-ui, sans-serif;
+}
+
+.dkc-unit {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--text-muted);
+}
+
+.dkc-breakdown-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 4px;
+  flex-wrap: nowrap;
+}
+
+.dkc-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 8px;
+  border-radius: 6px;
+  font-size: 0.74rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.dkc-pill.cash {
+  background: rgba(16, 185, 129, 0.12);
+  color: var(--success);
+  border: 1px solid rgba(16, 185, 129, 0.25);
+}
+
+.dkc-pill.ins {
+  background: rgba(2, 132, 199, 0.12);
+  color: var(--primary);
+  border: 1px solid rgba(2, 132, 199, 0.25);
+}
+
+.dkc-sub {
+  font-size: 0.73rem;
+  color: var(--text-muted);
+  font-weight: 600;
+  line-height: 1.2;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ----------------------------------------------------------------------------
+   4. Doctor Monthly Earnings Card & Clinical Programs Breakdown
+   ---------------------------------------------------------------------------- */
+.doc-earnings-kpi-card {
+  margin-top: 14px;
+  background: var(--bg-surface);
+  border: 1.5px solid rgba(16, 185, 129, 0.35);
+  border-radius: var(--radius-lg);
+  padding: 16px;
+  box-shadow: var(--shadow-sm);
+}
+
+.doc-earnings-main-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.doc-earnings-info-group {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.doc-earnings-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  font-size: 1.35rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(16, 185, 129, 0.14);
+  color: var(--success);
+}
+
+.doc-earnings-details {
+  display: flex;
+  flex-direction: column;
+}
+
+.doc-earnings-title {
+  font-size: 0.84rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.doc-earnings-value {
+  font-size: 1.5rem;
+  font-weight: 900;
+  color: var(--success);
+  margin-top: 2px;
+}
+
+.doc-earnings-badge-wrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.doc-month-sessions-badge {
+  background: rgba(2, 132, 199, 0.1);
+  color: var(--primary);
+  font-size: 0.82rem;
+  font-weight: 800;
+  padding: 6px 12px;
+  border-radius: 999px;
+  border: 1px solid rgba(2, 132, 199, 0.25);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.doc-programs-breakdown-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 12px;
+  padding-top: 10px;
+  border-top: 1px dashed var(--border-color);
+}
+
+.doc-prog-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: 9px;
+  font-size: 0.82rem;
+  background: var(--bg-subtle);
+  border: 1px solid var(--border-color);
+  color: var(--text-main);
+  transition: all 0.2s ease;
+}
+
+.doc-prog-chip .doc-prog-icon {
+  font-size: 0.85rem;
+  color: var(--primary);
+}
+
+.doc-prog-chip.chip-regular {
+  background: rgba(2, 132, 199, 0.08);
+  border-color: rgba(2, 132, 199, 0.25);
+  color: var(--text-main);
+}
+.doc-prog-chip.chip-regular .doc-prog-icon {
+  color: var(--primary);
+}
+
+.doc-prog-chip.chip-scoliosis {
+  background: rgba(2, 132, 199, 0.12);
+  border-color: rgba(2, 132, 199, 0.35);
+  color: #0284c7;
+}
+
+.doc-prog-chip.chip-hemiplegia {
+  background: rgba(245, 158, 11, 0.12);
+  border-color: rgba(245, 158, 11, 0.35);
+  color: #b45309;
+}
+[data-theme="dark"] .doc-prog-chip.chip-hemiplegia {
+  color: #fbbf24;
+}
+
+.doc-prog-chip.chip-quadriplegia {
+  background: rgba(147, 51, 234, 0.12);
+  border-color: rgba(147, 51, 234, 0.35);
+  color: #7e22ce;
+}
+[data-theme="dark"] .doc-prog-chip.chip-quadriplegia {
+  color: #c084fc;
+}
+
+.doc-prog-chip.chip-other {
+  background: rgba(16, 185, 129, 0.1);
+  border-color: rgba(16, 185, 129, 0.3);
+  color: #059669;
+}
+
+[data-theme="dark"] .doc-prog-chip {
+  background: #1e293b;
+  border-color: #334155;
+  color: #f1f5f9;
+}
+
+.doc-prog-name {
+  font-weight: 700;
+}
+
+.doc-prog-count {
+  font-weight: 800;
+  font-size: 0.8rem;
+}
+
+.doc-prog-dues {
+  font-weight: 800;
+  font-size: 0.78rem;
+  opacity: 0.9;
+}
+
+.doc-date-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 8px;
+  background: var(--bg-subtle);
+  border: 1px solid var(--border-color);
+  border-radius: 999px;
+  font-size: 0.73rem;
+  font-weight: 700;
+  color: var(--text-main);
+  margin: 1px;
+}
+
+.doc-earnings-formula-hint {
+  font-size: 0.76rem;
+  color: var(--text-muted);
+  margin-top: 10px;
+  border-top: 1px dashed var(--border-color);
+  padding-top: 6px;
+}
+
+/* ----------------------------------------------------------------------------
+   5. Doctor Weekly Appointments Schedule & Stack Deck
+   ---------------------------------------------------------------------------- */
+#my-appointments-grid {
+  display: block;
+  width: 100%;
+}
+
+.doc-appts-skeleton-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 10px 0;
+}
+
+/* Mobile Unwrap for Doctor Appointments Schedule */
+@media screen and (max-width: 767px) {
+  #card-doctor-appointments-schedule {
+    background: transparent;
+    border: none;
+    box-shadow: none;
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    padding: 0;
+    margin-top: 10px;
+    margin-bottom: 14px;
+  }
+
+  #card-doctor-appointments-schedule > .card-header {
+    background: transparent;
+    border: none;
+    padding: 6px 4px 12px 4px;
+  }
+
+  #card-doctor-appointments-schedule .table-responsive {
+    background: transparent;
+    border: none;
+    box-shadow: none;
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    overflow: visible;
+    padding: 0;
+  }
+}
+
+/* Desktop Grid View for Doctor Schedule Stack */
+@media screen and (min-width: 768px) {
+  #my-appointments-grid .doc-stack-wrapper {
+    display: block;
+    width: 100%;
+  }
+
+  #my-appointments-grid .doc-stack-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 16px;
+    min-height: auto;
+    perspective: none;
+    padding: 4px 0 10px 0;
+    position: static;
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  #my-appointments-grid .doc-stack-card {
+    position: relative;
+    top: auto;
+    left: auto;
+    right: auto;
+    bottom: auto;
+    height: auto;
+    transform: none;
+    opacity: 1;
+    visibility: visible;
+    z-index: 1;
+    pointer-events: auto;
+    will-change: auto;
+    box-shadow: var(--shadow-sm);
+    border-color: var(--border-color);
+    cursor: default;
+    transition: box-shadow 0.2s ease, border-color 0.2s ease;
+    margin-bottom: 0;
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  #my-appointments-grid .doc-stack-card:hover {
+    border-color: rgba(2, 132, 199, 0.4);
+    box-shadow: var(--shadow-md);
+  }
+
+  #my-appointments-grid .doc-stack-nav-bar,
+  #my-appointments-grid #btn-toggle-doc-stack-layout,
+  #my-appointments-grid #doc-stack-counter,
+  #my-appointments-grid .doc-stack-header-bar {
+    display: none;
+  }
+}
+
+/* Doctor Schedule Filter Bar (Remaining vs Completed) */
+.doc-schedule-filter-bar {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+  background: var(--bg-subtle);
+  border: 1px solid var(--border-color);
+  padding: 4px;
+  border-radius: 12px;
+  margin-bottom: 14px;
+}
+
+[data-theme="dark"] .doc-schedule-filter-bar {
+  background: #0f172a;
+  border-color: #1e293b;
+}
+
+.filter-tab-pill {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  height: 42px;
+  border-radius: 9px;
+  cursor: pointer;
+  font-size: 0.86rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  user-select: none;
+}
+
+.filter-tab-pill:hover:not(.active) {
+  color: var(--text-main);
+  background: rgba(0, 0, 0, 0.03);
+}
+
+[data-theme="dark"] .filter-tab-pill:hover:not(.active) {
+  color: #f1f5f9;
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.filter-tab-pill.active {
+  background: var(--bg-surface);
+  color: var(--primary);
+  font-weight: 800;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+[data-theme="dark"] .filter-tab-pill.active {
+  background: #1e293b;
+  color: #38bdf8;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+}
+
+.filter-tab-pill .filter-count-badge {
+  font-size: 0.74rem;
+  font-weight: 800;
+  padding: 2px 8px;
+  border-radius: var(--radius-pill);
+  background: rgba(148, 163, 184, 0.2);
+  color: var(--text-muted);
+}
+
+.filter-tab-pill.active .filter-count-badge {
+  background: var(--primary-light);
+  color: var(--primary);
+}
+
+[data-theme="dark"] .filter-tab-pill.active .filter-count-badge {
+  background: rgba(2, 132, 199, 0.25);
+  color: #38bdf8;
+}
+
+/* Patient Row & Action Buttons in Schedule Stack */
+.doc-stack-patients-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.doc-stack-patient-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 14px;
+  border-radius: 11px;
+  background: var(--bg-subtle);
+  border: 1px solid var(--border-color);
+  transition: all 0.2s ease;
+}
+
+[data-theme="dark"] .doc-stack-patient-row {
+  background: rgba(30, 41, 59, 0.7);
+  border-color: #334155;
+}
+
+.doc-stack-patient-name {
+  font-size: 0.92rem;
+  font-weight: 800;
+  color: var(--text-main);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+[data-theme="dark"] .doc-stack-patient-name {
+  color: #f1f5f9;
+}
+
+.doc-stack-patient-details {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  margin-top: 3px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+[data-theme="dark"] .doc-stack-patient-details {
+  color: #94a3b8;
+}
+
+/* Undo Button (تراجع) */
+.btn-undo-patient {
+  background: rgba(245, 158, 11, 0.12);
+  color: #d97706;
+  border: 1px solid rgba(245, 158, 11, 0.35);
+  height: 32px;
+  padding: 0 10px;
+  border-radius: 8px;
+  font-size: 0.76rem;
+  font-weight: 700;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.btn-undo-patient:hover {
+  background: rgba(245, 158, 11, 0.22);
+  border-color: #d97706;
+  transform: translateY(-1px);
+}
+
+[data-theme="dark"] .btn-undo-patient {
+  background: rgba(245, 158, 11, 0.18);
+  color: #fbbf24;
+  border-color: rgba(245, 158, 11, 0.4);
+}
+
+[data-theme="dark"] .btn-undo-patient:hover {
+  background: rgba(245, 158, 11, 0.28);
+  border-color: #fbbf24;
+}
+
+/* Complete Button (تم) */
+.btn-complete-patient {
+  background: var(--success);
+  color: #ffffff;
+  border: none;
+  height: 34px;
+  padding: 0 14px;
+  border-radius: 8px;
+  font-size: 0.82rem;
+  font-weight: 800;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  box-shadow: 0 2px 6px rgba(16, 185, 129, 0.3);
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.btn-complete-patient:hover {
+  background: #059669;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 10px rgba(16, 185, 129, 0.4);
+}
+
+/* ----------------------------------------------------------------------------
+   6. Doctor Personal Patients Sessions Card & 2x2 Filter Grid
+   ---------------------------------------------------------------------------- */
+.doc-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 8px;
+}
+
+.doc-card-title {
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 1.05rem;
+  font-weight: 800;
+}
+
+.doc-filter-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  background: var(--bg-subtle);
+  border: 1.5px solid var(--border-color);
+  border-radius: 14px;
+  padding: 6px;
+  gap: 6px;
+  margin: 4px 14px 14px 14px;
+  box-sizing: border-box;
+}
+
+.doc-filter-grid .doc-seg-btn {
+  border: 1px solid transparent;
+  border-radius: 10px;
+  padding: 8px 8px;
+  font-size: 0.82rem;
+  font-weight: 800;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  color: var(--text-muted);
+  background: transparent;
+  min-height: 38px;
+  box-sizing: border-box;
+}
+
+:root:not([data-theme="dark"]) .doc-filter-grid .doc-seg-btn.active {
+  background: #ffffff;
+  color: #0284c7;
+  border-color: rgba(2, 132, 199, 0.2);
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.08);
+}
+
+[data-theme="dark"] .doc-filter-grid .doc-seg-btn.active {
+  background: #1e293b;
+  color: #38bdf8;
+  border-color: rgba(56, 189, 248, 0.3);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.4);
+}
+
+@media (min-width: 768px) {
+  .doc-filter-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+/* Table Skeleton & Alignment */
+.th-action-center {
+  text-align: center;
+}
+
+.doc-skeleton-cell {
+  padding: 12px;
+}
+
+.doc-skeleton-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+/* ----------------------------------------------------------------------------
+   7. Handcrafted Dedicated Mobile Cards for Doctor's Sessions
+   ---------------------------------------------------------------------------- */
+#doctor-personal-mobile-cards {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.doc-skeleton-card-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.doc-skeleton-card-user {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.doc-skeleton-card-text {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.doc-skeleton-card-bottom {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 8px;
+  border-top: 1px dashed var(--border-color, #e2e8f0);
+}

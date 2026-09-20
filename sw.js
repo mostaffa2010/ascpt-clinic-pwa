@@ -23,6 +23,7 @@ const APP_SHELL_ASSETS = [
   '/css/views/shell.css',
   '/css/views/reception.css',
   '/css/views/patients.css',
+  '/css/views/doctor.css',
   '/css/style.css',
   '/css/style.css?v=1.4.3',
   '/css/print.css',

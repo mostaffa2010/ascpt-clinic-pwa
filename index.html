@@ -150,6 +150,7 @@
   <link rel="stylesheet" href="css/views/shell.css?v=2.10.42" media="screen">
   <link rel="stylesheet" href="css/views/reception.css?v=2.10.42" media="screen">
   <link rel="stylesheet" href="css/views/patients.css?v=2.10.42" media="screen">
+  <link rel="stylesheet" href="css/views/doctor.css?v=2.10.42" media="screen">
   <link rel="stylesheet" href="css/style.css?v=2.10.42" media="screen">
   <link rel="stylesheet" href="css/print.css?v=2.10.42" media="print">
 </head>
@@ -604,48 +605,48 @@
           </div>
 
           <!-- Doctor Monthly Earnings KPI Card (Option 1: Clinical Programs & Dynamic Chips - v2.2.2) -->
-          <div class="card doc-earnings-kpi-card" id="card-doctor-monthly-earnings" style="margin-top: 14px; background: var(--bg-surface); border: 1.5px solid rgba(16, 185, 129, 0.35); border-radius: var(--radius-lg); padding: 16px; box-shadow: var(--shadow-sm);">
-            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
-              <div style="display: flex; align-items: center; gap: 12px;">
-                <div class="stat-icon green" style="width: 48px; height: 48px; border-radius: 12px; font-size: 1.35rem; display: flex; align-items: center; justify-content: center; background: rgba(16, 185, 129, 0.14); color: var(--success);">
+          <div class="card doc-earnings-kpi-card" id="card-doctor-monthly-earnings">
+            <div class="doc-earnings-main-row">
+              <div class="doc-earnings-info-group">
+                <div class="stat-icon green doc-earnings-icon">
                   <i class="fa-solid fa-coins"></i>
                 </div>
-                <div>
-                  <div style="font-size: 0.84rem; font-weight: 700; color: var(--text-muted); display: flex; align-items: center; gap: 6px;">
+                <div class="doc-earnings-details">
+                  <div class="doc-earnings-title">
                     <i class="fa-regular fa-calendar-days text-primary"></i> <span>مستحقات وأتعاب هذا الشهر (تراكمي)</span>
                   </div>
-                  <div style="font-size: 1.5rem; font-weight: 900; color: var(--success); margin-top: 2px;" id="stat-doc-earnings-total">
+                  <div class="doc-earnings-value" id="stat-doc-earnings-total">
                     0 ج.م
                   </div>
                 </div>
               </div>
 
               <!-- Total Month Sessions Badge -->
-              <div style="display: flex; align-items: center; gap: 8px;">
-                <span class="badge" id="stat-doc-month-total-sessions" style="background: rgba(2, 132, 199, 0.1); color: var(--primary); font-size: 0.82rem; font-weight: 800; padding: 6px 12px; border-radius: 999px; border: 1px solid rgba(2, 132, 199, 0.25); display: inline-flex; align-items: center; gap: 6px;">
+              <div class="doc-earnings-badge-wrap">
+                <span class="badge doc-month-sessions-badge" id="stat-doc-month-total-sessions">
                   <i class="fa-solid fa-clipboard-check"></i> <span>0 جلسة منجزة هذا الشهر</span>
                 </span>
               </div>
             </div>
 
             <!-- Dynamic Clinical Programs Chips Container -->
-            <div class="doc-programs-breakdown-row" id="stat-doc-programs-container" style="display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; padding-top: 10px; border-top: 1px dashed var(--border-color);">
+            <div class="doc-programs-breakdown-row" id="stat-doc-programs-container">
               <!-- Rendered dynamically: Only active clinical programs will appear -->
             </div>
 
-            <div id="stat-doc-earnings-formula-hint" style="font-size: 0.76rem; color: var(--text-muted); margin-top: 10px; border-top: 1px dashed var(--border-color); padding-top: 6px;">
+            <div class="doc-earnings-formula-hint" id="stat-doc-earnings-formula-hint">
               <!-- Rates hint / status -->
             </div>
           </div>
 
           <!-- Doctor's Own Weekly Appointments Schedule -->
-          <div class="card" id="card-doctor-appointments-schedule" style="margin-top: 20px;">
+          <div class="card doc-card-spaced" id="card-doctor-appointments-schedule">
             <div class="card-header">
               <span class="card-title"><i class="fa-solid fa-calendar-week"></i> جدولي الأسبوعي</span>
             </div>
             <div class="table-responsive">
               <div id="my-appointments-grid">
-                <div style="display: flex; flex-direction: column; gap: 10px; padding: 10px 0;">
+                <div class="doc-appts-skeleton-wrap">
                   <div class="skeleton-shimmer sk-h-48"></div>
                   <div class="skeleton-shimmer sk-h-48"></div>
                 </div>
@@ -654,9 +655,9 @@
           </div>
 
           <!-- Doctor's Personal Patients Register Card -->
-          <div class="card" id="card-doctor-personal-sessions" style="margin-top: 20px;">
-            <div class="card-header" style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 8px;">
-              <div class="card-title" style="margin: 0; display: flex; align-items: center; gap: 8px; font-size: 1.05rem; font-weight: 800;">
+          <div class="card doc-card-spaced" id="card-doctor-personal-sessions">
+            <div class="card-header doc-card-header">
+              <div class="card-title doc-card-title">
                 <i class="fa-solid fa-book-medical text-primary"></i>
                 <span id="doc-table-title">جلسات مرضاك اليوم</span>
               </div>
@@ -686,29 +687,29 @@
                     <th>الأعضاء المعالجة</th>
                     <th>تاريخ / وقت الجلسة</th>
                     <th>ملاحظات الحالة</th>
-                    <th style="text-align: center;">الشيت الطبي</th>
+                    <th class="th-action-center">الشيت الطبي</th>
                   </tr>
                 </thead>
                 <tbody id="doctor-personal-tbody">
-                  <tr><td colspan="6" style="padding: 12px;"><div style="display: flex; align-items: center; gap: 12px;"><div class="skeleton-shimmer skeleton-avatar sk-avatar-32"></div><div class="skeleton-shimmer skeleton-line sk-w-25 sk-h-14"></div><div class="skeleton-shimmer skeleton-line sk-w-15 sk-h-14"></div><div class="skeleton-shimmer skeleton-line sk-w-20 sk-h-14"></div><div class="skeleton-shimmer skeleton-line sk-w-15 sk-h-14"></div></div></td></tr>
-                  <tr><td colspan="6" style="padding: 12px;"><div style="display: flex; align-items: center; gap: 12px;"><div class="skeleton-shimmer skeleton-avatar sk-avatar-32"></div><div class="skeleton-shimmer skeleton-line sk-w-28 sk-h-14"></div><div class="skeleton-shimmer skeleton-line sk-w-15 sk-h-14"></div><div class="skeleton-shimmer skeleton-line sk-w-22 sk-h-14"></div><div class="skeleton-shimmer skeleton-line sk-w-15 sk-h-14"></div></div></td></tr>
+                  <tr><td colspan="6" class="doc-skeleton-cell"><div class="doc-skeleton-row"><div class="skeleton-shimmer skeleton-avatar sk-avatar-32"></div><div class="skeleton-shimmer skeleton-line sk-w-25 sk-h-14"></div><div class="skeleton-shimmer skeleton-line sk-w-15 sk-h-14"></div><div class="skeleton-shimmer skeleton-line sk-w-20 sk-h-14"></div><div class="skeleton-shimmer skeleton-line sk-w-15 sk-h-14"></div></div></td></tr>
+                  <tr><td colspan="6" class="doc-skeleton-cell"><div class="doc-skeleton-row"><div class="skeleton-shimmer skeleton-avatar sk-avatar-32"></div><div class="skeleton-shimmer skeleton-line sk-w-28 sk-h-14"></div><div class="skeleton-shimmer skeleton-line sk-w-15 sk-h-14"></div><div class="skeleton-shimmer skeleton-line sk-w-22 sk-h-14"></div><div class="skeleton-shimmer skeleton-line sk-w-15 sk-h-14"></div></div></td></tr>
                 </tbody>
               </table>
             </div>
             <!-- Handcrafted Dedicated Mobile Cards for Doctor's Sessions -->
             <div id="doctor-personal-mobile-cards" class="mobile-only-cards-container">
               <div class="hero-styled-card skeleton-card sk-card-hero">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-                  <div style="display: flex; align-items: center; gap: 10px;">
+                <div class="doc-skeleton-card-top">
+                  <div class="doc-skeleton-card-user">
                     <div class="skeleton-shimmer skeleton-avatar sk-avatar-36"></div>
-                    <div style="display: flex; flex-direction: column; gap: 5px;">
+                    <div class="doc-skeleton-card-text">
                       <div class="skeleton-shimmer skeleton-line sk-w-130px sk-h-16"></div>
                       <div class="skeleton-shimmer skeleton-line sk-w-80px sk-h-12"></div>
                     </div>
                   </div>
                   <div class="skeleton-shimmer skeleton-badge sk-badge-65"></div>
                 </div>
-                <div style="display: flex; justify-content: space-between; align-items: center; padding-top: 8px; border-top: 1px dashed var(--border-color, #e2e8f0);">
+                <div class="doc-skeleton-card-bottom">
                   <div class="skeleton-shimmer skeleton-line sk-w-100px sk-h-12"></div>
                   <div class="skeleton-shimmer skeleton-line sk-w-45px sk-h-12"></div>
                 </div>
