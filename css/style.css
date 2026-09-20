@@ -5255,33 +5255,35 @@ body {
 }
 
 /* List Layout Toggle Override */
+.doc-stack-wrapper .doc-stack-container.is-list-layout,
 .doc-stack-container.is-list-layout {
-  display: flex !important;
-  flex-direction: column !important;
-  gap: 14px !important;
-  min-height: auto !important;
-  height: auto !important;
-  padding-left: 0 !important;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  min-height: auto;
+  height: auto;
+  padding-left: 0;
 }
 
+.doc-stack-wrapper .doc-stack-container.is-list-layout .doc-stack-card,
 .doc-stack-container.is-list-layout .doc-stack-card {
-  position: relative !important;
-  top: auto !important;
-  left: auto !important;
-  right: auto !important;
-  bottom: auto !important;
-  height: auto !important;
-  min-height: fit-content !important;
-  width: 100% !important;
-  flex: 0 0 auto !important;
-  flex-shrink: 0 !important;
-  transform: none !important;
-  opacity: 1 !important;
-  visibility: visible !important;
-  z-index: 1 !important;
-  pointer-events: auto !important;
-  overflow: visible !important;
-  will-change: auto !important;
+  position: relative;
+  top: auto;
+  left: auto;
+  right: auto;
+  bottom: auto;
+  height: auto;
+  min-height: fit-content;
+  width: 100%;
+  flex: 0 0 auto;
+  flex-shrink: 0;
+  transform: none;
+  opacity: 1;
+  visibility: visible;
+  z-index: 1;
+  pointer-events: auto;
+  overflow: visible;
+  will-change: auto;
 }
 
 .doc-stack-nav-bar {

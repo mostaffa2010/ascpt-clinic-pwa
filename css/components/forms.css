@@ -1,0 +1,102 @@
+/* ==========================================================================
+   ASCPT CLINIC PWA - FORMS & INPUT CONTROLS COMPONENT
+   File: css/components/forms.css
+   Scope: Unified Modern Inputs, Custom Select Pickers, Zero Native Controls (Steps 32-33)
+   ========================================================================== */
+
+/* ----------------------------------------------------------------------------
+   1. Base Input Controls
+   ---------------------------------------------------------------------------- */
+.form-control,
+.modern-input {
+  width: 100%;
+  height: 44px;
+  padding: 0 14px;
+  background-color: var(--bg-surface);
+  border: 1.5px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  color: var(--text-main);
+  font-family: inherit;
+  font-size: var(--fs-body);
+  font-weight: 500;
+  outline: none;
+  transition: border-color 0.18s ease, box-shadow 0.18s ease;
+  box-sizing: border-box;
+}
+
+.form-control:focus,
+.modern-input:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px var(--primary-tint);
+}
+
+.form-group {
+  margin-bottom: var(--space-4);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.form-group label {
+  font-size: var(--fs-subtext);
+  font-weight: 700;
+  color: var(--text-muted);
+}
+
+/* ----------------------------------------------------------------------------
+   2. Zero Native Form Controls: Custom Select Wrapper
+   ---------------------------------------------------------------------------- */
+.custom-select-wrapper {
+  position: relative;
+  width: 100%;
+}
+
+.custom-select-btn,
+.modern-select-btn {
+  width: 100%;
+  height: 44px;
+  padding: 0 14px;
+  background-color: var(--bg-surface);
+  border: 1.5px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  color: var(--text-main);
+  font-family: inherit;
+  font-size: var(--fs-body);
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+  text-align: right;
+  transition: border-color 0.18s ease, box-shadow 0.18s ease;
+  box-sizing: border-box;
+}
+
+.custom-select-btn:hover,
+.modern-select-btn:hover {
+  border-color: var(--border-hover);
+}
+
+.custom-select-btn:focus,
+.modern-select-btn:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px var(--primary-tint);
+}
+
+.custom-select-arrow {
+  color: var(--text-muted);
+  font-size: 0.8rem;
+  transition: transform 0.2s ease;
+}
+
+/* ----------------------------------------------------------------------------
+   3. Custom Localized Date Picker Trigger
+   ---------------------------------------------------------------------------- */
+.date-picker-clickable {
+  cursor: pointer !important;
+  background-color: var(--bg-surface) !important;
+}
+
+.date-picker-clickable:hover {
+  border-color: var(--primary);
+}

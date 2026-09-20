@@ -1,0 +1,57 @@
+/* ==========================================================================
+   ASCPT CLINIC PWA - TABLES & DATA GRIDS COMPONENT
+   File: css/components/tables.css
+   Scope: Unified Medical Data Tables, Top Scrollbars & Responsive Wrappers (Step 34)
+   ========================================================================== */
+
+/* ----------------------------------------------------------------------------
+   1. Base Medical Data Table
+   ---------------------------------------------------------------------------- */
+.table-responsive {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-color);
+  background-color: var(--bg-surface);
+}
+
+.data-table,
+table.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: right;
+  direction: rtl;
+  font-size: var(--fs-body);
+}
+
+.data-table th {
+  background-color: var(--bg-subtle);
+  color: var(--text-muted);
+  font-weight: 700;
+  font-size: var(--fs-subtext);
+  padding: 12px 14px;
+  border-bottom: 1.5px solid var(--border-color);
+  white-space: nowrap;
+}
+
+.data-table td {
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--border-color);
+  color: var(--text-main);
+  vertical-align: middle;
+}
+
+.data-table tr:hover td {
+  background-color: var(--bg-surface-elevated);
+}
+
+/* Top Scrollbar Synchronizer Wrapper */
+.top-scrollbar-wrapper {
+  overflow-x: auto;
+  overflow-y: hidden;
+  height: 12px;
+  margin-bottom: 6px;
+  border-radius: 4px;
+  background: var(--bg-subtle);
+}
