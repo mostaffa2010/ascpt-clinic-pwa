@@ -808,7 +808,7 @@ function evaluatePreSettledStatus(isCheckboxChecked) {
 assert.equal(evaluatePreSettledStatus(false), false, 'When checkbox is unchecked, status must be false regardless of date');
 assert.equal(evaluatePreSettledStatus(true), true, 'When checkbox is checked, status must be true');
 
-const sampleBatchSessionsUnchecked = Array.from({ length: 12 }, (_, i) => ({
+const sampleBatchSessionsUnchecked = Array.from({ length: 12 }, () => ({
   date: `2026-06-24`,
   isPreSettled: evaluatePreSettledStatus(false)
 }));

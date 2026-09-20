@@ -2105,7 +2105,7 @@ class App {
   }
 
   // ================= Open Session Form Pre-filled for Finished Patient (v2.10.27) =================
-  async openSessionForAppointment({ apptId, patientId, patientName, docUid, docName }) {
+  async openSessionForAppointment({ apptId, patientId, patientName, docUid: _docUid, docName }) {
     this.switchView('sessions');
     if (patientId && this.sessionsManager) {
       await this.sessionsManager.selectPatient(patientId);

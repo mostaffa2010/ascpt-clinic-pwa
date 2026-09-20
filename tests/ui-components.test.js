@@ -327,7 +327,7 @@ console.log('✓ 21. UX Polish & Guardrails: Verified patient modal unsaved chan
 const domMapPath = path.join(rootDir, "docs/DOM_COUPLING_MAP.md");
 assert(fs.existsSync(domMapPath), "docs/DOM_COUPLING_MAP.md must exist");
 const domMapContent = fs.readFileSync(domMapPath, "utf-8");
-const staticIdsInMap = [...domMapContent.matchAll(/- #([a-zA-Z0-9_\-]+) \[موجود في index\.html\]/g)].map(m => m[1]);
+const staticIdsInMap = [...domMapContent.matchAll(/- #([a-zA-Z0-9_-]+) \[موجود في index\.html\]/g)].map(m => m[1]);
 assert(staticIdsInMap.length >= 650, "Must have at least 650 protected static IDs mapped in DOM_COUPLING_MAP.md");
 
 const missingDomIds = [];
@@ -371,7 +371,7 @@ assert.equal(
 console.log(`✓ 23. Zero !important Architecture Gatekeeper: Verified 100% clean specificity across ${viewCssFiles.length} modular view stylesheets.`);
 
 // 24. Strict Guardrail: HTML Semantic Linting & Inline Style Freeze (Step 81)
-const styleMatches = [...htmlContent.matchAll(/style=[\"\']([^\"\']+)[\"\']/g)].map(m => m[1]);
+const styleMatches = [...htmlContent.matchAll(/style=["']([^"']+)["']/g)].map(m => m[1]);
 assert.ok(
   styleMatches.length <= 700,
   `[GUARDRAIL FAILURE] Total inline styles in index.html (${styleMatches.length}) exceeded the strict threshold of 700.`

@@ -2218,7 +2218,7 @@ export class SessionsManager {
       };
 
       // 2. Partition each patient's visits into distinct letter/cycle batches
-      byPatient.forEach((patientSessions, pKey) => {
+      byPatient.forEach((patientSessions, _pKey) => {
         patientSessions.sort((a, b) => {
           const dComp = (a.date || '').localeCompare(b.date || '');
           if (dComp !== 0) return dComp;
@@ -2400,7 +2400,7 @@ export class SessionsManager {
   }
 
 
-  async deleteHomeVisitsGroup(groupIdOrPatientId, patientIdOrRef, letterRefOrName, patientNameParam) {
+  async deleteHomeVisitsGroup(groupIdOrPatientId, patientIdOrRef, letterRefOrName, _patientNameParam) {
     const currentUser = auth.getCurrentUser();
     if (!RolesManager.canDelete(currentUser)) {
       this.app.showAlert('عفواً، حذف الجلسات متاح لإدارة المركز والاستقبال فقط.', 'صلاحية غير كافية', 'warning');
@@ -2464,7 +2464,7 @@ export class SessionsManager {
   }
 
 
-  async settleHomeVisitsGroup(groupIdOrPatientId, patientIdOrRef, letterRefOrName, patientNameParam) {
+  async settleHomeVisitsGroup(groupIdOrPatientId, patientIdOrRef, letterRefOrName, _patientNameParam) {
     const currentUser = auth.getCurrentUser();
     if (!RolesManager.canDelete(currentUser)) {
       this.app.showAlert('عفواً، تسوية الجلسات متاحة لإدارة المركز والاستقبال فقط.', 'صلاحية غير كافية', 'warning');

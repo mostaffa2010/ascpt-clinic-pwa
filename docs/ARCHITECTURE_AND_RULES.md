@@ -29,8 +29,27 @@ ascpt-clinic-pwa/
 ├── README.md
 │
 ├── css/
-│   ├── style.css
-│   └── print.css
+│   ├── design-tokens.css   # Tier 1: Design tokens, CSS variables, typography, light/dark themes
+│   ├── base.css            # Tier 2: CSS reset, normalized defaults, scrollbar & typography base
+│   ├── components/         # Tier 3: Reusable UI Component Library (Zero !important)
+│   │   ├── buttons.css     # Standardized primary, secondary, outline, danger & icon buttons
+│   │   ├── cards.css       # Surface cards, interactive stats, metric grids & containers
+│   │   ├── chips-badges.css# Role, status, specialty, and contract chips & badges
+│   │   ├── forms.css       # Unified input fields, custom select pickers & control groups
+│   │   ├── modals.css      # Modal dialogs, stacked sub-modals, bottom-sheets & backdrops
+│   │   ├── skeletons.css   # Shimmer loading animations & placeholder skeletons
+│   │   └── tables.css      # Responsive data tables, sticky headers & striped data rows
+│   ├── views/              # Tier 4: Scoped Modular Screen Stylesheets (Zero !important)
+│   │   ├── shell.css       # App header, sidebar navigation, bottom nav & notification bells
+│   │   ├── reception.css   # Waiting list, daily appointments grid & patient check-in
+│   │   ├── patients.css    # Patient records, medical sheets, diagnoses & search grid
+│   │   ├── doctor.css      # Doctor dashboard, monthly stats, patient history & clinical tabs
+│   │   ├── sessions.css    # Daily sessions queue, home visits tabs, cycle tracking & batch forms
+│   │   ├── admin.css       # User access controls, clinic settings, audit logs & system tools
+│   │   ├── finance.css     # Income/expense ledgers, doctor dues, financial summary & monthly reports
+│   │   └── claims.css      # Insurance companies management, claims batching & letter printing
+│   ├── style.css           # Legacy transition sheet (shrunken by 77%, legacy fallbacks only)
+│   └── print.css           # Print Engine: WiFi-printing, receipts, reports & A5 frames
 │
 ├── js/
 │   ├── app.js          # Application coordinator
@@ -285,3 +304,33 @@ ascpt-clinic-pwa/
 - رقم الإصدار أُعيد تصفيره لـ v1.0.0 عند أول تسليم فعلي لعميل حقيقي (بعد إضافة حقل النوع للمريض وربطه بخطاب التأمين).
 - الرقم الداخلي الأخير قبل إعادة التصفير كان v2.9.8 (يغطي: إصلاح الأمان الكامل، سجل التدقيق، النسخ الاحتياطي، جدول المواعيد بالدكاترة، خطاب تجديد التأمين).
 - أي رجوع لتتبع تاريخ تعديل قديم، ابحث بالمرجع v2.9.x الداخلي مش v1.0.0.
+
+---
+
+## 39. حراس الجودة المعمارية المؤتمتة (The 25 Automated Quality Gatekeepers)
+يلتزم المشروع بحزمة اختبارات مؤتمتة صارمة (`tests/ui-components.test.js`) تحتوي على **25 حارس جودة آلي** يُمنع تماماً كسر أي منها:
+1. **Zero Native Date Pickers:** حظر عناصر `<input type="date">` والاعتماد على الكالندر المعياري.
+2. **Calendar Triggers Integrity:** التحقق من ارتباط عناصر `data-open-calendar`.
+3. **Custom Picker Integrity:** التحقق من ارتباط عناصر `data-open-picker`.
+4. **Batch Sessions Modal Compliance:** التحقق من تفعيل التبديل، الاختيار، والزر المدمج.
+5. **App Coordinator Parity:** تسجيل كافة منتقيات الأطباء والمزامنة.
+6. **Sub-Modals Navigation Parity:** حماية الانتقال بين النوافذ الفرعية وتفادي كسر التاريخ (`skipHistory`).
+7. **Contract Radio Name Parity:** مطابقة أسماء حقول أنواع التعاقد.
+8. **Patient Modal Scroll Guardrail:** ضمان مسافة التمرير الآمنة (100px bottom clearance) وسلاسة التمرير.
+9. **Insurance Claim Print Guardrail:** عزل وتنسيق طباعة المطالبات والتفويض للطباعة اللاسلكية.
+10. **Bottom Footers & Safe Print Margins:** ضبط هوامش وتذييلات بطاقات الحضور والتقارير المالية.
+11. **Medical Statement Branding:** تثبيت ترويسة واسم المركز في الإفادة الطبية.
+12. **Cash Receipt A5 Frame & Footer:** الالتزام بإطار A5 بارتفاع 194mm وتثبيت التاريخ.
+13. **Insurance Renewal Letter A5 Frame & Footer:** ضبط إطار ونموذج خطابات تجديد التأمين.
+14. **Session Edit Scroll-to-Top:** التمرير التلقائي السلس لأعلى النموذج عند التعديل والإتمام.
+15. **White-Label Centralization:** خلو الكود من أي أسماء مراكز صلبة والاعتماد على `clinic-config.js`.
+16. **Sessions Screen Home Visits Tab:** التحقق من تبويبات وحاويات ودوال الزيارات المنزلية.
+17. **ES Module Imports Integrity:** التحقق بنسبة 100% من صحة كافة استيرادات وحدات JavaScript وتصديراتها المسماة.
+18. **Minimalist Pull-to-Force-Reload:** التحقق من ودجة السحب الدائرية الأنيقة وحلقة SVG ومزامنة PWA.
+19. **Active View Persistence:** استعادة الشاشة النشطة فورياً عند إعادة تحميل الصفحة.
+20. **Doctor Rates & Cache Invalidation:** تطابق نسب الأطباء ومسح الكاش الموضعي عند التعديل.
+21. **UX Polish & Unsaved Changes Protection:** حماية نموذج المريض من الإغلاق غير المقصود عند وجود تعديلات لم تُحفظ وميض الشيمر للحسابات.
+22. **Protected DOM Coupling Integrity:** التحقق من وجود كافة المعرفات الاستاتيكية الـ 700 المحصورة في `docs/DOM_COUPLING_MAP.md` داخل `index.html`.
+23. **Zero !important Architecture Gatekeeper:** منع وحظر استخدام `!important` بنسبة 100% داخل جميع ملفات شاشات العرض (`css/views/*.css`).
+24. **HTML Inline Style Freeze Gatekeeper:** تجميد ومنع أي تنسيقات داخلية (`style="..."`) عشوائية في `index.html`.
+25. **Data Safety & XSS Gatekeeper:** التحقق التلقائي من تطبيق دالة التعقيم الصارم `escapeHTML()` على كافة البيانات الديناميكية في الموديولات التشغيلية الستة.
