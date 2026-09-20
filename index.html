@@ -153,6 +153,7 @@
   <link rel="stylesheet" href="css/views/doctor.css?v=2.10.42" media="screen">
   <link rel="stylesheet" href="css/views/sessions.css?v=2.10.42" media="screen">
   <link rel="stylesheet" href="css/views/admin.css?v=2.10.42" media="screen">
+  <link rel="stylesheet" href="css/views/finance.css?v=2.10.42" media="screen">
   <link rel="stylesheet" href="css/style.css?v=2.10.42" media="screen">
   <link rel="stylesheet" href="css/print.css?v=2.10.42" media="print">
 </head>
@@ -1458,14 +1459,14 @@
 
       <!-- ================= View 4: Finance & Daily Report ================= -->
       <section id="view-finance" class="view-section">
-        <div class="no-print" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; flex-wrap: wrap; gap: 12px;">
+        <div class="no-print finance-header-row">
           <div>
-            <h2 style="font-size: 1.35rem; font-weight: 800; margin: 0;" id="finance-header-title">الحسابات والتقارير المالية</h2>
+            <h2 class="finance-main-title" id="finance-header-title">الحسابات والتقارير المالية</h2>
           </div>
         </div>
 
         <!-- Mode Toggle Tabs (Daily vs Monthly vs Claims) - Elevated above action buttons (v1.4.80) -->
-        <div class="no-print finance-mode-segmented" style="margin-bottom: 12px;">
+        <div class="no-print finance-mode-segmented">
           <button type="button" class="btn btn-primary btn-sm" id="btn-mode-daily">
             <i class="fa-solid fa-calendar-day"></i> <span class="tab-label-full">التقرير اليومي</span><span class="tab-label-short">اليومي</span>
           </button>
@@ -1478,14 +1479,14 @@
         </div>
 
         <!-- Action Buttons (Expense, Excel, Print) - Placed under the mode tabs (v1.4.80) -->
-        <div class="no-print" id="finance-top-actions" style="margin-bottom: 14px;">
-          <button type="button" class="btn btn-outline" id="btn-add-expense" style="height: 42px; padding: 0 16px; border-color: var(--danger); color: var(--danger); font-weight: 700; display: inline-flex; align-items: center; gap: 6px;">
+        <div class="no-print" id="finance-top-actions">
+          <button type="button" class="btn btn-outline btn-fin-action btn-fin-expense" id="btn-add-expense">
             <i class="fa-solid fa-minus-circle"></i> <span>تسجيل مصروف</span>
           </button>
-          <button type="button" class="btn btn-success" id="btn-export-excel" style="height: 42px; padding: 0 16px; font-weight: 700; display: inline-flex; align-items: center; gap: 6px;">
+          <button type="button" class="btn btn-success btn-fin-action" id="btn-export-excel">
             <i class="fa-solid fa-file-excel"></i> <span>تصدير Excel</span>
           </button>
-          <button type="button" class="btn btn-primary" id="btn-print-report" style="height: 42px; padding: 0 16px; font-weight: 700; display: inline-flex; align-items: center; gap: 6px;">
+          <button type="button" class="btn btn-primary btn-fin-action" id="btn-print-report">
             <i class="fa-solid fa-print"></i> <span>طباعة عبر Wi-Fi</span>
           </button>
         </div>
@@ -1493,27 +1494,27 @@
         <!-- Filter Bar -->
         <div class="card no-print" id="finance-filter-bar-card">
           <!-- Daily Filter Controls -->
-          <div id="filter-group-daily" style="display: flex; flex-direction: column; gap: 10px; width: 100%;">
-            <div style="display: flex; align-items: center; justify-content: space-between; gap: 8px; width: 100%;">
-              <div style="display: flex; align-items: center; gap: 6px;">
-                <label style="font-size: 0.85rem; font-weight: bold; white-space: nowrap; margin: 0;">تاريخ التقرير:</label>
-                <div style="position: relative; display: inline-block;">
-                  <input type="text" id="finance-date-picker" readonly class="form-control date-picker-clickable" style="width: 130px; font-weight: 700; padding-left: 24px; padding-right: 6px; font-size: 0.82rem;" data-open-calendar="finance-date-picker" placeholder="اختر التاريخ...">
-                  <i class="fa-solid fa-calendar-days" style="position: absolute; left: 8px; top: 50%; transform: translateY(-50%); color: var(--primary); pointer-events: none; font-size: 0.85rem;"></i>
+          <div id="filter-group-daily" class="fin-filter-group-daily">
+            <div class="fin-filter-top-row">
+              <div class="fin-date-label-box">
+                <label class="fin-filter-label">تاريخ التقرير:</label>
+                <div class="fin-date-input-wrap">
+                  <input type="text" id="finance-date-picker" readonly class="form-control date-picker-clickable fin-date-picker-input" data-open-calendar="finance-date-picker" placeholder="اختر التاريخ...">
+                  <i class="fa-solid fa-calendar-days fin-date-input-icon"></i>
                 </div>
               </div>
-              <div class="horizontal-date-strip" style="margin: 0; display: inline-flex; flex-shrink: 0; gap: 6px;">
+              <div class="horizontal-date-strip fin-quick-strip">
                 <button type="button" id="btn-quick-fin-today" class="btn-quick-date active">اليوم</button>
                 <button type="button" id="btn-quick-fin-yesterday" class="btn-quick-date">أمس</button>
               </div>
             </div>
-            <div style="display: flex; align-items: center; gap: 8px; width: 100%;">
-              <label style="font-size: 0.85rem; font-weight: bold; white-space: nowrap; margin: 0;">تصفية بالطبيب:</label>
-              <div class="custom-select-wrapper" style="flex: 1; min-width: 0;">
+            <div class="fin-doctor-filter-row">
+              <label class="fin-filter-label">تصفية بالطبيب:</label>
+              <div class="custom-select-wrapper fin-select-wrapper">
                 <select id="finance-doctor-filter" class="form-control d-none">
                   <option value="all">كل الأطباء</option>
                 </select>
-                <button type="button" class="custom-select-btn" id="btn-select-finance-doctor-filter" data-open-picker="finance-doctor-filter" data-picker-title="تصفية التقرير بالطبيب" style="width: 100%; justify-content: space-between;">
+                <button type="button" class="custom-select-btn fin-select-btn" id="btn-select-finance-doctor-filter" data-open-picker="finance-doctor-filter" data-picker-title="تصفية التقرير بالطبيب">
                   <span class="btn-text">كل الأطباء</span>
                   <i class="fa-solid fa-chevron-down"></i>
                 </button>
@@ -1522,12 +1523,12 @@
           </div>
 
           <!-- Monthly Filter Controls -->
-          <div id="filter-group-monthly" style="display: none; gap: 12px; flex-wrap: wrap; align-items: center;">
-            <div style="display: flex; align-items: center; gap: 8px;">
-              <label style="font-size: 0.85rem; font-weight: bold;">شهر التقرير:</label>
-              <div style="position: relative; display: inline-block;">
-                <input type="text" id="finance-month-picker" readonly class="form-control date-picker-clickable" style="width: 145px; font-weight: 700;" placeholder="اختر الشهر...">
-                <i class="fa-solid fa-calendar-days" style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--primary); pointer-events: none;"></i>
+          <div id="filter-group-monthly" class="fin-filter-group-monthly" style="display: none;">
+            <div class="fin-date-label-box">
+              <label class="fin-filter-label">شهر التقرير:</label>
+              <div class="fin-date-input-wrap">
+                <input type="text" id="finance-month-picker" readonly class="form-control date-picker-clickable fin-month-picker-input" placeholder="اختر الشهر...">
+                <i class="fa-solid fa-calendar-days fin-month-input-icon"></i>
               </div>
             </div>
 
@@ -1588,11 +1589,11 @@
           </div>
 
           <!-- Cash Drawer Handoff Confirmation Row -->
-          <div class="cash-drawer-footer-actions" style="margin-top: 14px; padding-top: 12px; border-top: 1px dashed var(--border-color); display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px;">
-            <div id="drawer-handoff-status" style="font-size: 0.8rem; color: var(--text-muted); display: flex; align-items: center; gap: 6px;">
+          <div class="cash-drawer-footer-actions">
+            <div id="drawer-handoff-status" class="fin-handoff-status">
               <i class="fa-regular fa-clock"></i> <span>لم يتم تسليم نقدية اليوم بعد</span>
             </div>
-            <button type="button" class="btn btn-outline btn-sm" id="btn-confirm-cash-handoff" style="font-weight: 800; font-size: 0.84rem; padding: 6px 14px; border-radius: 999px; border-color: #10b981; color: #059669; background: rgba(16, 185, 129, 0.08); display: inline-flex; align-items: center; gap: 6px; cursor: pointer; transition: all 0.2s ease;">
+            <button type="button" class="btn btn-outline btn-sm btn-confirm-cash-handoff" id="btn-confirm-cash-handoff">
               <i class="fa-solid fa-hand-holding-dollar"></i>
               <span>تأكيد تسليم النقدية</span>
             </button>
@@ -1602,10 +1603,10 @@
         <!-- ================= CONTENT A: DAILY REPORT ================= -->
         <div id="finance-daily-content">
           <!-- Today Insurance Settlements Card -->
-          <div class="card no-print" id="finance-daily-settlements-card" style="margin-bottom: 16px; display: none;">
-            <div class="card-header" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
+          <div class="card no-print fin-card-mb" id="finance-daily-settlements-card" style="display: none;">
+            <div class="card-header fin-card-header-flex">
               <span class="card-title"><i class="fa-solid fa-money-bill-transfer text-primary"></i> تحصيلات التأمين المسجلة اليوم</span>
-              <span class="badge badge-cash" id="daily-settlements-total-badge" style="font-size: 0.8rem; font-weight: 800;">0 ج.م</span>
+              <span class="badge badge-cash fin-badge-settlements" id="daily-settlements-total-badge">0 ج.م</span>
             </div>
             <div class="table-responsive desktop-only-table">
               <table class="data-table">
@@ -1626,22 +1627,22 @@
                 </tbody>
               </table>
             </div>
-            <div id="daily-settlements-mobile-cards" class="mobile-only-cards-container" style="margin-top: 8px;"></div>
+            <div id="daily-settlements-mobile-cards" class="mobile-only-cards-container"></div>
           </div>
           <!-- Doctors Breakdown Box (Desktop & Print) -->
-          <div class="card desktop-only-table" id="card-doctors-breakdown" style="margin-bottom: 16px;">
+          <div class="card desktop-only-table fin-card-mb" id="card-doctors-breakdown">
             <div class="card-header">
               <span class="card-title"><i class="fa-solid fa-user-doctor"></i> إحصائية مرضى كل دكتور (اليوم)</span>
             </div>
-            <div id="doctors-breakdown-container" style="display: flex; gap: 15px; flex-wrap: wrap;">
+            <div id="doctors-breakdown-container" class="fin-doctors-breakdown-row">
               <!-- Rendered dynamically -->
             </div>
           </div>
           <!-- Doctors Breakdown (Daily Stack Deck) (Mobile Only) -->
-          <div id="daily-doctors-mobile-deck" class="mobile-only-cards-container" style="margin-bottom: 16px;"></div>
+          <div id="daily-doctors-mobile-deck" class="mobile-only-cards-container fin-card-mb"></div>
 
           <!-- Daily Sessions Print Table (Visible ONLY during print, hidden on screen) -->
-          <div class="card print-only-card" id="card-finance-report-sessions" style="margin-top: 16px; margin-bottom: 16px;">
+          <div class="card print-only-card fin-card-spaced fin-card-mb" id="card-finance-report-sessions">
             <div class="card-header">
               <span class="card-title"><i class="fa-solid fa-list-check"></i> بيان وحركات جلسات وكشوفات اليوم</span>
             </div>
@@ -1658,13 +1659,13 @@
                 </colgroup>
                 <thead>
                   <tr>
-                    <th style="text-align: center;">م</th>
+                    <th class="th-center">م</th>
                     <th>اسم الحالة</th>
                     <th>الأعضاء المعالجة</th>
                     <th>الطبيب المعالج</th>
-                    <th style="text-align: center;">جهة التأمين / الشركة</th>
-                    <th style="text-align: center;">نوع الإجراء</th>
-                    <th style="text-align: center;">المبلغ</th>
+                    <th class="th-center">جهة التأمين / الشركة</th>
+                    <th class="th-center">نوع الإجراء</th>
+                    <th class="th-center">المبلغ</th>
                   </tr>
                 </thead>
                 <tbody id="finance-report-tbody">
@@ -1675,7 +1676,7 @@
           </div>
 
           <!-- Daily Expenses Table -->
-          <div class="card" id="card-finance-daily-expenses" style="margin-top: 16px;">
+          <div class="card fin-card-spaced" id="card-finance-daily-expenses">
             <div class="card-header">
               <span class="card-title"><i class="fa-solid fa-receipt"></i> مصروفات اليوم</span>
             </div>
@@ -1690,10 +1691,10 @@
                 <thead>
                   <tr>
                     <th>بند المصروف</th>
-                    <th style="text-align: center;">المبلغ</th>
+                    <th class="th-center">المبلغ</th>
                     <th>المسؤول عن الصرف</th>
-                    <th style="text-align: center;">الوقت</th>
-                    <th class="no-print" style="width: 60px;">إجراء</th>
+                    <th class="th-center">الوقت</th>
+                    <th class="no-print fin-action-col-60">إجراء</th>
                   </tr>
                 </thead>
                 <tbody id="finance-expenses-tbody">
@@ -1708,24 +1709,24 @@
         <!-- ================= CONTENT B: MONTHLY REPORT ================= -->
         <div id="finance-monthly-content" style="display: none;">
           <!-- Monthly Operating Profit & Margin Cockpit (v1.4.80) -->
-          <div class="card no-print" id="card-monthly-profit-glance" style="margin-bottom: 16px;">
+          <div class="card no-print fin-card-mb" id="card-monthly-profit-glance">
             <div class="cash-drawer-top-row">
               <div class="cash-drawer-brand">
-                <div class="cash-drawer-icon-wrap" style="background: rgba(16, 185, 129, 0.12); color: var(--success);">
+                <div class="cash-drawer-icon-wrap fin-icon-wrap-success">
                   <i class="fa-solid fa-chart-line"></i>
                 </div>
                 <div class="cash-drawer-title-box">
                   <div class="title">صافي الدخل التشغيلي للمركز</div>
                 </div>
               </div>
-              <div class="cash-drawer-status-pill" id="monthly-margin-status-pill" style="background: rgba(16, 185, 129, 0.12); color: var(--success); border: 1px solid rgba(16, 185, 129, 0.25);">
+              <div class="cash-drawer-status-pill fin-status-pill-success" id="monthly-margin-status-pill">
                 <i class="fa-solid fa-scale-balanced"></i>
                 <span id="monthly-margin-pct">هامش التشغيل: 0%</span>
               </div>
             </div>
 
             <div class="cash-drawer-hero-metric">
-              <div class="cash-drawer-amount-text" id="monthly-net-profit-display" style="color: var(--success);">0 ج.م</div>
+              <div class="cash-drawer-amount-text fin-amount-success" id="monthly-net-profit-display">0 ج.م</div>
             </div>
 
             <div class="cash-drawer-formula-box">
@@ -1733,7 +1734,7 @@
               <span id="monthly-calc-breakdown">إجمالي الدخل المورد (0 ج.م) − المصروفات (0 ج.م)</span>
             </div>
 
-            <div class="cockpit-sub-metrics-grid" style="margin-top: 14px;">
+            <div class="cockpit-sub-metrics-grid fin-sub-metrics-mt">
               <div class="cockpit-metric-item green">
                 <div class="c-icon"><i class="fa-solid fa-wallet"></i></div>
                 <div class="c-info">
@@ -1759,7 +1760,7 @@
           </div>
 
           <!-- Doctors Performance Table -->
-          <div class="card" id="card-monthly-doctors" style="margin-bottom: 16px;">
+          <div class="card fin-card-mb" id="card-monthly-doctors">
             <div class="card-header">
               <span class="card-title"><i class="fa-solid fa-user-doctor"></i> إحصائية ورواتب أطباء المركز للشهر</span>
             </div>
@@ -1775,10 +1776,10 @@
                 <thead>
                   <tr>
                     <th>الطبيب المعالج</th>
-                    <th style="text-align: center;">جلسات / كشوفات</th>
-                    <th style="text-align: center;">مرضى (نقدي / شركات)</th>
-                    <th style="text-align: center;">نوع الجلسات (عادية / scoliosis / hemiplegia / quadriplegia)</th>
-                    <th style="text-align: center;">راتب الاطباء</th>
+                    <th class="th-center">جلسات / كشوفات</th>
+                    <th class="th-center">مرضى (نقدي / شركات)</th>
+                    <th class="th-center">نوع الجلسات (عادية / scoliosis / hemiplegia / quadriplegia)</th>
+                    <th class="th-center">راتب الاطباء</th>
                   </tr>
                 </thead>
                 <tbody id="monthly-doctors-tbody">
@@ -1790,7 +1791,7 @@
           </div>
 
           <!-- Insurance and Cash Distribution Table -->
-          <div class="card" id="card-monthly-insurance" style="margin-bottom: 16px;">
+          <div class="card fin-card-mb" id="card-monthly-insurance">
             <div class="card-header">
               <span class="card-title"><i class="fa-solid fa-shield-halved"></i> توزيع الجلسات حسب طريقة السداد (نقدي وتأمين)</span>
             </div>
@@ -1802,8 +1803,8 @@
                 </colgroup>
                 <thead>
                   <tr>
-                    <th style="text-align: center; font-weight: 800;">عدد جلسات النقدي</th>
-                    <th style="text-align: center; font-weight: 800;">عدد جلسات التأمين</th>
+                    <th class="th-center-bold">عدد جلسات النقدي</th>
+                    <th class="th-center-bold">عدد جلسات التأمين</th>
                   </tr>
                 </thead>
                 <tbody id="monthly-insurance-tbody">
@@ -1816,10 +1817,10 @@
 
           
           <!-- Monthly Insurance Settlements Table -->
-          <div class="card" id="card-monthly-settlements" style="margin-bottom: 16px;">
-            <div class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
+          <div class="card fin-card-mb" id="card-monthly-settlements">
+            <div class="card-header fin-card-header-flex">
               <span class="card-title"><i class="fa-solid fa-file-invoice-dollar"></i> تحصيلات وتوريدات شركات التأمين في الشهر</span>
-              <span id="monthly-settlements-total-badge" class="badge badge-success" style="font-size: 0.85rem; padding: 6px 12px;"></span>
+              <span id="monthly-settlements-total-badge" class="badge badge-success fin-settlements-badge"></span>
             </div>
             <div class="table-responsive desktop-only-table">
               <table class="data-table" id="monthly-settlements-table">
@@ -1841,14 +1842,14 @@
                 </tbody>
               </table>
             </div>
-            <div id="monthly-settlements-mobile-cards" class="mobile-only-cards-container" style="margin-top: 8px;"></div>
+            <div id="monthly-settlements-mobile-cards" class="mobile-only-cards-container"></div>
           </div>
 
           <!-- Merged Monthly Expenses Card -->
-          <div class="card" id="card-monthly-expenses-categories" style="margin-bottom: 16px;">
-            <div class="card-header" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
-              <span class="card-title"><i class="fa-solid fa-receipt" style="color: var(--danger);"></i> بيان وتوزيع المصروفات الشهرية حسب البنود</span>
-              <span class="badge badge-cash" id="monthly-expense-categories-count-badge" style="background: rgba(239, 68, 68, 0.12); color: var(--danger); font-size: 0.8rem; font-weight: 800;">0 بنود</span>
+          <div class="card fin-card-mb" id="card-monthly-expenses-categories">
+            <div class="card-header fin-card-header-flex">
+              <span class="card-title"><i class="fa-solid fa-receipt text-danger"></i> بيان وتوزيع المصروفات الشهرية حسب البنود</span>
+              <span class="badge badge-cash fin-danger-badge" id="monthly-expense-categories-count-badge">0 بنود</span>
             </div>
             <div class="table-responsive desktop-only-table">
               <table class="data-table" id="monthly-expenses-categories-table">
@@ -1861,11 +1862,11 @@
                 </colgroup>
                 <thead>
                   <tr>
-                    <th style="text-align: center;">م</th>
+                    <th class="th-center">م</th>
                     <th>بند المصروف</th>
-                    <th style="text-align: center;">عدد الحركات</th>
-                    <th style="text-align: center;">إجمالي المنصرف</th>
-                    <th style="text-align: center;">النسبة من المصروفات</th>
+                    <th class="th-center">عدد الحركات</th>
+                    <th class="th-center">إجمالي المنصرف</th>
+                    <th class="th-center">النسبة من المصروفات</th>
                   </tr>
                 </thead>
                 <tbody id="monthly-expenses-categories-tbody">
@@ -1877,9 +1878,9 @@
           </div>
 
           <!-- Monthly Financial Receipts & Net Summary Card -->
-          <div class="card" id="card-monthly-financial-summary" style="margin-bottom: 16px;">
+          <div class="card fin-card-mb" id="card-monthly-financial-summary">
             <div class="card-header">
-              <span class="card-title"><i class="fa-solid fa-vault" style="color: var(--success);"></i> البيان المالي وإجمالي المقبوضات الشهرية</span>
+              <span class="card-title"><i class="fa-solid fa-vault text-success"></i> البيان المالي وإجمالي المقبوضات الشهرية</span>
             </div>
             <div class="table-responsive desktop-only-table">
               <table class="data-table" id="monthly-financial-summary-table">
@@ -1892,11 +1893,11 @@
                 </colgroup>
                 <thead>
                   <tr>
-                    <th style="text-align: center;">م</th>
+                    <th class="th-center">م</th>
                     <th>بند الإيراد / المقبوضات</th>
-                    <th style="text-align: center;">طريقة التحصيل والاستلام</th>
-                    <th style="text-align: center;">المبلغ المحصل</th>
-                    <th style="text-align: center;">النسبة</th>
+                    <th class="th-center">طريقة التحصيل والاستلام</th>
+                    <th class="th-center">المبلغ المحصل</th>
+                    <th class="th-center">النسبة</th>
                   </tr>
                 </thead>
                 <tbody id="monthly-financial-summary-tbody">
@@ -1907,7 +1908,7 @@
                 </tfoot>
               </table>
             </div>
-            <div id="monthly-financial-summary-mobile" class="mobile-only-cards-container" style="padding: 12px 14px;"></div>
+            <div id="monthly-financial-summary-mobile" class="mobile-only-cards-container fin-summary-mobile-pad"></div>
           </div>
 
           <!-- Monthly Expenses Table -->
@@ -1923,7 +1924,7 @@
                     <th>بند المصروف</th>
                     <th>المبلغ المنصرف</th>
                     <th>المسؤول عن الصرف</th>
-                    <th class="no-print" style="width: 80px; text-align: center;">إجراءات</th>
+                    <th class="no-print fin-action-col-80">إجراءات</th>
                   </tr>
                 </thead>
                 <tbody id="monthly-expenses-tbody">
