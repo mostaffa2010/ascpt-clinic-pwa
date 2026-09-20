@@ -165,3 +165,50 @@
   border-color: rgba(255, 255, 255, 0.08) !important;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3) !important;
 }
+
+/* Card Layout Structure Helpers */
+.sk-card-top-row {
+  display: flex !important;
+  align-items: flex-start !important;
+  justify-content: space-between !important;
+  gap: 8px !important;
+}
+
+.sk-card-info-wrap {
+  display: flex !important;
+  align-items: center !important;
+  gap: 10px !important;
+  min-width: 0 !important;
+  flex: 1 !important;
+}
+
+.sk-card-lines-wrap {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 6px !important;
+  flex: 1 !important;
+}
+
+.sk-card-badges-wrap {
+  display: flex !important;
+  gap: 6px !important;
+}
+
+.sk-card-bottom-row {
+  display: flex !important;
+  justify-content: space-between !important;
+  align-items: center !important;
+  margin-top: 10px !important;
+  padding-top: 8px !important;
+  border-top: 1px dashed var(--border-color, #e2e8f0) !important;
+}
+
+.skeleton-table-cell {
+  padding: 12px !important;
+}
+
+.skeleton-table-row {
+  display: flex !important;
+  align-items: center !important;
+  gap: 12px !important;
+}
