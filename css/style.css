@@ -828,74 +828,6 @@ table.data-table tr:hover td {
 }
 
 /* ================= Weekly Appointments Schedule ================= */
-table.appt-table td,
-table.appt-table th {
-  white-space: normal;
-  vertical-align: top;
-}
-
-.appt-time-label {
-  font-weight: 800;
-  color: var(--primary);
-  white-space: nowrap;
-  text-align: center;
-  background-color: var(--bg-subtle);
-  padding: 8px;
-}
-
-.appt-time-box {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  padding: 6px 12px;
-  border-radius: 8px;
-  background-color: #ffffff;
-  border: 1.5px solid #cbd5e1;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  color: var(--primary, #0284c7);
-  font-weight: 800;
-  font-size: 0.95rem;
-}
-
-.appt-time-box:hover {
-  background-color: #f0f9ff;
-  border-color: var(--primary, #0284c7);
-  transform: translateY(-1px);
-  box-shadow: 0 2px 5px rgba(2, 132, 199, 0.15);
-}
-
-.appt-time-edit-icon {
-  font-size: 0.75rem;
-  opacity: 0.7;
-  color: var(--primary, #0284c7);
-}
-
-.appt-time-box:hover .appt-time-edit-icon {
-  opacity: 1;
-}
-
-.appt-cell {
-  min-width: 150px;
-  padding: 8px;
-}
-
-.appt-cell-over {
-  background-color: #fef2f2;
-}
-
-.appt-over-badge {
-  font-size: 0.7rem;
-  font-weight: 700;
-  color: var(--danger);
-  background-color: #fee2e2;
-  border-radius: 6px;
-  padding: 3px 6px;
-  margin-bottom: 6px;
-  display: block;
-  text-align: center;
-}
 
 .appt-chip {
   display: flex;
@@ -2425,26 +2357,7 @@ body.not-authenticated #modal-auth #btn-cancel-login {
   color: var(--text-main);
 }
 
-[data-theme="dark"] .appt-cell {
-  background-color: rgba(15, 23, 42, 0.6);
-  border-color: var(--border-color);
-}
 
-[data-theme="dark"] .appt-time-label {
-  background-color: var(--bg-surface);
-  border-color: var(--border-color);
-}
-
-[data-theme="dark"] .appt-time-box {
-  background-color: var(--bg-subtle);
-  border-color: var(--border-color);
-  color: var(--text-main);
-}
-
-[data-theme="dark"] .appt-table th,
-[data-theme="dark"] .appt-table td {
-  border-color: var(--border-color);
-}
 
 [data-theme="dark"] .category-chip {
   background-color: var(--bg-subtle);
@@ -6335,7 +6248,6 @@ body::-webkit-scrollbar,
   #admin-users-mobile-cards .doc-stack-header-bar,
   #admin-users-mobile-cards #btn-toggle-admin-stack,
   #admin-users-mobile-cards #admin-stack-counter,
-  #my-appointments-grid #btn-toggle-doc-stack-layout,
   #my-appointments-grid #doc-stack-counter,
   #my-appointments-grid .doc-stack-header-bar {
     display: none !important;
