@@ -194,7 +194,7 @@
   height: 18px;
   border-radius: 999px;
   padding: 0 4px;
-  display: flex;
+  display: none;
   align-items: center;
   justify-content: center;
   border: 2px solid var(--bg-surface);
@@ -207,6 +207,10 @@
 @keyframes notifPulse {
   0%, 100% { transform: scale(1); }
   50% { transform: scale(1.15); }
+}
+
+.notification-badge.is-open {
+  display: flex;
 }
 
 .notification-dropdown {
@@ -224,9 +228,13 @@
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
   z-index: 10000;
-  display: flex;
+  display: none;
   flex-direction: column;
   overflow: hidden;
+}
+
+.notification-dropdown.is-open {
+  display: flex;
 }
 
 /* ----------------------------------------------------------------------------

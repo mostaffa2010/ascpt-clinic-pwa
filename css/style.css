@@ -12433,6 +12433,10 @@ button.btn-settle-hv {
   color: var(--primary);
 }
 
+.notification-badge.is-open {
+  display: flex;
+}
+
 .notification-badge {
   position: absolute;
   top: -4px;
@@ -12458,6 +12462,10 @@ button.btn-settle-hv {
 @keyframes notifPulse {
   0%, 100% { transform: scale(1); }
   50% { transform: scale(1.15); }
+}
+
+.notification-dropdown.is-open {
+  display: flex;
 }
 
 .notification-dropdown {

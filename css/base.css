@@ -1,0 +1,406 @@
+/* ==========================================================================
+   ASCPT CLINIC PWA - MODULAR CSS REBUILD: PHASE 1
+   File: css/base.css
+   Scope: Reset, Native PWA Touch Behavior, Safe Areas, Layout Shell, Topbar, Bottom Nav
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   1. NATIVE PWA RESET & TOUCH BEHAVIOR
+   -------------------------------------------------------------------------- */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  -webkit-tap-highlight-color: transparent;
+}
+
+html, body {
+  touch-action: manipulation;
+  overscroll-behavior-y: contain;
+  direction: rtl;
+  font-family: var(--font-family);
+  min-height: 100dvh;
+  background-color: var(--bg-app);
+  color: var(--text-main);
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* 100% Native App Feel: Completely hide all visual scrollbars across all browsers & PWAs */
+::-webkit-scrollbar {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
+}
+
+* {
+  scrollbar-width: none !important;
+  -ms-overflow-style: none !important;
+}
+
+input, textarea, select, [contenteditable="true"] {
+  -webkit-user-select: text !important;
+  -moz-user-select: text !important;
+  -ms-user-select: text !important;
+  user-select: text !important;
+  -webkit-touch-callout: default !important;
+  font-family: inherit;
+}
+
+/* --------------------------------------------------------------------------
+   2. RESPONSIVE APP SHELL LAYOUT
+   -------------------------------------------------------------------------- */
+.app-container {
+  display: flex;
+  min-height: 100dvh;
+  width: 100%;
+  position: relative;
+  background-color: var(--bg-app);
+}
+
+/* Top Header (.top-header): Fixed/Sticky height 60px, solid background, clean branding, notification bell */
+.top-header {
+  position: sticky;
+  top: 0;
+  height: calc(var(--topbar-height) + env(safe-area-inset-top, 0px));
+  padding-top: env(safe-area-inset-top, 0px);
+  padding-right: 16px;
+  padding-bottom: 0;
+  padding-left: 16px;
+  box-sizing: border-box;
+  background-color: var(--bg-surface);
+  border-bottom: 1px solid var(--border-subtle);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  z-index: 50;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  transition: background-color 0.2s ease, border-color 0.2s ease;
+}
+
+.top-header .brand-link {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
+  color: var(--text-main);
+  font-weight: 800;
+  font-size: var(--fs-title);
+}
+
+/* User Profile Badge in Header */
+.user-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--bg-surface-elevated);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-full);
+  padding: 5px 12px;
+  color: var(--text-main);
+  font-size: var(--fs-subtext);
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.user-badge:hover {
+  border-color: var(--border-hover);
+}
+
+/* Notification Bell Wrapper & Elements */
+.notification-bell-wrapper {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+}
+
+.btn-notification-bell {
+  width: 38px;
+  height: 38px;
+  border-radius: var(--radius-full);
+  background: var(--bg-surface-elevated);
+  border: 1px solid var(--border-subtle);
+  color: var(--text-main);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  position: relative;
+  font-size: 1.05rem;
+  transition: all 0.2s ease;
+  outline: none;
+  user-select: none;
+}
+
+.btn-notification-bell:hover,
+.btn-notification-bell:active {
+  background: var(--bg-surface);
+  border-color: var(--primary);
+  color: var(--primary);
+}
+
+.notification-badge {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  background: var(--rose);
+  color: #ffffff;
+  font-size: var(--fs-micro);
+  font-weight: 900;
+  min-width: 18px;
+  height: 18px;
+  border-radius: var(--radius-full);
+  padding: 0 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid var(--bg-surface);
+  box-shadow: 0 2px 6px rgba(244, 63, 94, 0.45);
+  line-height: 1;
+  pointer-events: none;
+}
+
+.notification-dropdown {
+  position: fixed;
+  top: calc(var(--topbar-height) + env(safe-area-inset-top, 0px) + 8px);
+  left: 12px;
+  right: 12px;
+  width: calc(100% - 24px);
+  max-width: 380px;
+  margin: 0 auto;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-sticky);
+  z-index: 10000;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* Mobile Bottom Nav (.bottom-nav): Viewports < 768px with 5 tabs and safe-area */
+.bottom-nav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: calc(var(--bottom-nav-height) + env(safe-area-inset-bottom, 0px));
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+  background-color: var(--bg-surface);
+  border-top: 1px solid var(--border-subtle);
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  z-index: 45;
+  box-shadow: 0 -4px 18px rgba(0, 0, 0, 0.28);
+}
+
+.b-nav-item {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: var(--text-muted);
+  font-size: var(--fs-micro);
+  cursor: pointer;
+  transition: color 0.15s ease, transform 0.1s ease;
+  user-select: none;
+  touch-action: manipulation;
+}
+
+.b-nav-item:active {
+  transform: scale(0.92);
+}
+
+.b-nav-item.active {
+  color: var(--primary);
+  font-weight: 800;
+}
+
+.b-nav-item i {
+  font-size: 1.15rem;
+  margin-bottom: 2px;
+}
+
+/* Desktop/Tablet Sidebar (.sidebar): Viewports >= 768px persistent rail, hiding bottom nav */
+.sidebar {
+  display: none;
+}
+
+@media (min-width: 768px) {
+  .bottom-nav {
+    display: none !important;
+  }
+
+  .sidebar {
+    display: flex;
+    flex-direction: column;
+    width: var(--sidebar-width);
+    min-width: var(--sidebar-width);
+    position: sticky;
+    top: 0;
+    height: 100dvh;
+    background-color: var(--bg-surface);
+    border-left: 1px solid var(--border-subtle);
+    padding: calc(env(safe-area-inset-top, 0px) + 20px) 14px 20px 14px;
+    z-index: 40;
+    overflow-y: auto;
+  }
+
+  .sidebar .brand-section {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 24px;
+    padding: 0 8px;
+  }
+
+  .sidebar-nav {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    flex: 1;
+  }
+
+  .sidebar .nav-link {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 14px;
+    border-radius: var(--radius-squircle);
+    color: var(--text-muted);
+    font-size: var(--fs-body);
+    font-weight: 600;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    text-align: right;
+    width: 100%;
+    transition: all 0.15s ease;
+  }
+
+  .sidebar .nav-link:hover {
+    background: var(--bg-surface-elevated);
+    color: var(--text-main);
+  }
+
+  .sidebar .nav-link.active {
+    background: var(--primary-tint);
+    color: var(--primary);
+    font-weight: 700;
+  }
+}
+
+/* Responsive Main Container: Full width with centered max-width (1440px) */
+.main-content {
+  flex: 1;
+  min-width: 0;
+  width: 100%;
+  max-width: var(--max-content-width);
+  margin: 0 auto;
+  padding: 16px;
+  padding-bottom: calc(var(--bottom-nav-height) + env(safe-area-inset-bottom, 0px) + 24px);
+  box-sizing: border-box;
+}
+
+@media (min-width: 768px) {
+  .main-content {
+    padding: 24px 32px;
+    padding-bottom: 32px;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   3. PULL-TO-FORCE-RELOAD WIDGET (PWA Native Interaction)
+   -------------------------------------------------------------------------- */
+.pull-to-reload-indicator {
+  position: fixed;
+  top: 0;
+  left: 50%;
+  transform: translate(-50%, -150%);
+  z-index: 10000;
+  pointer-events: none;
+  transition: transform 0.22s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.2s ease;
+  opacity: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.pull-to-reload-indicator.active {
+  opacity: 1;
+}
+
+.pull-to-reload-bubble {
+  position: relative;
+  width: 46px;
+  height: 46px;
+  border-radius: var(--radius-full);
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  box-shadow: var(--shadow-sticky);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.pull-to-reload-svg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 46px;
+  height: 46px;
+  transform: rotate(-90deg);
+  border-radius: var(--radius-full);
+}
+
+.pull-track {
+  stroke: var(--border-subtle);
+}
+
+.pull-progress {
+  stroke: var(--primary);
+  stroke-linecap: round;
+  transition: stroke-dashoffset 0.1s linear;
+}
+
+.pull-to-reload-icon-wrap {
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-full);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--primary);
+  font-size: 1.05rem;
+  z-index: 1;
+}
+
+/* --------------------------------------------------------------------------
+   4. ATOMIC UTILITY CLASSES
+   -------------------------------------------------------------------------- */
+.d-none,
+[hidden] {
+  display: none !important;
+}
+
+.no-print {
+  /* Print suppression handled by css/print.css */
+}
+
+.text-primary {
+  color: var(--primary) !important;
+}
+
+.text-muted {
+  color: var(--text-muted) !important;
+}

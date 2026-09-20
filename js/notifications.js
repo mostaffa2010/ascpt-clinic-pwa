@@ -296,6 +296,7 @@ export class NotificationsManager {
   openDropdown() {
     const dropdown = document.getElementById('notification-dropdown');
     if (!dropdown) return;
+    dropdown.classList.add('is-open');
     dropdown.style.display = 'flex';
     this.isDropdownOpen = true;
     this.renderNotifications();
@@ -304,6 +305,7 @@ export class NotificationsManager {
   closeDropdown() {
     const dropdown = document.getElementById('notification-dropdown');
     if (!dropdown) return;
+    dropdown.classList.remove('is-open');
     dropdown.style.display = 'none';
     this.isDropdownOpen = false;
   }
@@ -313,9 +315,13 @@ export class NotificationsManager {
     if (!badge) return;
     if (count > 0) {
       badge.textContent = count > 99 ? '99+' : count;
+      badge.classList.add('is-open');
+      badge.hidden = false;
       badge.style.display = 'flex';
     } else {
       badge.textContent = '0';
+      badge.classList.remove('is-open');
+      badge.hidden = true;
       badge.style.display = 'none';
     }
   }

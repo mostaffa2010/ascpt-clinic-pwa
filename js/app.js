@@ -217,10 +217,22 @@ class App {
         tabWaiting.classList.remove('btn-outline');
         tabRecent.classList.remove('active');
         tabRecent.classList.add('btn-outline');
-        if (contentWaiting) contentWaiting.style.display = 'block';
-        if (contentRecent) contentRecent.style.display = 'none';
-        if (viewAllSessionsBtn) viewAllSessionsBtn.style.display = 'none';
-        if (walkinActions) walkinActions.style.display = 'flex';
+        if (contentWaiting) {
+          contentWaiting.hidden = false;
+          contentWaiting.style.display = 'block';
+        }
+        if (contentRecent) {
+          contentRecent.hidden = true;
+          contentRecent.style.display = 'none';
+        }
+        if (viewAllSessionsBtn) {
+          viewAllSessionsBtn.hidden = true;
+          viewAllSessionsBtn.style.display = 'none';
+        }
+        if (walkinActions) {
+          walkinActions.hidden = false;
+          walkinActions.style.display = 'flex';
+        }
         this.appointmentsManager?.renderReceptionWaitingList();
       });
 
@@ -229,10 +241,22 @@ class App {
         tabRecent.classList.remove('btn-outline');
         tabWaiting.classList.remove('active');
         tabWaiting.classList.add('btn-outline');
-        if (contentRecent) contentRecent.style.display = 'block';
-        if (contentWaiting) contentWaiting.style.display = 'none';
-        if (viewAllSessionsBtn) viewAllSessionsBtn.style.display = 'inline-block';
-        if (walkinActions) walkinActions.style.display = 'none';
+        if (contentRecent) {
+          contentRecent.hidden = false;
+          contentRecent.style.display = 'block';
+        }
+        if (contentWaiting) {
+          contentWaiting.hidden = true;
+          contentWaiting.style.display = 'none';
+        }
+        if (viewAllSessionsBtn) {
+          viewAllSessionsBtn.hidden = false;
+          viewAllSessionsBtn.style.display = 'inline-block';
+        }
+        if (walkinActions) {
+          walkinActions.hidden = true;
+          walkinActions.style.display = 'none';
+        }
         this.financeManager?.loadDailyReport();
       });
     }
