@@ -1,0 +1,841 @@
+/* ==========================================================================
+   ASCPT CLINIC PWA - SESSIONS & HOME VISITS VIEW
+   File: css/views/sessions.css
+   Scope: Log Session/Exam Form, Compact Switchers, Patient/Doctor Pickers,
+          Clinical Program Radios, Sessions Table & Dedicated Mobile Grid,
+          Home Visits Tab, Search & Individual Settlement Cards (Steps 52-55)
+   Clean Specificity: Zero !important & Strict Theme Isolation
+   ========================================================================== */
+
+/* ----------------------------------------------------------------------------
+   1. Sessions View Container & Header Title
+   ---------------------------------------------------------------------------- */
+#view-sessions {
+  width: 100%;
+  max-width: var(--max-content-width, 1440px);
+  margin: 0 auto;
+  padding-bottom: 24px;
+}
+
+.sessions-header-wrap {
+  margin-bottom: 20px;
+}
+
+.sessions-main-title {
+  font-size: 1.35rem;
+  font-weight: 800;
+  color: var(--text-main);
+  margin: 0;
+}
+
+/* ----------------------------------------------------------------------------
+   2. Compact Session / Exam Mode Switcher
+   ---------------------------------------------------------------------------- */
+.session-form-header {
+  padding: 0 0 10px 0;
+  border-bottom: none;
+  display: block;
+  width: 100%;
+}
+
+.session-mode-segmented-compact {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  background: var(--bg-subtle);
+  border: 1.5px solid var(--border-color);
+  border-radius: 12px;
+  padding: 4px;
+}
+
+[data-theme="dark"] .session-mode-segmented-compact {
+  background: #1e293b;
+  border-color: #334155;
+}
+
+.session-mode-compact-btn {
+  flex: 1;
+  height: 38px;
+  border: none;
+  background: transparent;
+  border-radius: 9px;
+  font-size: 0.88rem;
+  font-weight: 800;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: all 0.18s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.session-mode-compact-btn.active {
+  background: var(--primary);
+  color: #ffffff;
+  box-shadow: 0 2px 8px rgba(2, 132, 199, 0.35);
+}
+
+.session-mode-compact-btn#btn-mode-exam.active {
+  background: #0d9488;
+  box-shadow: 0 2px 8px rgba(13, 148, 136, 0.35);
+}
+
+/* ----------------------------------------------------------------------------
+   3. Compact Form Grid, Groups, and Date Strip
+   ---------------------------------------------------------------------------- */
+.compact-session-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.form-group-compact {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.compact-label {
+  font-size: 0.80rem;
+  font-weight: 800;
+  color: var(--text-main);
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  margin: 0;
+}
+
+.session-compact-date-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  background: var(--bg-subtle);
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+  padding: 6px 12px;
+}
+
+[data-theme="dark"] .session-compact-date-row {
+  background: rgba(15, 23, 42, 0.5);
+  border-color: #334155;
+}
+
+.scd-date-part {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+  min-width: 0;
+}
+
+.scd-label {
+  font-size: 0.80rem;
+  font-weight: 800;
+  color: var(--primary);
+  white-space: nowrap;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.scd-input-wrap {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  flex: 1;
+  max-width: 140px;
+}
+
+.scd-input {
+  height: 32px;
+  font-size: 0.82rem;
+  font-weight: 800;
+  padding: 0 28px 0 8px;
+  border-radius: 7px;
+  border: 1px solid var(--border-color);
+  background: var(--bg-surface);
+}
+
+.scd-cal-icon {
+  position: absolute;
+  right: 8px;
+  color: var(--primary);
+  font-size: 0.82rem;
+  pointer-events: none;
+}
+
+.scd-pills {
+  display: inline-flex;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+.scd-pills .date-strip-pill {
+  padding: 4px 10px;
+  font-size: 0.74rem;
+  font-weight: 800;
+  border-radius: 6px;
+}
+
+/* ----------------------------------------------------------------------------
+   4. Compact Patient Picker & Selector Controls
+   ---------------------------------------------------------------------------- */
+.patient-picker-trigger-compact {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 12px;
+  height: 42px;
+  background: var(--bg-surface);
+  border: 1.5px dashed var(--primary);
+  border-radius: 10px;
+  cursor: pointer;
+  font-weight: 800;
+  font-size: 0.88rem;
+  color: var(--primary);
+  transition: all 0.18s ease;
+}
+
+.patient-picker-trigger-compact:hover {
+  background: var(--primary-light);
+}
+
+[data-theme="dark"] .patient-picker-trigger-compact {
+  background: #1e293b;
+  border-color: #38bdf8;
+  color: #38bdf8;
+}
+
+.patient-picker-placeholder-wrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.selected-patient-card-compact {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px;
+  background: var(--bg-surface);
+  border: 1.5px solid var(--primary);
+  border-radius: 10px;
+  gap: 8px;
+}
+
+[data-theme="dark"] .selected-patient-card-compact {
+  background: #1e293b;
+  border-color: #38bdf8;
+}
+
+.spc-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+  flex: 1;
+}
+
+.spc-name {
+  font-size: 0.95rem;
+  font-weight: 900;
+  color: var(--text-main);
+  line-height: 1.2;
+}
+
+.spc-sub {
+  font-size: 0.76rem;
+  color: var(--text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.spc-btn-change {
+  flex-shrink: 0;
+  border-radius: 6px;
+  font-size: 0.76rem;
+  padding: 3px 8px;
+}
+
+.compact-select-btn {
+  width: 100%;
+  min-height: 40px;
+  border-radius: 10px;
+  border: 1.5px solid var(--border-color);
+  background: var(--bg-surface);
+  padding: 0 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-weight: 700;
+  font-size: 0.86rem;
+  color: var(--text-main);
+}
+
+[data-theme="dark"] .compact-select-btn {
+  background: #1e293b;
+  border-color: #334155;
+}
+
+/* ----------------------------------------------------------------------------
+   5. Body Parts & Clinical Program Selection
+   ---------------------------------------------------------------------------- */
+.session-body-parts-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 4px;
+}
+
+.session-parts-badge {
+  font-size: 0.74rem;
+}
+
+.session-parts-preview-btn {
+  min-height: 40px;
+  padding: 6px 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.session-parts-preview-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  align-items: center;
+  flex: 1;
+}
+
+.session-parts-preview-placeholder {
+  color: var(--text-muted);
+  font-size: 0.85rem;
+}
+
+.session-parts-count-hint {
+  font-size: 0.78rem;
+  color: var(--primary);
+  font-weight: bold;
+  margin-top: 4px;
+}
+
+.session-program-group {
+  margin-top: 6px;
+  margin-bottom: 10px;
+}
+
+.session-program-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 6px;
+}
+
+.session-program-title {
+  font-weight: 800;
+  font-size: 0.85rem;
+  color: var(--text-main);
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.session-program-hint {
+  font-size: 0.72rem;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: var(--bg-subtle);
+  color: var(--primary);
+}
+
+.program-type-segmented {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
+}
+
+.program-pill-opt {
+  display: block;
+  cursor: pointer;
+  margin: 0;
+  user-select: none;
+  width: 100%;
+}
+
+.program-pill-opt input {
+  display: none;
+}
+
+.program-pill-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  padding: 10px 8px;
+  min-height: 44px;
+  border: 1.5px solid var(--border-color);
+  background: var(--bg-surface);
+  border-radius: 12px;
+  font-size: 0.82rem;
+  font-weight: 800;
+  color: var(--text-muted);
+  text-align: center;
+  transition: all 0.18s ease;
+  white-space: nowrap;
+  box-sizing: border-box;
+}
+
+.program-pill-btn i {
+  font-size: 0.95rem;
+}
+
+.program-pill-opt input:checked + .program-pill-btn {
+  background: var(--primary-light);
+  border-color: var(--primary);
+  color: var(--primary);
+  box-shadow: 0 0 0 1px var(--primary);
+}
+
+/* ----------------------------------------------------------------------------
+   6. Examination Type Segmented (Exam Mode)
+   ---------------------------------------------------------------------------- */
+.exam-type-segmented-compact {
+  display: flex;
+  gap: 8px;
+}
+
+.exam-type-segmented-compact .exam-type-btn {
+  flex: 1;
+  height: 38px;
+  border-radius: 8px;
+  font-size: 0.84rem;
+  font-weight: 800;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+/* ----------------------------------------------------------------------------
+   7. Compact Payment & Notes Row
+   ---------------------------------------------------------------------------- */
+.session-compact-pay-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.scp-method-col {
+  flex: 1.2;
+  min-width: 0;
+}
+
+.scp-amount-col {
+  flex: 0.8;
+  min-width: 100px;
+}
+
+.scp-amount-input {
+  height: 42px;
+  font-size: 1.15rem;
+  font-weight: 900;
+  color: var(--primary);
+  text-align: center;
+}
+
+.payment-method-placeholder-compact {
+  height: 42px;
+  background: var(--bg-subtle);
+  border: 1.5px dashed var(--border-color);
+  border-radius: 10px;
+  padding: 0 10px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--text-muted);
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+[data-theme="dark"] .payment-method-placeholder-compact {
+  background: #1e293b;
+  border-color: #334155;
+}
+
+.session-amount-help-text {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  display: block;
+  margin-top: -4px;
+}
+
+.session-notes-group {
+  margin-top: 2px;
+}
+
+.session-notes-input {
+  height: 38px;
+  font-size: 0.84rem;
+}
+
+.btn-submit-session-prominent {
+  width: 100%;
+  height: 44px;
+  border-radius: 12px;
+  font-size: 0.95rem;
+  font-weight: 800;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 4px;
+  box-shadow: 0 4px 14px rgba(2, 132, 199, 0.3);
+  transition: all 0.18s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.btn-submit-session-prominent:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 18px rgba(2, 132, 199, 0.4);
+}
+
+.btn-submit-session-prominent:active {
+  transform: scale(0.99);
+}
+
+/* ----------------------------------------------------------------------------
+   8. Session Segmented Tab Header (Clinic Sessions vs Home Visits)
+   ---------------------------------------------------------------------------- */
+.session-card-header-main {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 12px 14px;
+  border-bottom: 1.5px solid var(--border-color);
+}
+
+.session-header-top-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  width: 100%;
+}
+
+.session-tab-segmented {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  border-radius: 12px;
+  padding: 4px;
+  gap: 6px;
+  box-sizing: border-box;
+}
+
+:root:not([data-theme="dark"]) .session-tab-segmented {
+  background: #f1f5f9;
+  border: 1.5px solid #e2e8f0;
+}
+
+[data-theme="dark"] .session-tab-segmented {
+  background: #1e293b;
+  border: 1.5px solid #334155;
+}
+
+.session-view-tab-btn {
+  flex: 1 1 0%;
+  border: 1px solid transparent;
+  background: transparent;
+  padding: 9px 12px;
+  border-radius: 9px;
+  font-weight: 800;
+  font-size: 0.88rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  gap: 8px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  box-sizing: border-box;
+  min-height: 42px;
+}
+
+/* Inactive states */
+:root:not([data-theme="dark"]) .session-view-tab-btn {
+  color: #64748b;
+}
+:root:not([data-theme="dark"]) .session-view-tab-btn:hover {
+  color: #0f172a;
+  background: rgba(255, 255, 255, 0.6);
+}
+
+[data-theme="dark"] .session-view-tab-btn {
+  color: #94a3b8;
+}
+[data-theme="dark"] .session-view-tab-btn:hover {
+  color: #f8fafc;
+  background: rgba(255, 255, 255, 0.05);
+}
+
+/* Active Clinic Tab - Light Mode */
+:root:not([data-theme="dark"]) .session-view-tab-btn.active#btn-tab-clinic-sessions {
+  background: #ffffff;
+  color: #0284c7;
+  border-color: rgba(2, 132, 199, 0.25);
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.08);
+}
+
+/* Active Clinic Tab - Dark Mode */
+[data-theme="dark"] .session-view-tab-btn.active#btn-tab-clinic-sessions {
+  background: #0f172a;
+  color: #38bdf8;
+  border-color: rgba(56, 189, 248, 0.35);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.4);
+}
+
+/* Active Home Visits Tab - Light Mode */
+:root:not([data-theme="dark"]) .session-view-tab-btn.active#btn-tab-home-visits {
+  background: #ffffff;
+  color: #059669;
+  border-color: rgba(5, 150, 105, 0.25);
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.08);
+}
+
+/* Active Home Visits Tab - Dark Mode */
+[data-theme="dark"] .session-view-tab-btn.active#btn-tab-home-visits {
+  background: #0f172a;
+  color: #34d399;
+  border-color: rgba(52, 211, 153, 0.35);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.4);
+}
+
+/* Home Visits Count Pill inside Tab */
+.session-hv-count-pill {
+  font-size: 0.74rem;
+  font-weight: 800;
+  padding: 2px 7px;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 18px;
+  transition: all 0.2s ease;
+}
+
+:root:not([data-theme="dark"]) .session-hv-count-pill {
+  background: rgba(5, 150, 105, 0.12);
+  color: #059669;
+  border: 1px solid rgba(5, 150, 105, 0.25);
+}
+
+[data-theme="dark"] .session-hv-count-pill {
+  background: rgba(5, 150, 105, 0.25);
+  color: #34d399;
+  border: 1px solid rgba(52, 211, 153, 0.35);
+}
+
+.session-view-tab-btn.active#btn-tab-home-visits .session-hv-count-pill {
+  background: #059669;
+  color: #ffffff;
+  border-color: transparent;
+}
+
+/* Meta Container */
+.session-header-meta-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  flex-wrap: wrap;
+  width: 100%;
+}
+
+.session-date-card-title {
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.88rem;
+  white-space: nowrap;
+}
+
+/* Search input for Home Visits */
+.session-hv-search-wrap {
+  position: relative;
+  width: 100%;
+  max-width: 100%;
+}
+
+.session-hv-search-input {
+  height: 36px;
+  font-size: 0.82rem;
+  padding: 4px 30px 4px 10px;
+  border-radius: 9px;
+  box-sizing: border-box;
+}
+
+:root:not([data-theme="dark"]) .session-hv-search-input {
+  background: #ffffff;
+  color: #0f172a;
+  border: 1.5px solid #cbd5e1;
+}
+
+[data-theme="dark"] .session-hv-search-input {
+  background: #1e293b;
+  color: #f8fafc;
+  border: 1.5px solid #334155;
+}
+
+.session-hv-search-icon {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  pointer-events: none;
+}
+
+/* Date badge in header */
+.badge-date-label {
+  background: rgba(2, 132, 199, 0.12);
+  color: var(--primary);
+  font-size: 0.82rem;
+  font-weight: 800;
+  white-space: nowrap;
+  border: 1px solid rgba(2, 132, 199, 0.25);
+}
+
+/* ----------------------------------------------------------------------------
+   9. Strict Tab Switching & Visibility Isolation
+   ---------------------------------------------------------------------------- */
+#card-sessions-today[data-active-tab="home_visits"] #sessions-today-mobile-cards,
+#card-sessions-today[data-active-tab="home_visits"] #sessions-table-container,
+#card-sessions-today[data-active-tab="home_visits"] #clinic-sessions-header-meta {
+  display: none;
+}
+
+#card-sessions-today[data-active-tab="clinic"] #sessions-home-visits-view,
+#card-sessions-today[data-active-tab="clinic"] #home-visits-header-meta {
+  display: none;
+}
+
+#card-sessions-today[data-active-tab="home_visits"] #sessions-home-visits-view {
+  display: block;
+}
+
+#card-sessions-today[data-active-tab="home_visits"] #home-visits-header-meta {
+  display: flex;
+}
+
+#card-sessions-today[data-active-tab="clinic"] #clinic-sessions-header-meta {
+  display: flex;
+}
+
+/* ----------------------------------------------------------------------------
+   10. Sessions Grid & Dedicated Mobile Cards
+   ---------------------------------------------------------------------------- */
+.sessions-grid-container {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+  width: 100%;
+  box-sizing: border-box;
+  padding: 10px 12px;
+}
+
+@media screen and (max-width: 991px) {
+  .sessions-grid-container {
+    grid-template-columns: 1fr;
+    gap: 10px;
+    padding: 4px 2px 14px 2px;
+  }
+}
+
+.sessions-grid-container .hero-styled-card {
+  margin-bottom: 0;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 14px 16px;
+}
+
+.sessions-grid-container .mobile-pagination-bar {
+  grid-column: 1 / -1;
+  margin-top: 10px;
+}
+
+/* ----------------------------------------------------------------------------
+   11. Desktop Table Skeletons & Action Alignment
+   ---------------------------------------------------------------------------- */
+.sessions-skeleton-cell {
+  padding: 12px;
+}
+
+.sessions-skeleton-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.sessions-hv-loading-cell {
+  text-align: center;
+  color: var(--text-muted);
+  padding: 24px;
+}
+
+.th-center {
+  text-align: center;
+}
+
+/* ----------------------------------------------------------------------------
+   12. Home Visits Settlement Buttons
+   ---------------------------------------------------------------------------- */
+.btn-settle-hv,
+.btn-icon-action.btn-settle-hv,
+button.btn-settle-hv {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  font-weight: 800;
+  font-size: 0.8rem;
+  padding: 0 14px;
+  height: 38px;
+  border-radius: 9px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+:root:not([data-theme="dark"]) .btn-settle-hv {
+  background: rgba(5, 150, 105, 0.12);
+  color: #059669;
+  border: 1.5px solid rgba(5, 150, 105, 0.35);
+}
+
+:root:not([data-theme="dark"]) .btn-settle-hv:hover {
+  background: #059669;
+  color: #ffffff;
+}
+
+[data-theme="dark"] .btn-settle-hv {
+  background: rgba(52, 211, 153, 0.15);
+  color: #34d399;
+  border: 1.5px solid rgba(52, 211, 153, 0.35);
+}
+
+[data-theme="dark"] .btn-settle-hv:hover {
+  background: #059669;
+  color: #ffffff;
+}
