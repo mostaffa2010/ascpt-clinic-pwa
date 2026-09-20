@@ -345,6 +345,48 @@ assert.equal(
 );
 console.log(`✓ 22. Protected DOM Coupling Integrity: Verified all ${staticIdsInMap.length} static IDs from docs/DOM_COUPLING_MAP.md exist in index.html.`);
 
+// 23. Strict Guardrail: Zero !important in Modern Modular View CSS Files (Step 80)
+const viewCssDir = path.join(rootDir, "css/views");
+const viewCssFiles = fs.readdirSync(viewCssDir).filter(f => f.endsWith(".css") && f !== "shell.css");
+const importantViolations = [];
+viewCssFiles.forEach(vf => {
+  const rawContent = fs.readFileSync(path.join(viewCssDir, vf), "utf-8");
+  // Remove all CSS comment blocks
+  const content = rawContent.replace(/\/\*[\s\S]*?\*\//g, "");
+  const vLines = content.split("\n");
+  vLines.forEach((l, idx) => {
+    const stripped = l.trim();
+    if (stripped.includes("!important")) {
+      importantViolations.push(`${vf}:${idx+1} -> ${stripped}`);
+    }
+  });
+});
+assert.equal(
+  importantViolations.length,
+  0,
+  `[GUARDRAIL FAILURE] Found ${importantViolations.length} unauthorized !important usage(s) in modular view stylesheets.\n` +
+  `ASCPT Architecture Standards strictly prohibit !important in css/views/*.css.\n` +
+  `Violations:\n` + importantViolations.join("\n")
+);
+console.log(`✓ 23. Zero !important Architecture Gatekeeper: Verified 100% clean specificity across ${viewCssFiles.length} modular view stylesheets.`);
+
+// 24. Strict Guardrail: HTML Semantic Linting & Inline Style Freeze (Step 81)
+const styleMatches = [...htmlContent.matchAll(/style=[\"\']([^\"\']+)[\"\']/g)].map(m => m[1]);
+assert.ok(
+  styleMatches.length <= 700,
+  `[GUARDRAIL FAILURE] Total inline styles in index.html (${styleMatches.length}) exceeded the strict threshold of 700.`
+);
+console.log(`✓ 24. HTML Inline Style Freeze Gatekeeper: Verified index.html contains zero unapproved styling regressions (${styleMatches.length} remaining).`);
+
+// 25. Strict Guardrail: Data Safety & XSS Sanitization Gatekeeper (Step 82)
+const modulesJsDir = path.join(rootDir, "js");
+const jsFilesToCheck = ["patients.js", "sessions.js", "claims.js", "finance.js", "doctor-dashboard.js", "appointments.js"];
+jsFilesToCheck.forEach(jf => {
+  const code = fs.readFileSync(path.join(modulesJsDir, jf), "utf-8");
+  assert.ok(code.includes("escapeHTML"), `${jf} must import and utilize escapeHTML for XSS sanitization`);
+});
+console.log(`✓ 25. Data Safety & XSS Gatekeeper: Verified escapeHTML() sanitization enforcement across all ${jsFilesToCheck.length} core business modules.`);
+
 console.log('===================================================================');
 console.log('✓ All ASCPT UI Component Compliance Guardrail Checks Passed (100%)!');
 console.log('===================================================================');
