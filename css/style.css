@@ -8162,7 +8162,7 @@ h1, h2, h3, h4, h5, h6 {
   box-shadow: 0 4px 18px -2px rgba(0, 0, 0, 0.06) !important;
 }
 
-/* Dark Mode Card Styles */
+/* Dark Mode Base */
 [data-theme="dark"] .hero-patient-card,
 .hero-patient-card {
   background: #0d1424 !important;
@@ -8170,20 +8170,22 @@ h1, h2, h3, h4, h5, h6 {
   box-shadow: 0 6px 24px -2px rgba(0, 0, 0, 0.5) !important;
 }
 
-/* Male Patient Card (Dark Mode) */
+/* Male Patient Card (Dark Mode) - With Subtle Right Accent Strip & Soft Cyan Shadow */
 [data-theme="dark"] .hero-patient-card.gender-male,
 .hero-patient-card.gender-male {
   background: #0d1627 !important;
-  border: 1.5px solid rgba(14, 165, 233, 0.32) !important;
-  box-shadow: 0 6px 24px -2px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(56, 189, 248, 0.15), 0 0 18px -4px rgba(14, 165, 233, 0.12) !important;
+  border: 1.5px solid rgba(14, 165, 233, 0.28) !important;
+  border-right: 4px solid #0ea5e9 !important;
+  box-shadow: -4px 0 16px -2px rgba(14, 165, 233, 0.25), 0 6px 24px -2px rgba(0, 0, 0, 0.5) !important;
 }
 
-/* Female Patient Card (Dark Mode) */
+/* Female Patient Card (Dark Mode) - With Subtle Right Accent Strip & Soft Pink Shadow */
 [data-theme="dark"] .hero-patient-card.gender-female,
 .hero-patient-card.gender-female {
   background: #121224 !important;
-  border: 1.5px solid rgba(244, 114, 182, 0.32) !important;
-  box-shadow: 0 6px 24px -2px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(244, 114, 182, 0.15), 0 0 18px -4px rgba(236, 72, 153, 0.12) !important;
+  border: 1.5px solid rgba(244, 114, 182, 0.28) !important;
+  border-right: 4px solid #f43f5e !important;
+  box-shadow: -4px 0 16px -2px rgba(244, 114, 182, 0.25), 0 6px 24px -2px rgba(0, 0, 0, 0.5) !important;
 }
 
 /* Light Mode Overrides */
@@ -8195,14 +8197,16 @@ h1, h2, h3, h4, h5, h6 {
 
 :root:not([data-theme="dark"]) .hero-patient-card.gender-male {
   background: #ffffff !important;
-  border: 1.5px solid rgba(14, 165, 233, 0.38) !important;
-  box-shadow: 0 4px 18px -2px rgba(14, 165, 233, 0.08), 0 1px 3px rgba(0, 0, 0, 0.04) !important;
+  border: 1.5px solid rgba(14, 165, 233, 0.3) !important;
+  border-right: 4px solid #0284c7 !important;
+  box-shadow: -4px 0 14px -2px rgba(14, 165, 233, 0.2), 0 3px 12px rgba(15, 23, 42, 0.04) !important;
 }
 
 :root:not([data-theme="dark"]) .hero-patient-card.gender-female {
   background: #ffffff !important;
-  border: 1.5px solid rgba(236, 72, 153, 0.38) !important;
-  box-shadow: 0 4px 18px -2px rgba(236, 72, 153, 0.08), 0 1px 3px rgba(0, 0, 0, 0.04) !important;
+  border: 1.5px solid rgba(236, 72, 153, 0.3) !important;
+  border-right: 4px solid #ec4899 !important;
+  box-shadow: -4px 0 14px -2px rgba(236, 72, 153, 0.2), 0 3px 12px rgba(15, 23, 42, 0.04) !important;
 }
 
 /* Top Row: Header */
@@ -8224,8 +8228,8 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .pc-avatar-icon {
-  width: 36px !important;
-  height: 36px !important;
+  width: 38px !important;
+  height: 38px !important;
   border-radius: 50% !important;
   display: flex !important;
   align-items: center !important;
@@ -8329,33 +8333,38 @@ h1, h2, h3, h4, h5, h6 {
   color: #334155 !important;
 }
 
+/* Quick Actions Pills (جلسة & الشيت) - Enlarged & Prominent */
 .pc-pill-actions {
   display: flex !important;
   align-items: center !important;
-  gap: 6px !important;
+  gap: 8px !important;
 }
 
 .btn-pc-pill {
-  border-radius: 8px !important;
-  padding: 5px 12px !important;
-  font-size: 0.82rem !important;
+  border-radius: 9px !important;
+  padding: 6px 14px !important;
+  font-size: 0.88rem !important;
   font-weight: 800 !important;
+  height: 35px !important;
   display: inline-flex !important;
   align-items: center !important;
   justify-content: center !important;
-  gap: 5px !important;
+  gap: 6px !important;
   cursor: pointer !important;
   line-height: 1 !important;
-  border: 1px solid transparent !important;
+  border: 1.5px solid transparent !important;
   transition: all 0.18s cubic-bezier(0.4, 0, 0.2, 1) !important;
 }
+.btn-pc-pill i {
+  font-size: 0.95rem !important;
+}
 .btn-pc-pill:hover {
-  transform: translateY(-1px) !important;
+  transform: translateY(-1.5px) !important;
 }
 
 .btn-pc-session {
-  background: rgba(245, 158, 11, 0.08) !important;
-  border: 1.2px solid rgba(245, 158, 11, 0.45) !important;
+  background: rgba(245, 158, 11, 0.1) !important;
+  border-color: rgba(245, 158, 11, 0.5) !important;
   color: #fbbf24 !important;
 }
 .btn-pc-session i {
@@ -8363,13 +8372,13 @@ h1, h2, h3, h4, h5, h6 {
 }
 :root:not([data-theme="dark"]) .btn-pc-session {
   background: #fef3c7 !important;
-  border: 1.2px solid #f59e0b !important;
+  border-color: #f59e0b !important;
   color: #b45309 !important;
 }
 
 .btn-pc-sheet {
-  background: rgba(14, 165, 233, 0.1) !important;
-  border: 1.2px solid rgba(14, 165, 233, 0.45) !important;
+  background: rgba(14, 165, 233, 0.12) !important;
+  border-color: rgba(14, 165, 233, 0.5) !important;
   color: #38bdf8 !important;
 }
 .btn-pc-sheet i {
@@ -8377,29 +8386,30 @@ h1, h2, h3, h4, h5, h6 {
 }
 :root:not([data-theme="dark"]) .btn-pc-sheet {
   background: #e0f2fe !important;
-  border: 1.2px solid #0284c7 !important;
+  border-color: #0284c7 !important;
   color: #0369a1 !important;
 }
 
-/* Middle Condition Strip */
+/* Middle Condition Strip - Slim, Compact, Space-saving */
 .pc-condition-strip {
-  background: rgba(0, 0, 0, 0.35) !important;
+  background: rgba(0, 0, 0, 0.32) !important;
   border: 1px solid rgba(255, 255, 255, 0.06) !important;
-  border-radius: 10px !important;
-  padding: 10px 14px !important;
-  margin: 12px 0 !important;
-  font-size: 0.88rem !important;
+  border-radius: 9px !important;
+  padding: 6px 12px !important;
+  margin: 8px 0 !important;
+  font-size: 0.82rem !important;
   font-weight: 600 !important;
   color: #f1f5f9 !important;
   display: flex !important;
   align-items: center !important;
   gap: 8px !important;
-  line-height: 1.4 !important;
+  line-height: 1.35 !important;
   word-break: break-word !important;
+  min-height: 32px !important;
 }
 .pc-condition-strip i {
   color: #94a3b8 !important;
-  font-size: 0.95rem !important;
+  font-size: 0.9rem !important;
   flex-shrink: 0 !important;
 }
 :root:not([data-theme="dark"]) .pc-condition-strip {
@@ -8441,7 +8451,7 @@ h1, h2, h3, h4, h5, h6 {
   color: #64748b !important;
 }
 
-/* Squircle Action Buttons */
+/* Squircle Action Buttons - Positioned on Right for Easy Thumb Reach */
 .pc-squircle-actions {
   display: flex !important;
   align-items: center !important;

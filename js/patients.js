@@ -1139,30 +1139,30 @@ export class PatientsManager {
               <span>${escapeHTML((mobileAreaInfo.text || '').replace(/ • /g, ' ▪ '))}</span>
             </div>
 
-            <!-- Row 3: Location/Address (Right) & Squircle Action Buttons (Left) -->
+            <!-- Row 3: Squircle Action Buttons (Right / Thumb Ergonomics) & Location/Address (Left) -->
             <div class="pc-footer-row">
-              <div class="pc-location-info">
-                <i class="fa-solid fa-location-dot"></i>
-                <span>${safeAddress && safeAddress !== '-' ? safeAddress : (CLINIC_CONFIG.contact?.city || 'الإسكندرية')}</span>
-              </div>
-
               <div class="pc-squircle-actions">
+                <button type="button" class="btn-pc-squircle btn-pc-wa btn-whatsapp-action" onclick="patientsManager.openWhatsAppTemplates('${escapeHTML(p.phone || '')}', '${safeName}', '${safeDoctor}')" aria-label="خيارات واتساب الذكية" title="واتساب">
+                  <i class="fa-brands fa-whatsapp"></i>
+                </button>
+                ${!isDoctor ? `
+                  <button type="button" class="btn-pc-squircle btn-pc-docs btn-patient-docs" onclick="event.stopPropagation(); patientsManager.openPatientDocsModal('${safeId}')" aria-label="المستندات والتقارير الطبية" title="المستندات">
+                    <i class="fa-solid fa-file-circle-plus"></i>
+                  </button>
+                  <button type="button" class="btn-pc-squircle btn-pc-edit btn-edit-patient" onclick="patientsManager.openEditModal('${safeId}')" aria-label="تعديل بيانات المريض" title="تعديل">
+                    <i class="fa-solid fa-pen-to-square"></i>
+                  </button>
+                ` : ''}
                 ${!isDoctor && canDeletePatient ? `
                   <button type="button" class="btn-pc-squircle btn-pc-del btn-delete-patient" onclick="patientsManager.confirmDelete('${safeId}')" aria-label="حذف المريض" title="حذف">
                     <i class="fa-solid fa-trash-can"></i>
                   </button>
                 ` : ''}
-                ${!isDoctor ? `
-                  <button type="button" class="btn-pc-squircle btn-pc-edit btn-edit-patient" onclick="patientsManager.openEditModal('${safeId}')" aria-label="تعديل بيانات المريض" title="تعديل">
-                    <i class="fa-solid fa-pen-to-square"></i>
-                  </button>
-                  <button type="button" class="btn-pc-squircle btn-pc-docs btn-patient-docs" onclick="event.stopPropagation(); patientsManager.openPatientDocsModal('${safeId}')" aria-label="المستندات والتقارير الطبية" title="المستندات">
-                    <i class="fa-solid fa-file-circle-plus"></i>
-                  </button>
-                ` : ''}
-                <button type="button" class="btn-pc-squircle btn-pc-wa btn-whatsapp-action" onclick="patientsManager.openWhatsAppTemplates('${escapeHTML(p.phone || '')}', '${safeName}', '${safeDoctor}')" aria-label="خيارات واتساب الذكية" title="واتساب">
-                  <i class="fa-brands fa-whatsapp"></i>
-                </button>
+              </div>
+
+              <div class="pc-location-info">
+                <i class="fa-solid fa-location-dot"></i>
+                <span>${safeAddress && safeAddress !== '-' ? safeAddress : (CLINIC_CONFIG.contact?.city || 'الإسكندرية')}</span>
               </div>
             </div>
           </div>
