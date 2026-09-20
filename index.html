@@ -557,7 +557,7 @@
                 <span class="dkc-unit">جلسة</span>
               </div>
               <div class="dkc-sub" id="stat-doc-today-sub">0 زيارة مريض</div>
-              <span id="stat-doc-today-count" style="display: none;">0 حالة</span>
+              <span id="stat-doc-today-count" class="d-none">0 حالة</span>
             </div>
 
             <!-- Card 2: Month's Sessions -->
@@ -571,7 +571,7 @@
                 <span class="dkc-unit">جلسة</span>
               </div>
               <div class="dkc-sub" id="stat-doc-month-sub">0 زيارة مريض</div>
-              <span id="stat-doc-month-count" style="display: none;">0 حالة</span>
+              <span id="stat-doc-month-count" class="d-none">0 حالة</span>
             </div>
 
             <!-- Card 3: Total Patients -->
@@ -585,7 +585,7 @@
                 <span class="dkc-unit">مريض</span>
               </div>
               <div class="dkc-sub" id="stat-doc-patients-sub">ملفات مسجلة باسمك</div>
-              <span id="stat-doc-lifetime-count" style="display: none;">0 مريض</span>
+              <span id="stat-doc-lifetime-count" class="d-none">0 مريض</span>
             </div>
 
             <!-- Card 4: Active Cases (الحالات النشطة حالياً - v2.2.3) -->
@@ -602,9 +602,9 @@
                 <span id="stat-doc-active-breakdown">قيد الخطة العلاجية والتأهيل</span>
               </div>
               <!-- Hidden compatibility elements -->
-              <span id="stat-doc-cash-val" style="display: none;">0</span>
-              <span id="stat-doc-ins-val" style="display: none;">0</span>
-              <span id="stat-doc-types-ratio" style="display: none;">-</span>
+              <span id="stat-doc-cash-val" class="d-none">0</span>
+              <span id="stat-doc-ins-val" class="d-none">0</span>
+              <span id="stat-doc-types-ratio" class="d-none">-</span>
             </div>
           </div>
 
@@ -1205,7 +1205,7 @@
                     <i class="fa-solid fa-magnifying-glass text-primary"></i>
                   </div>
 
-                  <div id="selected-patient-box" class="selected-patient-card-compact" style="display: none;">
+                  <div id="selected-patient-box" class="selected-patient-card-compact d-none">
                     <div class="spc-info">
                       <div class="spc-name" id="selected-patient-name">-</div>
                       <div class="spc-sub" id="selected-patient-sub"></div>
@@ -1242,11 +1242,11 @@
                     </div>
                     <i class="fa-solid fa-chevron-down custom-select-arrow"></i>
                   </button>
-                  <div class="body-parts-chips" id="body-parts-container" style="display: none;"></div>
-                  <div class="session-parts-count-hint" style="display: none;">
+                  <div class="body-parts-chips d-none" id="body-parts-container"></div>
+                  <div class="session-parts-count-hint d-none">
                     إجمالي الأعضاء المحددة: <span id="selected-parts-count">0</span>
                   </div>
-                  <small id="body-parts-cash-hint" class="session-amount-help-text" style="display: none;"></small>
+                  <small id="body-parts-cash-hint" class="session-amount-help-text d-none"></small>
                 </div>
 
                 <!-- Clinical Program Selection for Session (v2.0.5) -->
@@ -1279,7 +1279,7 @@
                 </div>
 
                 <!-- 5. Examination Type Selector (Examination Mode) -->
-                <div class="form-group form-group-compact" id="form-group-exam-type" style="display: none;">
+                <div class="form-group form-group-compact" id="form-group-exam-type" hidden>
                   <label class="compact-label">
                     <i class="fa-solid fa-stethoscope text-primary"></i> نوع الكشف المطلوب <span class="required-star">*</span>
                   </label>
@@ -1365,7 +1365,7 @@
                 </div>
 
                 <!-- Home Visits Mode Meta: Search Box -->
-                <div id="home-visits-header-meta" class="session-header-meta-row" style="display: none;">
+                <div id="home-visits-header-meta" class="session-header-meta-row">
                   <div class="session-hv-search-wrap">
                     <input type="text" id="input-search-home-visits" class="form-control session-hv-search-input" placeholder="بحث مريض أو طبيب...">
                     <i class="fa-solid fa-magnifying-glass session-hv-search-icon"></i>
@@ -1373,7 +1373,7 @@
                 </div>
               </div>
             </div>
-            <div class="table-responsive desktop-only-table" id="sessions-table-container" style="display: none;">
+            <div class="table-responsive desktop-only-table d-none" id="sessions-table-container">
               <table class="data-table" id="sessions-today-table">
                 <thead>
                   <tr>
@@ -1431,7 +1431,7 @@
             </div>
 
             <!-- Dedicated Home Visits View Container (v2.7.5) -->
-            <div id="sessions-home-visits-view" style="display: none;">
+            <div id="sessions-home-visits-view">
               <!-- Desktop Table for Home Visits -->
               <div class="table-responsive desktop-only-table" id="sessions-hv-table-container">
                 <table class="data-table" id="sessions-hv-table">
@@ -2817,8 +2817,8 @@
                   <i class="fa-solid fa-chevron-down custom-select-arrow"></i>
                 </button>
               </div>
-              <div id="p-ins-direct-container" style="display: none;"></div>
-              <div id="p-ins-indirect-container" style="display: none;"></div>
+              <div id="p-ins-direct-container" class="d-none"></div>
+              <div id="p-ins-indirect-container" class="d-none"></div>
             </div>
 
             <!-- Approved Visits & Body Parts for Insurance Approval -->
@@ -4709,7 +4709,7 @@
               <i class="fa-solid fa-chevron-down custom-select-arrow"></i>
             </button>
           </div>
-          <div class="body-parts-chips" id="card-treatment-chips-container" style="display: none;"></div>
+          <div class="body-parts-chips d-none" id="card-treatment-chips-container"></div>
 
           <!-- Live Preview Box -->
           <div style="background: var(--bg-subtle); border: 1.5px dashed var(--border-color); border-radius: 12px; padding: 12px 14px; margin-top: 10px;">

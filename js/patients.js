@@ -1371,8 +1371,8 @@ export class PatientsManager {
     // Companies are selected via Custom Picker
     const directCont = document.getElementById('p-ins-direct-container');
     const indirectCont = document.getElementById('p-ins-indirect-container');
-    if (directCont) { directCont.innerHTML = ''; directCont.style.display = 'none'; }
-    if (indirectCont) { indirectCont.innerHTML = ''; indirectCont.style.display = 'none'; }
+    if (directCont) { directCont.innerHTML = ''; directCont.classList.add('d-none'); directCont.style.display = 'none'; }
+    if (indirectCont) { indirectCont.innerHTML = ''; indirectCont.classList.add('d-none'); indirectCont.style.display = 'none'; }
   }
 
   renderInsuranceChips(contractType, containerId) {
