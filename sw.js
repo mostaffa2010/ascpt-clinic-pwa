@@ -13,6 +13,7 @@ const APP_SHELL_ASSETS = [
   '/index.html',
   '/manifest.json',
   '/css/design-tokens.css',
+  '/css/base.css',
   '/css/components/skeletons.css',
   '/css/components/buttons.css',
   '/css/components/chips-badges.css',

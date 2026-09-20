@@ -404,3 +404,57 @@ input, textarea, select, [contenteditable="true"] {
 .text-muted {
   color: var(--text-muted) !important;
 }
+
+/* --------------------------------------------------------------------------
+   5. REUSABLE ATOMIC & LAYOUT UTILITY CLASSES (Phase 5 Refinement)
+   -------------------------------------------------------------------------- */
+.mb-6 { margin-bottom: 6px !important; }
+.mb-8 { margin-bottom: 8px !important; }
+.mb-10 { margin-bottom: 10px !important; }
+.mb-12 { margin-bottom: 12px !important; }
+.mb-14 { margin-bottom: 14px !important; }
+.mb-16 { margin-bottom: 16px !important; }
+.mt-3 { margin-top: 3px !important; }
+.mt-6 { margin-top: 6px !important; }
+.mt-8 { margin-top: 8px !important; }
+.mt-10 { margin-top: 10px !important; }
+.mt-12 { margin-top: 12px !important; }
+.mt-14 { margin-top: 14px !important; }
+.p-16 { padding: 16px !important; }
+.w-100 { width: 100% !important; }
+.w-100-h42 { width: 100% !important; height: 42px !important; }
+.flex-align-10 { display: flex !important; align-items: center !important; gap: 10px !important; }
+.flex-between-mb6 { display: flex !important; justify-content: space-between !important; align-items: center !important; margin-bottom: 6px !important; }
+.fw-800-fs85 { font-weight: 800 !important; font-size: 0.85rem !important; }
+.label-inline-bold { display: inline-block !important; font-size: 0.88rem !important; font-weight: 700 !important; color: var(--text-main) !important; margin-bottom: 6px !important; }
+.label-block-bold { display: block !important; font-size: 0.84rem !important; font-weight: 700 !important; color: var(--text-main) !important; margin-bottom: 6px !important; }
+.btn-modal-close-white { font-size: 1.3rem !important; background: none !important; border: none !important; cursor: pointer !important; color: #ffffff !important; }
+.grid-2col-gap8 { display: grid !important; grid-template-columns: 1fr 1fr !important; gap: 8px !important; }
+.btn-h40-bold { height: 40px !important; font-weight: 700 !important; }
+.text-danger { color: var(--danger) !important; }
+.z-220 { z-index: 220 !important; }
+.z-230 { z-index: 230 !important; }
+.z-350 { z-index: 350 !important; }
+.modal-sm { max-width: 440px !important; }
+.modal-md { max-width: 520px !important; }
+.modal-lg { max-width: 650px !important; }
+
+.fw-700 { font-weight: 700 !important; }
+.fw-800 { font-weight: 800 !important; }
+.flex-1 { flex: 1 !important; }
+.m-0 { margin: 0 !important; }
+.h-42 { height: 42px !important; }
+.text-center { text-align: center !important; }
+.text-right { text-align: right !important; }
+.btn-h38-700 { font-weight: 700 !important; height: 38px !important; }
+.flex-col-gap10 { display: flex !important; flex-direction: column !important; gap: 10px !important; }
+.z-225 { z-index: 225 !important; }
+.modal-header-gradient { background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%) !important; color: #ffffff !important; padding: 16px 20px !important; display: flex !important; justify-content: space-between !important; align-items: center !important; }
+.modal-title-gradient { margin: 0 !important; font-size: 1.1rem !important; color: #ffffff !important; font-weight: 800 !important; }
+.modal-sub-gradient { margin: 2px 0 0 0 !important; font-size: 0.76rem !important; opacity: 0.9 !important; color: #e0f2fe !important; }
+.icon-box-32 { width: 32px !important; height: 32px !important; border-radius: 8px !important; background: rgba(2, 132, 199, 0.12) !important; color: var(--primary) !important; display: flex !important; align-items: center !important; justify-content: center !important; font-size: 0.95rem !important; flex-shrink: 0 !important; }
+.card-info-banner { display: flex !important; align-items: flex-start !important; gap: 12px !important; background: var(--bg-subtle) !important; padding: 12px 14px !important; border-radius: 12px !important; border: 1px solid var(--border-color) !important; }
+.card-selectable-item { display: flex !important; align-items: center !important; gap: 12px !important; padding: 10px 14px !important; border: 1.5px solid var(--border-color) !important; border-radius: 10px !important; cursor: pointer !important; background: var(--bg-surface) !important; }
+.metric-chip-card { padding: 12px 8px !important; border-radius: 10px !important; font-size: 0.85rem !important; font-weight: 800 !important; display: flex !important; flex-direction: column !important; align-items: center !important; gap: 6px !important; border: 1.5px solid var(--border-color) !important; }
+.label-metric-bold { font-weight: 800 !important; font-size: 0.85rem !important; color: var(--text-main) !important; margin-bottom: 4px !important; display: block !important; white-space: nowrap !important; }
+.label-sub-bold { display: block !important; font-size: 0.78rem !important; font-weight: 700 !important; margin-bottom: 4px !important; }
