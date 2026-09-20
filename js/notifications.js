@@ -230,7 +230,7 @@ export class NotificationsManager {
 
     try {
       const notifCol = collection(firestoreDb, 'users', currentUser.uid, 'notifications');
-      const q = query(notifCol, orderBy('createdAt', 'desc'), limit(25));
+      const q = query(notifCol, orderBy('createdAt', 'desc'), limit(8));
 
       this.unsubscribeListener = onSnapshot(q, (snapshot) => {
         let freshIncoming = null;

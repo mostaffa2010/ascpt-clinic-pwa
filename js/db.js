@@ -227,6 +227,7 @@ class FirestoreDatabaseService {
 
     // Advanced Scoped Caches for Zero-Cost Reads
     this._sessionsByDateCache = new Map();
+    this._todaySessionsListeners = new Map();
     this._sessionsByPatientCache = new Map();
     this._expensesByDateCache = new Map();
     this._sessionDocCache = new Map();
@@ -235,7 +236,8 @@ class FirestoreDatabaseService {
     this.CACHE_TTL = 300000; // 5 minutes operational cache
     this.PATIENTS_CACHE_TTL = 900000; // 15 minutes patients cache
     this.USERS_CACHE_TTL = 3600000; // 1 hour users/doctors cache
-    this.APPT_CACHE_TTL = 1800000; // 30 minutes appointments cache
+    this.APPT_CACHE_TTL = 86400000; // 24 hours persistent appointments cache (real-time synced via meta/syncVersion)
+    this.MONTH_CACHE_TTL = 21600000; // 6 hours for month sessions cache (patched real-time by today sessions)
 
     this.syncAndSeedCloudOptions();
   }
@@ -662,7 +664,7 @@ class FirestoreDatabaseService {
     // 2. Specific Month Scoped Query (e.g. 'YYYY-MM') -> Reads only that month's docs
     if (filterDate && filterDate.length === 7) {
       const cached = this._sessionsByDateCache.get(filterDate);
-      if (!forceRefresh && cached && (now - cached.time < this.CACHE_TTL)) {
+      if (!forceRefresh && cached && (now - cached.time < this.MONTH_CACHE_TTL)) {
         return [...cached.data];
       }
       try {
@@ -825,50 +827,90 @@ class FirestoreDatabaseService {
     }
   }
 
-  // ================= Real-time Session Sync =================
+  // ================= Real-time Session Sync (Multiplexed) =================
   subscribeToTodaySessions(dateStr, callback) {
     if (!this.isCloud) return () => {};
     const targetDate = dateStr || getLocalTodayDateStr();
-    try {
-      const q = query(
-        collection(firestoreDb, 'sessions'),
-        where('date', '==', targetDate)
-      );
-      return onSnapshot(q, (snap) => {
-        const list = snap.docs.map(d => ({ ...d.data(), id: d.id }));
-        const sorted = this._filterAndSortSessions(list, targetDate);
-        this._sessionsByDateCache.set(targetDate, { data: sorted, time: Date.now() });
 
-        // Zero-Cost Month Cache Patching (Opportunity 1):
-        // Update cached month in-memory instead of deleting it, preventing cascade refetch
-        // of all monthly sessions across all connected doctor devices!
-        if (targetDate && targetDate.length >= 7) {
-          const targetMonth = targetDate.substring(0, 7);
-          const cachedMonth = this._sessionsByDateCache.get(targetMonth);
-          if (cachedMonth && Array.isArray(cachedMonth.data)) {
-            const otherDays = cachedMonth.data.filter(s => s.date !== targetDate);
-            const mergedMonth = this._filterAndSortSessions([...otherDays, ...list], targetMonth);
-            this._sessionsByDateCache.set(targetMonth, { data: mergedMonth, time: Date.now() });
-          }
-        }
-
-        // Also update full sessions cache if loaded
-        if (this._sessionsCache && Array.isArray(this._sessionsCache)) {
-          const otherDays = this._sessionsCache.filter(s => s.date !== targetDate);
-          this._sessionsCache = this._filterAndSortSessions([...otherDays, ...list], null);
-          this._sessionsLastFetch = Date.now();
-        }
-        list.forEach(s => this._sessionDocCache.set(s.id, s));
-        if (typeof callback === 'function') {
-          callback(sorted);
-        }
-      }, (err) => {
-        console.warn('subscribeToTodaySessions notice:', err);
-      });
-    } catch (err) {
-      console.warn('Failed to subscribeToTodaySessions:', err);
-      return () => {};
+    if (!this._todaySessionsListeners) {
+      this._todaySessionsListeners = new Map();
     }
+
+    let listenerEntry = this._todaySessionsListeners.get(targetDate);
+    if (!listenerEntry) {
+      listenerEntry = {
+        callbacks: new Set(),
+        unsubscribe: null,
+        lastData: null
+      };
+      this._todaySessionsListeners.set(targetDate, listenerEntry);
+
+      try {
+        const q = query(
+          collection(firestoreDb, 'sessions'),
+          where('date', '==', targetDate)
+        );
+        listenerEntry.unsubscribe = onSnapshot(q, (snap) => {
+          const list = snap.docs.map(d => ({ ...d.data(), id: d.id }));
+          const sorted = this._filterAndSortSessions(list, targetDate);
+          this._sessionsByDateCache.set(targetDate, { data: sorted, time: Date.now() });
+
+          // Zero-Cost Month Cache Patching (Opportunity 1):
+          // Update cached month in-memory instead of deleting it, preventing cascade refetch
+          // of all monthly sessions across all connected doctor devices!
+          if (targetDate && targetDate.length >= 7) {
+            const targetMonth = targetDate.substring(0, 7);
+            const cachedMonth = this._sessionsByDateCache.get(targetMonth);
+            if (cachedMonth && Array.isArray(cachedMonth.data)) {
+              const otherDays = cachedMonth.data.filter(s => s.date !== targetDate);
+              const mergedMonth = this._filterAndSortSessions([...otherDays, ...list], targetMonth);
+              this._sessionsByDateCache.set(targetMonth, { data: mergedMonth, time: Date.now() });
+            }
+          }
+
+          // Also update full sessions cache if loaded
+          if (this._sessionsCache && Array.isArray(this._sessionsCache)) {
+            const otherDays = this._sessionsCache.filter(s => s.date !== targetDate);
+            this._sessionsCache = this._filterAndSortSessions([...otherDays, ...list], null);
+            this._sessionsLastFetch = Date.now();
+          }
+          list.forEach(s => this._sessionDocCache.set(s.id, s));
+          listenerEntry.lastData = sorted;
+
+          // Dispatch to all registered callbacks sharing this single Firestore listener
+          listenerEntry.callbacks.forEach(cb => {
+            try {
+              if (typeof cb === 'function') cb(sorted);
+            } catch (cbErr) {
+              console.warn('subscribeToTodaySessions callback notice:', cbErr);
+            }
+          });
+        }, (err) => {
+          console.warn('subscribeToTodaySessions notice:', err);
+        });
+      } catch (err) {
+        console.warn('Failed to subscribeToTodaySessions:', err);
+        this._todaySessionsListeners.delete(targetDate);
+        return () => {};
+      }
+    }
+
+    if (typeof callback === 'function') {
+      listenerEntry.callbacks.add(callback);
+      if (listenerEntry.lastData) {
+        try { callback(listenerEntry.lastData); } catch (_) {}
+      }
+    }
+
+    return () => {
+      listenerEntry.callbacks.delete(callback);
+      if (listenerEntry.callbacks.size === 0) {
+        if (typeof listenerEntry.unsubscribe === 'function') {
+          listenerEntry.unsubscribe();
+        }
+        this._todaySessionsListeners.delete(targetDate);
+      }
+    };
   }
 
   _filterAndSortSessions(sessionsList, filterDate) {

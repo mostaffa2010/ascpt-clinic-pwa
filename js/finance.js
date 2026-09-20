@@ -1487,7 +1487,7 @@ export class FinanceManager {
     const allExpenses = await db.getExpenses(this.currentMonth);
     const rawDoctors = await db.getDoctors();
     const doctors = Array.from(new Set(rawDoctors.map(d => (d || '').trim().replace(/\s+/g, ' ')))).filter(Boolean);
-    const docList = (typeof db.getDoctorsList === 'function') ? await db.getDoctorsList(true) : [];
+    const docList = (typeof db.getDoctorsList === 'function') ? await db.getDoctorsList(false) : [];
     const allPatients = (typeof db.getPatients === 'function') ? await db.getPatients() : [];
     const patientMap = new Map();
     allPatients.forEach(p => {

@@ -216,7 +216,7 @@ export class ExportManager {
       const allExpenses = await db.getExpenses(monthStr);
       const allSettlements = (typeof db.getInsuranceSettlements === 'function') ? await db.getInsuranceSettlements(null, monthStr) : [];
       const doctors = await db.getDoctors();
-      const docList = (typeof db.getDoctorsList === 'function') ? await db.getDoctorsList(true) : [];
+      const docList = (typeof db.getDoctorsList === 'function') ? await db.getDoctorsList(false) : [];
       const allPatients = (typeof db.getPatients === 'function') ? await db.getPatients() : [];
       const patientMap = new Map();
       allPatients.forEach(p => {

@@ -136,9 +136,18 @@
 
   
 
-    <!-- Stylesheets -->
-  <link rel="stylesheet" href="css/style.css?v=2.10.28" media="screen">
-  <link rel="stylesheet" href="css/print.css?v=2.10.28" media="print">
+      <!-- Modular Stylesheets (redesign/modular-v3) -->
+  <link rel="stylesheet" href="css/design-tokens.css">
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/components/buttons.css">
+  <link rel="stylesheet" href="css/components/modals.css">
+  <link rel="stylesheet" href="css/views/patients.css">
+  <link rel="stylesheet" href="css/views/dashboard.css">
+  <link rel="stylesheet" href="css/views/sessions.css">
+  <link rel="stylesheet" href="css/views/finance.css">
+  <link rel="stylesheet" href="css/views/appointments.css">
+  <link rel="stylesheet" href="css/views/admin.css">
+  <link rel="stylesheet" href="css/print.css" media="print">
 </head>
 <body>
   <script>
@@ -707,6 +716,7 @@
 
       <!-- ================= View 2: Patients Directory ================= -->
       <section id="view-patients" class="view-section">
+        <div id="patients-view" class="patients-view-wrapper">
         <div style="margin-bottom: 14px;">
           <div style="display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap;">
             <h2 style="font-size: 1.35rem; font-weight: 800; display: flex; align-items: center; gap: 8px; margin: 0;">
@@ -717,8 +727,10 @@
           
         </div>
 
-        <!-- Unified Search, Filter & New Patient Toolbar (Perfect on Desktop & Mobile) -->
-        <div class="card" style="padding: 12px 14px; margin-bottom: 14px;">
+        <!-- Flush Sticky Header (Zero Top Leakage) -->
+        <div class="patients-sticky-header" id="patients-sticky-header">
+          <!-- Controls Panel container: Sleek inner card -->
+          <div class="card patients-controls-panel patients-controls-sticky" id="patients-sticky-controls">
           <div style="display: flex; flex-direction: column; gap: 10px; width: 100%;">
             <!-- Row 1: Search Box -->
             <div style="width: 100%; position: relative;">
@@ -726,9 +738,16 @@
               <i class="fa-solid fa-magnifying-glass input-icon-end"></i>
             </div>
 
-            <!-- Row 2: Filter Dropdown & Filter Today Patients -->
+            <!-- Row 1 below search: "حالات اليوم" pill with active count + "كل الأنظمة" dropdown -->
             <div style="display: flex; gap: 8px; width: 100%; align-items: center;">
-              <!-- Filter Dropdown -->
+              <!-- Filter Today Patients Button ("حالات اليوم" pill with active count) -->
+              <button type="button" class="btn btn-outline" id="btn-filter-today-patients" style="flex: 1; min-width: 0; height: 40px; padding: 0 10px; font-weight: 700; white-space: nowrap; display: inline-flex; align-items: center; justify-content: center; gap: 6px;" title="عرض مرضى مواعيد وجلسات اليوم فقط">
+                <i class="fa-solid fa-calendar-day"></i>
+                <span>حالات اليوم</span>
+                <span class="badge" id="badge-today-patients-count" style="font-size: 0.75rem; padding: 2px 7px; border-radius: 12px;">0</span>
+              </button>
+
+              <!-- Filter Dropdown ("كل الأنظمة" dropdown) -->
               <div style="flex: 1; min-width: 0;">
                 <div class="custom-select-wrapper">
                   <select id="patient-filter-type" class="form-control d-none">
@@ -743,19 +762,17 @@
                   </button>
                 </div>
               </div>
-
-              <!-- Filter Today Patients Button -->
-              <button type="button" class="btn btn-outline" id="btn-filter-today-patients" style="flex: 1; min-width: 0; height: 40px; padding: 0 10px; font-weight: 700; white-space: nowrap; display: inline-flex; align-items: center; justify-content: center; gap: 6px;" title="عرض مرضى مواعيد وجلسات اليوم فقط">
-                <i class="fa-solid fa-calendar-day"></i>
-                <span>حالات اليوم</span>
-                <span class="badge" id="badge-today-patients-count" style="font-size: 0.75rem; padding: 2px 7px; border-radius: 12px;">0</span>
-              </button>
             </div>
 
-            <!-- Row 3: Sort Segmented Toggle & View Mode Toggle & Add Patient Button (v1.4.80) -->
+            <!-- Row 2 below search: "مريض جديد" primary CTA button + segmented sort toggle (الأحدث / أبجدياً) -->
             <div style="display: flex; gap: 8px; width: 100%; align-items: center; justify-content: space-between; flex-wrap: wrap;">
+              <!-- "مريض جديد" primary CTA button -->
+              <button type="button" class="btn btn-primary" id="btn-open-add-patient" style="height: 38px; padding: 0 16px; font-weight: 800; font-size: 0.88rem; white-space: nowrap; display: inline-flex; align-items: center; justify-content: center; gap: 6px;">
+                <i class="fa-solid fa-user-plus"></i> <span>مريض جديد</span>
+              </button>
+
               <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
-                <!-- Compact Sort Segmented Toggle -->
+                <!-- Compact Sort Segmented Toggle (الأحدث / أبجدياً) -->
                 <div class="patients-sort-segmented" style="height: 38px;">
                   <button type="button" class="sort-seg-btn active" id="btn-sort-recent" data-sort="recent" title="ترتيب زمني: أحدث من تم تسجيلهم أولاً">
                     <i class="fa-solid fa-clock-rotate-left"></i> <span>الأحدث</span>
@@ -772,13 +789,9 @@
                   </button>
                 </div>
               </div>
-
-              <!-- Add Patient Button -->
-              <button type="button" class="btn btn-primary" id="btn-open-add-patient" style="height: 38px; padding: 0 16px; font-weight: 800; font-size: 0.88rem; white-space: nowrap; display: inline-flex; align-items: center; justify-content: center; gap: 6px;">
-                <i class="fa-solid fa-user-plus"></i> <span>مريض جديد</span>
-              </button>
             </div>
           </div>
+        </div>
         </div>
 
         <!-- Patients List / Table with Top & Bottom Scrollbars -->
@@ -868,6 +881,7 @@
               </div>
             </div>
           </div>
+        </div>
         </div>
       </section>
 
@@ -4837,7 +4851,7 @@
   </div>
 
 <!-- Main Application Script (ES Module) -->
-  <script type="module" src="js/app.js?v=2.10.31"></script>
+  <script type="module" src="js/app.js?v=2.10.33"></script>
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {

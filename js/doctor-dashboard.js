@@ -256,7 +256,7 @@ export class DoctorDashboardManager {
     if (ratioEl) ratioEl.textContent = `${cashCount} نقدي • ${insCount} تأمين`;
 
     // 5. Monthly Earnings Calculation (KPI Card 5 - Cumulative for this month)
-    const docInfo = (Array.isArray(docList) ? docList : await db.getDoctorsList(true)).find(d => d.uid === docUid || (d.name && user.name && d.name.trim() === user.name.trim())) || user;
+    const docInfo = (Array.isArray(docList) ? docList : await db.getDoctorsList(false)).find(d => d.uid === docUid || (d.name && user.name && d.name.trim() === user.name.trim())) || user;
     const regRate = typeof docInfo.regularSessionRate === 'number' ? docInfo.regularSessionRate : 0;
     const scolRate = typeof docInfo.scoliosisRate === 'number' ? docInfo.scoliosisRate : 0;
     const hemiRate = typeof docInfo.hemiplegiaRate === 'number' ? docInfo.hemiplegiaRate : 0;
