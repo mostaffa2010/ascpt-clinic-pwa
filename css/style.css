@@ -11798,12 +11798,14 @@ body.role-doctor .btn-quick-attend {
 
 .skeleton-shimmer {
   background: linear-gradient(90deg, 
-    rgba(226, 232, 240, 0.65) 25%, 
-    rgba(241, 245, 249, 0.95) 37%, 
-    rgba(226, 232, 240, 0.65) 63%
-  );
-  background-size: 400% 100%;
-  animation: skeleton-shimmer 1.4s ease-in-out infinite;
+    #edf2f7 0%, 
+    #f8fafc 35%, 
+    #ffffff 50%, 
+    #f8fafc 65%, 
+    #edf2f7 100%
+  ) !important;
+  background-size: 300% 100% !important;
+  animation: skeleton-shimmer 1.4s ease-in-out infinite !important;
   border-radius: var(--radius-sm, 10px);
 }
 

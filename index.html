@@ -10,10 +10,12 @@
       (function() {
         try {
           const saved = localStorage.getItem("ascpt_theme");
-          if (saved === "dark" || (!saved && window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches)) {
+          if (saved === "dark") {
             document.documentElement.setAttribute("data-theme", "dark");
             const meta = document.querySelector("meta[name='theme-color']");
             if (meta) meta.setAttribute("content", "#0b1120");
+          } else {
+            document.documentElement.removeAttribute("data-theme");
           }
         } catch (e) {}
 
@@ -138,6 +140,7 @@
 
     <!-- Stylesheets -->
   <link rel="stylesheet" href="css/design-tokens.css?v=2.10.42" media="screen">
+  <link rel="stylesheet" href="css/components/skeletons.css?v=2.10.42" media="screen">
   <link rel="stylesheet" href="css/style.css?v=2.10.42" media="screen">
   <link rel="stylesheet" href="css/print.css?v=2.10.42" media="print">
 </head>

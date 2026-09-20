@@ -123,6 +123,11 @@
   --radius-full: 9999px;
   --radius-pill: 9999px;
 
+  /* Skeleton Loading Tokens (Light Mode - Bright Clean Clinic Shimmer) */
+  --skeleton-shimmer: linear-gradient(90deg, #edf2f7 0%, #f8fafc 35%, #ffffff 50%, #f8fafc 65%, #edf2f7 100%);
+  --skeleton-card-bg: #ffffff;
+  --skeleton-card-border: #e2e8f0;
+
   /* Elevation & Shadows (Light Mode) */
   --shadow-xs: 0 1px 2px rgba(15, 23, 42, 0.04);
   --shadow-sm: 0 2px 6px -1px rgba(15, 23, 42, 0.05), 0 1px 3px -1px rgba(15, 23, 42, 0.03);
@@ -186,6 +191,11 @@
   --glass-border: rgba(255, 255, 255, 0.1);
   --glass-blur: blur(20px) saturate(180%);
   --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.45);
+
+  /* Skeleton Loading Tokens (Dark Mode - Midnight Slate Shimmer) */
+  --skeleton-shimmer: linear-gradient(90deg, rgba(30, 41, 59, 0.7) 0%, rgba(51, 65, 85, 0.85) 50%, rgba(30, 41, 59, 0.7) 100%);
+  --skeleton-card-bg: #1e293b;
+  --skeleton-card-border: rgba(255, 255, 255, 0.08);
 
   /* Elevation & Shadows (Dark Mode) */
   --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.35);

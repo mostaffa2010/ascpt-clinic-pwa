@@ -314,7 +314,7 @@ class App {
 
   initTheme() {
     const saved = localStorage.getItem('ascpt_theme');
-    const isDark = saved === 'dark' || (!saved && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches);
+    const isDark = saved === 'dark';
     this.applyTheme(isDark ? 'dark' : 'light');
 
     const toggleBtns = document.querySelectorAll('#btn-toggle-theme, #btn-toggle-theme-desktop, #btn-profile-toggle-theme');

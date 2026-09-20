@@ -1,0 +1,81 @@
+/* ==========================================================================
+   ASCPT CLINIC PWA - SKELETON LOADERS COMPONENT
+   File: css/components/skeletons.css
+   Scope: Unified Shimmer Animation & Placeholder Shapes (Step 21)
+   Strict Light/Dark Mode Isolation
+   ========================================================================== */
+
+@keyframes skeleton-shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+/* ----------------------------------------------------------------------------
+   1. Light Mode Baseline (Bright, Clean Clinic Gray with White Shimmer)
+   ---------------------------------------------------------------------------- */
+.skeleton-shimmer {
+  background: linear-gradient(90deg, 
+    #edf2f7 0%, 
+    #f8fafc 35%, 
+    #ffffff 50%, 
+    #f8fafc 65%, 
+    #edf2f7 100%
+  ) !important;
+  background-size: 300% 100% !important;
+  animation: skeleton-shimmer 1.4s ease-in-out infinite !important;
+  border-radius: var(--radius-sm, 10px);
+}
+
+.skeleton-card {
+  background: #ffffff !important;
+  border: 1.5px solid #e2e8f0 !important;
+  border-radius: var(--radius-md, 16px);
+  padding: 14px 16px;
+  margin-bottom: 12px;
+  box-shadow: 0 2px 6px -1px rgba(15, 23, 42, 0.05);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  pointer-events: none;
+  user-select: none;
+}
+
+/* Sizing Helpers */
+.skeleton-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50% !important;
+  flex-shrink: 0;
+}
+
+.skeleton-line {
+  height: 14px;
+  border-radius: var(--radius-xs, 6px) !important;
+}
+
+.skeleton-badge {
+  height: 24px;
+  border-radius: var(--radius-pill, 9999px) !important;
+}
+
+/* ----------------------------------------------------------------------------
+   2. Dark Mode Overrides (Strictly scoped under [data-theme="dark"])
+   ---------------------------------------------------------------------------- */
+[data-theme="dark"] .skeleton-shimmer {
+  background: linear-gradient(90deg, 
+    rgba(30, 41, 59, 0.7) 0%, 
+    rgba(51, 65, 85, 0.85) 50%, 
+    rgba(30, 41, 59, 0.7) 100%
+  ) !important;
+  background-size: 300% 100% !important;
+}
+
+[data-theme="dark"] .skeleton-card {
+  background: #1e293b !important;
+  border-color: rgba(255, 255, 255, 0.08) !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3) !important;
+}
