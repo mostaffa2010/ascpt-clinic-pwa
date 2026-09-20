@@ -406,6 +406,14 @@
     visibility: hidden !important;
   }
 
+  /* Explicitly Suppress Claims Module from Financial Reports Print */
+  body:not(.printing-claim):not(.printing-cards) #finance-claims-content,
+  body:not(.printing-claim):not(.printing-cards) #card-claim-settings,
+  body:not(.printing-claim):not(.printing-cards) #card-claim-patients-wrap,
+  body:not(.printing-claim):not(.printing-cards) #card-claim-actions-hub,
+  body:not(.printing-claim):not(.printing-cards) #claims-ledger-card,
+  body:not(.printing-claim):not(.printing-cards) #claims-ledger-mobile-cards,
+
   /* 1. Strictly Suppress All Interactive Controls, Filters, Duplicate Titles, and Settlements in Print */
   body:not(.printing-sheet) #pull-to-reload-indicator,
   body:not(.printing-sheet) .pull-to-reload-indicator,
@@ -1505,4 +1513,8 @@
     margin-top: 0 !important;
   }
 
+
+  .ins-print-notes-container {
+    margin: 4px 0 !important;
+  }
 }

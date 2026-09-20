@@ -796,6 +796,7 @@ async function runTests() {
   assert.equal(allLetters.length, 4, 'Must return all 4 letters');
 
   const allLettersRepeat = await service.getInsuranceLetters();
+  assert.equal(allLettersRepeat.length, 4, 'Must return all 4 letters from cache');
   assert.equal(service.stats.lettersFullGetDocsCount, 1, 'Repeat full archive fetch must cost 0 reads (cached)');
 
   console.log('✓ Scenario 9 passed: Insurance renewal letters scoped query by patientId and in-memory cache verified.');

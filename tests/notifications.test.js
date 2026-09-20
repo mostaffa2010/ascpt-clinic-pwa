@@ -56,7 +56,13 @@ assert.ok(indexHtmlContent.includes('class="notification-bell-wrapper no-print"'
 console.log('✓ 5. Top Header & Profile UI: Verified bell button, red counter badge, dropdown menu, and settings toggle.');
 
 // 6. Verify CSS Styling & Print Suppression
-const styleCssContent = fs.readFileSync(path.join(rootDir, 'css/style.css'), 'utf-8');
+const styleCssPath = path.join(rootDir, 'css/style.css');
+const styleCssContent = fs.existsSync(styleCssPath)
+  ? fs.readFileSync(styleCssPath, 'utf-8')
+  : ['css/design-tokens.css', 'css/base.css', 'css/components/buttons.css', 'css/components/modals.css', 'css/views/patients.css', 'css/views/dashboard.css', 'css/views/sessions.css', 'css/views/finance.css', 'css/views/appointments.css', 'css/views/admin.css']
+      .filter(f => fs.existsSync(path.join(rootDir, f)))
+      .map(f => fs.readFileSync(path.join(rootDir, f), 'utf-8'))
+      .join('\n');
 const printCssContent = fs.readFileSync(path.join(rootDir, 'css/print.css'), 'utf-8');
 assert.ok(styleCssContent.includes('.notification-badge'), 'style.css must define .notification-badge');
 assert.ok(styleCssContent.includes('.notification-dropdown'), 'style.css must define .notification-dropdown');

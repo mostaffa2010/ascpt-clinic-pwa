@@ -1,0 +1,682 @@
+/* ==========================================================================
+   ASCPT CLINIC PWA - FINANCE & FINANCIAL REPORTS VIEW
+   File: css/views/finance.css
+   Scope: Daily & Monthly Reports, Financial Cockpit, Cash Drawer Safe,
+          Expense Categories & Settlements, Doctors Salaries Breakdown,
+          and Operating Profit Dashboard (Steps 58-60)
+   Clean Specificity: Zero !important & Strict Theme Isolation
+   ========================================================================== */
+
+/* ----------------------------------------------------------------------------
+   1. Finance View Container & Header Title
+   ---------------------------------------------------------------------------- */
+#view-finance {
+  width: 100%;
+  max-width: var(--max-content-width, 1440px);
+  margin: 0 auto;
+  padding-bottom: 24px;
+}
+
+.finance-header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.finance-main-title {
+  font-size: 1.35rem;
+  font-weight: 800;
+  margin: 0;
+  color: var(--text-main);
+}
+
+.fin-card-spaced {
+  margin-top: 16px;
+}
+
+.fin-card-mb {
+  margin-bottom: 16px;
+}
+
+/* ----------------------------------------------------------------------------
+   2. Segmented Mode Toggle Tabs (Daily vs Monthly vs Claims)
+   ---------------------------------------------------------------------------- */
+.finance-mode-segmented {
+  display: flex;
+  background: var(--bg-subtle);
+  border-radius: 16px;
+  padding: 4px;
+  gap: 4px;
+  border: 1.5px solid var(--border-color);
+  margin-bottom: 12px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.finance-mode-segmented .btn {
+  flex: 1;
+  border: none;
+  border-radius: 12px;
+  padding: 9px 12px;
+  font-weight: 800;
+  font-size: 0.86rem;
+  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+:root:not([data-theme="dark"]) .finance-mode-segmented .btn.btn-outline {
+  background: transparent;
+  color: #64748b;
+  box-shadow: none;
+}
+
+:root:not([data-theme="dark"]) .finance-mode-segmented .btn.btn-primary {
+  background: #ffffff;
+  color: #0284c7;
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.08);
+}
+
+[data-theme="dark"] .finance-mode-segmented .btn.btn-outline {
+  background: transparent;
+  color: #94a3b8;
+  box-shadow: none;
+}
+
+[data-theme="dark"] .finance-mode-segmented .btn.btn-primary {
+  background: #1e293b;
+  color: #38bdf8;
+  border: 1px solid rgba(56, 189, 248, 0.3);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+}
+
+.finance-mode-segmented .tab-label-short {
+  display: none;
+}
+
+@media (max-width: 480px) {
+  .finance-mode-segmented .tab-label-full {
+    display: none;
+  }
+  .finance-mode-segmented .tab-label-short {
+    display: inline;
+  }
+}
+
+/* ----------------------------------------------------------------------------
+   3. Top Action Buttons (Expense, Excel, Print)
+   ---------------------------------------------------------------------------- */
+#finance-top-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 14px;
+}
+
+.btn-fin-action {
+  height: 42px;
+  padding: 0 16px;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border-radius: 10px;
+}
+
+.btn-fin-expense {
+  border-color: var(--danger);
+  color: var(--danger);
+}
+
+.btn-fin-expense:hover {
+  background: rgba(239, 68, 68, 0.08);
+}
+
+/* ----------------------------------------------------------------------------
+   4. Filter Bar Card & Controls
+   ---------------------------------------------------------------------------- */
+#finance-filter-bar-card {
+  border-radius: 18px;
+  padding: 14px 16px;
+  margin-bottom: 16px;
+  box-shadow: var(--shadow-sm);
+}
+
+.fin-filter-group-daily {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+}
+
+.fin-filter-top-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  width: 100%;
+}
+
+.fin-date-label-box {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.fin-filter-label {
+  font-size: 0.85rem;
+  font-weight: bold;
+  white-space: nowrap;
+  margin: 0;
+  color: var(--text-main);
+}
+
+.fin-date-input-wrap {
+  position: relative;
+  display: inline-block;
+}
+
+.fin-date-picker-input {
+  width: 130px;
+  font-weight: 700;
+  padding-left: 24px;
+  padding-right: 6px;
+  font-size: 0.82rem;
+}
+
+.fin-month-picker-input {
+  width: 145px;
+  font-weight: 700;
+}
+
+.fin-date-input-icon {
+  position: absolute;
+  left: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--primary);
+  pointer-events: none;
+  font-size: 0.85rem;
+}
+
+.fin-month-input-icon {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--primary);
+  pointer-events: none;
+}
+
+.fin-quick-strip {
+  margin: 0;
+  display: inline-flex;
+  flex-shrink: 0;
+  gap: 6px;
+}
+
+.btn-quick-date {
+  padding: 4px 10px;
+  font-size: 0.76rem;
+  font-weight: 700;
+  border-radius: 8px;
+  border: 1px solid var(--border-color);
+  background: var(--bg-subtle);
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.btn-quick-date:hover {
+  background: var(--primary-light);
+  color: var(--primary);
+}
+
+.btn-quick-date.active {
+  background: var(--primary);
+  color: #ffffff;
+  border-color: var(--primary);
+}
+
+[data-theme="dark"] .btn-quick-date {
+  background: #1e293b;
+  border-color: #334155;
+  color: #94a3b8;
+}
+
+[data-theme="dark"] .btn-quick-date.active {
+  background: #0284c7;
+  color: #ffffff;
+  border-color: #0284c7;
+}
+
+.fin-doctor-filter-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+}
+
+.fin-select-wrapper {
+  flex: 1;
+  min-width: 0;
+}
+
+.fin-select-btn {
+  width: 100%;
+  justify-content: space-between;
+}
+
+.fin-filter-group-monthly {
+  gap: 12px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+/* ----------------------------------------------------------------------------
+   5. Unified Financial Cockpit & Cash Safe Hub
+   ---------------------------------------------------------------------------- */
+#card-cash-drawer-glance {
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.08) 0%, rgba(2, 132, 199, 0.05) 100%);
+  border: 1.5px solid rgba(16, 185, 129, 0.35);
+  border-radius: 20px;
+  padding: 16px 18px;
+  margin-bottom: 16px;
+  box-shadow: 0 4px 16px -2px rgba(16, 185, 129, 0.06);
+}
+
+[data-theme="dark"] #card-cash-drawer-glance {
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.12) 0%, rgba(15, 23, 42, 0.75) 100%);
+  border-color: rgba(16, 185, 129, 0.35);
+  box-shadow: 0 4px 16px -2px rgba(0, 0, 0, 0.4);
+}
+
+.cash-drawer-top-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+  gap: 10px;
+}
+
+.cash-drawer-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+.cash-drawer-icon-wrap {
+  width: 38px;
+  height: 38px;
+  border-radius: 12px;
+  background: var(--success-light);
+  color: var(--success);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.15rem;
+  flex-shrink: 0;
+}
+
+[data-theme="dark"] .cash-drawer-icon-wrap {
+  background: rgba(16, 185, 129, 0.2);
+  color: #34d399;
+}
+
+.cash-drawer-title-box {
+  min-width: 0;
+}
+
+.cash-drawer-title-box .title {
+  font-weight: 800;
+  font-size: 0.95rem;
+  color: var(--text-main);
+  line-height: 1.35;
+}
+
+.cash-drawer-status-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: rgba(16, 185, 129, 0.12);
+  color: var(--success);
+  font-size: 0.72rem;
+  font-weight: 800;
+  border: 1px solid rgba(16, 185, 129, 0.3);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+[data-theme="dark"] .cash-drawer-status-pill {
+  color: #34d399;
+  border-color: rgba(52, 211, 153, 0.35);
+}
+
+.cash-drawer-hero-metric {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 6px 0 10px 0;
+}
+
+.cash-drawer-amount-text {
+  font-size: 2.1rem;
+  font-weight: 800;
+  color: var(--success);
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+  letter-spacing: -0.5px;
+}
+
+.cash-drawer-formula-box {
+  background: var(--bg-surface);
+  border: 1px dashed rgba(16, 185, 129, 0.35);
+  border-radius: 12px;
+  padding: 8px 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--text-main);
+  text-align: center;
+}
+
+[data-theme="dark"] .cash-drawer-formula-box {
+  background: rgba(15, 23, 42, 0.55);
+}
+
+.cash-drawer-formula-box i {
+  color: var(--primary);
+  font-size: 0.82rem;
+}
+
+/* ----------------------------------------------------------------------------
+   6. Triple Sub-Metrics Grid & Handoff Confirmation Row
+   ---------------------------------------------------------------------------- */
+.financial-cockpit-card {
+  margin-bottom: 16px;
+  border: 1.5px solid var(--border-color);
+  background: var(--bg-surface);
+  transition: all 0.25s ease;
+}
+
+.cockpit-sub-metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  margin-top: 14px;
+  padding-top: 14px;
+  border-top: 1px solid var(--border-color);
+}
+
+.cockpit-metric-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  background: var(--bg-subtle);
+  border-radius: 12px;
+  border: 1px solid var(--border-color);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.cockpit-metric-item .c-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+  flex-shrink: 0;
+}
+
+.cockpit-metric-item.green .c-icon {
+  background: rgba(16, 185, 129, 0.12);
+  color: var(--success);
+}
+
+.cockpit-metric-item.red .c-icon {
+  background: rgba(239, 68, 68, 0.12);
+  color: var(--danger);
+}
+
+.cockpit-metric-item.blue .c-icon {
+  background: rgba(2, 132, 199, 0.12);
+  color: var(--primary);
+}
+
+.cockpit-metric-item .c-info {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.cockpit-metric-item .c-label {
+  font-size: 0.74rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.cockpit-metric-item .c-val {
+  font-size: 1rem;
+  font-weight: 800;
+  color: var(--text-main);
+  margin-top: 2px;
+  white-space: nowrap;
+}
+
+@media (max-width: 768px) {
+  .cockpit-sub-metrics-grid {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+  .cockpit-metric-item {
+    padding: 8px 10px;
+  }
+  .cockpit-metric-item .c-val {
+    font-size: 0.95rem;
+  }
+}
+
+.cash-drawer-footer-actions {
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px dashed var(--border-color);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.fin-handoff-status {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.btn-confirm-cash-handoff {
+  font-weight: 800;
+  font-size: 0.84rem;
+  padding: 6px 14px;
+  border-radius: 999px;
+  border-color: #10b981;
+  color: #059669;
+  background: rgba(16, 185, 129, 0.08);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-confirm-cash-handoff:hover {
+  background: rgba(16, 185, 129, 0.18);
+}
+
+/* ----------------------------------------------------------------------------
+   7. Daily Report Cards, Doctors Breakdown & Tables
+   ---------------------------------------------------------------------------- */
+.fin-card-header-flex {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.fin-badge-settlements {
+  font-size: 0.8rem;
+  font-weight: 800;
+}
+
+.fin-doctors-breakdown-row {
+  display: flex;
+  gap: 15px;
+  flex-wrap: wrap;
+}
+
+@media screen and (min-width: 768px) {
+  #daily-doctors-mobile-deck,
+  #monthly-doctors-mobile-cards {
+    display: block;
+    width: 100%;
+  }
+
+  #daily-doctors-mobile-deck .doc-stack-wrapper,
+  #monthly-doctors-mobile-cards .doc-stack-wrapper {
+    display: block;
+    width: 100%;
+  }
+
+  #daily-doctors-mobile-deck .doc-stack-container,
+  #monthly-doctors-mobile-cards .doc-stack-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 16px;
+    min-height: auto;
+    perspective: none;
+    padding: 4px 0 10px 0;
+    position: static;
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  #daily-doctors-mobile-deck .doc-stack-card,
+  #monthly-doctors-mobile-cards .doc-stack-card {
+    position: relative;
+    top: auto;
+    left: auto;
+    right: auto;
+    bottom: auto;
+    height: auto;
+    transform: none;
+    opacity: 1;
+    visibility: visible;
+    z-index: 1;
+    pointer-events: auto;
+    will-change: auto;
+    box-shadow: var(--shadow-sm);
+    border-color: var(--border-color);
+    cursor: default;
+    transition: box-shadow 0.2s ease, border-color 0.2s ease;
+    margin-bottom: 0;
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  #daily-doctors-mobile-deck .doc-stack-card:hover,
+  #monthly-doctors-mobile-cards .doc-stack-card:hover {
+    border-color: rgba(2, 132, 199, 0.4);
+    box-shadow: var(--shadow-md);
+  }
+
+  #daily-doctors-mobile-deck .doc-stack-nav-bar,
+  #monthly-doctors-mobile-cards .doc-stack-nav-bar,
+  #daily-doctors-mobile-deck #btn-toggle-daily-doc-stack,
+  #monthly-doctors-mobile-cards #btn-toggle-monthly-doc-stack,
+  #daily-doctors-mobile-deck #daily-doc-stack-counter,
+  #monthly-doctors-mobile-cards #monthly-doc-stack-counter {
+    display: none;
+  }
+}
+
+/* ----------------------------------------------------------------------------
+   8. Monthly Report Operating Profit & Distribution Dashboard
+   ---------------------------------------------------------------------------- */
+.fin-icon-wrap-success {
+  background: rgba(16, 185, 129, 0.12);
+  color: var(--success);
+}
+
+.fin-status-pill-success {
+  background: rgba(16, 185, 129, 0.12);
+  color: var(--success);
+  border: 1px solid rgba(16, 185, 129, 0.25);
+}
+
+.fin-amount-success {
+  color: var(--success);
+}
+
+.fin-sub-metrics-mt {
+  margin-top: 14px;
+}
+
+.fin-settlements-badge {
+  font-size: 0.85rem;
+  padding: 6px 12px;
+}
+
+.fin-danger-badge {
+  background: rgba(239, 68, 68, 0.12);
+  color: var(--danger);
+  font-size: 0.8rem;
+  font-weight: 800;
+}
+
+.fin-summary-mobile-pad {
+  padding: 12px 14px;
+}
+
+/* ----------------------------------------------------------------------------
+   9. Table Alignments & Column Sizing Utilities
+   ---------------------------------------------------------------------------- */
+.th-center {
+  text-align: center;
+}
+
+.th-center-bold {
+  text-align: center;
+  font-weight: 800;
+}
+
+.fin-action-col-60 {
+  width: 60px;
+}
+
+.fin-action-col-80 {
+  width: 80px;
+  text-align: center;
+}

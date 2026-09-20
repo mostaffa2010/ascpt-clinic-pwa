@@ -1,0 +1,85 @@
+/* ==========================================================================
+   ASCPT CLINIC PWA - CHIPS & BADGES COMPONENT
+   File: css/components/chips-badges.css
+   Scope: Status Badges, Filter Chips, Segmented Controls (Steps 26-27)
+   Clean Specificity: Zero !important & Strict Theme Isolation
+   ========================================================================== */
+
+/* ----------------------------------------------------------------------------
+   1. Dashboard Segmented Tab Buttons (Reception Waiting / Recent Sessions)
+   ---------------------------------------------------------------------------- */
+.dashboard-tabs-segmented .dashboard-segmented-tab-btn,
+.dashboard-segmented-tab-btn {
+  flex: 1 1 0%;
+  width: 50%;
+  min-width: 0;
+  max-width: 50%;
+  border: 1px solid transparent;
+  background: transparent;
+  padding: 7px 4px;
+  border-radius: 9px;
+  font-family: var(--font-family, inherit);
+  font-weight: 800;
+  font-size: 0.82rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  gap: 5px;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  box-sizing: border-box;
+  min-height: 38px;
+  overflow: hidden;
+}
+
+.dashboard-segmented-tab-btn .tab-text {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+:root:not([data-theme="dark"]) .dashboard-segmented-tab-btn {
+  color: #64748b;
+}
+
+:root:not([data-theme="dark"]) .dashboard-segmented-tab-btn:hover {
+  color: #0f172a;
+  background: rgba(255, 255, 255, 0.6);
+}
+
+[data-theme="dark"] .dashboard-segmented-tab-btn {
+  color: #94a3b8;
+}
+
+[data-theme="dark"] .dashboard-segmented-tab-btn:hover {
+  color: #f8fafc;
+  background: rgba(255, 255, 255, 0.05);
+}
+
+:root:not([data-theme="dark"]) .dashboard-segmented-tab-btn.active {
+  background: #ffffff;
+  color: #0284c7;
+  border-color: rgba(2, 132, 199, 0.25);
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.08);
+}
+
+[data-theme="dark"] .dashboard-segmented-tab-btn.active {
+  background: #0f172a;
+  color: #38bdf8;
+  border-color: rgba(56, 189, 248, 0.35);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.4);
+}
+
+.dashboard-segmented-tab-btn .badge-counter {
+  font-size: 0.72rem;
+  font-weight: 800;
+  border-radius: 999px;
+  padding: 1px 6px;
+  line-height: 1;
+  min-width: 18px;
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}

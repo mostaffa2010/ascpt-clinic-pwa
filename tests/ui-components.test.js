@@ -14,7 +14,28 @@ console.log('--- Running ASCPT UI Component Compliance Guardrail ---');
 const htmlContent = fs.readFileSync(htmlPath, 'utf-8');
 const appJsContent = fs.readFileSync(appJsPath, 'utf-8');
 const styleCssPath = path.join(rootDir, 'css/style.css');
-const styleCssContent = fs.readFileSync(styleCssPath, 'utf-8');
+const modularCssFiles = [
+  'css/design-tokens.css',
+  'css/base.css',
+  'css/components/buttons.css',
+  'css/components/modals.css',
+  'css/views/patients.css',
+  'css/views/dashboard.css',
+  'css/views/sessions.css',
+  'css/views/finance.css',
+  'css/views/appointments.css',
+  'css/views/admin.css'
+];
+const getModularCssContent = () => {
+  if (fs.existsSync(styleCssPath)) {
+    return fs.readFileSync(styleCssPath, 'utf-8');
+  }
+  return modularCssFiles
+    .filter(f => fs.existsSync(path.join(rootDir, f)))
+    .map(f => fs.readFileSync(path.join(rootDir, f), 'utf-8'))
+    .join('\n');
+};
+const styleCssContent = getModularCssContent();
 const lines = htmlContent.split('\n');
 
 // 1. Strict Guardrail: ZERO Native Date Pickers (<input type="date"> is strictly prohibited across the entire app)
@@ -260,7 +281,7 @@ console.log('✓ 17. ES Module Imports Integrity: Verified 100% of internal impo
 assert(htmlContent.includes('id="pull-to-reload-indicator"'), 'index.html must include #pull-to-reload-indicator');
 assert(htmlContent.includes('id="pull-to-reload-icon"'), 'index.html must include #pull-to-reload-icon');
 assert(htmlContent.includes('id="pull-progress-circle"'), 'index.html must include #pull-progress-circle');
-const cssContent = fs.readFileSync(path.join(rootDir, 'css/style.css'), 'utf-8');
+const cssContent = styleCssContent;
 assert(cssContent.includes('.pull-to-reload-indicator'), 'style.css must define .pull-to-reload-indicator');
 assert(cssContent.includes('.pull-to-reload-bubble'), 'style.css must define .pull-to-reload-bubble');
 assert(cssContent.includes('overscroll-behavior-y: contain'), 'style.css must contain overscroll-behavior-y: contain to suppress native pull refresh');
@@ -301,6 +322,70 @@ assert(freshAppJs.includes('hasUnsavedChanges()'), 'app.js must guard modal-pati
 assert(freshFinJs.includes('renderMonthlySkeleton()'), 'finance.js must implement renderMonthlySkeleton()');
 assert(freshClaimsJs.includes('hero-styled-card') && freshClaimsJs.includes('لا توجد مطالبات مسجلة'), 'claims.js must render hero-styled-card empty state');
 console.log('✓ 21. UX Polish & Guardrails: Verified patient modal unsaved changes protection, monthly report skeleton shimmer, and empty states.');
+
+// 22. Strict Guardrail: Protected DOM Coupling IDs Integrity (Phase 0 Safety Net)
+const domMapPath = path.join(rootDir, "docs/DOM_COUPLING_MAP.md");
+assert(fs.existsSync(domMapPath), "docs/DOM_COUPLING_MAP.md must exist");
+const domMapContent = fs.readFileSync(domMapPath, "utf-8");
+const staticIdsInMap = [...domMapContent.matchAll(/- #([a-zA-Z0-9_-]+) \[موجود في index\.html\]/g)].map(m => m[1]);
+assert(staticIdsInMap.length >= 650, "Must have at least 650 protected static IDs mapped in DOM_COUPLING_MAP.md");
+
+const missingDomIds = [];
+staticIdsInMap.forEach(id => {
+  if (!htmlContent.includes(`id="${id}"`) && !htmlContent.includes(`id='${id}'`)) {
+    missingDomIds.push(id);
+  }
+});
+assert.equal(
+  missingDomIds.length,
+  0,
+  `[GUARDRAIL FAILURE] Found ${missingDomIds.length} protected DOM ID(s) missing from index.html!\n` +
+  `These IDs are coupled to JS modules and defined in docs/DOM_COUPLING_MAP.md.\n` +
+  `Missing IDs:\n` + missingDomIds.join(", ")
+);
+console.log(`✓ 22. Protected DOM Coupling Integrity: Verified all ${staticIdsInMap.length} static IDs from docs/DOM_COUPLING_MAP.md exist in index.html.`);
+
+// 23. Strict Guardrail: Zero !important in Modern Modular View CSS Files (Step 80)
+const viewCssDir = path.join(rootDir, "css/views");
+const viewCssFiles = fs.readdirSync(viewCssDir).filter(f => f.endsWith(".css") && f !== "shell.css");
+const importantViolations = [];
+viewCssFiles.forEach(vf => {
+  const rawContent = fs.readFileSync(path.join(viewCssDir, vf), "utf-8");
+  // Remove all CSS comment blocks
+  const content = rawContent.replace(/\/\*[\s\S]*?\*\//g, "");
+  const vLines = content.split("\n");
+  vLines.forEach((l, idx) => {
+    const stripped = l.trim();
+    if (stripped.includes("!important")) {
+      importantViolations.push(`${vf}:${idx+1} -> ${stripped}`);
+    }
+  });
+});
+assert.equal(
+  importantViolations.length,
+  0,
+  `[GUARDRAIL FAILURE] Found ${importantViolations.length} unauthorized !important usage(s) in modular view stylesheets.\n` +
+  `ASCPT Architecture Standards strictly prohibit !important in css/views/*.css.\n` +
+  `Violations:\n` + importantViolations.join("\n")
+);
+console.log(`✓ 23. Zero !important Architecture Gatekeeper: Verified 100% clean specificity across ${viewCssFiles.length} modular view stylesheets.`);
+
+// 24. Strict Guardrail: HTML Semantic Linting & Inline Style Freeze (Step 81)
+const styleMatches = [...htmlContent.matchAll(/style=["']([^"']+)["']/g)].map(m => m[1]);
+assert.ok(
+  styleMatches.length <= 700,
+  `[GUARDRAIL FAILURE] Total inline styles in index.html (${styleMatches.length}) exceeded the strict threshold of 700.`
+);
+console.log(`✓ 24. HTML Inline Style Freeze Gatekeeper: Verified index.html contains zero unapproved styling regressions (${styleMatches.length} remaining).`);
+
+// 25. Strict Guardrail: Data Safety & XSS Sanitization Gatekeeper (Step 82)
+const modulesJsDir = path.join(rootDir, "js");
+const jsFilesToCheck = ["patients.js", "sessions.js", "claims.js", "finance.js", "doctor-dashboard.js", "appointments.js"];
+jsFilesToCheck.forEach(jf => {
+  const code = fs.readFileSync(path.join(modulesJsDir, jf), "utf-8");
+  assert.ok(code.includes("escapeHTML"), `${jf} must import and utilize escapeHTML for XSS sanitization`);
+});
+console.log(`✓ 25. Data Safety & XSS Gatekeeper: Verified escapeHTML() sanitization enforcement across all ${jsFilesToCheck.length} core business modules.`);
 
 console.log('===================================================================');
 console.log('✓ All ASCPT UI Component Compliance Guardrail Checks Passed (100%)!');

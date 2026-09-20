@@ -444,9 +444,18 @@ export class SessionsManager {
     }
 
     const specialGroup = document.getElementById('form-group-special-session');
-    if (bodyPartsGroup) bodyPartsGroup.style.display = isExam ? 'none' : 'block';
-    if (specialGroup) specialGroup.style.display = isExam ? 'none' : 'block';
-    if (examTypeGroup) examTypeGroup.style.display = isExam ? 'block' : 'none';
+    if (bodyPartsGroup) {
+      bodyPartsGroup.hidden = isExam;
+      bodyPartsGroup.style.display = isExam ? 'none' : 'block';
+    }
+    if (specialGroup) {
+      specialGroup.hidden = isExam;
+      specialGroup.style.display = isExam ? 'none' : 'block';
+    }
+    if (examTypeGroup) {
+      examTypeGroup.hidden = !isExam;
+      examTypeGroup.style.display = isExam ? 'block' : 'none';
+    }
 
     if (dateLabel) {
       dateLabel.innerHTML = `<i class="fa-solid fa-calendar-day"></i> ${isExam ? 'تاريخ الكشف *' : 'تاريخ الجلسة *'}`;
@@ -715,8 +724,14 @@ export class SessionsManager {
     const nameEl = document.getElementById('selected-patient-name');
     const subEl = document.getElementById('selected-patient-sub');
 
-    if (trigger) trigger.style.display = 'none';
-    if (selectedBox) selectedBox.style.display = 'flex';
+    if (trigger) {
+      trigger.classList.add('d-none');
+      trigger.style.display = 'none';
+    }
+    if (selectedBox) {
+      selectedBox.classList.remove('d-none');
+      selectedBox.style.display = 'flex';
+    }
 
     if (nameEl) nameEl.textContent = patient.name;
     if (subEl) {
@@ -881,8 +896,14 @@ export class SessionsManager {
     document.getElementById('session-patient-id').value = '';
     const trigger = document.getElementById('patient-picker-trigger');
     const selectedBox = document.getElementById('selected-patient-box');
-    if (trigger) trigger.style.display = 'flex';
-    if (selectedBox) selectedBox.style.display = 'none';
+    if (trigger) {
+      trigger.classList.remove('d-none');
+      trigger.style.display = 'flex';
+    }
+    if (selectedBox) {
+      selectedBox.classList.add('d-none');
+      selectedBox.style.display = 'none';
+    }
 
     const paymentContainer = document.getElementById('session-payment-method-container');
     if (paymentContainer) {
@@ -1998,9 +2019,18 @@ export class SessionsManager {
     const cardsContainer = document.getElementById('sessions-today-mobile-cards');
     const toggleGroup = document.getElementById('sessions-view-mode-toggle');
 
-    if (tableContainer) tableContainer.style.display = 'none';
-    if (cardsContainer && this.activeSessionsTab !== 'home_visits') cardsContainer.style.display = 'grid';
-    if (toggleGroup) toggleGroup.style.display = 'none';
+    if (tableContainer) {
+      tableContainer.classList.add('d-none');
+      tableContainer.style.display = 'none';
+    }
+    if (cardsContainer && this.activeSessionsTab !== 'home_visits') {
+      cardsContainer.classList.remove('d-none');
+      cardsContainer.style.display = 'grid';
+    }
+    if (toggleGroup) {
+      toggleGroup.classList.add('d-none');
+      toggleGroup.style.display = 'none';
+    }
   }
 
   async deleteSession(sessionId) {
@@ -2188,7 +2218,7 @@ export class SessionsManager {
       };
 
       // 2. Partition each patient's visits into distinct letter/cycle batches
-      byPatient.forEach((patientSessions, pKey) => {
+      byPatient.forEach((patientSessions, _pKey) => {
         patientSessions.sort((a, b) => {
           const dComp = (a.date || '').localeCompare(b.date || '');
           if (dComp !== 0) return dComp;
@@ -2370,7 +2400,7 @@ export class SessionsManager {
   }
 
 
-  async deleteHomeVisitsGroup(groupIdOrPatientId, patientIdOrRef, letterRefOrName, patientNameParam) {
+  async deleteHomeVisitsGroup(groupIdOrPatientId, patientIdOrRef, letterRefOrName, _patientNameParam) {
     const currentUser = auth.getCurrentUser();
     if (!RolesManager.canDelete(currentUser)) {
       this.app.showAlert('عفواً، حذف الجلسات متاح لإدارة المركز والاستقبال فقط.', 'صلاحية غير كافية', 'warning');
@@ -2434,7 +2464,7 @@ export class SessionsManager {
   }
 
 
-  async settleHomeVisitsGroup(groupIdOrPatientId, patientIdOrRef, letterRefOrName, patientNameParam) {
+  async settleHomeVisitsGroup(groupIdOrPatientId, patientIdOrRef, letterRefOrName, _patientNameParam) {
     const currentUser = auth.getCurrentUser();
     if (!RolesManager.canDelete(currentUser)) {
       this.app.showAlert('عفواً، تسوية الجلسات متاحة لإدارة المركز والاستقبال فقط.', 'صلاحية غير كافية', 'warning');

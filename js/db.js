@@ -1108,13 +1108,13 @@ class FirestoreDatabaseService {
     try {
       await deleteDoc(doc(firestoreDb, 'sessions', sessionId));
       this._sessionDocCache.delete(sessionId);
-      for (const [key, entry] of this._sessionsByDateCache.entries()) {
+      for (const entry of this._sessionsByDateCache.values()) {
         if (Array.isArray(entry.data) && entry.data.some(s => s.id === sessionId)) {
           entry.data = entry.data.filter(s => s.id !== sessionId);
           entry.time = Date.now();
         }
       }
-      for (const [pId, entry] of this._sessionsByPatientCache.entries()) {
+      for (const entry of this._sessionsByPatientCache.values()) {
         if (Array.isArray(entry.data) && entry.data.some(s => s.id === sessionId)) {
           entry.data = entry.data.filter(s => s.id !== sessionId);
           entry.time = Date.now();
@@ -1147,13 +1147,13 @@ class FirestoreDatabaseService {
       await batch.commit();
 
       const idSet = new Set(sessionIds);
-      for (const [key, entry] of this._sessionsByDateCache.entries()) {
+      for (const entry of this._sessionsByDateCache.values()) {
         if (Array.isArray(entry.data) && entry.data.some(s => idSet.has(s.id))) {
           entry.data = entry.data.filter(s => !idSet.has(s.id));
           entry.time = Date.now();
         }
       }
-      for (const [pId, entry] of this._sessionsByPatientCache.entries()) {
+      for (const entry of this._sessionsByPatientCache.values()) {
         if (Array.isArray(entry.data) && entry.data.some(s => idSet.has(s.id))) {
           entry.data = entry.data.filter(s => !idSet.has(s.id));
           entry.time = Date.now();
@@ -1223,12 +1223,12 @@ class FirestoreDatabaseService {
         });
       }
       const idSet = new Set(sessionIds);
-      for (const [key, entry] of this._sessionsByDateCache.entries()) {
+      for (const entry of this._sessionsByDateCache.values()) {
         if (Array.isArray(entry.data)) {
           entry.data.forEach(s => {
             if (idSet.has(s.id)) {
               s.isSettled = true;
-              s.settledAt = settledAt;
+              s.settledAt = nowIso;
               s.settledBy = settledBy;
             }
           });

@@ -1,0 +1,167 @@
+/* ==========================================================================
+   ASCPT CLINIC PWA - RECEPTION & WAITING LIST VIEW
+   File: css/views/reception.css
+   Scope: Reception Tabs, Waiting List Table, Doctor Filter Bar & Compact Cards (Steps 41-43)
+   Clean Specificity: Zero !important & Strict Theme Isolation
+   ========================================================================== */
+
+/* ----------------------------------------------------------------------------
+   1. Reception Dashboard Tabs & Header
+   ---------------------------------------------------------------------------- */
+.reception-card-header {
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.dashboard-tabs-segmented {
+  display: flex;
+  width: 100%;
+  max-width: 100%;
+  align-items: center;
+  border-radius: 12px;
+  padding: 3px;
+  gap: 4px;
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
+:root:not([data-theme="dark"]) .dashboard-tabs-segmented {
+  background: #f1f5f9;
+  border: 1.5px solid #e2e8f0;
+}
+
+[data-theme="dark"] .dashboard-tabs-segmented {
+  background: #1e293b;
+  border: 1.5px solid #334155;
+}
+
+/* ----------------------------------------------------------------------------
+   2. Reception Actions Toolbar & Doctor Filter Pills
+   ---------------------------------------------------------------------------- */
+.reception-action-filter-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 8px 14px;
+  border-bottom: 1px solid var(--border-color);
+  flex-wrap: wrap;
+}
+
+.reception-doc-filter-bar {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  flex: 1;
+  scrollbar-width: none;
+}
+
+.reception-doc-filter-bar::-webkit-scrollbar {
+  display: none;
+}
+
+.doc-filter-pill {
+  font-size: 0.8rem;
+  font-weight: 800;
+  padding: 5px 12px;
+  border-radius: 999px;
+  border: 1.5px solid var(--border-color);
+  background: var(--bg-surface);
+  color: var(--text-muted);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  white-space: nowrap;
+  flex-shrink: 0;
+  transition: all 0.15s ease;
+}
+
+.doc-filter-pill:hover {
+  border-color: var(--primary);
+  color: var(--primary);
+}
+
+.doc-filter-pill.active {
+  border-color: var(--primary);
+  background: var(--primary);
+  color: #ffffff;
+}
+
+[data-theme="dark"] .doc-filter-pill {
+  background: var(--bg-subtle);
+  border-color: var(--border-color);
+  color: var(--text-muted);
+}
+
+[data-theme="dark"] .doc-filter-pill.active {
+  background: var(--primary);
+  border-color: var(--primary);
+  color: #ffffff;
+}
+
+#waiting-tab-actions {
+  flex-shrink: 0;
+}
+
+#btn-reception-walkin {
+  font-weight: 800;
+  border-radius: 999px;
+  padding: 5px 12px;
+  font-size: 0.8rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  box-shadow: 0 2px 6px rgba(2, 132, 199, 0.25);
+  white-space: nowrap;
+}
+
+/* ----------------------------------------------------------------------------
+   3. Waiting List Mobile Cards & Compact Cards
+   ---------------------------------------------------------------------------- */
+#dashboard-waiting-mobile-cards {
+  padding: 10px 14px;
+  gap: 8px;
+}
+
+#dashboard-waiting-mobile-cards .compact-waiting-card,
+.compact-waiting-card {
+  padding: 10px 12px;
+  margin-bottom: 8px;
+  border-radius: 12px;
+}
+
+/* ----------------------------------------------------------------------------
+   4. Recent Sessions Tab Toolbar
+   ---------------------------------------------------------------------------- */
+.recent-sessions-toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 6px 12px;
+  border-bottom: 1px solid var(--border-color);
+  background: var(--bg-subtle);
+}
+
+.recent-sessions-title {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  display: inline-flex;
+  align-items: center;
+}
+
+.recent-sessions-title i {
+  margin-left: 4px;
+}
+
+#btn-dashboard-view-all-sessions {
+  font-weight: 700;
+  border-radius: 999px;
+  font-size: 0.74rem;
+  padding: 2px 10px;
+  background: var(--bg-surface);
+  white-space: nowrap;
+}

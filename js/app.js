@@ -217,10 +217,22 @@ class App {
         tabWaiting.classList.remove('btn-outline');
         tabRecent.classList.remove('active');
         tabRecent.classList.add('btn-outline');
-        if (contentWaiting) contentWaiting.style.display = 'block';
-        if (contentRecent) contentRecent.style.display = 'none';
-        if (viewAllSessionsBtn) viewAllSessionsBtn.style.display = 'none';
-        if (walkinActions) walkinActions.style.display = 'flex';
+        if (contentWaiting) {
+          contentWaiting.hidden = false;
+          contentWaiting.style.display = 'block';
+        }
+        if (contentRecent) {
+          contentRecent.hidden = true;
+          contentRecent.style.display = 'none';
+        }
+        if (viewAllSessionsBtn) {
+          viewAllSessionsBtn.hidden = true;
+          viewAllSessionsBtn.style.display = 'none';
+        }
+        if (walkinActions) {
+          walkinActions.hidden = false;
+          walkinActions.style.display = 'flex';
+        }
         this.appointmentsManager?.renderReceptionWaitingList();
       });
 
@@ -229,10 +241,22 @@ class App {
         tabRecent.classList.remove('btn-outline');
         tabWaiting.classList.remove('active');
         tabWaiting.classList.add('btn-outline');
-        if (contentRecent) contentRecent.style.display = 'block';
-        if (contentWaiting) contentWaiting.style.display = 'none';
-        if (viewAllSessionsBtn) viewAllSessionsBtn.style.display = 'inline-block';
-        if (walkinActions) walkinActions.style.display = 'none';
+        if (contentRecent) {
+          contentRecent.hidden = false;
+          contentRecent.style.display = 'block';
+        }
+        if (contentWaiting) {
+          contentWaiting.hidden = true;
+          contentWaiting.style.display = 'none';
+        }
+        if (viewAllSessionsBtn) {
+          viewAllSessionsBtn.hidden = false;
+          viewAllSessionsBtn.style.display = 'inline-block';
+        }
+        if (walkinActions) {
+          walkinActions.hidden = true;
+          walkinActions.style.display = 'none';
+        }
         this.financeManager?.loadDailyReport();
       });
     }
@@ -314,7 +338,7 @@ class App {
 
   initTheme() {
     const saved = localStorage.getItem('ascpt_theme');
-    const isDark = saved === 'dark' || (!saved && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches);
+    const isDark = saved === 'dark';
     this.applyTheme(isDark ? 'dark' : 'light');
 
     const toggleBtns = document.querySelectorAll('#btn-toggle-theme, #btn-toggle-theme-desktop, #btn-profile-toggle-theme');
@@ -2081,7 +2105,7 @@ class App {
   }
 
   // ================= Open Session Form Pre-filled for Finished Patient (v2.10.27) =================
-  async openSessionForAppointment({ apptId, patientId, patientName, docUid, docName }) {
+  async openSessionForAppointment({ apptId, patientId, patientName, docUid: _docUid, docName }) {
     this.switchView('sessions');
     if (patientId && this.sessionsManager) {
       await this.sessionsManager.selectPatient(patientId);

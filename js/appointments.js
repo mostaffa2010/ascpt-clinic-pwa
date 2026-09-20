@@ -6,7 +6,7 @@ import { CLINIC_CONFIG } from './clinic-config.js';
 // Master recurring bookings persist automatically across weeks until completed/discharged.
 // Single-day exceptions (e.g. patient apologies for today) are tracked without breaking future weeks.
 
-import { escapeHTML, initStackDeck, getDoctorColor, getLocalDateStr, isDoctorOnDuty, getShiftLabel, getDayShiftKey, getLatestTherapySession } from './utils.js';
+import { escapeHTML, initStackDeck, getDoctorColor, getLocalDateStr, isDoctorOnDuty, getShiftLabel, getDayShiftKey } from './utils.js';
 import { db } from './db.js';
 import { auth } from './auth.js';
 
