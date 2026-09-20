@@ -1080,9 +1080,11 @@ export class PatientsManager {
         const safeComp = escapeHTML(p.insuranceCompany || 'تأمين');
         const approvedVisits = p.approvedSessions || 12;
         if (p.billing === 'cash') {
-          billingBadge = `<span class="pc-billing-tag cash"><i class="fa-solid fa-money-bill-wave"></i> <span>نقدي</span></span>`;
+          billingBadge = `<span class="pc-billing-tag pc-badge-cash"><i class="fa-solid fa-money-bill-wave"></i> <span>نقدي</span></span>`;
+        } else if (p.contractType === 'direct') {
+          billingBadge = `<span class="pc-billing-tag pc-badge-direct" title="${safeComp} - ${approvedVisits} زيارة"><i class="fa-solid fa-building"></i> <span>${safeComp}</span></span>`;
         } else {
-          billingBadge = `<span class="pc-billing-tag insurance" title="${safeComp} - ${approvedVisits} زيارة"><i class="fa-solid fa-building"></i> <span>${safeComp}</span></span>`;
+          billingBadge = `<span class="pc-billing-tag pc-badge-indirect" title="${safeComp} - ${approvedVisits} زيارة"><i class="fa-solid fa-handshake"></i> <span>${safeComp}</span></span>`;
         }
 
         const safeId = escapeHTML(p.id);
@@ -1100,46 +1102,45 @@ export class PatientsManager {
 
         return `
           <div class="hero-styled-card hero-patient-card patient-card ${genderClass} ${rowHighlightClass}">
-            <!-- Top Row: Identity (Right) & Action Hub (Left) -->
-            <div class="pc-top-header">
-              <!-- Right Info: Avatar Icon, Name, Gender/Age Subtitle -->
-              <div class="pc-right-info">
+            <!-- Top Header Row 1: Name & Avatar on Right, Company/Billing Badge on Left -->
+            <div class="pc-row-name-company">
+              <div class="pc-name-avatar-wrap">
                 <div class="pc-avatar-icon ${isFemale ? 'female' : 'male'}">
                   <i class="${avatarIcon}"></i>
                 </div>
-                <div class="pc-name-block">
-                  <span class="pc-name-title" onclick="patientsManager.openPatientSheet('${safeId}')" title="اضغط لفتح الشيت الطبي">${safeName}</span>
-                  <div class="pc-meta-sub ${isFemale ? 'female' : 'male'}">
-                    <i class="${genderIcon}"></i> <span>${genderText} ▪ ${safeAge} سنة</span>
-                  </div>
-                </div>
+                <span class="pc-name-title" onclick="patientsManager.openPatientSheet('${safeId}')" title="اضغط لفتح الشيت الطبي">${safeName}</span>
               </div>
-
-              <!-- Left Action Hub: Insurance Badge on Top, Action Pills Below -->
-              <div class="pc-left-hub">
-                <div class="pc-billing-wrap">${billingBadge}</div>
-                <div class="pc-pill-actions">
-                  ${!isDoctor ? `
-                    <button type="button" class="btn-pc-pill btn-pc-session btn-quick-attend" onclick="patientsManager.quickLogSession('${safeId}')" title="تسجيل جلسة سريعة لهذا المريض">
-                      <i class="fa-solid fa-bolt"></i> <span>جلسة</span>
-                    </button>
-                  ` : ''}
-                  ${canAccessSheet ? `
-                    <button type="button" class="btn-pc-pill btn-pc-sheet btn-hero-sheet btn-patient-sheet-action" onclick="patientsManager.openPatientSheet('${safeId}')" title="فتح الشيت الطبي">
-                      <i class="fa-solid fa-file-circle-plus"></i> <span>الشيت</span>
-                    </button>
-                  ` : ''}
-                </div>
+              <div class="pc-billing-wrap">
+                ${billingBadge}
               </div>
             </div>
 
-            <!-- Row 2: Diagnosis / Body Parts / Program Strip -->
+            <!-- Top Header Row 2: Subtitle (Gender/Age) on Right, Quick Action Pills on Left -->
+            <div class="pc-row-meta-actions">
+              <div class="pc-meta-sub ${isFemale ? 'female' : 'male'}">
+                <i class="${genderIcon}"></i> <span>${genderText} ▪ ${safeAge} سنة</span>
+              </div>
+              <div class="pc-pill-actions">
+                ${!isDoctor ? `
+                  <button type="button" class="btn-pc-pill btn-pc-session btn-quick-attend" onclick="patientsManager.quickLogSession('${safeId}')" title="تسجيل جلسة سريعة لهذا المريض">
+                    <i class="fa-solid fa-bolt"></i> <span>جلسة</span>
+                  </button>
+                ` : ''}
+                ${canAccessSheet ? `
+                  <button type="button" class="btn-pc-pill btn-pc-sheet btn-hero-sheet btn-patient-sheet-action" onclick="patientsManager.openPatientSheet('${safeId}')" title="فتح الشيت الطبي">
+                    <i class="fa-solid fa-file-circle-plus"></i> <span>الشيت</span>
+                  </button>
+                ` : ''}
+              </div>
+            </div>
+
+            <!-- Middle Row: Diagnosis / Body Parts / Program Strip -->
             <div class="pc-condition-strip">
               <i class="${mobileAreaInfo.icon}"></i>
               <span>${escapeHTML((mobileAreaInfo.text || '').replace(/ • /g, ' ▪ '))}</span>
             </div>
 
-            <!-- Row 3: Squircle Action Buttons (Right / Thumb Ergonomics) & Location/Address (Left) -->
+            <!-- Bottom Row: Squircle Action Buttons (Right / Thumb Ergonomics) & Location/Address (Left) -->
             <div class="pc-footer-row">
               <div class="pc-squircle-actions">
                 <button type="button" class="btn-pc-squircle btn-pc-wa btn-whatsapp-action" onclick="patientsManager.openWhatsAppTemplates('${escapeHTML(p.phone || '')}', '${safeName}', '${safeDoctor}')" aria-label="خيارات واتساب الذكية" title="واتساب">

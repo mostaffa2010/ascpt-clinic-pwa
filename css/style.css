@@ -8209,34 +8209,32 @@ h1, h2, h3, h4, h5, h6 {
   box-shadow: -4px 0 14px -2px rgba(236, 72, 153, 0.2), 0 3px 12px rgba(15, 23, 42, 0.04) !important;
 }
 
-/* Top Row: Header */
-.pc-top-header {
+/* Header Row 1: Name & Avatar on Right, Company Badge on Left */
+.pc-row-name-company {
   display: flex !important;
-  align-items: flex-start !important;
+  align-items: center !important;
   justify-content: space-between !important;
-  gap: 12px !important;
+  gap: 10px !important;
   width: 100% !important;
 }
 
-/* Right Info */
-.pc-right-info {
+.pc-name-avatar-wrap {
   display: flex !important;
-  align-items: flex-start !important;
+  align-items: center !important;
   gap: 10px !important;
   min-width: 0 !important;
   flex: 1 !important;
 }
 
 .pc-avatar-icon {
-  width: 38px !important;
-  height: 38px !important;
+  width: 36px !important;
+  height: 36px !important;
   border-radius: 50% !important;
   display: flex !important;
   align-items: center !important;
   justify-content: center !important;
   font-size: 1.25rem !important;
   flex-shrink: 0 !important;
-  margin-top: 2px !important;
 }
 .pc-avatar-icon.female {
   background: rgba(236, 72, 153, 0.12) !important;
@@ -8259,27 +8257,30 @@ h1, h2, h3, h4, h5, h6 {
   border-color: #bae6fd !important;
 }
 
-.pc-name-block {
-  display: flex !important;
-  flex-direction: column !important;
-  gap: 4px !important;
-  flex: 1 !important;
-  min-width: 0 !important;
-}
-
 .pc-name-title {
-  font-size: 1.12rem !important;
+  font-size: 1.15rem !important;
   font-weight: 800 !important;
-  line-height: 1.35 !important;
+  line-height: 1.3 !important;
   margin: 0 !important;
   cursor: pointer !important;
   color: #f8fafc !important;
   white-space: normal !important;
   word-break: break-word !important;
-  overflow-wrap: break-word !important;
+  flex: 1 !important;
+  min-width: 0 !important;
 }
 :root:not([data-theme="dark"]) .pc-name-title {
   color: #0f172a !important;
+}
+
+/* Header Row 2: Subtitle (Gender/Age) on Right, Action Pills on Left */
+.pc-row-meta-actions {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 10px !important;
+  width: 100% !important;
+  margin-top: 6px !important;
 }
 
 .pc-meta-sub {
@@ -8289,6 +8290,7 @@ h1, h2, h3, h4, h5, h6 {
   align-items: center !important;
   gap: 6px !important;
   line-height: 1.2 !important;
+  flex-shrink: 0 !important;
 }
 .pc-meta-sub.female {
   color: #f472b6 !important;
@@ -8303,12 +8305,8 @@ h1, h2, h3, h4, h5, h6 {
   color: #0284c7 !important;
 }
 
-/* Left Hub */
-.pc-left-hub {
-  display: flex !important;
-  flex-direction: column !important;
-  align-items: flex-end !important;
-  gap: 8px !important;
+/* Billing Badges with Vibrant Authentic Colors (Cyan for Direct, Green for Cash, Purple for Indirect) */
+.pc-billing-wrap {
   flex-shrink: 0 !important;
 }
 
@@ -8320,18 +8318,46 @@ h1, h2, h3, h4, h5, h6 {
   display: inline-flex !important;
   align-items: center !important;
   gap: 5px !important;
-  max-width: 145px !important;
+  max-width: 150px !important;
   overflow: hidden !important;
   text-overflow: ellipsis !important;
   white-space: nowrap !important;
-  background: rgba(255, 255, 255, 0.05) !important;
-  border: 1px solid rgba(255, 255, 255, 0.12) !important;
-  color: #cbd5e1 !important;
 }
-:root:not([data-theme="dark"]) .pc-billing-tag {
-  background: #f1f5f9 !important;
-  border: 1px solid #cbd5e1 !important;
-  color: #334155 !important;
+
+/* Direct Insurance (Lebany / Cyan Blue) */
+.pc-billing-tag.pc-badge-direct {
+  background: rgba(2, 132, 199, 0.12) !important;
+  border: 1.2px solid rgba(2, 132, 199, 0.45) !important;
+  color: #0284c7 !important;
+}
+[data-theme="dark"] .pc-billing-tag.pc-badge-direct {
+  background: rgba(56, 189, 248, 0.18) !important;
+  border: 1.2px solid rgba(56, 189, 248, 0.45) !important;
+  color: #38bdf8 !important;
+}
+
+/* Indirect Insurance (Purple / Violet) */
+.pc-billing-tag.pc-badge-indirect {
+  background: rgba(147, 51, 234, 0.12) !important;
+  border: 1.2px solid rgba(147, 51, 234, 0.45) !important;
+  color: #7e22ce !important;
+}
+[data-theme="dark"] .pc-billing-tag.pc-badge-indirect {
+  background: rgba(192, 132, 252, 0.18) !important;
+  border: 1.2px solid rgba(192, 132, 252, 0.45) !important;
+  color: #c084fc !important;
+}
+
+/* Cash (Green) */
+.pc-billing-tag.pc-badge-cash {
+  background: rgba(16, 185, 129, 0.12) !important;
+  border: 1.2px solid rgba(16, 185, 129, 0.45) !important;
+  color: #059669 !important;
+}
+[data-theme="dark"] .pc-billing-tag.pc-badge-cash {
+  background: rgba(52, 211, 153, 0.18) !important;
+  border: 1.2px solid rgba(52, 211, 153, 0.45) !important;
+  color: #34d399 !important;
 }
 
 /* Quick Actions Pills (جلسة & الشيت) - Enlarged & Prominent */
@@ -8339,6 +8365,7 @@ h1, h2, h3, h4, h5, h6 {
   display: flex !important;
   align-items: center !important;
   gap: 8px !important;
+  flex-shrink: 0 !important;
 }
 
 .btn-pc-pill {
