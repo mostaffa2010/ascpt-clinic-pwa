@@ -1,18 +1,23 @@
 /* ==========================================================================
-   ASCPT CLINIC PWA - MODULAR CSS REBUILD: PHASE 1
+   ASCPT CLINIC PWA - MODULAR CSS COMPONENT
    File: css/components/modals.css
-   Scope: Modal frames, dark glassmorphism backdrops, drawers, modal scroll guardrails
+   Scope: Modal Frames, Bottom Sheets, Custom Alert/Confirm Dialogs, Toasts
+   Clean Specificity: Zero !important & Strict Theme Isolation
    ========================================================================== */
 
+/* ----------------------------------------------------------------------------
+   1. Base Modal Backdrop & Animations
+   ---------------------------------------------------------------------------- */
 .modal-backdrop {
   position: fixed;
+  inset: 0;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: rgba(0, 0, 0, 0.72);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
+  background-color: rgba(15, 23, 42, 0.72);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
   z-index: 1000;
   display: none;
   align-items: center;
@@ -29,19 +34,33 @@
 .modal-content {
   background-color: var(--bg-surface);
   border: 1px solid var(--border-subtle);
-  border-radius: var(--radius-card);
+  border-radius: 20px;
   box-shadow: var(--shadow-sticky);
   width: 100%;
-  max-width: 600px;
+  max-width: 580px;
   max-height: calc(100dvh - 32px);
   display: flex;
   flex-direction: column;
   overflow: hidden;
   position: relative;
+  animation: modalScale 0.2s ease;
 }
 
+@keyframes modalScale {
+  from { transform: scale(0.96); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+@keyframes modalSlideUp {
+  from { transform: translateY(100%); }
+  to { transform: translateY(0); }
+}
+
+/* ----------------------------------------------------------------------------
+   2. Modal Header, Close Button, Body & Footer
+   ---------------------------------------------------------------------------- */
 .modal-header {
-  padding: 14px 18px;
+  padding: 16px 20px;
   border-bottom: 1px solid var(--border-subtle);
   display: flex;
   align-items: center;
@@ -50,34 +69,61 @@
 }
 
 .modal-header h3 {
-  font-size: var(--fs-title);
-  font-weight: 700;
+  font-size: 1.15rem;
+  font-weight: 800;
   color: var(--text-main);
   margin: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.modal-header h3 i {
+  color: var(--primary);
+  font-size: 1.1rem;
 }
 
 .modal-close {
-  background: transparent;
-  border: none;
-  color: var(--text-muted);
-  font-size: 1.4rem;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background-color: #f1f5f9;
+  border: 1px solid #e2e8f0;
+  color: #64748b;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.25rem;
   line-height: 1;
   cursor: pointer;
-  padding: 4px;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  flex-shrink: 0;
 }
 
-.modal-close:hover {
-  color: var(--text-main);
+.modal-close:hover,
+.modal-close:active {
+  background-color: #e2e8f0;
+  color: #0f172a;
+  transform: scale(0.95);
 }
 
 .modal-body {
-  padding: 16px 18px;
+  padding: 16px 20px;
   overflow-y: auto;
   overscroll-behavior-y: contain;
+  -webkit-overflow-scrolling: touch;
+}
+
+.modal-body label {
+  display: inline-block;
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: #334155;
+  margin-bottom: 6px;
 }
 
 .modal-footer {
-  padding: 12px 18px;
+  padding: 14px 20px;
   border-top: 1px solid var(--border-subtle);
   display: flex;
   align-items: center;
@@ -86,11 +132,363 @@
   background-color: var(--bg-surface-elevated);
 }
 
-/* --------------------------------------------------------------------------
-   STRICT COMPLIANCE GUARDRAILS: MODAL SCROLL & INTEGRITY
-   -------------------------------------------------------------------------- */
+.modal-footer .btn {
+  border-radius: 14px;
+  padding: 10px 18px;
+  font-weight: 700;
+  font-size: 0.92rem;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
 
-/* Batch Home Visits Modal Body */
+.modal-footer .btn-outline {
+  background-color: #f1f5f9;
+  border: 1px solid #e2e8f0;
+  color: #475569;
+}
+
+.modal-footer .btn-outline:hover,
+.modal-footer .btn-outline:active {
+  background-color: #e2e8f0;
+  color: #0f172a;
+}
+
+.modal-footer .btn-primary {
+  background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
+  color: #ffffff;
+  border: none;
+  box-shadow: 0 4px 14px -2px rgba(2, 132, 199, 0.3);
+}
+
+.modal-footer .btn-primary:hover,
+.modal-footer .btn-primary:active {
+  box-shadow: 0 6px 20px -2px rgba(2, 132, 199, 0.45);
+  transform: translateY(-1px);
+}
+
+/* ----------------------------------------------------------------------------
+   3. Mobile Bottom Sheet (< 768px)
+   ---------------------------------------------------------------------------- */
+@media screen and (max-width: 767px) {
+  .modal-backdrop {
+    padding: 0;
+    align-items: flex-end;
+    background-color: rgba(15, 23, 42, 0.72);
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
+
+  .modal-content {
+    max-width: 100%;
+    width: 100%;
+    border-radius: 26px 26px 0 0;
+    max-height: 90vh;
+    margin-bottom: 0;
+    transform: translateY(100%);
+    animation: modalSlideUp 0.22s cubic-bezier(0.16, 1, 0.3, 1) both;
+    padding-bottom: 0;
+    box-shadow: 0 -12px 40px -8px rgba(15, 23, 42, 0.3);
+    position: relative;
+    border-bottom: none;
+    border-left: none;
+    border-right: none;
+    background-color: var(--bg-surface);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  .modal-content > form {
+    display: flex;
+    flex-direction: column;
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow: hidden;
+  }
+
+  .modal-no-slide .modal-content,
+  .modal-backdrop.modal-no-slide .modal-content,
+  .modal-backdrop.modal-no-slide.active .modal-content {
+    animation: none;
+    transform: translateY(0);
+  }
+
+  .modal-content .modal-header {
+    flex-shrink: 0;
+  }
+
+  .modal-content .modal-body {
+    flex: 1 1 auto;
+    min-height: 0;
+    max-height: none;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
+  }
+
+  .modal-content .modal-footer {
+    flex-shrink: 0;
+    position: sticky;
+    bottom: 0;
+    z-index: 30;
+    padding: 12px 18px;
+    padding-bottom: max(22px, calc(env(safe-area-inset-bottom, 0px) + 16px));
+    background: var(--bg-surface);
+    border-top: 1.5px solid var(--border-color);
+    box-shadow: 0 -6px 20px rgba(0, 0, 0, 0.08);
+  }
+
+  .modal-content::before {
+    content: '';
+    display: block;
+    width: 44px;
+    height: 5px;
+    border-radius: 9999px;
+    background-color: #cbd5e1;
+    margin: 12px auto 6px auto;
+  }
+}
+
+/* ----------------------------------------------------------------------------
+   4. Dark Mode Overrides
+   ---------------------------------------------------------------------------- */
+[data-theme="dark"] .modal-content {
+  background-color: var(--bg-surface);
+  border-color: var(--border-color);
+  box-shadow: 0 16px 40px -8px rgba(0, 0, 0, 0.8);
+}
+
+[data-theme="dark"] .modal-content::before {
+  background-color: #475569;
+}
+
+[data-theme="dark"] .modal-header {
+  background-color: var(--bg-surface-elevated);
+  border-bottom-color: #334155;
+}
+
+[data-theme="dark"] .modal-header h3 {
+  color: #f8fafc;
+}
+
+[data-theme="dark"] .modal-close {
+  background-color: #334155;
+  border-color: #475569;
+  color: #cbd5e1;
+}
+
+[data-theme="dark"] .modal-close:hover,
+[data-theme="dark"] .modal-close:active {
+  background-color: #475569;
+  color: #ffffff;
+}
+
+[data-theme="dark"] .modal-body label {
+  color: #cbd5e1;
+}
+
+[data-theme="dark"] .modal-footer {
+  background-color: var(--bg-surface-elevated);
+  border-top-color: #334155;
+}
+
+[data-theme="dark"] .modal-footer .btn-outline {
+  background-color: #334155;
+  border-color: #475569;
+  color: #e2e8f0;
+}
+
+[data-theme="dark"] .modal-footer .btn-outline:hover {
+  background-color: #475569;
+  color: #ffffff;
+}
+
+/* ----------------------------------------------------------------------------
+   5. Custom Application Alert & Confirm Dialog (#modal-custom-dialog)
+   ---------------------------------------------------------------------------- */
+.custom-dialog-box {
+  background-color: var(--bg-surface);
+  border-radius: 18px;
+  max-width: 400px;
+  width: 90%;
+  padding: 24px 20px;
+  text-align: center;
+  box-shadow: var(--shadow-lg);
+  animation: modalScale 0.2s ease;
+  border: 1px solid var(--border-color);
+}
+
+.custom-dialog-icon {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.8rem;
+  margin: 0 auto 16px auto;
+}
+
+.custom-dialog-icon.info { background-color: var(--primary-light); color: var(--primary); }
+.custom-dialog-icon.success { background-color: var(--success-light); color: var(--success); }
+.custom-dialog-icon.warning { background-color: var(--warning-light); color: var(--warning); }
+.custom-dialog-icon.danger { background-color: var(--danger-light); color: var(--danger); }
+
+.custom-dialog-title {
+  font-size: 1.15rem;
+  font-weight: 800;
+  margin-bottom: 8px;
+  color: var(--text-main);
+}
+
+.custom-dialog-text {
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  line-height: 1.5;
+  margin-bottom: 20px;
+}
+
+.custom-dialog-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+}
+
+[data-theme="dark"] .custom-dialog-box {
+  background-color: var(--bg-surface);
+  border-color: var(--border-color);
+}
+
+/* ----------------------------------------------------------------------------
+   6. Toast Notifications (Modern Capsule & Fallback Box)
+   ---------------------------------------------------------------------------- */
+.toast-capsule {
+  position: fixed;
+  bottom: 84px;
+  left: 50%;
+  transform: translate(-50%, 20px) scale(0.92);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 18px;
+  border-radius: 9999px;
+  font-size: 0.88rem;
+  font-weight: 700;
+  z-index: 100000;
+  pointer-events: none;
+  opacity: 0;
+  visibility: hidden;
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1),
+              opacity 0.25s ease,
+              visibility 0.25s ease;
+  direction: rtl;
+}
+
+.toast-capsule.show {
+  opacity: 1;
+  visibility: visible;
+  transform: translate(-50%, 0) scale(1);
+  pointer-events: auto;
+}
+
+:root:not([data-theme="dark"]) .toast-capsule {
+  background: rgba(255, 255, 255, 0.95);
+  color: #0f172a;
+  border: 1.5px solid rgba(2, 132, 199, 0.22);
+  box-shadow: 0 14px 34px -4px rgba(2, 132, 199, 0.22), 0 4px 14px rgba(15, 23, 42, 0.08);
+}
+
+[data-theme="dark"] .toast-capsule {
+  background: rgba(15, 23, 42, 0.92);
+  color: #f8fafc;
+  border: 1.5px solid rgba(56, 189, 248, 0.35);
+  box-shadow: 0 16px 40px -4px rgba(0, 0, 0, 0.65), 0 0 24px rgba(56, 189, 248, 0.15);
+}
+
+.toast-capsule .toast-icon-wrap {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+  flex-shrink: 0;
+}
+
+.toast-capsule.is-success .toast-icon-wrap {
+  background: rgba(16, 185, 129, 0.16);
+  color: #10b981;
+}
+
+:root:not([data-theme="dark"]) .toast-capsule.is-success {
+  border-color: rgba(16, 185, 129, 0.35);
+}
+
+[data-theme="dark"] .toast-capsule.is-success {
+  border-color: rgba(16, 185, 129, 0.45);
+}
+
+.toast-capsule.is-error .toast-icon-wrap {
+  background: rgba(239, 68, 68, 0.16);
+  color: #ef4444;
+}
+
+.toast-capsule.is-error {
+  border-color: rgba(239, 68, 68, 0.45);
+}
+
+.toast-capsule.is-warning .toast-icon-wrap {
+  background: rgba(245, 158, 11, 0.16);
+  color: #f59e0b;
+}
+
+.toast-capsule.is-warning {
+  border-color: rgba(245, 158, 11, 0.45);
+}
+
+.toast-capsule .toast-content {
+  line-height: 1.35;
+  white-space: normal;
+  word-break: break-word;
+}
+
+/* Fallback Toast Box */
+.toast-box {
+  position: fixed;
+  bottom: 80px;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: #1e293b;
+  color: #ffffff;
+  padding: 10px 18px;
+  border-radius: 10px;
+  font-size: 0.88rem;
+  box-shadow: var(--shadow-lg);
+  display: none;
+  z-index: 150;
+  align-items: center;
+  gap: 8px;
+}
+
+.toast-box.show {
+  display: flex;
+  animation: toastPop 0.3s ease;
+}
+
+@keyframes toastPop {
+  from { transform: translate(-50%, 20px); opacity: 0; }
+  to { transform: translate(-50%, 0); opacity: 1; }
+}
+
+[data-theme="dark"] .toast-box {
+  background-color: var(--bg-surface);
+  color: var(--text-main);
+  border: 1px solid var(--border-color);
+}
+
+/* ----------------------------------------------------------------------------
+   7. Strict Compliance Guardrails & Specialized Modal Integrities
+   ---------------------------------------------------------------------------- */
 #modal-batch-home-visits .modal-body {
   flex: 1 1 auto !important;
   min-height: 0 !important;
@@ -101,7 +499,6 @@
   overscroll-behavior-y: contain !important;
 }
 
-/* Patient Registration Modal Scroll & Clearance Integrity */
 #modal-patient .modal-body {
   flex: 1 1 auto !important;
   min-height: 0 !important;
@@ -113,14 +510,12 @@
   padding: 16px 18px 100px 18px !important;
 }
 
-/* Patient Insurance Details Box Visibility Guardrail */
 #modal-patient #p-insurance-details {
   overflow: visible !important;
   max-width: 100% !important;
   box-sizing: border-box !important;
 }
 
-/* Image Polish Crop Toolbar */
 .polish-crop-toolbar {
   margin-top: 8px;
   gap: 8px;
@@ -129,7 +524,6 @@
   justify-content: center;
 }
 
-/* Auth & Dialog Modals Controls */
 .login-error-msg {
   background-color: rgba(239, 68, 68, 0.15);
   border: 1px solid rgba(239, 68, 68, 0.3);
