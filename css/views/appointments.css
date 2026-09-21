@@ -1,0 +1,1069 @@
+/* ==========================================================================
+   ASCPT CLINIC PWA - APPOINTMENTS & TIMETABLE VIEW
+   File: css/views/appointments.css
+   Scope: Appointments Schedule, Weekly Grid, Timeline, Slot Cards & Navigation
+   Clean Specificity: Zero !important & Strict Theme Isolation
+   ========================================================================== */
+
+/* ----------------------------------------------------------------------------
+   1. Appointments Hero Header & Actions (v2.2.1)
+   ---------------------------------------------------------------------------- */
+.appt-hero-header {
+  padding: 16px;
+  background: var(--bg-surface);
+  border-bottom: 1px solid var(--border-color);
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.appt-hero-top-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.appt-title-group {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.appt-main-title {
+  font-size: 1.12rem;
+  font-weight: 800;
+  color: var(--text-main);
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.appt-capacity-pill {
+  font-size: 0.76rem;
+  font-weight: 800;
+  padding: 4px 10px;
+  border-radius: var(--radius-pill);
+  background: var(--primary-light);
+  color: var(--primary);
+  border: 1px solid rgba(2, 132, 199, 0.25);
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+[data-theme="dark"] .appt-capacity-pill {
+  background: rgba(2, 132, 199, 0.18);
+  color: #38bdf8;
+  border-color: rgba(56, 189, 248, 0.35);
+}
+
+.appt-utility-tools {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.appt-tool-btn {
+  background: var(--bg-subtle);
+  border: 1px solid var(--border-color);
+  color: var(--text-main);
+  font-size: 0.78rem;
+  font-weight: 700;
+  padding: 6px 12px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  white-space: nowrap;
+}
+
+.appt-tool-btn:hover {
+  border-color: var(--primary);
+  background: var(--primary-subtle);
+  color: var(--primary);
+  transform: translateY(-1px);
+}
+
+.appt-tool-btn:active {
+  transform: translateY(0);
+}
+
+[data-theme="dark"] .appt-tool-btn {
+  background: #1e293b;
+  border-color: #334155;
+  color: #f1f5f9;
+}
+
+[data-theme="dark"] .appt-tool-btn:hover {
+  background: rgba(2, 132, 199, 0.15);
+  border-color: #38bdf8;
+  color: #38bdf8;
+}
+
+.appt-hero-actions-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+
+.appt-primary-cta-btn {
+  background: var(--primary-gradient);
+  color: #ffffff;
+  border: none;
+  font-size: 0.88rem;
+  font-weight: 800;
+  height: 42px;
+  padding: 0 18px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  box-shadow: 0 4px 12px rgba(2, 132, 199, 0.28);
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  white-space: nowrap;
+  flex: 0 0 auto;
+}
+
+.appt-primary-cta-btn:hover {
+  box-shadow: 0 6px 18px rgba(2, 132, 199, 0.4);
+  transform: translateY(-1px);
+}
+
+.appt-primary-cta-btn:active {
+  transform: translateY(1px);
+  box-shadow: 0 2px 6px rgba(2, 132, 199, 0.2);
+}
+
+.appt-view-tabs-track {
+  display: inline-grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4px;
+  background: var(--bg-subtle);
+  border: 1px solid var(--border-color);
+  padding: 4px;
+  border-radius: 12px;
+  min-width: 320px;
+}
+
+.appt-tab-btn {
+  background: transparent;
+  color: var(--text-muted);
+  border: none;
+  font-size: 0.82rem;
+  font-weight: 700;
+  height: 34px;
+  padding: 0 14px;
+  border-radius: 9px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  transition: all 0.22s cubic-bezier(0.4, 0, 0.2, 1);
+  user-select: none;
+}
+
+.appt-tab-btn:hover:not(.active) {
+  color: var(--text-main);
+  background: rgba(0, 0, 0, 0.03);
+}
+
+.appt-tab-btn.active {
+  background: var(--bg-surface);
+  color: var(--primary);
+  font-weight: 800;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+}
+
+[data-theme="dark"] .appt-view-tabs-track {
+  background: #0f172a;
+  border-color: #1e293b;
+}
+
+[data-theme="dark"] .appt-tab-btn {
+  color: #94a3b8;
+}
+
+[data-theme="dark"] .appt-tab-btn:hover:not(.active) {
+  color: #f1f5f9;
+  background: rgba(255, 255, 255, 0.04);
+}
+
+[data-theme="dark"] .appt-tab-btn.active {
+  background: #1e293b;
+  color: #38bdf8;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
+}
+
+@media (max-width: 768px) {
+  .appt-hero-header {
+    padding: 12px 14px;
+    gap: 12px;
+  }
+  .appt-hero-top-row {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    gap: 6px;
+  }
+  .appt-main-title {
+    font-size: 0.98rem;
+  }
+  .appt-capacity-pill {
+    display: none;
+  }
+  .appt-utility-tools {
+    gap: 6px;
+  }
+  .appt-tool-btn {
+    padding: 5px 8px;
+    font-size: 0.72rem;
+    gap: 4px;
+  }
+  .appt-hero-actions-row {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+  }
+  .appt-primary-cta-btn {
+    width: 100%;
+    height: 44px;
+    font-size: 0.92rem;
+  }
+  .appt-view-tabs-track {
+    width: 100%;
+    min-width: 0;
+  }
+  .appt-tab-btn {
+    height: 38px;
+    font-size: 0.82rem;
+  }
+}
+
+/* ----------------------------------------------------------------------------
+   2. Date Navigator Bar & 7-Day Weekday Strip
+   ---------------------------------------------------------------------------- */
+.appt-date-navigator-bar {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.appt-date-nav-controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.appt-nav-arrow {
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-sm, 8px);
+}
+
+.appt-date-input-wrap {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  flex: 1;
+  max-width: 220px;
+}
+
+.appt-date-input-wrap input {
+  height: 38px;
+  padding-left: 32px;
+  font-weight: 700;
+  font-size: 0.88rem;
+  cursor: pointer;
+}
+
+.appt-date-input-wrap i {
+  position: absolute;
+  left: 10px;
+  pointer-events: none;
+}
+
+.appt-today-pill {
+  height: 38px;
+  padding: 0 16px;
+  font-weight: 800;
+  font-size: 0.85rem;
+  border-radius: var(--radius-sm, 8px);
+}
+
+.appt-weekday-strip {
+  display: flex;
+  gap: 6px;
+  overflow-x: auto;
+  padding-bottom: 4px;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+
+.appt-weekday-strip::-webkit-scrollbar {
+  display: none;
+}
+
+.appt-weekday-pill {
+  flex: 1 0 auto;
+  min-width: 68px;
+  padding: 6px 10px;
+  border-radius: var(--radius-md, 10px);
+  border: 1.5px solid var(--border-color);
+  background: var(--bg-surface);
+  color: var(--text-muted);
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  transition: all 0.15s ease;
+  position: relative;
+  user-select: none;
+}
+
+.appt-weekday-pill .awp-name {
+  font-size: 0.76rem;
+  font-weight: 800;
+  color: var(--text-main);
+}
+
+.appt-weekday-pill .awp-date {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+}
+
+.appt-weekday-pill.is-today .awp-name {
+  color: var(--primary);
+}
+
+.appt-weekday-pill.active {
+  background: var(--primary);
+  border-color: var(--primary);
+  color: #ffffff;
+  box-shadow: 0 2px 8px rgba(2, 132, 199, 0.3);
+}
+
+.appt-weekday-pill.active .awp-name,
+.appt-weekday-pill.active.is-today .awp-name {
+  color: #ffffff;
+}
+
+.appt-weekday-pill.active .awp-date,
+.appt-weekday-pill.active.is-today .awp-date {
+  color: rgba(255, 255, 255, 0.95);
+}
+
+.appt-weekday-pill .awp-badge {
+  font-size: 0.65rem;
+  padding: 1px 5px;
+  border-radius: 999px;
+  background: rgba(2, 132, 199, 0.15);
+  color: var(--primary);
+  font-weight: 800;
+  margin-top: 2px;
+}
+
+.appt-weekday-pill.active .awp-badge,
+.appt-weekday-pill.active.is-today .awp-badge {
+  background: #ffffff;
+  color: var(--primary);
+}
+
+/* ----------------------------------------------------------------------------
+   3. Mobile Appointments Timeline & Slot Cards
+   ---------------------------------------------------------------------------- */
+.appt-timeline-container {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+}
+
+.appt-slot-card {
+  margin: 0 0 14px 0;
+  width: 100%;
+  box-sizing: border-box;
+  padding: 16px 18px;
+  border-radius: var(--radius-lg);
+  background: var(--bg-surface);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  border: 1.5px solid var(--border-color);
+  box-shadow: 0 4px 16px -2px rgba(15, 23, 42, 0.05), 0 2px 6px -1px rgba(15, 23, 42, 0.03);
+  transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.appt-slot-card:hover {
+  transform: translateY(-2px);
+  border-color: rgba(56, 189, 248, 0.4);
+  box-shadow: 0 8px 24px -3px rgba(2, 132, 199, 0.15);
+}
+
+[data-theme="dark"] .appt-slot-card {
+  box-shadow: 0 8px 24px -4px rgba(0, 0, 0, 0.4);
+}
+
+[data-theme="dark"] .appt-slot-card:hover {
+  box-shadow: 0 12px 30px -4px rgba(2, 132, 199, 0.3);
+}
+
+.appt-slot-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.appt-slot-time-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(2, 132, 199, 0.12);
+  border: 1px solid rgba(2, 132, 199, 0.3);
+  padding: 6px 14px;
+  border-radius: var(--radius-pill);
+  color: var(--text-main);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.appt-slot-time-pill:hover {
+  background: rgba(2, 132, 199, 0.22);
+  border-color: var(--primary);
+  transform: translateY(-1px);
+}
+
+.appt-slot-doc-group {
+  margin-top: 8px;
+}
+
+.appt-slot-doc-title {
+  font-size: 0.85rem;
+  font-weight: 800;
+  color: var(--primary);
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.appt-chips-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.appt-slot-card .appt-chips-wrap .appt-chip {
+  margin-bottom: 0;
+  border-radius: 14px;
+  padding: 10px 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  transition: all 0.2s ease;
+}
+
+:root:not([data-theme="dark"]) .appt-slot-card .appt-chips-wrap .appt-chip {
+  background: #f8fafc;
+  border: 1.5px solid #e2e8f0;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04);
+}
+
+:root:not([data-theme="dark"]) .appt-slot-card .appt-chips-wrap .appt-chip:hover {
+  background: #f0f9ff;
+  border-color: #0284c7;
+}
+
+:root:not([data-theme="dark"]) .appt-slot-card .appt-chip-patient {
+  color: #0f172a;
+  font-weight: 800;
+  font-size: 0.95rem;
+}
+
+:root:not([data-theme="dark"]) .appt-slot-card .appt-chip-move {
+  background: #e0f2fe;
+  color: #0284c7;
+  border: 1px solid #bae6fd;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+:root:not([data-theme="dark"]) .appt-slot-card .appt-chip-remove {
+  background: #fee2e2;
+  color: #ef4444;
+  border: 1px solid #fecaca;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+  line-height: 1;
+}
+
+[data-theme="dark"] .appt-slot-card .appt-chips-wrap .appt-chip {
+  background: rgba(15, 23, 42, 0.75);
+  border: 1.5px solid rgba(56, 189, 248, 0.25);
+}
+
+[data-theme="dark"] .appt-slot-card .appt-chip-patient {
+  color: #f8fafc;
+  font-weight: 800;
+  font-size: 0.95rem;
+}
+
+[data-theme="dark"] .appt-slot-card .appt-chip-move {
+  background: rgba(56, 189, 248, 0.15);
+  color: #38bdf8;
+  border: 1px solid rgba(56, 189, 248, 0.3);
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+[data-theme="dark"] .appt-slot-card .appt-chip-remove {
+  background: rgba(239, 68, 68, 0.15);
+  color: #f87171;
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+  line-height: 1;
+}
+
+.appt-slot-empty-hint {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  font-style: italic;
+  padding: 4px 0;
+  display: block;
+}
+
+.appt-slot-empty-clean {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  padding: 8px 4px;
+}
+
+.appt-quick-booking-container {
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px dashed var(--border-color);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.appt-book-title {
+  font-size: 0.78rem;
+  font-weight: 800;
+  color: var(--primary);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.appt-doc-pills-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.appt-doc-booking-pill {
+  border-radius: var(--radius-pill);
+  padding: 5px 12px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: var(--bg-surface);
+  border: 1.5px solid var(--border-color);
+  color: var(--text-main);
+  transition: all 0.18s ease;
+}
+
+.appt-doc-booking-pill:hover {
+  background: var(--primary-light);
+  border-color: var(--primary);
+  color: var(--primary);
+  transform: translateY(-1px);
+}
+
+.appt-active-doc-group {
+  margin-bottom: 8px;
+}
+
+.appt-slot-doc-name {
+  font-size: 0.82rem;
+  font-weight: 800;
+  color: var(--primary);
+  margin-bottom: 4px;
+  display: flex;
+}
+
+/* ----------------------------------------------------------------------------
+   4. Receptionist Single Booking Button in Time Slot Card
+   ---------------------------------------------------------------------------- */
+.appt-slot-card .btn.appt-single-book-btn,
+.appt-single-book-btn {
+  width: 100%;
+  height: auto;
+  border-radius: 14px;
+  padding: 11px 16px;
+  font-weight: 700;
+  font-size: 0.92rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border: 1.5px dashed var(--primary);
+  color: var(--primary);
+  background: rgba(2, 132, 199, 0.05);
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  cursor: pointer;
+}
+
+.appt-slot-card .btn.appt-single-book-btn:hover,
+.appt-slot-card .btn.appt-single-book-btn:active,
+.appt-single-book-btn:hover,
+.appt-single-book-btn:active {
+  background: var(--primary);
+  color: #ffffff;
+  border-style: solid;
+  border-color: var(--primary);
+  box-shadow: 0 4px 14px -2px rgba(2, 132, 199, 0.35);
+  transform: translateY(-1px);
+}
+
+[data-theme="dark"] .appt-slot-card .btn.appt-single-book-btn,
+[data-theme="dark"] .appt-single-book-btn {
+  background: rgba(56, 189, 248, 0.08);
+  border-color: rgba(56, 189, 248, 0.4);
+  color: #38bdf8;
+}
+
+[data-theme="dark"] .appt-slot-card .btn.appt-single-book-btn:hover,
+[data-theme="dark"] .appt-slot-card .btn.appt-single-book-btn:active,
+[data-theme="dark"] .appt-single-book-btn:hover,
+[data-theme="dark"] .appt-single-book-btn:active {
+  background: #0284c7;
+  color: #ffffff;
+  border-color: #0284c7;
+}
+
+/* ----------------------------------------------------------------------------
+   5. Appointment Chips & Status Badges
+   ---------------------------------------------------------------------------- */
+.appt-chip {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+  background-color: #eef2ff;
+  border: 1px solid #c7d2fe;
+  border-radius: 8px;
+  padding: 5px 8px;
+  margin-bottom: 5px;
+  font-size: 0.78rem;
+}
+
+[data-theme="dark"] .appt-chip {
+  background-color: rgba(30, 41, 59, 0.7);
+  border-color: rgba(56, 189, 248, 0.25);
+}
+
+.appt-chip-patient {
+  font-weight: 700;
+  color: var(--text-main);
+  cursor: pointer;
+  flex: 1;
+}
+
+.appt-chip-patient:hover {
+  color: var(--primary);
+  text-decoration: underline;
+}
+
+.appt-chip-doctor {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+
+.appt-chip-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.appt-chip-move {
+  background: none;
+  border: none;
+  color: var(--primary);
+  font-size: 0.8rem;
+  line-height: 1;
+  cursor: pointer;
+  padding: 2px 4px;
+  border-radius: 4px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s ease;
+}
+
+.appt-chip-move:hover {
+  background: rgba(2, 132, 199, 0.18);
+}
+
+.appt-chip-copy {
+  background: none;
+  border: none;
+  color: var(--primary);
+  font-size: 0.8rem;
+  line-height: 1;
+  cursor: pointer;
+  padding: 2px 4px;
+  border-radius: 4px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s ease;
+}
+
+.appt-chip-copy:hover {
+  background: rgba(2, 132, 199, 0.18);
+  transform: scale(1.1);
+}
+
+:root:not([data-theme="dark"]) .appt-slot-card .appt-chip-copy {
+  background: #e0f2fe;
+  color: #0284c7;
+  border: 1px solid #bae6fd;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+[data-theme="dark"] .appt-slot-card .appt-chip-copy {
+  background: rgba(56, 189, 248, 0.15);
+  color: #38bdf8;
+  border: 1px solid rgba(56, 189, 248, 0.3);
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.appt-chip-remove {
+  background: none;
+  border: none;
+  color: var(--danger);
+  font-size: 1rem;
+  line-height: 1;
+  cursor: pointer;
+  padding: 0 2px;
+}
+
+.appt-chip.clickable {
+  cursor: pointer;
+  transition: transform 0.12s ease, box-shadow 0.12s ease;
+}
+
+.appt-chip.clickable:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+}
+
+.badge-appt-completed {
+  background: rgba(16, 185, 129, 0.15);
+  color: #10b981;
+  border: 1px solid rgba(16, 185, 129, 0.35);
+  font-weight: 800;
+}
+
+.badge-appt-attended {
+  background: rgba(2, 132, 199, 0.15);
+  color: var(--primary);
+  border: 1px solid rgba(2, 132, 199, 0.35);
+  font-weight: 800;
+}
+
+.badge-appt-noshow {
+  background: rgba(239, 68, 68, 0.15);
+  color: #ef4444;
+  border: 1px solid rgba(239, 68, 68, 0.35);
+  font-weight: 800;
+}
+
+/* ----------------------------------------------------------------------------
+   6. Weekly Master Timetable Grid
+   ---------------------------------------------------------------------------- */
+.appt-preset-pill {
+  font-size: 0.74rem;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 8px;
+  border: 1.5px solid var(--border-color);
+  color: var(--text-main);
+  background: var(--bg-surface);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.appt-preset-pill.active {
+  background: rgba(2, 132, 199, 0.12);
+  color: var(--primary);
+  border-color: var(--primary);
+  font-weight: 800;
+}
+
+.appt-day-toggle {
+  text-align: center;
+  padding: 8px 4px;
+  border-radius: 8px;
+  border: 1.5px solid var(--border-color);
+  background: var(--bg-surface);
+  color: var(--text-muted);
+  font-size: 0.78rem;
+  font-weight: 700;
+  cursor: pointer;
+  user-select: none;
+  transition: all 0.2s ease;
+}
+
+.appt-day-toggle:hover {
+  border-color: var(--primary);
+}
+
+.appt-day-toggle.active {
+  background: var(--primary);
+  color: #ffffff;
+  border-color: var(--primary);
+  font-weight: 800;
+}
+
+.appt-weekly-master-grid {
+  display: grid;
+  grid-template-columns: 110px repeat(6, 1fr);
+  gap: 8px;
+  overflow-x: auto;
+  padding-bottom: 8px;
+}
+
+@media (max-width: 900px) {
+  .appt-weekly-master-grid {
+    grid-template-columns: 80px repeat(6, minmax(130px, 1fr));
+  }
+}
+
+.weekly-header-cell {
+  background: var(--bg-subtle);
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+  padding: 10px 8px;
+  text-align: center;
+  font-weight: 800;
+  font-size: 0.85rem;
+  color: var(--text-main);
+}
+
+.weekly-slot-time-cell {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg-subtle);
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+  padding: 10px 6px;
+  font-weight: 800;
+  font-size: 0.88rem;
+  color: var(--text-main);
+}
+
+.weekly-data-cell {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+  padding: 8px;
+  min-height: 90px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  transition: border-color 0.2s;
+}
+
+.weekly-data-cell:hover {
+  border-color: var(--primary);
+}
+
+.weekly-cell-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  font-weight: 700;
+  border-bottom: 1px dashed var(--border-color);
+  padding-bottom: 4px;
+}
+
+.weekly-appt-chip {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  background: var(--bg-subtle);
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  padding: 4px 6px;
+  font-size: 0.74rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform 0.15s;
+}
+
+.weekly-appt-chip:hover {
+  transform: translateY(-1px);
+  border-color: var(--primary);
+}
+
+/* ----------------------------------------------------------------------------
+   7. Appointment Copy / Duplicate Styles
+   ---------------------------------------------------------------------------- */
+.copy-day-pill {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 6px;
+  border-radius: 12px;
+  border: 1.5px solid var(--border-color);
+  background: var(--bg-surface);
+  cursor: pointer;
+  transition: all 0.15s ease;
+  user-select: none;
+  text-align: center;
+  gap: 3px;
+}
+
+.copy-day-pill:hover:not(.is-current) {
+  border-color: var(--primary);
+  background: var(--primary-light);
+}
+
+.copy-day-pill.active {
+  border-color: var(--primary);
+  background: var(--primary-light);
+  box-shadow: 0 0 0 1px var(--primary);
+}
+
+.copy-day-pill.is-current {
+  opacity: 0.55;
+  background: var(--bg-subtle);
+  border-style: dashed;
+  cursor: not-allowed;
+}
+
+.copy-day-pill .cdp-name {
+  font-weight: 800;
+  font-size: 0.86rem;
+  color: var(--text-main);
+}
+
+.copy-day-pill .cdp-date {
+  font-size: 0.74rem;
+  color: var(--text-muted);
+}
+
+.copy-day-pill .cdp-tag {
+  font-size: 0.65rem;
+  padding: 2px 7px;
+  border-radius: 999px;
+  margin-top: 2px;
+}
+
+/* ----------------------------------------------------------------------------
+   8. Mobile Unwrap & Responsive Overrides
+   ---------------------------------------------------------------------------- */
+@media screen and (max-width: 767px) {
+  #card-doctor-appointments-schedule,
+  #card-main-appointments-schedule,
+  .card:has(#my-appointments-grid),
+  .card:has(#appointments-grid) {
+    background: transparent;
+    border: none;
+    box-shadow: none;
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    padding: 0;
+    margin-top: 10px;
+    margin-bottom: 14px;
+  }
+
+  #card-doctor-appointments-schedule > .card-header,
+  #card-main-appointments-schedule > .card-header,
+  .card:has(#my-appointments-grid) > .card-header,
+  .card:has(#appointments-grid) > .card-header {
+    background: transparent;
+    border: none;
+    padding: 6px 4px 12px 4px;
+  }
+
+  #card-doctor-appointments-schedule .table-responsive,
+  #card-main-appointments-schedule .table-responsive,
+  .table-responsive:has(#my-appointments-grid),
+  .table-responsive:has(#appointments-grid) {
+    background: transparent;
+    border: none;
+    box-shadow: none;
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    overflow: visible;
+    padding: 0;
+  }
+
+  .appt-timeline-container {
+    gap: 14px;
+    width: 100%;
+  }
+}
