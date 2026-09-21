@@ -10153,3 +10153,24 @@ button.btn-settle-hv {
   border-color: var(--primary, #0284c7) !important;
   transform: translateY(-1px) !important;
 }
+
+/* Guaranteed Stack Mode Positioning for Doctor Cards */
+.doc-stack-container:not(.is-list-layout) .doc-stack-card,
+.hero-styled-card.doc-stack-card {
+  position: absolute !important;
+  top: 0 !important;
+  left: 28px !important;
+  right: 0 !important;
+  height: 100% !important;
+  contain: none !important;
+  content-visibility: visible !important;
+}
+
+.doc-stack-container.is-list-layout .doc-stack-card {
+  position: relative !important;
+  top: auto !important;
+  left: auto !important;
+  right: auto !important;
+  height: auto !important;
+  width: 100% !important;
+}
