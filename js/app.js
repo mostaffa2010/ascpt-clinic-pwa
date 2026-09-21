@@ -517,7 +517,7 @@ class App {
     }
     if (viewName === 'finance') this.financeManager.loadDailyReport();
     if (viewName === 'sessions') this.sessionsManager.loadTodaySessions();
-    if (viewName === 'patients') this.patientsManager.loadPatients();
+    if (viewName === 'patients') { const isReload = window.location.search.includes('reload='); this.patientsManager.loadPatients(isReload); }
     if (viewName === 'admin') {
       if (this.auditManager) {
         this.auditManager.loadUsers();
@@ -2087,7 +2087,8 @@ class App {
     } else if (viewName === 'sessions') {
       if (this.sessionsManager) await this.sessionsManager.loadTodaySessions();
     } else if (viewName === 'patients') {
-      if (this.patientsManager) await this.patientsManager.loadPatients();
+      const isReload = window.location.search.includes('reload=');
+      if (this.patientsManager) await this.patientsManager.loadPatients(isReload);
     } else if (viewName === 'appointments') {
       if (this.appointmentsManager) await this.appointmentsManager.render(true);
     } else if (viewName === 'finance') {

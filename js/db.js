@@ -337,13 +337,15 @@ class FirestoreDatabaseService {
       return [...this._patientsCache];
     }
 
-    // 2. Try IndexedDB persistent cache (Zero Firestore reads)
+    // 2. Try IndexedDB persistent cache (Zero Firestore reads if within TTL)
     let cachedList = null;
+    let cacheTime = 0;
     try {
       cachedList = await idbCache.get('ascpt_cached_patients');
+      cacheTime = (await idbCache.get('ascpt_patients_cache_time')) || 0;
     } catch (_) {}
 
-    if (!forceRefresh && Array.isArray(cachedList) && cachedList.length > 0) {
+    if (!forceRefresh && Array.isArray(cachedList) && cachedList.length > 0 && (now - cacheTime < this.PATIENTS_CACHE_TTL)) {
       this._patientsCache = cachedList;
       this._patientsLastFetch = now;
       return [...cachedList];
@@ -362,6 +364,8 @@ class FirestoreDatabaseService {
       this._patientsLastFetch = now;
       try {
         await idbCache.set('ascpt_cached_patients', sorted);
+        await idbCache.set('ascpt_patients_cache_time', now);
+        await idbCache.set('ascpt_patients_last_sync', new Date().toISOString());
       } catch (_) {}
       return [...sorted];
     } catch (err) {
@@ -393,6 +397,7 @@ class FirestoreDatabaseService {
       return onSnapshot(versionDocRef, async (snap) => {
         const data = snap.exists() ? snap.data() : null;
         const currentVersion = (data && typeof data.patientsVersion === 'number') ? data.patientsVersion : 0;
+        const remoteCount = (data && typeof data.patientsCount === 'number') ? data.patientsCount : null;
 
         // 1. Skip the writer's own echo (already patched synchronously in-memory)
         if (this._suppressNextOwnPatientsVersionEvent) {
@@ -409,14 +414,16 @@ class FirestoreDatabaseService {
           } catch (_) {}
 
           this._lastSeenPatientsVersion = currentVersion;
+          const localCount = Array.isArray(this._patientsCache) ? this._patientsCache.length : 0;
+          const hasCountMismatch = (remoteCount !== null && remoteCount !== localCount);
 
-          // If local version matches current remote version and cache exists, we are already synchronized! (0 reads)
-          if (localVersion === currentVersion && Array.isArray(this._patientsCache) && this._patientsCache.length > 0) {
+          // If local version matches current remote version AND count matches, we are already synchronized! (0 reads)
+          if (!hasCountMismatch && localVersion === currentVersion && Array.isArray(this._patientsCache) && this._patientsCache.length > 0) {
             return;
           }
 
           // If single sequential version difference (+1) while app was asleep, do a single doc delta-fetch (1 read)!
-          if (typeof localVersion === 'number' && currentVersion === localVersion + 1) {
+          if (!hasCountMismatch && typeof localVersion === 'number' && currentVersion === localVersion + 1) {
             const action = data ? data.lastChangedPatientAction : null;
             const targetId = data ? data.lastChangedPatientId : null;
             if (targetId && (action === 'created' || action === 'updated' || action === 'deleted') && Array.isArray(this._patientsCache)) {
@@ -457,12 +464,59 @@ class FirestoreDatabaseService {
             }
           }
 
-          // Fallback: If cache was missing or version gap > 1, do full getPatients refresh
-          if (!this._patientsCache || this._patientsCache.length === 0 || !localVersion || currentVersion > localVersion + 1) {
+          // SMART TIMESTAMP DELTA (Fetches ONLY delta e.g. 11 reads instead of full collection):
+          if (Array.isArray(this._patientsCache) && this._patientsCache.length > 0) {
+            try {
+              let latestLocalTime = '';
+              for (const p of this._patientsCache) {
+                const t = p.lastUpdatedAt || p.createdAt || '';
+                if (t > latestLocalTime) latestLocalTime = t;
+              }
+              if (latestLocalTime) {
+                const deltaQuery = query(
+                  collection(firestoreDb, 'patients'),
+                  where('lastUpdatedAt', '>', latestLocalTime)
+                );
+                const deltaSnap = await getDocs(deltaQuery);
+                if (!deltaSnap.empty) {
+                  const changedDocs = deltaSnap.docs.map(d => ({ ...d.data(), id: d.id }));
+                  for (const docData of changedDocs) {
+                    const idx = this._patientsCache.findIndex(p => p.id === docData.id);
+                    if (idx !== -1) {
+                      this._patientsCache[idx] = { ...this._patientsCache[idx], ...docData };
+                    } else {
+                      this._patientsCache.unshift(docData);
+                    }
+                  }
+                  this._patientsCache.sort((a, b) => {
+                    const tA = a.createdAt || a.lastUpdatedAt || '';
+                    const tB = b.createdAt || b.lastUpdatedAt || '';
+                    return tB.localeCompare(tA);
+                  });
+                  this._patientsLastFetch = Date.now();
+                  try {
+                    await idbCache.set('ascpt_cached_patients', this._patientsCache);
+                    await idbCache.set('ascpt_patients_cached_version', currentVersion);
+                    await idbCache.set('ascpt_patients_cache_time', Date.now());
+                    await idbCache.set('ascpt_patients_last_sync', new Date().toISOString());
+                  } catch (_) {}
+                  if (typeof callback === 'function') callback([...this._patientsCache]);
+                  return;
+                }
+              }
+            } catch (deltaErr) {
+              console.warn('Smart delta fetch notice, falling back to full refresh:', deltaErr);
+            }
+          }
+
+          // Fallback: If cache was missing, version gap > 1, count mismatch, or delta empty: do full getPatients refresh
+          if (!this._patientsCache || this._patientsCache.length === 0 || hasCountMismatch || !localVersion || currentVersion > localVersion + 1) {
             try {
               const list = await this.getPatients(true);
               try {
                 await idbCache.set('ascpt_patients_cached_version', currentVersion);
+                await idbCache.set('ascpt_patients_cache_time', Date.now());
+                await idbCache.set('ascpt_patients_last_sync', new Date().toISOString());
               } catch (_) {}
               if (typeof callback === 'function') callback(list);
             } catch (_) {}
@@ -567,11 +621,15 @@ class FirestoreDatabaseService {
       await setDoc(doc(firestoreDb, 'patients', patientId), dataToSave, { merge: true });
       try {
         this._suppressNextOwnPatientsVersionEvent = true;
-        await setDoc(doc(firestoreDb, 'meta', 'syncVersion'), {
+        const countPayload = {
           patientsVersion: increment(1),
           lastChangedPatientId: patientId,
           lastChangedPatientAction: isEdit ? 'updated' : 'created'
-        }, { merge: true });
+        };
+        if (!isEdit && Array.isArray(this._patientsCache)) {
+          countPayload.patientsCount = this._patientsCache.length + 1;
+        }
+        await setDoc(doc(firestoreDb, 'meta', 'syncVersion'), countPayload, { merge: true });
         if (typeof this._lastSeenPatientsVersion === 'number') {
           this._lastSeenPatientsVersion++;
           try { idbCache.set('ascpt_patients_cached_version', this._lastSeenPatientsVersion); } catch (_) {}
@@ -610,11 +668,15 @@ class FirestoreDatabaseService {
       await deleteDoc(doc(firestoreDb, 'patients', patientId));
       try {
         this._suppressNextOwnPatientsVersionEvent = true;
-        await setDoc(doc(firestoreDb, 'meta', 'syncVersion'), {
+        const countPayload = {
           patientsVersion: increment(1),
           lastChangedPatientId: patientId,
           lastChangedPatientAction: 'deleted'
-        }, { merge: true });
+        };
+        if (Array.isArray(this._patientsCache) && this._patientsCache.length > 0) {
+          countPayload.patientsCount = Math.max(0, this._patientsCache.length - 1);
+        }
+        await setDoc(doc(firestoreDb, 'meta', 'syncVersion'), countPayload, { merge: true });
       } catch (verErr) {
         console.warn('Failed to increment patientsVersion:', verErr);
       }
