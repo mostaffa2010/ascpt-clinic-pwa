@@ -769,6 +769,9 @@
   flex-direction: column;
   justify-content: space-between;
   padding: 14px 16px;
+  contain: layout paint;
+  content-visibility: auto;
+  contain-intrinsic-size: auto 140px;
 }
 
 .sessions-grid-container .mobile-pagination-bar {

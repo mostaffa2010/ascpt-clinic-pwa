@@ -119,7 +119,13 @@ export class PWAManager {
       if (!startY || isExecuting) return;
       if (e.touches.length !== 1) return;
 
-      if (!canPull(e.target)) {
+      const currentY = e.touches[0].clientY;
+      const currentX = e.touches[0].clientX;
+      const deltaY = currentY - startY;
+      const deltaX = Math.abs(currentX - startX);
+
+      // Fast-path: When scrolling down (dragging finger up), cancel pull immediately for 60fps scrolling
+      if (deltaY < 0) {
         startY = 0;
         isPulling = false;
         indicator.classList.remove('active', 'ready');
@@ -127,10 +133,13 @@ export class PWAManager {
         return;
       }
 
-      const currentY = e.touches[0].clientY;
-      const currentX = e.touches[0].clientX;
-      const deltaY = currentY - startY;
-      const deltaX = Math.abs(currentX - startX);
+      if (!canPull(e.target)) {
+        startY = 0;
+        isPulling = false;
+        indicator.classList.remove('active', 'ready');
+        indicator.style.transform = 'translate(-50%, -150%)';
+        return;
+      }
 
       if (deltaY > 8 && deltaY > deltaX && canPull(e.target)) {
         isPulling = true;

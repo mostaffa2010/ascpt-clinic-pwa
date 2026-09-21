@@ -74,6 +74,8 @@
   background-color: var(--bg-app);
   padding: 8px 0 12px 0;
   margin-bottom: 12px;
+  will-change: transform;
+  transform: translateZ(0);
 }
 
 .patients-controls-panel {
@@ -338,10 +340,13 @@
   border-radius: 20px;
   padding: 16px 18px;
   margin-bottom: 14px;
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: transform 0.16s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.16s ease, border-color 0.16s ease;
   position: relative;
   background: var(--bg-surface);
   box-shadow: 0 4px 18px -2px rgba(0, 0, 0, 0.06);
+  contain: layout paint;
+  content-visibility: auto;
+  contain-intrinsic-size: auto 160px;
 }
 
 [data-theme="dark"] .hero-patient-card,
