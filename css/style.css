@@ -3249,17 +3249,19 @@ body.not-authenticated #modal-auth #btn-cancel-login {
   border: 1px solid var(--glass-border) !important;
 }
 
-/* Subtle background gradient for body to give depth to frosted glass (Zero-Jank 60fps Native Scrolling) */
+/* Subtle background gradient for body to give depth to frosted glass */
 [data-theme="dark"] body {
   background: radial-gradient(circle at 10% 15%, rgba(2, 132, 199, 0.12) 0%, transparent 45%),
               radial-gradient(circle at 90% 85%, rgba(67, 56, 202, 0.12) 0%, transparent 45%),
               #090d16 !important;
+  background-attachment: fixed !important;
 }
 
 body {
   background: radial-gradient(circle at 10% 15%, rgba(2, 132, 199, 0.05) 0%, transparent 45%),
               radial-gradient(circle at 90% 85%, rgba(14, 165, 233, 0.05) 0%, transparent 45%),
               #f8fafc;
+  background-attachment: fixed;
 }
 
 /* ========================================================
@@ -3733,18 +3735,13 @@ body {
   -webkit-backdrop-filter: none !important;
   position: relative;
   overflow: hidden;
-  contain: layout paint;
-  content-visibility: auto;
-  contain-intrinsic-size: auto 150px;
   transition: transform 0.16s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.16s ease, border-color 0.16s ease;
 }
 
-@media (hover: hover) {
-  .hero-styled-card:hover {
-    transform: translateY(-2px);
-    border-color: rgba(56, 189, 248, 0.45);
-    box-shadow: 0 14px 34px -4px rgba(2, 132, 199, 0.35);
-  }
+.hero-styled-card:hover {
+  transform: translateY(-2px);
+  border-color: rgba(56, 189, 248, 0.45);
+  box-shadow: 0 14px 34px -4px rgba(2, 132, 199, 0.35);
 }
 
 .hero-styled-card:active {
