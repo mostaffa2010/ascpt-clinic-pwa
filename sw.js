@@ -21,6 +21,7 @@ const APP_SHELL_ASSETS = [
   '/css/components/forms.css',
   '/css/components/modals.css',
   '/css/components/tables.css',
+  '/css/components/notifications.css',
   '/css/views/shell.css',
   '/css/views/reception.css',
   '/css/views/patients.css',
