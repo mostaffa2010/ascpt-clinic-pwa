@@ -634,6 +634,8 @@
   color: var(--primary);
   margin-bottom: 4px;
   display: flex;
+  align-items: center;
+  gap: 6px;
 }
 
 /* ----------------------------------------------------------------------------
