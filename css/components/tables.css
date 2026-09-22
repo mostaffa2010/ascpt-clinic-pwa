@@ -9,11 +9,14 @@
    ---------------------------------------------------------------------------- */
 .table-responsive {
   width: 100%;
+  max-width: 100%;
+  min-width: 0;
   overflow-x: auto;
   -webkit-overflow-scrolling: touch;
   border-radius: var(--radius-md);
   border: 1px solid var(--border-color);
   background-color: var(--bg-surface);
+  box-sizing: border-box;
 }
 
 .data-table,
@@ -22,28 +25,35 @@ table.data-table {
   border-collapse: collapse;
   text-align: right;
   direction: rtl;
-  font-size: var(--fs-body);
+  font-size: var(--fs-body, 0.88rem);
+  background-color: var(--bg-surface);
 }
 
-.data-table th {
+.data-table th,
+table.data-table th {
   background-color: var(--bg-subtle);
   color: var(--text-muted);
   font-weight: 700;
-  font-size: var(--fs-subtext);
-  padding: 12px 14px;
-  border-bottom: 1.5px solid var(--border-color);
+  font-size: var(--fs-subtext, 0.78rem);
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--border-color);
   white-space: nowrap;
 }
 
-.data-table td {
-  padding: 12px 14px;
+.data-table td,
+table.data-table td {
+  padding: 10px 12px;
   border-bottom: 1px solid var(--border-color);
   color: var(--text-main);
   vertical-align: middle;
+  white-space: nowrap;
 }
 
-.data-table tr:hover td {
-  background-color: var(--bg-surface-elevated);
+.data-table tr:hover,
+.data-table tr:hover td,
+table.data-table tr:hover,
+table.data-table tr:hover td {
+  background-color: var(--bg-surface-elevated, #f8fafc);
 }
 
 /* Top Scrollbar Synchronizer Wrapper */
