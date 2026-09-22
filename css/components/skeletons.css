@@ -46,7 +46,9 @@
 
 /* Sizing Helpers: Avatars */
 .skeleton-avatar {
-  border-radius: 50% !important;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
   flex-shrink: 0;
 }
 .sk-avatar-32 { width: 32px !important; height: 32px !important; }
@@ -55,12 +57,14 @@
 
 /* Sizing Helpers: Lines */
 .skeleton-line {
-  border-radius: var(--radius-xs, 6px) !important;
+  height: 14px;
+  border-radius: var(--radius-xs, 6px);
 }
 
 /* Sizing Helpers: Badges */
 .skeleton-badge {
-  border-radius: var(--radius-pill, 9999px) !important;
+  height: 24px;
+  border-radius: var(--radius-pill, 9999px);
 }
 
 /* Relative Widths (%) */
