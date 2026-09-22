@@ -953,17 +953,6 @@ body.not-authenticated #modal-auth #btn-cancel-login {
   font-size: 0.85rem;
 }
 
-/* Fix modal and grid horizontal containment: on mobile protect from viewport overflow, but on desktop allow modals to respect their specified max-width */
-@media screen and (max-width: 580px) {
-  .modal-content {
-    max-width: 95vw !important;
-  }
-}
-
-.modal-content {
-  overflow-x: hidden;
-  box-sizing: border-box;
-}
 
 #modal-patient .modal-body,
 #p-insurance-details {
@@ -1230,19 +1219,9 @@ body.not-authenticated #modal-auth #btn-cancel-login {
   border-color: var(--border-color);
 }
 
-[data-theme="dark"] .modal-content {
-  background-color: var(--bg-surface);
-  border-color: var(--border-color);
-  color: var(--text-main);
-}
-
 [data-theme="dark"] .modal-header,
 [data-theme="dark"] .modal-footer {
   border-color: var(--border-color);
-}
-
-[data-theme="dark"] .modal-backdrop {
-  background-color: rgba(0, 0, 0, 0.7);
 }
 
 [data-theme="dark"] .data-table th {
@@ -1924,17 +1903,6 @@ body.not-authenticated #modal-auth #btn-cancel-login {
   border-top: 1px solid var(--glass-border) !important;
 }
 
-.modal-content {
-  background: #ffffff !important;
-  border: 1px solid rgba(226, 232, 240, 0.8) !important;
-  box-shadow: 0 20px 45px -10px rgba(15, 23, 42, 0.18), 0 0 1px 1px rgba(15, 23, 42, 0.05) !important;
-}
-
-[data-theme="dark"] .modal-content {
-  background: #1e293b !important;
-  border: 1px solid rgba(51, 65, 85, 0.8) !important;
-  box-shadow: 0 20px 45px -10px rgba(0, 0, 0, 0.6) !important;
-}
 
 .quick-action-btn {
   background: var(--bg-glass-card) !important;
@@ -2504,17 +2472,6 @@ body {
 }
 
 /* 6. Form Controls, Labels & Segmented Radio Pills inside Modals */
-.modal-body label {
-  display: inline-block;
-  font-size: 0.88rem;
-  font-weight: 700;
-  color: #334155;
-  margin-bottom: 6px;
-}
-
-[data-theme="dark"] .modal-body label {
-  color: #cbd5e1;
-}
 
 .modal-body .form-control,
 .modal-body input[type="text"],
@@ -2611,20 +2568,6 @@ body {
   color: #38bdf8;
 }
 
-/* 7. Custom Alert & Confirm Box */
-.custom-dialog-box {
-  background-color: #ffffff;
-  border-radius: 22px;
-  box-shadow: 0 24px 48px -12px rgba(15, 23, 42, 0.25);
-  border: 1px solid rgba(226, 232, 240, 0.8);
-  padding: 26px 22px;
-}
-
-[data-theme="dark"] .custom-dialog-box {
-  background-color: #1e293b;
-  border-color: #334155;
-  box-shadow: 0 24px 48px -12px rgba(0, 0, 0, 0.6);
-}
 
 /* ==========================================================================
    v1.4.0-beta.17: Complete Modernization for Sessions & Finance Screens
@@ -2982,14 +2925,6 @@ body {
    ========================================================================== */
 /* body.modal-open removed to prevent touch freezes */
 
-.modal-backdrop {
-  overscroll-behavior: contain !important;
-}
-
-.modal-content {
-  overscroll-behavior: contain !important;
-  -webkit-overflow-scrolling: touch !important;
-}
 
 /* ==========================================================================
    v1.4.0-beta.33: 2026 Modern Design & Touch Ergonomics Polish
