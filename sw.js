@@ -31,8 +31,6 @@ const APP_SHELL_ASSETS = [
   '/css/views/finance.css',
   '/css/views/claims.css',
   '/css/views/appointments.css',
-  '/css/style.css',
-  '/css/style.css?v=3.0.0',
   '/css/print.css',
   '/css/print.css?v=3.0.0',
   '/icons/icon-192.png',
