@@ -638,31 +638,6 @@ textarea {
   display: none;
 }
 
-/* Quick Date Switcher Buttons */
-.btn-quick-date {
-  padding: 4px 12px;
-  font-size: 0.78rem;
-  font-weight: 700;
-  border-radius: 10px;
-  border: 1.5px solid var(--border-color);
-  background-color: var(--bg-surface);
-  color: var(--text-main);
-  cursor: pointer;
-  transition: all 0.2s ease;
-  white-space: nowrap;
-}
-
-.btn-quick-date:hover {
-  border-color: var(--primary);
-  color: var(--primary);
-}
-
-.btn-quick-date.active {
-  background-color: var(--primary);
-  color: #ffffff;
-  border-color: var(--primary);
-  box-shadow: 0 1px 3px rgba(2, 132, 199, 0.3);
-}
 
 /* User Badge in Top Bar */
 .user-badge {
@@ -2957,7 +2932,6 @@ body {
 /* 2. Tabular Numbers for Financial & Clinical Data */
 .data-table td,
 .data-table th,
-.expense-amount-badge,
 .hsc-badge-amount,
 .stat-value,
 .badge-cash,
@@ -2966,8 +2940,7 @@ body {
 .doc-stack-counter,
 [id*="stat-"],
 [id*="total-"],
-[id*="amount-"],
-.expense-sub-text span {
+[id*="amount-"] {
   font-variant-numeric: tabular-nums !important;
   -webkit-font-feature-settings: "tnum" 1 !important;
   font-feature-settings: "tnum" 1 !important;
@@ -3005,7 +2978,6 @@ h1, h2, h3, h4, h5, h6 {
    ========================================================================== */
 
 /* 1. Unified Quick Date Toggle Buttons (اليوم / أمس) Across All Views */
-.btn-quick-date,
 .date-strip-pill {
   display: inline-flex;
   align-items: center;
@@ -3027,13 +2999,11 @@ h1, h2, h3, h4, h5, h6 {
   box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04);
 }
 
-.btn-quick-date:hover,
 .date-strip-pill:hover {
   border-color: var(--primary);
   color: var(--primary);
 }
 
-.btn-quick-date.active,
 .date-strip-pill.active {
   background: var(--primary);
   color: #ffffff;
@@ -3041,14 +3011,12 @@ h1, h2, h3, h4, h5, h6 {
   box-shadow: 0 2px 8px rgba(2, 132, 199, 0.3);
 }
 
-[data-theme="dark"] .btn-quick-date,
 [data-theme="dark"] .date-strip-pill {
   background: #1e293b;
   border-color: #334155;
   color: #f1f5f9;
 }
 
-[data-theme="dark"] .btn-quick-date.active,
 [data-theme="dark"] .date-strip-pill.active {
   background: var(--primary);
   color: #0f172a;
@@ -4399,97 +4367,6 @@ body.role-receptionist #dashboard-admin-view {
   display: block !important;
 }
 
-/* ========================================================
-   Modern Financial Cockpit & Analytics Suite (v1.4.58)
-   ======================================================== */
-.financial-cockpit-card {
-  margin-bottom: 16px;
-  border: 1.5px solid var(--border-color);
-  background: var(--bg-surface);
-  transition: all 0.25s ease;
-}
-
-.cockpit-sub-metrics-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 10px;
-  margin-top: 14px;
-  padding-top: 14px;
-  border-top: 1px solid var(--border-color);
-}
-
-.cockpit-metric-item {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 10px 12px;
-  background: var(--bg-subtle);
-  border-radius: 12px;
-  border: 1px solid var(--border-color);
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-}
-
-.cockpit-metric-item .c-icon {
-  width: 36px;
-  height: 36px;
-  border-radius: 10px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1rem;
-  flex-shrink: 0;
-}
-
-.cockpit-metric-item.green .c-icon {
-  background: rgba(16, 185, 129, 0.12);
-  color: var(--success);
-}
-
-.cockpit-metric-item.red .c-icon {
-  background: rgba(239, 68, 68, 0.12);
-  color: var(--danger);
-}
-
-.cockpit-metric-item.blue .c-icon {
-  background: rgba(2, 132, 199, 0.12);
-  color: var(--primary);
-}
-
-.cockpit-metric-item .c-info {
-  display: flex;
-  flex-direction: column;
-  min-width: 0;
-}
-
-.cockpit-metric-item .c-label {
-  font-size: 0.74rem;
-  font-weight: 700;
-  color: var(--text-muted);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.cockpit-metric-item .c-val {
-  font-size: 1rem;
-  font-weight: 800;
-  color: var(--text-main);
-  margin-top: 2px;
-  white-space: nowrap;
-}
-
-@media (max-width: 768px) {
-  .cockpit-sub-metrics-grid {
-    grid-template-columns: 1fr;
-    gap: 8px;
-  }
-  .cockpit-metric-item {
-    padding: 8px 10px;
-  }
-  .cockpit-metric-item .c-val {
-    font-size: 0.95rem;
-  }
-}
 
 /* ========================================================
    Insurance Claims Actions Hub at Bottom (v1.4.58)

@@ -249,19 +249,28 @@
 }
 
 .btn-quick-date {
-  padding: 4px 10px;
-  font-size: 0.76rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 34px;
+  height: 34px;
+  padding: 0 16px;
+  border-radius: 999px;
+  border: 1.5px solid var(--border-color);
+  background: var(--bg-surface);
+  color: var(--text-main);
+  font-size: 0.82rem;
   font-weight: 700;
-  border-radius: 8px;
-  border: 1px solid var(--border-color);
-  background: var(--bg-subtle);
-  color: var(--text-muted);
   cursor: pointer;
-  transition: all 0.15s ease;
+  white-space: nowrap;
+  box-sizing: border-box;
+  flex-shrink: 0;
+  transition: all 0.18s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04);
 }
 
 .btn-quick-date:hover {
-  background: var(--primary-light);
+  border-color: var(--primary);
   color: var(--primary);
 }
 
@@ -269,18 +278,19 @@
   background: var(--primary);
   color: #ffffff;
   border-color: var(--primary);
+  box-shadow: 0 2px 8px rgba(2, 132, 199, 0.3);
 }
 
 [data-theme="dark"] .btn-quick-date {
   background: #1e293b;
   border-color: #334155;
-  color: #94a3b8;
+  color: #f1f5f9;
 }
 
 [data-theme="dark"] .btn-quick-date.active {
-  background: #0284c7;
-  color: #ffffff;
-  border-color: #0284c7;
+  background: var(--primary);
+  color: #0f172a;
+  border-color: var(--primary);
 }
 
 .fin-doctor-filter-row {
@@ -994,6 +1004,12 @@
   gap: 6px;
 }
 
+.expense-sub-text span {
+  font-variant-numeric: tabular-nums;
+  -webkit-font-feature-settings: "tnum" 1;
+  font-feature-settings: "tnum" 1;
+}
+
 .expense-row-left {
   display: flex;
   align-items: center;
@@ -1006,6 +1022,9 @@
   font-weight: 800;
   color: var(--danger);
   direction: ltr;
+  font-variant-numeric: tabular-nums;
+  -webkit-font-feature-settings: "tnum" 1;
+  font-feature-settings: "tnum" 1;
 }
 
 .btn-delete-expense-compact {
