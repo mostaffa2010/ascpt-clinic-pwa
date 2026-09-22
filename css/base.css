@@ -442,7 +442,7 @@ input, textarea, select, [contenteditable="true"] {
 .text-danger { color: var(--danger) !important; }
 .z-220 { z-index: 220 !important; }
 .z-230 { z-index: 230 !important; }
-.z-350 { z-index: 350 !important; }
+.z-350 { z-index: 2000 !important; }
 .modal-sm { max-width: 440px !important; }
 .modal-md { max-width: 520px !important; }
 .modal-lg { max-width: 650px !important; }

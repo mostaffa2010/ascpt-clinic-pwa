@@ -18,7 +18,7 @@
   background-color: rgba(15, 23, 42, 0.72);
   backdrop-filter: none;
   -webkit-backdrop-filter: none;
-  z-index: 1000;
+  z-index: 200;
   display: none;
   align-items: center;
   justify-content: center;
@@ -585,4 +585,13 @@
   font-size: 0.95rem;
   text-align: center;
   border: 1.5px solid var(--border-color);
+}
+
+/* Ensure sub-modals (Pickers, Calendars, Multi-selects) always open ON TOP of any active form */
+#modal-custom-picker,
+#modal-custom-calendar,
+#modal-custom-month-picker,
+#modal-multi-picker,
+.z-350 {
+  z-index: 2000 !important;
 }

@@ -3473,11 +3473,22 @@ h1, h2, h3, h4, h5, h6 {
 
 .modern-input-icon {
   position: absolute;
-  right: 12px;
+  right: 14px;
+  top: 50%;
+  transform: translateY(-50%);
   color: var(--text-muted);
   font-size: 0.95rem;
   pointer-events: none;
   transition: color 0.18s ease;
+  z-index: 2;
+}
+
+.modern-input-icon + input,
+.modern-input-icon ~ input,
+.modern-input-wrapper:has(.modern-input-icon) input,
+.modern-input-wrapper:has(.modern-input-icon) .form-control {
+  padding-right: 44px !important;
+  padding-left: 14px !important;
 }
 
 
