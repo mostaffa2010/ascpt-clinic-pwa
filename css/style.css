@@ -279,23 +279,15 @@ body {
 }
 
 /* ================= Modern Atomic Utilities ================= */
-.d-none { display: none !important; }
 .d-flex { display: flex; }
 .d-grid { display: grid; }
 .d-block { display: block; }
 .d-inline-flex { display: inline-flex; }
 
-.text-primary { color: var(--primary) !important; }
 .text-success { color: var(--success) !important; }
-.text-danger { color: var(--danger) !important; }
 .text-warning { color: var(--warning) !important; }
-.text-muted { color: var(--text-muted); }
 .text-main { color: var(--text-main); }
-.text-center { text-align: center; }
-.text-right { text-align: right; }
 
-.fw-800 { font-weight: 800; }
-.fw-700 { font-weight: 700; }
 .fw-600 { font-weight: 600; }
 
 .flex-between { display: flex; align-items: center; justify-content: space-between; }
@@ -306,8 +298,6 @@ body {
 .gap-8 { gap: 8px; }
 .gap-10 { gap: 10px; }
 .gap-12 { gap: 12px; }
-
-.w-100 { width: 100%; }
 .h-100 { height: 100%; }
 
 .input-icon-end {
@@ -552,21 +542,7 @@ textarea {
 }
 
 
-/* User Badge in Top Bar */
-.user-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  background-color: var(--bg-subtle);
-  padding: 4px 8px;
-  border-radius: 8px;
-  border: 1px solid var(--border-color);
-  font-size: 0.82rem;
-  font-weight: 700;
-  color: var(--text-main);
-  white-space: nowrap;
-  flex-shrink: 0;
-}
+
 
 /* Role Capsule Switcher */
 .demo-role-capsule {
@@ -1126,11 +1102,7 @@ body.not-authenticated #modal-auth #btn-cancel-login {
   border-color: var(--border-color);
 }
 
-[data-theme="dark"] .user-badge {
-  background-color: var(--bg-subtle);
-  border-color: var(--border-color);
-  color: var(--text-main);
-}
+
 
 [data-theme="dark"] .toast-box {
   background-color: var(--bg-surface);

@@ -104,6 +104,8 @@ input, textarea, select, [contenteditable="true"] {
   font-size: var(--fs-subtext);
   font-weight: 700;
   cursor: pointer;
+  white-space: nowrap;
+  flex-shrink: 0;
   transition: all 0.2s ease;
 }
 
