@@ -395,34 +395,6 @@ body {
   gap: 14px;
 }
 
-.form-group {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
-.form-group label {
-  font-size: 0.85rem;
-  font-weight: 600;
-  color: var(--text-main);
-}
-
-.form-control {
-  width: 100%;
-  padding: 10px 12px;
-  font-size: 0.9rem;
-  border-radius: var(--radius-md);
-  border: 1px solid var(--border-color);
-  background-color: var(--bg-surface);
-  color: var(--text-main);
-  transition: border-color 0.2s;
-}
-
-.form-control:focus {
-  outline: none;
-  border-color: var(--primary);
-  box-shadow: 0 0 0 3px var(--primary-light);
-}
 
 textarea.form-control,
 textarea {
@@ -828,43 +800,6 @@ body.not-authenticated #modal-auth #btn-cancel-login {
 }
 
 /* ================= Modern Insurance Companies UI ================= */
-.insurance-contract-segmented {
-  display: flex;
-  background: #f1f5f9;
-  border-radius: 10px;
-  padding: 3px;
-  gap: 4px;
-}
-
-.insurance-contract-segmented .segmented-option {
-  flex: 1;
-  margin: 0;
-  cursor: pointer;
-}
-
-.insurance-contract-segmented input[type="radio"] {
-  display: none;
-}
-
-.insurance-contract-segmented .segmented-btn {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  padding: 8px 12px;
-  border-radius: 8px;
-  font-size: 0.85rem;
-  font-weight: 700;
-  color: #64748b;
-  transition: all 0.2s ease;
-  user-select: none;
-}
-
-.insurance-contract-segmented input[type="radio"]:checked + .segmented-btn {
-  background: #ffffff;
-  color: #0284c7;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-}
 
 .insurance-companies-grid {
   display: grid;
@@ -1244,18 +1179,6 @@ body.not-authenticated #modal-auth #btn-cancel-login {
   border-color: var(--primary);
 }
 
-[data-theme="dark"] .insurance-contract-segmented {
-  background: var(--bg-subtle);
-}
-
-[data-theme="dark"] .insurance-contract-segmented label {
-  color: var(--text-muted);
-}
-
-[data-theme="dark"] .insurance-contract-segmented input[type="radio"]:checked + label {
-  background: var(--bg-surface);
-  color: var(--text-main);
-}
 
 [data-theme="dark"] .stat-card {
   background-color: var(--bg-surface);
@@ -1392,20 +1315,6 @@ body.not-authenticated #modal-auth #btn-cancel-login {
   border: 1px solid rgba(192, 132, 252, 0.35) !important;
 }
 
-[data-theme="dark"] .insurance-contract-segmented {
-  background: var(--bg-subtle);
-  border: 1px solid var(--border-color);
-}
-
-[data-theme="dark"] .insurance-contract-segmented .segmented-btn {
-  color: var(--text-muted);
-}
-
-[data-theme="dark"] .insurance-contract-segmented input[type="radio"]:checked + .segmented-btn {
-  background: var(--bg-surface);
-  color: var(--primary);
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.4);
-}
 
 [data-theme="dark"] .insurance-company-card {
   background: var(--bg-surface);
@@ -2503,45 +2412,6 @@ body {
   box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.18);
 }
 
-.custom-radio-card {
-  border-radius: 14px;
-  padding: 11px 18px;
-  border: 1.5px solid #e2e8f0;
-  background-color: #ffffff;
-  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.03);
-  cursor: pointer;
-  display: inline-flex;
-  align-items: center;
-  gap: 10px;
-  font-weight: 700;
-  font-size: 0.9rem;
-  color: #1e293b;
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.custom-radio-card:hover {
-  background-color: #f8fafc;
-  border-color: #cbd5e1;
-}
-
-.custom-radio-card:has(input:checked) {
-  background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
-  border-color: #0284c7;
-  color: #0369a1;
-  box-shadow: 0 4px 14px -2px rgba(2, 132, 199, 0.18);
-}
-
-[data-theme="dark"] .custom-radio-card {
-  background-color: #1e293b;
-  border-color: #334155;
-  color: #f8fafc;
-}
-
-[data-theme="dark"] .custom-radio-card:has(input:checked) {
-  background: rgba(2, 132, 199, 0.25);
-  border-color: #38bdf8;
-  color: #38bdf8;
-}
 
 
 /* ==========================================================================
@@ -2864,7 +2734,6 @@ body {
 
 /* 3. Spring Micro-Interactions on Interactive Elements */
 .btn,
-.custom-select-btn,
 .segmented-btn,
 .b-nav-item i {
   transition: transform 0.14s cubic-bezier(0.34, 1.56, 0.64, 1),
@@ -2873,7 +2742,6 @@ body {
 }
 
 .btn:active,
-.custom-select-btn:active,
 .segmented-btn:active {
   transform: scale(0.96) !important;
 }
@@ -3612,37 +3480,6 @@ h1, h2, h3, h4, h5, h6 {
   transition: color 0.18s ease;
 }
 
-.modern-input {
-  width: 100%;
-  height: 42px !important;
-  padding: 0 38px 0 12px !important;
-  border-radius: 10px !important;
-  border: 1.5px solid var(--border-color) !important;
-  background: var(--bg-surface) !important;
-  font-size: 0.90rem !important;
-  font-weight: 700 !important;
-  color: var(--text-main) !important;
-  transition: all 0.18s cubic-bezier(0.4, 0, 0.2, 1) !important;
-}
-
-.modern-input:focus {
-  border-color: var(--primary) !important;
-  box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.15) !important;
-}
-
-.modern-input-wrapper:focus-within .modern-input-icon {
-  color: var(--primary) !important;
-}
-
-[data-theme="dark"] .modern-input {
-  background: #1e293b !important;
-  border-color: #334155 !important;
-  color: #f8fafc !important;
-}
-[data-theme="dark"] .modern-input:focus {
-  border-color: #38bdf8 !important;
-  box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.2) !important;
-}
 
 /* Two Columns Row (Kept side-by-side for compact elegance) */
 .modern-two-cols-row {
@@ -3717,35 +3554,6 @@ h1, h2, h3, h4, h5, h6 {
   box-shadow: 0 2px 8px rgba(219, 39, 119, 0.4);
 }
 
-/* Modern Select Button */
-.modern-select-btn {
-  width: 100% !important;
-  min-height: 42px !important;
-  border-radius: 10px !important;
-  border: 1.5px solid var(--border-color) !important;
-  background: var(--bg-surface) !important;
-  padding: 0 12px !important;
-  display: flex !important;
-  align-items: center !important;
-  justify-content: space-between !important;
-  font-weight: 800 !important;
-  font-size: 0.88rem !important;
-  color: var(--text-main) !important;
-}
-
-.select-btn-val {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-[data-theme="dark"] .modern-select-btn {
-  background: #1e293b !important;
-  border-color: #334155 !important;
-}
 
 /* Interactive Billing Cards */
 .billing-cards-grid {
