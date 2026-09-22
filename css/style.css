@@ -2648,71 +2648,6 @@ body {
    v1.4.0-beta.24: Complete Modernization for Admin Panel (لوحة المدير)
    ========================================================================== */
 
-/* 1. Hero Admin Banner */
-.hero-admin-banner {
-  background: linear-gradient(135deg, #1e1b4b 0%, #6b21a8 55%, #0284c7 100%);
-  border: 1px solid rgba(255, 255, 255, 0.18);
-  box-shadow: 0 12px 28px -6px rgba(107, 33, 168, 0.35);
-  color: #ffffff;
-}
-
-.hero-admin-banner .hero-banner-title {
-  color: #ffffff;
-}
-
-.hero-admin-banner .hero-banner-sub {
-  color: rgba(255, 255, 255, 0.88);
-}
-
-.hero-admin-banner .hero-greeting-pill {
-  background: rgba(255, 255, 255, 0.18);
-  color: #ffffff;
-  border: 1px solid rgba(255, 255, 255, 0.25);
-}
-
-.hero-admin-banner .hero-date-chip {
-  background: rgba(255, 255, 255, 0.16);
-  color: #ffffff;
-  border: 1px solid rgba(255, 255, 255, 0.22);
-}
-
-[data-theme="dark"] .hero-admin-banner {
-  background: linear-gradient(135deg, #090514 0%, #4c1d95 60%, #0c1527 100%);
-  border-color: rgba(168, 85, 247, 0.35);
-  box-shadow: 0 14px 34px -6px rgba(0, 0, 0, 0.7);
-}
-
-/* 2. Admin User Mobile Cards */
-.admin-user-mobile-card {
-  margin-bottom: 10px;
-  border-radius: 18px;
-  padding: 14px 16px;
-}
-
-/* 3. Audit Log Mobile Timeline */
-.audit-mobile-timeline {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  max-height: none;
-  overflow-y: visible;
-  padding-right: 2px;
-}
-
-.audit-mobile-item {
-  background: var(--bg-surface);
-  border: 1.5px solid var(--border-color);
-  border-radius: 16px;
-  padding: 13px 15px;
-  transition: all 0.2s ease;
-  box-shadow: 0 2px 8px -2px rgba(15, 23, 42, 0.04);
-}
-
-[data-theme="dark"] .audit-mobile-item {
-  background: linear-gradient(145deg, #1e293b 0%, #172337 100%) !important;
-  border: 1.5px solid #334155 !important;
-  box-shadow: 0 4px 14px -2px rgba(0, 0, 0, 0.35) !important;
-}
 
 /* 4. Unwrapped Mobile Cards for Admin View (Eliminates side border lines & double nesting) */
 @media screen and (max-width: 991px) {
@@ -2755,25 +2690,6 @@ body {
   }
 }
 
-/* 5. Backup & Restore Unwrapped Component */
-.backup-restore-body {
-  background: var(--bg-surface);
-  border: 1.5px solid var(--border-color);
-  border-radius: 20px;
-  padding: 16px 18px;
-  box-shadow: 0 4px 16px -2px rgba(15, 23, 42, 0.05);
-}
-
-:root:not([data-theme="dark"]) .backup-restore-body {
-  background: linear-gradient(135deg, #ffffff 0%, #f0f9ff 100%);
-  border: 1.5px solid rgba(2, 132, 199, 0.2);
-}
-
-[data-theme="dark"] .backup-restore-body {
-  background: linear-gradient(145deg, #1e293b 0%, #172337 100%) !important;
-  border: 1.5px solid #334155 !important;
-  box-shadow: 0 4px 18px -2px rgba(0, 0, 0, 0.4) !important;
-}
 
 [data-theme="dark"] #btn-download-backup {
   background: rgba(56, 189, 248, 0.1) !important;
@@ -3428,15 +3344,6 @@ h1, h2, h3, h4, h5, h6 {
   color: #6ee7b7 !important;
 }
 
-.stat-icon.purple {
-  background-color: rgba(168, 85, 247, 0.15);
-  color: #9333ea;
-}
-
-[data-theme="dark"] .stat-icon.purple {
-  background-color: rgba(168, 85, 247, 0.2) !important;
-  color: #c084fc !important;
-}
 
 .badge-exam-tag {
   background: rgba(109, 40, 217, 0.12);
