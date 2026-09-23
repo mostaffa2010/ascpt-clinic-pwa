@@ -46,10 +46,10 @@
   padding-bottom: 0;
   padding-left: 16px;
   box-sizing: border-box;
-  background-color: rgba(255, 255, 255, 0.88);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border-bottom: 1px solid rgba(226, 232, 240, 0.85);
+  background: var(--bg-glass);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  border-bottom: 1px solid var(--glass-border);
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -61,8 +61,6 @@
 }
 
 [data-theme="dark"] .top-header {
-  background-color: rgba(15, 23, 42, 0.85);
-  border-bottom-color: rgba(51, 65, 85, 0.7);
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.25);
 }
 
@@ -457,10 +455,10 @@
   right: 0;
   height: calc(var(--bottom-nav-height) + env(safe-area-inset-bottom, 0px));
   padding-bottom: env(safe-area-inset-bottom, 0px);
-  background-color: rgba(255, 255, 255, 0.9);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border-top: 1px solid rgba(226, 232, 240, 0.85);
+  background: var(--bg-glass);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  border-top: 1px solid var(--glass-border);
   display: flex;
   justify-content: space-around;
   align-items: center;
@@ -476,8 +474,6 @@
 }
 
 [data-theme="dark"] .bottom-nav {
-  background-color: rgba(15, 23, 42, 0.88);
-  border-top-color: rgba(51, 65, 85, 0.7);
   box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.3);
 }
 
@@ -502,7 +498,9 @@
 
 .b-nav-item i {
   font-size: 1.15rem;
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: transform 0.14s cubic-bezier(0.34, 1.56, 0.64, 1),
+              background-color 0.15s ease,
+              border-color 0.15s ease;
 }
 
 .b-nav-item.active {
@@ -684,6 +682,13 @@
 
 .status-dot.offline {
   background-color: var(--danger);
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.25);
+  animation: pulseOffline 2s infinite;
+}
+
+@keyframes pulseOffline {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.25); opacity: 0.65; }
 }
 
 .training-mode-tag {

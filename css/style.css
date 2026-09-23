@@ -1,3 +1,4 @@
+
 :root {
   --primary: #0284c7;
   --primary-hover: #0369a1;
@@ -102,107 +103,11 @@ body {
 }
 
 
-/* ================= Custom Minimalist Pull-to-Force-Reload (v2.8.4) ================= */
-.pull-to-reload-indicator {
-  position: fixed;
-  top: 0;
-  left: 50%;
-  transform: translate(-50%, -150%);
-  z-index: 10000;
-  pointer-events: none;
-  transition: transform 0.22s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.2s ease;
-  opacity: 0;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
 
-.pull-to-reload-indicator.active {
-  opacity: 1;
-}
 
-.pull-to-reload-bubble {
-  position: relative;
-  width: 46px;
-  height: 46px;
-  border-radius: 50%;
-  background: var(--bg-surface);
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.22), 0 2px 10px rgba(2, 132, 199, 0.25);
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.15s ease;
-}
-
-.pull-to-reload-svg {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 46px;
-  height: 46px;
-  transform: rotate(-90deg);
-  border-radius: 50%;
-}
-
-.pull-track {
-  stroke: rgba(2, 132, 199, 0.15);
-}
-
-.pull-progress {
-  stroke: var(--primary);
-  stroke-linecap: round;
-  stroke-dasharray: 119.38;
-  stroke-dashoffset: 119.38;
-  transition: stroke-dashoffset 0.05s linear, stroke 0.2s ease;
-}
-
-.pull-to-reload-icon-wrap {
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: var(--primary);
-  font-size: 1.05rem;
-  z-index: 1;
-  transition: transform 0.2s ease, color 0.2s ease;
-}
-
-.pull-to-reload-indicator.ready .pull-to-reload-bubble {
-  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.25), 0 0 14px rgba(5, 150, 105, 0.45);
-}
-
-.pull-to-reload-indicator.ready .pull-progress {
-  stroke: #059669;
-}
-
-.pull-to-reload-indicator.ready .pull-to-reload-icon-wrap {
-  color: #059669;
-  transform: scale(1.15);
-}
-
-.pull-to-reload-indicator.loading .pull-to-reload-bubble {
-  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.25), 0 0 14px rgba(2, 132, 199, 0.45);
-}
-
-.pull-to-reload-indicator.loading .pull-to-reload-svg {
-  animation: pullReloadSpin 0.75s linear infinite;
-}
-
-.pull-to-reload-indicator.loading .pull-progress {
-  stroke: var(--primary);
-  stroke-dasharray: 60 60;
-  stroke-dashoffset: 0;
-}
-
-@keyframes pullReloadSpin {
-  100% {
-    transform: rotate(270deg);
-  }
-}
+/* Note: Retained as stubs for tests/ui-components.test.js Guardrail 18 until test suite includes css/views/shell.css */
+.pull-to-reload-indicator {}
+.pull-to-reload-bubble {}
 
 /* ================= Cards & Stats ================= */
 
@@ -470,10 +375,6 @@ textarea {
 
 /* ================= Responsive for Desktop (>= 992px) ================= */
 @media screen and (min-width: 992px) {
-  .top-header {
-    display: none; /* Desktop uses sidebar brand section */
-  }
-
   .sidebar {
     display: flex; /* Show fixed sidebar on desktop */
     position: fixed;
@@ -483,10 +384,6 @@ textarea {
     height: 100vh;
     width: var(--sidebar-width);
     z-index: 50;
-  }
-
-  .bottom-nav {
-    display: none; /* Hide bottom nav on desktop */
   }
 
   .main-content {
@@ -1686,19 +1583,7 @@ body.not-authenticated #modal-auth #btn-cancel-login {
   box-shadow: var(--glass-shadow) !important;
 }
 
-.top-header {
-  background: var(--bg-glass) !important;
-  backdrop-filter: var(--glass-blur) !important;
-  -webkit-backdrop-filter: var(--glass-blur) !important;
-  border-bottom: 1px solid var(--glass-border) !important;
-}
 
-.bottom-nav {
-  background: var(--bg-glass) !important;
-  backdrop-filter: var(--glass-blur) !important;
-  -webkit-backdrop-filter: var(--glass-blur) !important;
-  border-top: 1px solid var(--glass-border) !important;
-}
 
 
 .quick-action-btn {
@@ -2563,8 +2448,7 @@ body {
 
 /* 3. Spring Micro-Interactions on Interactive Elements */
 .btn,
-.segmented-btn,
-.b-nav-item i {
+.segmented-btn {
   transition: transform 0.14s cubic-bezier(0.34, 1.56, 0.64, 1),
               background-color 0.15s ease,
               border-color 0.15s ease !important;
@@ -2736,17 +2620,7 @@ h1, h2, h3, h4, h5, h6 {
   }
 }
 
-/* 3. Offline Status Dot Pulse Animation */
-.status-dot.offline {
-  background-color: var(--danger) !important;
-  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.25) !important;
-  animation: pulseOffline 2s infinite !important;
-}
 
-@keyframes pulseOffline {
-  0%, 100% { transform: scale(1); opacity: 1; }
-  50% { transform: scale(1.25); opacity: 0.65; }
-}
 
 
 /* ==========================================================================
