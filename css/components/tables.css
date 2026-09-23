@@ -88,3 +88,26 @@ table.data-table tr:hover td {
   background: transparent;
   box-shadow: none;
 }
+
+/* ==========================================================================
+   Migrated from style.css (Group 7: Table Pagination Indicators)
+   ========================================================================== */
+
+.page-indicator {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+
+.page-num-pill {
+  font-size: 0.84rem;
+  font-weight: 800;
+  color: var(--text-main);
+}
+
+.page-range-sub {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  font-weight: 600;
+}

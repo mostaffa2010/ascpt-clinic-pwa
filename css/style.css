@@ -1045,28 +1045,7 @@ h1, h2, h3, h4, h5, h6 {
   flex-shrink: 0;
 }
 
-/* 3. Approval Progress Dots */
-.cycle-dot {
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
-  background: var(--border-color);
-  display: inline-block;
-  transition: all 0.2s ease;
-}
 
-.cycle-dot.done {
-  background: var(--success);
-  box-shadow: 0 0 6px rgba(16, 185, 129, 0.4);
-}
-
-[data-theme="dark"] .cycle-dot {
-  background: #334155;
-}
-
-[data-theme="dark"] .cycle-dot.done {
-  background: #10b981;
-}
 
 
 
@@ -1173,40 +1152,9 @@ h1, h2, h3, h4, h5, h6 {
 
 
 
-.page-indicator {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 2px;
-}
 
-.page-num-pill {
-  font-size: 0.84rem;
-  font-weight: 800;
-  color: var(--text-main);
-}
 
-.page-range-sub {
-  font-size: 0.72rem;
-  color: var(--text-muted);
-  font-weight: 600;
-}
 
-/* Newly added session highlight */
-.session-row-newly-added {
-  animation: newSessionPulse 3s ease-in-out infinite alternate;
-}
-
-@keyframes newSessionPulse {
-  0% {
-    box-shadow: 0 0 0 0 rgba(56, 189, 248, 0.4);
-    border-color: rgba(56, 189, 248, 0.6);
-  }
-  100% {
-    box-shadow: 0 0 16px 2px rgba(56, 189, 248, 0.25);
-    border-color: #38bdf8;
-  }
-}
 
 
 
