@@ -131,50 +131,7 @@ body {
 }
 
 
-.stat-icon {
-  width: 48px;
-  height: 48px;
-  border-radius: var(--radius-md);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1.3rem;
-  flex-shrink: 0;
-  transition: transform 0.2s ease;
-}
 
-.stat-box:hover .stat-icon, .stat-card:hover .stat-icon {
-  transform: scale(1.06);
-}
-
-.stat-icon.blue { background-color: var(--primary-light); color: var(--primary); }
-.stat-icon.green { background-color: var(--success-light); color: var(--success); }
-.stat-icon.amber { background-color: var(--warning-light); color: var(--warning); }
-.stat-icon.red { background-color: var(--danger-light); color: var(--danger); }
-
-.stat-info {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  text-align: right;
-  min-width: 0;
-  flex: 1;
-  gap: 3px;
-}
-
-.stat-info .stat-value {
-  font-size: 1.25rem;
-  font-weight: 800;
-  color: var(--text-main);
-  line-height: 1.2;
-}
-
-.stat-info .stat-label {
-  font-size: 0.8rem;
-  color: var(--text-muted);
-  font-weight: 600;
-  line-height: 1.2;
-}
 
 .input-icon-end {
   position: absolute;
@@ -1036,41 +993,15 @@ body.not-authenticated #modal-auth #btn-cancel-login {
   z-index: 2;
 }
 
-.hero-greeting-pill {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  background: rgba(255, 255, 255, 0.16);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  border: 1px solid rgba(255, 255, 255, 0.25);
-  border-radius: var(--radius-pill);
-  padding: 4px 12px;
-  font-size: 0.8rem;
-  font-weight: 700;
-  margin-bottom: 12px;
-  color: #e0f2fe;
-}
+
 
 .hero-greeting-icon {
   color: #fde047;
 }
 
-.hero-banner-title {
-  font-size: 1.45rem;
-  font-weight: 800;
-  color: #ffffff;
-  margin-bottom: 4px;
-  letter-spacing: -0.3px;
-  line-height: 1.25;
-}
 
-.hero-banner-sub {
-  font-size: 0.82rem;
-  color: rgba(224, 242, 254, 0.85);
-  font-weight: 600;
-  margin-bottom: 18px;
-}
+
+
 
 .hero-banner-footer {
   display: flex;
@@ -1082,14 +1013,7 @@ body.not-authenticated #modal-auth #btn-cancel-login {
   border-top: 1px solid rgba(255, 255, 255, 0.15);
 }
 
-.hero-date-chip {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 0.82rem;
-  color: #e0f2fe;
-  font-weight: 700;
-}
+
 
 
 /* 2. Quick Access Bar (Inspired by Pinterest Ref 2) */
@@ -1330,9 +1254,7 @@ body.not-authenticated #modal-auth #btn-cancel-login {
   box-shadow: 0 12px 30px -6px rgba(0, 0, 0, 0.6);
 }
 
-[data-theme="dark"] .hero-doctor-banner {
-  background: linear-gradient(135deg, #090d16 0%, #3730a3 100%);
-}
+
 
 
 [data-theme="dark"] .qa-blue { background: rgba(56, 189, 248, 0.18); color: #38bdf8; }
@@ -2569,16 +2491,7 @@ h1, h2, h3, h4, h5, h6 {
   background-color: rgba(52, 211, 153, 0.22) !important;
 }
 
-[data-theme="dark"] .training-pill-btn {
-  background-color: rgba(251, 191, 36, 0.15) !important;
-  border-color: rgba(251, 191, 36, 0.35) !important;
-  color: #fbbf24 !important;
-}
 
-[data-theme="dark"] .training-pill-btn:hover,
-[data-theme="dark"] .training-pill-btn:active {
-  background-color: rgba(251, 191, 36, 0.25) !important;
-}
 
 /* High Contrast Active Chips/Pills in Dark Mode */
 [data-theme="dark"] .category-chip.active,
@@ -3539,120 +3452,7 @@ html, body {
   border-color: rgba(52, 211, 153, 0.3);
 }
 
-.doc-slot-card .doc-stack-patient-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 12px;
-  padding: 11px 14px;
-  border-radius: 12px;
-  background: #ffffff;
-  border: 1px solid rgba(2, 132, 199, 0.14);
-  box-shadow: 0 2px 6px -1px rgba(15, 23, 42, 0.04);
-  transition: all 0.2s ease;
-}
 
-[data-theme="dark"] .doc-slot-card .doc-stack-patient-row {
-  background: rgba(30, 41, 59, 0.85);
-  border-color: rgba(56, 189, 248, 0.2);
-  box-shadow: 0 2px 8px -2px rgba(0, 0, 0, 0.4);
-}
-
-.doc-slot-card .doc-stack-patient-row.completed-row {
-  opacity: 0.72;
-  background: rgba(16, 185, 129, 0.06);
-  border-color: rgba(16, 185, 129, 0.25);
-}
-
-[data-theme="dark"] .doc-slot-card .doc-stack-patient-row.completed-row {
-  background: rgba(5, 150, 105, 0.12);
-  border-color: rgba(52, 211, 153, 0.25);
-}
-
-.doc-slot-card .doc-stack-patient-name {
-  font-size: 0.94rem;
-  font-weight: 800;
-  color: var(--text-main);
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  flex-wrap: wrap;
-}
-
-[data-theme="dark"] .doc-slot-card .doc-stack-patient-name {
-  color: #f8fafc;
-}
-
-.doc-slot-card .doc-stack-patient-details {
-  font-size: 0.80rem;
-  color: var(--text-muted);
-  margin-top: 4px;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  flex-wrap: wrap;
-}
-
-[data-theme="dark"] .doc-slot-card .doc-stack-patient-details {
-  color: #94a3b8;
-}
-
-.doc-slot-card .patient-body-part {
-  color: var(--primary);
-  font-weight: 700;
-  font-size: 0.78rem;
-}
-
-[data-theme="dark"] .doc-slot-card .patient-body-part {
-  color: #38bdf8;
-}
-
-.doc-slot-card .btn-complete-patient {
-  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-  color: #ffffff;
-  border: none;
-  height: 34px;
-  padding: 0 14px;
-  border-radius: 9px;
-  font-size: 0.82rem;
-  font-weight: 800;
-  cursor: pointer;
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  box-shadow: 0 3px 10px -2px rgba(16, 185, 129, 0.4);
-  transition: all 0.2s ease;
-  white-space: nowrap;
-}
-
-.doc-slot-card .btn-complete-patient:hover,
-.doc-slot-card .btn-complete-patient:active {
-  transform: scale(0.97);
-  opacity: 0.92;
-}
-
-.doc-slot-card .btn-undo-patient {
-  background: rgba(245, 158, 11, 0.12);
-  color: #d97706;
-  border: 1px solid rgba(245, 158, 11, 0.35);
-  height: 34px;
-  padding: 0 12px;
-  border-radius: 9px;
-  font-size: 0.80rem;
-  font-weight: 700;
-  cursor: pointer;
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  transition: all 0.2s ease;
-  white-space: nowrap;
-}
-
-.doc-slot-card .btn-undo-patient:hover,
-.doc-slot-card .btn-undo-patient:active {
-  background: rgba(245, 158, 11, 0.2);
-  border-color: #d97706;
-}
 
 
 /* ==========================================================================

@@ -24,6 +24,47 @@
 /* ----------------------------------------------------------------------------
    2. Hero Admin Banner
    ---------------------------------------------------------------------------- */
+.hero-banner-title {
+  font-size: 1.45rem;
+  font-weight: 800;
+  color: #ffffff;
+  margin-bottom: 4px;
+  letter-spacing: -0.3px;
+  line-height: 1.25;
+}
+
+.hero-banner-sub {
+  font-size: 0.82rem;
+  color: rgba(224, 242, 254, 0.85);
+  font-weight: 600;
+  margin-bottom: 18px;
+}
+
+.hero-greeting-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(255, 255, 255, 0.16);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  padding: 4px 12px;
+  border-radius: var(--radius-pill);
+  color: #ffffff;
+  font-size: 0.8rem;
+  font-weight: 700;
+  margin-bottom: 12px;
+}
+
+.hero-date-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.82rem;
+  color: #e0f2fe;
+  font-weight: 700;
+}
+
 .hero-admin-banner {
   background: linear-gradient(135deg, #1e1b4b 0%, #6b21a8 55%, #0284c7 100%);
   border: 1px solid rgba(255, 255, 255, 0.18);
@@ -52,7 +93,48 @@
   border: 1px solid rgba(255, 255, 255, 0.22);
 }
 
-[data-theme="dark"] .hero-admin-banner {
+[data-theme="dark"] .hero-banner-title {
+  font-size: 1.45rem;
+  font-weight: 800;
+  color: #ffffff;
+  margin-bottom: 4px;
+  letter-spacing: -0.3px;
+  line-height: 1.25;
+}
+
+.hero-banner-sub {
+  font-size: 0.82rem;
+  color: rgba(224, 242, 254, 0.85);
+  font-weight: 600;
+  margin-bottom: 18px;
+}
+
+.hero-greeting-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(255, 255, 255, 0.16);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  padding: 4px 12px;
+  border-radius: var(--radius-pill);
+  color: #ffffff;
+  font-size: 0.8rem;
+  font-weight: 700;
+  margin-bottom: 12px;
+}
+
+.hero-date-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.82rem;
+  color: #e0f2fe;
+  font-weight: 700;
+}
+
+.hero-admin-banner {
   background: linear-gradient(135deg, #090514 0%, #4c1d95 60%, #0c1527 100%);
   border-color: rgba(168, 85, 247, 0.35);
   box-shadow: 0 14px 34px -6px rgba(0, 0, 0, 0.7);

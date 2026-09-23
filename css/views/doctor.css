@@ -572,6 +572,19 @@
   transition: all 0.2s ease;
 }
 
+.doc-stack-patient-row.completed-row,
+.doc-slot-card .doc-stack-patient-row.completed-row {
+  opacity: 0.72;
+  background: rgba(16, 185, 129, 0.06);
+  border-color: rgba(16, 185, 129, 0.25);
+}
+
+[data-theme="dark"] .doc-stack-patient-row.completed-row,
+[data-theme="dark"] .doc-slot-card .doc-stack-patient-row.completed-row {
+  background: rgba(5, 150, 105, 0.12);
+  border-color: rgba(52, 211, 153, 0.25);
+}
+
 [data-theme="dark"] .doc-stack-patient-row {
   background: rgba(30, 41, 59, 0.7);
   border-color: #334155;
@@ -591,6 +604,16 @@
   color: #f1f5f9;
 }
 
+.doc-slot-card .patient-body-part {
+  color: var(--primary);
+  font-weight: 700;
+  font-size: 0.78rem;
+}
+
+[data-theme="dark"] .doc-slot-card .patient-body-part {
+  color: #38bdf8;
+}
+
 .doc-stack-patient-details {
   font-size: 0.78rem;
   color: var(--text-muted);
@@ -600,7 +623,17 @@
   gap: 6px;
 }
 
-[data-theme="dark"] .doc-stack-patient-details {
+[data-theme="dark"] .doc-slot-card .patient-body-part {
+  color: var(--primary);
+  font-weight: 700;
+  font-size: 0.78rem;
+}
+
+[data-theme="dark"] .doc-slot-card .patient-body-part {
+  color: #38bdf8;
+}
+
+.doc-stack-patient-details {
   color: #94a3b8;
 }
 

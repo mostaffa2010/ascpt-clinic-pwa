@@ -773,3 +773,13 @@
   background: rgba(56, 189, 248, 0.15);
   color: #38bdf8;
 }
+[data-theme="dark"] .training-pill-btn {
+  background-color: rgba(251, 191, 36, 0.15) !important;
+  border-color: rgba(251, 191, 36, 0.35) !important;
+  color: #fbbf24 !important;
+}
+
+[data-theme="dark"] .training-pill-btn:hover,
+[data-theme="dark"] .training-pill-btn:active {
+  background-color: rgba(251, 191, 36, 0.25) !important;
+}
