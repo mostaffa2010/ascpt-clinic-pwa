@@ -1073,7 +1073,6 @@ h1, h2, h3, h4, h5, h6 {
    Completely remove table toggle buttons and enforce 100% cards on mobile
    ========================================================================== */
 @media screen and (max-width: 991px) {
-  .desktop-only,
   #patients-view-mode-toggle,
   #sessions-view-mode-toggle {
     display: none !important;

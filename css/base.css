@@ -765,3 +765,12 @@ body.role-receptionist #dashboard-admin-view {
     gap: 8px;
   }
 }
+
+/* ==========================================================================
+   Migrated from style.css (Group 11: Desktop Only Visibility Rule)
+   ========================================================================== */
+@media screen and (max-width: 991px) {
+  .desktop-only {
+    display: none !important;
+  }
+}
