@@ -330,107 +330,7 @@ input, textarea, [contenteditable="true"] {
 
 
 
-/* 4. Mobile Native Card Transformation for Recent Sessions */
-@media screen and (max-width: 767px) {
-  #dashboard-recent-table,
-  #dashboard-recent-table thead,
-  #dashboard-recent-table tbody,
-  #dashboard-recent-table th,
-  #dashboard-recent-table td,
-  #dashboard-recent-table tr {
-    display: block;
-  }
-  
-  #dashboard-recent-table thead tr {
-    position: absolute;
-    top: -9999px;
-    left: -9999px;
-  }
-  
-  #dashboard-recent-table tbody tr {
-    background: var(--bg-surface);
-    border: 1px solid var(--border-color);
-    border-radius: var(--radius-md);
-    padding: 14px 16px;
-    margin-bottom: 12px;
-    box-shadow: var(--shadow-sm);
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    justify-content: space-between;
-    gap: 6px;
-    position: relative;
-    transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.2s ease;
-  }
-  
-  #dashboard-recent-table tbody tr:hover {
-    transform: translateY(-2px);
-    box-shadow: var(--shadow-md);
-    border-color: rgba(2, 132, 199, 0.25);
-  }
-  
-  #dashboard-recent-table td {
-    padding: 2px 0;
-    border-bottom: none;
-    white-space: normal;
-  }
-  
-  #dashboard-recent-table td:nth-child(1) {
-    font-size: 1.02rem;
-    font-weight: 800;
-    color: var(--text-main);
-    width: 100%;
-    margin-bottom: 4px;
-    display: flex;
-    align-items: center;
-    gap: 6px;
-  }
-  #dashboard-recent-table td:nth-child(1)::before {
-    content: '007';
-    font-family: 'Font Awesome 6 Free';
-    font-weight: 900;
-    font-size: 0.85rem;
-    color: var(--primary);
-  }
-  
-  #dashboard-recent-table td:nth-child(2) {
-    font-size: 0.82rem;
-    color: var(--text-muted);
-    font-weight: 600;
-  }
-  #dashboard-recent-table td:nth-child(2)::before {
-    content: 'طبيب: ';
-    color: var(--text-muted);
-    font-weight: 500;
-  }
-  
-  #dashboard-recent-table td:nth-child(3) {
-    margin-right: auto;
-  }
-  
-  #dashboard-recent-table td:nth-child(4) {
-    font-size: 0.8rem;
-    color: var(--text-muted);
-    font-weight: 600;
-  }
-  
-  #dashboard-recent-table td:nth-child(5) {
-    font-size: 1.05rem;
-    font-weight: 800;
-    color: var(--success);
-    margin-right: auto;
-  }
-  
-  #dashboard-recent-table td:nth-child(6) {
-    font-size: 0.78rem;
-    color: var(--text-muted);
-    width: 100%;
-    text-align: left;
-    border-top: 1px dashed var(--border-color);
-    padding-top: 6px;
-    margin-top: 4px;
-  }
-}
+
 
 
 
@@ -735,8 +635,6 @@ body {
 @media screen and (max-width: 991px) {
   /* v1.4.0-beta.31: Eliminate Inner Scroll Traps - Natural Viewport Flow */
   #doctor-personal-mobile-cards,
-  
-  #dashboard-recent-mobile-cards,
   #claim-patients-mobile-cards {
     max-height: none !important;
     overflow-y: visible !important;
@@ -751,9 +649,7 @@ body {
   }
 
   /* CRITICAL: Never shrink cards! Keep full normal card dimensions, padding, and all details */
-  #doctor-personal-mobile-cards > *,
-  
-  #dashboard-recent-mobile-cards > * {
+  #doctor-personal-mobile-cards > * {
     flex-shrink: 0 !important;
     flex-grow: 0 !important;
     width: 100% !important;
@@ -762,36 +658,28 @@ body {
 
   [data-theme="dark"] #sessions-today-mobile-cards,
   [data-theme="dark"] #patients-mobile-cards,
-  [data-theme="dark"] #doctor-personal-mobile-cards,
-  [data-theme="dark"] 
-  [data-theme="dark"] #dashboard-recent-mobile-cards {
+  [data-theme="dark"] #doctor-personal-mobile-cards {
     scrollbar-color: rgba(56, 189, 248, 0.4) transparent !important;
   }
 
   /* Custom Slim WebKit Scrollbar for Mobile Touch Feedback */
   #sessions-today-mobile-cards::-webkit-scrollbar,
   #patients-mobile-cards::-webkit-scrollbar,
-  #doctor-personal-mobile-cards::-webkit-scrollbar,
-  
-  #dashboard-recent-mobile-cards::-webkit-scrollbar {
+  #doctor-personal-mobile-cards::-webkit-scrollbar {
     width: 4px !important;
     display: block !important;
   }
 
   #sessions-today-mobile-cards::-webkit-scrollbar-thumb,
   #patients-mobile-cards::-webkit-scrollbar-thumb,
-  #doctor-personal-mobile-cards::-webkit-scrollbar-thumb,
-  
-  #dashboard-recent-mobile-cards::-webkit-scrollbar-thumb {
+  #doctor-personal-mobile-cards::-webkit-scrollbar-thumb {
     background-color: rgba(2, 132, 199, 0.35) !important;
     border-radius: 999px !important;
   }
 
   [data-theme="dark"] #sessions-today-mobile-cards::-webkit-scrollbar-thumb,
   [data-theme="dark"] #patients-mobile-cards::-webkit-scrollbar-thumb,
-  [data-theme="dark"] #doctor-personal-mobile-cards::-webkit-scrollbar-thumb,
-  [data-theme="dark"] 
-  [data-theme="dark"] #dashboard-recent-mobile-cards::-webkit-scrollbar-thumb {
+  [data-theme="dark"] #doctor-personal-mobile-cards::-webkit-scrollbar-thumb {
     background-color: rgba(56, 189, 248, 0.4) !important;
   }
 }
