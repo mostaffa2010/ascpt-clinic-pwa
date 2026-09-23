@@ -491,3 +491,15 @@ input, textarea, select, [contenteditable="true"] {
 .gap-10 { gap: 10px; }
 .gap-12 { gap: 12px; }
 .h-100 { height: 100%; }
+/* ==========================================================================
+   Migrated from style.css - print toggle
+   ========================================================================== */
+.print-header,
+.print-footer {
+  display: none;
+}
+
+.print-only-card,
+#card-finance-report-sessions {
+  display: none !important;
+}
