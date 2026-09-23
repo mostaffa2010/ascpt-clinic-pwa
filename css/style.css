@@ -68,37 +68,7 @@ textarea {
 
 
 
-#modal-patient .modal-body,
-#p-insurance-details {
-  max-width: 100%;
-  box-sizing: border-box;
-  overflow-x: hidden;
-}
 
-.insurance-companies-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 8px;
-  width: 100%;
-  max-width: 100%;
-  box-sizing: border-box;
-}
-
-.insurance-company-card {
-  min-width: 0;
-  max-width: 100%;
-  box-sizing: border-box;
-}
-
-.insurance-companies-grid[style*="display: none"],
-.insurance-companies-grid[style*="display:none"] {
-  display: none !important;
-}
-
-.insurance-companies-grid[style*="display: grid"],
-.insurance-companies-grid[style*="display:grid"] {
-  display: grid !important;
-}
 
 /* ================= Edit Mode for Insurance Cards and Body Parts ================= */
 
@@ -113,31 +83,7 @@ textarea {
 
 
 
-/* ================= Today Patients Filter Button ================= */
-#btn-filter-today-patients {
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-  position: relative;
-}
 
-#btn-filter-today-patients i {
-  color: var(--primary);
-  font-size: 0.95rem;
-  transition: color 0.18s ease;
-}
-
-#btn-filter-today-patients #badge-today-patients-count {
-  background: var(--primary-light);
-  color: var(--primary);
-  border: 1px solid rgba(2, 132, 199, 0.25);
-  font-weight: 800;
-  transition: all 0.18s ease;
-}
-
-[data-theme="dark"] #btn-filter-today-patients #badge-today-patients-count {
-  background: rgba(56, 189, 248, 0.16);
-  color: #38bdf8;
-  border-color: rgba(56, 189, 248, 0.35);
-}
 
 
 
@@ -257,9 +203,7 @@ body {
   #card-monthly-expenses,
   #finance-daily-settlements-card,
   #card-monthly-settlements,
-  #claims-ledger-card,
-  #card-admin-staff-list,
-  #card-admin-audit-log {
+  #claims-ledger-card {
     background: transparent !important;
     border: none !important;
     box-shadow: none !important;
@@ -282,9 +226,7 @@ body {
   #card-monthly-expenses .card-header,
   #finance-daily-settlements-card .card-header,
   #card-monthly-settlements .card-header,
-  #claims-ledger-card .card-header,
-  #card-admin-staff-list .card-header,
-  #card-admin-audit-log .card-header {
+  #claims-ledger-card .card-header {
     padding: 4px 2px 10px 2px !important;
     border-bottom: none !important;
     background: transparent !important;
@@ -390,53 +332,7 @@ body {
    ========================================================================== */
 
 
-/* 4. Unwrapped Mobile Cards for Admin View (Eliminates side border lines & double nesting) */
-@media screen and (max-width: 991px) {
-  #view-admin .card,
-  #card-admin-add-user,
-  #card-admin-staff-list,
-  #card-admin-audit-log,
-  #card-admin-backup-restore {
-    background: transparent !important;
-    border: none !important;
-    box-shadow: none !important;
-    backdrop-filter: none !important;
-    -webkit-backdrop-filter: none !important;
-    padding: 0 !important;
-    margin-bottom: 18px !important;
-  }
 
-  #view-admin .card > .card-header,
-  #card-admin-add-user > .card-header,
-  #card-admin-staff-list > .card-header,
-  #card-admin-audit-log > .card-header,
-  #card-admin-backup-restore > .card-header {
-    padding: 4px 2px 12px 2px !important;
-    border-bottom: none !important;
-    background: transparent !important;
-  }
-
-  #card-admin-add-user form {
-    background: var(--bg-surface);
-    border: 1.5px solid var(--border-color);
-    border-radius: 20px;
-    padding: 16px 14px;
-    box-shadow: 0 4px 18px -2px rgba(15, 23, 42, 0.05);
-  }
-
-  [data-theme="dark"] #card-admin-add-user form {
-    background: linear-gradient(145deg, #1e293b 0%, #172337 100%) !important;
-    border: 1.5px solid #334155 !important;
-    box-shadow: 0 8px 24px -4px rgba(0, 0, 0, 0.4) !important;
-  }
-}
-
-
-[data-theme="dark"] #btn-download-backup {
-  background: rgba(56, 189, 248, 0.1) !important;
-  border-color: rgba(56, 189, 248, 0.35) !important;
-  color: #38bdf8 !important;
-}
 
 
 
@@ -448,8 +344,7 @@ body {
    ========================================================================== */
 @media screen and (max-width: 991px) {
   /* v1.4.0-beta.31: Eliminate Inner Scroll Traps - Natural Viewport Flow */
-  #doctor-personal-mobile-cards,
-  #claim-patients-mobile-cards {
+  #doctor-personal-mobile-cards {
     max-height: none !important;
     overflow-y: visible !important;
     overflow-x: visible !important;
@@ -600,32 +495,7 @@ body {
 
 /* ================= Hybrid Solution: Desktop Sticky Tables & Mobile Pagination (v1.4.31) ================= */
 
-/* 1. Desktop Sticky Header & Max-Height Viewport */
-@media screen and (min-width: 992px) {
-  #patients-table-container,
-  #sessions-table-container {
-    max-height: 62vh !important;
-    overflow-y: auto !important;
-    overflow-x: auto !important;
-    position: relative;
-    border-radius: var(--radius-md);
-  }
 
-  #patients-data-table thead th,
-  #sessions-today-table thead th {
-    position: sticky !important;
-    top: 0 !important;
-    z-index: 10 !important;
-    background: var(--bg-surface) !important;
-    box-shadow: 0 2px 6px rgba(15, 23, 42, 0.06);
-  }
-
-  [data-theme="dark"] #patients-data-table thead th,
-  [data-theme="dark"] #sessions-today-table thead th {
-    background: #1e293b !important;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
-  }
-}
 
 
 
@@ -664,44 +534,7 @@ body {
 /* ========================================================
    Insurance Claims Actions Hub at Bottom (v1.4.58)
    ======================================================== */
-#card-claim-actions-hub {
-  margin-top: 8px;
-  border: 1.5px solid var(--border-color);
-  background: var(--bg-surface);
-  border-radius: 16px;
-}
 
-@media screen and (max-width: 767px) {
-  #card-claim-actions-hub {
-    padding: 12px 10px !important;
-  }
-}
-
-/* Dedicated Cohesive Container for Claim Patients (v1.4.58) */
-#card-claim-patients-wrap {
-  background: var(--bg-surface) !important;
-  border: 1.5px solid var(--border-color) !important;
-  border-radius: 18px !important;
-  padding: 16px 14px !important;
-  margin-bottom: 16px !important;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04) !important;
-}
-
-#card-claim-patients-wrap .card-header {
-  border-bottom: 1px solid var(--border-color) !important;
-  padding: 0 0 10px 0 !important;
-  margin-bottom: 12px !important;
-  background: transparent !important;
-  display: flex !important;
-  justify-content: space-between !important;
-  align-items: center !important;
-}
-
-@media screen and (max-width: 767px) {
-  #card-claim-patients-wrap {
-    padding: 12px 10px !important;
-  }
-}
 
 
 
@@ -756,41 +589,7 @@ body {
 
 
 
-/* ==========================================================================
-   USER PROFILE MODAL & INTERACTIVE TRIGGERS (v1.4.70)
-   ========================================================================== */
-#user-status-pill-box:hover {
-  border-color: var(--primary) !important;
-  background: var(--bg-subtle) !important;
-  transform: translateY(-1px);
-  transition: all 0.15s ease;
-}
 
-#sidebar-user-profile-trigger:hover {
-  background: rgba(2, 132, 199, 0.08) !important;
-}
-
-#btn-profile-change-pwd:hover {
-  border-color: var(--primary) !important;
-  background: rgba(2, 132, 199, 0.05) !important;
-  transform: translateY(-1px);
-}
-
-#user-status-pill-box,
-#sidebar-user-profile-trigger {
-  -webkit-user-select: none !important;
-  user-select: none !important;
-  -webkit-touch-callout: none !important;
-  cursor: pointer !important;
-  outline: none !important;
-}
-
-#user-status-pill-box *,
-#sidebar-user-profile-trigger * {
-  -webkit-user-select: none !important;
-  user-select: none !important;
-  pointer-events: none !important;
-}
 
 
 /* ==========================================================================
@@ -835,28 +634,7 @@ body {
    STRICT TAB ISOLATION: HIDE / SHOW GUARANTEED
    Overcomes .sessions-grid-container { display: grid !important }
    ========================================================================== */
-#card-sessions-today[data-active-tab="home_visits"] #sessions-today-mobile-cards,
-#card-sessions-today[data-active-tab="home_visits"] #sessions-table-container,
-#card-sessions-today[data-active-tab="home_visits"] #clinic-sessions-header-meta {
-  display: none !important;
-}
 
-#card-sessions-today[data-active-tab="clinic"] #sessions-home-visits-view,
-#card-sessions-today[data-active-tab="clinic"] #home-visits-header-meta {
-  display: none !important;
-}
-
-#card-sessions-today[data-active-tab="home_visits"] #sessions-home-visits-view {
-  display: block !important;
-}
-
-#card-sessions-today[data-active-tab="home_visits"] #home-visits-header-meta {
-  display: flex !important;
-}
-
-#card-sessions-today[data-active-tab="clinic"] #clinic-sessions-header-meta {
-  display: flex !important;
-}
 
 
 /*

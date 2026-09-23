@@ -481,3 +481,9 @@
     box-shadow: 0 8px 24px -4px rgba(0, 0, 0, 0.4);
   }
 }
+
+[data-theme="dark"] #btn-download-backup {
+  background: rgba(56, 189, 248, 0.1);
+  border-color: rgba(56, 189, 248, 0.35);
+  color: #38bdf8;
+}

@@ -1833,3 +1833,38 @@
   margin: 0;
   font-size: 0.80rem;
 }
+
+/* ==========================================================================
+   Migrated from style.css (Insurance Details Box Scoping)
+   ========================================================================== */
+#p-insurance-details {
+  max-width: 100%;
+  box-sizing: border-box;
+  overflow-x: hidden;
+}
+
+/* ==========================================================================
+   Migrated from style.css (Desktop Sticky Table Header)
+   ========================================================================== */
+@media screen and (min-width: 992px) {
+  #patients-table-container {
+    max-height: 62vh;
+    overflow-y: auto;
+    overflow-x: auto;
+    position: relative;
+    border-radius: var(--radius-md);
+  }
+
+  #patients-data-table thead th {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    background: var(--bg-surface);
+    box-shadow: 0 2px 6px rgba(15, 23, 42, 0.06);
+  }
+
+  [data-theme="dark"] #patients-data-table thead th {
+    background: #1e293b;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+  }
+}

@@ -816,3 +816,39 @@
   color: #ffffff;
   box-shadow: 0 1px 2px rgba(2, 132, 199, 0.3);
 }
+
+/* ==========================================================================
+   Migrated from style.css (User Profile Interactive Triggers)
+   ========================================================================== */
+#user-status-pill-box:hover {
+  border-color: var(--primary);
+  background: var(--bg-subtle);
+  transform: translateY(-1px);
+  transition: all 0.15s ease;
+}
+
+#sidebar-user-profile-trigger:hover {
+  background: rgba(2, 132, 199, 0.08);
+}
+
+#btn-profile-change-pwd:hover {
+  border-color: var(--primary);
+  background: rgba(2, 132, 199, 0.05);
+  transform: translateY(-1px);
+}
+
+#user-status-pill-box,
+#sidebar-user-profile-trigger {
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+  cursor: pointer;
+  outline: none;
+}
+
+#user-status-pill-box *,
+#sidebar-user-profile-trigger * {
+  -webkit-user-select: none;
+  user-select: none;
+  pointer-events: none;
+}
