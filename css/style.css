@@ -131,31 +131,7 @@ body {
 
 
 
-.input-icon-end {
-  position: absolute;
-  right: 14px;
-  top: 50%;
-  transform: translateY(-50%);
-  color: var(--text-muted);
-  pointer-events: none;
-}
 
-.input-icon-start {
-  position: absolute;
-  left: 14px;
-  top: 50%;
-  transform: translateY(-50%);
-  color: var(--primary);
-  pointer-events: none;
-}
-
-
-/* ================= Forms & Inputs ================= */
-.form-grid {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 14px;
-}
 
 
 textarea.form-control,
@@ -359,41 +335,7 @@ input, textarea, [contenteditable="true"] {
 
 
 
-/* ========================================================
-   Multi-Picker & Option Selection Architecture
-   ======================================================== */
-.multi-picker-row {
-  cursor: pointer;
-  user-select: none;
-  transition: all 0.15s ease;
-}
 
-.multi-picker-row:hover {
-  border-color: var(--primary) !important;
-}
-
-.multi-picker-row.selected {
-  background-color: var(--primary-light) !important;
-  border-color: var(--primary) !important;
-}
-
-[data-theme="dark"] .multi-picker-row.selected {
-  background-color: rgba(2, 132, 199, 0.25) !important;
-  border-color: var(--primary) !important;
-}
-
-.multi-select-preview {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 4px;
-  align-items: center;
-}
-
-.multi-select-preview .badge {
-  font-size: 0.78rem;
-  padding: 3px 8px;
-  border-radius: 6px;
-}
 
 /* ================= Next-Level UI Polish (v1.4.0-beta.2) ================= */
 
@@ -1105,103 +1047,7 @@ h1, h2, h3, h4, h5, h6 {
 
 
 
-.form-group-modern {
-  margin: 0 !important;
-  display: flex;
-  flex-direction: column;
-  gap: 5px;
-}
 
-.modern-field-label {
-  font-size: 0.82rem;
-  font-weight: 800;
-  color: var(--text-main);
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  margin: 0;
-}
-
-.required-star {
-  color: var(--danger);
-  font-weight: 900;
-}
-
-
-
-
-/* Two Columns Row (Kept side-by-side for compact elegance) */
-.modern-two-cols-row {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 12px;
-  align-items: flex-start;
-}
-
-@media (max-width: 480px) {
-  .modern-two-cols-row {
-    grid-template-columns: 1fr 1fr;
-    gap: 8px;
-  }
-}
-
-/* Gender Segmented Deck */
-.gender-segmented-deck {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  width: 100%;
-  height: 42px;
-  background: var(--bg-subtle);
-  border: 1.5px solid var(--border-color);
-  border-radius: 10px;
-  padding: 3px;
-}
-
-[data-theme="dark"] .gender-segmented-deck {
-  background: #1e293b;
-  border-color: #334155;
-}
-
-.gender-btn-pill {
-  flex: 1;
-  height: 100%;
-  border: none;
-  background: transparent;
-  border-radius: 7px;
-  font-size: 0.82rem;
-  font-weight: 800;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  color: var(--text-muted);
-  cursor: pointer;
-  transition: all 0.18s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.gender-btn-pill.male.active {
-  background: #0284c7 !important;
-  color: #ffffff !important;
-  box-shadow: 0 2px 8px rgba(2, 132, 199, 0.3);
-}
-
-.gender-btn-pill.female.active {
-  background: #ec4899 !important;
-  color: #ffffff !important;
-  box-shadow: 0 2px 8px rgba(236, 72, 153, 0.3);
-}
-
-[data-theme="dark"] .gender-btn-pill.male.active {
-  background: #0284c7 !important;
-  color: #ffffff !important;
-  box-shadow: 0 2px 8px rgba(2, 132, 199, 0.4);
-}
-[data-theme="dark"] .gender-btn-pill.female.active {
-  background: #db2777 !important;
-  color: #ffffff !important;
-  box-shadow: 0 2px 8px rgba(219, 39, 119, 0.4);
-}
 
 
 
@@ -1416,34 +1262,7 @@ html, body {
    Puts the eye toggle button OUTSIDE the input field to prevent overlap
    and aligns Arabic text & placeholders naturally to the right
    ========================================================================== */
-.password-input-group {
-  display: flex !important;
-  align-items: center !important;
-  gap: 8px !important;
-  width: 100% !important;
-}
 
-.password-input-group .password-input-field {
-  flex: 1 !important;
-  text-align: right !important;
-  direction: rtl !important;
-  padding: 10px 14px !important;
-  font-size: 0.92rem !important;
-  box-sizing: border-box !important;
-  border-radius: 8px !important;
-  border: 1.5px solid var(--border-color) !important;
-}
-
-.password-input-group .password-input-field:focus,
-.password-input-group .password-input-field:not(:placeholder-shown) {
-  direction: ltr !important;
-  text-align: left !important;
-}
-
-.password-input-group .password-input-field::placeholder {
-  text-align: right !important;
-  direction: rtl !important;
-}
 
 
 /* Insurance Renewal Letter Form Controls (v1.4.77) */
