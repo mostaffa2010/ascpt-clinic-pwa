@@ -1059,3 +1059,6 @@
   font-weight: 800;
   color: var(--text-muted);
 }
+.mobile-only-cards-container .expenses-compact-list {
+  grid-column: 1 / -1;
+}

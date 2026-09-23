@@ -872,3 +872,56 @@ button.btn-settle-hv {
   background: #059669;
   color: #ffffff;
 }
+.date-strip-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 6px 14px;
+  border-radius: var(--radius-pill);
+  font-size: 0.8rem;
+  font-weight: 700;
+  border: 1px solid var(--border-color);
+  background-color: var(--bg-surface);
+  color: var(--text-muted);
+  cursor: pointer;
+  white-space: nowrap;
+  flex-shrink: 0;
+  transition: all 0.2s ease;
+  user-select: none;
+}
+
+.date-strip-pill:hover {
+  border-color: var(--primary);
+  color: var(--primary);
+}
+
+.date-strip-pill.active {
+  background: var(--primary);
+  color: #ffffff;
+  border-color: var(--primary);
+  box-shadow: 0 2px 8px rgba(2, 132, 199, 0.35);
+}
+
+[data-theme="dark"] .date-strip-pill {
+  background: #1e293b;
+  border-color: #334155;
+  color: #f1f5f9;
+}
+
+[data-theme="dark"] .date-strip-pill.active {
+  background: var(--primary);
+  color: #0f172a;
+  border-color: var(--primary);
+  box-shadow: 0 2px 8px rgba(56, 189, 248, 0.35);
+}
+
+.mobile-pagination-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 14px 4px 6px 4px;
+  width: 100%;
+  box-sizing: border-box;
+}

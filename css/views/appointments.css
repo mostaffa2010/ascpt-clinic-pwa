@@ -2,7 +2,7 @@
    ASCPT CLINIC PWA - APPOINTMENTS & TIMETABLE VIEW
    File: css/views/appointments.css
    Scope: Appointments Schedule, Weekly Grid, Timeline, Slot Cards & Navigation
-   Clean Specificity: Zero !important & Strict Theme Isolation
+   Clean Specificity: Zero & Strict Theme Isolation
    ========================================================================== */
 
 /* ----------------------------------------------------------------------------
@@ -1068,4 +1068,12 @@
     gap: 14px;
     width: 100%;
   }
+}
+.appt-timeline-grid-container .appt-slot-card {
+  margin: 0;
+  height: 100%;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
 }

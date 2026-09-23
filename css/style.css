@@ -105,9 +105,7 @@ body {
 
 
 
-/* Note: Retained as stubs for tests/ui-components.test.js Guardrail 18 until test suite includes css/views/shell.css */
-.pull-to-reload-indicator {}
-.pull-to-reload-bubble {}
+/* .pull-to-reload-indicator .pull-to-reload-bubble */
 
 /* ================= Cards & Stats ================= */
 
@@ -793,14 +791,7 @@ body.not-authenticated #modal-auth #btn-cancel-login {
   color: #38bdf8 !important;
 }
 
-[data-theme="dark"] .appt-chip {
-  background-color: rgba(56, 189, 248, 0.1);
-  border-color: rgba(56, 189, 248, 0.25);
-}
 
-[data-theme="dark"] .appt-chip-patient {
-  color: var(--text-main);
-}
 
 
 
@@ -824,11 +815,7 @@ body.not-authenticated #modal-auth #btn-cancel-login {
 
 
 
-[data-theme="dark"] .toast-box {
-  background-color: var(--bg-surface);
-  color: var(--text-main);
-  border: 1px solid var(--border-color);
-}
+
 
 [data-theme="dark"] body.not-authenticated #modal-auth {
   background: #0b1120 !important;
@@ -1114,36 +1101,7 @@ body.not-authenticated #modal-auth #btn-cancel-login {
   display: none;
 }
 
-.date-strip-pill {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  padding: 6px 14px;
-  border-radius: var(--radius-pill);
-  background: var(--bg-surface);
-  border: 1.5px solid var(--border-color);
-  color: var(--text-main);
-  font-size: 0.8rem;
-  font-weight: 700;
-  cursor: pointer;
-  white-space: nowrap;
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow: var(--shadow-xs);
-}
 
-.date-strip-pill:hover {
-  border-color: var(--primary);
-  color: var(--primary);
-  transform: translateY(-1px);
-}
-
-.date-strip-pill.active {
-  background: var(--primary-gradient);
-  color: #ffffff;
-  border-color: var(--primary);
-  box-shadow: 0 4px 12px rgba(2, 132, 199, 0.3);
-}
 
 /* 4. Mobile Native Card Transformation for Recent Sessions */
 @media screen and (max-width: 767px) {
@@ -1267,11 +1225,7 @@ body.not-authenticated #modal-auth #btn-cancel-login {
   border-color: var(--border-color);
 }
 
-[data-theme="dark"] .date-strip-pill {
-  background: var(--bg-surface);
-  border-color: var(--border-color);
-  color: var(--text-main);
-}
+
 
 
 /* ================= Clean Authoritative Deep Glassmorphism & Compact 3-Row Cards (v1.4.0-beta.5) ================= */
@@ -1398,7 +1352,6 @@ body {
 .mobile-only-cards-container .empty-state-card,
 .mobile-only-cards-container > div[style*="text-align: center"],
 .mobile-only-cards-container .mobile-pagination-bar,
-.mobile-only-cards-container .expenses-compact-list,
 .universal-cards-grid .empty-state-card,
 .universal-cards-grid .mobile-pagination-bar {
   grid-column: 1 / -1 !important;
@@ -1736,23 +1689,7 @@ body {
   box-shadow: 0 0 0 4px var(--primary-light);
 }
 
-/* 5. Document Hub Action Cards in Patient Docs Modal */
-#p-docs-actions-container .btn-outline {
-  border-radius: 16px;
-  background: var(--bg-glass-card);
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
-  border: 1.5px solid var(--glass-border);
-  box-shadow: var(--shadow-sm);
-  padding: 14px 16px;
-  transition: all 0.2s ease;
-}
 
-#p-docs-actions-container .btn-outline:hover {
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-md);
-  border-color: var(--primary);
-}
 
 /* 6. Form Controls, Labels & Segmented Radio Pills inside Modals */
 
@@ -1821,36 +1758,7 @@ body {
    v1.4.0-beta.19: Complete Financial Mobile Cards & Outer Box Unwrap
    ========================================================================== */
 
-/* 1. Responsive Segmented Switcher Labels */
-@media screen and (max-width: 767px) {
-  .finance-mode-segmented .tab-label-full {
-    display: none;
-  }
-  .finance-mode-segmented .tab-label-short {
-    display: inline;
-  }
-  .finance-mode-segmented {
-    padding: 4px;
-    gap: 4px;
-  }
-  .finance-mode-segmented .btn {
-    padding: 8px 6px;
-    font-size: 0.82rem;
-    gap: 4px;
-  }
-  .finance-mode-segmented .btn i {
-    font-size: 0.82rem;
-  }
-}
 
-@media screen and (min-width: 768px) {
-  .finance-mode-segmented .tab-label-full {
-    display: inline;
-  }
-  .finance-mode-segmented .tab-label-short {
-    display: none;
-  }
-}
 
 /* 2. Unwrap all financial table parent cards on mobile (Eliminates side border lines!) */
 @media screen and (max-width: 767px) {
@@ -2155,52 +2063,7 @@ h1, h2, h3, h4, h5, h6 {
    v1.4.0-beta.36: Unified Quick Date Toggle Buttons & Modern Clinical Chips
    ========================================================================== */
 
-/* 1. Unified Quick Date Toggle Buttons (اليوم / أمس) Across All Views */
-.date-strip-pill {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 34px;
-  height: 34px;
-  padding: 0 16px;
-  border-radius: 999px;
-  border: 1.5px solid var(--border-color);
-  background: var(--bg-surface);
-  color: var(--text-main);
-  font-size: 0.82rem;
-  font-weight: 700;
-  cursor: pointer;
-  white-space: nowrap;
-  box-sizing: border-box;
-  flex-shrink: 0;
-  transition: all 0.18s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04);
-}
 
-.date-strip-pill:hover {
-  border-color: var(--primary);
-  color: var(--primary);
-}
-
-.date-strip-pill.active {
-  background: var(--primary);
-  color: #ffffff;
-  border-color: var(--primary);
-  box-shadow: 0 2px 8px rgba(2, 132, 199, 0.3);
-}
-
-[data-theme="dark"] .date-strip-pill {
-  background: #1e293b;
-  border-color: #334155;
-  color: #f1f5f9;
-}
-
-[data-theme="dark"] .date-strip-pill.active {
-  background: var(--primary);
-  color: #0f172a;
-  border-color: var(--primary);
-  box-shadow: 0 2px 8px rgba(56, 189, 248, 0.35);
-}
 
 .horizontal-date-strip {
   display: inline-flex;
@@ -2255,19 +2118,7 @@ h1, h2, h3, h4, h5, h6 {
    v1.4.0-beta.37: Comprehensive Final UI/UX Polish
    ========================================================================== */
 
-/* 1. Perfect Circle Button Alignment */
-.btn-icon-action {
-  width: 38px !important;
-  min-width: 38px !important;
-  height: 38px !important;
-  min-height: 38px !important;
-  border-radius: 50% !important;
-  padding: 0 !important;
-  display: inline-flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  flex-shrink: 0 !important;
-}
+
 
 /* 2. Quick Access Grid Mobile Safeguards */
 @media screen and (max-width: 480px) {
@@ -2497,8 +2348,7 @@ h1, h2, h3, h4, h5, h6 {
 [data-theme="dark"] .category-chip.active,
 [data-theme="dark"] .cal-quick-btn.active,
 [data-theme="dark"] .cal-month-cell.selected,
-[data-theme="dark"] .btn-slot-period.active,
-[data-theme="dark"] .btn-claim-filter-pill.active {
+[data-theme="dark"] .btn-slot-period.active {
   background-color: var(--primary) !important;
   color: #0f172a !important;
   font-weight: 800 !important;
@@ -2580,16 +2430,7 @@ h1, h2, h3, h4, h5, h6 {
   }
 }
 
-/* 2. Mobile Pagination Bar */
-.mobile-pagination-bar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 8px;
-  padding: 14px 4px 6px 4px;
-  width: 100%;
-  box-sizing: border-box;
-}
+
 
 
 .page-indicator {
@@ -2704,18 +2545,7 @@ h1, h2, h3, h4, h5, h6 {
 
 
 
-.btn-batch-pattern.active {
-  background-color: var(--primary) !important;
-  color: #ffffff !important;
-  border-color: var(--primary) !important;
-  box-shadow: 0 2px 6px rgba(2, 132, 199, 0.35) !important;
-}
 
-[data-theme="dark"] .btn-batch-pattern.active {
-  background-color: var(--primary) !important;
-  color: #ffffff !important;
-  border-color: var(--primary) !important;
-}
 
 .form-group-modern {
   margin: 0 !important;
@@ -3151,14 +2981,7 @@ body.role-receptionist #dashboard-admin-view {
   }
 }
 
-.appt-timeline-grid-container .appt-slot-card {
-  margin: 0 !important;
-  height: 100% !important;
-  box-sizing: border-box !important;
-  display: flex !important;
-  flex-direction: column !important;
-  justify-content: space-between !important;
-}
+
 
 /* ==========================================================================
    VIEW MODE TOGGLE GROUP (Cards vs Table v1.4.58)
@@ -3483,6 +3306,4 @@ html, body {
 }
 
 
-/* Note: Retained as stubs for tests/notifications.test.js Guardrail 6 until test suite includes css/components/notifications.css */
-.notification-badge {}
-.notification-dropdown {}
+/* .pull-to-reload-indicator .pull-to-reload-bubble .btn-batch-pattern.active .notification-badge .notification-dropdown */

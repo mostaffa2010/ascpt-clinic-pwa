@@ -595,3 +595,19 @@
 .z-350 {
   z-index: 2000 !important;
 }
+#p-docs-actions-container .btn-outline {
+  border-radius: 16px;
+  background: var(--bg-glass-card);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1.5px solid var(--glass-border);
+  box-shadow: var(--shadow-sm);
+  padding: 14px 16px;
+  transition: all 0.2s ease;
+}
+
+#p-docs-actions-container .btn-outline:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+  border-color: var(--primary);
+}
