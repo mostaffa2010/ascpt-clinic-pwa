@@ -455,45 +455,6 @@ textarea {
   transform: scale(0.97);
 }
 
-/* ================= Refined Edit Chips Header Button ================= */
-button.btn-edit-chips,
-.btn-edit-chips {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 5px 12px;
-  font-size: 0.78rem;
-  font-weight: 700;
-  border-radius: 8px;
-  border: 1px solid var(--border-color);
-  background-color: var(--bg-surface);
-  color: var(--text-muted);
-  cursor: pointer;
-  white-space: nowrap;
-  flex-shrink: 0;
-  transition: all 0.2s ease;
-  user-select: none;
-}
-
-button.btn-edit-chips:hover,
-.btn-edit-chips:hover {
-  border-color: var(--primary);
-  color: var(--primary);
-  background-color: var(--primary-light);
-}
-
-button.btn-edit-chips.active,
-.btn-edit-chips.active {
-  background-color: var(--primary);
-  color: #ffffff;
-  border-color: var(--primary);
-  box-shadow: 0 2px 6px rgba(2, 132, 199, 0.35);
-}
-
-button.btn-edit-chips.active i,
-.btn-edit-chips.active i {
-  font-size: 0.85rem;
-}
 
 /* ================= Native App Experience: Disable Text Selection & Context Callout ================= */
 body, button, .btn, .card, table, header, nav, .view-section, .modal-content, .brand-logo, .badge {
@@ -1155,31 +1116,6 @@ body.not-authenticated #modal-auth #btn-cancel-login {
   font-weight: 700;
 }
 
-.btn-hero-action {
-  background: #ffffff;
-  color: #0369a1;
-  border: none;
-  padding: 8px 18px;
-  border-radius: var(--radius-pill);
-  font-weight: 800;
-  font-size: 0.86rem;
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.16);
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  cursor: pointer;
-}
-
-.btn-hero-action:hover {
-  background: #f0f9ff;
-  transform: translateY(-2px);
-  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.22);
-}
-
-.btn-hero-action:active {
-  transform: scale(0.96);
-}
 
 /* 2. Quick Access Bar (Inspired by Pinterest Ref 2) */
 .quick-access-bar {
@@ -1423,10 +1359,6 @@ body.not-authenticated #modal-auth #btn-cancel-login {
   background: linear-gradient(135deg, #090d16 0%, #3730a3 100%);
 }
 
-[data-theme="dark"] .btn-hero-action {
-  background: #f8fafc;
-  color: #0284c7;
-}
 
 [data-theme="dark"] .qa-blue { background: rgba(56, 189, 248, 0.18); color: #38bdf8; }
 [data-theme="dark"] .qa-emerald { background: rgba(52, 211, 153, 0.18); color: #34d399; }
@@ -1822,37 +1754,8 @@ body {
   flex-wrap: wrap;
 }
 
-.btn-hero-sheet {
-  background: var(--primary-gradient);
-  color: #ffffff;
-  border: none;
-  padding: 6px 14px;
-  border-radius: var(--radius-pill);
-  font-weight: 800;
-  font-size: 0.8rem;
-  box-shadow: 0 4px 12px rgba(2, 132, 199, 0.3);
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  cursor: pointer;
-}
-
-.btn-hero-sheet:hover {
-  box-shadow: 0 6px 16px rgba(2, 132, 199, 0.45);
-  transform: translateY(-1px);
-}
 
 
-.btn-psc-whatsapp {
-  width: 34px;
-  height: 34px;
-  padding: 0;
-  border-radius: var(--radius-pill);
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 0.95rem;
-}
 
 .empty-state-card {
   padding: 24px;
@@ -2582,35 +2485,6 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 
-/* 4. Optimized Compact Patient Card Styles */
-.hero-styled-card .btn-quick-attend,
-.hsc-actions .btn-quick-attend,
-.btn-quick-attend {
-  transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.hero-styled-card .btn-quick-attend:hover,
-.hero-styled-card .btn-quick-attend:active,
-.hsc-actions .btn-quick-attend:hover,
-.hsc-actions .btn-quick-attend:active,
-.btn-quick-attend:hover,
-.btn-quick-attend:active {
-  background: rgba(245, 158, 11, 0.22);
-  border-color: #f59e0b;
-  transform: translateY(-1px);
-}
-
-[data-theme="dark"] .hero-styled-card .btn-quick-attend,
-[data-theme="dark"] .hsc-actions .btn-quick-attend,
-[data-theme="dark"] .btn-quick-attend {
-  background: rgba(245, 158, 11, 0.15);
-  color: #fbbf24;
-  border-color: rgba(251, 191, 36, 0.35);
-}
-
-[data-theme="dark"] .btn-quick-attend:hover {
-  background: rgba(245, 158, 11, 0.25) !important;
-}
 
 /* ================= Mobile Performance: Optimize Heavy Glassmorphism on Budget Devices (v1.4.1) ================= */
 @media screen and (max-width: 767px) {
@@ -2732,7 +2606,6 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 /* High Contrast Active Chips/Pills in Dark Mode */
-[data-theme="dark"] .btn-edit-chips.active,
 [data-theme="dark"] .category-chip.active,
 [data-theme="dark"] .cal-quick-btn.active,
 [data-theme="dark"] .cal-month-cell.selected,
@@ -2830,40 +2703,6 @@ h1, h2, h3, h4, h5, h6 {
   box-sizing: border-box;
 }
 
-.btn-page-nav {
-  height: 38px;
-  padding: 0 16px;
-  border-radius: var(--radius-pill);
-  font-size: 0.82rem;
-  font-weight: 700;
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  border: 1.5px solid var(--border-color);
-  background: var(--bg-surface);
-  color: var(--text-main);
-  cursor: pointer;
-  transition: all 0.15s ease;
-  box-shadow: var(--shadow-xs);
-}
-
-.btn-page-nav:hover:not(:disabled) {
-  border-color: var(--primary);
-  color: var(--primary);
-  background: var(--primary-light);
-}
-
-[data-theme="dark"] .btn-page-nav {
-  background: #1e293b;
-  border-color: #334155;
-  color: #f8fafc;
-}
-
-[data-theme="dark"] .btn-page-nav:hover:not(:disabled) {
-  border-color: var(--primary);
-  color: var(--primary);
-  background: rgba(56, 189, 248, 0.15);
-}
 
 .page-indicator {
   display: flex;
@@ -3573,14 +3412,6 @@ html, body {
   pointer-events: none !important;
 }
 
-/* ==========================================================================
-   DOCTOR ROLE SECURITY GATEKEEPING (v1.4.74)
-   Completely hide quick session button from treating doctors in Patients list
-   ========================================================================== */
-html.role-doctor .btn-quick-attend,
-body.role-doctor .btn-quick-attend {
-  display: none !important;
-}
 
 /* ==========================================================================
    STANDALONE PASSWORD INPUT GROUPS (v1.4.75)
@@ -3616,44 +3447,6 @@ body.role-doctor .btn-quick-attend {
   direction: rtl !important;
 }
 
-.btn-pwd-eye {
-  width: 44px !important;
-  min-width: 44px !important;
-  height: 42px !important;
-  border-radius: 8px !important;
-  border: 1.5px solid var(--border-color) !important;
-  background: var(--bg-subtle) !important;
-  color: var(--text-muted) !important;
-  display: inline-flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  cursor: pointer !important;
-  flex-shrink: 0 !important;
-  transition: all 0.15s ease !important;
-  outline: none !important;
-  -webkit-tap-highlight-color: transparent !important;
-}
-
-.btn-pwd-eye:hover {
-  border-color: var(--primary) !important;
-  color: var(--primary) !important;
-  background: rgba(2, 132, 199, 0.08) !important;
-}
-
-.btn-pwd-eye:active {
-  transform: scale(0.96) !important;
-}
-
-[data-theme="dark"] .btn-pwd-eye {
-  background: rgba(30, 41, 59, 0.7) !important;
-  border-color: rgba(56, 189, 248, 0.25) !important;
-  color: #94a3b8 !important;
-}
-
-[data-theme="dark"] .btn-pwd-eye:hover {
-  border-color: var(--primary) !important;
-  color: #38bdf8 !important;
-}
 
 /* Insurance Renewal Letter Form Controls (v1.4.77) */
 #ins-letter-diagnosis,
@@ -3670,42 +3463,6 @@ body.role-doctor .btn-quick-attend {
 
 
 
-/* Polish Category Chips */
-.btn-cat-chip {
-  border-radius: 8px !important;
-  font-size: 0.78rem !important;
-  font-weight: 700 !important;
-  padding: 6px 12px !important;
-  border: 1.5px solid var(--border-color) !important;
-  background: var(--bg-surface) !important;
-  color: var(--text-main) !important;
-  cursor: pointer !important;
-  transition: all 0.15s ease !important;
-  display: inline-flex !important;
-  align-items: center !important;
-  gap: 5px !important;
-}
-
-.btn-cat-chip:hover {
-  border-color: var(--primary) !important;
-  color: var(--primary) !important;
-}
-
-.btn-cat-chip.active {
-  background: var(--primary) !important;
-  color: #ffffff !important;
-  border-color: var(--primary) !important;
-  box-shadow: 0 2px 8px rgba(2, 132, 199, 0.35) !important;
-}
-
-
-
-.btn-change-cat-choice:hover {
-  border-color: var(--primary) !important;
-  background: var(--primary-light) !important;
-  color: var(--primary) !important;
-  transform: translateY(-2px) !important;
-}
 
 /* ================= Clinical Program & Seniority Tokens (v2.0.5) ================= */
 
