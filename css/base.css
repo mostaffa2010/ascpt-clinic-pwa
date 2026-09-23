@@ -682,3 +682,86 @@ body.role-receptionist #dashboard-admin-view {
       gap: 16px;
     }
   }
+
+/* ==========================================================================
+   Migrated from style.css (Group 10: Grid Layout & View Toggles)
+   ========================================================================== */
+
+.stats-grid, .stat-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 14px;
+  margin-bottom: 20px;
+  width: 100%;
+}
+
+/* ==========================================================================
+   VIEW MODE TOGGLE GROUP (Cards vs Table v1.4.58)
+   ========================================================================== */
+.view-mode-toggle-group {
+  display: inline-flex !important;
+  align-items: center !important;
+  background: var(--bg-subtle) !important;
+  padding: 3px !important;
+  border-radius: 10px !important;
+  border: 1.5px solid var(--border-color) !important;
+  gap: 3px !important;
+  box-sizing: border-box !important;
+}
+
+.view-mode-toggle-group .btn-view-mode {
+  border: none !important;
+  background: transparent !important;
+  color: var(--text-muted) !important;
+  font-weight: 700 !important;
+  font-size: 0.78rem !important;
+  padding: 5px 12px !important;
+  border-radius: 7px !important;
+  cursor: pointer !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+  transition: all 0.15s ease !important;
+  line-height: 1 !important;
+}
+
+.view-mode-toggle-group .btn-view-mode:hover {
+  color: var(--text-main) !important;
+}
+
+.view-mode-toggle-group .btn-view-mode.active {
+  background: var(--primary) !important;
+  color: #ffffff !important;
+  font-weight: 800 !important;
+  box-shadow: 0 2px 6px rgba(2, 132, 199, 0.25) !important;
+}
+
+[data-theme="dark"] .view-mode-toggle-group .btn-view-mode.active {
+  background: var(--primary) !important;
+  color: #ffffff !important;
+}
+
+@media screen and (max-width: 991px) {
+  .view-mode-toggle-group {
+    display: none !important;
+  }
+}
+
+[data-theme="dark"] .btn-toggle-audit-more {
+  background: rgba(56, 189, 248, 0.1) !important;
+  border-color: rgba(56, 189, 248, 0.35) !important;
+  color: #38bdf8 !important;
+}
+
+.backup-buttons-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+@media screen and (max-width: 480px) {
+  .backup-buttons-row {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+}

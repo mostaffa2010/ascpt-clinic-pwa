@@ -120,13 +120,7 @@ body {
   gap: 8px;
 }
 
-.stats-grid, .stat-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 14px;
-  margin-bottom: 20px;
-  width: 100%;
-}
+
 
 
 
@@ -155,34 +149,7 @@ textarea {
 
 
 
-/* Role Capsule Switcher */
-.demo-role-capsule {
-  display: inline-flex;
-  align-items: center;
-  background-color: var(--bg-subtle);
-  border: 1px solid var(--border-color);
-  border-radius: 10px;
-  padding: 2px;
-  gap: 2px;
-}
 
-.demo-role-capsule .role-opt {
-  border: none;
-  background: none;
-  padding: 4px 8px;
-  font-size: 0.74rem;
-  font-weight: 700;
-  color: var(--text-muted);
-  border-radius: 8px;
-  cursor: pointer;
-  transition: all 0.15s;
-}
-
-.demo-role-capsule .role-opt.active {
-  background-color: var(--primary);
-  color: #ffffff;
-  box-shadow: 0 1px 2px rgba(2, 132, 199, 0.3);
-}
 
 
 
@@ -757,24 +724,7 @@ body {
   color: #38bdf8 !important;
 }
 
-[data-theme="dark"] .btn-toggle-audit-more {
-  background: rgba(56, 189, 248, 0.1) !important;
-  border-color: rgba(56, 189, 248, 0.35) !important;
-  color: #38bdf8 !important;
-}
 
-.backup-buttons-row {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 10px;
-}
-
-@media screen and (max-width: 480px) {
-  .backup-buttons-row {
-    grid-template-columns: 1fr;
-    gap: 8px;
-  }
-}
 
 
 
@@ -1116,51 +1066,7 @@ h1, h2, h3, h4, h5, h6 {
 
 
 
-/* ==========================================================================
-   VIEW MODE TOGGLE GROUP (Cards vs Table v1.4.58)
-   ========================================================================== */
-.view-mode-toggle-group {
-  display: inline-flex !important;
-  align-items: center !important;
-  background: var(--bg-subtle) !important;
-  padding: 3px !important;
-  border-radius: 10px !important;
-  border: 1.5px solid var(--border-color) !important;
-  gap: 3px !important;
-  box-sizing: border-box !important;
-}
 
-.view-mode-toggle-group .btn-view-mode {
-  border: none !important;
-  background: transparent !important;
-  color: var(--text-muted) !important;
-  font-weight: 700 !important;
-  font-size: 0.78rem !important;
-  padding: 5px 12px !important;
-  border-radius: 7px !important;
-  cursor: pointer !important;
-  display: inline-flex !important;
-  align-items: center !important;
-  gap: 6px !important;
-  transition: all 0.15s ease !important;
-  line-height: 1 !important;
-}
-
-.view-mode-toggle-group .btn-view-mode:hover {
-  color: var(--text-main) !important;
-}
-
-.view-mode-toggle-group .btn-view-mode.active {
-  background: var(--primary) !important;
-  color: #ffffff !important;
-  font-weight: 800 !important;
-  box-shadow: 0 2px 6px rgba(2, 132, 199, 0.25) !important;
-}
-
-[data-theme="dark"] .view-mode-toggle-group .btn-view-mode.active {
-  background: var(--primary) !important;
-  color: #ffffff !important;
-}
 
 /* ==========================================================================
    MOBILE-FIRST CARDS-ONLY POLICY (v1.4.65)
@@ -1168,7 +1074,6 @@ h1, h2, h3, h4, h5, h6 {
    ========================================================================== */
 @media screen and (max-width: 991px) {
   .desktop-only,
-  .view-mode-toggle-group,
   #patients-view-mode-toggle,
   #sessions-view-mode-toggle {
     display: none !important;

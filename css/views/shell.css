@@ -783,3 +783,36 @@
 [data-theme="dark"] .training-pill-btn:active {
   background-color: rgba(251, 191, 36, 0.25) !important;
 }
+
+/* ==========================================================================
+   Migrated from style.css (Group 10: Role Capsule Switcher)
+   ========================================================================== */
+
+/* Role Capsule Switcher */
+.demo-role-capsule {
+  display: inline-flex;
+  align-items: center;
+  background-color: var(--bg-subtle);
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+  padding: 2px;
+  gap: 2px;
+}
+
+.demo-role-capsule .role-opt {
+  border: none;
+  background: none;
+  padding: 4px 8px;
+  font-size: 0.74rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.demo-role-capsule .role-opt.active {
+  background-color: var(--primary);
+  color: #ffffff;
+  box-shadow: 0 1px 2px rgba(2, 132, 199, 0.3);
+}
