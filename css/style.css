@@ -1106,11 +1106,7 @@ h1, h2, h3, h4, h5, h6 {
    ========================================================================== */
 
 /* ================= Dark Mode & Light Mode Harmony Polish (v1.4.27) ================= */
-[data-theme="dark"] .btn-add-appt:hover {
-  background-color: rgba(56, 189, 248, 0.12) !important;
-  border-color: var(--primary) !important;
-  color: var(--primary) !important;
-}
+
 
 
 

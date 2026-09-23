@@ -1091,3 +1091,12 @@
     gap: 12px;
   }
 }
+
+/* ==========================================================================
+   Migrated from style.css
+   ========================================================================== */
+[data-theme="dark"] .btn-add-appt:hover {
+  background-color: rgba(56, 189, 248, 0.12);
+  border-color: var(--primary);
+  color: var(--primary);
+}
