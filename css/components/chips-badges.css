@@ -223,3 +223,424 @@
 .badge-cat-lab { background: rgba(225, 29, 72, 0.9); color: #fff; }
 .badge-cat-report { background: rgba(16, 185, 129, 0.9); color: #fff; }
 .badge-cat-other { background: rgba(100, 116, 139, 0.9); color: #fff; }
+
+/* ==========================================================================
+   Migrated from style.css (Group 5: Treatment Chips, Areas & Calendar)
+   ========================================================================== */
+
+.body-parts-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 6px;
+}
+
+.chip-choice {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background-color: var(--bg-subtle);
+  border: 1px solid var(--border-color);
+  padding: 8px 16px;
+  border-radius: var(--radius-pill);
+  font-size: 0.85rem;
+  font-weight: 700;
+  cursor: pointer;
+  user-select: none;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  color: var(--text-main);
+}
+.chip-choice i {
+  color: var(--primary);
+}
+
+.chip-choice input {
+  display: none;
+}
+
+.chip-choice:hover {
+  background-color: var(--primary-light);
+  border-color: rgba(2, 132, 199, 0.3);
+  color: var(--primary);
+  transform: translateY(-1px);
+}
+
+.chip-choice.selected {
+  background-color: var(--primary);
+  color: #ffffff;
+  border-color: var(--primary);
+  box-shadow: 0 4px 12px rgba(2, 132, 199, 0.3);
+}
+
+/* ================= Clinical Chips Edit Mode ================= */
+.chip-choice.in-edit-mode {
+  position: relative;
+  padding-left: 28px;
+  border-style: dashed;
+  border-color: #94a3b8;
+  animation: pulseEdit 1.5s infinite ease-in-out;
+}
+
+@keyframes pulseEdit {
+  0% { transform: scale(1); }
+  50% { transform: scale(0.98); }
+  100% { transform: scale(1); }
+}
+
+.chip-delete-tag {
+  position: absolute;
+  left: 6px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #ef4444;
+  font-size: 0.95rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 5;
+  transition: transform 0.15s;
+}
+
+.chip-delete-tag:hover, .chip-delete-tag:active {
+  transform: translateY(-50%) scale(1.25);
+  color: #dc2626;
+}
+
+.chip-add-new-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background-color: #f0fdf4;
+  color: #16a34a;
+  border: 1.5px dashed #22c55e;
+  padding: 6px 14px;
+  border-radius: 10px;
+  font-size: 0.82rem;
+  font-weight: 800;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.chip-add-new-btn:hover, .chip-add-new-btn:active {
+  background-color: #dcfce7;
+  transform: scale(0.97);
+}
+
+.chip-choice.in-edit-mode {
+  position: relative !important;
+  padding-left: 32px !important;
+  border-style: dashed !important;
+  border-color: #94a3b8 !important;
+  animation: pulseEdit 1.5s infinite ease-in-out;
+}
+
+.chip-choice.in-edit-mode .chip-delete-tag {
+  position: absolute !important;
+  left: 6px !important;
+  top: 50% !important;
+  transform: translateY(-50%) !important;
+  color: #ef4444 !important;
+  font-size: 1.05rem !important;
+  z-index: 10 !important;
+  cursor: pointer !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  background: #fee2e2 !important;
+  border-radius: 50% !important;
+  width: 20px !important;
+  height: 20px !important;
+}
+
+/* Card treatment chips edit mode styling */
+.card-treatment-chip.in-edit-mode {
+  position: relative;
+  padding-left: 30px;
+  border-style: dashed;
+  border-color: #ef4444;
+  animation: pulseEdit 1.5s infinite ease-in-out;
+}
+
+.card-treatment-chip.in-edit-mode .chip-delete-tag {
+  position: absolute;
+  left: 6px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #ffffff;
+  background-color: #ef4444;
+  font-size: 0.85rem;
+  z-index: 30;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  width: 18px;
+  height: 18px;
+  box-shadow: 0 1px 3px rgba(239, 68, 68, 0.5);
+  transition: transform 0.15s, background-color 0.15s;
+}
+
+.card-treatment-chip.in-edit-mode .chip-delete-tag:hover,
+.card-treatment-chip.in-edit-mode .chip-delete-tag:active {
+  background-color: #dc2626;
+  transform: translateY(-50%) scale(1.18);
+}
+
+/* --- LIGHT MODE: Active State --- */
+:root:not([data-theme="dark"]) #btn-filter-today-patients.btn-today-active {
+  background: var(--primary-gradient) !important;
+  color: #ffffff !important;
+  border-color: var(--primary-hover) !important;
+  box-shadow: 0 4px 14px rgba(2, 132, 199, 0.35) !important;
+}
+
+:root:not([data-theme="dark"]) #btn-filter-today-patients.btn-today-active:hover {
+  background: linear-gradient(135deg, #0369a1 0%, #075985 100%) !important;
+  color: #ffffff !important;
+  border-color: #075985 !important;
+}
+
+:root:not([data-theme="dark"]) #btn-filter-today-patients.btn-today-active i,
+:root:not([data-theme="dark"]) #btn-filter-today-patients.btn-today-active span {
+  color: #ffffff !important;
+}
+
+:root:not([data-theme="dark"]) #btn-filter-today-patients.btn-today-active #badge-today-patients-count {
+  background-color: rgba(255, 255, 255, 0.25) !important;
+  color: #ffffff !important;
+  border: 1px solid rgba(255, 255, 255, 0.45) !important;
+  font-weight: 800 !important;
+}
+
+/* --- DARK MODE: Active State --- */
+[data-theme="dark"] #btn-filter-today-patients.btn-today-active {
+  background: linear-gradient(135deg, rgba(56, 189, 248, 0.22) 0%, rgba(14, 165, 233, 0.32) 100%) !important;
+  color: #38bdf8 !important;
+  border: 1.5px solid #38bdf8 !important;
+  box-shadow: 0 0 16px rgba(56, 189, 248, 0.28), 0 4px 14px rgba(0, 0, 0, 0.4) !important;
+}
+
+[data-theme="dark"] #btn-filter-today-patients.btn-today-active:hover {
+  background: linear-gradient(135deg, rgba(56, 189, 248, 0.32) 0%, rgba(14, 165, 233, 0.42) 100%) !important;
+  color: #7dd3fc !important;
+  border-color: #7dd3fc !important;
+}
+
+[data-theme="dark"] #btn-filter-today-patients.btn-today-active i,
+[data-theme="dark"] #btn-filter-today-patients.btn-today-active span {
+  color: #38bdf8 !important;
+}
+
+[data-theme="dark"] #btn-filter-today-patients.btn-today-active #badge-today-patients-count {
+  background-color: rgba(56, 189, 248, 0.3) !important;
+  color: #ffffff !important;
+  border: 1px solid rgba(56, 189, 248, 0.6) !important;
+  font-weight: 900 !important;
+}
+
+[data-theme="dark"] .category-chip {
+  background-color: var(--bg-subtle);
+  border-color: var(--border-color);
+  color: var(--text-main);
+}
+
+[data-theme="dark"] .category-chip.active {
+  background-color: var(--primary);
+  color: #ffffff;
+  border-color: var(--primary);
+}
+
+
+
+
+
+/* ================= Comprehensive Dark Theme Refinements (v1.2.1) ================= */
+[data-theme="dark"] .chip-choice {
+  background-color: var(--bg-subtle);
+  border-color: var(--border-color);
+  color: #f1f5f9;
+}
+
+[data-theme="dark"] .chip-choice i {
+  color: var(--primary);
+}
+
+[data-theme="dark"] .chip-choice.selected {
+  background-color: var(--primary) !important;
+  color: #ffffff !important;
+  border-color: var(--primary) !important;
+}
+
+[data-theme="dark"] .chip-choice.selected i {
+  color: #ffffff !important;
+}
+
+.cal-months-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+
+.cal-month-cell {
+  background: var(--bg-subtle);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 10px 4px;
+  color: var(--text-main);
+  cursor: pointer;
+  text-align: center;
+  transition: all 0.15s;
+}
+
+.cal-month-cell:hover {
+  background: var(--primary-light);
+  border-color: var(--primary);
+}
+
+.cal-month-cell.selected {
+  background: var(--primary) !important;
+  color: #ffffff !important;
+  border-color: var(--primary) !important;
+}
+
+[data-theme="dark"] .cal-month-cell {
+  background-color: var(--bg-subtle);
+  border-color: var(--border-color);
+  color: var(--text-main);
+}
+
+[data-theme="dark"] .cal-month-cell.selected {
+  background-color: var(--primary) !important;
+  color: #ffffff !important;
+  border-color: var(--primary) !important;
+}
+
+/* 3. Slot Quick Buttons in Edit Slot Modal */
+.slot-quick-btn {
+  padding: 6px 12px;
+  font-size: 0.82rem;
+  font-weight: 700;
+  border-radius: var(--radius-pill);
+  background: var(--bg-subtle);
+  border: 1.5px solid var(--border-color);
+  color: var(--text-main);
+  transition: all 0.18s ease;
+}
+
+.slot-quick-btn:hover {
+  background: var(--primary-light);
+  border-color: var(--primary);
+  color: var(--primary);
+  transform: translateY(-1px);
+}
+
+/* 2. Modern Clinical Selected Chips (Physical Modalities & Procedures) */
+.clinical-selected-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 12px;
+  border-radius: 8px;
+  background: var(--primary-light);
+  color: var(--primary);
+  border: 1px solid rgba(2, 132, 199, 0.25);
+  font-size: 0.82rem;
+  font-weight: 700;
+  line-height: 1.4;
+  box-shadow: 0 1px 3px rgba(2, 132, 199, 0.08);
+  transition: all 0.15s ease;
+}
+
+.clinical-selected-chip i {
+  font-size: 0.8rem;
+}
+
+[data-theme="dark"] .clinical-selected-chip {
+  background: rgba(56, 189, 248, 0.15);
+  color: #38bdf8;
+  border-color: rgba(56, 189, 248, 0.3);
+}
+
+/* Patient Card Treated Area Badge (Optimized for Light & Dark Mode) */
+.patient-area-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4.5px;
+  font-size: 0.73rem;
+  font-weight: 700;
+  color: var(--text-main);
+  background: var(--bg-subtle);
+  border: 1px solid var(--border-color);
+  padding: 2px 8px;
+  border-radius: 6px;
+  white-space: nowrap;
+}
+
+[data-theme="dark"] .patient-area-badge {
+  color: var(--text-main) !important;
+  background: rgba(255, 255, 255, 0.05) !important;
+  border: 1px solid var(--border-color) !important;
+}
+
+.patient-area-badge.prog-quadriplegia {
+  color: #e11d48;
+  background: rgba(225, 29, 72, 0.12);
+  border-color: rgba(225, 29, 72, 0.3);
+}
+
+.patient-area-badge.prog-hemiplegia {
+  color: #b45309;
+  background: rgba(245, 158, 11, 0.12);
+  border-color: rgba(245, 158, 11, 0.3);
+}
+
+.patient-area-badge.prog-scoliosis {
+  color: #0284c7;
+  background: rgba(2, 132, 199, 0.12);
+  border-color: rgba(2, 132, 199, 0.3);
+}
+
+[data-theme="dark"] .patient-area-badge.prog-quadriplegia {
+  color: #fb7185 !important;
+  background: rgba(225, 29, 72, 0.22) !important;
+  border-color: rgba(225, 29, 72, 0.45) !important;
+}
+
+[data-theme="dark"] .patient-area-badge.prog-hemiplegia {
+  color: #fbbf24 !important;
+  background: rgba(245, 158, 11, 0.22) !important;
+  border-color: rgba(245, 158, 11, 0.45) !important;
+}
+
+[data-theme="dark"] .patient-area-badge.prog-scoliosis {
+  color: #38bdf8 !important;
+  background: rgba(2, 132, 199, 0.22) !important;
+  border-color: rgba(2, 132, 199, 0.45) !important;
+}
+
+[data-theme="dark"] .chip-add-new-btn {
+  background-color: rgba(52, 211, 153, 0.12) !important;
+  color: #34d399 !important;
+  border-color: rgba(52, 211, 153, 0.35) !important;
+}
+
+[data-theme="dark"] .chip-add-new-btn:hover,
+[data-theme="dark"] .chip-add-new-btn:active {
+  background-color: rgba(52, 211, 153, 0.22) !important;
+}
+
+
+
+/* High Contrast Active Chips/Pills in Dark Mode */
+[data-theme="dark"] .category-chip.active,
+[data-theme="dark"] .cal-quick-btn.active,
+[data-theme="dark"] .cal-month-cell.selected,
+[data-theme="dark"] .btn-slot-period.active {
+  background-color: var(--primary) !important;
+  color: #0f172a !important;
+  font-weight: 800 !important;
+  border-color: var(--primary) !important;
+  box-shadow: 0 2px 8px rgba(56, 189, 248, 0.35) !important;
+}
