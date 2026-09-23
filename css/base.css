@@ -468,3 +468,26 @@ input, textarea, select, [contenteditable="true"] {
 .metric-chip-card { padding: 12px 8px !important; border-radius: 10px !important; font-size: 0.85rem !important; font-weight: 800 !important; display: flex !important; flex-direction: column !important; align-items: center !important; gap: 6px !important; border: 1.5px solid var(--border-color) !important; }
 .label-metric-bold { font-weight: 800 !important; font-size: 0.85rem !important; color: var(--text-main) !important; margin-bottom: 4px !important; display: block !important; white-space: nowrap !important; }
 .label-sub-bold { display: block !important; font-size: 0.78rem !important; font-weight: 700 !important; margin-bottom: 4px !important; }
+/* ==========================================================================
+   Migrated from style.css
+   ========================================================================== */
+.d-flex { display: flex; }
+.d-grid { display: grid; }
+.d-block { display: block; }
+.d-inline-flex { display: inline-flex; }
+
+.text-success { color: var(--success) !important; }
+.text-warning { color: var(--warning) !important; }
+.text-main { color: var(--text-main); }
+
+.fw-600 { font-weight: 600; }
+
+.flex-between { display: flex; align-items: center; justify-content: space-between; }
+.flex-center { display: flex; align-items: center; justify-content: center; }
+.flex-col { display: flex; flex-direction: column; }
+.gap-4 { gap: 4px; }
+.gap-6 { gap: 6px; }
+.gap-8 { gap: 8px; }
+.gap-10 { gap: 10px; }
+.gap-12 { gap: 12px; }
+.h-100 { height: 100%; }
