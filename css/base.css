@@ -837,3 +837,18 @@ body {
 h1, h2, h3, h4, h5, h6 {
   line-height: 1.35;
 }
+
+/* ==========================================================================
+   Migrated from style.css (Body Radial Gradient Depth)
+   ========================================================================== */
+[data-theme="dark"] body {
+  background: radial-gradient(circle at 10% 15%, rgba(2, 132, 199, 0.12) 0%, transparent 45%),
+              radial-gradient(circle at 90% 85%, rgba(67, 56, 202, 0.12) 0%, transparent 45%),
+              #090d16 !important;
+}
+
+body {
+  background: radial-gradient(circle at 10% 15%, rgba(2, 132, 199, 0.05) 0%, transparent 45%),
+              radial-gradient(circle at 90% 85%, rgba(14, 165, 233, 0.05) 0%, transparent 45%),
+              #f8fafc;
+}

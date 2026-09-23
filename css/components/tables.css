@@ -111,3 +111,12 @@ table.data-table tr:hover td {
   color: var(--text-muted);
   font-weight: 600;
 }
+
+/* ==========================================================================
+   Migrated from style.css (Mobile Table Header Suppression)
+   ========================================================================== */
+@media screen and (max-width: 767px) {
+  .data-table thead {
+    display: none !important;
+  }
+}

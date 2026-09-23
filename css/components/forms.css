@@ -1157,3 +1157,16 @@ input[type="radio"]:focus-visible {
     min-height: 42px;
   }
 }
+
+/* ==========================================================================
+   Migrated from style.css (Textarea Base Typography & Sizing)
+   ========================================================================== */
+textarea.form-control,
+textarea {
+  font-family: inherit;
+  font-size: 0.92rem;
+  line-height: 1.6;
+  min-height: 72px;
+  resize: vertical;
+  box-sizing: border-box;
+}

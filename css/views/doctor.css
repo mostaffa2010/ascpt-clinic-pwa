@@ -908,3 +908,44 @@
   padding-top: 8px;
   border-top: 1px dashed var(--border-color, #e2e8f0);
 }
+
+/* ==========================================================================
+   Migrated from style.css (Doctor Personal Mobile Cards Scroll & Dark Mode)
+   ========================================================================== */
+@media screen and (max-width: 991px) {
+  #doctor-personal-mobile-cards {
+    max-height: none;
+    overflow-y: visible;
+    overflow-x: visible;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding: 4px 2px 14px 2px;
+    box-sizing: border-box;
+  }
+
+  #doctor-personal-mobile-cards > * {
+    flex-shrink: 0;
+    flex-grow: 0;
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  [data-theme="dark"] #doctor-personal-mobile-cards {
+    scrollbar-color: rgba(56, 189, 248, 0.4) transparent;
+  }
+
+  #doctor-personal-mobile-cards::-webkit-scrollbar {
+    width: 4px;
+    display: block;
+  }
+
+  #doctor-personal-mobile-cards::-webkit-scrollbar-thumb {
+    background-color: rgba(2, 132, 199, 0.35);
+    border-radius: 999px;
+  }
+
+  [data-theme="dark"] #doctor-personal-mobile-cards::-webkit-scrollbar-thumb {
+    background-color: rgba(56, 189, 248, 0.4);
+  }
+}

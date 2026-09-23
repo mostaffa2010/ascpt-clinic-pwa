@@ -1098,3 +1098,28 @@
     -webkit-backdrop-filter: none;
   }
 }
+
+/* ==========================================================================
+   Migrated from style.css (Card Title & Global View Toggles)
+   ========================================================================== */
+.card-title {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--text-main);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+#sessions-view-mode-toggle,
+#patients-view-mode-toggle,
+#sessions-table-container,
+#patients-table-container,
+#patients-top-scroll-wrap {
+  display: none !important;
+}
+
+#patients-mobile-cards,
+#sessions-today-mobile-cards {
+  display: grid !important;
+}

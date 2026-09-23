@@ -1868,3 +1868,12 @@
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
   }
 }
+
+/* ==========================================================================
+   Migrated from style.css (Insurance Renewal Letter Form Controls)
+   ========================================================================== */
+#ins-letter-diagnosis,
+#ins-letter-notes {
+  unicode-bidi: plaintext;
+  text-align: start;
+}
