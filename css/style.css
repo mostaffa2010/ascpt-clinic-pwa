@@ -111,14 +111,7 @@ body {
 
 /* ================= Cards & Stats ================= */
 
-.card-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 14px;
-  border-bottom: 1px solid var(--border-color);
-  padding-bottom: 10px;
-}
+
 
 .card-title {
   font-size: 1.1rem;
@@ -322,15 +315,7 @@ textarea {
   gap: 5px;
 }
 
-.stc-part-pill.pill-examination {
-  background-color: rgba(245, 158, 11, 0.1);
-  color: #b45309;
-  border: 1px solid rgba(245, 158, 11, 0.3);
-  font-weight: 700;
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-}
+
 
 .badge-indirect {
   background-color: var(--warning-light);
@@ -1095,11 +1080,7 @@ body.not-authenticated #modal-auth #btn-cancel-login {
   box-shadow: 0 0 8px rgba(245, 158, 11, 0.15) !important;
 }
 
-[data-theme="dark"] .stc-part-pill.pill-examination {
-  background-color: rgba(245, 158, 11, 0.2) !important;
-  color: #fde047 !important;
-  border: 1px solid rgba(245, 158, 11, 0.45) !important;
-}
+
 
 [data-theme="dark"] .badge-indirect {
   background-color: rgba(251, 191, 36, 0.18) !important;
@@ -2930,21 +2911,7 @@ h1, h2, h3, h4, h5, h6 {
   border-color: rgba(196, 181, 253, 0.35) !important;
 }
 
-/* Newly added patient highlight */
-.patient-row-newly-added {
-  animation: newPatientPulse 3s ease-in-out infinite alternate;
-}
 
-@keyframes newPatientPulse {
-  0% {
-    box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.4);
-    border-color: rgba(16, 185, 129, 0.6);
-  }
-  100% {
-    box-shadow: 0 0 16px 2px rgba(16, 185, 129, 0.25);
-    border-color: #10b981;
-  }
-}
 
 /* ================= Hybrid Solution: Desktop Sticky Tables & Mobile Pagination (v1.4.31) ================= */
 
@@ -3842,38 +3809,7 @@ body.role-receptionist #dashboard-admin-view {
 }
 
 
-/* ==========================================================================
-   UNIVERSAL MODERN RESPONSIVE CARDS GRID (v1.4.58)
-   Replaces cramped tables with responsive card grids (3 or 2 columns)
-   ========================================================================== */
-.patients-grid-container {
-  display: grid !important;
-  grid-template-columns: repeat(auto-fill, minmax(330px, 1fr)) !important;
-  gap: 16px !important;
-  width: 100% !important;
-  box-sizing: border-box !important;
-}
 
-@media screen and (max-width: 768px) {
-  .patients-grid-container {
-    grid-template-columns: 1fr !important;
-    gap: 12px !important;
-    padding: 4px 2px 14px 2px !important;
-  }
-}
-
-.patients-grid-container .hero-styled-card {
-  margin-bottom: 0 !important;
-  box-sizing: border-box !important;
-  display: flex !important;
-  flex-direction: column !important;
-  justify-content: space-between !important;
-}
-
-.patients-grid-container .mobile-pagination-bar {
-  grid-column: 1 / -1 !important;
-  margin-top: 10px !important;
-}
 
 /* ==========================================================================
    APPOINTMENTS 2-COLUMN CARDS GRID (v1.4.58)
@@ -4164,122 +4100,7 @@ body.role-doctor .btn-quick-attend {
    Medical Imaging & Polish Studio & Lightbox (v1.4.78)
    ======================================================== */
 
-.imaging-gallery-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-  gap: 12px;
-}
 
-.imaging-gallery-empty {
-  text-align: center;
-  padding: 30px 16px;
-  background: var(--bg-subtle);
-  border: 1.5px dashed var(--border-color);
-  border-radius: 12px;
-  color: var(--text-muted);
-}
-
-.imaging-card {
-  position: relative;
-  background: var(--bg-surface);
-  border: 1.5px solid var(--border-color);
-  border-radius: 12px;
-  overflow: hidden;
-  cursor: pointer;
-  transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
-  display: flex;
-  flex-direction: column;
-}
-
-.imaging-card:hover {
-  transform: translateY(-3px);
-  border-color: var(--primary);
-  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.12);
-}
-
-.imaging-card-thumb-wrap {
-  position: relative;
-  width: 100%;
-  aspect-ratio: 4 / 3;
-  background: #090d16;
-  overflow: hidden;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.imaging-card-thumb {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  transition: transform 0.25s ease;
-}
-
-.imaging-card:hover .imaging-card-thumb {
-  transform: scale(1.05);
-}
-
-.imaging-card-badge {
-  position: absolute;
-  top: 6px;
-  right: 6px;
-  font-size: 0.68rem;
-  font-weight: 800;
-  padding: 2px 7px;
-  border-radius: 6px;
-  backdrop-filter: blur(4px);
-  z-index: 2;
-}
-
-.imaging-card-delete-btn {
-  position: absolute;
-  top: 6px;
-  left: 6px;
-  width: 26px;
-  height: 26px;
-  border-radius: 6px;
-  background: rgba(239, 68, 68, 0.85);
-  color: #ffffff;
-  border: none;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 0.75rem;
-  opacity: 0.85;
-  transition: all 0.15s ease;
-  z-index: 3;
-}
-
-.imaging-card-delete-btn:hover {
-  opacity: 1;
-  transform: scale(1.1);
-  background: #dc2626;
-}
-
-.imaging-card-meta {
-  padding: 8px 10px;
-  background: var(--bg-surface);
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-}
-
-.imaging-card-title {
-  font-size: 0.78rem;
-  font-weight: 800;
-  color: var(--text-main);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  margin-bottom: 2px;
-}
-
-.imaging-card-date {
-  font-size: 0.68rem;
-  color: var(--text-muted);
-}
 
 /* Category Badge Colors */
 .badge-cat-mri { background: rgba(2, 132, 199, 0.9); color: #fff; }
@@ -4868,15 +4689,7 @@ body.role-doctor .btn-quick-attend {
   box-shadow: 0 2px 8px rgba(2, 132, 199, 0.35) !important;
 }
 
-.imaging-card-badge {
-  cursor: pointer !important;
-  transition: transform 0.15s ease, filter 0.15s ease !important;
-}
 
-.imaging-card-badge:hover {
-  transform: scale(1.08) !important;
-  filter: brightness(1.1) !important;
-}
 
 .btn-change-cat-choice:hover {
   border-color: var(--primary) !important;
@@ -4886,12 +4699,7 @@ body.role-doctor .btn-quick-attend {
 }
 
 /* ================= Clinical Program & Seniority Tokens (v2.0.5) ================= */
-.program-type-segmented {
-  width: 100%;
-  display: grid !important;
-  grid-template-columns: repeat(2, 1fr) !important;
-  gap: 8px !important;
-}
+
 .program-pill-opt {
   display: block;
   cursor: pointer;
