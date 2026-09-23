@@ -314,19 +314,7 @@ input, textarea, [contenteditable="true"] {
 
 
 
-/* 3. Horizontal Date Strip (Capsule Carousel) */
-.horizontal-date-strip {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  overflow-x: auto;
-  padding: 4px 0;
-  -webkit-overflow-scrolling: touch;
-}
 
-.horizontal-date-strip::-webkit-scrollbar {
-  display: none;
-}
 
 
 
@@ -344,22 +332,7 @@ input, textarea, [contenteditable="true"] {
 
 /* ================= Clean Authoritative Deep Glassmorphism & Compact 3-Row Cards (v1.4.0-beta.5) ================= */
 
-/* Global Glassmorphic Card Upgrades */
-.card {
-  background: var(--bg-glass-card) !important;
-  backdrop-filter: var(--glass-blur) !important;
-  -webkit-backdrop-filter: var(--glass-blur) !important;
-  border: 1px solid var(--glass-border) !important;
-  box-shadow: var(--glass-shadow) !important;
-}
 
-.stat-box, .stat-card {
-  background: var(--bg-glass-card) !important;
-  backdrop-filter: var(--glass-blur) !important;
-  -webkit-backdrop-filter: var(--glass-blur) !important;
-  border: 1px solid var(--glass-border) !important;
-  box-shadow: var(--glass-shadow) !important;
-}
 
 
 
@@ -546,30 +519,7 @@ body {
    v1.4.0-beta.20: Enhanced Search Boxes & Ultra-Compact Mobile Expenses & Stack Decks
    ========================================================================== */
 
-/* 1. Global Search Box with Integrated Icon */
-.search-box {
-  position: relative;
-  display: flex;
-  align-items: center;
-  width: 100%;
-}
 
-.search-box i.fa-magnifying-glass,
-.search-box i.bi-search {
-  position: absolute;
-  right: 14px;
-  top: 50%;
-  transform: translateY(-50%);
-  color: var(--text-muted);
-  pointer-events: none;
-  font-size: 0.92rem;
-  z-index: 2;
-}
-
-.search-box input.form-control {
-  padding-right: 38px !important;
-  width: 100%;
-}
 
 /* ==========================================================================
    v1.4.0-beta.24: Complete Modernization for Admin Panel (لوحة المدير)
@@ -694,25 +644,7 @@ body {
    v1.4.0-beta.33: 2026 Modern Design & Touch Ergonomics Polish
    ========================================================================== */
 
-/* 1. Mobile Input Touch Standards & iOS Auto-Zoom Prevention */
-@media screen and (max-width: 767px) {
-  .form-control,
-  input[type="text"],
-  input[type="tel"],
-  input[type="number"],
-  input[type="email"],
-  input[type="password"],
-  input[type="date"],
-  select,
-  textarea,
-  .custom-select-btn {
-    font-size: 16px !important;
-    min-height: 46px !important;
-  }
-  .btn {
-    min-height: 42px;
-  }
-}
+
 
 
 
@@ -735,13 +667,7 @@ h1, h2, h3, h4, h5, h6 {
 
 
 
-.horizontal-date-strip {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  overflow: visible;
-  padding: 2px 0;
-}
+
 
 
 
@@ -771,13 +697,7 @@ h1, h2, h3, h4, h5, h6 {
 
 
 
-/* ================= Mobile Performance: Optimize Heavy Glassmorphism on Budget Devices (v1.4.1) ================= */
-@media screen and (max-width: 767px) {
-  .card, .stat-box, .stat-card {
-    backdrop-filter: none !important;
-    -webkit-backdrop-filter: none !important;
-  }
-}
+
 
 
 

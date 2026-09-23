@@ -1094,3 +1094,66 @@ input[type="radio"]:focus-visible {
   text-align: right !important;
   direction: rtl !important;
 }
+
+/* ==========================================================================
+   Migrated from style.css (Global Search Box & Horizontal Date Strip)
+   ========================================================================== */
+
+/* 1. Global Search Box with Integrated Icon */
+.search-box {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+
+.search-box i.fa-magnifying-glass,
+.search-box i.bi-search {
+  position: absolute;
+  right: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-muted);
+  pointer-events: none;
+  font-size: 0.92rem;
+  z-index: 2;
+}
+
+.search-box input.form-control {
+  padding-right: 38px !important;
+  width: 100%;
+}
+
+/* 2. Horizontal Date Strip (Capsule Carousel) */
+.horizontal-date-strip {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  overflow-x: auto;
+  padding: 4px 0;
+  -webkit-overflow-scrolling: touch;
+}
+
+.horizontal-date-strip::-webkit-scrollbar {
+  display: none;
+}
+
+/* Migrated from style.css - iOS zoom prevention */
+@media screen and (max-width: 767px) {
+  .form-control,
+  input[type="text"],
+  input[type="tel"],
+  input[type="number"],
+  input[type="email"],
+  input[type="password"],
+  input[type="date"],
+  select,
+  textarea,
+  .custom-select-btn {
+    font-size: 16px !important;
+    min-height: 46px !important;
+  }
+  .btn {
+    min-height: 42px;
+  }
+}
