@@ -377,3 +377,353 @@
     border-bottom: none !important;
   }
 }
+/* ==========================================================================
+   Migrated from style.css
+   ========================================================================== */
+
+/* 1. Hero Dashboard Banner */
+.hero-dashboard-banner {
+  background: linear-gradient(135deg, #072032 0%, #0284c7 100%);
+  border-radius: var(--radius-lg);
+  padding: 22px 24px;
+  color: #ffffff;
+  position: relative;
+  overflow: hidden;
+  margin-bottom: 20px;
+  box-shadow: 0 12px 28px -6px rgba(2, 132, 199, 0.35);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  transition: all 0.3s ease;
+}
+
+.hero-banner-glass-bg {
+  position: absolute;
+  top: -40px;
+  left: -40px;
+  width: 180px;
+  height: 180px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.2) 0%, rgba(255, 255, 255, 0) 70%);
+  pointer-events: none;
+}
+
+.hero-banner-content {
+  position: relative;
+  z-index: 2;
+}
+
+
+
+.hero-greeting-icon {
+  color: #fde047;
+}
+
+
+
+
+
+.hero-banner-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  padding-top: 10px;
+
+/* 5. Refined Dark Mode Overrides for New Components */
+[data-theme="dark"] .hero-dashboard-banner {
+  background: linear-gradient(135deg, #090d16 0%, #0369a1 100%);
+  border-color: rgba(56, 189, 248, 0.25);
+  box-shadow: 0 12px 30px -6px rgba(0, 0, 0, 0.6);
+}
+
+@media screen and (max-width: 768px) {
+  .mobile-only-cards-container,
+  .universal-cards-grid {
+    grid-template-columns: 1fr !important;
+    gap: 12px !important;
+  }
+}
+
+.mobile-only-cards-container .hero-styled-card,
+.universal-cards-grid .hero-styled-card {
+  margin-bottom: 0 !important;
+  box-sizing: border-box !important;
+  display: flex !important;
+  flex-direction: column !important;
+  justify-content: space-between !important;
+}
+
+.mobile-only-cards-container .empty-state-card,
+.mobile-only-cards-container > div[style*="text-align: center"],
+.mobile-only-cards-container .mobile-pagination-bar,
+.universal-cards-grid .empty-state-card,
+.universal-cards-grid .mobile-pagination-bar {
+  grid-column: 1 / -1 !important;
+}
+
+/* 1. Top Section */
+.hsc-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.hsc-patient-meta {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+  flex: 1;
+}
+
+.hsc-avatar {
+  width: 44px;
+  height: 44px;
+  border-radius: var(--radius-md);
+  background: rgba(56, 189, 248, 0.15);
+  color: #38bdf8;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+  flex-shrink: 0;
+  border: 1px solid rgba(56, 189, 248, 0.25);
+}
+
+.hsc-avatar.patient-avatar {
+  background: rgba(129, 140, 248, 0.15);
+  color: #818cf8;
+  border-color: rgba(129, 140, 248, 0.25);
+}
+
+.hsc-name-box {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+}
+
+.hsc-patient-name {
+  font-size: 1.05rem;
+  font-weight: 800;
+  color: var(--text-main);
+  line-height: 1.3;
+  word-break: normal !important;
+  overflow-wrap: break-word !important;
+  white-space: normal !important;
+}
+
+.hsc-name-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.hsc-age-badge {
+  font-size: 0.76rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  background: var(--bg-subtle);
+  padding: 2px 7px;
+  border-radius: var(--radius-pill);
+}
+
+.hsc-doc-sub {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.hsc-badge-amount {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.hsc-amount-val {
+  font-size: 1.25rem;
+  font-weight: 900;
+  color: var(--success);
+  line-height: 1;
+  letter-spacing: -0.3px;
+}
+
+.hsc-amount-val small {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--text-muted);
+}
+
+.hsc-pill-wrap {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+/* 2. Patient Meta Row (Phone & Address) */
+.hsc-patient-meta-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-top: 10px;
+  flex-wrap: wrap;
+  font-size: 0.82rem;
+}
+
+.hsc-meta-link {
+  color: #38bdf8;
+  text-decoration: none;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.hsc-meta-text {
+  color: var(--text-muted);
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+/* 3. Divider */
+.hsc-divider {
+  height: 1px;
+  background: linear-gradient(90deg, transparent 0%, var(--border-color) 20%, var(--border-color) 80%, transparent 100%);
+  margin: 12px 0 10px 0;
+}
+
+/* 4. Bottom Row */
+.hsc-bottom {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.hsc-tags {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.hsc-tag-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.76rem;
+  font-weight: 700;
+  color: #bae6fd;
+  background: rgba(2, 132, 199, 0.16);
+  border: 1px solid rgba(2, 132, 199, 0.3);
+  padding: 3px 9px;
+  border-radius: var(--radius-pill);
+}
+
+.hsc-time-tag {
+  font-size: 0.76rem;
+  color: var(--text-muted);
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.hsc-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+
+
+
+.empty-state-card {
+  padding: 24px;
+  text-align: center;
+  color: var(--text-muted);
+  font-weight: 600;
+  font-size: 0.9rem;
+  background: var(--bg-glass-card);
+
+/* 1. High Contrast Body Parts Pill (.hsc-tag-pill) for both Light and Dark Modes */
+.hsc-tag-pill {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+  font-size: 0.78rem !important;
+  font-weight: 800 !important;
+  color: #0369a1 !important; /* Crystal clear readable navy-blue in Light Mode */
+  background: #e0f2fe !important;
+  border: 1.5px solid #bae6fd !important;
+  padding: 4px 10px !important;
+  border-radius: var(--radius-pill) !important;
+  box-shadow: 0 1px 2px rgba(2, 132, 199, 0.1) !important;
+  line-height: 1.2 !important;
+}
+
+.hsc-tag-pill i {
+  color: #0284c7 !important;
+  font-size: 0.8rem !important;
+}
+
+[data-theme="dark"] .hsc-tag-pill {
+  color: #7dd3fc !important; /* Luminous sky cyan in Dark Mode */
+  background: rgba(56, 189, 248, 0.16) !important;
+  border-color: rgba(56, 189, 248, 0.35) !important;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3) !important;
+}
+
+[data-theme="dark"] .hsc-tag-pill i {
+  color: #38bdf8 !important;
+}
+
+/* Dedicated full-width Badges Row & Amount Box (Protects long insurance names) */
+.hero-styled-card .hsc-amount-box,
+.hsc-amount-box {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  justify-content: flex-start;
+  flex-shrink: 0;
+}
+
+.hero-styled-card .hsc-badges-row,
+.hsc-badges-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-top: 8px;
+  width: 100%;
+}
+
+.hero-styled-card .hsc-badges-row .badge,
+.hsc-badges-row .badge {
+  white-space: normal;
+  line-height: 1.4;
+  max-width: 100%;
+}
+
+/* 3. Patient Card Name Row Alignment */
+.hsc-patient-billing-box {
+  display: inline-flex;
+  align-items: center;
+}
+
+.hsc-patient-billing-box .badge {
+  font-size: 0.76rem !important;
+  padding: 3px 9px !important;
+  border-radius: 6px !important;
+}
