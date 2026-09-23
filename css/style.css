@@ -790,89 +790,7 @@ input, textarea, [contenteditable="true"] {
 
 
 
-/* 2. Quick Access Bar (Inspired by Pinterest Ref 2) */
-.quick-access-bar {
-  margin-bottom: 22px;
-}
 
-.quick-access-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 10px;
-  padding: 0 4px;
-}
-
-.quick-access-title {
-  font-size: 0.88rem;
-  font-weight: 800;
-  color: var(--text-main);
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-
-.quick-access-items {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 10px;
-}
-
-.quick-action-btn {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  background: var(--bg-surface);
-  border: 1px solid var(--border-color);
-  border-radius: var(--radius-md);
-  padding: 14px 6px;
-  cursor: pointer;
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow: var(--shadow-sm);
-  text-decoration: none;
-  width: 100%;
-  box-sizing: border-box;
-}
-
-.quick-action-btn:hover {
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-md);
-  border-color: rgba(2, 132, 199, 0.3);
-}
-
-.quick-action-btn:active {
-  transform: scale(0.95);
-}
-
-.quick-action-icon {
-  width: 44px;
-  height: 44px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1.18rem;
-  transition: transform 0.2s ease;
-}
-
-.quick-action-btn:hover .quick-action-icon {
-  transform: scale(1.08);
-}
-
-.qa-blue { background: #e0f2fe; color: #0284c7; }
-.qa-emerald { background: #d1fae5; color: #059669; }
-.qa-indigo { background: #e0e7ff; color: #4f46e5; }
-.qa-amber { background: #fef3c7; color: #d97706; }
-
-.quick-action-label {
-  font-size: 0.76rem;
-  font-weight: 700;
-  color: var(--text-main);
-  text-align: center;
-  white-space: nowrap;
-}
 
 /* 3. Horizontal Date Strip (Capsule Carousel) */
 .horizontal-date-strip {
@@ -997,15 +915,7 @@ input, textarea, [contenteditable="true"] {
 
 
 
-[data-theme="dark"] .qa-blue { background: rgba(56, 189, 248, 0.18); color: #38bdf8; }
-[data-theme="dark"] .qa-emerald { background: rgba(52, 211, 153, 0.18); color: #34d399; }
-[data-theme="dark"] .qa-indigo { background: rgba(129, 140, 248, 0.18); color: #818cf8; }
-[data-theme="dark"] .qa-amber { background: rgba(251, 191, 36, 0.18); color: #fbbf24; }
 
-[data-theme="dark"] .quick-action-btn {
-  background: var(--bg-surface);
-  border-color: var(--border-color);
-}
 
 
 
@@ -1032,12 +942,7 @@ input, textarea, [contenteditable="true"] {
 
 
 
-.quick-action-btn {
-  background: var(--bg-glass-card) !important;
-  backdrop-filter: var(--glass-blur) !important;
-  -webkit-backdrop-filter: var(--glass-blur) !important;
-  border: 1px solid var(--glass-border) !important;
-}
+
 
 /* Subtle background gradient for body to give depth to frosted glass (Zero-Jank 60fps Native Scrolling) */
 [data-theme="dark"] body {
@@ -1499,26 +1404,7 @@ h1, h2, h3, h4, h5, h6 {
 
 
 
-/* 2. Quick Access Grid Mobile Safeguards */
-@media screen and (max-width: 480px) {
-  .quick-access-items {
-    grid-template-columns: repeat(4, 1fr) !important;
-    gap: 6px !important;
-  }
-  .quick-action-btn {
-    padding: 10px 4px !important;
-    gap: 5px !important;
-  }
-  .quick-action-icon {
-    width: 38px !important;
-    height: 38px !important;
-    font-size: 0.95rem !important;
-  }
-  .quick-action-label {
-    font-size: 0.72rem !important;
-    white-space: nowrap !important;
-  }
-}
+
 
 
 
