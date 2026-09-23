@@ -17,14 +17,25 @@ const styleCssPath = path.join(rootDir, 'css/style.css');
 const modularCssFiles = [
   'css/design-tokens.css',
   'css/base.css',
+  'css/components/skeletons.css',
   'css/components/buttons.css',
+  'css/components/chips-badges.css',
+  'css/components/cards.css',
+  'css/components/forms.css',
   'css/components/modals.css',
+  'css/components/tables.css',
+  'css/components/notifications.css',
+  'css/components/lightbox.css',
+  'css/components/image-editor.css',
+  'css/views/shell.css',
+  'css/views/reception.css',
   'css/views/patients.css',
-  'css/views/dashboard.css',
+  'css/views/doctor.css',
   'css/views/sessions.css',
+  'css/views/admin.css',
   'css/views/finance.css',
-  'css/views/appointments.css',
-  'css/views/admin.css'
+  'css/views/claims.css',
+  'css/views/appointments.css'
 ];
 const getModularCssContent = () => {
   if (fs.existsSync(styleCssPath)) {

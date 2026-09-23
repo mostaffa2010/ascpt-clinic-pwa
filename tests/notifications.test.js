@@ -57,9 +57,32 @@ console.log('✓ 5. Top Header & Profile UI: Verified bell button, red counter b
 
 // 6. Verify CSS Styling & Print Suppression
 const styleCssPath = path.join(rootDir, 'css/style.css');
+const modularCssFiles = [
+  'css/design-tokens.css',
+  'css/base.css',
+  'css/components/skeletons.css',
+  'css/components/buttons.css',
+  'css/components/chips-badges.css',
+  'css/components/cards.css',
+  'css/components/forms.css',
+  'css/components/modals.css',
+  'css/components/tables.css',
+  'css/components/notifications.css',
+  'css/components/lightbox.css',
+  'css/components/image-editor.css',
+  'css/views/shell.css',
+  'css/views/reception.css',
+  'css/views/patients.css',
+  'css/views/doctor.css',
+  'css/views/sessions.css',
+  'css/views/admin.css',
+  'css/views/finance.css',
+  'css/views/claims.css',
+  'css/views/appointments.css'
+];
 const styleCssContent = fs.existsSync(styleCssPath)
   ? fs.readFileSync(styleCssPath, 'utf-8')
-  : ['css/design-tokens.css', 'css/base.css', 'css/components/buttons.css', 'css/components/modals.css', 'css/views/patients.css', 'css/views/dashboard.css', 'css/views/sessions.css', 'css/views/finance.css', 'css/views/appointments.css', 'css/views/admin.css']
+  : modularCssFiles
       .filter(f => fs.existsSync(path.join(rootDir, f)))
       .map(f => fs.readFileSync(path.join(rootDir, f), 'utf-8'))
       .join('\n');
