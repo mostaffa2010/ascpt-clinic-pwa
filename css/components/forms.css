@@ -544,7 +544,12 @@ input[type="radio"]:focus-visible {
   background: var(--bg-surface);
   border: 1.5px solid var(--primary);
   border-radius: 10px;
-  gap: 8px;
+  gap: 10px;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  min-width: 0;
+  overflow: hidden;
 }
 
 #picker-search-input {

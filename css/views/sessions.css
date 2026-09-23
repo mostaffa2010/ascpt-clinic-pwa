@@ -89,6 +89,10 @@
   display: flex;
   flex-direction: column;
   gap: 10px;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
 }
 
 .form-group-compact {
@@ -96,6 +100,10 @@
   display: flex;
   flex-direction: column;
   gap: 4px;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
 }
 
 .compact-label {
@@ -225,7 +233,12 @@
   background: var(--bg-surface);
   border: 1.5px solid var(--primary);
   border-radius: 10px;
-  gap: 8px;
+  gap: 10px;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  min-width: 0;
+  overflow: hidden;
 }
 
 [data-theme="dark"] .selected-patient-card-compact {
@@ -236,31 +249,48 @@
 .spc-info {
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 3px;
   min-width: 0;
-  flex: 1;
+  flex: 1 1 auto;
+  overflow: hidden;
 }
 
 .spc-name {
   font-size: 0.95rem;
   font-weight: 900;
   color: var(--text-main);
-  line-height: 1.2;
-}
-
-.spc-sub {
-  font-size: 0.76rem;
-  color: var(--text-muted);
+  line-height: 1.25;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  min-width: 0;
+}
+
+.spc-sub {
+  font-size: 0.74rem;
+  color: var(--text-muted);
+  white-space: normal;
+  line-height: 1.35;
+  word-break: break-word;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
 }
 
 .spc-btn-change {
   flex-shrink: 0;
-  border-radius: 6px;
-  font-size: 0.76rem;
-  padding: 3px 8px;
+  border-radius: 8px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  padding: 5px 12px;
+  white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  align-self: center;
 }
 
 .compact-select-btn {
