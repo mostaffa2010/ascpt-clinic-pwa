@@ -342,3 +342,38 @@
   font-weight: 600;
   line-height: 1.2;
 }
+.desktop-only-table {
+  display: none !important;
+}
+
+.mobile-only-cards-container,
+.universal-cards-grid {
+  display: grid !important;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)) !important;
+  gap: 14px !important;
+  width: 100% !important;
+  box-sizing: border-box !important;
+}
+
+@media screen and (max-width: 767px) {
+  #card-dashboard-recent,
+  #card-sessions-today,
+  #card-patients-directory,
+  .card:has(#dashboard-recent-table),
+  .card:has(#doctor-personal-table),
+  .card:has(#sessions-today-tbody),
+  .card:has(#patients-tbody) {
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+    margin-bottom: 12px !important;
+  }
+
+  #card-dashboard-recent .card-header,
+  #card-sessions-today .card-header,
+  #card-patients-directory .card-header {
+    padding: 4px 2px 10px 2px !important;
+    border-bottom: none !important;
+  }
+}

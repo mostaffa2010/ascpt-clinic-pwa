@@ -215,85 +215,6 @@ textarea {
 
 
 
-/* ================= Responsive for Tablet (768px - 991px) =================
-   Keeps the mobile navigation paradigm (top bar + bottom nav) since the
-   fixed 260px sidebar would crowd a ~768-991px screen, but gives forms
-   and stat grids room to breathe instead of stacking everything into
-   a single narrow column like on a phone. */
-@media screen and (min-width: 768px) and (max-width: 991px) {
-  .main-content {
-    padding: 22px 28px;
-    padding-bottom: calc(var(--bottom-nav-height) + 24px);
-  }
-
-  .stats-grid {
-    grid-template-columns: repeat(3, 1fr);
-  }
-
-  .form-grid.two-cols,
-  .form-grid.three-cols {
-    grid-template-columns: repeat(2, 1fr);
-  }
-}
-
-/* ================= Responsive for Desktop (>= 992px) ================= */
-@media screen and (min-width: 992px) {
-  .sidebar {
-    display: flex; /* Show fixed sidebar on desktop */
-    position: fixed;
-    top: 0;
-    right: 0;
-    bottom: 0;
-    height: 100vh;
-    width: var(--sidebar-width);
-    z-index: 50;
-  }
-
-  .main-content {
-    margin-right: var(--sidebar-width);
-    margin-left: 0;
-    width: calc(100% - var(--sidebar-width));
-    max-width: calc(100% - var(--sidebar-width));
-    padding: 20px 24px;
-    padding-bottom: 40px;
-    min-width: 0;
-    box-sizing: border-box;
-    overflow-x: hidden;
-  }
-
-  .stats-grid {
-    grid-template-columns: repeat(4, 1fr);
-  }
-
-  .form-grid.two-cols {
-    grid-template-columns: 1fr 1fr;
-  }
-
-  .form-grid.three-cols {
-    grid-template-columns: 1fr 1fr 1fr;
-  }
-
-  .split-screen {
-    display: grid;
-    grid-template-columns: 350px minmax(0, 1fr);
-    gap: 20px;
-    align-items: start;
-    min-width: 0;
-    max-width: 100%;
-    width: 100%;
-  }
-
-  .split-screen > * {
-    min-width: 0;
-    max-width: 100%;
-  }
-
-  @media screen and (min-width: 992px) and (max-width: 1180px) {
-    .split-screen {
-      grid-template-columns: 320px minmax(0, 1fr);
-      gap: 16px;
-    }
-  }
 }
 
 
@@ -386,14 +307,7 @@ textarea {
 }
 
 
-/* ================= Native App Experience: Disable Text Selection & Context Callout ================= */
-body, button, .btn, .card, table, header, nav, .view-section, .modal-content, .brand-logo, .badge {
-  -webkit-user-select: none;
-  -moz-user-select: none;
-  -ms-user-select: none;
-  user-select: none;
-  -webkit-touch-callout: none;
-}
+
 
 *, *::before, *::after {
   -webkit-tap-highlight-color: transparent;
@@ -408,31 +322,7 @@ input, textarea, [contenteditable="true"] {
   -webkit-touch-callout: default !important;
 }
 
-/* ================= Production Authentication Gate ================= */
-body.not-authenticated .app-container,
-body.not-authenticated .top-header,
-body.not-authenticated .bottom-nav {
-  display: none !important;
-}
 
-body.not-authenticated #modal-auth {
-  display: flex !important;
-  position: fixed !important;
-  inset: 0 !important;
-  background: #f1f5f9 !important;
-  z-index: 999999 !important;
-  align-items: center !important;
-  justify-content: center !important;
-}
-
-body.not-authenticated #modal-auth .modal-content {
-  box-shadow: 0 25px 50px -12px rgba(15, 23, 42, 0.25) !important;
-}
-
-body.not-authenticated #modal-auth .modal-close,
-body.not-authenticated #modal-auth #btn-cancel-login {
-  display: none !important;
-}
 
 /* ================= Modern Insurance Companies UI ================= */
 
@@ -742,43 +632,7 @@ body.not-authenticated #modal-auth #btn-cancel-login {
   color: var(--text-main);
 }
 
-[data-theme="dark"] .form-control,
-[data-theme="dark"] input,
-[data-theme="dark"] select,
-[data-theme="dark"] textarea {
-  background-color: var(--bg-subtle);
-  color: var(--text-main);
-  border-color: var(--border-color);
-}
 
-[data-theme="dark"] .form-control:focus,
-[data-theme="dark"] input:focus,
-[data-theme="dark"] select:focus,
-[data-theme="dark"] textarea:focus {
-  border-color: var(--primary);
-  box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.2);
-}
-
-[data-theme="dark"] .card {
-  background-color: var(--bg-surface);
-  border-color: var(--border-color);
-}
-
-[data-theme="dark"] .modal-header,
-[data-theme="dark"] .modal-footer {
-  border-color: var(--border-color);
-}
-
-[data-theme="dark"] .data-table th {
-  background-color: var(--bg-subtle);
-  color: var(--text-muted);
-  border-color: var(--border-color);
-}
-
-[data-theme="dark"] .data-table td {
-  border-color: var(--border-color);
-  color: var(--text-main);
-}
 
 
 
@@ -799,18 +653,7 @@ body.not-authenticated #modal-auth #btn-cancel-login {
 }
 
 
-[data-theme="dark"] .stat-card {
-  background-color: var(--bg-surface);
-  border-color: var(--border-color);
-}
 
-
-
-
-
-[data-theme="dark"] body.not-authenticated #modal-auth {
-  background: #0b1120 !important;
-}
 
 
 /* ================= Comprehensive Dark Theme Refinements (v1.2.1) ================= */
@@ -1267,26 +1110,7 @@ body {
    ======================================================== */
 @media screen and (max-width: 767px) {
   /* 1. Dissolve outer container borders and shadows to completely remove the 'grouped box' look */
-  #card-dashboard-recent,
-  #card-sessions-today,
-  #card-patients-directory,
-  .card:has(#dashboard-recent-table),
-  .card:has(#doctor-personal-table),
-  .card:has(#sessions-today-tbody),
-  .card:has(#patients-tbody) {
-    background: transparent !important;
-    border: none !important;
-    box-shadow: none !important;
-    padding: 0 !important;
-    margin-bottom: 12px !important;
-  }
 
-  #card-dashboard-recent .card-header,
-  #card-sessions-today .card-header,
-  #card-patients-directory .card-header {
-    padding: 4px 2px 10px 2px !important;
-    border-bottom: none !important;
-  }
 
 
 
@@ -1298,16 +1122,7 @@ body {
    PREMIUM HERO-STYLED MOBILE CARDS (v1.4.0-beta.6)
    Handcrafted Mobile Cards matching the Hero Banner aesthetic
    ======================================================== */
-/* Universal Responsive Cards Grid Architecture (All Screens v1.4.86) */
-.desktop-only-table {
-  display: none !important;
-}
 
-.mobile-only-cards-container,
-.universal-cards-grid {
-  display: grid !important;
-  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)) !important;
-  gap: 14px !important;
   width: 100% !important;
   box-sizing: border-box !important;
 }
@@ -1671,62 +1486,7 @@ body {
 
 
 
-/* 6. Form Controls, Labels & Segmented Radio Pills inside Modals */
 
-.modal-body .form-control,
-.modal-body input[type="text"],
-.modal-body input[type="tel"],
-.modal-body input[type="number"],
-.modal-body input[type="date"],
-.modal-body select,
-.modal-body textarea {
-  background-color: #f8fafc;
-  border: 1.5px solid #e2e8f0;
-  border-radius: 14px;
-  padding: 12px 14px;
-  font-weight: 600;
-  font-size: 0.94rem;
-  color: #0f172a;
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-  box-sizing: border-box;
-}
-
-.modal-body .form-control:focus,
-.modal-body input[type="text"]:focus,
-.modal-body input[type="tel"]:focus,
-.modal-body input[type="number"]:focus,
-.modal-body input[type="date"]:focus,
-.modal-body select:focus,
-.modal-body textarea:focus {
-  background-color: #ffffff;
-  border-color: #0284c7;
-  box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.14);
-  outline: none;
-}
-
-[data-theme="dark"] .modal-body .form-control,
-[data-theme="dark"] .modal-body input[type="text"],
-[data-theme="dark"] .modal-body input[type="tel"],
-[data-theme="dark"] .modal-body input[type="number"],
-[data-theme="dark"] .modal-body input[type="date"],
-[data-theme="dark"] .modal-body select,
-[data-theme="dark"] .modal-body textarea {
-  background-color: #0f172a;
-  border-color: #334155;
-  color: #f8fafc;
-}
-
-[data-theme="dark"] .modal-body .form-control:focus,
-[data-theme="dark"] .modal-body input[type="text"]:focus,
-[data-theme="dark"] .modal-body input[type="tel"]:focus,
-[data-theme="dark"] .modal-body input[type="number"]:focus,
-[data-theme="dark"] .modal-body input[type="date"]:focus,
-[data-theme="dark"] .modal-body select:focus,
-[data-theme="dark"] .modal-body textarea:focus {
-  background-color: #1e293b;
-  border-color: #38bdf8;
-  box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.18);
-}
 
 
 
@@ -2726,51 +2486,7 @@ h1, h2, h3, h4, h5, h6 {
 
 
 
-/* ========================================================
-   Instant Zero-Flicker Role-Based UI Gatekeeper (v1.4.58)
-   Pre-paint protection for doctor / receptionist / admin
-   ======================================================== */
-html.role-doctor #dashboard-admin-view,
-body.role-doctor #dashboard-admin-view,
-html.role-doctor .bottom-nav [data-view="sessions"],
-body.role-doctor .bottom-nav [data-view="sessions"],
-html.role-doctor .bottom-nav [data-view="finance"],
-body.role-doctor .bottom-nav [data-view="finance"],
-html.role-doctor .bottom-nav [data-view="appointments"],
-body.role-doctor .bottom-nav [data-view="appointments"],
-html.role-doctor .sidebar .nav-link[data-view="sessions"],
-body.role-doctor .sidebar .nav-link[data-view="sessions"],
-html.role-doctor .sidebar .nav-link[data-view="finance"],
-body.role-doctor .sidebar .nav-link[data-view="finance"],
-html.role-doctor .sidebar .nav-link[data-view="appointments"],
-body.role-doctor .sidebar .nav-link[data-view="appointments"],
-html.role-doctor .admin-only,
-body.role-doctor .admin-only,
-html.role-doctor #btn-open-add-patient,
-body.role-doctor #btn-open-add-patient {
-  display: none !important;
-}
 
-html.role-doctor #dashboard-doctor-view,
-body.role-doctor #dashboard-doctor-view {
-  display: block !important;
-}
-
-html.role-receptionist #dashboard-doctor-view,
-body.role-receptionist #dashboard-doctor-view,
-html.role-receptionist .admin-only,
-body.role-receptionist .admin-only,
-html.role-receptionist .sidebar .nav-link[data-view="admin"],
-body.role-receptionist .sidebar .nav-link[data-view="admin"],
-html.role-receptionist .bottom-nav [data-view="admin"],
-body.role-receptionist .bottom-nav [data-view="admin"] {
-  display: none !important;
-}
-
-html.role-receptionist #dashboard-admin-view,
-body.role-receptionist #dashboard-admin-view {
-  display: block !important;
-}
 
 
 /* ========================================================
@@ -3060,6 +2776,7 @@ html, body {
   .pull-to-reload-indicator .pull-to-reload-bubble
   .btn-batch-pattern.active
   .notification-badge .notification-dropdown
+  position: fixed
   #modal-batch-home-visits .modal-body
   #modal-patient .modal-body
   padding: 16px 18px 100px 18px !important;

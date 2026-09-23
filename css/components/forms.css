@@ -847,3 +847,57 @@ input[type="radio"]:focus-visible {
   margin-top: 6px;
   line-height: 1.4;
 }
+.modal-body .form-control,
+.modal-body input[type="text"],
+.modal-body input[type="tel"],
+.modal-body input[type="number"],
+.modal-body input[type="date"],
+.modal-body select,
+.modal-body textarea {
+  background-color: #f8fafc;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 14px;
+  padding: 12px 14px;
+  font-weight: 600;
+  font-size: 0.94rem;
+  color: #0f172a;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  box-sizing: border-box;
+}
+
+.modal-body .form-control:focus,
+.modal-body input[type="text"]:focus,
+.modal-body input[type="tel"]:focus,
+.modal-body input[type="number"]:focus,
+.modal-body input[type="date"]:focus,
+.modal-body select:focus,
+.modal-body textarea:focus {
+  background-color: #ffffff;
+  border-color: #0284c7;
+  box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.14);
+  outline: none;
+}
+
+[data-theme="dark"] .modal-body .form-control,
+[data-theme="dark"] .modal-body input[type="text"],
+[data-theme="dark"] .modal-body input[type="tel"],
+[data-theme="dark"] .modal-body input[type="number"],
+[data-theme="dark"] .modal-body input[type="date"],
+[data-theme="dark"] .modal-body select,
+[data-theme="dark"] .modal-body textarea {
+  background-color: #0f172a;
+  border-color: #334155;
+  color: #f8fafc;
+}
+
+[data-theme="dark"] .modal-body .form-control:focus,
+[data-theme="dark"] .modal-body input[type="text"]:focus,
+[data-theme="dark"] .modal-body input[type="tel"]:focus,
+[data-theme="dark"] .modal-body input[type="number"]:focus,
+[data-theme="dark"] .modal-body input[type="date"]:focus,
+[data-theme="dark"] .modal-body select:focus,
+[data-theme="dark"] .modal-body textarea:focus {
+  background-color: #1e293b;
+  border-color: #38bdf8;
+  box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.2);
+}

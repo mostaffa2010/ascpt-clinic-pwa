@@ -519,3 +519,166 @@ input, textarea, select, [contenteditable="true"] {
   -webkit-font-feature-settings: "tnum" 1 !important;
   font-feature-settings: "tnum" 1 !important;
 }
+/* Native App Experience: Disable Text Selection & Context Callout */
+body, button, .btn, .card, table, header, nav, .view-section, .modal-content, .brand-logo, .badge {
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+}
+
+/* Production Authentication Gate */
+body.not-authenticated .app-container,
+body.not-authenticated .top-header,
+body.not-authenticated .bottom-nav {
+  filter: blur(12px) !important;
+  pointer-events: none !important;
+  user-select: none !important;
+}
+
+body.not-authenticated #modal-auth {
+  display: flex !important;
+  opacity: 1 !important;
+  pointer-events: auto !important;
+  backdrop-filter: blur(16px) !important;
+  -webkit-backdrop-filter: blur(16px) !important;
+  background-color: rgba(15, 23, 42, 0.65) !important;
+}
+
+body.not-authenticated #modal-auth .modal-content {
+  box-shadow: 0 25px 50px -12px rgba(15, 23, 42, 0.25) !important;
+}
+
+body.not-authenticated #modal-auth .modal-close,
+body.not-authenticated #modal-auth #btn-cancel-login {
+  display: none !important;
+}
+
+[data-theme="dark"] body.not-authenticated #modal-auth {
+  background: #0b1120 !important;
+}
+
+/* Instant Zero-Flicker Role-Based UI Gatekeeper */
+html.role-doctor #dashboard-admin-view,
+body.role-doctor #dashboard-admin-view,
+html.role-doctor .bottom-nav [data-view="sessions"],
+body.role-doctor .bottom-nav [data-view="sessions"],
+html.role-doctor .bottom-nav [data-view="finance"],
+body.role-doctor .bottom-nav [data-view="finance"],
+html.role-doctor .bottom-nav [data-view="appointments"],
+body.role-doctor .bottom-nav [data-view="appointments"],
+html.role-doctor .sidebar .nav-link[data-view="sessions"],
+body.role-doctor .sidebar .nav-link[data-view="sessions"],
+html.role-doctor .sidebar .nav-link[data-view="finance"],
+body.role-doctor .sidebar .nav-link[data-view="finance"],
+html.role-doctor .sidebar .nav-link[data-view="appointments"],
+body.role-doctor .sidebar .nav-link[data-view="appointments"],
+html.role-doctor .admin-only,
+body.role-doctor .admin-only,
+html.role-doctor #btn-open-add-patient,
+body.role-doctor #btn-open-add-patient {
+  display: none !important;
+}
+
+html.role-doctor #dashboard-doctor-view,
+body.role-doctor #dashboard-doctor-view {
+  display: block !important;
+}
+
+html.role-receptionist #dashboard-doctor-view,
+body.role-receptionist #dashboard-doctor-view,
+html.role-receptionist .admin-only,
+body.role-receptionist .admin-only,
+html.role-receptionist .sidebar .nav-link[data-view="admin"],
+body.role-receptionist .sidebar .nav-link[data-view="admin"],
+html.role-receptionist .bottom-nav [data-view="admin"],
+body.role-receptionist .bottom-nav [data-view="admin"] {
+  display: none !important;
+}
+
+html.role-receptionist #dashboard-admin-view,
+body.role-receptionist #dashboard-admin-view {
+  display: block !important;
+}
+
+/* Responsive Grids & Layouts */
+/* ================= Responsive for Tablet (768px - 991px) =================
+   Keeps the mobile navigation paradigm (top bar + bottom nav) since the
+   fixed 260px sidebar would crowd a ~768-991px screen, but gives forms
+   and stat grids room to breathe instead of stacking everything into
+   a single narrow column like on a phone. */
+@media screen and (min-width: 768px) and (max-width: 991px) {
+  .main-content {
+    padding: 22px 28px;
+    padding-bottom: calc(var(--bottom-nav-height) + 24px);
+  }
+
+  .stats-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .form-grid.two-cols,
+  .form-grid.three-cols {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* ================= Responsive for Desktop (>= 992px) ================= */
+@media screen and (min-width: 992px) {
+  .sidebar {
+    display: flex; /* Show fixed sidebar on desktop */
+    position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    height: 100vh;
+    width: var(--sidebar-width);
+    z-index: 50;
+  }
+
+  .main-content {
+    margin-right: var(--sidebar-width);
+    margin-left: 0;
+    width: calc(100% - var(--sidebar-width));
+    max-width: calc(100% - var(--sidebar-width));
+    padding: 20px 24px;
+    padding-bottom: 40px;
+    min-width: 0;
+    box-sizing: border-box;
+    overflow-x: hidden;
+  }
+
+  .stats-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+
+  .form-grid.two-cols {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .form-grid.three-cols {
+    grid-template-columns: 1fr 1fr 1fr;
+  }
+
+  .split-screen {
+    display: grid;
+    grid-template-columns: 350px minmax(0, 1fr);
+    gap: 20px;
+    align-items: start;
+    min-width: 0;
+    max-width: 100%;
+    width: 100%;
+  }
+
+  .split-screen > * {
+    min-width: 0;
+    max-width: 100%;
+  }
+
+  @media screen and (min-width: 992px) and (max-width: 1180px) {
+    .split-screen {
+      grid-template-columns: 320px minmax(0, 1fr);
+      gap: 16px;
+    }
+  }
