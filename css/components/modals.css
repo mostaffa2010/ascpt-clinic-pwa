@@ -611,3 +611,49 @@
   box-shadow: var(--shadow-md);
   border-color: var(--primary);
 }
+/* Hardened Modal Patient Scope Isolation */
+#modal-patient .modal-content {
+  display: flex !important;
+  flex-direction: column !important;
+  max-height: 90vh !important;
+  overflow: hidden !important;
+}
+
+#modal-patient #form-patient {
+  display: flex !important;
+  flex-direction: column !important;
+  flex: 1 1 auto !important;
+  min-height: 0 !important;
+  overflow: hidden !important;
+}
+
+#modal-patient .modal-footer {
+  flex-shrink: 0 !important;
+  position: sticky !important;
+  bottom: 0 !important;
+  z-index: 40 !important;
+}
+
+/* Hardened Modal Batch Sessions & Home Visits Scope */
+#modal-batch-home-visits .modal-content {
+  display: flex !important;
+  flex-direction: column !important;
+  max-height: 90vh !important;
+  overflow: hidden !important;
+}
+
+#modal-batch-home-visits #form-batch-home-visits {
+  display: flex !important;
+  flex-direction: column !important;
+  flex: 1 1 auto !important;
+  min-height: 0 !important;
+  overflow: hidden !important;
+}
+
+#modal-batch-home-visits .modal-header {
+  flex-shrink: 0 !important;
+}
+
+#modal-batch-home-visits .modal-footer {
+  flex-shrink: 0 !important;
+}

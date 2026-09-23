@@ -503,3 +503,19 @@ input, textarea, select, [contenteditable="true"] {
 #card-finance-report-sessions {
   display: none !important;
 }
+/* Tabular Numbers for Financial & Clinical Data */
+.data-table td,
+.data-table th,
+.hsc-badge-amount,
+.stat-value,
+.badge-cash,
+.badge-direct,
+.badge-indirect,
+.doc-stack-counter,
+[id*="stat-"],
+[id*="total-"],
+[id*="amount-"] {
+  font-variant-numeric: tabular-nums !important;
+  -webkit-font-feature-settings: "tnum" 1 !important;
+  font-feature-settings: "tnum" 1 !important;
+}

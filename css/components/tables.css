@@ -65,3 +65,26 @@ table.data-table tr:hover td {
   border-radius: 4px;
   background: var(--bg-subtle);
 }
+[data-theme="dark"] table.data-table tr:hover,
+[data-theme="dark"] table.data-table tr:hover td,
+[data-theme="dark"] .data-table tr:hover td {
+  background-color: #1e293b;
+}
+
+[data-theme="dark"] table.data-table tr:hover td .patient-sheet-link,
+[data-theme="dark"] table.data-table tr:hover td a[style*="var(--primary)"] {
+  color: #38bdf8;
+}
+
+#card-dashboard-recent .table-responsive,
+#card-sessions-today .table-responsive,
+#card-patients-directory .table-responsive,
+.table-responsive:has(#dashboard-recent-table),
+.table-responsive:has(#sessions-today-tbody),
+.table-responsive:has(#patients-tbody),
+#card-doctor-appointments-schedule .table-responsive,
+#card-main-appointments-schedule .table-responsive {
+  border: none;
+  background: transparent;
+  box-shadow: none;
+}

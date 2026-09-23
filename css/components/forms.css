@@ -302,6 +302,10 @@ input[type="radio"]:focus-visible {
   display: none !important;
 }
 
+.segmented-btn:active {
+  transform: scale(0.96);
+}
+
 .insurance-contract-segmented .segmented-btn {
   display: flex;
   align-items: center;
@@ -327,7 +331,11 @@ input[type="radio"]:focus-visible {
   border: 1px solid var(--border-color);
 }
 
-[data-theme="dark"] .insurance-contract-segmented .segmented-btn {
+[data-theme="dark"] .segmented-btn:active {
+  transform: scale(0.96);
+}
+
+.insurance-contract-segmented .segmented-btn {
   color: var(--text-muted);
 }
 

@@ -1077,3 +1077,17 @@
   flex-direction: column;
   justify-content: space-between;
 }
+.appt-timeline-grid-container {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+@media screen and (max-width: 860px) {
+  .appt-timeline-grid-container {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+}
