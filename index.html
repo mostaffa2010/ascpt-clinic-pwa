@@ -459,25 +459,6 @@
                 </div>
               </div>
 
-              <!-- Desktop Table -->
-              <div class="table-responsive desktop-only-table">
-                <table class="data-table" id="dashboard-waiting-table">
-                  <thead>
-                    <tr>
-                      <th>المريض</th>
-                      <th>الطبيب</th>
-                      <th>الموعد</th>
-                      <th>حالة الزيارة</th>
-                      <th>الملاحظات</th>
-                      <th class="text-center">الإجراء</th>
-                    </tr>
-                  </thead>
-                  <tbody id="dashboard-waiting-tbody">
-                    <tr><td colspan="6" style="text-align: center; color: var(--text-muted); padding: 15px;">جاري تحميل جدول مواعيد وحالات اليوم...</td></tr>
-                  </tbody>
-                </table>
-              </div>
-
               <!-- Dedicated Mobile Cards for Waiting Patients -->
               <div id="dashboard-waiting-mobile-cards" class="mobile-only-cards-container"></div>
             </div>
@@ -489,23 +470,6 @@
                 <button type="button" class="btn btn-outline btn-sm" id="btn-dashboard-view-all-sessions" data-view-target="sessions">
                   <i class="fa-solid fa-list-ul"></i> عرض الكل
                 </button>
-              </div>
-              <div class="table-responsive desktop-only-table">
-                <table class="data-table" id="dashboard-recent-table">
-                  <thead>
-                    <tr>
-                      <th>المريض</th>
-                      <th>الدكتور</th>
-                      <th>الدفع</th>
-                      <th>الأعضاء</th>
-                      <th>المبلغ</th>
-                      <th>الوقت</th>
-                    </tr>
-                  </thead>
-                  <tbody id="dashboard-recent-tbody">
-                    <!-- Populated by JS -->
-                  </tbody>
-                </table>
               </div>
               <!-- Handcrafted Dedicated Mobile Cards for Recent Sessions -->
               <div id="dashboard-recent-mobile-cards" class="mobile-only-cards-container"></div>
@@ -688,24 +652,6 @@
                 <i class="fa-solid fa-users"></i> <span>كل المرضى</span>
               </button>
             </div>
-            <div class="table-responsive desktop-only-table">
-              <table class="data-table" id="doctor-personal-table">
-                <thead>
-                  <tr>
-                    <th>المريض</th>
-                    <th>نظام الحساب</th>
-                    <th>الأعضاء المعالجة</th>
-                    <th>تاريخ / وقت الجلسة</th>
-                    <th>ملاحظات الحالة</th>
-                    <th class="th-action-center">الشيت الطبي</th>
-                  </tr>
-                </thead>
-                <tbody id="doctor-personal-tbody">
-                  <tr><td colspan="6" class="doc-skeleton-cell"><div class="doc-skeleton-row"><div class="skeleton-shimmer skeleton-avatar sk-avatar-32"></div><div class="skeleton-shimmer skeleton-line sk-w-25 sk-h-14"></div><div class="skeleton-shimmer skeleton-line sk-w-15 sk-h-14"></div><div class="skeleton-shimmer skeleton-line sk-w-20 sk-h-14"></div><div class="skeleton-shimmer skeleton-line sk-w-15 sk-h-14"></div></div></td></tr>
-                  <tr><td colspan="6" class="doc-skeleton-cell"><div class="doc-skeleton-row"><div class="skeleton-shimmer skeleton-avatar sk-avatar-32"></div><div class="skeleton-shimmer skeleton-line sk-w-28 sk-h-14"></div><div class="skeleton-shimmer skeleton-line sk-w-15 sk-h-14"></div><div class="skeleton-shimmer skeleton-line sk-w-22 sk-h-14"></div><div class="skeleton-shimmer skeleton-line sk-w-15 sk-h-14"></div></div></td></tr>
-                </tbody>
-              </table>
-            </div>
             <!-- Handcrafted Dedicated Mobile Cards for Doctor's Sessions -->
             <div id="doctor-personal-mobile-cards" class="mobile-only-cards-container">
               <div class="hero-styled-card skeleton-card sk-card-hero">
@@ -810,31 +756,6 @@
 
         <!-- Patients List / Table with Top & Bottom Scrollbars -->
         <div class="card" id="card-patients-directory">
-          <!-- Top Horizontal Scrollbar (Synchronized for instant scrolling on desktop) -->
-          <div class="top-scrollbar-wrapper no-print d-none" id="patients-top-scroll-wrap">
-            <div class="top-scrollbar-dummy" id="patients-top-scroll-dummy"></div>
-          </div>
-          <div class="table-responsive desktop-only-table d-none" id="patients-table-container">
-            <table class="data-table" id="patients-data-table">
-              <thead>
-                <tr>
-                  <th>اسم المريض</th>
-                  <th>السن</th>
-                  <th>الموبايل</th>
-                  <th>العنوان</th>
-                  <th>العضو المعالج</th>
-                  <th>نظام الحساب</th>
-                  <th>آخر تعديل</th>
-                  <th>إجراءات</th>
-                </tr>
-              </thead>
-              <tbody id="patients-tbody">
-                <tr><td colspan="7" class="skeleton-table-cell"><div class="skeleton-table-row"><div class="skeleton-shimmer skeleton-avatar sk-avatar-32"></div><div class="skeleton-shimmer skeleton-line sk-w-25 sk-h-14"></div><div class="skeleton-shimmer skeleton-line sk-w-15 sk-h-14"></div><div class="skeleton-shimmer skeleton-line sk-w-20 sk-h-14"></div><div class="skeleton-shimmer skeleton-line sk-w-15 sk-h-14"></div><div class="skeleton-shimmer skeleton-line sk-w-15 sk-h-14"></div></div></td></tr>
-                <tr><td colspan="7" class="skeleton-table-cell"><div class="skeleton-table-row"><div class="skeleton-shimmer skeleton-avatar sk-avatar-32"></div><div class="skeleton-shimmer skeleton-line sk-w-30 sk-h-14"></div><div class="skeleton-shimmer skeleton-line sk-w-12 sk-h-14"></div><div class="skeleton-shimmer skeleton-line sk-w-18 sk-h-14"></div><div class="skeleton-shimmer skeleton-line sk-w-15 sk-h-14"></div><div class="skeleton-shimmer skeleton-line sk-w-15 sk-h-14"></div></div></td></tr>
-                <tr><td colspan="7" class="skeleton-table-cell"><div class="skeleton-table-row"><div class="skeleton-shimmer skeleton-avatar sk-avatar-32"></div><div class="skeleton-shimmer skeleton-line sk-w-22 sk-h-14"></div><div class="skeleton-shimmer skeleton-line sk-w-16 sk-h-14"></div><div class="skeleton-shimmer skeleton-line sk-w-24 sk-h-14"></div><div class="skeleton-shimmer skeleton-line sk-w-15 sk-h-14"></div><div class="skeleton-shimmer skeleton-line sk-w-15 sk-h-14"></div></div></td></tr>
-              </tbody>
-            </table>
-          </div>
           <!-- Dedicated Modern Cards Grid for Patients (v1.4.80) -->
           <div id="patients-mobile-cards" class="patients-grid-container">
             <div class="patient-card skeleton-card sk-card-compact">

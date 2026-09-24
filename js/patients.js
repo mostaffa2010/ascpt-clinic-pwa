@@ -546,48 +546,7 @@ export class PatientsManager {
       form.addEventListener('submit', (e) => this.handleSavePatient(e));
     }
 
-    // Event Delegation: Patients Directory Table (sheet, edit, delete)
-    const tbody = document.getElementById('patients-tbody');
-    if (tbody) {
-      tbody.addEventListener('click', (e) => {
-        const sheetAction = e.target.closest('.btn-patient-sheet-action, .patient-sheet-link');
-        if (sheetAction) {
-          const pid = sheetAction.getAttribute('data-patient-id');
-          if (pid) this.openPatientSheet(pid);
-          return;
-        }
-        const docsBtn = e.target.closest('.btn-patient-docs');
-        if (docsBtn) {
-          const pid = docsBtn.getAttribute('data-patient-id');
-          if (pid) this.openPatientDocsModal(pid);
-          return;
-        }
-        const renewBtn = e.target.closest('.btn-renew-approval');
-        if (renewBtn) {
-          const pid = renewBtn.getAttribute('data-patient-id');
-          if (pid) this.openRenewApprovalModal(pid);
-          return;
-        }
-        const editBtn = e.target.closest('.btn-edit-patient');
-        if (editBtn) {
-          const pid = editBtn.getAttribute('data-patient-id');
-          if (pid) this.openEditModal(pid);
-          return;
-        }
-        const delBtn = e.target.closest('.btn-delete-patient');
-        if (delBtn) {
-          const pid = delBtn.getAttribute('data-patient-id');
-          if (pid) this.confirmDelete(pid);
-          return;
-        }
-        const insLetterBtn = e.target.closest('.btn-insurance-letter-row');
-        if (insLetterBtn) {
-          const pid = insLetterBtn.getAttribute('data-patient-id');
-          if (pid) this.openInsuranceLetterModalForPatient(pid);
-          return;
-        }
-      });
-    }
+
   }
 
   async loadPatients(forceRefresh = false) {
@@ -763,7 +722,6 @@ export class PatientsManager {
 
   renderSkeleton() {
     const mobileContainer = document.getElementById('patients-mobile-cards');
-    const tbody = document.getElementById('patients-tbody');
 
     if (mobileContainer && (!this.patients || this.patients.length === 0)) {
       mobileContainer.innerHTML = Array.from({ length: 4 }).map(() => `
@@ -788,27 +746,9 @@ export class PatientsManager {
         </div>
       `).join('');
     }
-
-    if (tbody && (!this.patients || this.patients.length === 0)) {
-      tbody.innerHTML = Array.from({ length: 4 }).map(() => `
-        <tr>
-          <td colspan="7" style="padding: 12px;">
-            <div style="display: flex; align-items: center; gap: 12px;">
-              <div class="skeleton-shimmer skeleton-avatar" style="width: 32px; height: 32px;"></div>
-              <div class="skeleton-shimmer skeleton-line" style="width: 25%; height: 14px;"></div>
-              <div class="skeleton-shimmer skeleton-line" style="width: 15%; height: 14px;"></div>
-              <div class="skeleton-shimmer skeleton-line" style="width: 20%; height: 14px;"></div>
-              <div class="skeleton-shimmer skeleton-line" style="width: 15%; height: 14px;"></div>
-              <div class="skeleton-shimmer skeleton-line" style="width: 15%; height: 14px;"></div>
-            </div>
-          </td>
-        </tr>
-      `).join('');
-    }
   }
 
   renderPatients() {
-    const tbody = document.getElementById('patients-tbody');
     const mobileContainer = document.getElementById('patients-mobile-cards');
     if (!tbody && !mobileContainer) return;
 
@@ -906,13 +846,6 @@ export class PatientsManager {
 
     if (filtered.length === 0) {
       if (this.filterTodayOnly) {
-        if (tbody) tbody.innerHTML = `<tr><td colspan="8" style="text-align: center; color: var(--text-muted); padding: 36px 20px;">
-          <i class="fa-solid fa-calendar-xmark" style="font-size: 1.8rem; color: var(--text-muted); margin-bottom: 8px; display: block;"></i>
-          لا توجد حالات مسجلة في مواعيد أو جلسات اليوم.<br>
-          <button type="button" class="btn btn-outline btn-sm" id="btn-reset-today-filter" style="margin-top: 10px;">
-            عرض كافة المرضى
-          </button>
-        </td></tr>`;
         if (mobileContainer) {
           mobileContainer.innerHTML = `
             <div class="hero-styled-card" style="text-align: center; padding: 36px 20px;">
@@ -928,7 +861,6 @@ export class PatientsManager {
           `;
           document.getElementById('btn-reset-today-filter-mob')?.addEventListener('click', () => this.toggleTodayFilter());
         }
-        document.getElementById('btn-reset-today-filter')?.addEventListener('click', () => this.toggleTodayFilter());
         return;
       }
 
@@ -945,7 +877,6 @@ export class PatientsManager {
             </button>
           </div>
         `;
-        if (tbody) tbody.innerHTML = `<tr><td colspan="8" style="text-align: center; color: var(--text-muted); padding: 30px;">لا يوجد مرضى مطابقين لكلمة البحث: <strong>"${escapeHTML(rawSearch)}"</strong></td></tr>`;
         if (mobileContainer) mobileContainer.innerHTML = emptySearchCard;
         return;
       }
@@ -963,7 +894,6 @@ export class PatientsManager {
             </button>
           </div>
         `;
-        if (tbody) tbody.innerHTML = `<tr><td colspan="8" style="text-align: center; color: var(--text-muted); padding: 30px;">لا توجد حالات مسجلة بهذا النظام.</td></tr>`;
         if (mobileContainer) mobileContainer.innerHTML = emptyFilterCard;
         return;
       }
@@ -985,7 +915,6 @@ export class PatientsManager {
           </button>
         </div>
       `;
-      if (tbody) tbody.innerHTML = `<tr><td colspan="8" style="text-align: center; color: var(--text-muted); padding: 30px;">سجل المرضى فارغ.</td></tr>`;
       if (mobileContainer) mobileContainer.innerHTML = emptyAllCard;
       return;
     }
@@ -995,90 +924,7 @@ export class PatientsManager {
     const canDeletePatient = RolesManager.canDeletePatient(currentUser);
     const isDoctor = currentUser?.role === 'doctor';
 
-    setTimeout(() => this.setupScrollSync(), 50);
-
-    // 1. Render Desktop Table
-    if (tbody) tbody.innerHTML = filtered.map(p => {
-      const isNewlyAdded = (p.id && p.id === this.newlyAddedPatientId);
-      const rowHighlightClass = isNewlyAdded ? 'patient-row-newly-added' : '';
-      let billingBadge = '';
-      const safeComp = escapeHTML(p.insuranceCompany || 'تأمين');
-      const approvedVisits = p.approvedSessions || 12;
-      const approvedParts = p.approvedBodyParts || 1;
-      if (p.billing === 'cash') {
-        billingBadge = `<span class="badge badge-cash"><i class="fa-solid fa-money-bill"></i> نقدي</span>`;
-      } else if (p.contractType === 'direct') {
-        billingBadge = `<span class="badge badge-direct" title="${approvedVisits} زيارة معتمدة (${approvedParts} أعضاء)"><i class="fa-solid fa-file-contract"></i> ${safeComp} (${approvedVisits} زيارة - ${approvedParts} أعضاء)</span>`;
-      } else {
-        billingBadge = `<span class="badge badge-indirect" title="${approvedVisits} زيارة معتمدة (${approvedParts} أعضاء)"><i class="fa-solid fa-handshake"></i> ${safeComp} (${approvedVisits} زيارة - ${approvedParts} أعضاء)</span>`;
-      }
-
-      const safeId = escapeHTML(p.id);
-      const safeName = escapeHTML(p.name);
-      const safeAge = escapeHTML(p.age);
-      const safePhone = escapeHTML(p.phone);
-      const safeAddress = escapeHTML(p.address || '-');
-      const areaInfo = this.getPatientTreatedAreaDisplay(p);
-      const safeEditor = escapeHTML(p.lastUpdatedBy || p.createdBy || '-');
-      const cleanWaPhone = (p.phone || '').replace(/[^0-9]/g, '').replace(/^0/, '20');
-      const isFemale = (p.gender === 'female');
-      const genderClass = isFemale ? 'gender-female' : 'gender-male';
-      const genderBadgeClass = isFemale ? 'badge-gender-female' : 'badge-gender-male';
-      const genderIcon = isFemale ? 'fa-solid fa-venus' : 'fa-solid fa-mars';
-      const genderText = isFemale ? 'أنثى' : 'ذكر';
-
-
-      return `
-        <tr class="${genderClass} ${rowHighlightClass}">
-          <td style="font-weight: 800; color: var(--primary); cursor: ${canAccessSheet ? 'pointer' : 'default'}; white-space: nowrap;"
-              class="${canAccessSheet ? 'patient-sheet-link' : 'btn-edit-patient'}"
-              data-patient-id="${safeId}"
-              onclick="patientsManager.openPatientSheet('${safeId}')"
-              title="${canAccessSheet ? 'اضغط لفتح الشيت الطبي' : 'تعديل بيانات المريض'}">
-            <i class="fa-solid ${canAccessSheet ? 'fa-file-waveform' : 'fa-user'}" style="margin-left: 6px;"></i> ${safeName}
-          </td>
-          <td style="white-space: nowrap;"><span class="badge ${genderBadgeClass}" style="font-size: 0.74rem; padding: 2px 8px;"><i class="${genderIcon}"></i> ${genderText} • ${safeAge} سنة</span></td>
-          <td style="white-space: nowrap;">
-            <a href="tel:${safePhone}" style="color: var(--primary); text-decoration: none; white-space: nowrap; direction: ltr; display: inline-flex; align-items: center; gap: 4px;">
-              <i class="fa-solid fa-phone" style="font-size: 0.75rem;"></i> <bdi dir="ltr">${safePhone}</bdi>
-            </a>
-          </td>
-          <td style="white-space: nowrap;">${safeAddress}</td>
-          <td style="white-space: nowrap;"><span class="patient-area-badge ${areaInfo.badgeClass}" style="font-size: 0.74rem; padding: 2px 8px; border-radius: 6px; display: inline-flex; align-items: center; gap: 5px;"><i class="${areaInfo.icon}"></i> ${escapeHTML(areaInfo.text)}</span></td>
-          <td style="white-space: nowrap;">${billingBadge}</td>
-          <td style="font-size: 0.8rem; color: var(--text-muted); white-space: nowrap;">${safeEditor}</td>
-          <td style="white-space: nowrap;">
-            <div style="display: flex; gap: 6px; align-items: center; flex-wrap: nowrap;">
-              ${canAccessSheet ? `
-                <button type="button" class="btn btn-primary btn-sm btn-patient-sheet-action" data-patient-id="${safeId}" title="شيت العلاج الطبيعي">
-                  <i class="fa-solid fa-file-waveform"></i> الشيت الطبي
-                </button>
-              ` : ''}
-              ${!isDoctor ? `
-                <button type="button" class="btn btn-outline btn-sm btn-patient-docs" data-patient-id="${safeId}" style="color: #0284c7; border-color: #0284c7; font-weight: 700; gap: 4px; display: inline-flex; align-items: center;" title="المستندات والطباعة">
-                  <i class="fa-solid fa-file-invoice"></i> <span style="font-size: 0.76rem;">مستندات</span>
-                </button>
-              ` : ''}
-              <a href="https://wa.me/${cleanWaPhone}" target="_blank" class="btn btn-outline btn-sm" style="color: #10b981; border-color: #10b981;" title="محادثة واتساب">
-                <i class="fa-brands fa-whatsapp"></i>
-              </a>
-              ${!isDoctor ? `
-                <button type="button" class="btn btn-outline btn-sm btn-edit-patient" data-patient-id="${safeId}" title="تعديل بيانات المريض">
-                  <i class="fa-solid fa-pen-to-square"></i>
-                </button>
-              ` : ''}
-              ${!isDoctor && canDeletePatient ? `
-                <button type="button" class="btn btn-outline btn-sm btn-delete-patient" style="color: var(--danger);" data-patient-id="${safeId}" title="حذف المريض">
-                  <i class="fa-solid fa-trash"></i>
-                </button>
-              ` : ''}
-            </div>
-          </td>
-        </tr>
-      `;
-    }).join('');
-
-    // 2. Render Handcrafted Mobile Cards (10 per page pagination)
+    // Render Handcrafted Cards (10 per page pagination)
     if (mobileContainer) {
       const pageLimit = this.pageSize || 10;
       const totalPages = Math.ceil(filtered.length / pageLimit) || 1;
@@ -2061,69 +1907,15 @@ export class PatientsManager {
 
   applyViewModeUI() {
     this.viewMode = 'cards';
-    const tableContainer = document.getElementById('patients-table-container');
     const cardsContainer = document.getElementById('patients-mobile-cards');
-    const topWrap = document.getElementById('patients-top-scroll-wrap');
-    const toggleGroup = document.getElementById('patients-view-mode-toggle');
-
-    if (tableContainer) {
-      tableContainer.classList.add('d-none');
-      tableContainer.style.display = 'none';
-    }
     if (cardsContainer) {
       cardsContainer.classList.remove('d-none');
       cardsContainer.style.display = 'grid';
     }
-    if (topWrap) {
-      topWrap.classList.add('d-none');
-      topWrap.style.display = 'none';
-    }
-    if (toggleGroup) {
-      toggleGroup.classList.add('d-none');
-      toggleGroup.style.display = 'none';
-    }
   }
 
   setupScrollSync() {
-    const topWrap = document.getElementById('patients-top-scroll-wrap');
-    const container = document.getElementById('patients-table-container') || document.querySelector('#view-patients .table-responsive');
-    const dummy = document.getElementById('patients-top-scroll-dummy');
-    const table = document.getElementById('patients-data-table');
-
-    if (!topWrap || !container || !dummy || !table) return;
-
-    const syncMetrics = () => {
-      if (table.scrollWidth > container.clientWidth) {
-        dummy.style.width = table.scrollWidth + 'px';
-        topWrap.classList.remove('d-none');
-        topWrap.style.display = 'block';
-      } else {
-        topWrap.classList.add('d-none');
-        topWrap.style.display = 'none';
-      }
-    };
-
-    setTimeout(syncMetrics, 60);
-    window.addEventListener('resize', syncMetrics);
-
-    let isTopScrolling = false;
-    let isTableScrolling = false;
-
-    topWrap.onscroll = () => {
-      if (!isTopScrolling) {
-        isTableScrolling = true;
-        container.scrollLeft = topWrap.scrollLeft;
-      }
-      isTopScrolling = false;
-    };
-
-    container.onscroll = () => {
-      if (!isTableScrolling) {
-        isTopScrolling = true;
-        topWrap.scrollLeft = container.scrollLeft;
-      }
-      isTableScrolling = false;
-    };
+    // Legacy desktop scroll-sync retired with table elimination
   }
 
   togglePatientSheetCard(forceExpand) {

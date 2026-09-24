@@ -373,10 +373,7 @@
   #card-dashboard-recent,
   #card-sessions-today,
   #card-patients-directory,
-  .card:has(#dashboard-recent-table),
-  .card:has(#doctor-personal-table),
-  .card:has(#sessions-today-tbody),
-  .card:has(#patients-tbody) {
+  .card:has(#sessions-today-tbody) {
     background: transparent !important;
     border: none !important;
     box-shadow: none !important;
@@ -935,9 +932,7 @@
 
 #sessions-view-mode-toggle,
 #patients-view-mode-toggle,
-#sessions-table-container,
-#patients-table-container,
-#patients-top-scroll-wrap {
+#sessions-table-container {
   display: none !important;
 }
 

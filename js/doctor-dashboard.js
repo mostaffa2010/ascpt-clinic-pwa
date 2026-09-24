@@ -46,7 +46,6 @@ export class DoctorDashboardManager {
 
   renderSkeleton() {
     const mobileCards = document.getElementById('doctor-personal-mobile-cards');
-    const tbody = document.getElementById('doctor-personal-tbody');
     const myApptsGrid = document.getElementById('my-appointments-grid');
 
     if (mobileCards && (!this.docSessions || this.docSessions.length === 0)) {
@@ -70,21 +69,6 @@ export class DoctorDashboardManager {
       `).join('');
     }
 
-    if (tbody && (!this.docSessions || this.docSessions.length === 0)) {
-      if (tbody) tbody.innerHTML = Array.from({ length: 3 }).map(() => `
-        <tr>
-          <td colspan="7" style="padding: 12px;">
-            <div style="display: flex; align-items: center; gap: 12px;">
-              <div class="skeleton-shimmer skeleton-avatar" style="width: 32px; height: 32px;"></div>
-              <div class="skeleton-shimmer skeleton-line" style="width: 25%; height: 14px;"></div>
-              <div class="skeleton-shimmer skeleton-line" style="width: 15%; height: 14px;"></div>
-              <div class="skeleton-shimmer skeleton-line" style="width: 20%; height: 14px;"></div>
-              <div class="skeleton-shimmer skeleton-line" style="width: 15%; height: 14px;"></div>
-            </div>
-          </td>
-        </tr>
-      `).join('');
-    }
 
     if (myApptsGrid && myApptsGrid.children.length === 0) {
       myApptsGrid.innerHTML = `
@@ -444,7 +428,6 @@ export class DoctorDashboardManager {
       this.app.patientsManager?.loadPatients().catch(() => {});
     }
     this._hasLoadedOnce = true;
-    const tbody = document.getElementById('doctor-personal-tbody');
     let mobileContainer = document.getElementById('doctor-personal-mobile-cards');
     if (!tbody && !mobileContainer) return;
 
@@ -456,14 +439,6 @@ export class DoctorDashboardManager {
     if (this.currentFilter === 'home-visits') {
       const hvSessions = this.docSessions.filter((s) => s.isHomeVisit || s.visitType === 'home');
       if (hvSessions.length === 0) {
-        if (tbody) tbody.innerHTML = `
-          <tr>
-            <td colspan="6" style="text-align: center; color: var(--text-muted); padding: 24px;">
-              <i class="fa-solid fa-house-chimney-medical" style="font-size: 1.8rem; margin-bottom: 8px; display: block; color: #cbd5e1;"></i>
-              لا توجد زيارات منزلية مسجلة لك حالياً.
-            </td>
-          </tr>
-        `;
         const mobCont = document.getElementById('doctor-personal-mobile-cards');
         if (mobCont) {
           mobCont.innerHTML = `
@@ -631,14 +606,6 @@ export class DoctorDashboardManager {
       if (titleEl) titleEl.textContent = `سجل جميع مرضاك بالمركز (${uniquePatients.length} مريض)`;
 
       if (uniquePatients.length === 0) {
-        if (tbody) tbody.innerHTML = `
-          <tr>
-            <td colspan="6" style="text-align: center; color: var(--text-muted); padding: 24px;">
-              <i class="fa-solid fa-users-slash" style="font-size: 1.5rem; margin-bottom: 8px; display: block; color: #cbd5e1;"></i>
-              لا يوجد مرضى مسجلين لك حالياً.
-            </td>
-          </tr>
-        `;
         const mobCont = document.getElementById('doctor-personal-mobile-cards');
         if (mobCont) {
           mobCont.innerHTML = `
@@ -812,14 +779,6 @@ export class DoctorDashboardManager {
       if (titleEl) titleEl.textContent = `حالات هذا الشهر بالمركز (${uniquePatients.length} مريض)`;
 
       if (uniquePatients.length === 0) {
-        if (tbody) tbody.innerHTML = `
-          <tr>
-            <td colspan="6" style="text-align: center; color: var(--text-muted); padding: 24px;">
-              <i class="fa-solid fa-folder-open" style="font-size: 1.5rem; margin-bottom: 8px; display: block; color: #cbd5e1;"></i>
-              لا توجد حالات مسجلة لك خلال هذا الشهر حتى الآن.
-            </td>
-          </tr>
-        `;
         const mobCont = document.getElementById('doctor-personal-mobile-cards');
         if (mobCont) {
           mobCont.innerHTML = `
@@ -843,60 +802,7 @@ export class DoctorDashboardManager {
         }).join(' ');
       };
 
-      // 1. Render Desktop Table for Month (Unique Patients)
-      if (tbody) tbody.innerHTML = uniquePatients.map((p) => {
-        let billingBadge = '';
-        if (p.payType === 'cash') {
-          billingBadge = `<span class="badge badge-cash"><i class="fa-solid fa-money-bill"></i> نقدي</span>`;
-        } else if (p.contractType === 'direct') {
-          billingBadge = `<span class="badge badge-direct"><i class="fa-solid fa-file-contract"></i> ${escapeHTML(p.insuranceName || 'شركة')} (مباشر)</span>`;
-        } else {
-          billingBadge = `<span class="badge badge-indirect"><i class="fa-solid fa-handshake"></i> ${escapeHTML(p.insuranceName || 'شركة')} (غير مباشر)</span>`;
-        }
-
-        const safePatientId = escapeHTML(p.patientId);
-        let progTag = '';
-        if (p.programType === 'scoliosis') {
-          progTag = `<span class="badge" style="background:rgba(2, 132, 199, 0.15); color:#0284c7; border:1px solid rgba(2, 132, 199, 0.35); font-size:0.7rem; font-weight:800;"><i class="fa-solid fa-arrows-split-up-and-left"></i> Scoliosis</span>`;
-        } else if (p.programType === 'hemiplegia') {
-          progTag = `<span class="badge" style="background:rgba(245, 158, 11, 0.15); color:#b45309; border:1px solid rgba(245, 158, 11, 0.35); font-size:0.7rem; font-weight:800;"><i class="fa-solid fa-brain"></i> Hemiplegia</span>`;
-        } else if (p.programType === 'quadriplegia' || p.programType === 'pediatric') {
-          progTag = `<span class="badge" style="background:rgba(225, 29, 72, 0.15); color:#e11d48; border:1px solid rgba(225, 29, 72, 0.35); font-size:0.7rem; font-weight:800;"><i class="fa-solid fa-wheelchair"></i> Quadriplegia</span>`;
-        }
-
-        const bodyPartsText = p.bodyParts.size > 0 ? Array.from(p.bodyParts).join(' • ') : 'علاج طبيعي عام';
-
-        return `
-          <tr>
-            <td style="font-weight: 800; color: var(--text-main); cursor: pointer;" onclick="patientsManager.openPatientSheet('${safePatientId}')" title="اضغط لفتح الشيت الطبي">
-              <i class="fa-solid fa-user-injured" style="color: var(--primary); margin-left: 6px;"></i>
-              ${escapeHTML(p.patientName)} ${progTag}
-            </td>
-            <td>${billingBadge}</td>
-            <td style="font-size: 0.85rem; color: var(--text-muted);">${escapeHTML(bodyPartsText)}</td>
-            <td>
-              <div style="display: flex; flex-direction: column; gap: 4px;">
-                <span class="badge" style="background: rgba(2, 132, 199, 0.12); color: #0284c7; border: 1px solid rgba(2, 132, 199, 0.28); font-weight: 800; font-size: 0.78rem; align-self: flex-start;">
-                  <i class="fa-solid fa-calendar-check"></i> ${p.monthSessionsCount} جلسات في الشهر
-                </span>
-                <div style="display: flex; flex-wrap: wrap; gap: 3px;">
-                  ${renderDateChips(p.sessionDates)}
-                </div>
-              </div>
-            </td>
-            <td style="font-size: 0.82rem; color: var(--text-muted); white-space: nowrap;">
-              أحدث جلسة: <bdi dir="ltr">${escapeHTML(p.lastDate || '-')}</bdi>
-            </td>
-            <td style="text-align: center;">
-              <button type="button" class="btn btn-primary btn-sm" onclick="patientsManager.openPatientSheet('${safePatientId}')" style="padding: 4px 10px; font-weight: 700; white-space: nowrap;">
-                <i class="fa-solid fa-file-waveform"></i> الشيت الطبي
-              </button>
-            </td>
-          </tr>
-        `;
-      }).join('');
-
-      // 2. Render Mobile Cards for Month (Unique Patients + Date Chips)
+      // Render Mobile Cards for Month (Unique Patients + Date Chips)
       const mobileContainer = document.getElementById('doctor-personal-mobile-cards');
       if (mobileContainer) {
         mobileContainer.innerHTML = uniquePatients.map((p) => {
@@ -1000,14 +906,6 @@ export class DoctorDashboardManager {
     displayList = this.docSessions.filter((s) => s.date === todayStr && !s.isHomeVisit && s.visitType !== 'home');
 
     if (displayList.length === 0) {
-      if (tbody) tbody.innerHTML = `
-        <tr>
-          <td colspan="6" style="text-align: center; color: var(--text-muted); padding: 24px;">
-            <i class="fa-solid fa-folder-open" style="font-size: 1.5rem; margin-bottom: 8px; display: block; color: #cbd5e1;"></i>
-            لا توجد جلسات مسجلة لك في هذا النطاق.
-          </td>
-        </tr>
-      `;
       const mobCont = document.getElementById('doctor-personal-mobile-cards');
       if (mobCont) {
         mobCont.innerHTML = `

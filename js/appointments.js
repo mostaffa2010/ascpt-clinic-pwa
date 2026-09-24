@@ -2535,12 +2535,11 @@ export class AppointmentsManager {
 
   // ================= Reception Waiting List & Walk-in Engine (Visit Lifecycle v2.10.27) =================
   async renderReceptionWaitingList() {
-    const tableTbody = document.getElementById('dashboard-waiting-tbody');
     const mobileCards = document.getElementById('dashboard-waiting-mobile-cards');
     const badgeCounter = document.getElementById('badge-waiting-count');
     const filterBar = document.getElementById('reception-doc-filter-bar');
 
-    if (!tableTbody && !mobileCards) return;
+    if (!mobileCards) return;
 
     try {
       const today = getLocalDateStr();
@@ -2626,9 +2625,6 @@ export class AppointmentsManager {
 
       if (apptsToRender.length === 0) {
         const emptyMsg = 'لا توجد مواعيد أو حالات مسجلة في جدول اليوم.';
-        if (tableTbody) {
-          tableTbody.innerHTML = `<tr><td colspan="6" style="text-align: center; color: var(--text-muted); padding: 20px;">${emptyMsg}</td></tr>`;
-        }
         if (mobileCards) {
           mobileCards.innerHTML = `<div class="empty-state-card" style="padding: 24px; text-align: center;"><i class="fa-regular fa-calendar-check" style="font-size: 1.8rem; margin-bottom: 8px; color: var(--primary);"></i><div style="font-weight: 700;">${emptyMsg}</div></div>`;
         }
@@ -2642,76 +2638,6 @@ export class AppointmentsManager {
       const visibleAppts = (!isExpanded && totalCount > PREVIEW_LIMIT)
         ? apptsToRender.slice(0, PREVIEW_LIMIT)
         : apptsToRender;
-
-      // Render Desktop Rows
-      if (tableTbody) {
-        let rowsHtml = visibleAppts.map(a => {
-          const slotObj = (this.slots || []).find(s => s.key === a.timeSlot);
-          const timeDisplay = slotObj ? slotObj.label : (a.time || a.timeSlot || 'موعد اليوم');
-          const docName = a.doctorName || (this.doctors.find(d => d.uid === a.doctorUid)?.name) || 'طبيب المركز';
-
-          let statusBadge = '';
-          let actionBtn = '';
-
-          if (a.effectiveStatus === 'completed_clinically') {
-            statusBadge = `<span class="badge" style="background: rgba(16, 185, 129, 0.15); color: #059669; border: 1.5px solid rgba(16, 185, 129, 0.4); padding: 4px 10px; border-radius: 999px; font-size: 0.8rem; font-weight: 900;"><i class="fa-solid fa-circle-check"></i> أنهى الجلسة (بانتظار التسجيل)</span>`;
-            actionBtn = `
-              <button type="button" class="btn btn-success btn-sm btn-record-session-now" data-appt-id="${escapeHTML(a.id)}" data-patient-id="${escapeHTML(a.patientId || '')}" data-patient-name="${escapeHTML(a.patientName)}" data-doc-uid="${escapeHTML(a.doctorUid || '')}" data-doc-name="${escapeHTML(docName)}" style="font-weight: 800; border-radius: 999px; box-shadow: 0 2px 8px rgba(16, 185, 129, 0.35);">
-                <i class="fa-solid fa-file-invoice-dollar"></i> <span>تسجيل الجلسة</span>
-              </button>
-            `;
-          } else if (a.effectiveStatus === 'waiting') {
-            statusBadge = `<span class="badge" style="background: rgba(245, 158, 11, 0.15); color: #d97706; border: 1px solid rgba(245, 158, 11, 0.35); padding: 4px 10px; border-radius: 999px; font-size: 0.78rem; font-weight: 800;"><i class="fa-solid fa-hourglass-half"></i> في الانتظار</span>`;
-            actionBtn = `
-              <span style="font-size: 0.8rem; color: var(--text-muted); font-weight: 700;"><i class="fa-solid fa-bell text-warning"></i> أُخطر الطبيب</span>
-            `;
-          } else if (a.effectiveStatus === 'attended' || a.effectiveStatus === 'completed') {
-            statusBadge = `<span class="badge" style="background: rgba(2, 132, 199, 0.12); color: #0284c7; padding: 4px 10px; border-radius: 999px; font-size: 0.78rem; font-weight: 700;"><i class="fa-solid fa-check-double"></i> سُجلت الجلسة</span>`;
-            actionBtn = `
-              <button type="button" class="btn btn-outline btn-sm" onclick="window.app?.patientsManager?.openPatientSheet('${escapeHTML(a.patientId || '')}')" style="border-radius: 999px; font-size: 0.78rem; padding: 3px 10px;">
-                <i class="fa-solid fa-file-waveform"></i> الشيت الطبي
-              </button>
-            `;
-          } else {
-            statusBadge = `<span class="badge" style="background: rgba(100, 116, 139, 0.1); color: #64748b; padding: 4px 10px; border-radius: 999px; font-size: 0.78rem; font-weight: 700;"><i class="fa-regular fa-clock"></i> مجدول</span>`;
-            actionBtn = `
-              <button type="button" class="btn btn-primary btn-sm btn-mark-arrived" data-appt-id="${escapeHTML(a.id)}" data-patient-name="${escapeHTML(a.patientName)}" data-doc-uid="${escapeHTML(a.doctorUid || '')}" data-doc-name="${escapeHTML(docName)}" style="font-weight: 800; border-radius: 999px;">
-                <i class="fa-solid fa-user-check"></i> <span>حضر المريض</span>
-              </button>
-            `;
-          }
-
-          return `
-            <tr style="${a.effectiveStatus === 'completed_clinically' ? 'background: rgba(16, 185, 129, 0.05);' : ''}">
-              <td style="font-weight: 800; color: var(--text-main);">
-                <i class="fa-solid fa-user text-primary" style="margin-left: 6px;"></i>
-                ${escapeHTML(a.patientName)}
-                ${a.isWalkIn ? '<span class="badge" style="background: rgba(139, 92, 246, 0.12); color: #8b5cf6; font-size: 0.65rem; border-radius: 4px; margin-right: 4px;">حضور مباشر</span>' : ''}
-              </td>
-              <td>د. ${escapeHTML(docName.replace(/^د\.\s*/, ''))}</td>
-              <td style="font-weight: 700;"><i class="fa-regular fa-clock text-muted" style="margin-left: 4px;"></i> ${escapeHTML(timeDisplay)}</td>
-              <td>${statusBadge}</td>
-              <td style="font-size: 0.8rem; color: var(--text-muted);">${escapeHTML(a.notes || a.bodyPart || '-')}</td>
-              <td style="text-align: center;">${actionBtn}</td>
-            </tr>
-          `;
-        }).join('');
-
-        if (totalCount > PREVIEW_LIMIT) {
-          rowsHtml += `
-            <tr>
-              <td colspan="6" style="text-align: center; padding: 10px; background: var(--bg-subtle);">
-                <button type="button" class="btn btn-outline btn-sm btn-toggle-expand-appts" style="font-weight: 800; font-size: 0.82rem; border-radius: 999px; padding: 5px 18px; cursor: pointer; background: var(--bg-surface);">
-                  <i class="fa-solid ${isExpanded ? 'fa-chevron-up' : 'fa-chevron-down'}" style="margin-left: 5px;"></i>
-                  <span>${isExpanded ? 'عرض أقل (إظهار أول 5 مواعيد فقط)' : `عرض باقي مواعيد اليوم (متبقي ${totalCount - PREVIEW_LIMIT} مواعيد)`}</span>
-                </button>
-              </td>
-            </tr>
-          `;
-        }
-
-        tableTbody.innerHTML = rowsHtml;
-      }
 
       // Render Dedicated Compact Mobile Cards
       if (mobileCards) {
