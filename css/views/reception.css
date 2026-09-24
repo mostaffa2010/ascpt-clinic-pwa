@@ -63,6 +63,7 @@
 }
 
 .doc-filter-pill {
+  font-family: var(--font-family);
   font-size: 0.8rem;
   font-weight: 800;
   padding: 5px 12px;
@@ -199,6 +200,7 @@
 }
 
 .quick-action-btn {
+  font-family: var(--font-family);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -247,6 +249,7 @@
 .qa-amber { background: #fef3c7; color: #d97706; }
 
 .quick-action-label {
+  font-family: var(--font-family);
   font-size: 0.76rem;
   font-weight: 700;
   color: var(--text-main);
