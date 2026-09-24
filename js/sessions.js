@@ -2023,9 +2023,14 @@ export class SessionsManager {
       tableContainer.classList.add('d-none');
       tableContainer.style.display = 'none';
     }
-    if (cardsContainer && this.activeSessionsTab !== 'home_visits') {
-      cardsContainer.classList.remove('d-none');
-      cardsContainer.style.display = 'grid';
+    if (cardsContainer) {
+      if (this.activeSessionsTab === 'home_visits') {
+        cardsContainer.classList.add('d-none');
+        cardsContainer.style.display = 'none';
+      } else {
+        cardsContainer.classList.remove('d-none');
+        cardsContainer.style.display = 'grid';
+      }
     }
     if (toggleGroup) {
       toggleGroup.classList.add('d-none');
@@ -2061,6 +2066,9 @@ export class SessionsManager {
       card.setAttribute('data-active-tab', tab);
     }
 
+    const todayCards = document.getElementById('sessions-today-mobile-cards');
+    const hvView = document.getElementById('sessions-home-visits-view');
+
     if (tab === 'home_visits') {
       if (btnClinic) {
         btnClinic.classList.remove('active');
@@ -2071,6 +2079,15 @@ export class SessionsManager {
         btnHV.classList.add('active');
         btnHV.style.removeProperty('background');
         btnHV.style.removeProperty('color');
+      }
+
+      if (todayCards) {
+        todayCards.classList.add('d-none');
+        todayCards.style.display = 'none';
+      }
+      if (hvView) {
+        hvView.classList.remove('d-none');
+        hvView.style.display = 'block';
       }
 
       this.renderHomeVisitsList();
@@ -2084,6 +2101,15 @@ export class SessionsManager {
         btnHV.classList.remove('active');
         btnHV.style.removeProperty('background');
         btnHV.style.removeProperty('color');
+      }
+
+      if (todayCards) {
+        todayCards.classList.remove('d-none');
+        todayCards.style.display = 'grid';
+      }
+      if (hvView) {
+        hvView.classList.add('d-none');
+        hvView.style.display = 'none';
       }
 
       this.loadTodaySessions();

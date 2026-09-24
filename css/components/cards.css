@@ -936,7 +936,3 @@
   display: none !important;
 }
 
-#patients-mobile-cards,
-#sessions-today-mobile-cards {
-  display: grid !important;
-}
