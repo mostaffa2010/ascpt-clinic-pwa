@@ -587,6 +587,14 @@ body.role-receptionist #dashboard-admin-view {
 }
 
 /* Responsive Grids & Layouts */
+.stats-grid, .stat-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 14px;
+  margin-bottom: 20px;
+  width: 100%;
+}
+
 /* ================= Responsive for Tablet (768px - 991px) =================
    Keeps the mobile navigation paradigm (top bar + bottom nav) since the
    fixed 260px sidebar would crowd a ~768-991px screen, but gives forms
@@ -662,18 +670,11 @@ body.role-receptionist #dashboard-admin-view {
       gap: 16px;
     }
   }
+}
 
 /* ==========================================================================
    Migrated from style.css (Group 10: Grid Layout & View Toggles)
    ========================================================================== */
-
-.stats-grid, .stat-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 14px;
-  margin-bottom: 20px;
-  width: 100%;
-}
 
 /* ==========================================================================
    VIEW MODE TOGGLE GROUP (Cards vs Table v1.4.58)
