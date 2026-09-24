@@ -413,6 +413,27 @@ jsModuleFiles.forEach(f => {
 });
 console.log(`✓ 26. Scope Safety Gatekeeper: Verified zero undeclared table/DOM variables across ${jsModuleFiles.length} JS modules.`);
 
+// 27. Strict Guardrail: Print-Only Legacy Tables Integrity Protection
+const printOnlyTables = [
+  "finance-expenses-table",
+  "monthly-doctors-table",
+  "monthly-insurance-table",
+  "monthly-settlements-table",
+  "monthly-expenses-categories-table",
+  "monthly-financial-summary-table"
+];
+printOnlyTables.forEach(tableId => {
+  assert(
+    htmlContent.includes(`id="${tableId}"`),
+    `[PRINT GUARDRAIL FAILURE] Print-only table #${tableId} must exist in index.html as data source for A4 printing!`
+  );
+  assert(
+    htmlContent.includes("PRINT-ONLY DATA SOURCE") && htmlContent.includes(tableId),
+    `[PRINT GUARDRAIL FAILURE] Print-only table #${tableId} must have documentation comment in index.html!`
+  );
+});
+console.log(`✓ 27. Print-Only Tables Integrity: Verified all ${printOnlyTables.length} intentionally-kept print-only tables exist and are documented in index.html.`);
+
 
 console.log('===================================================================');
 console.log('✓ All ASCPT UI Component Compliance Guardrail Checks Passed (100%)!');
