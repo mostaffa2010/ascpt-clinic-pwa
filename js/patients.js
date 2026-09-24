@@ -750,7 +750,7 @@ export class PatientsManager {
 
   renderPatients() {
     const mobileContainer = document.getElementById('patients-mobile-cards');
-    if (!tbody && !mobileContainer) return;
+    if (!mobileContainer) return;
 
     if (!this._hasLoadedOnce && (!this.patients || this.patients.length === 0)) {
       this.renderSkeleton();

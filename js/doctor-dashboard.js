@@ -429,7 +429,7 @@ export class DoctorDashboardManager {
     }
     this._hasLoadedOnce = true;
     let mobileContainer = document.getElementById('doctor-personal-mobile-cards');
-    if (!tbody && !mobileContainer) return;
+    if (!mobileContainer) return;
 
     const todayStr = getLocalDateStr();
     const currentMonth = todayStr.substring(0, 7);
@@ -465,33 +465,6 @@ export class DoctorDashboardManager {
         }
         patientGroups.get(key).sessions.push(s);
       });
-
-      // Render Table Rows (NO PRICES SHOWN)
-      if (tbody) tbody.innerHTML = Array.from(patientGroups.values()).map((group) => {
-        const sList = group.sessions.sort((a, b) => (a.date || '').localeCompare(b.date || ''));
-        const firstDate = sList[0]?.date || '-';
-        const lastDate = sList[sList.length - 1]?.date || '-';
-        const dateRange = (firstDate === lastDate) ? firstDate : `من ${firstDate} إلى ${lastDate}`;
-        const isPre = sList.every((s) => Boolean(s.isPreSettled));
-        const statusBadge = isPre
-          ? '<span class="badge" style="background: rgba(100, 116, 139, 0.15); color: #475569; border: 1px solid #cbd5e1; font-weight: 800;"><i class="fa-solid fa-box-archive"></i> مسواة مسبقاً (أرشيف)</span>'
-          : '<span class="badge badge-warning" style="font-weight: 800;"><i class="fa-solid fa-clock"></i> قيد التسوية مع المركز</span>';
-
-        return `
-          <tr>
-            <td style="font-weight: 800; color: var(--primary);">${escapeHTML(group.patientName)}</td>
-            <td><span class="badge badge-direct"><i class="fa-solid fa-file-contract"></i> ${escapeHTML(group.insuranceName)} (زيارة منزلية)</span></td>
-            <td><span class="badge badge-role-doctor" style="font-size: 0.82rem; font-weight: 800;">${group.sessions.length} جلسات</span></td>
-            <td style="font-weight: 700; direction: ltr; text-align: right;">${dateRange}</td>
-            <td>${statusBadge}</td>
-            <td style="text-align: center;">
-              <button type="button" class="btn btn-outline btn-sm btn-icon-action" onclick="app.openPatientClinicalSheet('${escapeHTML(group.patientId)}')" title="الشيت الطبي">
-                <i class="fa-solid fa-file-waveform text-primary"></i>
-              </button>
-            </td>
-          </tr>
-        `;
-      }).join('');
 
       // Render Mobile Cards (NO PRICES SHOWN)
       const mobileContainer = document.getElementById('doctor-personal-mobile-cards');
@@ -617,50 +590,6 @@ export class DoctorDashboardManager {
         }
         return;
       }
-
-      // Render Desktop Table for Lifetime (Unique Patients)
-      if (tbody) tbody.innerHTML = uniquePatients.map((p) => {
-        let billingBadge = '';
-        if (p.payType === 'cash') {
-          billingBadge = `<span class="badge badge-cash"><i class="fa-solid fa-money-bill"></i> نقدي</span>`;
-        } else if (p.contractType === 'direct') {
-          billingBadge = `<span class="badge badge-direct"><i class="fa-solid fa-file-contract"></i> ${escapeHTML(p.insuranceName || 'شركة')} (مباشر)</span>`;
-        } else {
-          billingBadge = `<span class="badge badge-indirect"><i class="fa-solid fa-handshake"></i> ${escapeHTML(p.insuranceName || 'شركة')} (غير مباشر)</span>`;
-        }
-
-        const safePatientId = escapeHTML(p.patientId);
-        let progTag = '';
-        if (p.programType === 'scoliosis') {
-          progTag = `<span class="badge" style="background:rgba(2, 132, 199, 0.15); color:#0284c7; border:1px solid rgba(2, 132, 199, 0.35); font-size:0.7rem; font-weight:800;"><i class="fa-solid fa-arrows-split-up-and-left"></i> Scoliosis</span>`;
-        } else if (p.programType === 'hemiplegia') {
-          progTag = `<span class="badge" style="background:rgba(245, 158, 11, 0.15); color:#b45309; border:1px solid rgba(245, 158, 11, 0.35); font-size:0.7rem; font-weight:800;"><i class="fa-solid fa-brain"></i> Hemiplegia</span>`;
-        } else if (p.programType === 'quadriplegia' || p.programType === 'pediatric') {
-          progTag = `<span class="badge" style="background:rgba(225, 29, 72, 0.15); color:#e11d48; border:1px solid rgba(225, 29, 72, 0.35); font-size:0.7rem; font-weight:800;"><i class="fa-solid fa-wheelchair"></i> Quadriplegia</span>`;
-        }
-
-        return `
-          <tr>
-            <td style="font-weight: 800; color: var(--text-main); cursor: pointer;" onclick="patientsManager.openPatientSheet('${safePatientId}')" title="اضغط لفتح الشيت الطبي">
-              <i class="fa-solid fa-user-injured" style="color: var(--primary); margin-left: 6px;"></i>
-              ${escapeHTML(p.patientName)} ${progTag}
-            </td>
-            <td>${billingBadge}</td>
-            <td><span class="badge badge-role-doctor" style="font-size: 0.82rem; font-weight: 800;"><i class="fa-solid fa-calendar-check"></i> ${p.sessionsCount} جلسات</span></td>
-            <td style="font-size: 0.85rem; color: var(--text-muted); white-space: nowrap;">
-              أحدث جلسة: <bdi dir="ltr">${escapeHTML(p.lastDate || '-')}</bdi>
-            </td>
-            <td style="font-size: 0.82rem; color: var(--text-muted);">
-              ${p.firstDate && p.firstDate !== p.lastDate ? `أول جلسة: <bdi dir="ltr">${escapeHTML(p.firstDate)}</bdi>` : 'مريض نشط'}
-            </td>
-            <td style="text-align: center;">
-              <button type="button" class="btn btn-primary btn-sm" onclick="patientsManager.openPatientSheet('${safePatientId}')" style="padding: 4px 10px; font-weight: 700; white-space: nowrap;">
-                <i class="fa-solid fa-file-waveform"></i> الشيت الطبي
-              </button>
-            </td>
-          </tr>
-        `;
-      }).join('');
 
       // Render Mobile Cards for Lifetime (Unique Patients)
       const mobileContainer = document.getElementById('doctor-personal-mobile-cards');
@@ -919,64 +848,6 @@ export class DoctorDashboardManager {
     }
 
     mobileContainer = document.getElementById('doctor-personal-mobile-cards');
-
-    // 1. Render Desktop Table
-    if (tbody) tbody.innerHTML = displayList.map(s => {
-      let billingBadge = '';
-      if (s.payType === 'cash') {
-        billingBadge = `<span class="badge badge-cash"><i class="fa-solid fa-money-bill"></i> نقدي</span>`;
-      } else if (s.contractType === 'direct') {
-        billingBadge = `<span class="badge badge-direct"><i class="fa-solid fa-file-contract"></i> ${escapeHTML(s.insuranceName || 'شركة')} (مباشر)</span>`;
-      } else {
-        billingBadge = `<span class="badge badge-indirect"><i class="fa-solid fa-handshake"></i> ${escapeHTML(s.insuranceName || 'شركة')} (غير مباشر)</span>`;
-      }
-
-      const isExam = (s.entryType === 'examination');
-      let partsDisplay = '';
-      if (isExam) {
-        partsDisplay = `<span class="badge" style="background: var(--bg-subtle); color: var(--primary); border: 1px solid var(--border-color); font-weight: 800; font-size: 0.76rem; padding: 3px 8px;"><i class="fa-solid fa-stethoscope"></i> فحص سريري / كشف (1 جلسة)</span>`;
-      } else {
-        const parts = Array.isArray(s.bodyParts) ? s.bodyParts.join('، ') : (s.bodyParts || '-');
-        const unitCount = s.bodyPartsCount || 1;
-        const unitWord = unitCount === 1 ? 'جلسة' : unitCount === 2 ? 'جلستان' : 'جلسات';
-        partsDisplay = `<span class="badge" style="background: #e0f2fe; color: #0369a1; border: 1px solid #bae6fd; font-weight: 800; font-size: 0.76rem; padding: 2px 6px; margin-left: 6px;">${unitCount} ${unitWord}</span> ${escapeHTML(parts)}`;
-      }
-
-      const timeDisplay = s.recordedAt || '';
-      const dateDisplay = s.date || '';
-      const safePatientId = escapeHTML(s.patientId || '');
-      const pType = s.sessionPricingType || s.programType || (s.isSpecial ? 'special' : 'regular');
-      let progTag = '';
-      if (pType === 'scoliosis') {
-        progTag = `<span class="badge" style="background:rgba(2, 132, 199, 0.15); color:#0284c7; border:1px solid rgba(2, 132, 199, 0.35); font-size:0.7rem; font-weight:800;"><i class="fa-solid fa-arrows-split-up-and-left"></i> Scoliosis</span>`;
-      } else if (pType === 'hemiplegia') {
-        progTag = `<span class="badge" style="background:rgba(245, 158, 11, 0.15); color:#b45309; border:1px solid rgba(245, 158, 11, 0.35); font-size:0.7rem; font-weight:800;"><i class="fa-solid fa-brain"></i> Hemiplegia</span>`;
-      } else if (pType === 'quadriplegia' || pType === 'pediatric') {
-        progTag = `<span class="badge" style="background:rgba(225, 29, 72, 0.15); color:#e11d48; border:1px solid rgba(225, 29, 72, 0.35); font-size:0.7rem; font-weight:800;"><i class="fa-solid fa-wheelchair"></i> Quadriplegia</span>`;
-      }
-
-      return `
-        <tr>
-          <td style="font-weight: 800; color: var(--text-main); cursor: pointer;" onclick="patientsManager.openPatientSheet('${safePatientId}')" title="اضغط لفتح الشيت الطبي">
-            <i class="fa-solid fa-user-injured" style="color: var(--primary); margin-left: 6px;"></i>
-            ${escapeHTML(s.patientName)} ${progTag}
-          </td>
-          <td>${billingBadge}</td>
-          <td style="font-size: 0.85rem; color: var(--text-muted);">${partsDisplay}</td>
-          <td style="font-size: 0.85rem; color: var(--text-muted); white-space: nowrap;">
-            <bdi dir="ltr">${escapeHTML(dateDisplay)}</bdi> ${timeDisplay ? `• ${escapeHTML(timeDisplay)}` : ''}
-          </td>
-          <td style="font-size: 0.82rem; color: var(--text-muted); max-width: 180px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
-            ${escapeHTML(s.notes || '-')}
-          </td>
-          <td style="text-align: center;">
-            <button type="button" class="btn btn-primary btn-sm" onclick="patientsManager.openPatientSheet('${safePatientId}')" style="padding: 4px 10px; font-weight: 700; white-space: nowrap;">
-              <i class="fa-solid fa-file-waveform"></i> الشيت الطبي
-            </button>
-          </td>
-        </tr>
-      `;
-    }).join('');
 
     // 2. Render Handcrafted Mobile Cards (Unified style matching "All Patients" card)
     if (mobileContainer) {

@@ -398,6 +398,23 @@ jsFilesToCheck.forEach(jf => {
 });
 console.log(`✓ 25. Data Safety & XSS Gatekeeper: Verified escapeHTML() sanitization enforcement across all ${jsFilesToCheck.length} core business modules.`);
 
+// 26. Strict Guardrail: Undeclared Table References Detector (Prevent ReferenceErrors)
+const jsDirectory = path.join(rootDir, "js");
+const jsModuleFiles = fs.readdirSync(jsDirectory).filter(f => f.endsWith(".js"));
+jsModuleFiles.forEach(f => {
+  const content = fs.readFileSync(path.join(jsDirectory, f), "utf-8");
+  // If file uses naked tbody, it must have declared it in that file
+  const hasNakedTbody = /(?<![\x27\"\-_])\btbody\b(?![\x27\"\-_])/.test(content);
+  if (hasNakedTbody) {
+    assert.ok(
+      /(const|let|var)\s+tbody\b/.test(content),
+      `[GUARDRAIL FAILURE] Undeclared tbody reference found in ${f} without declaration!`
+    );
+  }
+});
+console.log(`✓ 26. Scope Safety Gatekeeper: Verified zero undeclared table/DOM variables across ${jsModuleFiles.length} JS modules.`);
+
+
 console.log('===================================================================');
 console.log('✓ All ASCPT UI Component Compliance Guardrail Checks Passed (100%)!');
 console.log('===================================================================');
