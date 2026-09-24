@@ -636,9 +636,8 @@ export class AuditAndAdminManager {
   }
 
   async loadAuditLogs(forceRefresh = false) {
-    const tbody = document.getElementById('audit-log-tbody');
     const mobLogs = document.getElementById('audit-log-mobile-cards');
-    if (!tbody && !mobLogs) return;
+    if (!mobLogs) return;
 
     // Automatic 60-day audit log purge in background
     try { await db.purgeOldAuditLogs(); } catch (_) {}
@@ -654,22 +653,7 @@ export class AuditAndAdminManager {
     const auditCountEl = document.getElementById('stat-admin-audit-count');
     if (auditCountEl) auditCountEl.textContent = logs.length;
 
-    // Desktop Table
-    if (tbody) {
-      if (logs.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="5" style="text-align: center; color: var(--text-muted); padding: 20px;">لا توجد سجلات تدقيق مسجلة حتى الآن.</td></tr>`;
-      } else {
-        tbody.innerHTML = logs.map(l => `
-          <tr>
-            <td style="font-weight: 700;">${escapeHTML(l.userName)}</td>
-            <td><span class="badge badge-role-${escapeHTML(l.userRole)}">${escapeHTML(RolesManager.getRoleLabel(l.userRole))}</span></td>
-            <td><span class="badge badge-direct">${escapeHTML(l.actionType)}</span></td>
-            <td>${escapeHTML(l.description)}</td>
-            <td style="font-size: 0.8rem; color: var(--text-muted);">${escapeHTML(l.timestamp)}</td>
-          </tr>
-        `).join('');
-      }
-    }
+
 
     // Mobile Timeline
     if (mobLogs) {

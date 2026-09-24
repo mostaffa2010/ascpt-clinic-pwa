@@ -539,28 +539,6 @@
   padding: 0 10px;
 }
 
-/* Ledger Table Column Sizing */
-.col-ledger-code {
-  width: 120px;
-}
-
-.col-ledger-stats {
-  text-align: center;
-}
-
-.col-ledger-total {
-  font-weight: 800;
-}
-
-.col-ledger-status {
-  text-align: center;
-}
-
-.col-ledger-actions {
-  text-align: center;
-  width: 140px;
-}
-
 .claims-ledger-mobile-cards {
   margin-top: 12px;
 }
@@ -607,11 +585,6 @@
 
 [data-theme="dark"] .claim-summary-strip {
   background: var(--bg-subtle);
-}
-
-[data-theme="dark"] .claim-top-scrollbar {
-  background: var(--bg-subtle);
-  scrollbar-color: rgba(56, 189, 248, 0.4) transparent;
 }
 
 [data-theme="dark"] .btn-claim-filter-pill.active {

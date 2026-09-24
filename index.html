@@ -1496,25 +1496,6 @@
               <span class="card-title"><i class="fa-solid fa-money-bill-transfer text-primary"></i> تحصيلات التأمين المسجلة اليوم</span>
               <span class="badge badge-cash fin-badge-settlements" id="daily-settlements-total-badge">0 ج.م</span>
             </div>
-            <div class="table-responsive desktop-only-table">
-              <table class="data-table">
-                <thead>
-                  <tr>
-                    <th>شركة التأمين</th>
-                    <th>فترة المطالبة</th>
-                    <th>المبلغ الأصلي</th>
-                    <th>الاستقطاعات والخصومات</th>
-                    <th>الصافي المحصل</th>
-                    <th>طريقة الاستلام</th>
-                    <th class="no-print">المسجل</th>
-                    <th class="no-print">إجراءات</th>
-                  </tr>
-                </thead>
-                <tbody id="daily-settlements-tbody">
-                  <!-- Rendered dynamically -->
-                </tbody>
-              </table>
-            </div>
             <div id="daily-settlements-mobile-cards" class="mobile-only-cards-container"></div>
           </div>
           <!-- Doctors Breakdown Box (Desktop & Print) -->
@@ -1804,22 +1785,6 @@
             <div class="card-header">
               <span class="card-title"><i class="fa-solid fa-receipt"></i> بيان مصروفات الشهر</span>
             </div>
-            <div class="table-responsive desktop-only-table" id="monthly-expenses-table-container">
-              <table class="data-table" id="monthly-expenses-table">
-                <thead>
-                  <tr>
-                    <th>التاريخ</th>
-                    <th>بند المصروف</th>
-                    <th>المبلغ المنصرف</th>
-                    <th>المسؤول عن الصرف</th>
-                    <th class="no-print fin-action-col-80">إجراءات</th>
-                  </tr>
-                </thead>
-                <tbody id="monthly-expenses-tbody">
-                  <!-- Rendered dynamically -->
-                </tbody>
-              </table>
-            </div>
             <div id="monthly-expenses-mobile-cards" class="mobile-only-cards-container"></div>
           </div>
         </div>
@@ -1994,31 +1959,6 @@
                 </div>
               </div>
 
-              <!-- Top Horizontal Scrollbar (Synchronized for instant scrolling on desktop & mobile) -->
-              <div class="top-scrollbar-wrapper no-print claim-top-scrollbar" id="claim-top-scroll-wrap" style="display: none;">
-                <div class="top-scrollbar-dummy claim-top-dummy" id="claim-top-scroll-dummy"></div>
-              </div>
-              <div class="table-responsive desktop-only-table" id="claim-table-container">
-                <table class="data-table" id="claim-patients-table">
-                  <thead>
-                    <tr>
-                      <th class="col-claim-cb">
-                        <input type="checkbox" id="claim-select-all-cb" title="تحديد / إلغاء تحديد الكل">
-                      </th>
-                      <th class="col-claim-seq">م</th>
-                      <th>اسم المريض</th>
-                      <th class="col-claim-eval">فحص وتقييم (ج.م)</th>
-                      <th class="col-claim-sessions">الجلسات</th>
-                      <th class="col-claim-rate">سعر الجلسة (ج.م)</th>
-                      <th class="col-claim-total">الإجمالي</th>
-                      <th class="col-claim-card">بطاقة التردد</th>
-                    </tr>
-                  </thead>
-                  <tbody id="claim-patients-tbody">
-                    <tr><td colspan="8" class="claim-empty-td">يرجى اختيار شركة التأمين ثم الضغط على "استخراج وعرض مرضى الشركة".</td></tr>
-                  </tbody>
-                </table>
-              </div>
               <div id="claim-patients-mobile-cards" class="mobile-only-cards-container claim-patients-mobile-cards"></div>
             </div>
 
@@ -2114,26 +2054,6 @@
                 </div>
               </div>
 
-              <!-- Claims Ledger Table -->
-              <div class="table-responsive desktop-only-table">
-                <table class="data-table" id="claims-ledger-table">
-                  <thead>
-                    <tr>
-                      <th class="col-ledger-code">كود المطالبة</th>
-                      <th>شركة التأمين</th>
-                      <th>فترة المطالبة</th>
-                      <th class="col-ledger-stats">المرضى / الجلسات</th>
-                      <th class="col-ledger-total">إجمالي المبلغ</th>
-                      <th class="col-ledger-status">حالة التحصيل</th>
-                      <th>المحصل الفعلي</th>
-                      <th class="no-print col-ledger-actions">الإجراءات</th>
-                    </tr>
-                  </thead>
-                  <tbody id="claims-ledger-tbody">
-                    <!-- Populated dynamically by JS -->
-                  </tbody>
-                </table>
-              </div>
               <div id="claims-ledger-mobile-cards" class="mobile-only-cards-container claims-ledger-mobile-cards"></div>
             </div>
           </div>
@@ -2424,22 +2344,6 @@
           <div class="card-header admin-audit-header">
             <span class="card-title"><i class="fa-solid fa-shield-halved"></i> سجل التعديلات والرقابة</span>
             <span class="badge badge-direct admin-audit-badge">آخر ٥٠ حركة • تنظيف تلقائي ٦٠ يوم</span>
-          </div>
-          <div class="table-responsive desktop-only-table">
-            <table class="data-table">
-              <thead>
-                <tr>
-                  <th>المستخدم</th>
-                  <th>الدور</th>
-                  <th>نوع الإجراء</th>
-                  <th>البيان</th>
-                  <th>التوقيت</th>
-                </tr>
-              </thead>
-              <tbody id="audit-log-tbody">
-                <!-- Rendered dynamically -->
-              </tbody>
-            </table>
           </div>
           <div id="audit-log-mobile-cards" class="mobile-only-cards-container"></div>
         </div>

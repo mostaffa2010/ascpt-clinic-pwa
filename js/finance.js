@@ -95,14 +95,12 @@ export class FinanceManager {
       this.handleSubmitSettlement(e);
     });
 
-    ['daily-settlements-tbody', 'monthly-settlements-tbody'].forEach(id => {
-      document.getElementById(id)?.addEventListener('click', (e) => {
-        const delBtn = e.target.closest('.btn-delete-settlement');
-        if (delBtn) {
-          const sid = delBtn.getAttribute('data-settlement-id');
-          if (sid) this.handleDeleteSettlement(sid);
-        }
-      });
+    document.getElementById('monthly-settlements-tbody')?.addEventListener('click', (e) => {
+      const delBtn = e.target.closest('.btn-delete-settlement');
+      if (delBtn) {
+        const sid = delBtn.getAttribute('data-settlement-id');
+        if (sid) this.handleDeleteSettlement(sid);
+      }
     });
 
     // Expense Categories Management
@@ -781,10 +779,9 @@ export class FinanceManager {
 
     // Render Today Insurance Settlements
     const dailySetCard = document.getElementById('finance-daily-settlements-card');
-    const dailySetTbody = document.getElementById('daily-settlements-tbody');
     const dailySetBadge = document.getElementById('daily-settlements-total-badge');
 
-    if (dailySetCard && dailySetTbody) {
+    if (dailySetCard) {
       if (todaySettlements.length > 0) {
         dailySetCard.style.display = 'block';
         const totalNet = todaySettlements.reduce((acc, s) => acc + (parseFloat(s.netAmount) || 0), 0);
@@ -792,31 +789,6 @@ export class FinanceManager {
           dailySetBadge.textContent = `صافي: ${totalNet.toLocaleString('en-US')} ج.م ${bankSettlements > 0 ? `(بنكي: ${bankSettlements.toLocaleString('en-US')})` : ''}`;
         }
         const canDel = RolesManager.canDeleteFinance(auth.getCurrentUser());
-        dailySetTbody.innerHTML = todaySettlements.map(s => `
-          <tr>
-            <td style="font-weight: 800; color: var(--text-main);">${escapeHTML(s.companyName)}</td>
-            <td style="font-size: 0.85rem;">${escapeHTML(s.claimPeriod || '-')}</td>
-            <td style="font-weight: 700;">${(parseFloat(s.grossAmount) || 0).toLocaleString('en-US')}</td>
-            <td style="color: var(--danger); font-size: 0.85rem;">
-              ${(parseFloat(s.deductions) || 0) > 0 ? `${(parseFloat(s.deductions) || 0).toLocaleString('en-US')} (${escapeHTML(s.deductionReason || '')})` : '-'}
-            </td>
-            <td style="font-weight: 800; color: var(--success); font-size: 0.95rem;">${(parseFloat(s.netAmount) || 0).toLocaleString('en-US')}</td>
-            <td>
-              <span class="badge ${s.paymentMethod === 'cash' ? 'badge-cash' : 'badge-direct'}">
-                <i class="fa-solid ${s.paymentMethod === 'cash' ? 'fa-money-bill-wave' : 'fa-building-columns'}"></i>
-                ${s.paymentMethod === 'cash' ? 'نقداً بالدرج' : 'تحويل بنكي / شيك'}
-              </span>
-            </td>
-            <td class="no-print" style="font-size: 0.8rem; color: var(--text-muted);">${escapeHTML(s.recordedBy || '-')}</td>
-            <td class="no-print">
-              ${canDel ? `
-                <button type="button" class="btn btn-outline btn-sm btn-delete-record btn-delete-settlement" style="color: var(--danger);" data-settlement-id="${s.id}" title="حذف حركة التحصيل">
-                  <i class="fa-solid fa-trash"></i>
-                </button>
-              ` : '-'}
-            </td>
-          </tr>
-        `).join('');
 
         const dailySetMob = document.getElementById('daily-settlements-mobile-cards');
         if (dailySetMob) {
@@ -869,7 +841,6 @@ export class FinanceManager {
         }
       } else {
         dailySetCard.style.display = 'none';
-        dailySetTbody.innerHTML = '';
       }
     }
     
@@ -2120,36 +2091,7 @@ export class FinanceManager {
       }
     }
 
-    // C. Monthly Expenses Table (Desktop)
-    const mExpTbody = document.getElementById('monthly-expenses-tbody');
     const canDelFinance = RolesManager.canDeleteFinance(auth.getCurrentUser());
-    if (mExpTbody) {
-      if (allExpenses.length === 0) {
-        mExpTbody.innerHTML = `<tr><td colspan="5" style="text-align: center; color: var(--text-muted); padding: 20px;">لا توجد مصروفات مسجلة لهذا الشهر.</td></tr>`;
-      } else {
-        mExpTbody.innerHTML = allExpenses.map(e => {
-          const safeDate = escapeHTML(e.date || '-');
-          const safeTitle = escapeHTML(e.title);
-          const safeAmount = escapeHTML(e.amount);
-          const safeRecBy = escapeHTML(e.recordedBy || '-');
-          return `
-            <tr>
-              <td>${safeDate}</td>
-              <td style="font-weight: 600;">${safeTitle}</td>
-              <td style="font-weight: 700; color: var(--danger);">${safeAmount}</td>
-              <td style="font-size: 0.8rem; color: var(--text-muted);">${safeRecBy}</td>
-              <td class="no-print" style="text-align: center;">
-                ${canDelFinance ? `
-                  <button type="button" class="btn btn-outline btn-sm btn-delete-record btn-delete-expense" style="color: var(--danger);" data-expense-id="${e.id}" title="حذف المصروف">
-                    <i class="fa-solid fa-trash"></i>
-                  </button>
-                ` : '-'}
-              </td>
-            </tr>
-          `;
-        }).join('');
-      }
-    }
 
     // Monthly Expenses Mobile Cards (Compact List)
     const mExpMob = document.getElementById('monthly-expenses-mobile-cards');
