@@ -79,7 +79,6 @@ table.data-table tr:hover td {
 #card-dashboard-recent .table-responsive,
 #card-sessions-today .table-responsive,
 #card-patients-directory .table-responsive,
-.table-responsive:has(#sessions-today-tbody),
 #card-doctor-appointments-schedule .table-responsive,
 #card-main-appointments-schedule .table-responsive {
   border: none;

@@ -236,27 +236,7 @@ export class SessionsManager {
       form.addEventListener('submit', (e) => this.handleSaveSession(e));
     }
 
-    // Event Delegation: Sessions Table Body
-    const sessionsTbody = document.getElementById('sessions-today-tbody');
-    if (sessionsTbody) {
-      sessionsTbody.addEventListener('click', (e) => {
-        const editBtn = e.target.closest('.btn-edit-session');
-        if (editBtn) {
-          const sid = editBtn.getAttribute('data-session-id');
-          if (sid) {
-            this.scrollToFormTop();
-            this.editSession(sid);
-          }
-          return;
-        }
-        const delBtn = e.target.closest('.btn-delete-session');
-        if (delBtn) {
-          const sid = delBtn.getAttribute('data-session-id');
-          if (sid) this.deleteSession(sid);
-          return;
-        }
-      });
-    }
+
   }
 
   updateBodyPartsCount() {
@@ -1660,8 +1640,6 @@ export class SessionsManager {
 
   renderSkeleton() {
     const mobileCardsContainer = document.getElementById('sessions-today-mobile-cards');
-    const tbody = document.getElementById('sessions-today-tbody');
-
     if (mobileCardsContainer && (!this.sessions || this.sessions.length === 0)) {
       mobileCardsContainer.innerHTML = Array.from({ length: 4 }).map(() => `
         <div class="hero-styled-card skeleton-card" style="padding: 12px 14px; margin-bottom: 10px; border-radius: 14px;">
@@ -1680,24 +1658,6 @@ export class SessionsManager {
             <div class="skeleton-shimmer skeleton-line" style="width: 50px; height: 12px;"></div>
           </div>
         </div>
-      `).join('');
-    }
-
-    if (tbody && (!this.sessions || this.sessions.length === 0)) {
-      tbody.innerHTML = Array.from({ length: 4 }).map(() => `
-        <tr>
-          <td colspan="8" style="padding: 12px;">
-            <div style="display: flex; align-items: center; gap: 12px;">
-              <div class="skeleton-shimmer skeleton-avatar" style="width: 32px; height: 32px;"></div>
-              <div class="skeleton-shimmer skeleton-line" style="width: 20%; height: 14px;"></div>
-              <div class="skeleton-shimmer skeleton-line" style="width: 10%; height: 14px;"></div>
-              <div class="skeleton-shimmer skeleton-line" style="width: 15%; height: 14px;"></div>
-              <div class="skeleton-shimmer skeleton-line" style="width: 12%; height: 14px;"></div>
-              <div class="skeleton-shimmer skeleton-line" style="width: 12%; height: 14px;"></div>
-              <div class="skeleton-shimmer skeleton-line" style="width: 12%; height: 14px;"></div>
-            </div>
-          </td>
-        </tr>
       `).join('');
     }
   }
@@ -1741,7 +1701,6 @@ export class SessionsManager {
 
     this._lastSeenSessionIds = currentIds;
     this._lastSeenSessionsMap = new Map(sessions.map(s => [s.id, s]));
-    const tbody = document.getElementById('sessions-today-tbody');
     const mobileCardsContainer = document.getElementById('sessions-today-mobile-cards');
     const badge = document.getElementById('sessions-today-count-badge');
     
@@ -1757,13 +1716,9 @@ export class SessionsManager {
       }
     }
 
-    if (!tbody && !mobileCardsContainer) return;
+    if (!mobileCardsContainer) return;
 
     if (sessions.length === 0) {
-      if (tbody) tbody.innerHTML = `<tr><td colspan="8" style="text-align: center; color: var(--text-muted); padding: 36px 20px;">
-        <i class="fa-solid fa-calendar-check" style="font-size: 1.8rem; color: var(--text-muted); margin-bottom: 8px; display: block;"></i>
-        لا توجد حركات أو جلسات مسجلة لهذا التاريخ حتى الآن.
-      </td></tr>`;
       if (mobileCardsContainer) {
         mobileCardsContainer.innerHTML = `
           <div class="hero-styled-card" style="text-align: center; padding: 36px 20px;">
@@ -1787,94 +1742,7 @@ export class SessionsManager {
     const patientsList = await db.getPatients();
     const patientsMap = new Map(patientsList.map(p => [p.id, p]));
 
-    // 1. Render Desktop Table
-    if (tbody) tbody.innerHTML = sessions.map(s => {
-      const isNewlyAdded = Boolean(s.id && s.id === this.newlyAddedSessionId);
-      const rowHighlightClass = isNewlyAdded ? 'session-row-newly-added' : '';
-      const safeId = escapeHTML(s.id);
-      const safePatient = escapeHTML(s.patientName);
-      const safeDoc = escapeHTML(s.doctor);
-      const safeIns = escapeHTML(s.insuranceName || 'تعاقد');
-      const safeAmount = escapeHTML(s.amountPaid);
-      const safeRecBy = escapeHTML(s.recordedBy);
-      const safeRecAt = escapeHTML(s.recordedAt);
-      const isExam = (s.entryType === 'examination');
-
-      let sessionNumBadge = '';
-      if (isExam) {
-        sessionNumBadge = `<span class="badge badge-examination"><i class="fa-solid fa-stethoscope"></i> كشف</span>`;
-      } else {
-        const pObj = patientsMap.get(s.patientId);
-        const approvedTotal = parseInt(s.approvedSessionsTotal) || parseInt(pObj?.approvedSessions) || 12;
-        const sessNum = s.sessionNumber || 1;
-
-        const cycleNum = s.cycleNumber || Math.floor(((s.sessionNumber || 1) - 1) / approvedTotal) + 1;
-        const cycleSuffix = cycleNum > 1 ? ` (دورة ${cycleNum})` : '';
-
-        if (s.payType === 'insurance') {
-          sessionNumBadge = `<span class="badge" style="background:var(--bg-subtle); color:var(--primary); border:1px solid var(--border-color); font-weight:800; font-size:0.8rem;"><i class="fa-solid fa-calendar-check"></i> زيارة ${sessNum} من ${approvedTotal}${cycleSuffix}</span>`;
-        } else {
-          sessionNumBadge = `<span class="badge" style="background:var(--bg-subtle); color:var(--text-main); border:1px solid var(--border-color); font-weight:700; font-size:0.8rem;">الجلسة ${sessNum}${cycleSuffix}</span>`;
-        }
-      }
-
-      let payBadge = '';
-      if (isExam) {
-        if (s.examType === 'cash' || s.payType === 'cash') {
-          payBadge = `<span class="badge badge-cash"><i class="fa-solid fa-money-bill"></i> كشف نقدي</span>`;
-        } else {
-          const cTypeLabel = s.contractType === 'indirect' ? 'غير مباشر' : 'مباشر';
-          payBadge = `<span class="badge badge-direct"><i class="fa-solid fa-file-contract"></i> كشف تعاقد: ${safeIns} (${cTypeLabel})</span>`;
-        }
-      } else {
-        if (s.payType === 'cash') {
-          payBadge = `<span class="badge badge-cash"><i class="fa-solid fa-money-bill"></i> نقدي</span>`;
-        } else if (s.contractType === 'direct') {
-          payBadge = `<span class="badge badge-direct"><i class="fa-solid fa-file-contract"></i> ${safeIns} (مباشر)</span>`;
-        } else {
-          payBadge = `<span class="badge badge-indirect"><i class="fa-solid fa-handshake"></i> ${safeIns} (غير مباشر)</span>`;
-        }
-      }
-
-      let partsCell = '';
-      if (isExam) {
-        partsCell = `<span class="badge" style="background: var(--bg-subtle); color: var(--primary); border: 1px solid var(--border-color); font-weight: 800; font-size: 0.76rem; padding: 3px 8px;"><i class="fa-solid fa-stethoscope"></i> فحص سريري / كشف</span>`;
-      } else {
-        const safeParts = Array.isArray(s.bodyParts) ? s.bodyParts.map(b => escapeHTML(b)).join('، ') : escapeHTML(s.bodyParts || '');
-        const safePartsShort = Array.isArray(s.bodyParts) ? s.bodyParts.slice(0, 2).map(b => escapeHTML(b)).join('، ') : escapeHTML(s.bodyParts || '');
-        partsCell = `<span class="badge badge-role-doctor" title="${safeParts}">${escapeHTML(s.bodyPartsCount)} أعضاء (${safePartsShort}${s.bodyParts && s.bodyParts.length > 2 ? '...' : ''})</span>`;
-      }
-
-      const isSpecialSession = Boolean(s.isSpecial || s.sessionPricingType === 'special');
-      const examTag = isExam ? `<span class="badge" style="background: #ede9fe; color: #6d28d9; font-size: 0.72rem; padding: 1px 6px; margin-right: 6px; border-radius: 4px; font-weight: 800;"><i class="fa-solid fa-stethoscope"></i> كشف</span>` : '';
-      const specialBadge = (!isExam && isSpecialSession) ? `<span class="badge" style="background: rgba(245, 158, 11, 0.15); color: #b45309; border: 1px solid rgba(245, 158, 11, 0.35); font-size: 0.72rem; padding: 1px 6px; margin-right: 6px; border-radius: 4px; font-weight: 800;"><i class="fa-solid fa-star"></i> خاصة</span>` : '';
-
-      return `
-        <tr class="${rowHighlightClass}">
-          <td style="font-weight: 700;">${safePatient} ${examTag}${specialBadge}</td>
-          <td style="text-align: center; white-space: nowrap;">${sessionNumBadge}</td>
-          <td>${safeDoc}</td>
-          <td>${payBadge}</td>
-          <td>${partsCell}</td>
-          <td style="font-weight: 700; color: var(--success);">${safeAmount} ج.م</td>
-          <td style="font-size: 0.8rem; color: var(--text-muted);">${safeRecBy} (${safeRecAt})</td>
-          <td>
-            <div style="display: flex; gap: 4px;">
-              <button type="button" class="btn btn-outline btn-sm btn-edit-session" data-session-id="${safeId}" onclick="sessionsManager.scrollToFormTop(); sessionsManager.editSession('${safeId}')" title="${isExam ? 'تعديل بيانات الكشف' : 'تعديل بيانات الجلسة'}">
-                <i class="fa-solid fa-pen-to-square"></i>
-              </button>
-              ${canDelete ? `
-                <button type="button" class="btn btn-outline btn-sm btn-delete-record btn-delete-session" style="color: var(--danger);" data-session-id="${safeId}" onclick="sessionsManager.deleteSession('${safeId}')" title="${isExam ? 'حذف الكشف' : 'حذف الجلسة'}">
-                  <i class="fa-solid fa-trash"></i>
-                </button>
-              ` : ''}
-            </div>
-          </td>
-        </tr>
-      `;
-    }).join('');
-
-    // 2. Render Handcrafted Mobile Cards (10 per page pagination)
+    // Render Handcrafted Cards (10 per page pagination)
     if (mobileCardsContainer) {
       const pageLimit = this.pageSize || 10;
       const totalPages = Math.ceil(sessions.length / pageLimit) || 1;
@@ -2015,7 +1883,6 @@ export class SessionsManager {
 
   applyViewModeUI() {
     this.viewMode = 'cards';
-    const tableContainer = document.getElementById('sessions-table-container');
     const cardsContainer = document.getElementById('sessions-today-mobile-cards');
     const toggleGroup = document.getElementById('sessions-view-mode-toggle');
 
@@ -2129,7 +1996,6 @@ export class SessionsManager {
   }
 
   async renderHomeVisitsList() {
-    const tbody = document.getElementById('sessions-hv-tbody');
     const mobileCards = document.getElementById('sessions-hv-mobile-cards');
     const countBadge = document.getElementById('sessions-home-visits-count-badge');
     const currentUser = auth.getCurrentUser();
@@ -2158,17 +2024,6 @@ export class SessionsManager {
         const emptyMsg = q
           ? 'لا توجد زيارات منزلية مطابقة للبحث.'
           : 'لا توجد زيارات منزلية مسجلة بالنظام حتى الآن.';
-        if (tbody) {
-          if (tbody) tbody.innerHTML = `
-            <tr>
-              <td colspan="7" style="text-align: center; color: var(--text-muted); padding: 36px 20px;">
-                <i class="fa-solid fa-house-chimney-medical" style="font-size: 2rem; color: #cbd5e1; margin-bottom: 10px; display: block;"></i>
-                <div style="font-weight: 800; font-size: 1rem; color: var(--text-main); margin-bottom: 4px;">${emptyMsg}</div>
-                <div style="font-size: 0.82rem; color: var(--text-muted);">يتم تسجيل جوابات الزيارات المنزلية من شاشة المرضى &gt; المستندات &gt; تسجيل جواب زيارات منزلية</div>
-              </td>
-            </tr>
-          `;
-        }
         if (mobileCards) {
           mobileCards.innerHTML = `
             <div class="hero-styled-card" style="text-align: center; padding: 32px 20px; grid-column: 1 / -1;">
@@ -2294,62 +2149,7 @@ export class SessionsManager {
         }
       });
 
-      // 1. Render Desktop Table
-      if (tbody) {
-        tbody.innerHTML = groupsList.map((group) => {
-          const sList = group.sessions.sort((a, b) => (a.date || '').localeCompare(b.date || ''));
-          const firstDate = sList[0]?.date || '-';
-          const lastDate = sList[sList.length - 1]?.date || '-';
-          const dateRange = (firstDate === lastDate) ? firstDate : `من ${firstDate} إلى ${lastDate}`;
-          const isPre = sList.every((s) => Boolean(s.isPreSettled));
-          const statusBadge = isPre
-            ? '<span class="badge" style="background: rgba(100, 116, 139, 0.15); color: #475569; border: 1px solid #cbd5e1; font-weight: 800; font-size: 0.76rem;"><i class="fa-solid fa-box-archive"></i> مسواة مسبقاً</span>'
-            : '<span class="badge badge-warning" style="font-weight: 800; font-size: 0.76rem;"><i class="fa-solid fa-clock"></i> قيد التسوية</span>';
-
-          const cTypeLabel = group.contractType === 'indirect' ? 'غير مباشر' : 'مباشر';
-          const cycleBadge = group.cycleNumber ? `<span class="badge" style="background: rgba(2, 132, 199, 0.12); color: #0284c7; font-weight: 800; font-size: 0.72rem; border: 1px solid rgba(2, 132, 199, 0.25); margin-right: 4px;"><i class="fa-solid fa-rotate-right"></i> جواب (دورة ${group.cycleNumber})</span>` : '';
-          const refBadge = group.letterRef ? `<span class="badge" style="background: var(--bg-subtle); color: var(--text-muted); border: 1px solid var(--border-color); font-size: 0.72rem; margin-right: 4px;">#${escapeHTML(group.letterRef)}</span>` : '';
-          const insBadge = `<span class="badge badge-direct"><i class="fa-solid fa-file-contract"></i> ${escapeHTML(group.insuranceName)} (${cTypeLabel})</span> ${cycleBadge} ${refBadge}`;
-
-          const safePid = escapeHTML(group.patientId || '');
-          const safeName = escapeHTML(group.patientName || '');
-          const safeDoc = escapeHTML(group.doctor || 'طبيب المركز');
-          const safeGid = escapeHTML(group.groupId || '');
-
-          return `
-            <tr>
-              <td style="font-weight: 800; color: var(--primary); cursor: pointer;" onclick="app.openPatientClinicalSheet('${safePid}')" title="فتح الشيت الطبي">
-                <i class="fa-solid fa-user-injured" style="margin-left: 6px;"></i> ${safeName} ${refBadge}
-              </td>
-              <td>${insBadge}</td>
-              <td style="font-weight: 700; color: var(--text-main);"><i class="fa-solid fa-user-doctor text-primary"></i> ${safeDoc}</td>
-              <td><span class="badge" style="background: rgba(5, 150, 105, 0.12); color: #059669; border: 1px solid rgba(5, 150, 105, 0.3); font-size: 0.82rem; font-weight: 800;"><i class="fa-solid fa-house-chimney-medical"></i> ${group.sessions.length} زيارات</span></td>
-              <td style="font-weight: 700; direction: ltr; text-align: right; white-space: nowrap;">${dateRange}</td>
-              <td>${statusBadge}</td>
-              <td style="text-align: center; white-space: nowrap;">
-                <button type="button" class="btn btn-outline btn-sm btn-icon-action" onclick="app.openPatientClinicalSheet('${safePid}')" title="فتح الشيت الطبي وسجل الجلسات">
-                  <i class="fa-solid fa-file-waveform text-primary"></i>
-                </button>
-                <button type="button" class="btn btn-outline btn-sm btn-icon-action" onclick="patientsManager.openPatientDocsModal('${safePid}')" title="مستندات المريض">
-                  <i class="fa-solid fa-file-invoice text-primary"></i>
-                </button>
-                ${(!isPre && canDelete) ? `
-                  <button type="button" class="btn btn-outline btn-sm btn-settle-hv" onclick="sessionsManager.settleHomeVisitsGroup('${safeGid}', '${safePid}', '${escapeHTML(group.letterRef || '')}', '${safeName}')" title="اعتماد تسوية هذا الجواب مع الطبيب">
-                    <i class="fa-solid fa-handshake"></i> <span>تسوية</span>
-                  </button>
-                ` : ''}
-                ${canDelete ? `
-                  <button type="button" class="btn btn-outline btn-sm btn-icon-action btn-delete-hv" style="color: var(--danger); border-color: rgba(239, 68, 68, 0.35); background: rgba(239, 68, 68, 0.08);" onclick="sessionsManager.deleteHomeVisitsGroup('${safeGid}', '${safePid}', '${escapeHTML(group.letterRef || '')}', '${safeName}')" title="حذف جواب الزيارات المنزلية بالكامل">
-                    <i class="fa-solid fa-trash"></i>
-                  </button>
-                ` : ''}
-              </td>
-            </tr>
-          `;
-        }).join('');
-      }
-
-      // 2. Render Mobile / Responsive Cards
+      // Render Mobile / Responsive Cards
       if (mobileCards) {
         mobileCards.innerHTML = groupsList.map((group) => {
           const sList = group.sessions.sort((a, b) => (a.date || '').localeCompare(b.date || ''));
@@ -2421,7 +2221,7 @@ export class SessionsManager {
       }
     } catch (err) {
       console.error('renderHomeVisitsList error:', err);
-      if (tbody) if (tbody) tbody.innerHTML = `<tr><td colspan="7" style="text-align: center; color: var(--danger); padding: 20px;">تعذر تحميل الزيارات المنزلية: ${escapeHTML(err.message)}</td></tr>`;
+      if (mobileCards) mobileCards.innerHTML = `<div class="hero-styled-card" style="text-align: center; color: var(--danger); padding: 20px;">تعذر تحميل الزيارات المنزلية: ${escapeHTML(err.message)}</div>`;
     }
   }
 

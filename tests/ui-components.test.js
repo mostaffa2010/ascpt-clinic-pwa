@@ -217,7 +217,6 @@ console.log('✓ 15. White-Label Centralization: Verified zero hardcoded clinic 
 assert(htmlContent.includes('id="btn-tab-clinic-sessions"'), 'index.html must include #btn-tab-clinic-sessions');
 assert(htmlContent.includes('id="btn-tab-home-visits"'), 'index.html must include #btn-tab-home-visits');
 assert(htmlContent.includes('id="sessions-home-visits-view"'), 'index.html must include #sessions-home-visits-view');
-assert(htmlContent.includes('id="sessions-hv-tbody"'), 'index.html must include #sessions-hv-tbody');
 assert(htmlContent.includes('id="sessions-hv-mobile-cards"'), 'index.html must include #sessions-hv-mobile-cards');
 assert(sessionsJsContent.includes('switchSessionsTab(tab)'), 'sessions.js must implement switchSessionsTab(tab)');
 assert(sessionsJsContent.includes('renderHomeVisitsList()'), 'sessions.js must implement renderHomeVisitsList()');

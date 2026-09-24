@@ -750,7 +750,6 @@
    9. Strict Tab Switching & Visibility Isolation
    ---------------------------------------------------------------------------- */
 #card-sessions-today[data-active-tab="home_visits"] #sessions-today-mobile-cards,
-#card-sessions-today[data-active-tab="home_visits"] #sessions-table-container,
 #card-sessions-today[data-active-tab="home_visits"] #clinic-sessions-header-meta {
   display: none;
 }
@@ -969,28 +968,3 @@ button.btn-settle-hv {
   }
 }
 
-/* ==========================================================================
-   Migrated from style.css (Desktop Sticky Table Header)
-   ========================================================================== */
-@media screen and (min-width: 992px) {
-  #sessions-table-container {
-    max-height: 62vh;
-    overflow-y: auto;
-    overflow-x: auto;
-    position: relative;
-    border-radius: var(--radius-md);
-  }
-
-  #sessions-today-table thead th {
-    position: sticky;
-    top: 0;
-    z-index: 10;
-    background: var(--bg-surface);
-    box-shadow: 0 2px 6px rgba(15, 23, 42, 0.06);
-  }
-
-  [data-theme="dark"] #sessions-today-table thead th {
-    background: #1e293b;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
-  }
-}

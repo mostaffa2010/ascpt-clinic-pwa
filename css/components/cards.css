@@ -372,8 +372,7 @@
 @media screen and (max-width: 767px) {
   #card-dashboard-recent,
   #card-sessions-today,
-  #card-patients-directory,
-  .card:has(#sessions-today-tbody) {
+  #card-patients-directory {
     background: transparent !important;
     border: none !important;
     box-shadow: none !important;
@@ -932,7 +931,5 @@
 
 #sessions-view-mode-toggle,
 #patients-view-mode-toggle,
-#sessions-table-container {
-  display: none !important;
-}
+
 
