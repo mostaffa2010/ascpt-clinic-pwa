@@ -151,36 +151,6 @@
   color: var(--text-muted);
 }
 
-.dkc-breakdown-row {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  margin-bottom: 4px;
-  flex-wrap: nowrap;
-}
-
-.dkc-pill {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  padding: 3px 8px;
-  border-radius: 6px;
-  font-size: 0.74rem;
-  font-weight: 700;
-  white-space: nowrap;
-}
-
-.dkc-pill.cash {
-  background: rgba(16, 185, 129, 0.12);
-  color: var(--success);
-  border: 1px solid rgba(16, 185, 129, 0.25);
-}
-
-.dkc-pill.ins {
-  background: rgba(2, 132, 199, 0.12);
-  color: var(--primary);
-  border: 1px solid rgba(2, 132, 199, 0.25);
-}
 
 .dkc-sub {
   font-size: 0.73rem;
@@ -471,7 +441,6 @@
   }
 
   #my-appointments-grid .doc-stack-nav-bar,
-  #my-appointments-grid #btn-toggle-doc-stack-layout,
   #my-appointments-grid #doc-stack-counter,
   #my-appointments-grid .doc-stack-header-bar {
     display: none;

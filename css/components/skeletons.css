@@ -53,7 +53,6 @@
 }
 .sk-avatar-32 { width: 32px !important; height: 32px !important; }
 .sk-avatar-36 { width: 36px !important; height: 36px !important; }
-.sk-avatar-40 { width: 40px !important; height: 40px !important; }
 
 /* Sizing Helpers: Lines */
 .skeleton-line {
@@ -84,20 +83,11 @@
 .sk-w-40 { width: 40% !important; }
 .sk-w-45 { width: 45% !important; }
 .sk-w-50 { width: 50% !important; }
-.sk-w-60 { width: 60% !important; }
-.sk-w-65 { width: 65% !important; }
-.sk-w-70 { width: 70% !important; }
-.sk-w-80 { width: 80% !important; }
-.sk-w-90 { width: 90% !important; }
-.sk-w-100 { width: 100% !important; }
 
 /* Fixed Widths (px) */
 .sk-w-45px { width: 45px !important; }
 .sk-w-50px { width: 50px !important; }
 .sk-w-55px { width: 55px !important; }
-.sk-w-60px { width: 60px !important; }
-.sk-w-65px { width: 65px !important; }
-.sk-w-70px { width: 70px !important; }
 .sk-w-80px { width: 80px !important; }
 .sk-w-85px { width: 85px !important; }
 .sk-w-90px { width: 90px !important; }
@@ -109,15 +99,10 @@
 .sk-w-140px { width: 140px !important; }
 
 /* Heights (px) */
-.sk-h-8 { height: 8px !important; }
 .sk-h-12 { height: 12px !important; }
 .sk-h-14 { height: 14px !important; }
 .sk-h-16 { height: 16px !important; }
 .sk-h-18 { height: 18px !important; }
-.sk-h-20 { height: 20px !important; }
-.sk-h-22 { height: 22px !important; }
-.sk-h-24 { height: 24px !important; }
-.sk-h-46 { height: 46px !important; }
 .sk-h-48 { height: 48px !important; border-radius: var(--radius-sm, 10px) !important; }
 
 /* Card & Block Containers */

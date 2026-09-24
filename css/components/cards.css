@@ -502,11 +502,6 @@
   border: 1px solid rgba(56, 189, 248, 0.25);
 }
 
-.hsc-avatar.patient-avatar {
-  background: rgba(129, 140, 248, 0.15);
-  color: #818cf8;
-  border-color: rgba(129, 140, 248, 0.25);
-}
 
 .hsc-name-box {
   display: flex;
@@ -525,21 +520,7 @@
   white-space: normal !important;
 }
 
-.hsc-name-row {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  flex-wrap: wrap;
-}
 
-.hsc-age-badge {
-  font-size: 0.76rem;
-  font-weight: 700;
-  color: var(--text-muted);
-  background: var(--bg-subtle);
-  padding: 2px 7px;
-  border-radius: var(--radius-pill);
-}
 
 .hsc-doc-sub {
   font-size: 0.78rem;
@@ -550,13 +531,6 @@
   gap: 4px;
 }
 
-.hsc-badge-amount {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  gap: 6px;
-  flex-shrink: 0;
-}
 
 .hsc-amount-val {
   font-size: 1.25rem;
@@ -572,39 +546,9 @@
   color: var(--text-muted);
 }
 
-.hsc-pill-wrap {
-  display: flex;
-  gap: 4px;
-  align-items: center;
-  flex-wrap: wrap;
-  justify-content: flex-end;
-}
 
-/* 2. Patient Meta Row (Phone & Address) */
-.hsc-patient-meta-row {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  margin-top: 10px;
-  flex-wrap: wrap;
-  font-size: 0.82rem;
-}
 
-.hsc-meta-link {
-  color: #38bdf8;
-  text-decoration: none;
-  font-weight: 700;
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-}
 
-.hsc-meta-text {
-  color: var(--text-muted);
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-}
 
 /* 3. Divider */
 .hsc-divider {
@@ -727,159 +671,8 @@
   max-width: 100%;
 }
 
-/* 3. Patient Card Name Row Alignment */
-.hsc-patient-billing-box {
-  display: inline-flex;
-  align-items: center;
-}
 
-.hsc-patient-billing-box .badge {
-  font-size: 0.76rem !important;
-  padding: 3px 9px !important;
-  border-radius: 6px !important;
-}
 
-/* ==========================================================================
-   Migrated from style.css (Group 3: Insurance Company Cards)
-   ========================================================================== */
-
-/* ================= Modern Insurance Companies UI ================= */
-
-.insurance-companies-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 8px;
-  margin-top: 8px;
-}
-
-.insurance-company-card {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  background: #ffffff;
-  border: 1.5px solid #e2e8f0;
-  padding: 10px 12px;
-  border-radius: 10px;
-  font-size: 0.84rem;
-  font-weight: 700;
-  color: #1e293b;
-  cursor: pointer;
-  user-select: none;
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
-  text-align: right;
-  position: relative;
-}
-
-.insurance-company-card:active {
-  transform: scale(0.98);
-}
-
-.insurance-company-card .ins-icon-wrap {
-  width: 28px;
-  height: 28px;
-  border-radius: 6px;
-  background: #f0f9ff;
-  color: #0284c7;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 0.85rem;
-  flex-shrink: 0;
-  transition: all 0.2s ease;
-}
-
-.insurance-company-card.selected {
-  border-color: #0284c7;
-  background: #f0f9ff;
-  color: #0369a1;
-  box-shadow: 0 0 0 2px rgba(2, 132, 199, 0.2);
-}
-
-.insurance-company-card.selected .ins-icon-wrap {
-  background: #0284c7;
-  color: #ffffff;
-}
-
-.insurance-company-card .ins-check-icon {
-  margin-right: auto;
-  color: #0284c7;
-  font-size: 0.85rem;
-}
-
-.insurance-companies-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 8px;
-  width: 100%;
-  max-width: 100%;
-  box-sizing: border-box;
-}
-
-.insurance-company-card {
-  min-width: 0;
-  max-width: 100%;
-  box-sizing: border-box;
-}
-
-.insurance-companies-grid[style*="display: none"],.insurance-companies-grid[style*="display:none"] {
-  display: none !important;
-}
-
-.insurance-companies-grid[style*="display: grid"],.insurance-companies-grid[style*="display:grid"] {
-  display: grid !important;
-}
-
-.insurance-company-card.in-edit-mode {
-  position: relative;
-  padding-left: 36px;
-  border-style: dashed;
-  border-color: #94a3b8;
-  animation: pulseEdit 1.5s infinite ease-in-out;
-}
-
-.insurance-company-card.in-edit-mode .chip-delete-tag {
-  position: absolute;
-  left: 8px;
-  top: 50%;
-  transform: translateY(-50%);
-  color: #ef4444;
-  font-size: 1.15rem;
-  z-index: 10;
-  cursor: pointer;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  background: #fee2e2;
-  border-radius: 50%;
-  width: 22px;
-  height: 22px;
-  transition: transform 0.15s;
-}
-
-[data-theme="dark"] .insurance-company-card {
-  background: var(--bg-surface);
-  border-color: var(--border-color);
-  color: var(--text-main);
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.25);
-}
-
-[data-theme="dark"] .insurance-company-card .ins-icon-wrap {
-  background: var(--bg-subtle);
-  color: var(--primary);
-}
-
-[data-theme="dark"] .insurance-company-card.selected {
-  border-color: var(--primary);
-  background: rgba(56, 189, 248, 0.15);
-  color: var(--primary);
-  box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.3);
-}
-
-[data-theme="dark"] .insurance-company-card.selected .ins-icon-wrap {
-  background: var(--primary);
-  color: #ffffff;
-}
 
 .renew-approval-alert {
   background: #f0fdf4;

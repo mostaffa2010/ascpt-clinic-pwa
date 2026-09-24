@@ -1068,7 +1068,6 @@
    ========================================================================== */
 @media screen and (max-width: 991px) {
   #card-finance-daily-expenses,
-  #card-finance-daily-doctors,
   #card-monthly-doctors,
   #card-monthly-insurance,
   #card-monthly-expenses,
@@ -1081,7 +1080,6 @@
   }
 
   #card-finance-daily-expenses .card-header,
-  #card-finance-daily-doctors .card-header,
   #card-monthly-doctors .card-header,
   #card-monthly-insurance .card-header,
   #card-monthly-expenses .card-header,

@@ -418,18 +418,13 @@ input, textarea, select, [contenteditable="true"] {
 /* --------------------------------------------------------------------------
    5. REUSABLE ATOMIC & LAYOUT UTILITY CLASSES (Phase 5 Refinement)
    -------------------------------------------------------------------------- */
-.mb-6 { margin-bottom: 6px !important; }
 .mb-8 { margin-bottom: 8px !important; }
-.mb-10 { margin-bottom: 10px !important; }
 .mb-12 { margin-bottom: 12px !important; }
 .mb-14 { margin-bottom: 14px !important; }
 .mb-16 { margin-bottom: 16px !important; }
-.mt-3 { margin-top: 3px !important; }
 .mt-6 { margin-top: 6px !important; }
 .mt-8 { margin-top: 8px !important; }
-.mt-10 { margin-top: 10px !important; }
 .mt-12 { margin-top: 12px !important; }
-.mt-14 { margin-top: 14px !important; }
 .p-16 { padding: 16px !important; }
 .w-100 { width: 100% !important; }
 .w-100-h42 { width: 100% !important; height: 42px !important; }
@@ -447,7 +442,6 @@ input, textarea, select, [contenteditable="true"] {
 .z-350 { z-index: 2000 !important; }
 .modal-sm { max-width: 440px !important; }
 .modal-md { max-width: 520px !important; }
-.modal-lg { max-width: 650px !important; }
 
 .fw-700 { font-weight: 700 !important; }
 .fw-800 { font-weight: 800 !important; }
@@ -455,7 +449,6 @@ input, textarea, select, [contenteditable="true"] {
 .m-0 { margin: 0 !important; }
 .h-42 { height: 42px !important; }
 .text-center { text-align: center !important; }
-.text-right { text-align: right !important; }
 .btn-h38-700 { font-weight: 700 !important; height: 38px !important; }
 .flex-col-gap10 { display: flex !important; flex-direction: column !important; gap: 10px !important; }
 .z-225 { z-index: 225 !important; }
@@ -474,23 +467,15 @@ input, textarea, select, [contenteditable="true"] {
 .d-flex { display: flex; }
 .d-grid { display: grid; }
 .d-block { display: block; }
-.d-inline-flex { display: inline-flex; }
 
 .text-success { color: var(--success) !important; }
 .text-warning { color: var(--warning) !important; }
 .text-main { color: var(--text-main); }
 
-.fw-600 { font-weight: 600; }
 
 .flex-between { display: flex; align-items: center; justify-content: space-between; }
-.flex-center { display: flex; align-items: center; justify-content: center; }
 .flex-col { display: flex; flex-direction: column; }
-.gap-4 { gap: 4px; }
-.gap-6 { gap: 6px; }
 .gap-8 { gap: 8px; }
-.gap-10 { gap: 10px; }
-.gap-12 { gap: 12px; }
-.h-100 { height: 100%; }
 /* ==========================================================================
    Migrated from style.css - print toggle
    ========================================================================== */
@@ -506,7 +491,6 @@ input, textarea, select, [contenteditable="true"] {
 /* Tabular Numbers for Financial & Clinical Data */
 .data-table td,
 .data-table th,
-.hsc-badge-amount,
 .stat-value,
 .badge-cash,
 .badge-direct,
@@ -618,8 +602,7 @@ body.role-receptionist #dashboard-admin-view {
     grid-template-columns: repeat(3, 1fr);
   }
 
-  .form-grid.two-cols,
-  .form-grid.three-cols {
+  .form-grid.two-cols {
     grid-template-columns: repeat(2, 1fr);
   }
 }
@@ -657,9 +640,6 @@ body.role-receptionist #dashboard-admin-view {
     grid-template-columns: 1fr 1fr;
   }
 
-  .form-grid.three-cols {
-    grid-template-columns: 1fr 1fr 1fr;
-  }
 
   .split-screen {
     display: grid;

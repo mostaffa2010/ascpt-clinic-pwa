@@ -387,12 +387,6 @@
 /* ----------------------------------------------------------------------------
    3. Mobile Appointments Timeline & Slot Cards
    ---------------------------------------------------------------------------- */
-.appt-timeline-container {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  width: 100%;
-}
 
 .appt-slot-card {
   margin: 0 0 14px 0;
@@ -449,19 +443,7 @@
   transform: translateY(-1px);
 }
 
-.appt-slot-doc-group {
-  margin-top: 8px;
-}
 
-.appt-slot-doc-title {
-  font-size: 0.85rem;
-  font-weight: 800;
-  color: var(--primary);
-  margin-bottom: 8px;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
 
 .appt-chips-wrap {
   display: flex;
@@ -560,13 +542,6 @@
   line-height: 1;
 }
 
-.appt-slot-empty-hint {
-  font-size: 0.78rem;
-  color: var(--text-muted);
-  font-style: italic;
-  padding: 4px 0;
-  display: block;
-}
 
 .appt-slot-empty-clean {
   display: flex;
@@ -587,42 +562,9 @@
   gap: 8px;
 }
 
-.appt-book-title {
-  font-size: 0.78rem;
-  font-weight: 800;
-  color: var(--primary);
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
 
-.appt-doc-pills-row {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  flex-wrap: wrap;
-}
 
-.appt-doc-booking-pill {
-  border-radius: var(--radius-pill);
-  padding: 5px 12px;
-  font-size: 0.78rem;
-  font-weight: 700;
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  background: var(--bg-surface);
-  border: 1.5px solid var(--border-color);
-  color: var(--text-main);
-  transition: all 0.18s ease;
-}
 
-.appt-doc-booking-pill:hover {
-  background: var(--primary-light);
-  border-color: var(--primary);
-  color: var(--primary);
-  transform: translateY(-1px);
-}
 
 .appt-active-doc-group {
   margin-bottom: 8px;
@@ -721,11 +663,6 @@
   text-decoration: underline;
 }
 
-.appt-chip-doctor {
-  font-size: 0.7rem;
-  color: var(--text-muted);
-  white-space: nowrap;
-}
 
 .appt-chip-actions {
   display: inline-flex;
@@ -752,49 +689,9 @@
   background: rgba(2, 132, 199, 0.18);
 }
 
-.appt-chip-copy {
-  background: none;
-  border: none;
-  color: var(--primary);
-  font-size: 0.8rem;
-  line-height: 1;
-  cursor: pointer;
-  padding: 2px 4px;
-  border-radius: 4px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.15s ease;
-}
 
-.appt-chip-copy:hover {
-  background: rgba(2, 132, 199, 0.18);
-  transform: scale(1.1);
-}
 
-:root:not([data-theme="dark"]) .appt-slot-card .appt-chip-copy {
-  background: #e0f2fe;
-  color: #0284c7;
-  border: 1px solid #bae6fd;
-  width: 28px;
-  height: 28px;
-  border-radius: 50%;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-}
 
-[data-theme="dark"] .appt-slot-card .appt-chip-copy {
-  background: rgba(56, 189, 248, 0.15);
-  color: #38bdf8;
-  border: 1px solid rgba(56, 189, 248, 0.3);
-  width: 28px;
-  height: 28px;
-  border-radius: 50%;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-}
 
 .appt-chip-remove {
   background: none;
@@ -1064,10 +961,6 @@
     padding: 0;
   }
 
-  .appt-timeline-container {
-    gap: 14px;
-    width: 100%;
-  }
 }
 .appt-timeline-grid-container .appt-slot-card {
   margin: 0;

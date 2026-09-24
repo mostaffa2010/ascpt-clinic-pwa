@@ -39,15 +39,7 @@
   transform: translateY(-1px);
 }
 
-.btn-secondary {
-  background-color: var(--bg-surface-elevated);
-  color: var(--text-main);
-  border-color: var(--border-subtle);
-}
 
-.btn-secondary:hover {
-  border-color: var(--border-hover);
-}
 
 .btn-outline {
   background-color: transparent;

@@ -691,67 +691,9 @@
   50% { transform: scale(1.25); opacity: 0.65; }
 }
 
-.training-mode-tag {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  background-color: #fef3c7;
-  color: #b45309;
-  border: 1px solid #fde68a;
-  padding: 3px 8px;
-  border-radius: 10px;
-  font-size: 0.75rem;
-  font-weight: 700;
-}
 
-.sandbox-banner {
-  background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%);
-  border-bottom: 1.5px solid #fde68a;
-  color: #92400e;
-  padding: 8px 14px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  font-size: 0.82rem;
-  font-weight: 600;
-  box-shadow: 0 1px 3px rgba(245, 158, 11, 0.08);
-  position: sticky;
-  top: 56px;
-  z-index: 39;
-}
 
-.training-pill-btn {
-  background-color: #fef3c7;
-  border: 1px solid #f59e0b;
-  color: #92400e;
-  padding: 4px 10px;
-  border-radius: 10px;
-  font-size: 0.76rem;
-  font-weight: 700;
-  cursor: pointer;
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  transition: all 0.15s;
-  white-space: nowrap;
-}
 
-.training-pill-btn:hover, .training-pill-btn:active {
-  background-color: #fde68a;
-}
-
-.demo-showcase-bar {
-  background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
-  border-bottom: 2px solid #0284c7;
-  padding: 8px 16px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  flex-wrap: wrap;
-  gap: 8px;
-  box-shadow: var(--shadow-sm);
-  z-index: 45;
-}
 
 /* ----------------------------------------------------------------------------
    9. Dark Mode Shell Overrides
@@ -773,49 +715,11 @@
   background: rgba(56, 189, 248, 0.15);
   color: #38bdf8;
 }
-[data-theme="dark"] .training-pill-btn {
-  background-color: rgba(251, 191, 36, 0.15) !important;
-  border-color: rgba(251, 191, 36, 0.35) !important;
-  color: #fbbf24 !important;
-}
-
-[data-theme="dark"] .training-pill-btn:hover,
-[data-theme="dark"] .training-pill-btn:active {
-  background-color: rgba(251, 191, 36, 0.25) !important;
-}
 
 /* ==========================================================================
    Migrated from style.css (Group 10: Role Capsule Switcher)
    ========================================================================== */
 
-/* Role Capsule Switcher */
-.demo-role-capsule {
-  display: inline-flex;
-  align-items: center;
-  background-color: var(--bg-subtle);
-  border: 1px solid var(--border-color);
-  border-radius: 10px;
-  padding: 2px;
-  gap: 2px;
-}
-
-.demo-role-capsule .role-opt {
-  border: none;
-  background: none;
-  padding: 4px 8px;
-  font-size: 0.74rem;
-  font-weight: 700;
-  color: var(--text-muted);
-  border-radius: 8px;
-  cursor: pointer;
-  transition: all 0.15s;
-}
-
-.demo-role-capsule .role-opt.active {
-  background-color: var(--primary);
-  color: #ffffff;
-  box-shadow: 0 1px 2px rgba(2, 132, 199, 0.3);
-}
 
 /* ==========================================================================
    Migrated from style.css (User Profile Interactive Triggers)

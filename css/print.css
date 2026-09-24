@@ -78,7 +78,6 @@
   .modal-overlay,
   .modal,
   .search-box,
-  .filters-bar,
   .no-print,
   #pull-to-reload-indicator,
   .pull-to-reload-indicator,
@@ -87,18 +86,14 @@
   .notification-badge,
   .notification-dropdown,
   #modal-notification-primer,
-  .sandbox-banner,
-  #pwa-install-banner,
   .toast-box,
   .card-header button,
   .finance-mode-segmented,
   .horizontal-date-strip,
   #card-cash-drawer-glance,
   .mobile-only-cards-container,
-  #finance-report-mobile-cards,
   #finance-expenses-mobile-cards,
   #daily-doctors-mobile-deck,
-  #monthly-doctors-mobile-deck,
   #monthly-doctors-mobile-cards,
   #monthly-insurance-mobile-cards,
   #monthly-expenses-mobile-cards,
@@ -245,13 +240,6 @@
     font-weight: 700 !important;
   }
 
-  body.printing-sheet .sheet-print-header .director-line {
-    font-size: 10.5pt !important;
-    font-weight: 800 !important;
-    color: #075985 !important;
-    margin-top: 3px !important;
-    margin-bottom: 3px !important;
-  }
 
   body.printing-sheet .sheet-print-header .meta-sub {
     font-size: 7.5pt !important;
@@ -1316,12 +1304,6 @@
     border-bottom: 2px solid #0284c7 !important;
   }
 
-  body.printing-receipt #receipt-print-amount-box {
-    border: 2px solid #166534 !important;
-    background-color: #f0fdf4 !important;
-    color: #14532d !important;
-    font-weight: 900 !important;
-  }
 
   body.printing-receipt .receipt-print-footer-wrap {
     margin-top: auto !important;
@@ -1377,12 +1359,6 @@
     border-bottom: 2px solid #0369a1 !important;
   }
 
-  body.printing-statement #printable-medical-statement .statement-diagnosis-box {
-    border: 1.5px solid #475569 !important;
-    background-color: #f8fafc !important;
-    font-weight: 700 !important;
-    color: #000000 !important;
-  }
 
   /* Refined, Elegant Clinic Logo Sizing for Printing */
   .print-header img,

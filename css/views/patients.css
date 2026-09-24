@@ -790,33 +790,6 @@
   gap: 8px;
 }
 
-.p-card-top {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.p-card-name {
-  font-size: 1rem;
-  font-weight: 700;
-  color: var(--text-main);
-}
-
-.p-card-details {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 12px;
-  font-size: 0.83rem;
-  color: var(--text-muted);
-}
-
-.p-card-actions {
-  display: flex;
-  gap: 8px;
-  margin-top: 6px;
-  border-top: 1px dashed var(--border-color);
-  padding-top: 8px;
-}
 
 /* Newly added patient highlight */
 .patient-row-newly-added {
