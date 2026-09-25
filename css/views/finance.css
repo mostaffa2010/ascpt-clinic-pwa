@@ -28,7 +28,7 @@
 
 .finance-main-title {
   font-size: 1.35rem;
-  font-weight: 800;
+  font-weight: var(--fw-extrabold);
   margin: 0;
   color: var(--text-main);
 }
@@ -47,7 +47,7 @@
 .finance-mode-segmented {
   display: flex;
   background: var(--bg-subtle);
-  border-radius: 16px;
+  border-radius: var(--radius-md);
   padding: 4px;
   gap: 4px;
   border: 1.5px solid var(--border-color);
@@ -59,41 +59,41 @@
 .finance-mode-segmented .btn {
   flex: 1;
   border: none;
-  border-radius: 12px;
+  border-radius: var(--radius-md-sm);
   padding: 9px 12px;
-  font-weight: 800;
+  font-weight: var(--fw-extrabold);
   font-size: 0.86rem;
   text-align: center;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 6px;
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: all var(--transition-spring);
   cursor: pointer;
   white-space: nowrap;
 }
 
 :root:not([data-theme="dark"]) .finance-mode-segmented .btn.btn-outline {
   background: transparent;
-  color: #64748b;
+  color: var(--text-muted);
   box-shadow: none;
 }
 
 :root:not([data-theme="dark"]) .finance-mode-segmented .btn.btn-primary {
-  background: #ffffff;
-  color: #0284c7;
+  background: var(--bg-surface);
+  color: var(--primary);
   box-shadow: 0 2px 8px rgba(15, 23, 42, 0.08);
 }
 
 [data-theme="dark"] .finance-mode-segmented .btn.btn-outline {
   background: transparent;
-  color: #94a3b8;
+  color: var(--text-muted);
   box-shadow: none;
 }
 
 [data-theme="dark"] .finance-mode-segmented .btn.btn-primary {
-  background: #1e293b;
-  color: #38bdf8;
+  background: var(--bg-surface);
+  color: var(--primary);
   border: 1px solid rgba(56, 189, 248, 0.3);
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
 }
@@ -125,11 +125,11 @@
 .btn-fin-action {
   height: 42px;
   padding: 0 16px;
-  font-weight: 700;
+  font-weight: var(--fw-bold);
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  border-radius: 10px;
+  border-radius: var(--radius-sm);
 }
 
 .btn-fin-expense {
@@ -159,7 +159,7 @@
     height: 40px;
     padding: 0 6px;
     font-size: 0.78rem;
-    border-radius: 10px;
+    border-radius: var(--radius-sm);
     justify-content: center;
     white-space: nowrap;
   }
@@ -198,7 +198,7 @@
 
 .fin-filter-label {
   font-size: 0.85rem;
-  font-weight: bold;
+  font-weight: var(--fw-bold);
   white-space: nowrap;
   margin: 0;
   color: var(--text-main);
@@ -211,7 +211,7 @@
 
 .fin-date-picker-input {
   width: 130px;
-  font-weight: 700;
+  font-weight: var(--fw-bold);
   padding-left: 24px;
   padding-right: 6px;
   font-size: 0.82rem;
@@ -219,7 +219,7 @@
 
 .fin-month-picker-input {
   width: 145px;
-  font-weight: 700;
+  font-weight: var(--fw-bold);
 }
 
 .fin-date-input-icon {
@@ -255,18 +255,18 @@
   min-height: 34px;
   height: 34px;
   padding: 0 16px;
-  border-radius: 999px;
+  border-radius: var(--radius-full);
   border: 1.5px solid var(--border-color);
   background: var(--bg-surface);
   color: var(--text-main);
   font-size: 0.82rem;
-  font-weight: 700;
+  font-weight: var(--fw-bold);
   cursor: pointer;
   white-space: nowrap;
   box-sizing: border-box;
   flex-shrink: 0;
-  transition: all 0.18s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04);
+  transition: all var(--transition-spring);
+  box-shadow: var(--shadow-xs);
 }
 
 .btn-quick-date:hover {
@@ -282,9 +282,9 @@
 }
 
 [data-theme="dark"] .btn-quick-date {
-  background: #1e293b;
-  border-color: #334155;
-  color: #f1f5f9;
+  background: var(--bg-surface);
+  border-color: var(--border-color);
+  color: var(--text-main);
 }
 
 [data-theme="dark"] .btn-quick-date.active {
@@ -352,7 +352,7 @@
 .cash-drawer-icon-wrap {
   width: 38px;
   height: 38px;
-  border-radius: 12px;
+  border-radius: var(--radius-md-sm);
   background: var(--success-light);
   color: var(--success);
   display: flex;
@@ -364,7 +364,7 @@
 
 [data-theme="dark"] .cash-drawer-icon-wrap {
   background: rgba(16, 185, 129, 0.2);
-  color: #34d399;
+  color: var(--success);
 }
 
 .cash-drawer-title-box {
@@ -372,7 +372,7 @@
 }
 
 .cash-drawer-title-box .title {
-  font-weight: 800;
+  font-weight: var(--fw-extrabold);
   font-size: 0.95rem;
   color: var(--text-main);
   line-height: 1.35;
@@ -383,18 +383,18 @@
   align-items: center;
   gap: 5px;
   padding: 4px 10px;
-  border-radius: 999px;
+  border-radius: var(--radius-full);
   background: rgba(16, 185, 129, 0.12);
   color: var(--success);
   font-size: 0.72rem;
-  font-weight: 800;
+  font-weight: var(--fw-extrabold);
   border: 1px solid rgba(16, 185, 129, 0.3);
   white-space: nowrap;
   flex-shrink: 0;
 }
 
 [data-theme="dark"] .cash-drawer-status-pill {
-  color: #34d399;
+  color: var(--success);
   border-color: rgba(52, 211, 153, 0.35);
 }
 
@@ -408,7 +408,7 @@
 
 .cash-drawer-amount-text {
   font-size: 2.1rem;
-  font-weight: 800;
+  font-weight: var(--fw-extrabold);
   color: var(--success);
   font-variant-numeric: tabular-nums;
   line-height: 1;
@@ -418,14 +418,14 @@
 .cash-drawer-formula-box {
   background: var(--bg-surface);
   border: 1px dashed rgba(16, 185, 129, 0.35);
-  border-radius: 12px;
+  border-radius: var(--radius-md-sm);
   padding: 8px 12px;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 8px;
   font-size: 0.78rem;
-  font-weight: 700;
+  font-weight: var(--fw-bold);
   color: var(--text-main);
   text-align: center;
 }
@@ -446,7 +446,7 @@
   margin-bottom: 16px;
   border: 1.5px solid var(--border-color);
   background: var(--bg-surface);
-  transition: all 0.25s ease;
+  transition: all var(--transition-normal);
 }
 
 .cockpit-sub-metrics-grid {
@@ -464,15 +464,15 @@
   gap: 10px;
   padding: 10px 12px;
   background: var(--bg-subtle);
-  border-radius: 12px;
+  border-radius: var(--radius-md-sm);
   border: 1px solid var(--border-color);
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  transition: transform var(--transition-normal), box-shadow var(--transition-normal);
 }
 
 .cockpit-metric-item .c-icon {
   width: 36px;
   height: 36px;
-  border-radius: 10px;
+  border-radius: var(--radius-sm);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -481,17 +481,17 @@
 }
 
 .cockpit-metric-item.green .c-icon {
-  background: rgba(16, 185, 129, 0.12);
+  background: var(--emerald-tint);
   color: var(--success);
 }
 
 .cockpit-metric-item.red .c-icon {
-  background: rgba(239, 68, 68, 0.12);
+  background: var(--rose-tint);
   color: var(--danger);
 }
 
 .cockpit-metric-item.blue .c-icon {
-  background: rgba(2, 132, 199, 0.12);
+  background: var(--primary-tint);
   color: var(--primary);
 }
 
@@ -503,7 +503,7 @@
 
 .cockpit-metric-item .c-label {
   font-size: 0.74rem;
-  font-weight: 700;
+  font-weight: var(--fw-bold);
   color: var(--text-muted);
   white-space: nowrap;
   overflow: hidden;
@@ -512,7 +512,7 @@
 
 .cockpit-metric-item .c-val {
   font-size: 1rem;
-  font-weight: 800;
+  font-weight: var(--fw-extrabold);
   color: var(--text-main);
   margin-top: 2px;
   white-space: nowrap;
@@ -551,18 +551,18 @@
 }
 
 .btn-confirm-cash-handoff {
-  font-weight: 800;
+  font-weight: var(--fw-extrabold);
   font-size: 0.84rem;
   padding: 6px 14px;
-  border-radius: 999px;
-  border-color: #10b981;
+  border-radius: var(--radius-full);
+  border-color: var(--success);
   color: #059669;
   background: rgba(16, 185, 129, 0.08);
   display: inline-flex;
   align-items: center;
   gap: 6px;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all var(--transition-normal);
 }
 
 .btn-confirm-cash-handoff:hover {
@@ -582,7 +582,7 @@
 
 .fin-badge-settlements {
   font-size: 0.8rem;
-  font-weight: 800;
+  font-weight: var(--fw-extrabold);
 }
 
 .fin-doctors-breakdown-row {
@@ -628,13 +628,13 @@
     transform: none;
     opacity: 1;
     visibility: visible;
-    z-index: 1;
+    z-index: var(--z-elevate);
     pointer-events: auto;
     will-change: auto;
     box-shadow: var(--shadow-sm);
     border-color: var(--border-color);
     cursor: default;
-    transition: box-shadow 0.2s ease, border-color 0.2s ease;
+    transition: box-shadow var(--transition-normal), border-color var(--transition-normal);
     margin-bottom: 0;
     width: 100%;
     box-sizing: border-box;
@@ -660,12 +660,12 @@
    8. Monthly Report Operating Profit & Distribution Dashboard
    ---------------------------------------------------------------------------- */
 .fin-icon-wrap-success {
-  background: rgba(16, 185, 129, 0.12);
+  background: var(--emerald-tint);
   color: var(--success);
 }
 
 .fin-status-pill-success {
-  background: rgba(16, 185, 129, 0.12);
+  background: var(--emerald-tint);
   color: var(--success);
   border: 1px solid rgba(16, 185, 129, 0.25);
 }
@@ -684,10 +684,10 @@
 }
 
 .fin-danger-badge {
-  background: rgba(239, 68, 68, 0.12);
+  background: var(--rose-tint);
   color: var(--danger);
   font-size: 0.8rem;
-  font-weight: 800;
+  font-weight: var(--fw-extrabold);
 }
 
 .fin-summary-mobile-pad {
@@ -703,7 +703,7 @@
 
 .th-center-bold {
   text-align: center;
-  font-weight: 800;
+  font-weight: var(--fw-extrabold);
 }
 
 .fin-action-col-60 {
@@ -721,22 +721,22 @@
 #btn-add-expense {
   background: rgba(239, 68, 68, 0.08);
   border-color: rgba(239, 68, 68, 0.3);
-  color: #ef4444;
+  color: var(--danger);
 }
 
 #btn-add-expense:hover, #btn-add-expense:active {
-  background: #ef4444;
+  background: var(--danger);
   color: #ffffff;
 }
 
 #btn-add-settlement {
   background: rgba(2, 132, 199, 0.08);
   border-color: rgba(2, 132, 199, 0.3);
-  color: #0284c7;
+  color: var(--primary);
 }
 
 #btn-add-settlement:hover, #btn-add-settlement:active {
-  background: #0284c7;
+  background: var(--primary);
   color: #ffffff;
 }
 
@@ -744,14 +744,14 @@
   color: var(--danger);
   border-color: rgba(239, 68, 68, 0.3);
   padding: 4px 9px;
-  border-radius: 6px;
+  border-radius: var(--radius-xs);
   cursor: pointer;
-  transition: all 0.15s ease;
+  transition: all var(--transition-fast);
 }
 
 .btn-delete-exp-cat:hover {
   background-color: rgba(239, 68, 68, 0.15);
-  color: #ef4444;
+  color: var(--danger);
 }
 
 .finance-mode-segmented {
@@ -768,7 +768,7 @@
 .payment-info-box-cash {
   background-color: #f0f9ff;
   border: 1.5px solid #bae6fd;
-  border-radius: 10px;
+  border-radius: var(--radius-sm);
   padding: 12px 14px;
   display: flex;
   align-items: center;
@@ -780,9 +780,9 @@
 .payment-info-box-cash .pay-icon {
   width: 38px;
   height: 38px;
-  border-radius: 8px;
-  background: #e0f2fe;
-  color: #0284c7;
+  border-radius: var(--radius-base);
+  background: var(--primary-light);
+  color: var(--primary);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -791,21 +791,21 @@
 }
 
 .payment-info-box-cash .pay-title {
-  font-weight: 800;
+  font-weight: var(--fw-extrabold);
   font-size: 0.95rem;
-  color: #0369a1;
+  color: var(--primary-hover);
 }
 
 .payment-info-box-cash .pay-sub {
   font-size: 0.78rem;
-  color: #0284c7;
-  font-weight: 600;
+  color: var(--primary);
+  font-weight: var(--fw-semibold);
 }
 
 .payment-info-box-contract {
   background-color: #f0fdf4;
   border: 1.5px solid #bbf7d0;
-  border-radius: 10px;
+  border-radius: var(--radius-sm);
   padding: 12px 14px;
   display: flex;
   align-items: center;
@@ -817,7 +817,7 @@
 .payment-info-box-contract .pay-icon {
   width: 38px;
   height: 38px;
-  border-radius: 8px;
+  border-radius: var(--radius-base);
   background: #dcfce7;
   color: #15803d;
   display: flex;
@@ -828,7 +828,7 @@
 }
 
 .payment-info-box-contract .pay-title {
-  font-weight: 800;
+  font-weight: var(--fw-extrabold);
   font-size: 0.95rem;
   color: #166534;
 }
@@ -836,7 +836,7 @@
 .payment-info-box-contract .pay-sub {
   font-size: 0.78rem;
   color: #15803d;
-  font-weight: 600;
+  font-weight: var(--fw-semibold);
 }
 
 [data-theme="dark"] .payment-info-box-cash {
@@ -846,7 +846,7 @@
 
 [data-theme="dark"] .payment-info-box-cash .pay-icon {
   background: rgba(56, 189, 248, 0.2);
-  color: #38bdf8;
+  color: var(--primary);
 }
 
 [data-theme="dark"] .payment-info-box-cash .pay-title {
@@ -864,7 +864,7 @@
 
 [data-theme="dark"] .payment-info-box-contract .pay-icon {
   background: rgba(52, 211, 153, 0.2);
-  color: #34d399;
+  color: var(--success);
 }
 
 [data-theme="dark"] .payment-info-box-contract .pay-title {
@@ -888,12 +888,12 @@
 #doctors-breakdown-container > div {
   background: var(--bg-surface);
   border: 1.5px solid var(--border-color);
-  border-radius: 16px;
+  border-radius: var(--radius-md);
   padding: 12px 14px;
   display: flex;
   align-items: center;
   gap: 10px;
-  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.03);
+  box-shadow: var(--shadow-xs);
   min-width: 0;
   box-sizing: border-box;
 }
@@ -948,7 +948,7 @@
   padding: 11px 14px;
   border-bottom: 1px solid var(--border-color);
   gap: 10px;
-  transition: background 0.15s ease;
+  transition: background var(--transition-fast);
 }
 
 .expense-row-item:last-child {
@@ -970,9 +970,9 @@
 .expense-avatar-icon {
   width: 36px;
   height: 36px;
-  border-radius: 10px;
-  background: rgba(239, 68, 68, 0.12);
-  color: #ef4444;
+  border-radius: var(--radius-sm);
+  background: var(--rose-tint);
+  color: var(--danger);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -989,7 +989,7 @@
 
 .expense-title-text {
   font-size: 0.92rem;
-  font-weight: 800;
+  font-weight: var(--fw-extrabold);
   color: var(--text-main);
   white-space: nowrap;
   overflow: hidden;
@@ -1019,7 +1019,7 @@
 
 .expense-amount-badge {
   font-size: 0.95rem;
-  font-weight: 800;
+  font-weight: var(--fw-extrabold);
   color: var(--danger);
   direction: ltr;
   font-variant-numeric: tabular-nums;
@@ -1030,7 +1030,7 @@
 .btn-delete-expense-compact {
   width: 30px;
   height: 30px;
-  border-radius: 50%;
+  border-radius: var(--radius-full);
   border: 1px solid rgba(239, 68, 68, 0.25);
   background: rgba(239, 68, 68, 0.08);
   color: var(--danger);
@@ -1039,7 +1039,7 @@
   justify-content: center;
   font-size: 0.78rem;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all var(--transition-normal);
 }
 
 .btn-delete-expense-compact:active {
@@ -1056,7 +1056,7 @@
   background: var(--bg-subtle);
   border-bottom: 1px solid var(--border-color);
   font-size: 0.8rem;
-  font-weight: 800;
+  font-weight: var(--fw-extrabold);
   color: var(--text-muted);
 }
 .mobile-only-cards-container .expenses-compact-list {
@@ -1091,25 +1091,25 @@
 }
 
 [data-theme="dark"] #btn-add-settlement {
-  color: #38bdf8;
+  color: var(--primary);
   border-color: rgba(56, 189, 248, 0.35);
   background: rgba(56, 189, 248, 0.1);
 }
 
 [data-theme="dark"] #btn-add-settlement:hover,
 [data-theme="dark"] #btn-add-settlement:active {
-  background: #0284c7;
+  background: var(--primary);
   color: #ffffff;
 }
 
 [data-theme="dark"] #btn-add-expense {
-  color: #f87171;
+  color: var(--danger);
   border-color: rgba(248, 113, 113, 0.35);
   background: rgba(248, 113, 113, 0.1);
 }
 
 [data-theme="dark"] #btn-add-expense:hover,
 [data-theme="dark"] #btn-add-expense:active {
-  background: #ef4444;
+  background: var(--danger);
   color: #ffffff;
 }
