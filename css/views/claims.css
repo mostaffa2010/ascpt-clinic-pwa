@@ -603,7 +603,7 @@
 /* ==========================================================================
    8. Mobile & Responsive Layouts
    ========================================================================== */
-@media screen and (max-width: 767px) {
+@media screen and (max-width: 767.98px) {
   #card-claim-settings {
     padding: 14px 12px;
     border-radius: var(--radius-md);

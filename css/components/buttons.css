@@ -89,7 +89,7 @@
   flex-shrink: 0;
 }
 
-@media screen and (max-width: 767px) {
+@media screen and (max-width: 767.98px) {
   .btn-icon-action {
     min-width: 38px;
     min-height: 38px;
