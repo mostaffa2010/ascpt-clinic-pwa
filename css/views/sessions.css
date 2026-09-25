@@ -23,7 +23,7 @@
 
 .sessions-main-title {
   font-size: 1.35rem;
-  font-weight: 800;
+  font-weight: var(--fw-extrabold);
   color: var(--text-main);
   margin: 0;
 }
@@ -45,13 +45,13 @@
   width: 100%;
   background: var(--bg-subtle);
   border: 1.5px solid var(--border-color);
-  border-radius: 12px;
+  border-radius: var(--radius-md-sm);
   padding: 4px;
 }
 
 [data-theme="dark"] .session-mode-segmented-compact {
-  background: #1e293b;
-  border-color: #334155;
+  background: var(--bg-surface);
+  border-color: var(--border-color);
 }
 
 .session-mode-compact-btn {
@@ -61,14 +61,14 @@
   background: transparent;
   border-radius: 9px;
   font-size: 0.88rem;
-  font-weight: 800;
+  font-weight: var(--fw-extrabold);
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 8px;
   color: var(--text-muted);
   cursor: pointer;
-  transition: all 0.18s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: all var(--transition-spring);
 }
 
 .session-mode-compact-btn.active {
@@ -108,7 +108,7 @@
 
 .compact-label {
   font-size: 0.80rem;
-  font-weight: 800;
+  font-weight: var(--fw-extrabold);
   color: var(--text-main);
   display: flex;
   align-items: center;
@@ -123,7 +123,7 @@
   gap: 10px;
   background: var(--bg-subtle);
   border: 1px solid var(--border-color);
-  border-radius: 10px;
+  border-radius: var(--radius-sm);
   padding: 6px 12px;
 }
 
@@ -142,7 +142,7 @@
 
 .scd-label {
   font-size: 0.80rem;
-  font-weight: 800;
+  font-weight: var(--fw-extrabold);
   color: var(--primary);
   white-space: nowrap;
   margin: 0;
@@ -162,7 +162,7 @@
 .scd-input {
   height: 32px;
   font-size: 0.82rem;
-  font-weight: 800;
+  font-weight: var(--fw-extrabold);
   padding: 0 28px 0 8px;
   border-radius: 7px;
   border: 1px solid var(--border-color);
@@ -186,8 +186,8 @@
 .scd-pills .date-strip-pill {
   padding: 4px 10px;
   font-size: 0.74rem;
-  font-weight: 800;
-  border-radius: 6px;
+  font-weight: var(--fw-extrabold);
+  border-radius: var(--radius-xs);
 }
 
 /* ----------------------------------------------------------------------------
@@ -201,22 +201,16 @@
   height: 42px;
   background: var(--bg-surface);
   border: 1.5px dashed var(--primary);
-  border-radius: 10px;
+  border-radius: var(--radius-sm);
   cursor: pointer;
-  font-weight: 800;
+  font-weight: var(--fw-extrabold);
   font-size: 0.88rem;
   color: var(--primary);
-  transition: all 0.18s ease;
+  transition: all var(--transition-fast);
 }
 
 .patient-picker-trigger-compact:hover {
   background: var(--primary-light);
-}
-
-[data-theme="dark"] .patient-picker-trigger-compact {
-  background: #1e293b;
-  border-color: #38bdf8;
-  color: #38bdf8;
 }
 
 .patient-picker-placeholder-wrap {
@@ -232,18 +226,13 @@
   padding: 8px 12px;
   background: var(--bg-surface);
   border: 1.5px solid var(--primary);
-  border-radius: 10px;
+  border-radius: var(--radius-sm);
   gap: 10px;
   width: 100%;
   max-width: 100%;
   box-sizing: border-box;
   min-width: 0;
   overflow: hidden;
-}
-
-[data-theme="dark"] .selected-patient-card-compact {
-  background: #1e293b;
-  border-color: #38bdf8;
 }
 
 .spc-info {
@@ -282,9 +271,9 @@
 
 .spc-btn-change {
   flex-shrink: 0;
-  border-radius: 8px;
+  border-radius: var(--radius-base);
   font-size: 0.78rem;
-  font-weight: 700;
+  font-weight: var(--fw-bold);
   padding: 5px 12px;
   white-space: nowrap;
   display: inline-flex;
@@ -296,21 +285,16 @@
 .compact-select-btn {
   width: 100%;
   min-height: 40px;
-  border-radius: 10px;
+  border-radius: var(--radius-sm);
   border: 1.5px solid var(--border-color);
   background: var(--bg-surface);
   padding: 0 12px;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  font-weight: 700;
+  font-weight: var(--fw-bold);
   font-size: 0.86rem;
   color: var(--text-main);
-}
-
-[data-theme="dark"] .compact-select-btn {
-  background: #1e293b;
-  border-color: #334155;
 }
 
 /* ----------------------------------------------------------------------------
@@ -352,7 +336,7 @@
 .session-parts-count-hint {
   font-size: 0.78rem;
   color: var(--primary);
-  font-weight: bold;
+  font-weight: var(--fw-bold);
   margin-top: 4px;
 }
 
@@ -369,7 +353,7 @@
 }
 
 .session-program-title {
-  font-weight: 800;
+  font-weight: var(--fw-extrabold);
   font-size: 0.85rem;
   color: var(--text-main);
   margin: 0;
@@ -381,7 +365,7 @@
 .session-program-hint {
   font-size: 0.72rem;
   padding: 2px 8px;
-  border-radius: 999px;
+  border-radius: var(--radius-full);
   background: var(--bg-subtle);
   color: var(--primary);
 }
@@ -413,12 +397,12 @@
   min-height: 44px;
   border: 1.5px solid var(--border-color);
   background: var(--bg-surface);
-  border-radius: 12px;
+  border-radius: var(--radius-md-sm);
   font-size: 0.82rem;
-  font-weight: 800;
+  font-weight: var(--fw-extrabold);
   color: var(--text-muted);
   text-align: center;
-  transition: all 0.18s ease;
+  transition: all var(--transition-fast);
   white-space: nowrap;
   box-sizing: border-box;
 }
@@ -445,9 +429,9 @@
 .exam-type-segmented-compact .exam-type-btn {
   flex: 1;
   height: 38px;
-  border-radius: 8px;
+  border-radius: var(--radius-base);
   font-size: 0.84rem;
-  font-weight: 800;
+  font-weight: var(--fw-extrabold);
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -485,19 +469,19 @@
   height: 42px;
   background: var(--bg-subtle);
   border: 1.5px dashed var(--border-color);
-  border-radius: 10px;
+  border-radius: var(--radius-sm);
   padding: 0 10px;
   display: flex;
   align-items: center;
   gap: 6px;
   color: var(--text-muted);
   font-size: 0.78rem;
-  font-weight: 700;
+  font-weight: var(--fw-bold);
 }
 
 [data-theme="dark"] .payment-method-placeholder-compact {
-  background: #1e293b;
-  border-color: #334155;
+  background: var(--bg-surface);
+  border-color: var(--border-color);
 }
 
 .session-amount-help-text {
@@ -519,16 +503,16 @@
 .btn-submit-session-prominent {
   width: 100%;
   height: 44px;
-  border-radius: 12px;
+  border-radius: var(--radius-md-sm);
   font-size: 0.95rem;
-  font-weight: 800;
+  font-weight: var(--fw-extrabold);
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 8px;
   margin-top: 4px;
   box-shadow: 0 4px 14px rgba(2, 132, 199, 0.3);
-  transition: all 0.18s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: all var(--transition-spring);
 }
 
 .btn-submit-session-prominent:hover {
@@ -571,13 +555,13 @@
 }
 
 :root:not([data-theme="dark"]) .session-tab-segmented {
-  background: #f1f5f9;
-  border: 1.5px solid #e2e8f0;
+  background: var(--bg-subtle);
+  border: 1.5px solid var(--border-color);
 }
 
 [data-theme="dark"] .session-tab-segmented {
-  background: #1e293b;
-  border: 1.5px solid #334155;
+  background: var(--bg-surface);
+  border: 1.5px solid var(--border-color);
 }
 
 .session-view-tab-btn {
@@ -586,7 +570,7 @@
   background: transparent;
   padding: 9px 12px;
   border-radius: 9px;
-  font-weight: 800;
+  font-weight: var(--fw-extrabold);
   font-size: 0.88rem;
   display: inline-flex;
   align-items: center;
@@ -595,56 +579,56 @@
   gap: 8px;
   cursor: pointer;
   white-space: nowrap;
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: all var(--transition-spring);
   box-sizing: border-box;
   min-height: 42px;
 }
 
 /* Inactive states */
 :root:not([data-theme="dark"]) .session-view-tab-btn {
-  color: #64748b;
+  color: var(--text-muted);
 }
 :root:not([data-theme="dark"]) .session-view-tab-btn:hover {
-  color: #0f172a;
+  color: var(--text-main);
   background: rgba(255, 255, 255, 0.6);
 }
 
 [data-theme="dark"] .session-view-tab-btn {
-  color: #94a3b8;
+  color: var(--text-muted);
 }
 [data-theme="dark"] .session-view-tab-btn:hover {
-  color: #f8fafc;
+  color: var(--text-main);
   background: rgba(255, 255, 255, 0.05);
 }
 
 /* Active Clinic Tab - Light Mode */
 :root:not([data-theme="dark"]) .session-view-tab-btn.active#btn-tab-clinic-sessions {
-  background: #ffffff;
-  color: #0284c7;
+  background: var(--bg-surface);
+  color: var(--primary);
   border-color: rgba(2, 132, 199, 0.25);
   box-shadow: 0 2px 8px rgba(15, 23, 42, 0.08);
 }
 
 /* Active Clinic Tab - Dark Mode */
 [data-theme="dark"] .session-view-tab-btn.active#btn-tab-clinic-sessions {
-  background: #0f172a;
-  color: #38bdf8;
+  background: var(--bg-subtle);
+  color: var(--primary);
   border-color: rgba(56, 189, 248, 0.35);
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.4);
 }
 
 /* Active Home Visits Tab - Light Mode */
 :root:not([data-theme="dark"]) .session-view-tab-btn.active#btn-tab-home-visits {
-  background: #ffffff;
-  color: #059669;
+  background: var(--bg-surface);
+  color: var(--success);
   border-color: rgba(5, 150, 105, 0.25);
   box-shadow: 0 2px 8px rgba(15, 23, 42, 0.08);
 }
 
 /* Active Home Visits Tab - Dark Mode */
 [data-theme="dark"] .session-view-tab-btn.active#btn-tab-home-visits {
-  background: #0f172a;
-  color: #34d399;
+  background: var(--bg-subtle);
+  color: var(--success);
   border-color: rgba(52, 211, 153, 0.35);
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.4);
 }
@@ -652,14 +636,14 @@
 /* Home Visits Count Pill inside Tab */
 .session-hv-count-pill {
   font-size: 0.74rem;
-  font-weight: 800;
+  font-weight: var(--fw-extrabold);
   padding: 2px 7px;
-  border-radius: 999px;
+  border-radius: var(--radius-full);
   display: inline-flex;
   align-items: center;
   justify-content: center;
   min-width: 18px;
-  transition: all 0.2s ease;
+  transition: all var(--transition-normal);
 }
 
 :root:not([data-theme="dark"]) .session-hv-count-pill {
@@ -841,13 +825,13 @@ button.btn-settle-hv {
   align-items: center;
   justify-content: center;
   gap: 6px;
-  font-weight: 800;
+  font-weight: var(--fw-extrabold);
   font-size: 0.8rem;
   padding: 0 14px;
   height: 38px;
   border-radius: 9px;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all var(--transition-normal);
 }
 
 :root:not([data-theme="dark"]) .btn-settle-hv {
@@ -879,14 +863,14 @@ button.btn-settle-hv {
   padding: 6px 14px;
   border-radius: var(--radius-pill);
   font-size: 0.8rem;
-  font-weight: 700;
+  font-weight: var(--fw-bold);
   border: 1px solid var(--border-color);
   background-color: var(--bg-surface);
   color: var(--text-muted);
   cursor: pointer;
   white-space: nowrap;
   flex-shrink: 0;
-  transition: all 0.2s ease;
+  transition: all var(--transition-normal);
   user-select: none;
 }
 
@@ -903,9 +887,9 @@ button.btn-settle-hv {
 }
 
 [data-theme="dark"] .date-strip-pill {
-  background: #1e293b;
-  border-color: #334155;
-  color: #f1f5f9;
+  background: var(--bg-surface);
+  border-color: var(--border-color);
+  color: var(--text-main);
 }
 
 [data-theme="dark"] .date-strip-pill.active {
@@ -936,20 +920,12 @@ button.btn-settle-hv {
   border-radius: 50%;
   background: var(--border-color);
   display: inline-block;
-  transition: all 0.2s ease;
+  transition: all var(--transition-normal);
 }
 
 .cycle-dot.done {
   background: var(--success);
   box-shadow: 0 0 6px rgba(16, 185, 129, 0.4);
-}
-
-[data-theme="dark"] .cycle-dot {
-  background: #334155;
-}
-
-[data-theme="dark"] .cycle-dot.done {
-  background: #10b981;
 }
 
 /* Newly added session highlight */
