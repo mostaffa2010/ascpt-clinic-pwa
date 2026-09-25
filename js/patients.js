@@ -757,23 +757,23 @@ export class PatientsManager {
 
     if (mobileContainer && (!this.patients || this.patients.length === 0)) {
       mobileContainer.innerHTML = Array.from({ length: 4 }).map(() => `
-        <div class="patient-card skeleton-card" style="padding: 13px 14px; margin-bottom: 10px; border-radius: 16px; background: #0d1527; border: 1px solid rgba(255, 255, 255, 0.07);">
-          <div style="display: flex; align-items: flex-start; justify-content: space-between; gap: 8px;">
-            <div style="display: flex; align-items: center; gap: 10px; min-width: 0; flex: 1;">
+        <div class="patient-card skeleton-card sk-card-padded">
+          <div class="sk-card-top-row">
+            <div class="sk-card-info-wrap">
               <div class="skeleton-shimmer skeleton-avatar"></div>
-              <div style="display: flex; flex-direction: column; gap: 6px; flex: 1;">
-                <div class="skeleton-shimmer skeleton-line" style="width: 45%; height: 16px;"></div>
-                <div class="skeleton-shimmer skeleton-line" style="width: 30%; height: 12px;"></div>
+              <div class="sk-card-lines-wrap">
+                <div class="skeleton-shimmer skeleton-line sk-w-45 sk-h-16"></div>
+                <div class="skeleton-shimmer skeleton-line sk-w-30 sk-h-12"></div>
               </div>
             </div>
-            <div style="display: flex; gap: 6px;">
-              <div class="skeleton-shimmer skeleton-badge" style="width: 50px;"></div>
-              <div class="skeleton-shimmer skeleton-badge" style="width: 50px;"></div>
+            <div class="sk-card-badges-wrap">
+              <div class="skeleton-shimmer skeleton-badge sk-w-50px"></div>
+              <div class="skeleton-shimmer skeleton-badge sk-w-50px"></div>
             </div>
           </div>
-          <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 10px; padding-top: 8px; border-top: 1px dashed var(--border-color, #e2e8f0);">
-            <div class="skeleton-shimmer skeleton-line" style="width: 35%; height: 12px;"></div>
-            <div class="skeleton-shimmer skeleton-line" style="width: 20%; height: 12px;"></div>
+          <div class="sk-card-bottom-row">
+            <div class="skeleton-shimmer skeleton-line sk-w-35 sk-h-12"></div>
+            <div class="skeleton-shimmer skeleton-line sk-w-20 sk-h-12"></div>
           </div>
         </div>
       `).join('');
@@ -880,13 +880,13 @@ export class PatientsManager {
       if (this.filterTodayOnly) {
         if (mobileContainer) {
           mobileContainer.innerHTML = `
-            <div class="hero-styled-card" style="text-align: center; padding: 36px 20px;">
-              <div style="width: 56px; height: 56px; border-radius: 50%; background: var(--primary-light); color: var(--primary); display: inline-flex; align-items: center; justify-content: center; font-size: 1.4rem; margin-bottom: 12px;">
+            <div class="hero-styled-card empty-state-box">
+              <div class="empty-state-icon-circle">
                 <i class="fa-solid fa-calendar-xmark"></i>
               </div>
-              <div style="font-weight: 800; font-size: 1.05rem; color: var(--text-main);">لا توجد حالات مسجلة اليوم</div>
-              <div style="font-size: 0.84rem; color: var(--text-muted); margin-top: 5px; margin-bottom: 16px;">لا توجد مواعيد أو جلسات مسجلة للمرضى لهذا اليوم.</div>
-              <button type="button" class="btn btn-outline btn-sm" id="btn-reset-today-filter-mob" style="border-radius: 999px; padding: 8px 20px; font-weight: 700; color: var(--primary); border-color: var(--primary);">
+              <div class="empty-state-title">لا توجد حالات مسجلة اليوم</div>
+              <div class="empty-state-desc">لا توجد مواعيد أو جلسات مسجلة للمرضى لهذا اليوم.</div>
+              <button type="button" class="btn btn-outline btn-sm empty-state-btn-outline" id="btn-reset-today-filter-mob">
                 عرض كافة المرضى
               </button>
             </div>
@@ -898,13 +898,13 @@ export class PatientsManager {
 
       if (rawSearch) {
         const emptySearchCard = `
-          <div class="hero-styled-card" style="text-align: center; padding: 36px 20px;">
-            <div style="width: 56px; height: 56px; border-radius: 50%; background: rgba(2, 132, 199, 0.12); color: var(--primary); display: inline-flex; align-items: center; justify-content: center; font-size: 1.4rem; margin-bottom: 12px;">
+          <div class="hero-styled-card empty-state-box">
+            <div class="empty-state-icon-circle empty-state-icon-circle-subtle">
               <i class="fa-solid fa-magnifying-glass"></i>
             </div>
-            <div style="font-weight: 800; font-size: 1.05rem; color: var(--text-main);">لا توجد نتائج مطابقة</div>
-            <div style="font-size: 0.84rem; color: var(--text-muted); margin-top: 5px; margin-bottom: 16px;">لم يتم العثور على مريض مطابق لكلمة: <strong>"${escapeHTML(rawSearch)}"</strong></div>
-            <button type="button" class="btn btn-primary btn-sm" onclick="patientsManager.openAddModal()" style="display: inline-flex; align-items: center; gap: 8px; border-radius: 999px; padding: 8px 20px; font-weight: 700;">
+            <div class="empty-state-title">لا توجد نتائج مطابقة</div>
+            <div class="empty-state-desc">لم يتم العثور على مريض مطابق لكلمة: <strong>"${escapeHTML(rawSearch)}"</strong></div>
+            <button type="button" class="btn btn-primary btn-sm empty-state-btn" onclick="patientsManager.openAddModal()">
               <i class="fa-solid fa-user-plus"></i> <span>تسجيل مريض جديد الآن</span>
             </button>
           </div>
@@ -915,13 +915,13 @@ export class PatientsManager {
 
       if (filterType !== 'all') {
         const emptyFilterCard = `
-          <div class="hero-styled-card" style="text-align: center; padding: 36px 20px;">
-            <div style="width: 56px; height: 56px; border-radius: 50%; background: rgba(2, 132, 199, 0.12); color: var(--primary); display: inline-flex; align-items: center; justify-content: center; font-size: 1.4rem; margin-bottom: 12px;">
+          <div class="hero-styled-card empty-state-box">
+            <div class="empty-state-icon-circle empty-state-icon-circle-subtle">
               <i class="fa-solid fa-filter"></i>
             </div>
-            <div style="font-weight: 800; font-size: 1.05rem; color: var(--text-main);">لا توجد حالات بهذا النظام</div>
-            <div style="font-size: 0.84rem; color: var(--text-muted); margin-top: 5px; margin-bottom: 16px;">لم يتم العثور على أي مريض مسجل بهذا النظام حالياً.</div>
-            <button type="button" class="btn btn-primary btn-sm" onclick="patientsManager.openAddModal()" style="display: inline-flex; align-items: center; gap: 8px; border-radius: 999px; padding: 8px 20px; font-weight: 700;">
+            <div class="empty-state-title">لا توجد حالات بهذا النظام</div>
+            <div class="empty-state-desc">لم يتم العثور على أي مريض مسجل بهذا النظام حالياً.</div>
+            <button type="button" class="btn btn-primary btn-sm empty-state-btn" onclick="patientsManager.openAddModal()">
               <i class="fa-solid fa-user-plus"></i> <span>تسجيل مريض جديد الآن</span>
             </button>
           </div>
@@ -936,13 +936,13 @@ export class PatientsManager {
       }
 
       const emptyAllCard = `
-        <div class="hero-styled-card" style="text-align: center; padding: 36px 20px;">
-          <div style="width: 56px; height: 56px; border-radius: 50%; background: var(--primary-light); color: var(--primary); display: inline-flex; align-items: center; justify-content: center; font-size: 1.4rem; margin-bottom: 12px;">
+        <div class="hero-styled-card empty-state-box">
+          <div class="empty-state-icon-circle">
             <i class="fa-solid fa-users"></i>
           </div>
-          <div style="font-weight: 800; font-size: 1.05rem; color: var(--text-main);">سجل المرضى فارغ</div>
-          <div style="font-size: 0.84rem; color: var(--text-muted); margin-top: 5px; margin-bottom: 16px;">لم يتم تسجيل أي مرضى بعد. ابدأ بإضافة أول مريض في المركز.</div>
-          <button type="button" class="btn btn-primary btn-sm" onclick="patientsManager.openAddModal()" style="display: inline-flex; align-items: center; gap: 8px; border-radius: 999px; padding: 8px 20px; font-weight: 700;">
+          <div class="empty-state-title">سجل المرضى فارغ</div>
+          <div class="empty-state-desc">لم يتم تسجيل أي مرضى بعد. ابدأ بإضافة أول مريض في المركز.</div>
+          <button type="button" class="btn btn-primary btn-sm empty-state-btn" onclick="patientsManager.openAddModal()">
             <i class="fa-solid fa-user-plus"></i> <span>تسجيل مريض جديد الآن</span>
           </button>
         </div>
@@ -3223,12 +3223,12 @@ export class PatientsManager {
 
       if (this.currentPatientImages.length === 0) {
         grid.innerHTML = `
-          <div class="imaging-gallery-empty" style="grid-column: 1 / -1;">
-            <div style="width: 48px; height: 48px; border-radius: 50%; background: var(--primary-light); color: var(--primary); display: inline-flex; align-items: center; justify-content: center; font-size: 1.3rem; margin-bottom: 8px;">
+          <div class="imaging-gallery-empty">
+            <div class="empty-state-icon-circle-sm">
               <i class="fa-solid fa-images"></i>
             </div>
-            <div style="font-weight: 800; font-size: 0.95rem; color: var(--text-main);">لا توجد أشعات أو تحاليل مرفقة للمريض بعد</div>
-            <div style="font-size: 0.78rem; margin-top: 4px;">اضغط على زر <strong>"إضافة أشعة / تحليل"</strong> لتصوير أو رفع مستندات وأشعات المريض مع خاصية التوضيح.</div>
+            <div class="empty-state-title-xs">لا توجد أشعات أو تحاليل مرفقة للمريض بعد</div>
+            <div class="empty-state-desc-xs">اضغط على زر <strong>"إضافة أشعة / تحليل"</strong> لتصوير أو رفع مستندات وأشعات المريض مع خاصية التوضيح.</div>
           </div>
         `;
         return;

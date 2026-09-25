@@ -640,16 +640,16 @@ export class AppointmentsManager {
   renderSkeleton(grid = document.getElementById('appointments-grid')) {
     if (!grid) return;
     grid.innerHTML = `
-      <div class="skeleton-appointments" style="display: flex; flex-direction: column; gap: 12px; padding: 10px 0;">
+      <div class="skeleton-appointments sk-slot-group">
         ${Array.from({ length: 4 }).map(() => `
-          <div class="skeleton-card" style="padding: 14px; border-radius: var(--radius-md, 16px);">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-              <div class="skeleton-shimmer skeleton-line" style="width: 110px; height: 18px;"></div>
-              <div class="skeleton-shimmer skeleton-badge" style="width: 70px;"></div>
+          <div class="skeleton-card sk-card-padded">
+            <div class="sk-card-top-row">
+              <div class="skeleton-shimmer skeleton-line sk-w-110px sk-h-18"></div>
+              <div class="skeleton-shimmer skeleton-badge sk-w-70px"></div>
             </div>
-            <div style="display: flex; gap: 10px; flex-wrap: wrap;">
-              <div class="skeleton-shimmer" style="flex: 1; min-width: 140px; height: 46px; border-radius: var(--radius-sm, 10px);"></div>
-              <div class="skeleton-shimmer" style="flex: 1; min-width: 140px; height: 46px; border-radius: var(--radius-sm, 10px);"></div>
+            <div class="sk-slot-banner-wrap">
+              <div class="skeleton-shimmer sk-slot-banner"></div>
+              <div class="skeleton-shimmer sk-slot-banner"></div>
             </div>
           </div>
         `).join('')}
@@ -887,13 +887,13 @@ export class AppointmentsManager {
       const dayName = new Intl.DateTimeFormat('ar-EG', { weekday: 'long' }).format(new Date(targetDate + 'T00:00:00'));
       return {
         html: `
-          <div class="hero-styled-card doc-offduty-schedule-card" style="text-align: center; padding: 36px 20px; margin: 4px 0; border: 1.5px dashed rgba(2, 132, 199, 0.3); background: rgba(2, 132, 199, 0.03);">
-            <div style="width: 58px; height: 58px; border-radius: 50%; background: rgba(2, 132, 199, 0.12); color: var(--primary); display: inline-flex; align-items: center; justify-content: center; font-size: 1.6rem; margin-bottom: 14px;">
+          <div class="hero-styled-card doc-offduty-schedule-card">
+            <div class="empty-state-icon-circle-lg">
               <i class="fa-solid fa-mug-hot"></i>
             </div>
-            <div style="font-weight: 800; font-size: 1.15rem; color: var(--text-main);">اليوم (${dayName}) ليس ضمن أيام عملك الرسمية</div>
-            <div style="font-size: 0.86rem; color: var(--text-muted); margin-top: 6px; line-height: 1.6;">
-              شفتك المسجل بالمركز هو: <strong style="color: var(--primary);">${escapeHTML(shiftName)}</strong>.<br>
+            <div class="empty-state-title-lg">اليوم (${dayName}) ليس ضمن أيام عملك الرسمية</div>
+            <div class="empty-state-desc-spacious">
+              شفتك المسجل بالمركز هو: <strong class="text-primary">${escapeHTML(shiftName)}</strong>.<br>
               استمتع بيوم إجازتك! ☕ (في حالة النزول كشيفت تغطية استثنائي، يمكن للاستقبال تفعيل شيفتك لليوم).
             </div>
           </div>
@@ -925,12 +925,12 @@ export class AppointmentsManager {
     if (allSlots.length === 0) {
       return {
         html: `
-          <div class="hero-styled-card doc-empty-schedule-card" style="text-align: center; padding: 36px 20px; margin: 4px 0;">
-            <div style="width: 54px; height: 54px; border-radius: 50%; background: rgba(2, 132, 199, 0.12); color: var(--primary); display: inline-flex; align-items: center; justify-content: center; font-size: 1.4rem; margin-bottom: 12px;">
+          <div class="hero-styled-card doc-empty-schedule-card">
+            <div class="empty-state-icon-circle empty-state-icon-circle-subtle">
               <i class="fa-solid fa-mug-hot"></i>
             </div>
-            <div style="font-weight: 800; font-size: 1.05rem; color: var(--text-main);">لا توجد مواعيد محجوزة لك اليوم</div>
-            <div style="font-size: 0.82rem; color: var(--text-muted); margin-top: 5px;">ستظهر مواعيدك وحالاتك هنا فور قيام الاستقبال بالحجز لك.</div>
+            <div class="empty-state-title">لا توجد مواعيد محجوزة لك اليوم</div>
+            <div class="empty-state-desc-inline">ستظهر مواعيدك وحالاتك هنا فور قيام الاستقبال بالحجز لك.</div>
           </div>
         `,
         initialIndex: 0
@@ -952,19 +952,19 @@ export class AppointmentsManager {
     if (slotsToDisplay.length === 0) {
       if (isShowingCompleted) {
         contentHTML = `
-          <div class="hero-styled-card doc-empty-schedule-card" style="text-align: center; padding: 30px 20px; margin: 4px 0;">
-            <div style="font-weight: 800; font-size: 0.98rem; color: var(--text-main);">لا توجد حالات مكتملة بعد اليوم</div>
-            <div style="font-size: 0.80rem; color: var(--text-muted); margin-top: 4px;">عند الضغط على "تم" لأي مريض ستظهر بياناته هنا.</div>
+          <div class="hero-styled-card doc-empty-schedule-card-compact">
+            <div class="empty-state-title-sm">لا توجد حالات مكتملة بعد اليوم</div>
+            <div class="empty-state-desc-sm">عند الضغط على "تم" لأي مريض ستظهر بياناته هنا.</div>
           </div>
         `;
       } else {
         contentHTML = `
-          <div class="hero-styled-card doc-empty-schedule-card" style="text-align: center; padding: 36px 20px; margin: 4px 0;">
-            <div style="width: 54px; height: 54px; border-radius: 50%; background: rgba(16, 185, 129, 0.15); color: var(--success); display: inline-flex; align-items: center; justify-content: center; font-size: 1.6rem; margin-bottom: 12px;">
+          <div class="hero-styled-card doc-empty-schedule-card">
+            <div class="empty-state-icon-circle empty-state-icon-circle-success">
               <i class="fa-solid fa-circle-check"></i>
             </div>
-            <div style="font-weight: 800; font-size: 1.1rem; color: var(--text-main);">تم إنهاء جميع حالاتك لليوم بنجاح!</div>
-            <div style="font-size: 0.84rem; color: var(--text-muted); margin-top: 6px;">عاش يا دكتور، جميع المرضى والزيارات المجدولة أُكملت.</div>
+            <div class="empty-state-title-md">تم إنهاء جميع حالاتك لليوم بنجاح!</div>
+            <div class="empty-state-desc-spacious">عاش يا دكتور، جميع المرضى والزيارات المجدولة أُكملت.</div>
           </div>
         `;
       }
@@ -1220,7 +1220,7 @@ export class AppointmentsManager {
     }
 
     if (!doctorsToShow || doctorsToShow.length === 0) {
-      return `<div style="padding: 20px; text-align: center; color: var(--text-muted);">لا يوجد دكاترة مسجلين حالياً في طاقم العمل.</div>`;
+      return `<div class="empty-state-box-compact">لا يوجد دكاترة مسجلين حالياً في طاقم العمل.</div>`;
     }
 
     const slotsToRender = (this.slots && this.slots.length > 0) ? this.slots : DEFAULT_APPT_SLOTS;
@@ -1803,7 +1803,7 @@ export class AppointmentsManager {
     const filtered = scored.map((item) => item.patient);
 
     if (filtered.length === 0) {
-      container.innerHTML = `<div style="text-align: center; padding: 24px; color: var(--text-muted); font-size: 0.9rem;">لا يوجد مريض بهذا الاسم أو الرقم.</div>`;
+      container.innerHTML = `<div class="empty-state-box-compact">لا يوجد مريض بهذا الاسم أو الرقم.</div>`;
       return;
     }
 
@@ -2255,7 +2255,7 @@ export class AppointmentsManager {
       if (badgeEl) badgeEl.textContent = `${overrides.length} أطباء`;
 
       if (overrides.length === 0) {
-        listEl.innerHTML = `<div style="text-align: center; color: var(--text-muted); padding: 12px; font-size: 0.78rem;">لا توجد تغطيات استثنائية مسجلة لهذا اليوم حتى الآن.</div>`;
+        listEl.innerHTML = `<div class="empty-state-box-sm">لا توجد تغطيات استثنائية مسجلة لهذا اليوم حتى الآن.</div>`;
         return;
       }
 
@@ -2626,7 +2626,7 @@ export class AppointmentsManager {
       if (apptsToRender.length === 0) {
         const emptyMsg = 'لا توجد مواعيد أو حالات مسجلة في جدول اليوم.';
         if (mobileCards) {
-          mobileCards.innerHTML = `<div class="empty-state-card" style="padding: 24px; text-align: center;"><i class="fa-regular fa-calendar-check" style="font-size: 1.8rem; margin-bottom: 8px; color: var(--primary);"></i><div style="font-weight: 700;">${emptyMsg}</div></div>`;
+          mobileCards.innerHTML = `<div class="empty-state-card empty-state-box-compact"><i class="fa-regular fa-calendar-check empty-state-card-icon"></i><div class="empty-state-card-title">${emptyMsg}</div></div>`;
         }
         return;
       }

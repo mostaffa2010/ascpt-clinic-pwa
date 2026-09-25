@@ -50,20 +50,20 @@ export class DoctorDashboardManager {
 
     if (mobileCards && (!this.docSessions || this.docSessions.length === 0)) {
       mobileCards.innerHTML = Array.from({ length: 3 }).map(() => `
-        <div class="hero-styled-card skeleton-card" style="padding: 12px 14px; margin-bottom: 10px; border-radius: 14px;">
-          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-            <div style="display: flex; align-items: center; gap: 10px;">
-              <div class="skeleton-shimmer skeleton-avatar" style="width: 36px; height: 36px;"></div>
-              <div style="display: flex; flex-direction: column; gap: 5px;">
-                <div class="skeleton-shimmer skeleton-line" style="width: 130px; height: 16px;"></div>
-                <div class="skeleton-shimmer skeleton-line" style="width: 80px; height: 12px;"></div>
+        <div class="hero-styled-card skeleton-card sk-card-hero">
+          <div class="sk-card-top-row">
+            <div class="sk-card-info-wrap">
+              <div class="skeleton-shimmer skeleton-avatar sk-avatar-36"></div>
+              <div class="sk-card-lines-wrap">
+                <div class="skeleton-shimmer skeleton-line sk-w-130px sk-h-16"></div>
+                <div class="skeleton-shimmer skeleton-line sk-w-80px sk-h-12"></div>
               </div>
             </div>
-            <div class="skeleton-shimmer skeleton-badge" style="width: 65px;"></div>
+            <div class="skeleton-shimmer skeleton-badge sk-w-65px"></div>
           </div>
-          <div style="display: flex; justify-content: space-between; align-items: center; padding-top: 8px; border-top: 1px dashed var(--border-color, #e2e8f0);">
-            <div class="skeleton-shimmer skeleton-line" style="width: 100px; height: 12px;"></div>
-            <div class="skeleton-shimmer skeleton-line" style="width: 45px; height: 12px;"></div>
+          <div class="sk-card-bottom-row">
+            <div class="skeleton-shimmer skeleton-line sk-w-100px sk-h-12"></div>
+            <div class="skeleton-shimmer skeleton-line sk-w-45px sk-h-12"></div>
           </div>
         </div>
       `).join('');
@@ -72,9 +72,9 @@ export class DoctorDashboardManager {
 
     if (myApptsGrid && myApptsGrid.children.length === 0) {
       myApptsGrid.innerHTML = `
-        <div style="display: flex; flex-direction: column; gap: 10px; padding: 10px 0;">
-          <div class="skeleton-shimmer" style="height: 48px; border-radius: var(--radius-sm, 10px);"></div>
-          <div class="skeleton-shimmer" style="height: 48px; border-radius: var(--radius-sm, 10px);"></div>
+        <div class="sk-slot-group">
+          <div class="skeleton-shimmer sk-h-48"></div>
+          <div class="skeleton-shimmer sk-h-48"></div>
         </div>
       `;
     }
@@ -383,7 +383,7 @@ export class DoctorDashboardManager {
         programsContainer.innerHTML = activePrograms.join('');
       } else {
         programsContainer.innerHTML = `
-          <div class="doc-prog-chip chip-empty" style="color: var(--text-muted); font-size: 0.8rem; border-style: dashed; padding: 6px 12px; border-radius: 8px;">
+          <div class="doc-prog-chip chip-empty">
             <i class="fa-solid fa-folder-open" style="margin-left: 5px;"></i> لا توجد جلسات مسجلة لهذا الشهر حتى الآن
           </div>
         `;
@@ -400,7 +400,7 @@ export class DoctorDashboardManager {
       if (activeRates.length > 0) {
         formulaHintEl.innerHTML = `<i class="fa-solid fa-tag text-primary"></i> تسعيرة الجلسات المعتمدة: ` + activeRates.join(' • ');
       } else {
-        formulaHintEl.innerHTML = `<span style="color: var(--text-muted);"><i class="fa-solid fa-circle-info"></i> لم يتم تحديد أسعار الجلسات بعد من قِبل إدارة المركز</span>`;
+        formulaHintEl.innerHTML = `<span class="text-muted"><i class="fa-solid fa-circle-info"></i> لم يتم تحديد أسعار الجلسات بعد من قِبل إدارة المركز</span>`;
       }
     }
 
@@ -442,8 +442,8 @@ export class DoctorDashboardManager {
         const mobCont = document.getElementById('doctor-personal-mobile-cards');
         if (mobCont) {
           mobCont.innerHTML = `
-            <div class="empty-state-card" style="text-align: center; padding: 28px 20px; color: var(--text-muted); background: var(--bg-surface); border-radius: 14px; border: 1.5px dashed var(--border-color);">
-              <i class="fa-solid fa-house-chimney-medical" style="font-size: 1.8rem; margin-bottom: 8px; display: block; color: #cbd5e1;"></i>
+            <div class="empty-state-card empty-state-card-dashed">
+              <i class="fa-solid fa-house-chimney-medical empty-state-card-dashed-icon"></i>
               لا توجد زيارات منزلية مسجلة لك حالياً.
             </div>
           `;
@@ -582,8 +582,8 @@ export class DoctorDashboardManager {
         const mobCont = document.getElementById('doctor-personal-mobile-cards');
         if (mobCont) {
           mobCont.innerHTML = `
-            <div class="empty-state-card" style="text-align: center; padding: 28px 20px; color: var(--text-muted); background: var(--bg-surface); border-radius: 14px; border: 1.5px dashed var(--border-color);">
-              <i class="fa-solid fa-users-slash" style="font-size: 1.8rem; margin-bottom: 8px; display: block; color: #cbd5e1;"></i>
+            <div class="empty-state-card empty-state-card-dashed">
+              <i class="fa-solid fa-users-slash empty-state-card-dashed-icon"></i>
               لا يوجد مرضى مسجلين لك حالياً.
             </div>
           `;
@@ -711,8 +711,8 @@ export class DoctorDashboardManager {
         const mobCont = document.getElementById('doctor-personal-mobile-cards');
         if (mobCont) {
           mobCont.innerHTML = `
-            <div class="empty-state-card" style="text-align: center; padding: 28px 20px; color: var(--text-muted); background: var(--bg-surface); border-radius: 14px; border: 1.5px dashed var(--border-color);">
-              <i class="fa-solid fa-folder-open" style="font-size: 1.8rem; margin-bottom: 8px; display: block; color: #cbd5e1;"></i>
+            <div class="empty-state-card empty-state-card-dashed">
+              <i class="fa-solid fa-folder-open empty-state-card-dashed-icon"></i>
               لا توجد حالات مسجلة لك خلال هذا الشهر حتى الآن.
             </div>
           `;
@@ -838,8 +838,8 @@ export class DoctorDashboardManager {
       const mobCont = document.getElementById('doctor-personal-mobile-cards');
       if (mobCont) {
         mobCont.innerHTML = `
-          <div class="empty-state-card" style="text-align: center; padding: 28px 20px; color: var(--text-muted); background: var(--bg-surface); border-radius: 14px; border: 1.5px dashed var(--border-color);">
-            <i class="fa-solid fa-folder-open" style="font-size: 1.8rem; margin-bottom: 8px; display: block; color: #cbd5e1;"></i>
+          <div class="empty-state-card empty-state-card-dashed">
+            <i class="fa-solid fa-folder-open empty-state-card-dashed-icon"></i>
             لا توجد جلسات مسجلة لك في هذا النطاق.
           </div>
         `;
