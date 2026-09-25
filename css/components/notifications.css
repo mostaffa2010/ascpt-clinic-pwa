@@ -41,13 +41,13 @@
   position: absolute;
   top: -4px;
   right: -4px;
-  background: #ef4444;
+  background: var(--danger, #ef4444);
   color: #ffffff;
   font-size: 0.65rem;
-  font-weight: 900;
+  font-weight: var(--fw-black, 900);
   min-width: 18px;
   height: 18px;
-  border-radius: 999px;
+  border-radius: var(--radius-full, 999px);
   padding: 0 4px;
   display: none;
   align-items: center;
@@ -78,11 +78,11 @@
   margin: 0 auto;
   background: var(--bg-surface);
   border: 1px solid var(--border-color);
-  border-radius: 16px;
-  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.25), 0 3px 10px rgba(0, 0, 0, 0.08);
+  border-radius: var(--radius-md, 16px);
+  box-shadow: var(--shadow-xl, 0 15px 35px rgba(0, 0, 0, 0.25));
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
-  z-index: 10000;
+  z-index: var(--z-modal, 1050);
   display: none;
   flex-direction: column;
   overflow: hidden;
@@ -138,12 +138,12 @@
   align-items: center;
   gap: 4px;
   padding: 4px 8px;
-  border-radius: 6px;
+  border-radius: var(--radius-xs, 6px);
   transition: background 0.15s ease;
 }
 
 .btn-mark-all-read:hover {
-  background: rgba(2, 132, 199, 0.1);
+  background: var(--primary-alpha-10, rgba(2, 132, 199, 0.1));
 }
 
 .notification-dropdown-body {
@@ -175,7 +175,7 @@
 }
 
 .notification-item.is-unread {
-  background: rgba(2, 132, 199, 0.05);
+  background: var(--primary-light, rgba(2, 132, 199, 0.05));
 }
 
 .notification-item.is-unread:hover {
@@ -185,7 +185,7 @@
 .notif-avatar {
   width: 36px;
   height: 36px;
-  border-radius: 10px;
+  border-radius: var(--radius-sm, 10px);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -234,7 +234,7 @@
 .notif-unread-dot {
   width: 8px;
   height: 8px;
-  border-radius: 50%;
+  border-radius: var(--radius-full, 50%);
   background: var(--primary);
   flex-shrink: 0;
   margin-top: 6px;
@@ -268,13 +268,13 @@
 }
 
 .btn-push-active {
-  background: #10b981 !important;
+  background: var(--success, #10b981) !important;
   color: #ffffff !important;
-  border: 1.5px solid #10b981 !important;
+  border: 1.5px solid var(--success, #10b981) !important;
   font-weight: 800 !important;
   font-size: 0.8rem !important;
   padding: 4px 14px !important;
-  border-radius: 999px !important;
+  border-radius: var(--radius-full, 999px) !important;
   white-space: nowrap !important;
   display: inline-flex !important;
   align-items: center !important;
@@ -289,7 +289,7 @@
   font-weight: 800 !important;
   font-size: 0.8rem !important;
   padding: 4px 14px !important;
-  border-radius: 999px !important;
+  border-radius: var(--radius-full, 999px) !important;
   white-space: nowrap !important;
   display: inline-flex !important;
   align-items: center !important;

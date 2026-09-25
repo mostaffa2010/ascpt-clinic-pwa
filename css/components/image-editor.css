@@ -14,7 +14,7 @@
   max-height: 94vh !important;
   height: 94vh !important;
   overflow: hidden !important;
-  border-radius: 20px !important;
+  border-radius: var(--radius-xl, 20px) !important;
   background: var(--bg-surface) !important;
 }
 
@@ -52,7 +52,7 @@
   flex-shrink: 0 !important;
   position: sticky !important;
   bottom: 0 !important;
-  z-index: 25 !important;
+  z-index: var(--z-sticky, 25) !important;
   padding: 12px 18px !important;
   border-top: 1.5px solid var(--border-color) !important;
   display: flex !important;
@@ -64,7 +64,7 @@
 
 .polish-viewport-card {
   background: #090d16 !important;
-  border-radius: 14px !important;
+  border-radius: var(--radius-md, 14px) !important;
   border: 1px solid #1e293b !important;
   padding: 12px 10px !important;
   display: flex !important;
@@ -94,7 +94,7 @@
   max-width: 100%;
   max-height: 330px;
   object-fit: contain;
-  border-radius: 6px;
+  border-radius: var(--radius-xs, 6px);
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5);
   display: block;
 }
@@ -142,9 +142,9 @@
   position: absolute;
   width: 22px;
   height: 22px;
-  background: #ffffff;
-  border: 2.5px solid #0284c7;
-  border-radius: 50%;
+  background: var(--bg-surface, #ffffff);
+  border: 2.5px solid var(--primary, #0284c7);
+  border-radius: var(--radius-full, 50%);
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.45);
   z-index: 12;
   touch-action: none;
@@ -166,9 +166,9 @@
 /* Polish Studio Preset Buttons */
 .polish-preset-btn {
   font-size: 0.78rem;
-  font-weight: 700;
+  font-weight: var(--fw-bold, 700);
   padding: 8px 6px;
-  border-radius: 8px;
+  border-radius: var(--radius-base, 8px);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -183,14 +183,14 @@
   background: var(--primary-light) !important;
   border-color: var(--primary) !important;
   color: var(--primary) !important;
-  font-weight: 800;
+  font-weight: var(--fw-extrabold, 800);
 }
 
 @media (max-width: 768px) {
   .modal-polish-studio {
     max-height: 92vh !important;
     height: 92vh !important;
-    border-radius: 22px 22px 0 0 !important;
+    border-radius: var(--radius-modal-mobile, 22px 22px 0 0) !important;
   }
   .polish-modal-body {
     grid-template-columns: 1fr !important;
