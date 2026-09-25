@@ -18,7 +18,7 @@
   color: var(--text-main);
   font-family: inherit;
   font-size: var(--fs-body);
-  font-weight: 500;
+  font-weight: var(--fw-medium);
   outline: none;
   transition: border-color 0.18s ease, box-shadow 0.18s ease;
   box-sizing: border-box;
@@ -33,11 +33,11 @@
   width: 100%;
   height: 42px;
   padding: 0 38px 0 12px;
-  border-radius: 10px;
+  border-radius: var(--radius-sm);
   border: 1.5px solid var(--border-color);
   background: var(--bg-surface);
   font-size: 0.90rem;
-  font-weight: 700;
+  font-weight: var(--fw-bold);
   color: var(--text-main);
   outline: none;
   box-sizing: border-box;
@@ -46,7 +46,7 @@
 
 .modern-input:focus {
   border-color: var(--primary);
-  box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.15);
+  box-shadow: 0 0 0 3px var(--primary-light);
 }
 
 .modern-input-wrapper:focus-within .modern-input-icon {
@@ -91,7 +91,7 @@
 .modern-input-wrapper input::placeholder,
 .modern-input::placeholder,
 .form-control::placeholder {
-  color: var(--text-muted, #94a3b8);
+  color: var(--text-muted);
   font-size: 0.88rem;
   opacity: 0.8;
 }
@@ -106,13 +106,13 @@
 
 .form-group label {
   font-size: var(--fs-subtext);
-  font-weight: 700;
+  font-weight: var(--fw-bold);
   color: var(--text-muted);
 }
 
 .form-control.is-invalid {
   border-color: var(--danger);
-  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.15);
+  box-shadow: 0 0 0 3px var(--danger-light);
 }
 
 /* ----------------------------------------------------------------------------
@@ -139,7 +139,7 @@ input[type="radio"] {
 input[type="checkbox"] {
   width: 20px;
   height: 20px;
-  border-radius: 6px;
+  border-radius: var(--radius-xs);
 }
 
 input[type="checkbox"]:hover {
@@ -171,7 +171,7 @@ input[type="checkbox"]:focus-visible {
 input[type="radio"] {
   width: 20px;
   height: 20px;
-  border-radius: 50%;
+  border-radius: var(--radius-full);
 }
 
 input[type="radio"]:hover {
@@ -188,7 +188,7 @@ input[type="radio"]:checked::before {
   content: "";
   width: 10px;
   height: 10px;
-  border-radius: 50%;
+  border-radius: var(--radius-full);
   background-color: var(--primary);
 }
 
@@ -199,44 +199,44 @@ input[type="radio"]:focus-visible {
 
 /* Radio Button Card Wrapper */
 .custom-radio-card {
-  border-radius: 14px;
+  border-radius: var(--radius-md-sm);
   padding: 11px 18px;
-  border: 1.5px solid var(--border-color, #e2e8f0);
-  background-color: var(--bg-surface, #ffffff);
+  border: 1.5px solid var(--border-color);
+  background-color: var(--bg-surface);
   box-shadow: 0 1px 3px rgba(15, 23, 42, 0.03);
   cursor: pointer;
   display: inline-flex;
   align-items: center;
   gap: 10px;
-  font-weight: 700;
+  font-weight: var(--fw-bold);
   font-size: 0.9rem;
-  color: var(--text-main, #1e293b);
+  color: var(--text-main);
   transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .custom-radio-card:hover {
-  background-color: var(--bg-subtle, #f8fafc);
-  border-color: var(--primary, #cbd5e1);
+  background-color: var(--bg-subtle);
+  border-color: var(--primary);
 }
 
 .custom-radio-card:has(input:checked) {
-  background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
-  border-color: var(--primary, #0284c7);
-  color: #0369a1;
-  box-shadow: 0 4px 14px -2px rgba(2, 132, 199, 0.18);
+  background: linear-gradient(135deg, var(--primary-subtle) 0%, var(--primary-light) 100%);
+  border-color: var(--primary);
+  color: var(--primary-hover);
+  box-shadow: 0 4px 14px -2px var(--primary-alpha-20);
 }
 
 /* Dark Theme Overrides for Checkboxes & Radio */
 [data-theme="dark"] input[type="checkbox"],
 [data-theme="dark"] input[type="radio"] {
-  background-color: #1e293b;
-  border-color: #475569;
+  background-color: var(--bg-surface);
+  border-color: var(--border-color);
 }
 
 [data-theme="dark"] input[type="checkbox"]:hover,
 [data-theme="dark"] input[type="radio"]:hover {
   border-color: var(--primary);
-  box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.25);
+  box-shadow: 0 0 0 3px var(--primary-alpha-20);
 }
 
 [data-theme="dark"] input[type="checkbox"]:checked {
@@ -245,7 +245,7 @@ input[type="radio"]:focus-visible {
 }
 
 [data-theme="dark"] input[type="radio"]:checked {
-  background-color: #1e293b;
+  background-color: var(--bg-surface);
   border-color: var(--primary);
 }
 
@@ -254,15 +254,15 @@ input[type="radio"]:focus-visible {
 }
 
 [data-theme="dark"] .custom-radio-card {
-  background-color: var(--bg-surface, #1e293b);
-  border-color: var(--border-color, #334155);
-  color: #f8fafc;
+  background-color: var(--bg-surface);
+  border-color: var(--border-color);
+  color: var(--text-main);
 }
 
 [data-theme="dark"] .custom-radio-card:has(input:checked) {
-  background: rgba(2, 132, 199, 0.25);
-  border-color: #38bdf8;
-  color: #38bdf8;
+  background: var(--primary-alpha-20);
+  border-color: var(--primary);
+  color: var(--primary);
 }
 
 [data-theme="dark"] .form-control {
@@ -272,21 +272,21 @@ input[type="radio"]:focus-visible {
 }
 
 [data-theme="dark"] .modern-input {
-  background: #1e293b;
-  border-color: #334155;
-  color: #f8fafc;
+  background: var(--bg-surface);
+  border-color: var(--border-color);
+  color: var(--text-main);
 }
 
 [data-theme="dark"] .modern-input:focus {
-  border-color: #38bdf8;
-  box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.2);
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px var(--primary-light);
 }
 
 /* Insurance Contract Segmented Control */
 .insurance-contract-segmented {
   display: flex;
-  background: var(--bg-subtle, #f1f5f9);
-  border-radius: 10px;
+  background: var(--bg-subtle);
+  border-radius: var(--radius-sm);
   padding: 3px;
   gap: 4px;
 }
@@ -312,17 +312,17 @@ input[type="radio"]:focus-visible {
   justify-content: center;
   gap: 6px;
   padding: 8px 12px;
-  border-radius: 8px;
+  border-radius: var(--radius-base);
   font-size: 0.85rem;
-  font-weight: 700;
-  color: #64748b;
+  font-weight: var(--fw-bold);
+  color: var(--text-muted);
   transition: all 0.2s ease;
   user-select: none;
 }
 
 .insurance-contract-segmented input[type="radio"]:checked + .segmented-btn {
-  background: #ffffff;
-  color: #0284c7;
+  background: var(--bg-surface);
+  color: var(--primary);
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
@@ -361,11 +361,11 @@ input[type="radio"]:focus-visible {
   padding: 0 12px;
   background-color: var(--bg-surface);
   border: 1.5px solid var(--border-color);
-  border-radius: 10px;
+  border-radius: var(--radius-sm);
   color: var(--text-main);
   font-family: inherit;
   font-size: 0.88rem;
-  font-weight: 700;
+  font-weight: var(--fw-bold);
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -422,12 +422,12 @@ input[type="radio"]:focus-visible {
   align-items: center;
   justify-content: space-between;
   padding: 13px 18px;
-  border-radius: 16px;
+  border-radius: var(--radius-md);
   border: 1.5px solid var(--border-color);
   background-color: var(--bg-surface);
   box-shadow: 0 1px 3px rgba(15, 23, 42, 0.03);
   cursor: pointer;
-  font-weight: 700;
+  font-weight: var(--fw-bold);
   font-size: 0.96rem;
   color: var(--text-main);
   transition: all 0.18s cubic-bezier(0.4, 0, 0.2, 1);
@@ -443,17 +443,17 @@ input[type="radio"]:focus-visible {
 
 .custom-picker-row.active-choice,
 .custom-picker-row.selected {
-  background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+  background: linear-gradient(135deg, var(--primary-subtle) 0%, var(--primary-light) 100%);
   border: 1.5px solid var(--primary);
-  color: #0369a1;
-  box-shadow: 0 4px 14px -2px rgba(2, 132, 199, 0.18);
-  font-weight: 800;
+  color: var(--primary-hover);
+  box-shadow: 0 4px 14px -2px var(--primary-alpha-20);
+  font-weight: var(--fw-extrabold);
 }
 
 .custom-picker-row .check-icon {
   width: 24px;
   height: 24px;
-  border-radius: 50%;
+  border-radius: var(--radius-full);
   background: var(--primary);
   color: #ffffff;
   display: inline-flex;
@@ -465,27 +465,27 @@ input[type="radio"]:focus-visible {
 /* Dark Theme for Selects & Pickers */
 [data-theme="dark"] .custom-select-btn,
 [data-theme="dark"] .modern-select-btn {
-  background-color: #1e293b;
-  border-color: #334155;
+  background-color: var(--bg-surface);
+  border-color: var(--border-color);
   color: var(--text-main);
 }
 
 [data-theme="dark"] .custom-picker-row {
-  background-color: #1e293b;
-  border-color: #334155;
-  color: #f8fafc;
+  background-color: var(--bg-surface);
+  border-color: var(--border-color);
+  color: var(--text-main);
 }
 
 [data-theme="dark"] .custom-picker-row:hover {
-  background-color: #334155;
-  border-color: #475569;
+  background-color: var(--border-color);
+  border-color: var(--secondary);
 }
 
 [data-theme="dark"] .custom-picker-row.active-choice,
 [data-theme="dark"] .custom-picker-row.selected {
-  background: rgba(2, 132, 199, 0.25);
-  border-color: #38bdf8;
-  color: #38bdf8;
+  background: var(--primary-alpha-20);
+  border-color: var(--primary);
+  color: var(--primary);
 }
 
 /* ----------------------------------------------------------------------------
@@ -504,7 +504,7 @@ input[type="radio"]:focus-visible {
 }
 
 .patient-picker-trigger:hover {
-  background-color: #bae6fd;
+  background-color: var(--primary-light);
 }
 
 .patient-picker-trigger-compact {
@@ -515,9 +515,9 @@ input[type="radio"]:focus-visible {
   height: 42px;
   background: var(--bg-surface);
   border: 1.5px dashed var(--primary);
-  border-radius: 10px;
+  border-radius: var(--radius-sm);
   cursor: pointer;
-  font-weight: 800;
+  font-weight: var(--fw-extrabold);
   font-size: 0.88rem;
   color: var(--primary);
   transition: all 0.18s ease;
@@ -528,9 +528,9 @@ input[type="radio"]:focus-visible {
 }
 
 [data-theme="dark"] .patient-picker-trigger-compact {
-  background: #1e293b;
-  border-color: #38bdf8;
-  color: #38bdf8;
+  background: var(--bg-surface);
+  border-color: var(--primary);
+  color: var(--primary);
 }
 
 .selected-patient-card {
@@ -551,7 +551,7 @@ input[type="radio"]:focus-visible {
   padding: 8px 12px;
   background: var(--bg-surface);
   border: 1.5px solid var(--primary);
-  border-radius: 10px;
+  border-radius: var(--radius-sm);
   gap: 10px;
   width: 100%;
   max-width: 100%;
@@ -561,35 +561,35 @@ input[type="radio"]:focus-visible {
 }
 
 #picker-search-input {
-  background-color: #f8fafc;
-  border: 1.5px solid #e2e8f0;
-  border-radius: 14px;
+  background-color: var(--bg-subtle);
+  border: 1.5px solid var(--border-color);
+  border-radius: var(--radius-md-sm);
   padding: 12px 18px;
   font-size: 0.95rem;
-  font-weight: 600;
-  color: #0f172a;
+  font-weight: var(--fw-semibold);
+  color: var(--text-main);
   transition: all 0.2s ease;
   width: 100%;
   box-sizing: border-box;
 }
 
 #picker-search-input:focus {
-  background-color: #ffffff;
-  border-color: #0284c7;
-  box-shadow: 0 0 0 4px rgba(2, 132, 199, 0.14);
+  background-color: var(--bg-surface);
+  border-color: var(--primary);
+  box-shadow: 0 0 0 4px var(--primary-light);
   outline: none;
 }
 
 [data-theme="dark"] #picker-search-input {
-  background-color: #0f172a;
-  border-color: #334155;
-  color: #f8fafc;
+  background-color: var(--bg-subtle);
+  border-color: var(--border-color);
+  color: var(--text-main);
 }
 
 [data-theme="dark"] #picker-search-input:focus {
-  background-color: #1e293b;
-  border-color: #38bdf8;
-  box-shadow: 0 0 0 4px rgba(56, 189, 248, 0.18);
+  background-color: var(--bg-surface);
+  border-color: var(--primary);
+  box-shadow: 0 0 0 4px var(--primary-light);
 }
 
 .patient-picker-list {
@@ -605,7 +605,7 @@ input[type="radio"]:focus-visible {
 .picker-item {
   border: 1.5px solid var(--border-color);
   background-color: var(--bg-surface);
-  border-radius: 16px;
+  border-radius: var(--radius-md);
   padding: 13px 16px;
   cursor: pointer;
   display: flex;
@@ -627,16 +627,16 @@ input[type="radio"]:focus-visible {
 
 [data-theme="dark"] .patient-picker-list .picker-item,
 [data-theme="dark"] .picker-item {
-  background-color: #1e293b;
-  border-color: #334155;
+  background-color: var(--bg-surface);
+  border-color: var(--border-color);
 }
 
 [data-theme="dark"] .patient-picker-list .picker-item:hover,
 [data-theme="dark"] .patient-picker-list .picker-item:active,
 [data-theme="dark"] .picker-item:hover,
 [data-theme="dark"] .picker-item:active {
-  background-color: rgba(56, 189, 248, 0.12);
-  border-color: #38bdf8;
+  background-color: var(--primary-light);
+  border-color: var(--primary);
 }
 
 /* ----------------------------------------------------------------------------
@@ -666,8 +666,8 @@ input[type="radio"]:focus-visible {
 }
 
 .custom-calendar-header {
-  background-color: #f0f9ff;
-  border-bottom: 1.5px solid #bae6fd;
+  background-color: var(--primary-subtle);
+  border-bottom: 1.5px solid var(--primary-light);
   padding: 14px 16px;
 }
 
@@ -693,16 +693,16 @@ input[type="radio"]:focus-visible {
 .cal-nav-btn {
   width: 36px;
   height: 36px;
-  border-radius: 50%;
+  border-radius: var(--radius-full);
   border: 1px solid var(--border-color);
-  background-color: #ffffff;
+  background-color: var(--bg-surface);
   color: var(--primary);
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
   font-size: 0.95rem;
-  transition: all 0.15s;
+  transition: var(--transition-fast);
 }
 
 .cal-nav-btn:hover,
@@ -725,13 +725,13 @@ input[type="radio"]:focus-visible {
 .cal-quick-btn {
   padding: 3px 10px;
   font-size: 0.76rem;
-  font-weight: 700;
-  border: 1px solid #bae6fd;
+  font-weight: var(--fw-bold);
+  border: 1px solid var(--primary-light);
   color: var(--primary);
-  background-color: #ffffff;
+  background-color: var(--bg-surface);
   border-radius: var(--radius-full);
   cursor: pointer;
-  transition: all 0.15s;
+  transition: var(--transition-fast);
 }
 
 .cal-quick-btn:hover {
@@ -755,7 +755,7 @@ input[type="radio"]:focus-visible {
   grid-template-columns: repeat(7, 1fr);
   text-align: center;
   font-size: 0.8rem;
-  font-weight: 800;
+  font-weight: var(--fw-extrabold);
   color: var(--text-muted);
   margin-bottom: 8px;
   padding-bottom: 6px;
@@ -780,13 +780,13 @@ input[type="radio"]:focus-visible {
   align-items: center;
   justify-content: center;
   font-size: 0.92rem;
-  font-weight: 600;
-  border-radius: 50%;
+  font-weight: var(--fw-semibold);
+  border-radius: var(--radius-full);
   border: none;
   background: none;
   cursor: pointer;
   color: var(--text-main);
-  transition: all 0.15s;
+  transition: var(--transition-fast);
   user-select: none;
 }
 
@@ -796,20 +796,20 @@ input[type="radio"]:focus-visible {
 }
 
 .cal-day-cell.other-month {
-  color: #cbd5e1;
+  color: var(--text-faint);
   pointer-events: none;
 }
 
 .cal-day-cell.today {
   border: 1.5px solid var(--primary);
-  font-weight: 800;
+  font-weight: var(--fw-extrabold);
 }
 
 .cal-day-cell.selected {
   background-color: var(--primary);
   color: #ffffff;
-  font-weight: 800;
-  box-shadow: 0 2px 6px rgba(2, 132, 199, 0.4);
+  font-weight: var(--fw-extrabold);
+  box-shadow: 0 2px 6px var(--primary-alpha-30);
 }
 
 [data-theme="dark"] .cal-day-cell {
@@ -817,7 +817,7 @@ input[type="radio"]:focus-visible {
 }
 
 [data-theme="dark"] .cal-day-cell:hover {
-  background-color: rgba(51, 65, 85, 0.6);
+  background-color: var(--border-color);
 }
 
 .custom-calendar-footer {
@@ -839,10 +839,10 @@ input[type="radio"]:focus-visible {
    ---------------------------------------------------------------------------- */
 .appt-doc-shift-warning {
   font-size: 0.76rem;
-  color: #b45309;
-  background: rgba(245, 158, 11, 0.1);
-  border: 1px solid rgba(245, 158, 11, 0.3);
-  border-radius: 8px;
+  color: var(--badge-warning-text);
+  background: var(--amber-tint);
+  border: 1px solid var(--badge-warning-border);
+  border-radius: var(--radius-base);
   padding: 6px 10px;
   margin-top: 6px;
   line-height: 1.4;
@@ -854,14 +854,14 @@ input[type="radio"]:focus-visible {
 .modal-body input[type="date"],
 .modal-body select,
 .modal-body textarea {
-  background-color: #f8fafc;
-  border: 1.5px solid #e2e8f0;
-  border-radius: 14px;
+  background-color: var(--bg-subtle);
+  border: 1.5px solid var(--border-color);
+  border-radius: var(--radius-md-sm);
   padding: 12px 14px;
-  font-weight: 600;
+  font-weight: var(--fw-semibold);
   font-size: 0.94rem;
-  color: #0f172a;
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  color: var(--text-main);
+  transition: var(--transition-spring);
   box-sizing: border-box;
 }
 
@@ -872,9 +872,9 @@ input[type="radio"]:focus-visible {
 .modal-body input[type="date"]:focus,
 .modal-body select:focus,
 .modal-body textarea:focus {
-  background-color: #ffffff;
-  border-color: #0284c7;
-  box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.14);
+  background-color: var(--bg-surface);
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px var(--primary-light);
   outline: none;
 }
 
@@ -885,9 +885,9 @@ input[type="radio"]:focus-visible {
 [data-theme="dark"] .modal-body input[type="date"],
 [data-theme="dark"] .modal-body select,
 [data-theme="dark"] .modal-body textarea {
-  background-color: #0f172a;
-  border-color: #334155;
-  color: #f8fafc;
+  background-color: var(--bg-subtle);
+  border-color: var(--border-color);
+  color: var(--text-main);
 }
 
 [data-theme="dark"] .modal-body .form-control:focus,
@@ -897,9 +897,9 @@ input[type="radio"]:focus-visible {
 [data-theme="dark"] .modal-body input[type="date"]:focus,
 [data-theme="dark"] .modal-body select:focus,
 [data-theme="dark"] .modal-body textarea:focus {
-  background-color: #1e293b;
-  border-color: #38bdf8;
-  box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.2);
+  background-color: var(--bg-surface);
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px var(--primary-light);
 }
 
 /* ==========================================================================
@@ -951,7 +951,7 @@ input[type="radio"]:focus-visible {
 }
 
 [data-theme="dark"] .multi-picker-row.selected {
-  background-color: rgba(2, 132, 199, 0.25) !important;
+  background-color: var(--primary-alpha-20) !important;
   border-color: var(--primary) !important;
 }
 
@@ -965,7 +965,7 @@ input[type="radio"]:focus-visible {
 .multi-select-preview .badge {
   font-size: 0.78rem;
   padding: 3px 8px;
-  border-radius: 6px;
+  border-radius: var(--radius-xs);
 }
 
 .form-group-modern {
@@ -977,7 +977,7 @@ input[type="radio"]:focus-visible {
 
 .modern-field-label {
   font-size: 0.82rem;
-  font-weight: 800;
+  font-weight: var(--fw-extrabold);
   color: var(--text-main);
   display: flex;
   align-items: center;
@@ -1017,13 +1017,13 @@ input[type="radio"]:focus-visible {
   height: 42px;
   background: var(--bg-subtle);
   border: 1.5px solid var(--border-color);
-  border-radius: 10px;
+  border-radius: var(--radius-sm);
   padding: 3px;
 }
 
 [data-theme="dark"] .gender-segmented-deck {
-  background: #1e293b;
-  border-color: #334155;
+  background: var(--bg-surface);
+  border-color: var(--border-color);
 }
 
 .gender-btn-pill {
@@ -1031,9 +1031,9 @@ input[type="radio"]:focus-visible {
   height: 100%;
   border: none;
   background: transparent;
-  border-radius: 7px;
+  border-radius: var(--radius-xs);
   font-size: 0.82rem;
-  font-weight: 800;
+  font-weight: var(--fw-extrabold);
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -1044,24 +1044,24 @@ input[type="radio"]:focus-visible {
 }
 
 .gender-btn-pill.male.active {
-  background: #0284c7 !important;
+  background: var(--primary) !important;
   color: #ffffff !important;
   box-shadow: 0 2px 8px rgba(2, 132, 199, 0.3);
 }
 
 .gender-btn-pill.female.active {
-  background: #ec4899 !important;
+  background: var(--female) !important;
   color: #ffffff !important;
   box-shadow: 0 2px 8px rgba(236, 72, 153, 0.3);
 }
 
 [data-theme="dark"] .gender-btn-pill.male.active {
-  background: #0284c7 !important;
+  background: var(--primary) !important;
   color: #ffffff !important;
   box-shadow: 0 2px 8px rgba(2, 132, 199, 0.4);
 }
 [data-theme="dark"] .gender-btn-pill.female.active {
-  background: #db2777 !important;
+  background: var(--female) !important;
   color: #ffffff !important;
   box-shadow: 0 2px 8px rgba(219, 39, 119, 0.4);
 }
@@ -1080,7 +1080,7 @@ input[type="radio"]:focus-visible {
   padding: 10px 14px !important;
   font-size: 0.92rem !important;
   box-sizing: border-box !important;
-  border-radius: 8px !important;
+  border-radius: var(--radius-base) !important;
   border: 1.5px solid var(--border-color) !important;
 }
 
