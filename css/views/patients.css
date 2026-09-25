@@ -38,7 +38,7 @@
 
 .patients-title {
   font-size: 1.35rem;
-  font-weight: 800;
+  font-weight: var(--fw-extrabold);
   display: flex;
   align-items: center;
   gap: 8px;
@@ -51,23 +51,17 @@
   color: var(--text-muted);
   border: 1.5px solid var(--border-color);
   font-size: 0.78rem;
-  font-weight: 800;
+  font-weight: var(--fw-extrabold);
   padding: 2px 8px;
-  border-radius: 999px;
+  border-radius: var(--radius-full);
   box-shadow: var(--shadow-xs);
   cursor: pointer;
   user-select: none;
-  transition: transform 0.15s ease, background 0.15s ease;
+  transition: transform var(--transition-fast), background var(--transition-fast);
 }
 
 #patients-total-count-badge:active {
   transform: scale(0.95);
-}
-
-[data-theme="dark"] #patients-total-count-badge {
-  background: #1e293b;
-  border-color: #334155;
-  color: #94a3b8;
 }
 
 /* ==========================================================================
@@ -126,20 +120,20 @@
   min-width: 0;
   height: 40px;
   padding: 0 10px;
-  font-weight: 700;
+  font-weight: var(--fw-bold);
   white-space: nowrap;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 6px;
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: all var(--transition-spring);
   position: relative;
 }
 
 #btn-filter-today-patients i {
   color: var(--primary);
   font-size: 0.95rem;
-  transition: color 0.18s ease;
+  transition: color var(--transition-fast);
 }
 
 #btn-filter-today-patients #badge-today-patients-count {
@@ -148,9 +142,9 @@
   border: 1px solid rgba(2, 132, 199, 0.25);
   font-size: 0.75rem;
   padding: 2px 7px;
-  border-radius: 12px;
-  font-weight: 800;
-  transition: all 0.18s ease;
+  border-radius: var(--radius-md-sm);
+  font-weight: var(--fw-extrabold);
+  transition: all var(--transition-fast);
 }
 
 [data-theme="dark"] #btn-filter-today-patients #badge-today-patients-count {
@@ -182,7 +176,7 @@
   background-color: rgba(255, 255, 255, 0.25);
   color: #ffffff;
   border: 1px solid rgba(255, 255, 255, 0.45);
-  font-weight: 800;
+  font-weight: var(--fw-extrabold);
 }
 
 /* Today Patients Active State (Dark Mode) */
@@ -235,7 +229,7 @@
 #btn-open-add-patient {
   height: 38px;
   padding: 0 16px;
-  font-weight: 800;
+  font-weight: var(--fw-extrabold);
   font-size: 0.88rem;
   white-space: nowrap;
   display: inline-flex;
@@ -256,25 +250,20 @@
   align-items: center;
   background: var(--bg-subtle);
   border: 1.5px solid var(--border-color);
-  border-radius: 12px;
+  border-radius: var(--radius-md-sm);
   padding: 2.5px;
   gap: 3px;
   height: 38px;
   box-sizing: border-box;
 }
 
-[data-theme="dark"] .patients-sort-segmented {
-  background: #0f172a;
-  border-color: #334155;
-}
-
 .sort-seg-btn {
   border: none;
   background: transparent;
   padding: 4px 10px;
-  border-radius: 8px;
+  border-radius: var(--radius-base);
   font-size: 0.78rem;
-  font-weight: 700;
+  font-weight: var(--fw-bold);
   color: var(--text-muted);
   cursor: pointer;
   display: inline-flex;
@@ -282,7 +271,7 @@
   gap: 5px;
   height: 100%;
   white-space: nowrap;
-  transition: all 0.16s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: all var(--transition-spring);
   box-sizing: border-box;
 }
 
@@ -291,16 +280,16 @@
 }
 
 :root:not([data-theme="dark"]) .sort-seg-btn.active {
-  background: #ffffff;
-  color: #0284c7;
-  font-weight: 800;
+  background: var(--bg-surface);
+  color: var(--primary);
+  font-weight: var(--fw-extrabold);
   box-shadow: 0 1px 4px rgba(15, 23, 42, 0.1);
 }
 
 [data-theme="dark"] .sort-seg-btn.active {
-  background: #1e293b;
-  color: #38bdf8;
-  font-weight: 800;
+  background: var(--bg-surface);
+  color: var(--primary);
+  font-weight: var(--fw-extrabold);
   border: 1px solid rgba(56, 189, 248, 0.3);
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.35);
 }
@@ -347,7 +336,7 @@
   border-radius: 20px;
   padding: 16px 18px;
   margin-bottom: 14px;
-  transition: transform 0.16s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.16s ease, border-color 0.16s ease;
+  transition: transform var(--transition-spring), box-shadow var(--transition-fast), border-color var(--transition-fast);
   position: relative;
   background: var(--bg-surface);
   box-shadow: 0 4px 18px -2px rgba(0, 0, 0, 0.06);
@@ -454,19 +443,15 @@
 
 .pc-name-title {
   font-size: 1.15rem;
-  font-weight: 800;
+  font-weight: var(--fw-extrabold);
   line-height: 1.3;
   margin: 0;
   cursor: pointer;
-  color: #f8fafc;
+  color: var(--text-main);
   white-space: normal;
   word-break: break-word;
   flex: 1;
   min-width: 0;
-}
-
-:root:not([data-theme="dark"]) .pc-name-title {
-  color: #0f172a;
 }
 
 /* Row 2: Subtitle (Gender/Age) on Right, Action Pills on Left */
@@ -481,7 +466,7 @@
 
 .pc-meta-sub {
   font-size: 0.84rem;
-  font-weight: 700;
+  font-weight: var(--fw-bold);
   display: flex;
   align-items: center;
   gap: 6px;
@@ -511,10 +496,10 @@
 }
 
 .pc-billing-tag {
-  border-radius: 8px;
+  border-radius: var(--radius-base);
   padding: 4px 10px;
   font-size: 0.78rem;
-  font-weight: 700;
+  font-weight: var(--fw-bold);
   display: inline-flex;
   align-items: center;
   gap: 5px;
@@ -572,7 +557,7 @@
   border-radius: 9px;
   padding: 6px 14px;
   font-size: 0.88rem;
-  font-weight: 800;
+  font-weight: var(--fw-extrabold);
   height: 35px;
   display: inline-flex;
   align-items: center;
@@ -581,7 +566,7 @@
   cursor: pointer;
   line-height: 1;
   border: 1.5px solid transparent;
-  transition: all 0.18s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: all var(--transition-spring);
 }
 
 .btn-pc-pill i {
@@ -673,7 +658,7 @@
   align-items: center;
   gap: 6px;
   font-size: 0.82rem;
-  font-weight: 700;
+  font-weight: var(--fw-bold);
   color: #94a3b8;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -701,14 +686,14 @@
 .btn-pc-squircle {
   width: 38px;
   height: 38px;
-  border-radius: 10px;
+  border-radius: var(--radius-sm);
   display: inline-flex;
   align-items: center;
   justify-content: center;
   font-size: 1rem;
   cursor: pointer;
   border: 1px solid transparent;
-  transition: all 0.16s ease;
+  transition: all var(--transition-fast);
   padding: 0;
 }
 
@@ -847,7 +832,7 @@
 
 .sheet-title {
   font-size: 1.15rem;
-  font-weight: 800;
+  font-weight: var(--fw-extrabold);
   color: var(--text-main);
   margin: 0;
 }
@@ -902,8 +887,8 @@
   border: 1px solid var(--border-color);
   color: var(--text-muted);
   font-size: 0.72rem;
-  font-weight: 700;
-  transition: all 0.2s ease;
+  font-weight: var(--fw-bold);
+  transition: all var(--transition-normal);
   flex-shrink: 0;
 }
 
@@ -914,7 +899,7 @@
 
 .pcm-toggle-icon {
   font-size: 0.68rem;
-  transition: transform 0.2s ease;
+  transition: transform var(--transition-normal);
 }
 
 /* Gender Accents for Clinical Card */
@@ -925,7 +910,7 @@
 }
 
 :root:not([data-theme="dark"]) .patient-clinical-main-card.gender-male {
-  background: #ffffff;
+  background: var(--bg-surface);
   border: 1.5px solid rgba(14, 165, 233, 0.3);
   border-right: 4px solid #0284c7;
   box-shadow: -4px 0 14px -2px rgba(14, 165, 233, 0.18), 0 3px 12px rgba(15, 23, 42, 0.04);
@@ -938,7 +923,7 @@
 }
 
 :root:not([data-theme="dark"]) .patient-clinical-main-card.gender-female {
-  background: #ffffff;
+  background: var(--bg-surface);
   border: 1.5px solid rgba(236, 72, 153, 0.3);
   border-right: 4px solid #ec4899;
   box-shadow: -4px 0 14px -2px rgba(236, 72, 153, 0.18), 0 3px 12px rgba(15, 23, 42, 0.04);
@@ -956,7 +941,7 @@
 
 .pcm-patient-name {
   font-size: 1.25rem;
-  font-weight: 800;
+  font-weight: var(--fw-extrabold);
   color: var(--text-main);
   margin: 0;
   line-height: 1.3;
@@ -1049,7 +1034,7 @@
 }
 
 .pcm-phone-link {
-  font-weight: 800;
+  font-weight: var(--fw-extrabold);
   color: var(--primary);
   text-decoration: none;
 }
@@ -1062,7 +1047,7 @@
   color: var(--text-muted);
   background: var(--bg-subtle);
   padding: 5px 12px;
-  border-radius: 8px;
+  border-radius: var(--radius-base);
   border: 1px solid var(--border-color);
   max-width: 160px;
   overflow: hidden;
@@ -1087,14 +1072,14 @@
   align-items: center;
   gap: 6px;
   font-size: 0.80rem;
-  font-weight: 800;
+  font-weight: var(--fw-extrabold);
   color: var(--primary);
   background: var(--bg-subtle);
   border: 1px solid var(--border-color);
   padding: 5px 12px;
-  border-radius: 8px;
+  border-radius: var(--radius-base);
   cursor: pointer;
-  transition: all 0.18s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: all var(--transition-spring);
   text-decoration: none;
   white-space: nowrap;
 }
@@ -1109,11 +1094,6 @@
   background: rgba(15, 23, 42, 0.5);
   border-color: #334155;
   color: #38bdf8;
-}
-
-[data-theme="dark"] .pcm-sessions-chip:hover {
-  background: rgba(56, 189, 248, 0.15);
-  border-color: #38bdf8;
 }
 
 .pcm-sessions-chip.cycle-near-limit {
@@ -1263,7 +1243,7 @@
   white-space: nowrap;
   flex-shrink: 0;
   padding: 4px 10px;
-  border-radius: 999px;
+  border-radius: var(--radius-full);
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -1312,11 +1292,11 @@
   align-items: center;
   gap: 6px;
   padding: 4px 10px;
-  border-radius: 999px;
+  border-radius: var(--radius-full);
   font-size: 0.76rem;
-  font-weight: 800;
-  background: rgba(2, 132, 199, 0.10);
-  color: #0369a1;
+  font-weight: var(--fw-extrabold);
+  background: var(--primary-alpha-10);
+  color: var(--primary-hover);
   border: 1px solid rgba(2, 132, 199, 0.25);
   animation: fadeIn 0.2s ease;
 }
@@ -1337,7 +1317,7 @@
   padding: 0 2px;
   line-height: 1;
   opacity: 0.7;
-  transition: all 0.15s ease;
+  transition: all var(--transition-fast);
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -1417,7 +1397,7 @@
   padding: 30px 16px;
   background: var(--bg-subtle);
   border: 1.5px dashed var(--border-color);
-  border-radius: 12px;
+  border-radius: var(--radius-md-sm);
   color: var(--text-muted);
 }
 
@@ -1425,11 +1405,11 @@
   position: relative;
   background: var(--bg-surface);
   border: 1.5px solid var(--border-color);
-  border-radius: 12px;
+  border-radius: var(--radius-md-sm);
   overflow: hidden;
   cursor: pointer;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
-  transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
+  transition: transform var(--transition-fast), box-shadow var(--transition-fast), border-color var(--transition-fast);
   display: flex;
   flex-direction: column;
 }
@@ -1467,13 +1447,13 @@
   top: 6px;
   right: 6px;
   font-size: 0.68rem;
-  font-weight: 800;
+  font-weight: var(--fw-extrabold);
   padding: 3px 7px;
-  border-radius: 6px;
+  border-radius: var(--radius-xs);
   backdrop-filter: blur(4px);
   z-index: 2;
   cursor: pointer;
-  transition: transform 0.15s ease, filter 0.15s ease;
+  transition: transform var(--transition-fast), filter var(--transition-fast);
 }
 
 .imaging-card-badge:hover {
@@ -1487,7 +1467,7 @@
   left: 6px;
   width: 26px;
   height: 26px;
-  border-radius: 6px;
+  border-radius: var(--radius-xs);
   background: rgba(239, 68, 68, 0.85);
   color: #ffffff;
   border: none;
@@ -1497,7 +1477,7 @@
   font-size: 0.75rem;
   cursor: pointer;
   opacity: 0.85;
-  transition: all 0.15s ease;
+  transition: all var(--transition-fast);
   z-index: 3;
 }
 
@@ -1518,7 +1498,7 @@
 
 .imaging-card-title {
   font-size: 0.78rem;
-  font-weight: 800;
+  font-weight: var(--fw-extrabold);
   color: var(--text-main);
   white-space: nowrap;
   overflow: hidden;
@@ -1597,7 +1577,7 @@
   color: #ffffff;
   box-shadow: 0 4px 16px rgba(2, 132, 199, 0.4);
   border: none;
-  transition: all 0.2s ease;
+  transition: all var(--transition-normal);
 }
 
 .sheet-bottom-bar-fixed .btn-save-sheet-hero:hover,
@@ -1615,7 +1595,7 @@
 .p-insurance-details-box {
   background-color: var(--bg-subtle);
   padding: 12px;
-  border-radius: 10px;
+  border-radius: var(--radius-sm);
   margin-top: 10px;
   border: 1px solid var(--border-color);
 }
@@ -1640,7 +1620,7 @@
   display: flex;
   flex-direction: column;
   gap: 8px;
-  transition: all 0.2s ease;
+  transition: all var(--transition-normal);
   position: relative;
   box-shadow: 0 2px 8px -1px rgba(15, 23, 42, 0.04);
 }
@@ -1681,10 +1661,10 @@
 }
 
 .stc-num-badge {
-  font-weight: 800;
+  font-weight: var(--fw-extrabold);
   font-size: 0.78rem;
   padding: 2px 8px;
-  border-radius: 6px;
+  border-radius: var(--radius-xs);
   background: var(--bg-subtle);
   color: var(--text-muted);
   border: 1px solid var(--border-color);
@@ -1703,13 +1683,13 @@
   align-items: center;
   gap: 6px;
   font-size: 0.82rem;
-  font-weight: 700;
+  font-weight: var(--fw-bold);
   color: var(--text-main);
 }
 
 .stc-time {
   font-size: 0.74rem;
-  font-weight: 600;
+  font-weight: var(--fw-semibold);
   color: var(--text-muted);
 }
 
@@ -1732,7 +1712,7 @@
 
 .stc-doctor strong {
   color: var(--text-main);
-  font-weight: 800;
+  font-weight: var(--fw-extrabold);
 }
 
 .stc-part-pill {
@@ -1740,11 +1720,11 @@
   align-items: center;
   gap: 5px;
   font-size: 0.78rem;
-  font-weight: 700;
+  font-weight: var(--fw-bold);
   color: var(--primary);
   background: var(--primary-light);
   padding: 2px 9px;
-  border-radius: 999px;
+  border-radius: var(--radius-full);
   border: 1px solid rgba(2, 132, 199, 0.2);
 }
 
@@ -1772,7 +1752,7 @@
   color: var(--text-muted);
   background: var(--bg-subtle);
   padding: 6px 10px;
-  border-radius: 8px;
+  border-radius: var(--radius-base);
   display: flex;
   align-items: flex-start;
   gap: 6px;
@@ -1806,7 +1786,7 @@
 .stc-empty-box h4 {
   margin: 0 0 6px 0;
   font-size: 1rem;
-  font-weight: 800;
+  font-weight: var(--fw-extrabold);
   color: var(--text-main);
 }
 .stc-empty-box p {
