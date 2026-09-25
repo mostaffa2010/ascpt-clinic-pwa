@@ -44,8 +44,8 @@
 .claim-icon-box {
   width: 36px;
   height: 36px;
-  border-radius: 10px;
-  background: rgba(2, 132, 199, 0.12);
+  border-radius: var(--radius-sm);
+  background: var(--primary-tint);
   color: var(--primary);
   display: flex;
   align-items: center;
@@ -56,7 +56,7 @@
 
 .claim-card-title {
   font-size: 1.02rem;
-  font-weight: 800;
+  font-weight: var(--fw-extrabold);
   color: var(--text-main);
   margin: 0;
   white-space: nowrap;
@@ -64,9 +64,9 @@
 
 .btn-toggle-claim-settings {
   font-size: 0.78rem;
-  font-weight: 700;
+  font-weight: var(--fw-bold);
   padding: 6px 12px;
-  border-radius: 8px;
+  border-radius: var(--radius-base);
   white-space: nowrap;
   flex-shrink: 0;
   gap: 6px;
@@ -77,7 +77,7 @@
 .claim-summary-strip {
   padding: 10px 14px;
   background: var(--bg-subtle);
-  border-radius: 12px;
+  border-radius: var(--radius-md-sm);
   margin-bottom: 10px;
   display: flex;
   align-items: center;
@@ -98,15 +98,15 @@
 }
 
 .claim-summary-text {
-  font-weight: 700;
+  font-weight: var(--fw-bold);
   color: var(--text-main);
 }
 
 .btn-reopen-claim-settings {
   font-size: 0.78rem;
-  font-weight: 700;
+  font-weight: var(--fw-bold);
   padding: 4px 12px;
-  border-radius: 8px;
+  border-radius: var(--radius-base);
 }
 
 .claim-btn-wrap {
@@ -117,14 +117,14 @@
   width: 100%;
   height: 46px;
   font-size: 0.98rem;
-  font-weight: 800;
-  border-radius: 12px;
+  font-weight: var(--fw-extrabold);
+  border-radius: var(--radius-md-sm);
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 8px;
   box-shadow: 0 4px 14px rgba(2, 132, 199, 0.25);
-  transition: all 0.2s ease;
+  transition: all var(--transition-normal);
 }
 
 .btn-load-claim-patients:hover {
@@ -153,8 +153,8 @@
 .claim-patients-icon {
   width: 32px;
   height: 32px;
-  border-radius: 8px;
-  background: rgba(2, 132, 199, 0.12);
+  border-radius: var(--radius-base);
+  background: var(--primary-tint);
   color: var(--primary);
   display: flex;
   align-items: center;
@@ -165,7 +165,7 @@
 
 .claim-patients-title {
   font-size: 1rem;
-  font-weight: 800;
+  font-weight: var(--fw-extrabold);
   color: var(--text-main);
   margin: 0;
 }
@@ -203,17 +203,17 @@
 }
 
 .btn-claim-select-all {
-  font-weight: 800;
+  font-weight: var(--fw-extrabold);
   padding: 8px 14px;
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  border-radius: 8px;
+  border-radius: var(--radius-base);
 }
 
 .claim-search-stats {
   font-size: 0.82rem;
-  font-weight: 700;
+  font-weight: var(--fw-bold);
   color: var(--text-muted);
 }
 
@@ -285,7 +285,7 @@
   border-radius: 14px;
   border: 1.5px solid var(--border-color);
   background: var(--bg-subtle);
-  transition: opacity 0.2s ease, border-color 0.2s ease;
+  transition: opacity var(--transition-normal), border-color var(--transition-normal);
 }
 
 .claim-patient-card-item.is-unchecked {
@@ -303,7 +303,7 @@
 .claim-patient-input {
   width: 100%;
   text-align: center;
-  font-weight: 800;
+  font-weight: var(--fw-extrabold);
   font-size: 0.86rem;
   height: 24px;
   border: none;
@@ -314,7 +314,7 @@
 
 .claim-mob-total {
   font-size: 0.94rem;
-  font-weight: 800;
+  font-weight: var(--fw-extrabold);
   color: var(--success);
 }
 
@@ -347,7 +347,7 @@
   border: 1.5px solid var(--border-color);
   background: var(--bg-surface);
   padding: 14px 16px;
-  border-radius: 16px;
+  border-radius: var(--radius-md);
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
 }
 
@@ -362,7 +362,7 @@
 
 .claim-actions-title {
   font-size: 1rem;
-  font-weight: 800;
+  font-weight: var(--fw-extrabold);
   color: var(--text-main);
 }
 
@@ -379,12 +379,12 @@
 }
 
 .btn-print-claim-statement {
-  font-weight: 800;
+  font-weight: var(--fw-extrabold);
   padding: 6px 12px;
 }
 
 .btn-print-attendance-cards {
-  font-weight: 800;
+  font-weight: var(--fw-extrabold);
   padding: 6px 12px;
   color: var(--primary);
   border-color: var(--primary);
@@ -392,14 +392,14 @@
 }
 
 .btn-export-claim-excel {
-  font-weight: 800;
+  font-weight: var(--fw-extrabold);
   padding: 6px 12px;
   color: var(--success);
   border-color: var(--success);
 }
 
 .btn-save-claim {
-  font-weight: 800;
+  font-weight: var(--fw-extrabold);
   padding: 6px 12px;
   color: #ffffff;
   display: inline-flex;
@@ -408,7 +408,7 @@
 }
 
 .btn-settle-claim-action {
-  font-weight: 800;
+  font-weight: var(--fw-extrabold);
   padding: 6px 12px;
   color: var(--primary);
   border-color: var(--primary);
@@ -448,7 +448,7 @@
 .claims-ledger-title {
   font-size: 1.05rem;
   color: var(--primary);
-  font-weight: 800;
+  font-weight: var(--fw-extrabold);
   display: inline-flex;
   align-items: center;
   gap: 8px;
@@ -456,11 +456,11 @@
 
 .claims-ledger-badge {
   font-size: 0.8rem;
-  font-weight: 800;
+  font-weight: var(--fw-extrabold);
   white-space: nowrap;
   flex-shrink: 0;
   padding: 4px 10px;
-  border-radius: 999px;
+  border-radius: var(--radius-full);
 }
 
 .claims-ledger-controls {
@@ -479,13 +479,13 @@
 .btn-claim-filter-pill {
   padding: 4px 12px;
   font-size: 0.78rem;
-  font-weight: 700;
-  border-radius: 20px;
+  font-weight: var(--fw-bold);
+  border-radius: var(--radius-lg);
   border: 1px solid var(--border-color);
   background: var(--bg-subtle);
   color: var(--text-main);
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all var(--transition-normal);
 }
 
 .btn-claim-filter-pill.active {
@@ -524,7 +524,7 @@
 
 .claims-ledger-company-label {
   font-size: 0.82rem;
-  font-weight: 800;
+  font-weight: var(--fw-extrabold);
   white-space: nowrap;
   color: var(--text-main);
 }
@@ -549,7 +549,7 @@
   border-color: var(--primary);
   padding: 4px 8px;
   font-size: 0.78rem;
-  font-weight: 700;
+  font-weight: var(--fw-bold);
 }
 
 .btn-load-ledger-claim {
@@ -580,7 +580,7 @@
 [data-theme="dark"] .claim-icon-box,
 [data-theme="dark"] .claim-patients-icon {
   background: rgba(56, 189, 248, 0.15);
-  color: #38bdf8;
+  color: var(--primary);
 }
 
 [data-theme="dark"] .claim-summary-strip {
@@ -590,7 +590,7 @@
 [data-theme="dark"] .btn-claim-filter-pill.active {
   background-color: var(--primary);
   color: #0f172a;
-  font-weight: 800;
+  font-weight: var(--fw-extrabold);
   border-color: var(--primary);
   box-shadow: 0 2px 8px rgba(56, 189, 248, 0.35);
 }
@@ -606,12 +606,12 @@
 @media screen and (max-width: 767px) {
   #card-claim-settings {
     padding: 14px 12px;
-    border-radius: 16px;
+    border-radius: var(--radius-md);
   }
 
   #card-claim-patients-wrap {
     padding: 12px 10px;
-    border-radius: 16px;
+    border-radius: var(--radius-md);
   }
 
   #card-claim-actions-hub {
@@ -630,7 +630,7 @@
     height: 38px;
     padding: 0 8px;
     font-size: 0.78rem;
-    border-radius: 12px;
+    border-radius: var(--radius-md-sm);
     justify-content: center;
     white-space: nowrap;
     width: 100%;
