@@ -95,6 +95,7 @@ class App {
     // ربط مبكر وفوري لضمان عمل كافة الأزرار بدون أي تأخير
     window.app = this;
     window.auth = auth;
+    window.db = db;
     this.patientsManager = new PatientsManager(this);
     this.sessionsManager = new SessionsManager(this);
     this.financeManager = new FinanceManager(this);
@@ -175,7 +176,7 @@ class App {
           const h = new Date().getHours();
           const gText = (h >= 5 && h < 12) ? 'صباح الخير' : (h >= 12 && h < 17 ? 'مساء الخير' : 'مساء النور');
           this.updateHeroGreetings(gText, user);
-          try { await db.syncAndSeedCloudOptions(); } catch (_) {}
+          try { await db.syncAndSeedCloudOptions(true); } catch (_) {}
           this.updateBackupStatusHint();
           this.checkBackupReminderToast(user);
           this.notificationsManager?.onUserAuthenticated(user);

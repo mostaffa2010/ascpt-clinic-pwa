@@ -240,7 +240,8 @@ class FirestoreDatabaseService {
     this.APPT_CACHE_TTL = 86400000; // 24 hours persistent appointments cache (real-time synced via meta/syncVersion)
     this.MONTH_CACHE_TTL = 21600000; // 6 hours for month sessions cache (patched real-time by today sessions)
 
-    this.syncAndSeedCloudOptions();
+    // Note: Cloud options sync is executed once user authenticates (auth.init in app.js)
+    // to strictly adhere to Firestore security rules (allow read: if isUserActive())
   }
 
   invalidateAllCaches() {
@@ -1756,21 +1757,23 @@ class FirestoreDatabaseService {
 
     this.ensureConnected();
 
-    // Fast-path: immediate memory hydration from local storage (Zero Firestore Reads)
-    try {
-      const storedClinical = localStorage.getItem('ascpt_cached_clinical_options');
-      const storedIns = localStorage.getItem('ascpt_cached_insurance_companies');
-      if (storedClinical && !this.clinicalOptionsCache) {
-        this.clinicalOptionsCache = JSON.parse(storedClinical);
-      }
-      if (storedIns && !this.insuranceCompaniesCache) {
-        this.insuranceCompaniesCache = JSON.parse(storedIns);
-      }
-      if (storedClinical && storedIns && !forceRefresh) {
-        this._optionsLoaded = true;
-        return;
-      }
-    } catch (_) {}
+    // Fast-path: immediate memory hydration from local storage if valid and not forcing refresh
+    if (!forceRefresh) {
+      try {
+        const storedClinical = localStorage.getItem('ascpt_cached_clinical_options');
+        const storedIns = localStorage.getItem('ascpt_cached_insurance_companies');
+        if (storedClinical && !this.clinicalOptionsCache) {
+          this.clinicalOptionsCache = JSON.parse(storedClinical);
+        }
+        if (storedIns && !this.insuranceCompaniesCache) {
+          this.insuranceCompaniesCache = JSON.parse(storedIns);
+        }
+        if (storedClinical && storedIns) {
+          this._optionsLoaded = true;
+          return;
+        }
+      } catch (_) {}
+    }
 
     const defaults = {
       modality: [
@@ -1833,6 +1836,7 @@ class FirestoreDatabaseService {
 
     // 1. Seed & Sync Clinical Options (Parallel fetch)
     const cats = ['modality', 'procedure', 'exercise', 'body_parts', 'expense_categories'];
+    let anyClinicalFetched = false;
     await Promise.all(cats.map(async (cat) => {
       try {
         const docRef = doc(firestoreDb, 'clinical_options', cat);
@@ -1841,13 +1845,16 @@ class FirestoreDatabaseService {
           const data = snap.data();
           if (Array.isArray(data.items)) {
             this.clinicalOptionsCache[cat] = data.items;
+            anyClinicalFetched = true;
           }
         } else {
           const defaultItems = defaults[cat] || [];
           this.clinicalOptionsCache[cat] = defaultItems;
           await setDoc(docRef, { items: defaultItems }, { merge: true });
+          anyClinicalFetched = true;
         }
       } catch (err) {
+        console.warn(`[ASCPT Cloud Options] Notice: Failed to fetch clinical options for ${cat}:`, err.message);
         if (!this.clinicalOptionsCache[cat]) {
           this.clinicalOptionsCache[cat] = defaults[cat] || [];
         }
@@ -1856,6 +1863,7 @@ class FirestoreDatabaseService {
 
     // 2. Seed & Sync Insurance Companies (Parallel fetch)
     const cTypes = ['direct', 'indirect'];
+    let anyInsFetched = false;
     await Promise.all(cTypes.map(async (cType) => {
       try {
         const docRef = doc(firestoreDb, 'insurance_companies', cType);
@@ -1864,25 +1872,45 @@ class FirestoreDatabaseService {
           const data = snap.data();
           if (Array.isArray(data.companies)) {
             this.insuranceCompaniesCache[cType] = data.companies;
+            anyInsFetched = true;
           }
         } else {
           const defaultCompanies = insuranceDefaults[cType] || [];
           this.insuranceCompaniesCache[cType] = defaultCompanies;
           await setDoc(docRef, { companies: defaultCompanies }, { merge: true });
+          anyInsFetched = true;
         }
       } catch (err) {
+        console.warn(`[ASCPT Cloud Options] Notice: Failed to fetch insurance companies for ${cType}:`, err.message);
         if (!this.insuranceCompaniesCache[cType]) {
           this.insuranceCompaniesCache[cType] = insuranceDefaults[cType] || [];
         }
       }
     }));
 
-    try {
-      localStorage.setItem('ascpt_cached_clinical_options', JSON.stringify(this.clinicalOptionsCache));
-      localStorage.setItem('ascpt_cached_insurance_companies', JSON.stringify(this.insuranceCompaniesCache));
-    } catch (_) {}
+    // Only commit to localStorage and mark loaded if we successfully communicated with Firestore
+    if (anyClinicalFetched || anyInsFetched) {
+      try {
+        if (anyClinicalFetched) {
+          localStorage.setItem('ascpt_cached_clinical_options', JSON.stringify(this.clinicalOptionsCache));
+        }
+        if (anyInsFetched) {
+          localStorage.setItem('ascpt_cached_insurance_companies', JSON.stringify(this.insuranceCompaniesCache));
+        }
+      } catch (_) {}
+      this._optionsLoaded = true;
+    }
+  }
 
-    this._optionsLoaded = true;
+  async reloadCloudOptions() {
+    try {
+      localStorage.removeItem('ascpt_cached_clinical_options');
+      localStorage.removeItem('ascpt_cached_insurance_companies');
+    } catch (_) {}
+    this.clinicalOptionsCache = null;
+    this.insuranceCompaniesCache = null;
+    this._optionsLoaded = false;
+    return this.syncAndSeedCloudOptions(true);
   }
 
   async syncClinicalOptionsFromFirestore() {
@@ -2837,7 +2865,7 @@ class FirestoreDatabaseService {
     this.clinicalOptionsCache = null;
     this.insuranceCompaniesCache = null;
     this._optionsLoaded = false;
-    await this.syncAndSeedCloudOptions();
+    await this.syncAndSeedCloudOptions(true);
   }
 
   // ================= 11. Patient Medical Imaging & Lab Reports (v1.4.81) =================
