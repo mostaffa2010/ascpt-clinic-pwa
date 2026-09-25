@@ -225,19 +225,23 @@ class App {
         tabRecent.classList.add('btn-outline');
         if (contentWaiting) {
           contentWaiting.hidden = false;
-          contentWaiting.style.display = 'block';
+          contentWaiting.classList.remove('d-none');
+          contentWaiting.style.removeProperty('display');
         }
         if (contentRecent) {
           contentRecent.hidden = true;
-          contentRecent.style.display = 'none';
+          contentRecent.classList.add('d-none');
+          contentRecent.style.removeProperty('display');
         }
         if (viewAllSessionsBtn) {
           viewAllSessionsBtn.hidden = true;
-          viewAllSessionsBtn.style.display = 'none';
+          viewAllSessionsBtn.classList.add('d-none');
+          viewAllSessionsBtn.style.removeProperty('display');
         }
         if (walkinActions) {
           walkinActions.hidden = false;
-          walkinActions.style.display = 'flex';
+          walkinActions.classList.remove('d-none');
+          walkinActions.style.removeProperty('display');
         }
         this.appointmentsManager?.renderReceptionWaitingList();
       });
@@ -249,19 +253,23 @@ class App {
         tabWaiting.classList.add('btn-outline');
         if (contentRecent) {
           contentRecent.hidden = false;
-          contentRecent.style.display = 'block';
+          contentRecent.classList.remove('d-none');
+          contentRecent.style.removeProperty('display');
         }
         if (contentWaiting) {
           contentWaiting.hidden = true;
-          contentWaiting.style.display = 'none';
+          contentWaiting.classList.add('d-none');
+          contentWaiting.style.removeProperty('display');
         }
         if (viewAllSessionsBtn) {
           viewAllSessionsBtn.hidden = false;
-          viewAllSessionsBtn.style.display = 'inline-block';
+          viewAllSessionsBtn.classList.remove('d-none');
+          viewAllSessionsBtn.style.removeProperty('display');
         }
         if (walkinActions) {
           walkinActions.hidden = true;
-          walkinActions.style.display = 'none';
+          walkinActions.classList.add('d-none');
+          walkinActions.style.removeProperty('display');
         }
         this.financeManager?.loadDailyReport();
       });
@@ -369,10 +377,13 @@ class App {
       const meta = document.querySelector('meta[name="theme-color"]');
       if (meta) meta.setAttribute('content', '#0b1120');
       document.querySelectorAll('#btn-toggle-theme i, #btn-toggle-theme-desktop i').forEach(icon => {
-        icon.className = 'fa-solid fa-sun';
-        icon.style.color = '#f59e0b';
+        icon.className = 'fa-solid fa-sun text-warning';
+        icon.style.removeProperty('color');
       });
-      if (pIcon) { pIcon.className = 'fa-solid fa-sun'; pIcon.style.color = '#f59e0b'; }
+      if (pIcon) {
+        pIcon.className = 'fa-solid fa-sun text-warning';
+        pIcon.style.removeProperty('color');
+      }
       if (pLabel) pLabel.textContent = 'الوضع النهاري (فاتح)';
     } else {
       document.documentElement.removeAttribute('data-theme');
@@ -380,9 +391,12 @@ class App {
       if (meta) meta.setAttribute('content', '#0284c7');
       document.querySelectorAll('#btn-toggle-theme i, #btn-toggle-theme-desktop i').forEach(icon => {
         icon.className = 'fa-solid fa-moon';
-        icon.style.color = '';
+        icon.style.removeProperty('color');
       });
-      if (pIcon) { pIcon.className = 'fa-solid fa-moon'; pIcon.style.color = ''; }
+      if (pIcon) {
+        pIcon.className = 'fa-solid fa-moon';
+        pIcon.style.removeProperty('color');
+      }
       if (pLabel) pLabel.textContent = 'الوضع الليلي (داكن)';
     }
   }
@@ -558,7 +572,8 @@ class App {
       if (!email || !password) {
         if (errMsg) {
           errMsg.textContent = 'يرجى إدخال البريد الإلكتروني وكلمة السر للمتابعة.';
-          errMsg.style.display = 'block';
+          errMsg.classList.remove('d-none');
+          errMsg.style.removeProperty('display');
         }
         return;
       }
@@ -568,13 +583,17 @@ class App {
           btnLogin.disabled = true;
           if (btnText) btnText.textContent = 'جاري تسجيل الدخول...';
         }
-        if (errMsg) errMsg.style.display = 'none';
+        if (errMsg) {
+          errMsg.classList.add('d-none');
+          errMsg.style.removeProperty('display');
+        }
 
         await auth.login(email, password);
       } catch (err) {
         if (errMsg) {
           errMsg.textContent = err.message || 'فشل تسجيل الدخول، يرجى مراجعة البيانات.';
-          errMsg.style.display = 'block';
+          errMsg.classList.remove('d-none');
+          errMsg.style.removeProperty('display');
         }
       } finally {
         if (btnLogin) {
@@ -671,7 +690,9 @@ class App {
         // Admin Panel Button inside profile
         const btnAdminProfile = document.getElementById('btn-profile-admin-panel');
         if (btnAdminProfile) {
-          btnAdminProfile.style.display = (user.role === 'admin') ? 'flex' : 'none';
+          btnAdminProfile.classList.add('d-flex');
+          btnAdminProfile.classList.toggle('d-none', user.role !== 'admin');
+          btnAdminProfile.style.removeProperty('display');
         }
 
         this.notificationsManager?.checkCurrentPermissionState();
@@ -734,7 +755,8 @@ class App {
       const errBox = document.getElementById('change-pwd-error');
       if (errBox) {
         errBox.textContent = '';
-        errBox.style.display = 'none';
+        errBox.classList.add('d-none');
+        errBox.style.removeProperty('display');
       }
       document.querySelectorAll('#modal-change-password .btn-toggle-pwd-visibility').forEach(btn => {
         const targetId = btn.getAttribute('data-target');
@@ -793,13 +815,15 @@ class App {
         const showErr = (msg) => {
           if (errBox) {
             errBox.textContent = msg;
-            errBox.style.display = 'block';
+            errBox.classList.remove('d-none');
+            errBox.style.removeProperty('display');
           }
         };
 
         if (errBox) {
           errBox.textContent = '';
-          errBox.style.display = 'none';
+          errBox.classList.add('d-none');
+          errBox.style.removeProperty('display');
         }
 
         if (!currentPass) {
@@ -1050,9 +1074,12 @@ class App {
     if (btnConfirm) {
       btnConfirm.addEventListener('click', () => {
         const inputEl = document.getElementById('dialog-input');
-        const isPrompt = inputEl && inputEl.style.display !== 'none';
+        const isPrompt = inputEl && !inputEl.classList.contains('d-none') && inputEl.style.display !== 'none';
         const val = isPrompt ? inputEl.value.trim() : true;
-        if (inputEl) inputEl.style.display = 'none';
+        if (inputEl) {
+          inputEl.classList.add('d-none');
+          inputEl.style.removeProperty('display');
+        }
         const res = this.dialogResolve;
         this.dialogResolve = null;
         this.closeModal('modal-custom-dialog');
@@ -1063,8 +1090,11 @@ class App {
     if (btnCancel) {
       btnCancel.addEventListener('click', () => {
         const inputEl = document.getElementById('dialog-input');
-        const isPrompt = inputEl && inputEl.style.display !== 'none';
-        if (inputEl) inputEl.style.display = 'none';
+        const isPrompt = inputEl && !inputEl.classList.contains('d-none') && inputEl.style.display !== 'none';
+        if (inputEl) {
+          inputEl.classList.add('d-none');
+          inputEl.style.removeProperty('display');
+        }
         const res = this.dialogResolve;
         this.dialogResolve = null;
         this.closeModal('modal-custom-dialog');
@@ -1433,7 +1463,8 @@ class App {
     const lastBackupRaw = localStorage.getItem('ascpt_last_backup_at');
     if (!lastBackupRaw) {
       hintEl.textContent = '⚠️ لم يتم عمل أي نسخة احتياطية بعد على هذا الجهاز.';
-      hintEl.style.color = 'var(--danger)';
+      hintEl.className = 'text-danger';
+      hintEl.style.removeProperty('color');
       return;
     }
     const lastBackup = new Date(lastBackupRaw);
@@ -1441,10 +1472,12 @@ class App {
     const dateLabel = lastBackup.toLocaleDateString('ar-EG-u-nu-latn', { year: 'numeric', month: 'long', day: 'numeric' });
     if (daysSince >= 7) {
       hintEl.textContent = `⚠️ آخر نسخة احتياطية كانت منذ ${daysSince} يوم (${dateLabel}) — يُنصح بعمل نسخة جديدة الآن.`;
-      hintEl.style.color = 'var(--danger)';
+      hintEl.className = 'text-danger';
+      hintEl.style.removeProperty('color');
     } else {
       hintEl.textContent = `آخر نسخة احتياطية: ${dateLabel} (منذ ${daysSince} يوم).`;
-      hintEl.style.color = 'var(--text-muted)';
+      hintEl.className = 'text-muted';
+      hintEl.style.removeProperty('color');
     }
   }
 
@@ -1632,11 +1665,12 @@ class App {
     };
 
     const titleEl = document.getElementById('multi-picker-title');
-    if (titleEl) titleEl.innerHTML = `<i class="fa-solid fa-list-check" style="color: var(--primary);"></i> ${title}`;
+    if (titleEl) titleEl.innerHTML = `<i class="fa-solid fa-list-check text-primary"></i> ${title}`;
 
     const confirmBtn = document.getElementById('btn-multi-picker-confirm');
     if (confirmBtn) {
-      confirmBtn.style.display = isSingleSelect ? 'none' : 'inline-flex';
+      confirmBtn.classList.toggle('d-none', isSingleSelect);
+      confirmBtn.style.removeProperty('display');
     }
 
     this.renderMultiPickerOptions();
@@ -1831,8 +1865,12 @@ class App {
   showAlert(message, title = 'تنبيه المركز', type = 'info') {
     return new Promise((resolve) => {
       this.dialogResolve = resolve;
-      const inputEl = document.getElementById('dialog-input'); if (inputEl) inputEl.style.display = 'none';
-            const titleEl = document.getElementById('dialog-title');
+      const inputEl = document.getElementById('dialog-input');
+      if (inputEl) {
+        inputEl.classList.add('d-none');
+        inputEl.style.removeProperty('display');
+      }
+      const titleEl = document.getElementById('dialog-title');
       const msgEl = document.getElementById('dialog-message');
       const iconEl = document.getElementById('dialog-icon');
       const btnCancel = document.getElementById('dialog-btn-cancel');
@@ -1840,7 +1878,10 @@ class App {
 
       if (titleEl) titleEl.textContent = title;
       if (msgEl) msgEl.textContent = message;
-      if (btnCancel) btnCancel.style.display = 'none';
+      if (btnCancel) {
+        btnCancel.classList.add('d-none');
+        btnCancel.style.removeProperty('display');
+      }
       if (btnConfirm) {
         btnConfirm.textContent = 'حسناً';
         btnConfirm.className = 'btn btn-primary';
@@ -1861,7 +1902,11 @@ class App {
   showConfirm(message, title = 'تأكيد الإجراء') {
     return new Promise((resolve) => {
       this.dialogResolve = resolve;
-      const inputEl = document.getElementById('dialog-input'); if (inputEl) inputEl.style.display = 'none';
+      const inputEl = document.getElementById('dialog-input');
+      if (inputEl) {
+        inputEl.classList.add('d-none');
+        inputEl.style.removeProperty('display');
+      }
       const titleEl = document.getElementById('dialog-title');
       const msgEl = document.getElementById('dialog-message');
       const iconEl = document.getElementById('dialog-icon');
@@ -1870,7 +1915,10 @@ class App {
 
       if (titleEl) titleEl.textContent = title;
       if (msgEl) msgEl.textContent = message;
-      if (btnCancel) btnCancel.style.display = 'inline-flex';
+      if (btnCancel) {
+        btnCancel.classList.remove('d-none');
+        btnCancel.style.removeProperty('display');
+      }
       if (btnConfirm) {
         btnConfirm.textContent = 'تأكيد';
         btnConfirm.className = 'btn btn-danger';
@@ -1898,7 +1946,8 @@ class App {
       if (titleEl) titleEl.textContent = title;
       if (msgEl) msgEl.textContent = message;
       if (btnCancel) {
-        btnCancel.style.display = 'inline-flex';
+        btnCancel.classList.remove('d-none');
+        btnCancel.style.removeProperty('display');
         btnCancel.textContent = 'إلغاء';
       }
       if (btnConfirm) {
@@ -1907,7 +1956,8 @@ class App {
       }
 
       if (inputEl) {
-        inputEl.style.display = 'block';
+        inputEl.classList.remove('d-none');
+        inputEl.style.removeProperty('display');
         inputEl.value = '';
         inputEl.placeholder = placeholder;
         inputEl.style.webkitTextSecurity = isPassword ? 'disc' : 'none';
@@ -1931,7 +1981,7 @@ class App {
       const toast = document.getElementById('toast-notification');
       if (toast) {
         toast.classList.remove('show');
-        toast.style.display = 'none';
+        toast.style.removeProperty('display');
         if (this._toastTimer) clearTimeout(this._toastTimer);
       }
       if (options.noSlide) {
@@ -1988,7 +2038,7 @@ class App {
     const msgEl = document.getElementById('toast-message');
     const iconEl = document.getElementById('toast-icon');
     if (toast && msgEl) {
-      toast.style.display = '';
+      toast.style.removeProperty('display');
       triggerHaptic(type === 'error' ? 'warning' : 'success');
       msgEl.textContent = message;
 

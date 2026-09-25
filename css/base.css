@@ -406,6 +406,10 @@ input, textarea, select, [contenteditable="true"] {
   display: none !important;
 }
 
+.hidden {
+  display: none;
+}
+
 .no-print {
   /* Print suppression handled by css/print.css */
 }

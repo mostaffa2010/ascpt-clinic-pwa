@@ -296,3 +296,29 @@
   gap: 5px !important;
   box-shadow: 0 2px 8px rgba(2, 132, 199, 0.35) !important;
 }
+
+.btn-push-denied {
+  background: rgba(239, 68, 68, 0.15);
+  color: #ef4444;
+  border: 1.5px solid rgba(239, 68, 68, 0.3);
+  font-weight: 800;
+  font-size: 0.8rem;
+  padding: 4px 14px;
+  border-radius: var(--radius-full, 999px);
+  white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  cursor: not-allowed;
+}
+
+.btn-push-ios {
+  font-weight: 800;
+  font-size: 0.76rem;
+  padding: 4px 10px;
+  border-radius: var(--radius-full, 999px);
+  white-space: nowrap;
+  color: var(--primary);
+  border-color: var(--primary);
+  cursor: pointer;
+}

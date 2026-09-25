@@ -44,18 +44,21 @@ export class RolesManager {
     const navItems = document.querySelectorAll('.nav-link, .b-nav-item');
     navItems.forEach(item => {
       const view = item.getAttribute('data-view');
+      let isVisible = true;
       if (role === ROLES.DOCTOR) {
-        item.style.setProperty('display', (view === 'dashboard' || view === 'patients') ? 'flex' : 'none', 'important');
+        isVisible = (view === 'dashboard' || view === 'patients');
       } else if (role === ROLES.RECEPTIONIST) {
         // السكرتارية ترى الرئيسية، المرضى، الجلسات، الحسابات (وتُحجب لوحة المدير فقط)
-        item.style.setProperty('display', view === 'admin' ? 'none' : 'flex', 'important');
+        isVisible = (view !== 'admin');
       } else if (role === ROLES.ADMIN) {
         // المدير يرى كل شيء
-        item.style.setProperty('display', 'flex', 'important');
+        isVisible = true;
       } else {
         // زائر غير مسجل: إخفاء الجلسات والحسابات الحساسة
-        item.style.setProperty('display', (view === 'dashboard' || view === 'patients') ? 'flex' : 'none', 'important');
+        isVisible = (view === 'dashboard' || view === 'patients');
       }
+      item.classList.toggle('d-none', !isVisible);
+      item.style.removeProperty('display');
     });
 
     // 2. التبديل الذكي بين لوحة الإدارة ولوحة الطبيب المعالج في الشاشة الرئيسية
@@ -63,14 +66,26 @@ export class RolesManager {
     const doctorDashboard = document.getElementById('dashboard-doctor-view');
 
     if (role === ROLES.DOCTOR) {
-      if (adminDashboard) adminDashboard.style.setProperty('display', 'none', 'important');
-      if (doctorDashboard) doctorDashboard.style.setProperty('display', 'block', 'important');
+      if (adminDashboard) {
+        adminDashboard.classList.add('d-none');
+        adminDashboard.style.removeProperty('display');
+      }
+      if (doctorDashboard) {
+        doctorDashboard.classList.remove('d-none');
+        doctorDashboard.style.removeProperty('display');
+      }
       if (window.doctorDashboardManager) {
         window.doctorDashboardManager.render();
       }
     } else {
-      if (adminDashboard) adminDashboard.style.setProperty('display', 'block', 'important');
-      if (doctorDashboard) doctorDashboard.style.setProperty('display', 'none', 'important');
+      if (adminDashboard) {
+        adminDashboard.classList.remove('d-none');
+        adminDashboard.style.removeProperty('display');
+      }
+      if (doctorDashboard) {
+        doctorDashboard.classList.add('d-none');
+        doctorDashboard.style.removeProperty('display');
+      }
     }
 
     // 3. حماية التنقل: توجيه الطبيب للرئيسية إذا كان يقف على شاشة محجوبة (الحسابات/الجلسات/المدير)
@@ -84,13 +99,15 @@ export class RolesManager {
     // 3. عناصر خاصة بالمدير فقط (Admin Only)
     const adminElements = document.querySelectorAll('.admin-only');
     adminElements.forEach(el => {
-      el.style.setProperty('display', role === ROLES.ADMIN ? '' : 'none', 'important');
+      el.classList.toggle('d-none', role !== ROLES.ADMIN);
+      el.style.removeProperty('display');
     });
 
     // 4. زر إضافة مريض جديد (متاح للاستقبال والمدير فقط، ومخفي تماماً عن الطبيب)
     const addPatientBtn = document.getElementById('btn-open-add-patient');
     if (addPatientBtn) {
-      addPatientBtn.style.setProperty('display', role === ROLES.DOCTOR ? 'none' : '', 'important');
+      addPatientBtn.classList.toggle('d-none', role === ROLES.DOCTOR);
+      addPatientBtn.style.removeProperty('display');
     }
 
     // 5. إعادة رسم جدول المرضى لتطبيق إخفاء أزرار التعديل والحذف للطبيب (إذا كانت البيانات محملة مسبقاً)
