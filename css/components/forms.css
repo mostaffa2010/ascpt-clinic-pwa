@@ -1139,7 +1139,7 @@ input[type="radio"]:focus-visible {
 }
 
 /* Migrated from style.css - iOS zoom prevention */
-@media screen and (max-width: 767px) {
+@media screen and (max-width: 767.98px) {
   .form-control,
   input[type="text"],
   input[type="tel"],

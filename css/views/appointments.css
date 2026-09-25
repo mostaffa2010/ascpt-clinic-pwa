@@ -203,7 +203,7 @@
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
 }
 
-@media (max-width: 768px) {
+@media screen and (max-width: 767.98px) {
   .appt-hero-header {
     padding: 12px 14px;
     gap: 12px;
@@ -924,7 +924,7 @@
 /* ----------------------------------------------------------------------------
    8. Mobile Unwrap & Responsive Overrides
    ---------------------------------------------------------------------------- */
-@media screen and (max-width: 767px) {
+@media screen and (max-width: 767.98px) {
   #card-doctor-appointments-schedule,
   #card-main-appointments-schedule,
   .card:has(#my-appointments-grid),

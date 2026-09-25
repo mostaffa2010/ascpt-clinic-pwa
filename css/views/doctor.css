@@ -365,7 +365,7 @@
 }
 
 /* Mobile Unwrap for Doctor Appointments Schedule */
-@media screen and (max-width: 767px) {
+@media screen and (max-width: 767.98px) {
   #card-doctor-appointments-schedule {
     background: transparent;
     border: none;
