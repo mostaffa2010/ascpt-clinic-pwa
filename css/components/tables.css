@@ -33,7 +33,7 @@ table.data-table {
 table.data-table th {
   background-color: var(--bg-subtle);
   color: var(--text-muted);
-  font-weight: 700;
+  font-weight: var(--fw-bold);
   font-size: var(--fs-subtext, 0.78rem);
   padding: 10px 12px;
   border-bottom: 1px solid var(--border-color);
@@ -53,7 +53,7 @@ table.data-table td {
 .data-table tr:hover td,
 table.data-table tr:hover,
 table.data-table tr:hover td {
-  background-color: var(--bg-surface-elevated, #f8fafc);
+  background-color: var(--bg-surface-elevated);
 }
 
 /* Top Scrollbar Synchronizer Wrapper */
@@ -68,12 +68,12 @@ table.data-table tr:hover td {
 [data-theme="dark"] table.data-table tr:hover,
 [data-theme="dark"] table.data-table tr:hover td,
 [data-theme="dark"] .data-table tr:hover td {
-  background-color: #1e293b;
+  background-color: var(--bg-surface-elevated);
 }
 
 [data-theme="dark"] table.data-table tr:hover td .patient-sheet-link,
 [data-theme="dark"] table.data-table tr:hover td a[style*="var(--primary)"] {
-  color: #38bdf8;
+  color: var(--primary);
 }
 
 #card-dashboard-recent .table-responsive,
@@ -99,14 +99,14 @@ table.data-table tr:hover td {
 
 .page-num-pill {
   font-size: 0.84rem;
-  font-weight: 800;
+  font-weight: var(--fw-extrabold);
   color: var(--text-main);
 }
 
 .page-range-sub {
   font-size: 0.72rem;
   color: var(--text-muted);
-  font-weight: 600;
+  font-weight: var(--fw-semibold);
 }
 
 /* ==========================================================================
