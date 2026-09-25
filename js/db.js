@@ -18,7 +18,8 @@ import {
   limit,
   where,
   writeBatch,
-  increment
+  increment,
+  arrayUnion
 } from 'https://www.gstatic.com/firebasejs/12.18.0/firebase-firestore.js';
 
 import { firestoreDb, isConfigured } from './firebase-init.js';
@@ -362,7 +363,16 @@ class FirestoreDatabaseService {
       this._patientsLastFetch = now;
       try {
         await idbCache.set('ascpt_cached_patients', sorted);
+        await idbCache.set('ascpt_patients_last_sync', new Date().toISOString());
       } catch (_) {}
+
+      // Keep cloud syncVersion accurate with true collection count
+      try {
+        setDoc(doc(firestoreDb, 'meta', 'syncVersion'), {
+          patientsCount: sorted.length
+        }, { merge: true }).catch(() => {});
+      } catch (_) {}
+
       return [...sorted];
     } catch (err) {
       if (this._patientsCache) {
@@ -393,11 +403,13 @@ class FirestoreDatabaseService {
       return onSnapshot(versionDocRef, async (snap) => {
         const data = snap.exists() ? snap.data() : null;
         const currentVersion = (data && typeof data.patientsVersion === 'number') ? data.patientsVersion : 0;
+        const remoteCount = (data && typeof data.patientsCount === 'number') ? data.patientsCount : null;
 
         // 1. Skip the writer's own echo (already patched synchronously in-memory)
         if (this._suppressNextOwnPatientsVersionEvent) {
           this._suppressNextOwnPatientsVersionEvent = false;
           this._lastSeenPatientsVersion = currentVersion;
+          try { idbCache.set('ascpt_patients_cached_version', currentVersion); } catch (_) {}
           return;
         }
 
@@ -410,13 +422,16 @@ class FirestoreDatabaseService {
 
           this._lastSeenPatientsVersion = currentVersion;
 
-          // If local version matches current remote version and cache exists, we are already synchronized! (0 reads)
-          if (localVersion === currentVersion && Array.isArray(this._patientsCache) && this._patientsCache.length > 0) {
+          const localCount = Array.isArray(this._patientsCache) ? this._patientsCache.length : 0;
+          const countMatches = (remoteCount === null || remoteCount === localCount);
+
+          // If local version matches current remote version AND count matches, we are already synchronized! (0 reads)
+          if (localVersion === currentVersion && countMatches && localCount > 0) {
             return;
           }
 
           // If single sequential version difference (+1) while app was asleep, do a single doc delta-fetch (1 read)!
-          if (typeof localVersion === 'number' && currentVersion === localVersion + 1) {
+          if (typeof localVersion === 'number' && currentVersion === localVersion + 1 && (remoteCount === null || remoteCount === localCount + 1)) {
             const action = data ? data.lastChangedPatientAction : null;
             const targetId = data ? data.lastChangedPatientId : null;
             if (targetId && (action === 'created' || action === 'updated' || action === 'deleted') && Array.isArray(this._patientsCache)) {
@@ -457,8 +472,47 @@ class FirestoreDatabaseService {
             }
           }
 
-          // Fallback: If cache was missing or version gap > 1, do full getPatients refresh
-          if (!this._patientsCache || this._patientsCache.length === 0 || !localVersion || currentVersion > localVersion + 1) {
+          // Missed small batch of updates while asleep? (e.g. 2 to 10 patients added/updated)
+          // Fetch ONLY the missed docs from recentChangedPatients queue instead of full collection!
+          if (Array.isArray(data?.recentChangedPatients) && typeof localVersion === 'number' && currentVersion > localVersion && currentVersion <= localVersion + 10 && Array.isArray(this._patientsCache)) {
+            try {
+              const recentList = data.recentChangedPatients.slice(-15);
+              const missingIds = [...new Set(recentList.map(r => r.id).filter(id => id && !this._patientsCache.some(p => p.id === id)))];
+              if (missingIds.length > 0 && missingIds.length <= 10) {
+                const fetchedSnaps = await Promise.all(missingIds.map(id => getDoc(doc(firestoreDb, 'patients', id))));
+                let anyAdded = false;
+                for (const s of fetchedSnaps) {
+                  if (s.exists()) {
+                    const docData = { id: s.id, ...s.data() };
+                    const idx = this._patientsCache.findIndex(p => p.id === s.id);
+                    if (idx !== -1) {
+                      this._patientsCache[idx] = { ...this._patientsCache[idx], ...docData };
+                    } else {
+                      this._patientsCache.unshift(docData);
+                    }
+                    anyAdded = true;
+                  }
+                }
+                if (anyAdded) {
+                  this._patientsCache.sort((a, b) => {
+                    const tA = a.createdAt || a.lastUpdatedAt || '';
+                    const tB = b.createdAt || b.lastUpdatedAt || '';
+                    return tB.localeCompare(tA);
+                  });
+                  this._patientsLastFetch = Date.now();
+                  try {
+                    idbCache.set('ascpt_cached_patients', this._patientsCache);
+                    idbCache.set('ascpt_patients_cached_version', currentVersion);
+                  } catch (_) {}
+                  if (typeof callback === 'function') callback([...this._patientsCache]);
+                  return;
+                }
+              }
+            } catch (_) {}
+          }
+
+          // Fallback: If cache was missing, version gap > 10, or count still mismatched (e.g. 80 vs 89)
+          if (!this._patientsCache || this._patientsCache.length === 0 || !localVersion || !countMatches || currentVersion > localVersion + 1) {
             try {
               const list = await this.getPatients(true);
               try {
@@ -488,12 +542,14 @@ class FirestoreDatabaseService {
             try {
               idbCache.set('ascpt_cached_patients', this._patientsCache);
               idbCache.set('ascpt_patients_last_sync', new Date().toISOString());
+              idbCache.set('ascpt_patients_cached_version', currentVersion);
             } catch (_) {}
             if (typeof callback === 'function') callback([...this._patientsCache]);
             return;
           }
 
           try {
+            // EXACTLY 1 DOC READ FOR NEW/EDITED PATIENT! ZERO PULL-TO-REFRESH!
             const pSnap = await getDoc(doc(firestoreDb, 'patients', targetId));
             if (pSnap.exists()) {
               const docData = { id: pSnap.id, ...pSnap.data() };
@@ -512,6 +568,7 @@ class FirestoreDatabaseService {
               try {
                 idbCache.set('ascpt_cached_patients', this._patientsCache);
                 idbCache.set('ascpt_patients_last_sync', new Date().toISOString());
+                idbCache.set('ascpt_patients_cached_version', currentVersion);
               } catch (_) {}
               if (typeof callback === 'function') callback([...this._patientsCache]);
               return;
@@ -521,6 +578,7 @@ class FirestoreDatabaseService {
               try {
                 idbCache.set('ascpt_cached_patients', this._patientsCache);
                 idbCache.set('ascpt_patients_last_sync', new Date().toISOString());
+                idbCache.set('ascpt_patients_cached_version', currentVersion);
               } catch (_) {}
               if (typeof callback === 'function') callback([...this._patientsCache]);
               return;
@@ -530,9 +588,51 @@ class FirestoreDatabaseService {
           }
         }
 
-        // 3. Gap fallback: version jump > 1 or missing cache
+        // Small batch delta (2 to 10 patients added/updated while tab in background)
+        if (Array.isArray(data?.recentChangedPatients) && Array.isArray(this._patientsCache)) {
+          try {
+            const recentList = data.recentChangedPatients.slice(-10);
+            const missingIds = [...new Set(recentList.map(r => r.id).filter(id => id && !this._patientsCache.some(p => p.id === id)))];
+            if (missingIds.length > 0 && missingIds.length <= 10) {
+              const fetchedSnaps = await Promise.all(missingIds.map(id => getDoc(doc(firestoreDb, 'patients', id))));
+              let anyAdded = false;
+              for (const s of fetchedSnaps) {
+                if (s.exists()) {
+                  const docData = { id: s.id, ...s.data() };
+                  const idx = this._patientsCache.findIndex(p => p.id === s.id);
+                  if (idx !== -1) {
+                    this._patientsCache[idx] = { ...this._patientsCache[idx], ...docData };
+                  } else {
+                    this._patientsCache.unshift(docData);
+                  }
+                  anyAdded = true;
+                }
+              }
+              if (anyAdded) {
+                this._patientsCache.sort((a, b) => {
+                  const tA = a.createdAt || a.lastUpdatedAt || '';
+                  const tB = b.createdAt || b.lastUpdatedAt || '';
+                  return tB.localeCompare(tA);
+                });
+                this._patientsLastFetch = Date.now();
+                try {
+                  idbCache.set('ascpt_cached_patients', this._patientsCache);
+                  idbCache.set('ascpt_patients_last_sync', new Date().toISOString());
+                  idbCache.set('ascpt_patients_cached_version', currentVersion);
+                } catch (_) {}
+                if (typeof callback === 'function') callback([...this._patientsCache]);
+                return;
+              }
+            }
+          } catch (_) {}
+        }
+
+        // 3. Gap fallback: only if version jump > 10 or unknown error
         try {
           const list = await this.getPatients(true);
+          try {
+            await idbCache.set('ascpt_patients_cached_version', currentVersion);
+          } catch (_) {}
           if (typeof callback === 'function') callback(list);
         } catch (err) {
           console.warn('subscribeToPatients refetch notice:', err);
@@ -567,11 +667,20 @@ class FirestoreDatabaseService {
       await setDoc(doc(firestoreDb, 'patients', patientId), dataToSave, { merge: true });
       try {
         this._suppressNextOwnPatientsVersionEvent = true;
-        await setDoc(doc(firestoreDb, 'meta', 'syncVersion'), {
+        const syncPayload = {
           patientsVersion: increment(1),
           lastChangedPatientId: patientId,
-          lastChangedPatientAction: isEdit ? 'updated' : 'created'
-        }, { merge: true });
+          lastChangedPatientAction: isEdit ? 'updated' : 'created',
+          recentChangedPatients: arrayUnion({
+            id: patientId,
+            action: isEdit ? 'updated' : 'created',
+            ts: Date.now()
+          })
+        };
+        if (!isEdit) {
+          syncPayload.patientsCount = increment(1);
+        }
+        await setDoc(doc(firestoreDb, 'meta', 'syncVersion'), syncPayload, { merge: true });
         if (typeof this._lastSeenPatientsVersion === 'number') {
           this._lastSeenPatientsVersion++;
           try { idbCache.set('ascpt_patients_cached_version', this._lastSeenPatientsVersion); } catch (_) {}
@@ -612,9 +721,19 @@ class FirestoreDatabaseService {
         this._suppressNextOwnPatientsVersionEvent = true;
         await setDoc(doc(firestoreDb, 'meta', 'syncVersion'), {
           patientsVersion: increment(1),
+          patientsCount: increment(-1),
           lastChangedPatientId: patientId,
-          lastChangedPatientAction: 'deleted'
+          lastChangedPatientAction: 'deleted',
+          recentChangedPatients: arrayUnion({
+            id: patientId,
+            action: 'deleted',
+            ts: Date.now()
+          })
         }, { merge: true });
+        if (typeof this._lastSeenPatientsVersion === 'number') {
+          this._lastSeenPatientsVersion++;
+          try { idbCache.set('ascpt_patients_cached_version', this._lastSeenPatientsVersion); } catch (_) {}
+        }
       } catch (verErr) {
         console.warn('Failed to increment patientsVersion:', verErr);
       }
@@ -623,6 +742,7 @@ class FirestoreDatabaseService {
         this._patientsLastFetch = Date.now();
         try {
           idbCache.set('ascpt_cached_patients', this._patientsCache);
+          idbCache.set('ascpt_patients_last_sync', new Date().toISOString());
         } catch (_) {}
       }
       return true;

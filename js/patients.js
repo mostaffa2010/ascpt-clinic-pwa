@@ -67,12 +67,44 @@ export class PatientsManager {
         this._hasLoadedOnce = true;
         if (this.app?.currentView === 'patients') {
           this.renderPatients();
+        } else {
+          const totalCountBadge = document.getElementById('patients-total-count-badge');
+          if (totalCountBadge) {
+            totalCountBadge.textContent = `${updatedPatients.length} مريض`;
+          }
         }
       });
     }
   }
 
   bindEvents() {
+    // One-Tap Patient Count Badge Sync
+    const totalCountBadge = document.getElementById('patients-total-count-badge');
+    if (totalCountBadge) {
+      totalCountBadge.setAttribute('title', 'اضغط للتحديث والمزامنة الفورية');
+      totalCountBadge.addEventListener('click', async () => {
+        if (this._isSyncingBadge) return;
+        this._isSyncingBadge = true;
+        const originalText = totalCountBadge.textContent;
+        totalCountBadge.textContent = '⏳ جاري المزامنة...';
+        try {
+          const refreshed = await db.getPatients(true);
+          this.patients = refreshed;
+          this.renderPatients();
+          if (this.app?.showToast) {
+            this.app.showToast(`تمت المزامنة بنجاح: ${refreshed.length} مريض`, 'success');
+          }
+        } catch (err) {
+          totalCountBadge.textContent = originalText;
+          if (this.app?.showToast) {
+            this.app.showToast('تعذر تحديث سجل المرضى الآن', 'error');
+          }
+        } finally {
+          this._isSyncingBadge = false;
+        }
+      });
+    }
+
     const searchInput = document.getElementById('patient-search-input');
     if (searchInput) {
       searchInput.addEventListener('input', () => { this.currentPage = 1; this.renderPatients(); });

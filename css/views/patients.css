@@ -55,6 +55,13 @@
   padding: 2px 8px;
   border-radius: 999px;
   box-shadow: var(--shadow-xs);
+  cursor: pointer;
+  user-select: none;
+  transition: transform 0.15s ease, background 0.15s ease;
+}
+
+#patients-total-count-badge:active {
+  transform: scale(0.95);
 }
 
 [data-theme="dark"] #patients-total-count-badge {
