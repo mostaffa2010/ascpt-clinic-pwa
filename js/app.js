@@ -95,6 +95,7 @@ class App {
     // ربط مبكر وفوري لضمان عمل كافة الأزرار بدون أي تأخير
     window.app = this;
     window.auth = auth;
+    window.db = db;
     this.patientsManager = new PatientsManager(this);
     this.sessionsManager = new SessionsManager(this);
     this.financeManager = new FinanceManager(this);
@@ -175,7 +176,12 @@ class App {
           const h = new Date().getHours();
           const gText = (h >= 5 && h < 12) ? 'صباح الخير' : (h >= 12 && h < 17 ? 'مساء الخير' : 'مساء النور');
           this.updateHeroGreetings(gText, user);
-          try { await db.syncAndSeedCloudOptions(); } catch (_) {}
+          try {
+            await db.syncAndSeedCloudOptions(true);
+            this.patientsManager?.renderAllInsuranceChips();
+            this.sessionsManager?.renderAllInsuranceChips();
+            this.claimsManager?.populateCompaniesDropdown();
+          } catch (_) {}
           this.updateBackupStatusHint();
           this.checkBackupReminderToast(user);
           this.notificationsManager?.onUserAuthenticated(user);
@@ -1655,7 +1661,7 @@ class App {
     } else if (category === 'card_treatments') {
       const modalities = (typeof db !== 'undefined' && db.getClinicalOptions) ? db.getClinicalOptions('modality') : [];
       const defaultTreatments = ['pulsed Ultrasound', 'Heat application', 'Interferential current', 'Therapeutic ex', 'Laser Therapy', 'Cryotherapy'];
-      options = Array.from(new Set([...defaultTreatments, ...modalities]));
+      options = (modalities && modalities.length > 0) ? modalities : defaultTreatments;
     } else {
       options = db.getClinicalOptions(category);
     }
