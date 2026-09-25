@@ -299,7 +299,7 @@ export class NotificationsManager {
     const dropdown = document.getElementById('notification-dropdown');
     if (!dropdown) return;
     dropdown.classList.add('is-open');
-    dropdown.style.display = 'flex';
+    dropdown.style.removeProperty('display');
     this.isDropdownOpen = true;
     this.renderNotifications();
   }
@@ -308,7 +308,7 @@ export class NotificationsManager {
     const dropdown = document.getElementById('notification-dropdown');
     if (!dropdown) return;
     dropdown.classList.remove('is-open');
-    dropdown.style.display = 'none';
+    dropdown.style.removeProperty('display');
     this.isDropdownOpen = false;
   }
 
@@ -320,12 +320,12 @@ export class NotificationsManager {
       badge.textContent = num > 99 ? '99+' : String(num);
       badge.classList.add('is-open');
       badge.hidden = false;
-      badge.style.display = 'flex';
+      badge.style.removeProperty('display');
     } else {
       badge.textContent = '';
       badge.classList.remove('is-open');
       badge.hidden = true;
-      badge.style.display = 'none';
+      badge.style.removeProperty('display');
     }
   }
 
@@ -610,8 +610,8 @@ export class NotificationsManager {
         if (btnToggle) {
           btnToggle.innerHTML = '<i class="fa-solid fa-arrow-up-from-bracket"></i> إضافة للشاشة';
           btnToggle.disabled = false;
-          btnToggle.className = 'btn btn-outline btn-sm';
-          btnToggle.style.cssText = 'font-weight: 800; font-size: 0.76rem; padding: 4px 10px; border-radius: 999px; white-space: nowrap; color: var(--primary); border-color: var(--primary); cursor: pointer;';
+          btnToggle.className = 'btn btn-outline btn-sm btn-push-ios';
+          btnToggle.removeAttribute('style');
           btnToggle.onclick = (e) => {
             e.preventDefault();
             this.app?.showAlert(
@@ -640,15 +640,15 @@ export class NotificationsManager {
         btnToggle.innerHTML = '<i class="fa-solid fa-check"></i> مفعل';
         btnToggle.disabled = false;
         btnToggle.className = 'btn btn-push-active';
-        btnToggle.style.cssText = 'font-weight: 800; font-size: 0.8rem; padding: 4px 14px; border-radius: 999px; white-space: nowrap; background: #10b981 !important; color: #ffffff !important; border: 1.5px solid #10b981 !important; cursor: pointer; display: inline-flex; align-items: center; gap: 5px; box-shadow: 0 2px 8px rgba(16, 185, 129, 0.35);';
+        btnToggle.removeAttribute('style');
       }
     } else if (Notification.permission === 'denied') {
       if (statusText) statusText.textContent = 'تم حظر الإشعارات من إعدادات المتصفح. يمكنك السماح بها من قفل الموقع';
       if (btnToggle) {
         btnToggle.innerHTML = '<i class="fa-solid fa-ban"></i> محظور';
         btnToggle.disabled = true;
-        btnToggle.className = 'btn btn-danger btn-sm';
-        btnToggle.style.cssText = 'font-weight: 800; font-size: 0.8rem; padding: 4px 14px; border-radius: 999px; white-space: nowrap; background: rgba(239, 68, 68, 0.15) !important; color: #ef4444 !important; border: 1.5px solid rgba(239, 68, 68, 0.3) !important; cursor: not-allowed; display: inline-flex; align-items: center; gap: 5px;';
+        btnToggle.className = 'btn btn-push-denied';
+        btnToggle.removeAttribute('style');
       }
     } else {
       if (statusText) statusText.textContent = 'تلقي تنبيهات المرضى والمواعيد والعهد فورياً على هذا الجهاز';
@@ -656,7 +656,7 @@ export class NotificationsManager {
         btnToggle.innerHTML = '<i class="fa-solid fa-bell"></i> تفعيل';
         btnToggle.disabled = false;
         btnToggle.className = 'btn btn-push-inactive';
-        btnToggle.style.cssText = 'font-weight: 800; font-size: 0.8rem; padding: 4px 14px; border-radius: 999px; white-space: nowrap; background: var(--primary) !important; color: #ffffff !important; border: none !important; cursor: pointer; display: inline-flex; align-items: center; gap: 5px; box-shadow: 0 2px 8px rgba(2, 132, 199, 0.35);';
+        btnToggle.removeAttribute('style');
       }
     }
   }

@@ -436,7 +436,8 @@ class AuthService {
       modal.classList.add('active');
       const closeBtns = modal.querySelectorAll('.modal-close, #btn-cancel-login');
       closeBtns.forEach(btn => {
-        btn.style.display = this.currentUser ? '' : 'none';
+        btn.classList.toggle('d-none', !this.currentUser);
+        btn.style.removeProperty('display');
       });
     }
   }
@@ -451,7 +452,8 @@ class AuthService {
     const errBox = document.getElementById('login-error-msg');
     if (errBox) {
       errBox.textContent = message;
-      errBox.style.display = 'block';
+      errBox.classList.remove('d-none');
+      errBox.style.removeProperty('display');
     }
   }
 
@@ -459,7 +461,8 @@ class AuthService {
     const errBox = document.getElementById('login-error-msg');
     if (errBox) {
       errBox.textContent = '';
-      errBox.style.display = 'none';
+      errBox.classList.add('d-none');
+      errBox.style.removeProperty('display');
     }
   }
 
