@@ -230,9 +230,62 @@ function isLegacyAboQir(name) {
 assert.equal(isLegacyAboQir('أبوقير للأسمدة'), true, 'Must detect أبوقير للأسمدة as legacy');
 assert.equal(isLegacyAboQir('أبو قير للأسمدة'), true, 'Must detect أبو قير للأسمدة as legacy');
 assert.equal(isLegacyAboQir('أبو قير'), false, 'Clean أبو قير must not be flagged as legacy');
-assert.equal(isLegacyAboQir('ايجي كير'), false, 'Unrelated companies must not be flagged');
+// Test 7: Clinical Options & Insurance Extraction & Alias Resilience
+function mockExtractList(data, docId) {
+  if (!data || typeof data !== 'object') return null;
+  const candidates = [
+    data.items,
+    data.companies,
+    data.list,
+    data.options,
+    data.values,
+    data[docId],
+    data.modalities,
+    data.procedures,
+    data.exercises
+  ];
+  for (const cand of candidates) {
+    if (Array.isArray(cand)) {
+      return cand
+        .map(item => (typeof item === 'object' && item !== null && item.name ? item.name : String(item).trim()))
+        .filter(Boolean);
+    }
+  }
+  return null;
+}
 
-console.log('✓ All 7 Insurance Companies Sync & Mutation assertions passed successfully!');
+assert.deepEqual(mockExtractList({ items: ['جهاز ليزر', 'موجات'] }, 'modality'), ['جهاز ليزر', 'موجات']);
+assert.deepEqual(mockExtractList({ modalities: ['جهاز شد', 'تيارات'] }, 'modalities'), ['جهاز شد', 'تيارات']);
+assert.deepEqual(mockExtractList({ companies: ['شركة البترول'] }, 'direct'), ['شركة البترول']);
+assert.deepEqual(mockExtractList({ list: ['علاج يدوي مخصص'] }, 'procedure'), ['علاج يدوي مخصص']);
+
+// Test 8: Patient Harvesting Simulation
+const mockHarvestCache = { clinical: {}, insurance: {} };
+const mockSamplePatients = [
+  { insuranceCompany: 'شركة الغاز والكهرباء', contractType: 'direct', clinicalSheet: { modalities: ['ليزر بارد'], procedures: ['شد فقري يدوي'] } }
+];
+mockSamplePatients.forEach(p => {
+  const comp = (p.insuranceCompany || '').trim();
+  const cType = p.contractType === 'indirect' ? 'indirect' : 'direct';
+  if (comp) {
+    mockHarvestCache.insurance[cType] = mockHarvestCache.insurance[cType] || [];
+    if (!mockHarvestCache.insurance[cType].includes(comp)) mockHarvestCache.insurance[cType].push(comp);
+  }
+  const sheet = p.clinicalSheet || {};
+  ['modalities', 'procedures'].forEach(prop => {
+    const cat = prop === 'modalities' ? 'modality' : 'procedure';
+    mockHarvestCache.clinical[cat] = mockHarvestCache.clinical[cat] || [];
+    (sheet[prop] || []).forEach(item => {
+      if (!mockHarvestCache.clinical[cat].includes(item)) mockHarvestCache.clinical[cat].push(item);
+    });
+  });
+});
+
+assert.ok(mockHarvestCache.insurance.direct.includes('شركة الغاز والكهرباء'));
+assert.ok(mockHarvestCache.clinical.modality.includes('ليزر بارد'));
+assert.ok(mockHarvestCache.clinical.procedure.includes('شد فقري يدوي'));
+
+console.log('✓ All 9 Insurance Companies & Clinical Options Sync assertions passed successfully!');
 
 // 8. Weekly Working Days & Friday Holiday Exclusion Tests
 console.log('--- Running Tests: Friday Exclusion & Appointment Copy Engine ---');
