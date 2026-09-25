@@ -191,3 +191,228 @@
   align-items: center !important;
   gap: 12px !important;
 }
+
+/* ==========================================================================
+   3. Skeletons Additional Utilities (Zero !important)
+   ========================================================================== */
+.sk-w-65px { width: 65px; }
+.sk-w-70px { width: 70px; }
+.sk-slot-banner-wrap {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+/* ==========================================================================
+   4. Standardized Empty States (Zero !important)
+   ========================================================================== */
+.empty-state-box {
+  text-align: center;
+  padding: 36px 20px;
+}
+
+.empty-state-box-compact {
+  text-align: center;
+  padding: 24px 16px;
+  color: var(--text-muted);
+  font-size: 0.88rem;
+}
+
+.empty-state-box-sm {
+  text-align: center;
+  padding: 12px;
+  color: var(--text-muted);
+  font-size: 0.78rem;
+}
+
+.empty-state-icon-circle {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: var(--primary-light);
+  color: var(--primary);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.4rem;
+  margin-bottom: 12px;
+}
+
+.empty-state-icon-circle-sm {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: var(--primary-light);
+  color: var(--primary);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.3rem;
+  margin-bottom: 8px;
+}
+
+.empty-state-icon-circle-lg {
+  width: 58px;
+  height: 58px;
+  border-radius: 50%;
+  background: rgba(2, 132, 199, 0.12);
+  color: var(--primary);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.6rem;
+  margin-bottom: 14px;
+}
+
+.empty-state-icon-circle-success {
+  background: rgba(16, 185, 129, 0.15);
+  color: var(--success);
+}
+
+.empty-state-icon-circle-subtle {
+  background: rgba(2, 132, 199, 0.12);
+  color: var(--primary);
+}
+
+.empty-state-title {
+  font-weight: 800;
+  font-size: 1.05rem;
+  color: var(--text-main);
+}
+
+.empty-state-title-lg {
+  font-weight: 800;
+  font-size: 1.15rem;
+  color: var(--text-main);
+}
+
+.empty-state-title-md {
+  font-weight: 800;
+  font-size: 1.1rem;
+  color: var(--text-main);
+}
+
+.empty-state-title-sm {
+  font-weight: 800;
+  font-size: 0.98rem;
+  color: var(--text-main);
+}
+
+.empty-state-title-xs {
+  font-weight: 800;
+  font-size: 0.95rem;
+  color: var(--text-main);
+}
+
+.empty-state-desc {
+  font-size: 0.84rem;
+  color: var(--text-muted);
+  margin-top: 5px;
+  margin-bottom: 16px;
+}
+
+.empty-state-desc-inline {
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  margin-top: 5px;
+}
+
+.empty-state-desc-sm {
+  font-size: 0.80rem;
+  color: var(--text-muted);
+  margin-top: 4px;
+}
+
+.empty-state-desc-xs {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  margin-top: 4px;
+}
+
+.empty-state-desc-spacious {
+  font-size: 0.86rem;
+  color: var(--text-muted);
+  margin-top: 6px;
+  line-height: 1.6;
+}
+
+.empty-state-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  border-radius: var(--radius-pill, 9999px);
+  padding: 8px 20px;
+  font-weight: 700;
+}
+
+.empty-state-btn-outline {
+  border-radius: var(--radius-pill, 9999px);
+  padding: 8px 20px;
+  font-weight: 700;
+  color: var(--primary);
+  border-color: var(--primary);
+}
+
+.empty-state-card-dashed {
+  text-align: center;
+  padding: 28px 20px;
+  color: var(--text-muted);
+  background: var(--bg-surface);
+  border-radius: 14px;
+  border: 1.5px dashed var(--border-color);
+}
+
+.empty-state-card-dashed-icon {
+  font-size: 1.8rem;
+  margin-bottom: 8px;
+  display: block;
+  color: #cbd5e1;
+}
+
+[data-theme="dark"] .empty-state-card-dashed-icon {
+  color: var(--text-muted);
+}
+
+.doc-offduty-schedule-card {
+  text-align: center;
+  padding: 36px 20px;
+  margin: 4px 0;
+  border: 1.5px dashed rgba(2, 132, 199, 0.3);
+  background: rgba(2, 132, 199, 0.03);
+}
+
+.doc-empty-schedule-card {
+  text-align: center;
+  padding: 36px 20px;
+  margin: 4px 0;
+}
+
+.doc-empty-schedule-card-compact {
+  text-align: center;
+  padding: 30px 20px;
+  margin: 4px 0;
+}
+
+.empty-state-card-icon {
+  font-size: 1.8rem;
+  margin-bottom: 8px;
+  color: var(--primary);
+}
+
+.empty-state-card-title {
+  font-weight: 700;
+}
+
+.chip-empty {
+  color: var(--text-muted);
+  font-size: 0.8rem;
+  border-style: dashed;
+  padding: 6px 12px;
+  border-radius: 8px;
+}
+
+.imaging-gallery-empty {
+  grid-column: 1 / -1;
+}
+
+
