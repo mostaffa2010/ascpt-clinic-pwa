@@ -464,7 +464,7 @@
   align-items: center;
   z-index: 45;
   box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.04);
-  transition: all 0.3s ease;
+  transition: all var(--transition-slow);
 }
 
 @media screen and (min-width: 992px) {
@@ -528,9 +528,9 @@
   top: 0;
   left: 50%;
   transform: translate(-50%, -150%);
-  z-index: 10000;
+  z-index: var(--z-lightbox);
   pointer-events: none;
-  transition: transform 0.22s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.2s ease;
+  transition: transform 0.22s cubic-bezier(0.16, 1, 0.3, 1), opacity var(--transition-normal);
   opacity: 0;
   display: flex;
   justify-content: center;
@@ -553,7 +553,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.15s ease;
+  transition: border-color var(--transition-normal), box-shadow var(--transition-normal), transform var(--transition-fast);
 }
 
 .pull-to-reload-svg {
@@ -575,7 +575,7 @@
   stroke-linecap: round;
   stroke-dasharray: 119.38;
   stroke-dashoffset: 119.38;
-  transition: stroke-dashoffset 0.05s linear, stroke 0.2s ease;
+  transition: stroke-dashoffset 0.05s linear, stroke var(--transition-normal);
 }
 
 .pull-to-reload-icon-wrap {
@@ -587,8 +587,8 @@
   justify-content: center;
   color: var(--primary);
   font-size: 1.05rem;
-  z-index: 1;
-  transition: transform 0.2s ease, color 0.2s ease;
+  z-index: var(--z-elevate);
+  transition: transform var(--transition-normal), color var(--transition-normal);
 }
 
 .pull-to-reload-indicator.ready .pull-to-reload-bubble {
