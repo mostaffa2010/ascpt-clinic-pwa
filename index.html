@@ -11,7 +11,14 @@
         try {
           const saved = localStorage.getItem("ascpt_theme");
           const mql = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)');
-          const isDark = (saved === "dark") || (!saved && mql && mql.matches);
+          let isDark = false;
+          if (saved === "dark") {
+            isDark = true;
+          } else if (saved === "light") {
+            isDark = false;
+          } else {
+            isDark = mql ? mql.matches : false;
+          }
           if (isDark) {
             document.documentElement.setAttribute("data-theme", "dark");
             const meta = document.querySelector("meta[name='theme-color']");
@@ -1752,9 +1759,10 @@
           </div>
 
           <!-- Monthly Expenses Table -->
-          <div class="card no-print" id="card-monthly-expenses">
-            <div class="card-header">
-              <span class="card-title"><i class="fa-solid fa-receipt"></i> بيان مصروفات الشهر</span>
+          <div class="card no-print fin-card-mb" id="card-monthly-expenses">
+            <div class="card-header fin-card-header-flex">
+              <span class="card-title"><i class="fa-solid fa-receipt text-danger"></i> بيان مصروفات الشهر</span>
+              <span class="badge badge-cash fin-danger-badge" id="monthly-expenses-count-badge">0 مصروفات</span>
             </div>
             <div id="monthly-expenses-mobile-cards" class="mobile-only-cards-container"></div>
           </div>
@@ -2481,19 +2489,32 @@
                 <span>تفضيلات التطبيق</span>
               </div>
               <div class="profile-settings-card">
-                <!-- Dark / Light Mode -->
-                <button type="button" class="profile-setting-item" id="btn-view-toggle-theme">
-                  <span class="profile-setting-lead">
+                <!-- Theme Preference Control (3-Option Selector) -->
+                <div class="profile-setting-item profile-setting-theme-block">
+                  <div class="profile-setting-lead">
                     <span class="profile-setting-icon profile-icon-theme">
-                      <i class="fa-solid fa-moon" id="view-profile-theme-icon"></i>
+                      <i class="fa-solid fa-circle-half-stroke" id="view-profile-theme-icon"></i>
                     </span>
                     <span class="profile-setting-text-col">
-                      <span class="profile-setting-label" id="view-profile-theme-label">الوضع الليلي (داكن)</span>
-                      <span class="profile-setting-sub">التبديل الفوري بين المظهرين الفاتح والداكن</span>
+                      <span class="profile-setting-label" id="view-profile-theme-label">مظهر التطبيق</span>
+                      <span class="profile-setting-sub">تلقائي حسب نظام الهاتف</span>
                     </span>
-                  </span>
-                  <i class="fa-solid fa-chevron-left text-muted"></i>
-                </button>
+                  </div>
+                  <div class="theme-segmented-control" role="radiogroup" aria-label="تفضيل مظهر التطبيق">
+                    <button type="button" class="theme-segment-btn" data-theme-mode="auto" title="تلقائي حسب الهاتف" aria-checked="false" role="radio">
+                      <i class="fa-solid fa-wand-magic-sparkles"></i>
+                      <span>تلقائي</span>
+                    </button>
+                    <button type="button" class="theme-segment-btn" data-theme-mode="dark" title="الوضع الداكن" aria-checked="false" role="radio">
+                      <i class="fa-solid fa-moon"></i>
+                      <span>داكن</span>
+                    </button>
+                    <button type="button" class="theme-segment-btn" data-theme-mode="light" title="الوضع الفاتح" aria-checked="false" role="radio">
+                      <i class="fa-solid fa-sun"></i>
+                      <span>فاتح</span>
+                    </button>
+                  </div>
+                </div>
 
                 <!-- Push Notifications Toggle -->
                 <button type="button" class="profile-setting-item" id="btn-view-toggle-push">

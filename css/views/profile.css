@@ -382,3 +382,79 @@
     transform: translateY(0);
   }
 }
+
+/* ----------------------------------------------------------------------------
+   Theme Segmented Control in Settings Sub-View
+   ---------------------------------------------------------------------------- */
+.profile-setting-theme-block {
+  flex-direction: column;
+  align-items: stretch;
+  gap: 12px;
+  cursor: default;
+}
+
+.theme-segmented-control {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 6px;
+  background: var(--bg-subtle);
+  padding: 4px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-color);
+}
+
+[data-theme="dark"] .theme-segmented-control {
+  background: rgba(15, 23, 42, 0.6);
+  border-color: rgba(255, 255, 255, 0.08);
+}
+
+.theme-segment-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 8px 6px;
+  border-radius: var(--radius-sm);
+  border: none;
+  background: transparent;
+  color: var(--text-muted);
+  font-family: inherit;
+  font-size: 0.84rem;
+  font-weight: var(--fw-semibold);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  -webkit-tap-highlight-color: transparent;
+}
+
+.theme-segment-btn i {
+  font-size: 0.92rem;
+  transition: transform 0.2s ease;
+}
+
+@media (hover: hover) {
+  .theme-segment-btn:hover {
+    color: var(--text-main);
+    background: rgba(0, 0, 0, 0.04);
+  }
+  [data-theme="dark"] .theme-segment-btn:hover {
+    background: rgba(255, 255, 255, 0.06);
+  }
+}
+
+.theme-segment-btn:active {
+  transform: scale(0.98);
+}
+
+.theme-segment-btn.active {
+  background: var(--bg-surface);
+  color: var(--primary);
+  font-weight: var(--fw-bold);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08), 0 1px 2px rgba(0, 0, 0, 0.04);
+}
+
+[data-theme="dark"] .theme-segment-btn.active {
+  background: rgba(30, 41, 59, 0.95);
+  color: #38bdf8;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
+}
+
