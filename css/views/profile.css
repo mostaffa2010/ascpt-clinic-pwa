@@ -46,6 +46,16 @@
   justify-content: center;
   border: 3px solid var(--border-color);
   box-shadow: var(--shadow-sm);
+  overflow: hidden;
+  position: relative;
+}
+
+.profile-hero-avatar-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: var(--radius-full);
+  display: block;
 }
 
 .profile-hero-online-dot {
@@ -228,6 +238,8 @@
 
 .profile-icon-push { background: rgba(2, 132, 199, 0.12); color: var(--primary); }
 .profile-icon-admin { background: rgba(245, 158, 11, 0.12); color: var(--warning); }
+.profile-icon-finance { background: rgba(16, 185, 129, 0.12); color: #059669; }
+[data-theme="dark"] .profile-icon-finance { background: rgba(52, 211, 153, 0.15); color: #34d399; }
 .profile-icon-settings { background: rgba(14, 165, 233, 0.12); color: #0284c7; }
 .profile-icon-theme { background: rgba(99, 102, 241, 0.12); color: #6366f1; }
 .profile-icon-pwd { background: rgba(16, 185, 129, 0.12); color: var(--success); }

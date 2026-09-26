@@ -1,0 +1,21 @@
+/* ==========================================================================
+   ASCPT Clinic PWA - Dark Theme Stylesheet
+   File: css/theme/dark.css
+   Scope: System Theme Auto-Sync & Dark Mode Harmony
+   Zero !important Architecture
+   ========================================================================== */
+
+/* System Dark Mode Color Scheme Metadata */
+:root[data-theme="dark"] {
+  color-scheme: dark;
+}
+
+:root:not([data-theme="dark"]) {
+  color-scheme: light;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+  }
+}
