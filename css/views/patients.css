@@ -421,99 +421,103 @@
    ========================================================================== */
 
 .hero-patient-card {
-  border-radius: 20px;
-  padding: 16px 18px;
-  margin-bottom: 14px;
+  border-radius: 14px;
+  padding: 12px 14px;
+  margin-bottom: 10px;
   transition: transform var(--transition-spring), box-shadow var(--transition-fast), border-color var(--transition-fast);
   position: relative;
   background: var(--bg-surface);
-  box-shadow: 0 4px 18px -2px rgba(0, 0, 0, 0.06);
   contain: layout paint;
   content-visibility: auto;
-  contain-intrinsic-size: auto 160px;
+  contain-intrinsic-size: auto 155px;
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  box-sizing: border-box;
+}
+
+/* Light Mode Base */
+:root:not([data-theme="dark"]) .hero-patient-card {
+  background: #ffffff;
+  border: 1px solid var(--border-color);
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04), 0 4px 12px rgba(15, 23, 42, 0.02);
+}
+
+/* Soft accent indicator for gender (Light Mode) */
+:root:not([data-theme="dark"]) .hero-patient-card.gender-male {
+  border-color: rgba(14, 165, 233, 0.25);
+  border-right: 3.5px solid #0284c7;
+  box-shadow: 0 2px 8px -1px rgba(15, 23, 42, 0.05);
+}
+
+:root:not([data-theme="dark"]) .hero-patient-card.gender-female {
+  border-color: rgba(236, 72, 153, 0.25);
+  border-right: 3.5px solid #ec4899;
+  box-shadow: 0 2px 8px -1px rgba(15, 23, 42, 0.05);
 }
 
 /* Dark Mode Base */
 [data-theme="dark"] .hero-patient-card {
   background: #0d1424;
-  border: 1.5px solid rgba(255, 255, 255, 0.08);
-  box-shadow: 0 6px 24px -2px rgba(0, 0, 0, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 4px 16px -2px rgba(0, 0, 0, 0.35);
 }
 
-/* Male Patient Card (Dark Mode) */
+/* Soft accent indicator for gender (Dark Mode) */
 [data-theme="dark"] .hero-patient-card.gender-male {
   background: #0d1627;
-  border: 1.5px solid rgba(14, 165, 233, 0.28);
-  border-right: 4px solid #0ea5e9;
-  box-shadow: -4px 0 16px -2px rgba(14, 165, 233, 0.25), 0 6px 24px -2px rgba(0, 0, 0, 0.5);
+  border-color: rgba(56, 189, 248, 0.2);
+  border-right: 3.5px solid #38bdf8;
+  box-shadow: 0 4px 16px -2px rgba(0, 0, 0, 0.4);
 }
 
-/* Female Patient Card (Dark Mode) */
 [data-theme="dark"] .hero-patient-card.gender-female {
-  background: #121224;
-  border: 1.5px solid rgba(244, 114, 182, 0.28);
-  border-right: 4px solid #f43f5e;
-  box-shadow: -4px 0 16px -2px rgba(244, 114, 182, 0.25), 0 6px 24px -2px rgba(0, 0, 0, 0.5);
+  background: #141123;
+  border-color: rgba(244, 114, 182, 0.2);
+  border-right: 3.5px solid #f472b6;
+  box-shadow: 0 4px 16px -2px rgba(0, 0, 0, 0.4);
 }
 
-/* Light Mode Overrides */
-:root:not([data-theme="dark"]) .hero-patient-card {
-  background: #ffffff;
-  border: 1.5px solid #e2e8f0;
-  box-shadow: 0 4px 16px -2px rgba(15, 23, 42, 0.06);
-}
-
-:root:not([data-theme="dark"]) .hero-patient-card.gender-male {
-  background: #ffffff;
-  border: 1.5px solid rgba(14, 165, 233, 0.3);
-  border-right: 4px solid #0284c7;
-  box-shadow: -4px 0 14px -2px rgba(14, 165, 233, 0.2), 0 3px 12px rgba(15, 23, 42, 0.04);
-}
-
-:root:not([data-theme="dark"]) .hero-patient-card.gender-female {
-  background: #ffffff;
-  border: 1.5px solid rgba(236, 72, 153, 0.3);
-  border-right: 4px solid #ec4899;
-  box-shadow: -4px 0 14px -2px rgba(236, 72, 153, 0.2), 0 3px 12px rgba(15, 23, 42, 0.04);
-}
-
-/* Row 1: Name & Avatar on Right, Company Badge on Left */
+/* Row 1: Header (Name & Gender on Right, Payment Capsule on Left) */
 .pc-row-name-company {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 10px;
+  gap: 8px;
   width: 100%;
 }
 
 .pc-name-avatar-wrap {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
   min-width: 0;
   flex: 1;
 }
 
 .pc-avatar-icon {
-  width: 36px;
-  height: 36px;
+  width: 28px;
+  height: 28px;
+  min-width: 28px;
+  min-height: 28px;
   border-radius: 50%;
-  display: flex;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
-  font-size: 1.25rem;
+  font-size: 0.8rem;
+  line-height: 1;
   flex-shrink: 0;
 }
 
 .pc-avatar-icon.female {
   background: rgba(236, 72, 153, 0.12);
-  color: #f43f5e;
+  color: #f472b6;
   border: 1px solid rgba(236, 72, 153, 0.25);
 }
 
 .pc-avatar-icon.male {
   background: rgba(14, 165, 233, 0.12);
-  color: #0ea5e9;
+  color: #38bdf8;
   border: 1px solid rgba(14, 165, 233, 0.25);
 }
 
@@ -530,9 +534,9 @@
 }
 
 .pc-name-title {
-  font-size: 1.15rem;
-  font-weight: var(--fw-extrabold);
-  line-height: 1.3;
+  font-size: 1.05rem;
+  font-weight: var(--fw-bold);
+  line-height: 1.25;
   margin: 0;
   cursor: pointer;
   color: var(--text-main);
@@ -540,321 +544,415 @@
   word-break: break-word;
   flex: 1;
   min-width: 0;
+  transition: color var(--transition-fast);
 }
 
-/* Row 2: Subtitle (Gender/Age) on Right, Action Pills on Left */
-.pc-row-meta-actions {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 10px;
-  width: 100%;
-  margin-top: 6px;
+.pc-name-title:hover {
+  color: var(--primary);
 }
 
-.pc-meta-sub {
-  font-size: 0.84rem;
-  font-weight: var(--fw-bold);
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  line-height: 1.2;
-  flex-shrink: 0;
-}
-
-.pc-meta-sub.female {
-  color: #f472b6;
-}
-
-.pc-meta-sub.male {
-  color: #38bdf8;
-}
-
-:root:not([data-theme="dark"]) .pc-meta-sub.female {
-  color: #db2777;
-}
-
-:root:not([data-theme="dark"]) .pc-meta-sub.male {
-  color: #0284c7;
-}
-
-/* Billing Badges */
+/* Payment Capsule Badges */
 .pc-billing-wrap {
   flex-shrink: 0;
+  display: inline-flex;
 }
 
 .pc-billing-tag {
-  border-radius: var(--radius-base);
-  padding: 4px 10px;
-  font-size: 0.78rem;
+  border-radius: var(--radius-full);
+  padding: 3px 9px;
+  font-size: 0.74rem;
   font-weight: var(--fw-bold);
   display: inline-flex;
   align-items: center;
-  gap: 5px;
-  max-width: 150px;
+  gap: 4.5px;
+  max-width: 140px;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  line-height: 1.2;
 }
 
-.pc-billing-tag.pc-badge-direct {
-  background: rgba(2, 132, 199, 0.12);
-  border: 1.2px solid rgba(2, 132, 199, 0.45);
-  color: #0284c7;
-}
-
-[data-theme="dark"] .pc-billing-tag.pc-badge-direct {
-  background: rgba(56, 189, 248, 0.18);
-  border: 1.2px solid rgba(56, 189, 248, 0.45);
-  color: #38bdf8;
-}
-
-.pc-billing-tag.pc-badge-indirect {
-  background: rgba(147, 51, 234, 0.12);
-  border: 1.2px solid rgba(147, 51, 234, 0.45);
-  color: #7e22ce;
-}
-
-[data-theme="dark"] .pc-billing-tag.pc-badge-indirect {
-  background: rgba(192, 132, 252, 0.18);
-  border: 1.2px solid rgba(192, 132, 252, 0.45);
-  color: #c084fc;
+.pc-billing-tag i {
+  font-size: 0.76rem;
+  line-height: 1;
+  flex-shrink: 0;
 }
 
 .pc-billing-tag.pc-badge-cash {
   background: rgba(16, 185, 129, 0.12);
-  border: 1.2px solid rgba(16, 185, 129, 0.45);
+  border: 1px solid rgba(16, 185, 129, 0.35);
   color: #059669;
 }
 
+:root:not([data-theme="dark"]) .pc-billing-tag.pc-badge-cash {
+  background: #ecfdf5;
+  border-color: #a7f3d0;
+  color: #047857;
+}
+
 [data-theme="dark"] .pc-billing-tag.pc-badge-cash {
-  background: rgba(52, 211, 153, 0.18);
-  border: 1.2px solid rgba(52, 211, 153, 0.45);
+  background: rgba(52, 211, 153, 0.15);
+  border-color: rgba(52, 211, 153, 0.35);
   color: #34d399;
 }
 
-/* Quick Action Pills */
-.pc-pill-actions {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  flex-shrink: 0;
+.pc-billing-tag.pc-badge-direct {
+  background: rgba(2, 132, 199, 0.1);
+  border: 1px solid rgba(2, 132, 199, 0.35);
+  color: #0284c7;
 }
 
-.btn-pc-pill {
-  border-radius: 9px;
-  padding: 6px 14px;
-  font-size: 0.88rem;
-  font-weight: var(--fw-extrabold);
-  height: 35px;
+:root:not([data-theme="dark"]) .pc-billing-tag.pc-badge-direct {
+  background: #f0f9ff;
+  border-color: #bae6fd;
+  color: #0284c7;
+}
+
+[data-theme="dark"] .pc-billing-tag.pc-badge-direct {
+  background: rgba(56, 189, 248, 0.15);
+  border-color: rgba(56, 189, 248, 0.35);
+  color: #38bdf8;
+}
+
+.pc-billing-tag.pc-badge-indirect {
+  background: rgba(147, 51, 234, 0.1);
+  border: 1px solid rgba(147, 51, 234, 0.35);
+  color: #7e22ce;
+}
+
+:root:not([data-theme="dark"]) .pc-billing-tag.pc-badge-indirect {
+  background: #faf5ff;
+  border-color: #e9d5ff;
+  color: #7e22ce;
+}
+
+[data-theme="dark"] .pc-billing-tag.pc-badge-indirect {
+  background: rgba(192, 132, 252, 0.15);
+  border-color: rgba(192, 132, 252, 0.35);
+  color: #c084fc;
+}
+
+/* Row 2: Secondary Demographics Line (Gender, Age, City in Calm Muted Typography) */
+.pc-demographics-line {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.78rem;
+  font-weight: var(--fw-medium);
+  color: var(--text-muted);
+  line-height: 1.25;
+}
+
+.pc-demo-item {
   display: inline-flex;
   align-items: center;
-  justify-content: center;
-  gap: 6px;
-  cursor: pointer;
-  line-height: 1;
-  border: 1.5px solid transparent;
-  transition: all var(--transition-spring);
+  gap: 4px;
 }
 
-.btn-pc-pill i {
-  font-size: 0.95rem;
+.pc-demo-item i {
+  font-size: 0.72rem;
+  opacity: 0.85;
 }
 
-.btn-pc-pill:hover {
-  transform: translateY(-1.5px);
+.pc-demo-city {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 150px;
 }
 
-.btn-pc-session {
-  background: rgba(245, 158, 11, 0.1);
-  border-color: rgba(245, 158, 11, 0.5);
-  color: #fbbf24;
+.pc-demo-sep {
+  color: var(--border-color);
+  font-size: 0.65rem;
+  user-select: none;
 }
 
-.btn-pc-session i {
-  color: #f59e0b;
-}
-
-:root:not([data-theme="dark"]) .btn-pc-session {
-  background: #fef3c7;
-  border-color: #f59e0b;
-  color: #b45309;
-}
-
-.btn-pc-sheet {
-  background: rgba(14, 165, 233, 0.12);
-  border-color: rgba(14, 165, 233, 0.5);
-  color: #38bdf8;
-}
-
-.btn-pc-sheet i {
-  color: #38bdf8;
-}
-
-:root:not([data-theme="dark"]) .btn-pc-sheet {
-  background: #e0f2fe;
-  border-color: #0284c7;
-  color: #0369a1;
-}
-
-/* Middle Condition Strip */
+/* Row 3: Diagnosis Presentation (Clean & Natural, Eliminating Empty Input Look) */
 .pc-condition-strip {
-  background: rgba(0, 0, 0, 0.32);
-  border: 1px solid rgba(255, 255, 255, 0.06);
-  border-radius: 9px;
-  padding: 6px 12px;
-  margin: 8px 0;
-  font-size: 0.82rem;
-  font-weight: 600;
-  color: #f1f5f9;
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 7px;
+  padding: 4px 8px;
+  margin: 1px 0 2px 0;
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: var(--text-secondary);
+  background: var(--bg-subtle);
+  border-radius: var(--radius-sm);
   line-height: 1.35;
   word-break: break-word;
-  min-height: 32px;
-}
-
-.pc-condition-strip i {
-  color: #94a3b8;
-  font-size: 0.9rem;
-  flex-shrink: 0;
 }
 
 :root:not([data-theme="dark"]) .pc-condition-strip {
   background: #f8fafc;
-  border: 1px solid #e2e8f0;
-  color: #1e293b;
+  color: #334155;
 }
 
-:root:not([data-theme="dark"]) .pc-condition-strip i {
-  color: #64748b;
+[data-theme="dark"] .pc-condition-strip {
+  background: rgba(255, 255, 255, 0.04);
+  color: #cbd5e1;
 }
 
-/* Bottom Footer Row */
-.pc-footer-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 10px;
-  width: 100%;
-  margin-top: 4px;
-}
-
-.pc-location-info {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 0.82rem;
-  font-weight: var(--fw-bold);
-  color: #94a3b8;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  max-width: 160px;
-}
-
-.pc-location-info i {
+.pc-condition-strip i {
   color: var(--primary);
-  font-size: 0.88rem;
-}
-
-:root:not([data-theme="dark"]) .pc-location-info {
-  color: #64748b;
-}
-
-/* Squircle Action Buttons */
-.pc-squircle-actions {
-  display: flex;
-  align-items: center;
-  gap: 8px;
+  font-size: 0.82rem;
   flex-shrink: 0;
 }
 
-.btn-pc-squircle {
-  width: 38px;
-  height: 38px;
-  border-radius: var(--radius-sm);
+.pc-condition-text {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Row 4: Primary Action Buttons (Uniform Height, Balanced Contrast, Clear Targets) */
+.pc-primary-actions {
+  display: flex;
+  align-items: stretch;
+  gap: 8px;
+  width: 100%;
+}
+
+.btn-pc-pill {
+  flex: 1 1 0;
+  min-width: 0;
+  height: 36px;
+  min-height: 36px;
+  max-height: 36px;
+  box-sizing: border-box;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  font-size: 1rem;
+  gap: 6px;
+  border-radius: var(--radius-base);
+  font-size: 0.84rem;
+  font-weight: var(--fw-extrabold);
   cursor: pointer;
-  border: 1px solid transparent;
+  line-height: 1;
+  border: 1.2px solid transparent;
+  transition: all var(--transition-fast);
+}
+
+.btn-pc-pill i {
+  font-size: 0.88rem;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.btn-pc-pill:hover {
+  transform: translateY(-1px);
+}
+
+.btn-pc-pill:active {
+  transform: scale(0.98);
+}
+
+/* "جلسة ⚡" Button */
+:root:not([data-theme="dark"]) .btn-pc-session {
+  background: #fffbeb;
+  border-color: #fde68a;
+  color: #b45309;
+}
+
+:root:not([data-theme="dark"]) .btn-pc-session:hover {
+  background: #fef3c7;
+  border-color: #f59e0b;
+}
+
+:root:not([data-theme="dark"]) .btn-pc-session i {
+  color: #d97706;
+}
+
+[data-theme="dark"] .btn-pc-session {
+  background: rgba(245, 158, 11, 0.12);
+  border-color: rgba(245, 158, 11, 0.35);
+  color: #fbbf24;
+}
+
+[data-theme="dark"] .btn-pc-session:hover {
+  background: rgba(245, 158, 11, 0.22);
+  border-color: #f59e0b;
+}
+
+[data-theme="dark"] .btn-pc-session i {
+  color: #f59e0b;
+}
+
+/* "الشيت 📄" Button */
+:root:not([data-theme="dark"]) .btn-pc-sheet {
+  background: #f0f9ff;
+  border-color: #bae6fd;
+  color: #0284c7;
+}
+
+:root:not([data-theme="dark"]) .btn-pc-sheet:hover {
+  background: #e0f2fe;
+  border-color: #0284c7;
+}
+
+:root:not([data-theme="dark"]) .btn-pc-sheet i {
+  color: #0284c7;
+}
+
+[data-theme="dark"] .btn-pc-sheet {
+  background: rgba(14, 165, 233, 0.12);
+  border-color: rgba(14, 165, 233, 0.35);
+  color: #38bdf8;
+}
+
+[data-theme="dark"] .btn-pc-sheet:hover {
+  background: rgba(14, 165, 233, 0.22);
+  border-color: #38bdf8;
+}
+
+[data-theme="dark"] .btn-pc-sheet i {
+  color: #38bdf8;
+}
+
+/* Row 5: Utility Actions Row (Understated Action Strip, Safe Delete) */
+.pc-utility-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  margin-top: 1px;
+}
+
+.pc-utility-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.pc-utility-danger {
+  display: flex;
+  align-items: center;
+}
+
+.btn-pc-squircle {
+  width: 35px;
+  height: 35px;
+  min-width: 35px;
+  min-height: 35px;
+  max-width: 35px;
+  max-height: 35px;
+  box-sizing: border-box;
+  border-radius: var(--radius-base);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.92rem;
+  line-height: 1;
+  cursor: pointer;
+  border: 1px solid var(--border-color);
   transition: all var(--transition-fast);
   padding: 0;
 }
 
+:root:not([data-theme="dark"]) .btn-pc-squircle {
+  background: #f8fafc;
+  border-color: #e2e8f0;
+  color: #64748b;
+}
+
+[data-theme="dark"] .btn-pc-squircle {
+  background: rgba(255, 255, 255, 0.04);
+  border-color: rgba(255, 255, 255, 0.08);
+  color: #94a3b8;
+}
+
 .btn-pc-squircle:hover {
-  transform: translateY(-2px);
+  transform: translateY(-1px);
 }
 
-/* Delete (Red) */
-.btn-pc-squircle.btn-pc-del {
-  background: rgba(239, 68, 68, 0.08);
-  border: 1.2px solid rgba(239, 68, 68, 0.35);
-  color: #f87171;
+.btn-pc-squircle:active {
+  transform: scale(0.94);
 }
 
-.btn-pc-squircle.btn-pc-del:hover {
-  background: rgba(239, 68, 68, 0.2);
+/* WhatsApp */
+:root:not([data-theme="dark"]) .btn-pc-squircle.btn-pc-wa:hover {
+  background: #ecfdf5;
+  border-color: #a7f3d0;
+  color: #059669;
 }
 
-:root:not([data-theme="dark"]) .btn-pc-squircle.btn-pc-del {
-  background: #fef2f2;
-  border-color: rgba(239, 68, 68, 0.4);
-  color: #dc2626;
-}
-
-/* Edit (Purple) */
-.btn-pc-squircle.btn-pc-edit {
-  background: rgba(168, 85, 247, 0.08);
-  border: 1.2px solid rgba(168, 85, 247, 0.35);
-  color: #c084fc;
-}
-
-.btn-pc-squircle.btn-pc-edit:hover {
-  background: rgba(168, 85, 247, 0.2);
-}
-
-:root:not([data-theme="dark"]) .btn-pc-squircle.btn-pc-edit {
-  background: #faf5ff;
-  border-color: rgba(168, 85, 247, 0.4);
-  color: #7e22ce;
-}
-
-/* Docs (Blue) */
-.btn-pc-squircle.btn-pc-docs {
-  background: rgba(14, 165, 233, 0.08);
-  border: 1.2px solid rgba(14, 165, 233, 0.35);
-  color: #38bdf8;
-}
-
-.btn-pc-squircle.btn-pc-docs:hover {
-  background: rgba(14, 165, 233, 0.2);
-}
-
-:root:not([data-theme="dark"]) .btn-pc-squircle.btn-pc-docs {
-  background: #f0f9ff;
-  border-color: rgba(14, 165, 233, 0.4);
-  color: #0284c7;
-}
-
-/* WhatsApp (Green) */
-.btn-pc-squircle.btn-pc-wa {
-  background: rgba(16, 185, 129, 0.08);
-  border: 1.2px solid rgba(16, 185, 129, 0.35);
+[data-theme="dark"] .btn-pc-squircle.btn-pc-wa:hover {
+  background: rgba(16, 185, 129, 0.15);
+  border-color: rgba(16, 185, 129, 0.4);
   color: #34d399;
 }
 
-.btn-pc-squircle.btn-pc-wa:hover {
-  background: rgba(16, 185, 129, 0.2);
+/* Docs */
+:root:not([data-theme="dark"]) .btn-pc-squircle.btn-pc-docs:hover {
+  background: #f0f9ff;
+  border-color: #bae6fd;
+  color: #0284c7;
 }
 
-:root:not([data-theme="dark"]) .btn-pc-squircle.btn-pc-wa {
-  background: #ecfdf5;
-  border-color: rgba(16, 185, 129, 0.4);
-  color: #059669;
+[data-theme="dark"] .btn-pc-squircle.btn-pc-docs:hover {
+  background: rgba(14, 165, 233, 0.15);
+  border-color: rgba(14, 165, 233, 0.4);
+  color: #38bdf8;
+}
+
+/* Edit */
+:root:not([data-theme="dark"]) .btn-pc-squircle.btn-pc-edit:hover {
+  background: #faf5ff;
+  border-color: #e9d5ff;
+  color: #7e22ce;
+}
+
+[data-theme="dark"] .btn-pc-squircle.btn-pc-edit:hover {
+  background: rgba(168, 85, 247, 0.15);
+  border-color: rgba(168, 85, 247, 0.4);
+  color: #c084fc;
+}
+
+/* Delete: Understated / Muted Default to Prevent Accidental Clicks */
+:root:not([data-theme="dark"]) .btn-pc-squircle.btn-pc-del {
+  background: #f8fafc;
+  border-color: #e2e8f0;
+  color: #94a3b8;
+}
+
+:root:not([data-theme="dark"]) .btn-pc-squircle.btn-pc-del:hover {
+  background: #fef2f2;
+  border-color: #fecaca;
+  color: #dc2626;
+}
+
+[data-theme="dark"] .btn-pc-squircle.btn-pc-del {
+  background: rgba(255, 255, 255, 0.04);
+  border-color: rgba(255, 255, 255, 0.08);
+  color: #64748b;
+}
+
+[data-theme="dark"] .btn-pc-squircle.btn-pc-del:hover {
+  background: rgba(239, 68, 68, 0.15);
+  border-color: rgba(239, 68, 68, 0.4);
+  color: #f87171;
+}
+
+@media screen and (max-width: 480px) {
+  .hero-patient-card {
+    padding: 11px 12px;
+    gap: 6px;
+  }
+  .pc-name-title {
+    font-size: 1rem;
+  }
+  .btn-pc-pill {
+    font-size: 0.82rem;
+    height: 35px;
+    min-height: 35px;
+    max-height: 35px;
+  }
+  .btn-pc-squircle {
+    width: 34px;
+    height: 34px;
+    min-width: 34px;
+    min-height: 34px;
+  }
 }
 
 /* Legacy .patient-card fallback */

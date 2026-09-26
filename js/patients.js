@@ -958,6 +958,8 @@ export class PatientsManager {
         const safeName = escapeHTML(p.name);
         const safeAge = escapeHTML(p.age);
         const safeAddress = escapeHTML(p.address || '');
+        const defaultCity = (typeof CLINIC_CONFIG !== 'undefined' && CLINIC_CONFIG?.contact?.city) ? CLINIC_CONFIG.contact.city : 'الإسكندرية';
+        const safeCity = escapeHTML(safeAddress && safeAddress !== '-' ? safeAddress : defaultCity);
         const mobileAreaInfo = this.getPatientTreatedAreaDisplay(p);
         const safeDoctor = escapeHTML(p.doctor || '');
   
@@ -965,16 +967,15 @@ export class PatientsManager {
         const genderClass = isFemale ? 'gender-female' : 'gender-male';
         const genderIcon = isFemale ? 'fa-solid fa-venus' : 'fa-solid fa-mars';
         const genderText = isFemale ? 'أنثى' : 'ذكر';
-        const avatarIcon = isFemale ? 'fa-solid fa-person-dress' : 'fa-solid fa-person';
 
         return `
           <div class="hero-styled-card hero-patient-card patient-card ${genderClass} ${rowHighlightClass}">
-            <!-- Top Header Row 1: Name & Avatar on Right, Company/Billing Badge on Left -->
+            <!-- 1. Header: Patient Name & Gender Icon on Right, Payment Capsule on Left -->
             <div class="pc-row-name-company">
               <div class="pc-name-avatar-wrap">
-                <div class="pc-avatar-icon ${isFemale ? 'female' : 'male'}">
-                  <i class="${avatarIcon}"></i>
-                </div>
+                <span class="pc-avatar-icon ${isFemale ? 'female' : 'male'}">
+                  <i class="${genderIcon}"></i>
+                </span>
                 <span class="pc-name-title" onclick="patientsManager.openPatientSheet('${safeId}')" title="اضغط لفتح الشيت الطبي">${safeName}</span>
               </div>
               <div class="pc-billing-wrap">
@@ -982,34 +983,38 @@ export class PatientsManager {
               </div>
             </div>
 
-            <!-- Top Header Row 2: Subtitle (Gender/Age) on Right, Quick Action Pills on Left -->
-            <div class="pc-row-meta-actions">
-              <div class="pc-meta-sub ${isFemale ? 'female' : 'male'}">
-                <i class="${genderIcon}"></i> <span>${genderText} ▪ ${safeAge} سنة</span>
-              </div>
-              <div class="pc-pill-actions">
-                ${!isDoctor ? `
-                  <button type="button" class="btn-pc-pill btn-pc-session btn-quick-attend" onclick="patientsManager.quickLogSession('${safeId}')" title="تسجيل جلسة سريعة لهذا المريض">
-                    <i class="fa-solid fa-bolt"></i> <span>جلسة</span>
-                  </button>
-                ` : ''}
-                ${canAccessSheet ? `
-                  <button type="button" class="btn-pc-pill btn-pc-sheet btn-hero-sheet btn-patient-sheet-action" onclick="patientsManager.openPatientSheet('${safeId}')" title="فتح الشيت الطبي">
-                    <i class="fa-solid fa-file-circle-plus"></i> <span>الشيت</span>
-                  </button>
-                ` : ''}
-              </div>
+            <!-- 2. Demographics Line: Gender, Age, City in Calm Muted Typography -->
+            <div class="pc-demographics-line">
+              <span class="pc-demo-item"><i class="${genderIcon}"></i> <span>${genderText}</span></span>
+              <span class="pc-demo-sep">•</span>
+              <span class="pc-demo-item"><span>${safeAge} سنة</span></span>
+              <span class="pc-demo-sep">•</span>
+              <span class="pc-demo-item pc-demo-city" title="${safeCity}"><i class="fa-solid fa-location-dot"></i> <span>${safeCity}</span></span>
             </div>
 
-            <!-- Middle Row: Diagnosis / Body Parts / Program Strip -->
-            <div class="pc-condition-strip">
+            <!-- 3. Diagnosis Presentation: Clean & Natural with Diagnosis/Bone Icon -->
+            <div class="pc-condition-strip ${mobileAreaInfo.badgeClass || ''}">
               <i class="${mobileAreaInfo.icon}"></i>
-              <span>${escapeHTML((mobileAreaInfo.text || '').replace(/ • /g, ' ▪ '))}</span>
+              <span class="pc-condition-text">${escapeHTML((mobileAreaInfo.text || '').replace(/ • /g, ' ▪ '))}</span>
             </div>
 
-            <!-- Bottom Row: Squircle Action Buttons (Right / Thumb Ergonomics) & Location/Address (Left) -->
-            <div class="pc-footer-row">
-              <div class="pc-squircle-actions">
+            <!-- 4. Primary Action Buttons: جلسة and الشيت with Uniform Height and Balanced Contrast -->
+            <div class="pc-pill-actions pc-primary-actions">
+              ${!isDoctor ? `
+                <button type="button" class="btn-pc-pill btn-pc-session btn-quick-attend" onclick="patientsManager.quickLogSession('${safeId}')" title="تسجيل جلسة سريعة لهذا المريض">
+                  <i class="fa-solid fa-bolt"></i> <span>جلسة</span>
+                </button>
+              ` : ''}
+              ${canAccessSheet ? `
+                <button type="button" class="btn-pc-pill btn-pc-sheet btn-hero-sheet btn-patient-sheet-action" onclick="patientsManager.openPatientSheet('${safeId}')" title="فتح الشيت الطبي">
+                  <i class="fa-solid fa-file-lines"></i> <span>الشيت</span>
+                </button>
+              ` : ''}
+            </div>
+
+            <!-- 5. Utility Actions Row: WhatsApp, Docs, Edit, Delete (Understated Action Strip) -->
+            <div class="pc-footer-row pc-utility-row">
+              <div class="pc-squircle-actions pc-utility-actions">
                 <button type="button" class="btn-pc-squircle btn-pc-wa btn-whatsapp-action" onclick="patientsManager.openWhatsAppTemplates('${escapeHTML(p.phone || '')}', '${safeName}', '${safeDoctor}')" aria-label="خيارات واتساب الذكية" title="واتساب">
                   <i class="fa-brands fa-whatsapp"></i>
                 </button>
@@ -1021,17 +1026,15 @@ export class PatientsManager {
                     <i class="fa-solid fa-pen-to-square"></i>
                   </button>
                 ` : ''}
-                ${!isDoctor && canDeletePatient ? `
+              </div>
+
+              ${!isDoctor && canDeletePatient ? `
+                <div class="pc-utility-danger">
                   <button type="button" class="btn-pc-squircle btn-pc-del btn-delete-patient" onclick="patientsManager.confirmDelete('${safeId}')" aria-label="حذف المريض" title="حذف">
                     <i class="fa-solid fa-trash-can"></i>
                   </button>
-                ` : ''}
-              </div>
-
-              <div class="pc-location-info">
-                <i class="fa-solid fa-location-dot"></i>
-                <span>${safeAddress && safeAddress !== '-' ? safeAddress : (CLINIC_CONFIG.contact?.city || 'الإسكندرية')}</span>
-              </div>
+                </div>
+              ` : ''}
             </div>
           </div>
         `;      }).join('') + (totalPages > 1 ? `
