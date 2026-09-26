@@ -1,0 +1,126 @@
+/* ==========================================================================
+   ASCPT Clinic PWA - Navigation Component (Mobile Bottom Dock)
+   Facebook-Style Flat Tab Indicator Navigation
+   ========================================================================== */
+
+/* 1. Mobile Bottom Dock Container */
+.bottom-nav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: calc(var(--bottom-nav-height) + env(safe-area-inset-bottom, 0px));
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+  background: var(--bg-surface);
+  border-top: 1px solid var(--border-color);
+  display: flex;
+  justify-content: space-around;
+  align-items: stretch;
+  z-index: 45;
+  box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.05);
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+[data-theme="dark"] .bottom-nav {
+  background: var(--bg-surface);
+  border-top-color: var(--border-color);
+  box-shadow: 0 -2px 14px rgba(0, 0, 0, 0.35);
+}
+
+/* 2. Dock Tab Button */
+.b-nav-item {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  height: 100%;
+  background: transparent;
+  border: none;
+  outline: none;
+  cursor: pointer;
+  position: relative;
+  color: var(--text-muted);
+  font-size: 0.72rem;
+  font-weight: var(--fw-semibold);
+  transition: color var(--transition-fast), background-color var(--transition-fast);
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+  padding: 4px 0 env(safe-area-inset-bottom, 0px) 0;
+}
+
+.b-nav-item:active {
+  transform: scale(0.96);
+  background-color: var(--bg-subtle);
+}
+
+/* 3. Facebook-Style Top Accent Indicator Line on Active Tab */
+.b-nav-item::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background-color: var(--primary);
+  border-radius: 0 0 2px 2px;
+  opacity: 0;
+  transform: scaleX(0);
+  transition: transform var(--transition-fast), opacity var(--transition-fast);
+}
+
+.b-nav-item.active::before {
+  opacity: 1;
+  transform: scaleX(1);
+}
+
+/* 4. Tab Text Label States */
+.b-nav-item span {
+  color: var(--text-muted);
+  font-size: 0.72rem;
+  font-weight: var(--fw-semibold);
+  line-height: 1.2;
+  transition: color var(--transition-fast), font-weight var(--transition-fast);
+}
+
+.b-nav-item.active span {
+  color: var(--primary);
+  font-weight: var(--fw-bold);
+}
+
+/* 5. Tab Icon States (Outline Inactive vs Filled Active) */
+.bottom-nav .fa-regular,
+.bottom-nav .fa-solid,
+.b-nav-item i {
+  font-family: "Font Awesome 6 Free";
+  font-weight: 900;
+  font-size: 1.25rem;
+  line-height: 1;
+  margin: 0;
+  padding: 0;
+  background: none;
+  border: none;
+  border-radius: 0;
+  width: auto;
+  height: auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  /* Inactive tab: outline/regular icon style */
+  color: transparent;
+  -webkit-text-stroke: 1.25px var(--text-muted);
+  transition: color var(--transition-fast), -webkit-text-stroke var(--transition-fast), transform var(--transition-fast);
+}
+
+.b-nav-item.active i {
+  /* Active tab: filled/solid icon style without oval/pill highlight */
+  color: var(--primary);
+  -webkit-text-stroke: 0;
+  background: none;
+  border-radius: 0;
+  width: auto;
+  height: auto;
+  transform: none;
+}

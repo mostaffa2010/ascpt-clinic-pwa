@@ -154,6 +154,7 @@
   <link rel="stylesheet" href="css/components/notifications.css?v=3.0.0" media="screen">
   <link rel="stylesheet" href="css/components/lightbox.css?v=3.0.0" media="screen">
   <link rel="stylesheet" href="css/components/image-editor.css?v=3.0.0" media="screen">
+  <link rel="stylesheet" href="css/components/nav.css?v=3.0.0" media="screen">
   <link rel="stylesheet" href="css/views/shell.css?v=3.0.0" media="screen">
   <link rel="stylesheet" href="css/views/reception.css?v=3.0.0" media="screen">
   <link rel="stylesheet" href="css/views/patients.css?v=3.0.0" media="screen">
@@ -162,7 +163,9 @@
   <link rel="stylesheet" href="css/views/admin.css?v=3.0.0" media="screen">
   <link rel="stylesheet" href="css/views/finance.css?v=3.0.0" media="screen">
   <link rel="stylesheet" href="css/views/claims.css?v=3.0.0" media="screen">
-  <link rel="stylesheet" href="css/views/appointments.css?v=3.0.0" media="screen">  <link rel="stylesheet" href="css/print.css?v=3.0.0" media="print">
+  <link rel="stylesheet" href="css/views/appointments.css?v=3.0.0" media="screen">
+  <link rel="stylesheet" href="css/media-queries.css?v=3.0.0" media="screen">
+  <link rel="stylesheet" href="css/print.css?v=3.0.0" media="print">
 </head>
 <body>
   <script>
@@ -2393,25 +2396,25 @@
     </main>
 
     <!-- Mobile Bottom Navigation Bar -->
-    <nav class="bottom-nav no-print">
-      <button class="b-nav-item active" data-view="dashboard">
+    <nav class="bottom-nav no-print" aria-label="شريط التنقل السفلي">
+      <button class="b-nav-item active" data-view="dashboard" aria-label="الرئيسية">
         <i class="fa-solid fa-chart-pie"></i>
         <span>الرئيسية</span>
       </button>
-      <button class="b-nav-item" data-view="patients">
-        <i class="fa-solid fa-users"></i>
+      <button class="b-nav-item" data-view="patients" aria-label="المرضى">
+        <i class="fa-regular fa-users"></i>
         <span>المرضى</span>
       </button>
-      <button class="b-nav-item" data-view="sessions">
-        <i class="fa-solid fa-calendar-check"></i>
+      <button class="b-nav-item" data-view="sessions" aria-label="الجلسات">
+        <i class="fa-regular fa-calendar-check"></i>
         <span>الجلسات</span>
       </button>
-      <button class="b-nav-item" data-view="finance">
-        <i class="fa-solid fa-file-invoice-dollar"></i>
+      <button class="b-nav-item" data-view="finance" aria-label="الحسابات">
+        <i class="fa-regular fa-file-invoice-dollar"></i>
         <span>الحسابات</span>
       </button>
-      <button class="b-nav-item" data-view="appointments">
-        <i class="fa-solid fa-calendar-week"></i>
+      <button class="b-nav-item" data-view="appointments" aria-label="المواعيد">
+        <i class="fa-regular fa-calendar-week"></i>
         <span>المواعيد</span>
       </button>
     </nav>
