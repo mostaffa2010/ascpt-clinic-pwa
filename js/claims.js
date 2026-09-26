@@ -436,7 +436,7 @@ export class ClaimsManager {
     if (companyPatients.length === 0) {
       const tbody = document.getElementById('claim-patients-tbody');
       if (tbody) {
-        tbody.innerHTML = `<tr><td colspan="9" style="text-align: center; padding: 24px; color: var(--text-muted); font-weight: 700;">لا يوجد مرضى مسجلون حالياً تحت شركة ${this.currentCompany}.</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="9" class="claim-empty-state-cell">لا يوجد مرضى مسجلون حالياً تحت شركة ${escapeHTML(this.currentCompany)}.</td></tr>`;
       }
       this.claimPatientsData = [];
       this.recalcGrandTotals();
@@ -577,7 +577,7 @@ export class ClaimsManager {
     const stripText = document.getElementById('claim-summary-strip-text');
     if (stripText) {
       const parts = [];
-      parts.push(`شركة: <strong style="color: var(--primary);">${escapeHTML(this.currentCompany)}</strong>`);
+      parts.push(`شركة: <strong class="text-primary">${escapeHTML(this.currentCompany)}</strong>`);
       if (this.startDate || this.endDate) {
         parts.push(`الفترة: <strong>${escapeHTML(this.startDate || 'البداية')}</strong> إلى <strong>${escapeHTML(this.endDate || 'الآن')}</strong>`);
       } else {
@@ -615,7 +615,7 @@ export class ClaimsManager {
     if (!mobContainer) return;
 
     if (this.claimPatientsData.length === 0) {
-      mobContainer.innerHTML = `<div class="claim-empty-state-card" style="text-align: center; padding: 32px 16px; color: var(--text-muted);">يرجى اختيار شركة التأمين ثم الضغط على "استخراج وعرض مرضى الشركة".</div>`;
+      mobContainer.innerHTML = `<div class="claim-empty-state-card">يرجى اختيار شركة التأمين ثم الضغط على "استخراج وعرض مرضى الشركة".</div>`;
       const statsEl = document.getElementById('claim-search-stats');
       if (statsEl) statsEl.innerHTML = '';
       return;
@@ -627,14 +627,14 @@ export class ClaimsManager {
     const statsEl = document.getElementById('claim-search-stats');
     if (statsEl) {
       if (this.searchQuery) {
-        statsEl.innerHTML = `<span class="badge" style="background: #e0f2fe; color: #0284c7; font-weight: 700; font-size: 0.8rem;">عرض ${filtered.length} من أصل ${this.claimPatientsData.length} مريض</span>`;
+        statsEl.innerHTML = `<span class="badge claim-search-stats-badge">عرض ${filtered.length} من أصل ${this.claimPatientsData.length} مريض</span>`;
       } else {
-        statsEl.innerHTML = `<span style="color: var(--text-muted); font-size: 0.8rem;">إجمالي مرضى الشركة: ${this.claimPatientsData.length} مريض</span>`;
+        statsEl.innerHTML = `<span class="claim-search-stats-text">إجمالي مرضى الشركة: ${this.claimPatientsData.length} مريض</span>`;
       }
     }
 
     if (filtered.length === 0) {
-      mobContainer.innerHTML = `<div class="claim-empty-state-card" style="text-align: center; padding: 32px 16px; color: var(--text-muted); font-weight: 700;">لا توجد نتائج مطابقة لبحثك: "${escapeHTML(this.searchQuery)}".</div>`;
+      mobContainer.innerHTML = `<div class="claim-empty-state-card">لا توجد نتائج مطابقة لبحثك: "${escapeHTML(this.searchQuery)}".</div>`;
       return;
     }
 
@@ -675,47 +675,47 @@ export class ClaimsManager {
         const rowTotal = (item.sessionCount * item.sessionRate) + item.evalFee;
 
         const hvCountMob = (item.attendedSessions || []).filter(s => s.isHomeVisit || s.visitType === 'home').length;
-        const hvBadgeMob = hvCountMob > 0 ? `<span class="badge" style="background: rgba(5, 150, 105, 0.12); color: #059669; border: 1px solid rgba(5, 150, 105, 0.25); font-size: 0.68rem; padding: 1px 5px; border-radius: 4px; margin-right: 4px;"><i class="fa-solid fa-house-chimney-medical"></i> ${hvCountMob} منزلية</span>` : '';
+        const hvBadgeMob = hvCountMob > 0 ? `<span class="badge badge-hv-count"><i class="fa-solid fa-house-chimney-medical"></i> ${hvCountMob} منزلية</span>` : '';
 
         return `
-          <div class="hero-styled-card claim-patient-card-item ${!item.isChecked ? 'is-unchecked' : ''}" style="padding: 10px 12px; margin-bottom: 8px; border-radius: 14px; border: 1.5px solid var(--border-color); background: var(--bg-subtle); ${!item.isChecked ? 'opacity: 0.65;' : ''}">
-            <div style="display: flex; align-items: center; justify-content: space-between; gap: 8px;">
-              <div style="display: flex; align-items: center; gap: 8px; min-width: 0; flex: 1;">
-                <input type="checkbox" class="claim-patient-check" data-patient-id="${safeId}" style="width: 19px; height: 19px; cursor: pointer; accent-color: var(--primary); flex-shrink: 0;" ${rowChecked}>
-                <div style="min-width: 0; flex: 1;">
-                  <div style="font-weight: 800; font-size: 0.92rem; color: var(--text-main); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: flex; align-items: center; gap: 4px;">
+          <div class="hero-styled-card claim-patient-card-item ${!item.isChecked ? 'is-unchecked' : ''}">
+            <div class="claim-patient-card-top">
+              <div class="claim-patient-meta-group">
+                <input type="checkbox" class="claim-patient-check" data-patient-id="${safeId}" ${rowChecked}>
+                <div class="claim-patient-text-wrap">
+                  <div class="claim-patient-name-title">
                     <span>${safeName}</span>
                     ${hvBadgeMob}
                   </div>
-                  <div style="font-size: 0.72rem; color: var(--text-muted); margin-top: 1px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;"><i class="fa-solid fa-phone" style="font-size: 0.68rem;"></i> ${safePhone} • ${safeDoc}</div>
+                  <div class="claim-patient-sub-info"><i class="fa-solid fa-phone"></i> ${safePhone} • ${safeDoc}</div>
                 </div>
               </div>
-              <button type="button" class="btn btn-outline btn-sm btn-open-card-modal" data-patient-id="${safeId}" style="font-size: 0.72rem; padding: 3px 8px; border-radius: 8px; font-weight: 700; white-space: nowrap; flex-shrink: 0;">
+              <button type="button" class="btn btn-outline btn-sm btn-open-card-modal" data-patient-id="${safeId}">
                 <i class="fa-solid fa-id-card"></i> بطاقة التردد
               </button>
             </div>
 
-            <div class="hsc-divider" style="margin: 8px 0;"></div>
+            <div class="hsc-divider"></div>
 
             <!-- Compact Triple Input Grid (v1.4.54) -->
-            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; text-align: center;">
-              <div style="background: var(--bg-surface); border-radius: 8px; padding: 4px 2px; border: 1px solid var(--border-color);">
-                <div style="font-size: 0.68rem; font-weight: 700; color: var(--text-muted); margin-bottom: 1px;">فحص</div>
-                <input type="number" class="form-control claim-patient-input" data-field="evalFee" data-patient-id="${safeId}" value="${item.evalFee}" style="width: 100%; text-align: center; font-weight: 800; font-size: 0.86rem; height: 24px; border: none; background: transparent; padding: 0; color: var(--text-main);" inputmode="numeric">
+            <div class="claim-triple-input-grid">
+              <div class="claim-triple-input-box">
+                <div class="claim-triple-input-label">فحص</div>
+                <input type="number" class="form-control claim-patient-input" data-field="evalFee" data-patient-id="${safeId}" value="${item.evalFee}" inputmode="numeric">
               </div>
-              <div style="background: var(--bg-surface); border-radius: 8px; padding: 4px 2px; border: 1px solid var(--border-color);">
-                <div style="font-size: 0.68rem; font-weight: 700; color: var(--text-muted); margin-bottom: 1px;">الجلسات</div>
-                <input type="number" class="form-control claim-patient-input" data-field="sessionCount" data-patient-id="${safeId}" value="${item.sessionCount}" style="width: 100%; text-align: center; font-weight: 800; font-size: 0.86rem; height: 24px; border: none; background: transparent; padding: 0; color: var(--text-main);" inputmode="numeric">
+              <div class="claim-triple-input-box">
+                <div class="claim-triple-input-label">الجلسات</div>
+                <input type="number" class="form-control claim-patient-input" data-field="sessionCount" data-patient-id="${safeId}" value="${item.sessionCount}" inputmode="numeric">
               </div>
-              <div style="background: var(--bg-surface); border-radius: 8px; padding: 4px 2px; border: 1px solid var(--border-color);">
-                <div style="font-size: 0.68rem; font-weight: 700; color: var(--text-muted); margin-bottom: 1px;">سعر الجلسة</div>
-                <input type="number" class="form-control claim-patient-input" data-field="sessionRate" data-patient-id="${safeId}" value="${item.sessionRate}" style="width: 100%; text-align: center; font-weight: 800; font-size: 0.86rem; height: 24px; border: none; background: transparent; padding: 0; color: var(--text-main);" inputmode="numeric">
+              <div class="claim-triple-input-box">
+                <div class="claim-triple-input-label">سعر الجلسة</div>
+                <input type="number" class="form-control claim-patient-input" data-field="sessionRate" data-patient-id="${safeId}" value="${item.sessionRate}" inputmode="numeric">
               </div>
             </div>
 
-            <div style="display: flex; align-items: center; justify-content: space-between; margin-top: 8px; padding-top: 6px; border-top: 1px dashed var(--border-color);">
-              <span style="font-size: 0.74rem; font-weight: 700; color: var(--text-muted);">إجمالي مستحقات المريض:</span>
-              <span id="claim-mob-total-${safeId}" style="font-size: 0.94rem; font-weight: 800; color: var(--success);">${rowTotal.toLocaleString('en-US')} ج.م</span>
+            <div class="claim-patient-card-total-row">
+              <span class="claim-patient-card-total-label">إجمالي مستحقات المريض:</span>
+              <span id="claim-mob-total-${safeId}" class="claim-patient-card-total-val">${rowTotal.toLocaleString('en-US')} ج.م</span>
             </div>
           </div>
         `;
@@ -804,11 +804,11 @@ export class ClaimsManager {
 
     if (previewEl) {
       if (this.activeCardTreatments.length === 0) {
-        previewEl.innerHTML = `<span style="color: var(--text-muted); font-size: 0.88rem;">-- اضغط لاختيار وتحديد وسائل كارت التردد --</span>`;
+        previewEl.innerHTML = `<span class="card-treatments-empty-hint">-- اضغط لاختيار وتحديد وسائل كارت التردد --</span>`;
       } else {
         previewEl.innerHTML = this.activeCardTreatments.map(t => `
-          <span class="badge badge-primary" style="font-size: 0.78rem; padding: 4px 10px; margin: 2px; border-radius: 6px; font-weight: 700;">
-            <i class="fa-solid fa-bolt" style="margin-left: 4px;"></i> ${escapeHTML(t)}
+          <span class="badge badge-primary card-treatment-preview-chip">
+            <i class="fa-solid fa-bolt"></i> ${escapeHTML(t)}
           </span>
         `).join('');
       }
@@ -915,9 +915,9 @@ export class ClaimsManager {
     const previewList = document.getElementById('card-plan-preview-list');
     if (previewList) {
       if (selected.length === 0) {
-        previewList.innerHTML = '<span style="color: var(--text-muted); font-size: 0.8rem;">اضغط على الأزرار أعلاه لتحديد الخطة العلاجية...</span>';
+        previewList.innerHTML = '<span class="card-plan-empty-hint">اضغط على الأزرار أعلاه لتحديد الخطة العلاجية...</span>';
       } else {
-        previewList.innerHTML = selected.map(t => `<div style="padding: 2px 0; font-weight: 700; color: var(--text-main);">- ${escapeHTML(t)}</div>`).join('');
+        previewList.innerHTML = selected.map(t => `<div class="card-plan-preview-item">- ${escapeHTML(t)}</div>`).join('');
       }
     }
   }
@@ -1234,10 +1234,10 @@ export class ClaimsManager {
     if (mobLedger) {
       if (filtered.length === 0) {
         mobLedger.innerHTML = `
-          <div class="hero-styled-card" style="text-align: center; padding: 28px 20px; color: var(--text-muted); background: var(--bg-surface); border-radius: 14px; border: 1.5px dashed var(--border-color); margin-top: 12px;">
-            <i class="fa-solid fa-file-invoice-dollar" style="font-size: 1.8rem; margin-bottom: 8px; display: block; opacity: 0.4;"></i>
-            <div style="font-weight: 800; font-size: 0.95rem; color: var(--text-main); margin-bottom: 4px;">لا توجد مطالبات مسجلة</div>
-            <div style="font-size: 0.8rem; color: var(--text-muted);">لم يتم العثور على أي مطالبات سابقة مطابقة للبحث الحالي.</div>
+          <div class="hero-styled-card claims-ledger-empty-card">
+            <i class="fa-solid fa-file-invoice-dollar claims-ledger-empty-icon"></i>
+            <div class="claims-ledger-empty-title">لا توجد مطالبات مسجلة</div>
+            <div class="claims-ledger-empty-sub">لم يتم العثور على أي مطالبات سابقة مطابقة للبحث الحالي.</div>
           </div>
         `;
         return;
@@ -1254,25 +1254,25 @@ export class ClaimsManager {
 
           let statusBadge = '';
           if (c.status === 'settled') {
-            statusBadge = `<span class="badge" style="background: #dcfce7; color: #15803d; border: 1px solid #bbf7d0; font-weight: 800; font-size: 0.78rem;"><i class="fa-solid fa-circle-check"></i> تم التحصيل</span>`;
+            statusBadge = `<span class="badge badge-claim-status badge-claim-settled"><i class="fa-solid fa-circle-check"></i> تم التحصيل</span>`;
           } else if (c.status === 'partial') {
             const ded = (parseFloat(c.deductions) || 0).toLocaleString('en-US');
-            statusBadge = `<span class="badge" style="background: #e0e7ff; color: #3730a3; border: 1px solid #c7d2fe; font-weight: 800; font-size: 0.78rem;"><i class="fa-solid fa-hand-holding-dollar"></i> تحصيل جزئي (${ded} ج.م استقطاع)</span>`;
+            statusBadge = `<span class="badge badge-claim-status badge-claim-partial"><i class="fa-solid fa-hand-holding-dollar"></i> تحصيل جزئي (${ded} ج.م استقطاع)</span>`;
           } else {
-            statusBadge = `<span class="badge" style="background: #fef3c7; color: #b45309; border: 1px solid #fde68a; font-weight: 800; font-size: 0.78rem;"><i class="fa-solid fa-clock"></i> قيد التحصيل</span>`;
+            statusBadge = `<span class="badge badge-claim-status badge-claim-pending"><i class="fa-solid fa-clock"></i> قيد التحصيل</span>`;
           }
 
           let settledDisplay = '';
           if (c.status === 'settled' || c.status === 'partial') {
             const netSettled = (parseFloat(c.settledAmount) || 0).toLocaleString('en-US');
-            settledDisplay = `<div style="font-size: 0.8rem; color: var(--success); font-weight: 800; margin-top: 4px;">المحصل: ${netSettled} ج.م <span style="font-size: 0.72rem; color: var(--text-muted); font-weight: normal;">(${escapeHTML(c.settledDate || '')})</span></div>`;
+            settledDisplay = `<div class="claims-ledger-settled-box">المحصل: ${netSettled} ج.م <span class="claims-ledger-settled-date">(${escapeHTML(c.settledDate || '')})</span></div>`;
           }
 
           return `
-            <div class="hero-styled-card" style="margin-bottom: 10px;">
+            <div class="hero-styled-card claims-ledger-card-item">
               <div class="hsc-top">
                 <div class="hsc-patient-meta">
-                  <div class="hsc-avatar" style="background: rgba(2, 132, 199, 0.12); color: var(--primary);">
+                  <div class="hsc-avatar claims-ledger-avatar">
                     <i class="fa-solid fa-building-shield"></i>
                   </div>
                   <div class="hsc-name-box">
@@ -1281,32 +1281,32 @@ export class ClaimsManager {
                   </div>
                 </div>
                 <div class="hsc-amount-box">
-                  <span class="hsc-amount-val" style="color: var(--primary); font-size: 1.15rem; font-weight: 900;">${safeAmount} <small>ج.م</small></span>
+                  <span class="hsc-amount-val claims-ledger-amount-val">${safeAmount} <small>ج.م</small></span>
                 </div>
               </div>
 
               <div class="hsc-badges-row">
                 ${statusBadge}
-                <span class="badge badge-role-doctor" style="font-weight: 700;">${safePatientsCount} مريض • ${safeSessionsCount} جلسة</span>
+                <span class="badge badge-role-doctor claims-ledger-counts-badge">${safePatientsCount} مريض • ${safeSessionsCount} جلسة</span>
               </div>
 
               ${settledDisplay}
 
-              <div class="hsc-divider" style="margin: 8px 0;"></div>
+              <div class="hsc-divider"></div>
 
-              <div style="display: flex; justify-content: space-between; align-items: center; gap: 8px;">
-                <div style="font-size: 0.76rem; color: var(--text-muted);">
+              <div class="claims-ledger-footer-row">
+                <div class="claims-ledger-period-text">
                   <i class="fa-regular fa-calendar"></i> ${safePeriod}
                 </div>
-                <div style="display: flex; gap: 6px;">
-                  <button type="button" class="btn btn-outline btn-sm btn-settle-ledger-claim" data-claim-id="${safeId}" style="color: var(--primary); border-color: var(--primary); padding: 4px 10px; font-size: 0.78rem; font-weight: 700;">
+                <div class="claims-ledger-actions">
+                  <button type="button" class="btn btn-outline btn-sm btn-settle-ledger-claim" data-claim-id="${safeId}">
                     <i class="fa-solid fa-money-bill-transfer"></i> تحصيل
                   </button>
-                  <button type="button" class="btn btn-outline btn-sm btn-load-ledger-claim" data-claim-id="${safeId}" style="padding: 4px 8px; font-size: 0.78rem;" title="فتح وعرض المطالبة">
+                  <button type="button" class="btn btn-outline btn-sm btn-load-ledger-claim" data-claim-id="${safeId}" title="فتح وعرض المطالبة">
                     <i class="fa-solid fa-eye"></i>
                   </button>
                   ${canDelete ? `
-                    <button type="button" class="btn btn-outline btn-sm btn-delete-ledger-claim" data-claim-id="${safeId}" style="color: var(--danger); border-color: rgba(239, 68, 68, 0.3); padding: 4px 8px; font-size: 0.78rem;" title="حذف المطالبة">
+                    <button type="button" class="btn btn-outline btn-sm btn-delete-ledger-claim" data-claim-id="${safeId}" title="حذف المطالبة">
                       <i class="fa-solid fa-trash"></i>
                     </button>
                   ` : ''}
