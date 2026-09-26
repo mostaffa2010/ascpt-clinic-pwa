@@ -25,15 +25,15 @@
 }
 
 .patients-header-bar {
-  margin-bottom: 14px;
+  margin-bottom: 12px;
 }
 
 .patients-title-row {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 10px;
-  flex-wrap: wrap;
+  gap: 12px;
+  width: 100%;
 }
 
 .patients-title {
@@ -47,51 +47,69 @@
 }
 
 #patients-total-count-badge {
-  background: var(--bg-surface);
-  color: var(--text-muted);
-  border: 1.5px solid var(--border-color);
-  font-size: 0.78rem;
+  color: var(--primary);
+  font-size: 1.15rem;
   font-weight: var(--fw-extrabold);
-  padding: 2px 8px;
-  border-radius: var(--radius-full);
-  box-shadow: var(--shadow-xs);
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  padding: 0;
   cursor: pointer;
   user-select: none;
-  transition: transform var(--transition-fast), background var(--transition-fast);
+  transition: transform var(--transition-fast), opacity var(--transition-fast);
+}
+
+#patients-total-count-badge:hover {
+  opacity: 0.85;
 }
 
 #patients-total-count-badge:active {
-  transform: scale(0.95);
+  transform: scale(0.96);
 }
 
 /* ==========================================================================
-   2. DOCKED FLUSH STICKY HEADER & CONTROLS PANEL
+   2. STICKY EDGE-TO-EDGE TOOLBAR & COMPACT CONTROLS
    ========================================================================== */
 
-.patients-sticky-header {
+.patients-sticky-toolbar {
   position: sticky;
-  top: calc(var(--topbar-height) + env(safe-area-inset-top, 0px));
-  z-index: 35;
-  background-color: var(--bg-app);
-  padding: 8px 0 12px 0;
-  margin-bottom: 12px;
+  top: 0;
+  z-index: 20;
+  background-color: var(--bg-surface);
+  border-bottom: 1px solid var(--border-subtle);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  margin-left: -16px;
+  margin-right: -16px;
+  width: calc(100% + 32px);
+  padding: 10px 16px;
+  box-sizing: border-box;
+  margin-bottom: 16px;
   will-change: transform;
   transform: translateZ(0);
 }
 
-.patients-controls-panel {
-  background-color: var(--bg-surface);
-  border: 1px solid var(--border-subtle);
-  border-radius: var(--radius-card);
-  padding: 12px;
-  box-shadow: var(--shadow-card);
+@media screen and (min-width: 992px) {
+  .patients-sticky-toolbar {
+    margin-left: -32px;
+    margin-right: -32px;
+    width: calc(100% + 64px);
+    padding: 12px 32px;
+  }
 }
 
-.patients-controls-stack {
+[data-theme="dark"] .patients-sticky-toolbar {
+  background-color: var(--bg-surface);
+  border-bottom-color: rgba(255, 255, 255, 0.08);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25);
+}
+
+.patients-toolbar-inner {
   display: flex;
   flex-direction: column;
   gap: 10px;
   width: 100%;
+  max-width: var(--max-content-width, 1440px);
+  margin: 0 auto;
 }
 
 /* Row 1: Search Box */
@@ -107,142 +125,48 @@
   width: 100%;
 }
 
-/* Row 2: Filter Today Patients & Systems Dropdown */
-.patients-filter-row {
+/* Row 2: Single Compact Controls Row */
+.patients-controls-row {
   display: flex;
-  gap: 8px;
-  width: 100%;
-  align-items: center;
-}
-
-#btn-filter-today-patients {
-  flex: 1;
-  min-width: 0;
-  height: 40px;
-  padding: 0 10px;
-  font-weight: var(--fw-bold);
-  white-space: nowrap;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  transition: all var(--transition-spring);
-  position: relative;
-}
-
-#btn-filter-today-patients i {
-  color: var(--primary);
-  font-size: 0.95rem;
-  transition: color var(--transition-fast);
-}
-
-#btn-filter-today-patients #badge-today-patients-count {
-  background: var(--primary-light);
-  color: var(--primary);
-  border: 1px solid rgba(2, 132, 199, 0.25);
-  font-size: 0.75rem;
-  padding: 2px 7px;
-  border-radius: var(--radius-md-sm);
-  font-weight: var(--fw-extrabold);
-  transition: all var(--transition-fast);
-}
-
-[data-theme="dark"] #btn-filter-today-patients #badge-today-patients-count {
-  background: rgba(56, 189, 248, 0.16);
-  color: #38bdf8;
-  border-color: rgba(56, 189, 248, 0.35);
-}
-
-/* Today Patients Active State (Light Mode) */
-:root:not([data-theme="dark"]) #btn-filter-today-patients.btn-today-active {
-  background: var(--primary-gradient);
-  color: #ffffff;
-  border-color: var(--primary-hover);
-  box-shadow: 0 4px 14px rgba(2, 132, 199, 0.35);
-}
-
-:root:not([data-theme="dark"]) #btn-filter-today-patients.btn-today-active:hover {
-  background: linear-gradient(135deg, #0369a1 0%, #075985 100%);
-  color: #ffffff;
-  border-color: #075985;
-}
-
-:root:not([data-theme="dark"]) #btn-filter-today-patients.btn-today-active i,
-:root:not([data-theme="dark"]) #btn-filter-today-patients.btn-today-active span {
-  color: #ffffff;
-}
-
-:root:not([data-theme="dark"]) #btn-filter-today-patients.btn-today-active #badge-today-patients-count {
-  background-color: rgba(255, 255, 255, 0.25);
-  color: #ffffff;
-  border: 1px solid rgba(255, 255, 255, 0.45);
-  font-weight: var(--fw-extrabold);
-}
-
-/* Today Patients Active State (Dark Mode) */
-[data-theme="dark"] #btn-filter-today-patients.btn-today-active {
-  background: linear-gradient(135deg, rgba(56, 189, 248, 0.22) 0%, rgba(14, 165, 233, 0.32) 100%);
-  color: #38bdf8;
-  border: 1.5px solid #38bdf8;
-  box-shadow: 0 0 16px rgba(56, 189, 248, 0.28), 0 4px 14px rgba(0, 0, 0, 0.4);
-}
-
-[data-theme="dark"] #btn-filter-today-patients.btn-today-active:hover {
-  background: linear-gradient(135deg, rgba(56, 189, 248, 0.32) 0%, rgba(14, 165, 233, 0.42) 100%);
-  color: #7dd3fc;
-  border-color: #7dd3fc;
-}
-
-[data-theme="dark"] #btn-filter-today-patients.btn-today-active i,
-[data-theme="dark"] #btn-filter-today-patients.btn-today-active span {
-  color: #38bdf8;
-}
-
-[data-theme="dark"] #btn-filter-today-patients.btn-today-active #badge-today-patients-count {
-  background-color: rgba(56, 189, 248, 0.3);
-  color: #ffffff;
-  border: 1px solid rgba(56, 189, 248, 0.6);
-  font-weight: 900;
-}
-
-.patient-filter-type-wrap {
-  flex: 1;
-  min-width: 0;
-}
-
-#btn-select-patient-filter-type {
-  height: 40px;
-  width: 100%;
-  justify-content: space-between;
-}
-
-/* Row 3: Action Buttons & Segmented Sort */
-.patients-actions-row {
-  display: flex;
-  gap: 8px;
-  width: 100%;
   align-items: center;
   justify-content: space-between;
-  flex-wrap: wrap;
+  gap: 8px;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 #btn-open-add-patient {
   height: 38px;
-  padding: 0 16px;
+  padding: 0 14px;
   font-weight: var(--fw-extrabold);
-  font-size: 0.88rem;
+  font-size: 0.86rem;
   white-space: nowrap;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 6px;
+  flex-shrink: 0;
 }
 
-.patients-sort-wrap {
+.patients-controls-end-group {
   display: flex;
   align-items: center;
   gap: 8px;
-  flex-wrap: wrap;
+  min-width: 0;
+}
+
+.patient-filter-type-wrap {
+  min-width: 115px;
+}
+
+#btn-select-patient-filter-type {
+  height: 38px;
+  width: 100%;
+  justify-content: space-between;
+  padding: 0 10px;
+  font-size: 0.82rem;
+  font-weight: var(--fw-bold);
+  white-space: nowrap;
 }
 
 .patients-sort-segmented {
@@ -255,12 +179,13 @@
   gap: 3px;
   height: 38px;
   box-sizing: border-box;
+  flex-shrink: 0;
 }
 
 .sort-seg-btn {
   border: none;
   background: transparent;
-  padding: 4px 10px;
+  padding: 4px 9px;
   border-radius: var(--radius-base);
   font-size: 0.78rem;
   font-weight: var(--fw-bold);
@@ -292,6 +217,31 @@
   font-weight: var(--fw-extrabold);
   border: 1px solid rgba(56, 189, 248, 0.3);
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.35);
+}
+
+@media screen and (max-width: 480px) {
+  .patients-controls-row {
+    gap: 6px;
+  }
+  #btn-open-add-patient {
+    padding: 0 10px;
+    font-size: 0.82rem;
+  }
+  .patients-controls-end-group {
+    gap: 5px;
+  }
+  .patient-filter-type-wrap {
+    min-width: 98px;
+  }
+  #btn-select-patient-filter-type {
+    padding: 0 6px;
+    font-size: 0.78rem;
+  }
+  .sort-seg-btn {
+    padding: 2px 6px;
+    font-size: 0.74rem;
+    gap: 3px;
+  }
 }
 
 /* ==========================================================================

@@ -47,7 +47,6 @@ export class PatientsManager {
       procedure: false,
       exercise: false
     };
-    this.filterTodayOnly = false;
     this.batchHvDates = [];
     this.batchHvSelectedPattern = 'sat_mon_wed';
     this.activeBatchPatient = null;
@@ -113,11 +112,6 @@ export class PatientsManager {
     const filterType = document.getElementById('patient-filter-type');
     if (filterType) {
       filterType.addEventListener('change', () => { this.currentPage = 1; this.renderPatients(); });
-    }
-
-    const btnToday = document.getElementById('btn-filter-today-patients');
-    if (btnToday) {
-      btnToday.addEventListener('click', () => this.toggleTodayFilter());
     }
 
     // Sort Toggle Buttons (Recent vs Alphabetical)
@@ -270,7 +264,10 @@ export class PatientsManager {
     });
 
     // Patient Sheet Navigation & Print Buttons
-    document.getElementById('btn-back-to-patients-top')?.addEventListener('click', () => this.app.switchView('patients'));
+    document.getElementById('btn-back-to-patients-top')?.addEventListener('click', () => {
+      this.resetSearch();
+      this.app.switchView('patients');
+    });
 
     // Patient Sheet Header Card Collapse / Expand Toggle (v2.10.41)
     const sheetHeaderToggle = document.getElementById('sheet-card-header-toggle');
@@ -286,7 +283,10 @@ export class PatientsManager {
         }
       });
     }
-    document.getElementById('btn-back-to-patients-bottom')?.addEventListener('click', () => this.app.switchView('patients'));
+    document.getElementById('btn-back-to-patients-bottom')?.addEventListener('click', () => {
+      this.resetSearch();
+      this.app.switchView('patients');
+    });
         const btnTop = document.getElementById('btn-print-sheet-top');
     if (btnTop) {
       btnTop.onclick = (e) => {
@@ -679,77 +679,20 @@ export class PatientsManager {
     }
   }
 
-  toggleTodayFilter() {
-    this.filterTodayOnly = !this.filterTodayOnly;
+  resetSearch() {
+    const searchInput = document.getElementById('patient-search-input');
+    if (searchInput) {
+      searchInput.value = '';
+    }
+    const filterType = document.getElementById('patient-filter-type');
+    if (filterType && filterType.value !== 'all') {
+      filterType.value = 'all';
+      if (this.app?.updateCustomSelectDisplay) {
+        this.app.updateCustomSelectDisplay('patient-filter-type');
+      }
+    }
     this.currentPage = 1;
-    const btn = document.getElementById('btn-filter-today-patients');
-    if (btn) {
-      if (this.filterTodayOnly) {
-        btn.classList.add('btn-today-active');
-      } else {
-        btn.classList.remove('btn-today-active');
-      }
-    }
     this.renderPatients();
-  }
-
-  getTodayPatientIdentifiers() {
-    const todayIds = new Set();
-    const todayNames = new Set();
-    const todayStr = getLocalDateStr();
-
-    // 1. Collect attended patients for today (sessions recorded today)
-    const attendedIds = new Set();
-    const attendedNames = new Set();
-    const cachedTodaySessions = db._sessionsByDateCache?.get(todayStr)?.data;
-    const sessions = Array.isArray(cachedTodaySessions)
-      ? cachedTodaySessions
-      : (this.app?.sessionsManager?.sessions || []);
-
-    sessions.forEach(s => {
-      const sDate = s.date || (s.createdAt ? s.createdAt.substring(0, 10) : '');
-      if (sDate === todayStr && s.status !== 'cancelled') {
-        if (s.patientId) attendedIds.add(String(s.patientId).trim());
-        if (s.patientName) attendedNames.add(this.normalizeArabic(s.patientName));
-      }
-    });
-
-    // 2. Weekly appointments schedule scheduled specifically for TODAY (day-of-week / date filtered)
-    let todayAppts = [];
-    if (this.app?.appointmentsManager?.getAppointmentsForDate) {
-      todayAppts = this.app.appointmentsManager.getAppointmentsForDate(todayStr) || [];
-    } else {
-      const allAppts = this.app?.appointmentsManager?.appointments || [];
-      const curDate = new Date(todayStr + 'T00:00:00');
-      const dayOfWeek = curDate.getDay();
-      if (dayOfWeek !== 5) {
-        todayAppts = allAppts.filter(a => {
-          if (a.status === 'completed' || a.status === 'cancelled') return false;
-          if (Array.isArray(a.daysOfWeek) && a.daysOfWeek.length > 0) {
-            return a.daysOfWeek.includes(dayOfWeek);
-          }
-          if (a.date) return a.date === todayStr;
-          return false;
-        });
-      }
-    }
-
-    // 3. Keep ONLY scheduled patients who have NOT yet attended today
-    todayAppts.forEach(a => {
-      if (a.effectiveStatus === 'cancelled' || a.isCancelledToday) return;
-      const pId = a.patientId ? String(a.patientId).trim() : '';
-      const pName = a.patientName ? this.normalizeArabic(a.patientName) : '';
-
-      // If already attended today, exclude from "حالات اليوم المتبقية في الجدول"
-      if ((pId && attendedIds.has(pId)) || (pName && attendedNames.has(pName)) || a.isAttendedToday) {
-        return;
-      }
-
-      if (pId) todayIds.add(pId);
-      if (pName) todayNames.add(pName);
-    });
-
-    return { todayIds, todayNames };
   }
 
   renderSkeleton() {
@@ -794,25 +737,7 @@ export class PatientsManager {
     const normSearch = this.normalizeArabic(rawSearch);
     const cleanDigits = rawSearch.replace(/[^0-9]/g, '');
 
-    const { todayIds, todayNames } = this.getTodayPatientIdentifiers();
-    const countBadge = document.getElementById('badge-today-patients-count');
-    
-    // Count matches among all patients
-    const todayMatches = this.patients.filter(p => {
-      const pId = String(p.id || '').trim();
-      const pName = this.normalizeArabic(p.name || '');
-      return todayIds.has(pId) || (pName && todayNames.has(pName));
-    });
-    if (countBadge) countBadge.textContent = todayMatches.length;
-
     let filtered = this.patients.filter(p => {
-      // 0. Filter Today Only if active
-      if (this.filterTodayOnly) {
-        const pId = String(p.id || '').trim();
-        const pName = this.normalizeArabic(p.name || '');
-        const isToday = todayIds.has(pId) || (pName && todayNames.has(pName));
-        if (!isToday) return false;
-      }
       // 1. Smart Normalized Arabic & Phone Search
       let matchSearch = true;
       if (rawSearch) {
@@ -877,25 +802,6 @@ export class PatientsManager {
     }
 
     if (filtered.length === 0) {
-      if (this.filterTodayOnly) {
-        if (mobileContainer) {
-          mobileContainer.innerHTML = `
-            <div class="hero-styled-card empty-state-box">
-              <div class="empty-state-icon-circle">
-                <i class="fa-solid fa-calendar-xmark"></i>
-              </div>
-              <div class="empty-state-title">لا توجد حالات مسجلة اليوم</div>
-              <div class="empty-state-desc">لا توجد مواعيد أو جلسات مسجلة للمرضى لهذا اليوم.</div>
-              <button type="button" class="btn btn-outline btn-sm empty-state-btn-outline" id="btn-reset-today-filter-mob">
-                عرض كافة المرضى
-              </button>
-            </div>
-          `;
-          document.getElementById('btn-reset-today-filter-mob')?.addEventListener('click', () => this.toggleTodayFilter());
-        }
-        return;
-      }
-
       if (rawSearch) {
         const emptySearchCard = `
           <div class="hero-styled-card empty-state-box">

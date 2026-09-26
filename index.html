@@ -654,57 +654,44 @@
           <div class="patients-title-row">
             <h2 class="patients-title">
               <span>سجل المرضى</span>
-              <span class="badge" id="patients-total-count-badge">0 مريض</span>
             </h2>
+            <span class="patients-total-count" id="patients-total-count-badge">0 مريض</span>
           </div>
         </div>
 
-        <!-- Flush Sticky Header (Zero Top Leakage) -->
-        <div class="patients-sticky-header" id="patients-sticky-header">
-          <!-- Controls Panel container: Sleek inner card -->
-          <div class="card patients-controls-panel patients-controls-sticky" id="patients-sticky-controls">
-          <div class="patients-controls-stack">
+        <!-- Sticky Edge-to-Edge Toolbar -->
+        <div class="patients-sticky-toolbar" id="patients-sticky-header">
+          <div class="patients-toolbar-inner" id="patients-sticky-controls">
             <!-- Row 1: Search Box -->
             <div class="patients-search-box">
               <input type="text" id="patient-search-input" class="form-control" placeholder="ابحث بالاسم، رقم الموبايل، أو جهة التأمين...">
               <i class="fa-solid fa-magnifying-glass input-icon-end"></i>
             </div>
 
-            <!-- Row 1 below search: \"حالات اليوم\" pill with active count + \"كل الأنظمة\" dropdown -->
-            <div class="patients-filter-row">
-              <!-- Filter Today Patients Button (\"حالات اليوم\" pill with active count) -->
-              <button type="button" class="btn btn-outline" id="btn-filter-today-patients" title="عرض مرضى مواعيد وجلسات اليوم فقط">
-                <i class="fa-solid fa-calendar-day"></i>
-                <span>حالات اليوم</span>
-                <span class="badge" id="badge-today-patients-count">0</span>
-              </button>
-
-              <!-- Filter Dropdown (\"كل الأنظمة\" dropdown) -->
-              <div class="patient-filter-type-wrap">
-                <div class="custom-select-wrapper">
-                  <select id="patient-filter-type" class="form-control d-none">
-                    <option value="all">كل الأنظمة</option>
-                    <option value="cash">نقدي فقط</option>
-                    <option value="insurance_direct">تأمين (مباشر)</option>
-                    <option value="insurance_indirect">تأمين (غير مباشر)</option>
-                  </select>
-                  <button type="button" class="custom-select-btn" id="btn-select-patient-filter-type" data-open-picker="patient-filter-type" data-picker-title="تصفية سجل المرضى">
-                    <span class="btn-text">كل الأنظمة</span>
-                    <i class="fa-solid fa-chevron-down"></i>
-                  </button>
-                </div>
-              </div>
-            </div>
-
-            <!-- Row 2 below search: \"مريض جديد\" primary CTA button + segmented sort toggle (الأحدث / أبجدياً) -->
-            <div class="patients-actions-row">
-              <!-- \"مريض جديد\" primary CTA button -->
+            <!-- Row 2: Single Compact Controls Row -->
+            <div class="patients-controls-row">
+              <!-- Right side (Start in RTL): New Patient CTA -->
               <button type="button" class="btn btn-primary" id="btn-open-add-patient">
                 <i class="fa-solid fa-user-plus"></i> <span>مريض جديد</span>
               </button>
 
-              <div class="patients-sort-wrap">
-                <!-- Compact Sort Segmented Toggle (الأحدث / أبجدياً) -->
+              <!-- Left side (End in RTL): Filter Dropdown & Sort Toggle -->
+              <div class="patients-controls-end-group">
+                <div class="patient-filter-type-wrap">
+                  <div class="custom-select-wrapper">
+                    <select id="patient-filter-type" class="form-control d-none">
+                      <option value="all">كل الأنظمة</option>
+                      <option value="cash">نقدي فقط</option>
+                      <option value="insurance_direct">تأمين (مباشر)</option>
+                      <option value="insurance_indirect">تأمين (غير مباشر)</option>
+                    </select>
+                    <button type="button" class="custom-select-btn" id="btn-select-patient-filter-type" data-open-picker="patient-filter-type" data-picker-title="تصفية سجل المرضى">
+                      <span class="btn-text">كل الأنظمة</span>
+                      <i class="fa-solid fa-chevron-down"></i>
+                    </button>
+                  </div>
+                </div>
+
                 <div class="patients-sort-segmented">
                   <button type="button" class="sort-seg-btn active" id="btn-sort-recent" data-sort="recent" title="ترتيب زمني: أحدث من تم تسجيلهم أولاً">
                     <i class="fa-solid fa-clock-rotate-left"></i> <span>الأحدث</span>
@@ -713,17 +700,16 @@
                     <i class="fa-solid fa-arrow-down-a-z"></i> <span>أبجدياً</span>
                   </button>
                 </div>
-
-                <!-- View Mode Switcher hidden (Cards Grid enforced v1.4.80) -->
-                <div class="view-mode-toggle-group no-print d-none" id="patients-view-mode-toggle">
-                  <button type="button" class="btn-view-mode active" data-view-mode="cards" title="عرض كروت متجاوبة (Grid)">
-                    <i class="fa-solid fa-table-cells-large"></i> <span>كروت</span>
-                  </button>
-                </div>
               </div>
             </div>
+
+            <!-- View Mode Switcher hidden (Cards Grid enforced v1.4.80) -->
+            <div class="view-mode-toggle-group no-print d-none" id="patients-view-mode-toggle">
+              <button type="button" class="btn-view-mode active" data-view-mode="cards" title="عرض كروت متجاوبة (Grid)">
+                <i class="fa-solid fa-table-cells-large"></i> <span>كروت</span>
+              </button>
+            </div>
           </div>
-        </div>
         </div>
 
         <!-- Patients List / Table with Top & Bottom Scrollbars -->

@@ -552,7 +552,7 @@
 
 ```text
 - #action-prompt-patient-name [موجود في index.html]
-- #badge-today-patients-count [موجود في index.html]
+- #badge-today-patients-count [تمت إزالته مع زر حالات اليوم]
 - #batch-hv-count [موجود في index.html]
 - #batch-hv-dates-chips [موجود في index.html]
 - #batch-hv-dates-count [موجود في index.html]
@@ -571,7 +571,7 @@
 - #btn-back-to-patients-bottom [موجود في index.html]
 - #btn-back-to-patients-top [موجود في index.html]
 - #btn-cancel-crop [موجود في index.html]
-- #btn-filter-today-patients [موجود في index.html]
+- #btn-filter-today-patients [تمت إزالته مع زر حالات اليوم]
 - #btn-gender-female [موجود في index.html]
 - #btn-gender-male [موجود في index.html]
 - #btn-generate-batch-hv-dates [موجود في index.html]
