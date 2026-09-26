@@ -125,7 +125,7 @@
   width: 100%;
 }
 
-/* Row 2: Single Compact Controls Row (Equal Height 42px & Full Width) */
+/* Row 2: Single Compact Controls Row (Strict Equal Height 42px & Full Width) */
 .patients-controls-row {
   display: flex;
   width: 100%;
@@ -138,59 +138,136 @@
   flex: 1 1 0;
   min-width: 0;
   height: 42px;
+  min-height: 42px;
+  max-height: 42px;
   box-sizing: border-box;
-  padding: 0 10px;
-  font-weight: var(--fw-extrabold);
-  font-size: 0.86rem;
-  white-space: nowrap;
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  padding: 0 10px;
+  line-height: 1;
+  font-weight: var(--fw-extrabold);
+  font-size: 0.86rem;
+  white-space: nowrap;
   gap: 6px;
   border-radius: var(--radius-base);
+  border: 1.5px solid transparent;
+}
+
+#btn-open-add-patient i {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.88rem;
+  line-height: 1;
+  margin: 0;
+  flex-shrink: 0;
+}
+
+#btn-open-add-patient span {
+  display: inline-flex;
+  align-items: center;
+  line-height: 1;
 }
 
 .patient-filter-type-wrap {
   flex: 1 1 0;
   min-width: 0;
   height: 42px;
+  min-height: 42px;
+  max-height: 42px;
   box-sizing: border-box;
 }
 
 .patient-filter-type-wrap .custom-select-wrapper {
   height: 100%;
   width: 100%;
+  display: flex;
+  align-items: stretch;
 }
 
-#btn-select-patient-filter-type {
-  height: 42px;
+#btn-select-patient-filter-type,
+.patient-filter-select-btn {
+  flex: 1 1 0;
   width: 100%;
+  height: 42px;
+  min-height: 42px;
+  max-height: 42px;
   box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
   justify-content: space-between;
   padding: 0 10px;
+  line-height: 1;
+  background-color: var(--bg-surface);
+  border: 1.5px solid var(--border-color);
+  border-radius: var(--radius-base);
+  color: var(--text-main);
+  font-family: inherit;
   font-size: 0.84rem;
   font-weight: var(--fw-bold);
   white-space: nowrap;
-  border-radius: var(--radius-base);
+  cursor: pointer;
+  user-select: none;
+  transition: all var(--transition-fast);
+}
+
+#btn-select-patient-filter-type:hover,
+.patient-filter-select-btn:hover {
+  border-color: var(--primary);
+}
+
+#btn-select-patient-filter-type:active,
+.patient-filter-select-btn:active {
+  transform: scale(0.97);
+}
+
+#btn-select-patient-filter-type .btn-text {
+  display: inline-flex;
+  align-items: center;
+  line-height: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+#btn-select-patient-filter-type i {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.82rem;
+  line-height: 1;
+  margin: 0;
+  color: var(--primary);
+  flex-shrink: 0;
+  transition: transform 0.2s ease;
 }
 
 .patients-sort-segmented {
   flex: 1 1 0;
   min-width: 0;
   height: 42px;
+  min-height: 42px;
+  max-height: 42px;
   box-sizing: border-box;
   display: inline-flex;
-  align-items: stretch;
+  align-items: center;
+  justify-content: center;
   background: var(--bg-subtle);
   border: 1.5px solid var(--border-color);
   border-radius: var(--radius-base);
   padding: 2.5px;
   gap: 3px;
+  line-height: 1;
 }
 
 .sort-seg-btn {
   flex: 1 1 0;
   min-width: 0;
+  height: 100%;
+  min-height: 100%;
+  max-height: 100%;
+  box-sizing: border-box;
   border: none;
   background: transparent;
   padding: 0 6px;
@@ -203,10 +280,25 @@
   align-items: center;
   justify-content: center;
   gap: 4px;
-  height: 100%;
+  line-height: 1;
   white-space: nowrap;
   transition: all var(--transition-spring);
-  box-sizing: border-box;
+}
+
+.sort-seg-btn i {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.82rem;
+  line-height: 1;
+  margin: 0;
+  flex-shrink: 0;
+}
+
+.sort-seg-btn span {
+  display: inline-flex;
+  align-items: center;
+  line-height: 1;
 }
 
 .sort-seg-btn:hover {
@@ -228,6 +320,13 @@
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.35);
 }
 
+[data-theme="dark"] #btn-select-patient-filter-type,
+[data-theme="dark"] .patient-filter-select-btn {
+  background-color: var(--bg-surface);
+  border-color: var(--border-color);
+  color: var(--text-main);
+}
+
 @media screen and (max-width: 480px) {
   .patients-controls-row {
     gap: 6px;
@@ -237,7 +336,8 @@
     font-size: 0.8rem;
     gap: 4px;
   }
-  #btn-select-patient-filter-type {
+  #btn-select-patient-filter-type,
+  .patient-filter-select-btn {
     padding: 0 6px;
     font-size: 0.8rem;
   }
