@@ -833,28 +833,23 @@
 
           <!-- Expandable Clinical Dashboard Body -->
           <div class="pcm-expandable-content" id="sheet-card-expanded-content">
-            <!-- Two-Column Clinical Metric Strip: Specialty (Right) & Sessions Count (Left) -->
-            <div class="pcm-metrics-strip">
-              <div class="pcm-metric-cell pcm-metric-specialty" id="sheet-patient-program-badge" title="البرنامج العلاجي التخصصي">
+            <!-- Row 1: Specialty & Phone Side-by-Side Matte Row -->
+            <div class="pcm-specialty-phone-row">
+              <div class="pcm-row-cell pcm-specialty-cell" id="sheet-patient-program-badge" title="البرنامج العلاجي التخصصي">
                 <span class="pcm-clean-prog"><i class="fa-solid fa-bone"></i> <span>علاج عام</span></span>
               </div>
-              <button type="button" class="pcm-metric-cell pcm-sessions-chip" id="btn-view-patient-sessions" title="فتح سجل جلسات المريض">
+              <a href="#" id="sheet-patient-phone-link" class="pcm-row-cell pcm-phone-cell" title="اتصال هاتفي">
+                <i class="fa-solid fa-phone"></i>
+                <bdi dir="ltr" id="sheet-patient-phone">-</bdi>
+              </a>
+            </div>
+
+            <!-- Row 2: Dedicated Standalone Full-Width Sessions Log -->
+            <div class="pcm-sessions-strip-row">
+              <button type="button" class="pcm-sessions-full-btn" id="btn-view-patient-sessions" title="فتح سجل جلسات المريض">
                 <i class="fa-solid fa-calendar-check"></i>
                 <span id="sheet-sessions-btn-text">سجل الجلسات (0)</span>
               </button>
-            </div>
-
-            <!-- Bottom Action Dock: Phone Capsule on Right, Quick Utility Actions Cluster on Left -->
-            <div class="pcm-action-dock">
-              <div class="pcm-phone-capsule">
-                <a href="#" id="sheet-patient-phone-link" class="pcm-phone-link" title="اتصال هاتفي">
-                  <i class="fa-solid fa-phone"></i>
-                  <bdi dir="ltr" id="sheet-patient-phone">-</bdi>
-                </a>
-              </div>
-              <div id="sheet-patient-quick-actions" class="pcm-actions-cluster">
-                <!-- Populated dynamically: WhatsApp, Edit, Delete -->
-              </div>
             </div>
 
             <!-- Card Footer: Last Update -->

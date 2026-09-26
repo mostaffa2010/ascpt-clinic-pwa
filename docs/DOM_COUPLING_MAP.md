@@ -768,7 +768,7 @@
 - #sheet-patient-phone [موجود في index.html]
 - #sheet-patient-phone-link [موجود في index.html]
 - #sheet-patient-program-badge [موجود في index.html]
-- #sheet-patient-quick-actions [موجود في index.html]
+- #sheet-patient-quick-actions [تمت إزالته]
 - #sheet-pcm-avatar-icon [ديناميكي في JS]
 - #sheet-program-hint [موجود في index.html]
 - #sheet-sessions-badge-count [ديناميكي في JS]

@@ -2126,7 +2126,7 @@ export class PatientsManager {
           }
         }
         if (sessBtn) {
-          sessBtn.className = 'pcm-metric-cell pcm-sessions-chip';
+          sessBtn.className = 'pcm-sessions-full-btn';
         }
       } else {
         const cType = p.contractType === 'direct' ? 'مباشر' : 'غير مباشر';
@@ -2174,32 +2174,11 @@ export class PatientsManager {
           sessBtnText.innerHTML = `سجل الجلسات: <strong>${displayCount} من ${approvedTotal}</strong>${cycleText}${examExtra}${extraStatus}`;
         }
         if (sessBtn) {
-          sessBtn.className = 'pcm-metric-cell pcm-sessions-chip';
+          sessBtn.className = 'pcm-sessions-full-btn';
           if (isCompleted) sessBtn.classList.add('cycle-completed');
           else if (isNearLimit) sessBtn.classList.add('cycle-near-limit');
         }
       }
-    }
-
-    // 1.1 Render 3 Quick Actions inside Patient Sheet (WhatsApp, Edit, Delete)
-    const actionsEl = document.getElementById('sheet-patient-quick-actions');
-    if (actionsEl) {
-      const cleanPhone = (p.phone || '').replace(/[^0-9]/g, '').replace(/^0/, '20');
-      const canDelete = RolesManager.canDelete(currentUser);
-
-      actionsEl.innerHTML = `
-        <a href="https://wa.me/${cleanPhone}" target="_blank" class="btn btn-pc-squircle btn-pc-wa pcm-action-square wa" title="واتساب" aria-label="واتساب">
-          <i class="fa-brands fa-whatsapp"></i>
-        </a>
-        <button type="button" class="btn btn-pc-squircle btn-pc-edit pcm-action-square edit" onclick="patientsManager.openEditModalFromSheet('${p.id}')" title="تعديل بيانات المريض" aria-label="تعديل">
-          <i class="fa-solid fa-pen-to-square"></i>
-        </button>
-        ${canDelete ? `
-          <button type="button" class="btn btn-pc-squircle btn-pc-del pcm-action-square del" onclick="patientsManager.confirmDeleteFromSheet('${p.id}')" title="حذف المريض" aria-label="حذف">
-            <i class="fa-solid fa-trash-can"></i>
-          </button>
-        ` : ''}
-      `;
     }
 
     const updateEl = document.getElementById('sheet-last-update-text');
