@@ -1113,3 +1113,753 @@
   background: var(--danger);
   color: #ffffff;
 }
+
+/* ==========================================================================
+   Extracted Inline Styles (Batch 3 Refactoring)
+   ========================================================================== */
+
+/* 1. Category Management */
+.manage-categories-empty-hint {
+  text-align: center;
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  padding: 20px;
+}
+
+.manage-category-item-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 9px 12px;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  margin-bottom: 6px;
+}
+
+.manage-category-name-group {
+  font-weight: var(--fw-bold);
+  font-size: 0.88rem;
+  color: var(--text-main);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.btn-delete-exp-cat {
+  color: var(--danger);
+  border-color: rgba(239, 68, 68, 0.3);
+  padding: 4px 9px;
+  border-radius: var(--radius-xs);
+}
+
+/* 2. Settlements & Drawer Cards */
+.fin-settlement-card {
+  margin-bottom: 8px;
+}
+
+.fin-settlement-avatar {
+  background: rgba(2, 132, 199, 0.12);
+  color: var(--primary);
+}
+
+.fin-settlement-amount-val {
+  color: var(--success);
+  font-size: 1.15rem;
+  font-weight: 900;
+}
+
+.fin-settlement-meta-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.78rem;
+  color: var(--text-muted);
+}
+
+.btn-delete-settlement {
+  color: var(--danger);
+  border-color: rgba(239, 68, 68, 0.3);
+  padding: 3px 8px;
+  font-size: 0.74rem;
+}
+
+.badge-drawer-status {
+  font-size: 0.78rem;
+  font-weight: var(--fw-extrabold);
+  padding: 4px 10px;
+  border-radius: var(--radius-pill);
+}
+
+.drawer-status-open-text {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+/* 3. Doctors List & Breakdown */
+.fin-doc-breakdown-card {
+  background-color: var(--bg-subtle);
+  border: 1px solid var(--border-color);
+  padding: 8px 14px;
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.fin-doc-breakdown-icon {
+  color: var(--primary);
+  font-size: 1.1rem;
+}
+
+.fin-doc-breakdown-title {
+  font-weight: var(--fw-bold);
+  font-size: 0.88rem;
+}
+
+.fin-doc-shift-sub {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  font-weight: 600;
+}
+
+.fin-doc-breakdown-sub {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  font-weight: var(--fw-bold);
+}
+
+.fin-doc-deck-empty {
+  text-align: center;
+  color: var(--text-muted);
+  padding: 20px;
+  font-size: 0.88rem;
+}
+
+.fin-doc-list-empty {
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  padding: 6px;
+}
+
+.doc-stack-top-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.doc-stack-doc-info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.doc-stack-avatar {
+  width: 40px;
+  height: 40px;
+  font-size: 1.1rem;
+}
+
+.doc-stack-doc-name {
+  font-weight: var(--fw-extrabold);
+  font-size: 1.02rem;
+  color: var(--text-main);
+}
+
+.doc-stack-doc-sub {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+}
+
+.doc-stack-badge-pill {
+  font-size: 0.8rem;
+  font-weight: var(--fw-extrabold);
+  padding: 4px 10px;
+  border-radius: var(--radius-pill);
+}
+
+.doc-stack-stats-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.doc-stack-stat-box {
+  background: var(--bg-subtle);
+  padding: 8px 12px;
+  border-radius: 12px;
+  text-align: center;
+}
+
+.doc-stack-stat-label {
+  font-size: 0.74rem;
+  color: var(--text-muted);
+  font-weight: var(--fw-bold);
+}
+
+.doc-stack-stat-val {
+  font-weight: var(--fw-extrabold);
+  font-size: 1.05rem;
+  color: var(--text-main);
+  margin-top: 2px;
+}
+
+.doc-stack-types-val {
+  font-weight: var(--fw-extrabold);
+  font-size: 0.92rem;
+  margin-top: 2px;
+}
+
+.doc-stack-progress-track {
+  width: 100%;
+  height: 6px;
+  background: var(--bg-subtle);
+  border-radius: var(--radius-pill);
+  overflow: hidden;
+  margin-top: 10px;
+}
+
+.doc-stack-progress-bar {
+  height: 100%;
+  background: var(--primary);
+  border-radius: var(--radius-pill);
+}
+
+.doc-stack-header-title {
+  font-size: 0.86rem;
+  font-weight: var(--fw-extrabold);
+  color: var(--text-main);
+}
+
+.doc-stack-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* 4. Daily Sessions Table Columns */
+.col-session-idx {
+  text-align: center;
+  font-weight: var(--fw-bold);
+}
+
+.col-session-patient {
+  font-weight: var(--fw-bold);
+  color: #000000;
+}
+
+[data-theme="dark"] .col-session-patient {
+  color: var(--text-main);
+}
+
+.col-session-treated,
+.col-session-doctor {
+  font-weight: 600;
+}
+
+.col-session-company {
+  font-weight: 600;
+  text-align: center;
+}
+
+.col-session-action {
+  text-align: center;
+  font-weight: var(--fw-extrabold);
+  color: #0369a1;
+}
+
+[data-theme="dark"] .col-session-action {
+  color: var(--primary);
+}
+
+.col-session-amount {
+  text-align: center;
+  font-weight: var(--fw-extrabold);
+  color: #15803d;
+  white-space: nowrap;
+}
+
+[data-theme="dark"] .col-session-amount {
+  color: var(--success);
+}
+
+/* 5. Expenses Tables & Mobile Elements */
+.expenses-table-empty-cell {
+  text-align: center;
+  color: var(--text-muted);
+  padding: 24px 12px;
+}
+
+.expenses-empty-icon {
+  font-size: 1.6rem;
+  opacity: 0.35;
+  margin-bottom: 8px;
+  display: block;
+}
+
+.expenses-empty-title {
+  font-weight: var(--fw-bold);
+  font-size: 0.88rem;
+  color: var(--text-main);
+  margin-bottom: 2px;
+}
+
+.expenses-empty-subtitle {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+}
+
+.expenses-empty-hint {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+.expenses-mobile-empty-card {
+  background: var(--bg-surface);
+  border: 1.5px dashed var(--border-color);
+  border-radius: var(--radius-lg);
+  padding: 22px 14px;
+  text-align: center;
+  color: var(--text-muted);
+  margin-bottom: 12px;
+}
+
+.expenses-total-amount {
+  color: var(--danger);
+  font-size: 0.88rem;
+  font-weight: var(--fw-extrabold);
+}
+
+.btn-toggle-expenses-more,
+.btn-toggle-monthly-expenses-more {
+  width: 100%;
+  padding: 10px;
+  background: none;
+  border: none;
+  border-top: 1px solid var(--border-color);
+  color: var(--primary);
+  font-size: 0.84rem;
+  font-weight: var(--fw-bold);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+.expenses-compact-empty {
+  padding: 24px 16px;
+  text-align: center;
+  color: var(--text-muted);
+  font-size: 0.88rem;
+}
+
+/* 6. Monthly Report Elements */
+.doc-special-details-pill {
+  margin-top: 8px;
+  font-size: 0.76rem;
+  color: var(--text-muted);
+  text-align: center;
+  background: var(--bg-subtle);
+  padding: 5px 8px;
+  border-radius: var(--radius-sm);
+}
+
+.ins-summary-td-cash {
+  text-align: center;
+  font-weight: 900;
+  font-size: 1.1rem;
+  color: var(--success);
+  padding: 8px;
+}
+
+.ins-summary-td-ins {
+  text-align: center;
+  font-weight: 900;
+  font-size: 1.1rem;
+  color: var(--primary);
+  padding: 8px;
+}
+
+.fin-kpi-split-card {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  padding: 12px;
+  text-align: center;
+  margin-bottom: 8px;
+}
+
+.fin-kpi-sub-card {
+  border-radius: 10px;
+  padding: 10px;
+}
+
+.fin-kpi-sub-card.cash {
+  background: rgba(16, 185, 129, 0.08);
+  border: 1px solid rgba(16, 185, 129, 0.2);
+}
+
+.fin-kpi-sub-card.insurance {
+  background: rgba(2, 132, 199, 0.08);
+  border: 1px solid rgba(2, 132, 199, 0.2);
+}
+
+.fin-kpi-sub-label {
+  font-size: 0.78rem;
+  font-weight: var(--fw-bold);
+  color: var(--text-muted);
+}
+
+.fin-kpi-sub-val {
+  font-size: 1.25rem;
+  font-weight: 900;
+  margin-top: 4px;
+}
+
+.fin-kpi-sub-val.cash {
+  color: var(--success);
+}
+
+.fin-kpi-sub-val.insurance {
+  color: var(--primary);
+}
+
+.m-exp-cat-card {
+  margin-bottom: 8px;
+}
+
+.m-exp-cat-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.m-exp-cat-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.m-exp-cat-avatar {
+  width: 34px;
+  height: 34px;
+  font-size: 0.9rem;
+  background: rgba(239, 68, 68, 0.12);
+  color: var(--danger);
+}
+
+.m-exp-cat-title {
+  font-weight: var(--fw-extrabold);
+  font-size: 0.95rem;
+  color: var(--text-main);
+}
+
+.badge-m-exp-amount {
+  background: rgba(239, 68, 68, 0.12);
+  color: var(--danger);
+  font-weight: var(--fw-extrabold);
+  font-size: 0.85rem;
+}
+
+.m-exp-cat-stats-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 0.82rem;
+}
+
+.m-exp-cat-progress-track {
+  width: 100%;
+  height: 6px;
+  background: var(--bg-subtle);
+  border-radius: var(--radius-pill);
+  overflow: hidden;
+  margin-top: 8px;
+}
+
+.m-exp-cat-progress-bar {
+  height: 100%;
+  background: var(--danger);
+  border-radius: var(--radius-pill);
+}
+
+/* 7. Comprehensive Financial Summary */
+.fin-summary-row-income {
+  background-color: #f1f5f9;
+  font-weight: var(--fw-extrabold);
+}
+
+[data-theme="dark"] .fin-summary-row-income {
+  background-color: rgba(255, 255, 255, 0.05);
+}
+
+.fin-summary-row-expense {
+  background-color: #fef2f2;
+}
+
+[data-theme="dark"] .fin-summary-row-expense {
+  background-color: rgba(239, 68, 68, 0.1);
+}
+
+.fin-summary-row-profit {
+  background-color: #f0fdf4;
+  border-top: 2px solid #16a34a;
+}
+
+[data-theme="dark"] .fin-summary-row-profit {
+  background-color: rgba(22, 163, 74, 0.12);
+  border-top-color: #22c55e;
+}
+
+.fin-summary-td-label {
+  text-align: right;
+  font-weight: 900;
+  color: #000000;
+}
+
+[data-theme="dark"] .fin-summary-td-label {
+  color: var(--text-main);
+}
+
+.fin-summary-td-amount {
+  text-align: center;
+  font-weight: 900;
+  font-size: 8pt;
+}
+
+.fin-summary-td-pct {
+  text-align: center;
+  font-weight: 900;
+}
+
+.text-profit {
+  color: #15803d;
+}
+
+[data-theme="dark"] .text-profit {
+  color: #4ade80;
+}
+
+.fin-summary-mob-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.fin-summary-cockpit-card {
+  padding: 14px 16px;
+  border-radius: 14px;
+  background: var(--bg-subtle);
+  border: 1.5px solid var(--border-color);
+}
+
+.fin-cockpit-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.85rem;
+  margin-bottom: 8px;
+}
+
+.fin-cockpit-profit-box {
+  background: rgba(16, 185, 129, 0.1);
+  border: 1.5px solid rgba(16, 185, 129, 0.35);
+  border-radius: 12px;
+  padding: 12px 14px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.badge-exam-entry {
+  background: rgba(56, 189, 248, 0.15);
+  color: var(--primary);
+  font-weight: var(--fw-bold);
+  font-size: 0.75rem;
+}
+
+/* 8. Monthly Skeletons */
+.skeleton-profit-shimmer {
+  display: inline-block;
+  width: 140px;
+  height: 28px;
+  vertical-align: middle;
+}
+.skeleton-cell-pad {
+  padding: 10px 8px;
+}
+.sk-w-20 { width: 20px; }
+.sk-w-30 { width: 30%; }
+.sk-w-40 { width: 40%; }
+.sk-w-45 { width: 45%; }
+.sk-w-50 { width: 50%; }
+.sk-w-60 { width: 60%; }
+.sk-w-65 { width: 65%; }
+.sk-w-70 { width: 70%; }
+.sk-w-80 { width: 80%; }
+.sk-w-90 { width: 90%; }
+.sk-w-100 { width: 100%; }
+.sk-w-130 { width: 130px; }
+.sk-w-badge { width: 70px; height: 22px; }
+.sk-h-8 { height: 8px; }
+.sk-h-12 { height: 12px; }
+.sk-h-14 { height: 14px; }
+.sk-h-16 { height: 16px; }
+.sk-h-20 { height: 20px; }
+.sk-h-30 { height: 30px; }
+.sk-mx-auto { margin-left: auto; margin-right: auto; }
+.sk-h-85 { height: 85px; }
+.sk-h-110 { height: 110px; }
+.sk-doc-mob-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+.sk-doc-mob-row {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+.sk-summary-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+.sk-cockpit-card {
+  padding: 16px;
+  border-radius: 14px;
+}
+
+/* 9. Additional Financial Table & Deck Utilities */
+.doc-stack-counter {
+  font-size: 0.78rem;
+  font-weight: var(--fw-extrabold);
+  color: var(--primary);
+  background: rgba(2, 132, 199, 0.12);
+  padding: 2px 10px;
+  border-radius: var(--radius-pill);
+}
+
+.btn-doc-stack-toggle {
+  font-size: 0.75rem;
+  padding: 3px 9px;
+  border-radius: var(--radius-sm);
+  height: 28px;
+}
+
+.col-center-bold {
+  font-weight: var(--fw-bold);
+  text-align: center;
+}
+
+.col-center-meta {
+  font-size: 0.85rem;
+  text-align: center;
+}
+
+.col-expense-title {
+  font-weight: 600;
+}
+
+.col-expense-amount {
+  font-weight: var(--fw-bold);
+  color: var(--danger);
+}
+
+.col-expense-meta {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+.btn-delete-expense {
+  color: var(--danger);
+}
+
+.daily-sessions-empty-cell {
+  text-align: center;
+  color: var(--text-muted);
+  padding: 10px;
+  font-size: 0.8rem;
+}
+
+.doc-stat-flex-val {
+  direction: rtl;
+  display: inline-flex;
+  gap: 4px;
+}
+
+.fin-cockpit-profit-title {
+  font-size: 0.82rem;
+  font-weight: var(--fw-extrabold);
+  color: var(--success);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.fin-cockpit-profit-sub {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  font-weight: var(--fw-bold);
+  margin-top: 3px;
+}
+
+.fin-cockpit-profit-val {
+  font-size: 1.22rem;
+  font-weight: 900;
+  color: var(--success);
+  direction: ltr;
+}
+
+.fin-doc-total-row {
+  background-color: #f1f5f9;
+  font-weight: 900;
+  border-top: 2px solid #000000;
+}
+
+[data-theme="dark"] .fin-doc-total-row {
+  background-color: rgba(255, 255, 255, 0.05);
+  border-top-color: var(--border-color);
+}
+
+.fin-doc-total-label {
+  text-align: right;
+  font-weight: 900;
+  color: #000000;
+  padding: 4px 8px;
+}
+
+[data-theme="dark"] .fin-doc-total-label {
+  color: var(--text-main);
+}
+
+.fin-doc-total-val {
+  text-align: center;
+  font-weight: 900;
+  font-size: 0.95rem;
+}
+
+.badge-sm {
+  font-size: 0.7rem;
+  padding: 2px 6px;
+}
+
+.dir-ltr {
+  direction: ltr;
+}
+
+.dir-rtl {
+  direction: rtl;
+}
+
+.gap-1 {
+  gap: 4px;
+}
+

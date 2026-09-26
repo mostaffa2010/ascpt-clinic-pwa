@@ -273,17 +273,17 @@ export class FinanceManager {
 
     const categories = db.getClinicalOptions('expense_categories') || [];
     if (categories.length === 0) {
-      container.innerHTML = `<div style="text-align: center; color: var(--text-muted); font-size: 0.85rem; padding: 20px;">لا توجد بنود مصروفات حالياً. أضف بنداً جديداً بالأعلى.</div>`;
+      container.innerHTML = `<div class="manage-categories-empty-hint">لا توجد بنود مصروفات حالياً. أضف بنداً جديداً بالأعلى.</div>`;
       return;
     }
 
     container.innerHTML = categories.map(cat => `
-      <div class="custom-picker-row" style="display: flex; justify-content: space-between; align-items: center; padding: 9px 12px; background: var(--bg-surface); border: 1px solid var(--border-color); border-radius: 8px; margin-bottom: 6px;">
-        <div style="font-weight: 700; font-size: 0.88rem; color: var(--text-main); display: flex; align-items: center; gap: 8px;">
-          <i class="fa-solid fa-tag" style="color: var(--primary);"></i>
+      <div class="custom-picker-row manage-category-item-row">
+        <div class="manage-category-name-group">
+          <i class="fa-solid fa-tag text-primary"></i>
           <span>${escapeHTML(cat)}</span>
         </div>
-        <button type="button" class="btn btn-outline btn-sm btn-delete-exp-cat" data-cat-name="${escapeHTML(cat)}" style="color: var(--danger); border-color: rgba(239, 68, 68, 0.3); padding: 4px 9px; border-radius: 6px;" title="حذف هذا البند من القائمة">
+        <button type="button" class="btn btn-outline btn-sm btn-delete-exp-cat" data-cat-name="${escapeHTML(cat)}" title="حذف هذا البند من القائمة">
           <i class="fa-solid fa-trash-can"></i>
         </button>
       </div>
@@ -641,7 +641,7 @@ export class FinanceManager {
       if (labelPatients) labelPatients.textContent = 'إجمالي مرضى اليوم';
       const title = document.getElementById('finance-header-title');
       const sub = document.getElementById('finance-header-sub');
-      if (title) title.innerHTML = '<i class="fa-solid fa-calculator" style="color: var(--primary);"></i> الحسابات والتقرير اليومي';
+      if (title) title.innerHTML = '<i class="fa-solid fa-calculator text-primary"></i> الحسابات والتقرير اليومي';
       if (sub) sub.style.display = 'none';
       const viewFinance = document.getElementById('view-finance');
       if (viewFinance) {
@@ -668,7 +668,7 @@ export class FinanceManager {
       if (labelPatients) labelPatients.textContent = 'إجمالي مرضى الشهر';
       const title = document.getElementById('finance-header-title');
       const sub = document.getElementById('finance-header-sub');
-      if (title) title.innerHTML = '<i class="fa-solid fa-chart-pie" style="color: var(--primary);"></i> التقرير الشهري الشامل';
+      if (title) title.innerHTML = '<i class="fa-solid fa-chart-pie text-primary"></i> التقرير الشهري الشامل';
       if (sub) sub.style.display = 'none';
       const viewFinance = document.getElementById('view-finance');
       if (viewFinance) {
@@ -702,7 +702,7 @@ export class FinanceManager {
 
       const title = document.getElementById('finance-header-title');
       const sub = document.getElementById('finance-header-sub');
-      if (title) title.innerHTML = '<i class="fa-solid fa-file-invoice-dollar" style="color: var(--primary);"></i> مطالبات شركات التأمين وبطاقات التردد';
+      if (title) title.innerHTML = '<i class="fa-solid fa-file-invoice-dollar text-primary"></i> مطالبات شركات التأمين وبطاقات التردد';
       if (sub) sub.style.display = 'none';
 
       // Mode switched to claims cleanly without premature alert
@@ -804,10 +804,10 @@ export class FinanceManager {
               : `<span class="badge badge-direct"><i class="fa-solid fa-building-columns"></i> تحويل بنكي</span>`;
 
             return `
-              <div class="hero-styled-card" style="margin-bottom: 8px;">
+              <div class="hero-styled-card fin-settlement-card">
                 <div class="hsc-top">
                   <div class="hsc-patient-meta">
-                    <div class="hsc-avatar" style="background: rgba(2, 132, 199, 0.12); color: var(--primary);">
+                    <div class="hsc-avatar fin-settlement-avatar">
                       <i class="fa-solid fa-file-invoice-dollar"></i>
                     </div>
                     <div class="hsc-name-box">
@@ -816,7 +816,7 @@ export class FinanceManager {
                     </div>
                   </div>
                   <div class="hsc-amount-box">
-                    <span class="hsc-amount-val" style="color: var(--success); font-size: 1.15rem; font-weight: 900;">${net} <small>ج.م</small></span>
+                    <span class="hsc-amount-val fin-settlement-amount-val">${net} <small>ج.م</small></span>
                   </div>
                 </div>
 
@@ -825,12 +825,12 @@ export class FinanceManager {
                   ${ded > 0 ? `<span class="badge badge-danger"><i class="fa-solid fa-tag"></i> خصم: ${ded.toLocaleString('en-US')} ج.م</span>` : ''}
                 </div>
 
-                <div class="hsc-divider" style="margin: 8px 0;"></div>
+                <div class="hsc-divider"></div>
 
-                <div style="display: flex; justify-content: space-between; align-items: center; font-size: 0.78rem; color: var(--text-muted);">
+                <div class="fin-settlement-meta-row">
                   <div>الأصلي: <strong>${gross} ج.م</strong> • المسجل: ${escapeHTML(s.recordedBy || '-')}</div>
                   ${canDel ? `
-                    <button type="button" class="btn btn-outline btn-sm btn-delete-record btn-delete-settlement" style="color: var(--danger); border-color: rgba(239, 68, 68, 0.3); padding: 3px 8px; font-size: 0.74rem;" data-settlement-id="${s.id}">
+                    <button type="button" class="btn btn-outline btn-sm btn-delete-record btn-delete-settlement" data-settlement-id="${s.id}">
                       <i class="fa-solid fa-trash"></i> حذف
                     </button>
                   ` : ''}
@@ -868,12 +868,12 @@ export class FinanceManager {
         if (handoff) {
           const displayNet = handoff.netCash || netCash;
           const displayBy = escapeHTML(handoff.handedBy || 'الاستقبال');
-          statusEl.innerHTML = '<span class="badge badge-success" style="font-size: 0.78rem; font-weight: 800; padding: 4px 10px; display: inline-flex; align-items: center; gap: 5px;"><i class="fa-solid fa-circle-check"></i><span>تم تسليم العهدة: ' + displayNet + ' ج.م بواسطة ' + displayBy + ' (' + handoff.time + ')</span></span>';
+          statusEl.innerHTML = '<span class="badge badge-success badge-drawer-status"><i class="fa-solid fa-circle-check"></i><span>تم تسليم العهدة: ' + displayNet + ' ج.م بواسطة ' + displayBy + ' (' + handoff.time + ')</span></span>';
           if (btnHandoff) {
             btnHandoff.innerHTML = '<i class="fa-solid fa-check-double"></i> <span>تم التسليم (تحديث)</span>';
           }
         } else {
-          statusEl.innerHTML = '<span style="font-size: 0.8rem; color: var(--text-muted); display: inline-flex; align-items: center; gap: 6px;"><i class="fa-regular fa-clock"></i><span>لم يتم تسليم نقدية اليوم بعد</span></span>';
+          statusEl.innerHTML = '<span class="drawer-status-open-text"><i class="fa-regular fa-clock"></i><span>لم يتم تسليم نقدية اليوم بعد</span></span>';
           if (btnHandoff) {
             btnHandoff.innerHTML = '<i class="fa-solid fa-hand-holding-dollar"></i> <span>تأكيد تسليم النقدية</span>';
           }
@@ -897,7 +897,7 @@ export class FinanceManager {
     const docContainer = document.getElementById('doctors-breakdown-container');
     if (docContainer) {
       if (doctors.length === 0) {
-        docContainer.innerHTML = `<div style="color: var(--text-muted); font-size: 0.85rem; padding: 6px;">لا توجد جلسات أو أطباء مسجلين لهذا اليوم.</div>`;
+        docContainer.innerHTML = `<div class="fin-doc-list-empty">لا توجد جلسات أو أطباء مسجلين لهذا اليوم.</div>`;
       } else {
         docContainer.innerHTML = doctors.map(doc => {
           const docObj = treatingDoctors.find(d => d.name === doc);
@@ -928,11 +928,11 @@ export class FinanceManager {
           });
 
           return `
-            <div style="background-color: var(--bg-subtle); border: 1px solid var(--border-color); padding: 8px 14px; border-radius: var(--radius-md); display: flex; align-items: center; gap: 10px;">
-              <i class="fa-solid fa-user-doctor" style="color: var(--primary); font-size: 1.1rem;"></i>
+            <div class="fin-doc-breakdown-card">
+              <i class="fa-solid fa-user-doctor fin-doc-breakdown-icon"></i>
               <div>
-                <div style="font-weight: 700; font-size: 0.88rem;">${escapeHTML(doc)} ${shiftText ? `<span style="font-size: 0.72rem; color: var(--text-muted); font-weight: 600;">(${escapeHTML(shiftText)})</span>` : ''}</div>
-                <div style="font-size: 0.8rem; color: var(--text-muted); font-weight: 700;">${patientCount} مريض - ${creditedSessions} جلسة (${generalCount} عام • ${specialCount} خاص)</div>
+                <div class="fin-doc-breakdown-title">${escapeHTML(doc)} ${shiftText ? `<span class="fin-doc-shift-sub">(${escapeHTML(shiftText)})</span>` : ''}</div>
+                <div class="fin-doc-breakdown-sub">${patientCount} مريض - ${creditedSessions} جلسة (${generalCount} عام • ${specialCount} خاص)</div>
               </div>
             </div>
           `;
@@ -944,7 +944,7 @@ export class FinanceManager {
     const dailyDocDeck = document.getElementById('daily-doctors-mobile-deck');
     if (dailyDocDeck) {
       if (doctors.length === 0) {
-        dailyDocDeck.innerHTML = `<div style="text-align: center; color: var(--text-muted); padding: 20px; font-size: 0.88rem;">لا توجد بيانات أطباء مسجلة لهذا اليوم.</div>`;
+        dailyDocDeck.innerHTML = `<div class="fin-doc-deck-empty">لا توجد بيانات أطباء مسجلة لهذا اليوم.</div>`;
       } else {
         dailyDocDeck.style.display = 'block';
         dailyDocDeck.style.display = 'block';
@@ -986,35 +986,35 @@ export class FinanceManager {
 
           return `
             <div class="hero-styled-card doc-stack-card ${index === 0 ? 'is-active-card' : 'is-peeking-card'}" data-stack-index="${index}">
-              <div style="display: flex; align-items: center; justify-content: space-between;">
-                <div style="display: flex; align-items: center; gap: 10px;">
-                  <div class="hsc-avatar" style="width: 40px; height: 40px; font-size: 1.1rem;">
+              <div class="doc-stack-top-row">
+                <div class="doc-stack-doc-info">
+                  <div class="hsc-avatar doc-stack-avatar">
                     <i class="fa-solid fa-user-doctor"></i>
                   </div>
                   <div>
-                    <div style="font-weight: 800; font-size: 1.02rem; color: var(--text-main);">د. ${cleanDoc}</div>
-                    <div style="font-size: 0.78rem; color: var(--text-muted);">إحصائية اليوم</div>
+                    <div class="doc-stack-doc-name">د. ${cleanDoc}</div>
+                    <div class="doc-stack-doc-sub">إحصائية اليوم</div>
                   </div>
                 </div>
-                <span class="badge badge-primary" style="font-size: 0.8rem; font-weight: 800; padding: 4px 10px; border-radius: 999px;">
+                <span class="badge badge-primary doc-stack-badge-pill">
                   ${patientCount} مريض
                 </span>
               </div>
-              <div class="hsc-divider" style="margin: 12px 0;"></div>
-              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
-                <div style="background: var(--bg-subtle); padding: 8px 12px; border-radius: 12px; text-align: center;">
-                  <div style="font-size: 0.74rem; color: var(--text-muted); font-weight: 700;">الجلسات المحتسبة</div>
-                  <div style="font-weight: 800; font-size: 1.05rem; color: var(--text-main); margin-top: 2px;">${creditedSessions} جلسة</div>
+              <div class="hsc-divider"></div>
+              <div class="doc-stack-stats-grid">
+                <div class="doc-stack-stat-box">
+                  <div class="doc-stack-stat-label">الجلسات المحتسبة</div>
+                  <div class="doc-stack-stat-val">${creditedSessions} جلسة</div>
                 </div>
-                <div style="background: var(--bg-subtle); padding: 8px 12px; border-radius: 12px; text-align: center;">
-                  <div style="font-size: 0.74rem; color: var(--text-muted); font-weight: 700;">نوع الجلسات</div>
-                  <div style="font-weight: 800; font-size: 0.92rem; margin-top: 2px;">
-                    <span style="color: var(--primary);">عام: ${generalCount}</span> • <span style="color: #d97706;">خاص: ${specialCount}</span>${examCount > 0 ? ` • <span style="color: var(--text-muted);">كشف: ${examCount}</span>` : ''}
+                <div class="doc-stack-stat-box">
+                  <div class="doc-stack-stat-label">نوع الجلسات</div>
+                  <div class="doc-stack-types-val">
+                    <span class="text-primary">عام: ${generalCount}</span> • <span class="text-warning">خاص: ${specialCount}</span>${examCount > 0 ? ` • <span class="text-muted">كشف: ${examCount}</span>` : ''}
                   </div>
                 </div>
               </div>
-              <div style="width: 100%; height: 6px; background: var(--bg-subtle); border-radius: 999px; overflow: hidden; margin-top: 10px;">
-                <div style="width: ${pct}%; height: 100%; background: var(--primary); border-radius: 999px;"></div>
+              <div class="doc-stack-progress-track">
+                <div class="doc-stack-progress-bar" style="width: ${pct}%;"></div>
               </div>
             </div>
           `;
@@ -1025,13 +1025,13 @@ export class FinanceManager {
         dailyDocDeck.innerHTML = `
           <div class="doc-stack-wrapper">
             <div class="doc-stack-header-bar">
-              <span style="font-size: 0.86rem; font-weight: 800; color: var(--text-main);">
-                <i class="fa-solid fa-user-doctor" style="color: var(--primary); margin-left: 5px;"></i> ${doctors.length} أطباء بالمركز
+              <span class="doc-stack-header-title">
+                <i class="fa-solid fa-user-doctor text-primary ms-1"></i> ${doctors.length} أطباء بالمركز
               </span>
-              <div style="display: flex; align-items: center; gap: 8px;">
+              <div class="doc-stack-header-actions">
                 ${doctors.length > 1 ? `
-                  <span id="daily-doc-stack-counter" style="font-size: 0.78rem; font-weight: 800; color: var(--primary); background: rgba(2, 132, 199, 0.12); padding: 2px 10px; border-radius: 999px;">1 من ${doctors.length}</span>
-                  <button type="button" class="btn btn-outline btn-sm" id="btn-toggle-daily-doc-stack" style="font-size: 0.75rem; padding: 3px 9px; border-radius: 8px; height: 28px;" title="تبديل بين التراكم والقائمة">
+                  <span id="daily-doc-stack-counter" class="doc-stack-counter">1 من ${doctors.length}</span>
+                  <button type="button" class="btn btn-outline btn-sm btn-doc-stack-toggle" id="btn-toggle-daily-doc-stack" title="تبديل بين التراكم والقائمة">
                     <i class="fa-solid fa-list" id="icon-daily-doc-stack-toggle"></i>
                   </button>
                 ` : ''}
@@ -1064,7 +1064,7 @@ export class FinanceManager {
     const reportTbody = document.getElementById('finance-report-tbody');
     if (reportTbody) {
       if (allSessions.length === 0) {
-        reportTbody.innerHTML = '<tr><td colspan="7" style="text-align: center; color: var(--text-muted); padding: 10px; font-size: 7pt;">لا توجد جلسات أو كشوفات مسجلة لهذا اليوم.</td></tr>';
+        reportTbody.innerHTML = '<tr><td colspan="7" class="daily-sessions-empty-cell">لا توجد جلسات أو كشوفات مسجلة لهذا اليوم.</td></tr>';
       } else {
         // Group sessions and examinations by patient to merge if patient had both on the same day
         const patientSessionsMap = new Map();
@@ -1145,13 +1145,13 @@ export class FinanceManager {
 
           rowsHTML.push(
             '<tr>' +
-              '<td style="text-align: center; font-weight: 700;">' + (rowIdx++) + '</td>' +
-              '<td style="font-weight: 700; color: #000000;">' + escapeHTML(patientName) + '</td>' +
-              '<td style="font-weight: 600;">' + escapeHTML(treatedBodyParts) + '</td>' +
-              '<td style="font-weight: 600;">' + escapeHTML(doctorText) + '</td>' +
-              '<td style="font-weight: 600; text-align: center;">' + escapeHTML(companyName) + '</td>' +
-              '<td style="text-align: center; font-weight: 800; color: #0369a1;">' + escapeHTML(actionType) + '</td>' +
-              '<td style="text-align: center; font-weight: 800; color: #15803d; white-space: nowrap;">' + amountDisplay + '</td>' +
+              '<td class="col-session-idx">' + (rowIdx++) + '</td>' +
+              '<td class="col-session-patient">' + escapeHTML(patientName) + '</td>' +
+              '<td class="col-session-treated">' + escapeHTML(treatedBodyParts) + '</td>' +
+              '<td class="col-session-doctor">' + escapeHTML(doctorText) + '</td>' +
+              '<td class="col-session-company">' + escapeHTML(companyName) + '</td>' +
+              '<td class="col-session-action">' + escapeHTML(actionType) + '</td>' +
+              '<td class="col-session-amount">' + amountDisplay + '</td>' +
             '</tr>'
           );
         });
@@ -1170,23 +1170,23 @@ export class FinanceManager {
       if (allExpenses.length === 0) {
         expTbody.innerHTML = `
           <tr>
-            <td colspan="4" style="text-align: center; color: var(--text-muted); padding: 24px 12px;">
-              <i class="fa-solid fa-receipt" style="font-size: 1.6rem; opacity: 0.35; margin-bottom: 8px; display: block;"></i>
-              <div style="font-weight: 700; font-size: 0.88rem; color: var(--text-main); margin-bottom: 2px;">لا توجد مصروفات مسجلة لهذا اليوم</div>
-              <div style="font-size: 0.78rem; color: var(--text-muted);">جميع بنود الصرف والخزينة اليومية مستقرة</div>
+            <td colspan="4" class="expenses-table-empty-cell">
+              <i class="fa-solid fa-receipt expenses-empty-icon"></i>
+              <div class="expenses-empty-title">لا توجد مصروفات مسجلة لهذا اليوم</div>
+              <div class="expenses-empty-subtitle">جميع بنود الصرف والخزينة اليومية مستقرة</div>
             </td>
           </tr>
         `;
       } else {
         expTbody.innerHTML = allExpenses.map(e => `
           <tr>
-            <td style="font-weight: 600;">${escapeHTML(e.title)}</td>
-            <td style="font-weight: 700; color: var(--danger);">${escapeHTML(e.amount)}</td>
-            <td style="font-size: 0.8rem; color: var(--text-muted);">${escapeHTML(e.recordedBy)}</td>
-            <td style="font-size: 0.8rem; color: var(--text-muted);">${e.time}</td>
+            <td class="col-expense-title">${escapeHTML(e.title)}</td>
+            <td class="col-expense-amount">${escapeHTML(e.amount)}</td>
+            <td class="col-expense-meta">${escapeHTML(e.recordedBy)}</td>
+            <td class="col-expense-meta">${e.time}</td>
             <td class="no-print">
               ${RolesManager.canDeleteFinance(auth.getCurrentUser()) ? `
-                <button type="button" class="btn btn-outline btn-sm btn-delete-record btn-delete-expense" style="color: var(--danger);" data-expense-id="${e.id}" title="حذف">
+                <button type="button" class="btn btn-outline btn-sm btn-delete-record btn-delete-expense" data-expense-id="${e.id}" title="حذف">
                   <i class="fa-solid fa-trash"></i>
                 </button>
               ` : '-'}
@@ -1201,10 +1201,10 @@ export class FinanceManager {
     if (expensesMob) {
       if (allExpenses.length === 0) {
         expensesMob.innerHTML = `
-          <div style="background: var(--bg-surface); border: 1.5px dashed var(--border-color); border-radius: 12px; padding: 22px 14px; text-align: center; color: var(--text-muted); margin-bottom: 12px;">
-            <i class="fa-solid fa-receipt" style="font-size: 1.8rem; opacity: 0.35; margin-bottom: 8px; display: block;"></i>
-            <div style="font-weight: 700; font-size: 0.88rem; color: var(--text-main); margin-bottom: 3px;">لا توجد مصروفات مسجلة لهذا اليوم</div>
-            <div style="font-size: 0.75rem;">يمكنك تسجيل مصروف جديد بالضغط على زر "تسجيل مصروف" بالأعلى</div>
+          <div class="expenses-mobile-empty-card">
+            <i class="fa-solid fa-receipt expenses-empty-icon"></i>
+            <div class="expenses-empty-title">لا توجد مصروفات مسجلة لهذا اليوم</div>
+            <div class="expenses-empty-hint">يمكنك تسجيل مصروف جديد بالضغط على زر "تسجيل مصروف" بالأعلى</div>
           </div>
         `;
       } else {
@@ -1214,11 +1214,11 @@ export class FinanceManager {
           <div class="expenses-compact-list">
             <div class="expenses-header-summary">
               <span><i class="fa-solid fa-receipt"></i> ${allExpenses.length} مصروفات</span>
-              <span style="color: var(--danger); font-size: 0.88rem; font-weight: 800;">${totalExpenses.toLocaleString('en-US')} ج.م</span>
+              <span class="expenses-total-amount">${totalExpenses.toLocaleString('en-US')} ج.م</span>
             </div>
             <div class="expenses-scroll-wrapper">
               ${allExpenses.map((e, idx) => `
-                <div class="expense-row-item ${idx >= 5 ? 'expense-item-collapsed' : ''}" style="${idx >= 5 ? 'display: none;' : ''}">
+                <div class="expense-row-item ${idx >= 5 ? 'expense-item-collapsed d-none' : ''}">
                   <div class="expense-row-right">
                     <div class="expense-avatar-icon">
                       <i class="fa-solid fa-receipt"></i>
@@ -1246,7 +1246,7 @@ export class FinanceManager {
               `).join('')}
             </div>
             ${hasMoreExp ? `
-              <button type="button" class="btn-toggle-expenses-more" data-expanded="false" style="width: 100%; padding: 10px; background: none; border: none; border-top: 1px solid var(--border-color); color: var(--primary); font-size: 0.84rem; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px;">
+              <button type="button" class="btn-toggle-expenses-more" data-expanded="false">
                 <span>عرض باقي المصروفات (${allExpenses.length - 5}+)</span>
                 <i class="fa-solid fa-chevron-down"></i>
               </button>
@@ -1260,11 +1260,11 @@ export class FinanceManager {
             const isExp = btn.getAttribute('data-expanded') === 'true';
             const hiddenRows = expensesMob.querySelectorAll('.expense-item-collapsed');
             if (isExp) {
-              hiddenRows.forEach(r => r.style.display = 'none');
+              hiddenRows.forEach(r => r.classList.add('d-none'));
               btn.setAttribute('data-expanded', 'false');
               btn.innerHTML = `<span>عرض باقي المصروفات (${allExpenses.length - 5}+)</span> <i class="fa-solid fa-chevron-down"></i>`;
             } else {
-              hiddenRows.forEach(r => r.style.display = 'flex');
+              hiddenRows.forEach(r => r.classList.remove('d-none'));
               btn.setAttribute('data-expanded', 'true');
               btn.innerHTML = `<span>عرض أقل</span> <i class="fa-solid fa-chevron-up"></i>`;
             }
@@ -1300,7 +1300,7 @@ export class FinanceManager {
           const safeRecAt = escapeHTML(s.recordedAt || '');
           const isExam = (s.entryType === 'examination');
           const safeCount = isExam
-            ? '<span class="badge" style="background: rgba(56, 189, 248, 0.15); color: var(--primary); font-weight: 700; font-size: 0.75rem;"><i class="fa-solid fa-stethoscope"></i> كشف</span>'
+            ? '<span class="badge badge-exam-entry"><i class="fa-solid fa-stethoscope"></i> كشف</span>'
             : `${escapeHTML(s.bodyPartsCount || 1)} أعضاء`;
 
           const payBadge = s.payType === 'cash' 
@@ -1326,7 +1326,7 @@ export class FinanceManager {
               <div class="hsc-badges-row">
                 ${payBadge}
               </div>
-              <div class="hsc-divider" style="margin: 10px 0 12px 0;"></div>
+              <div class="hsc-divider"></div>
               <div class="hsc-bottom">
                 <div class="hsc-tags">
                   <span class="hsc-tag-pill"><i class="fa-solid fa-bone"></i> ${safeCount}</span>
@@ -1349,33 +1349,33 @@ export class FinanceManager {
     const profitDisplay = document.getElementById('monthly-net-profit-display');
 
     if (profitDisplay) {
-      profitDisplay.innerHTML = '<span class="skeleton-shimmer skeleton-line" style="display: inline-block; width: 140px; height: 28px; vertical-align: middle;"></span>';
+      profitDisplay.innerHTML = '<span class="skeleton-shimmer skeleton-line skeleton-profit-shimmer"></span>';
     }
 
     if (docTbody) {
       docTbody.innerHTML = Array.from({ length: 4 }).map(() => `
         <tr>
-          <td style="padding: 10px 8px;"><div class="skeleton-shimmer skeleton-line" style="width: 70%; height: 14px;"></div></td>
-          <td style="padding: 10px 8px;"><div class="skeleton-shimmer skeleton-line" style="width: 50%; height: 14px; margin: 0 auto;"></div></td>
-          <td style="padding: 10px 8px;"><div class="skeleton-shimmer skeleton-line" style="width: 50%; height: 14px; margin: 0 auto;"></div></td>
-          <td style="padding: 10px 8px;"><div class="skeleton-shimmer skeleton-line" style="width: 60%; height: 14px; margin: 0 auto;"></div></td>
-          <td style="padding: 10px 8px;"><div class="skeleton-shimmer skeleton-line" style="width: 40%; height: 14px; margin: 0 auto;"></div></td>
+          <td class="skeleton-cell-pad"><div class="skeleton-shimmer skeleton-line sk-w-70 sk-h-14"></div></td>
+          <td class="skeleton-cell-pad"><div class="skeleton-shimmer skeleton-line sk-w-50 sk-h-14 sk-mx-auto"></div></td>
+          <td class="skeleton-cell-pad"><div class="skeleton-shimmer skeleton-line sk-w-50 sk-h-14 sk-mx-auto"></div></td>
+          <td class="skeleton-cell-pad"><div class="skeleton-shimmer skeleton-line sk-w-60 sk-h-14 sk-mx-auto"></div></td>
+          <td class="skeleton-cell-pad"><div class="skeleton-shimmer skeleton-line sk-w-40 sk-h-14 sk-mx-auto"></div></td>
         </tr>
       `).join('');
     }
 
     if (docMob) {
       docMob.innerHTML = Array.from({ length: 3 }).map(() => `
-        <div class="hero-styled-card skeleton-card" style="padding: 14px 16px; margin-bottom: 12px;">
-          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-            <div class="skeleton-shimmer skeleton-line" style="width: 130px; height: 16px;"></div>
-            <div class="skeleton-shimmer skeleton-badge" style="width: 70px; height: 22px;"></div>
+        <div class="hero-styled-card skeleton-card sk-cockpit-card mb-3">
+          <div class="sk-doc-mob-top">
+            <div class="skeleton-shimmer skeleton-line sk-w-130 sk-h-16"></div>
+            <div class="skeleton-shimmer skeleton-badge sk-w-badge"></div>
           </div>
-          <div style="display: flex; gap: 8px; margin-bottom: 10px;">
-            <div class="skeleton-shimmer skeleton-line" style="width: 45%; height: 12px;"></div>
-            <div class="skeleton-shimmer skeleton-line" style="width: 45%; height: 12px;"></div>
+          <div class="sk-doc-mob-row">
+            <div class="skeleton-shimmer skeleton-line sk-w-45 sk-h-12"></div>
+            <div class="skeleton-shimmer skeleton-line sk-w-45 sk-h-12"></div>
           </div>
-          <div class="skeleton-shimmer skeleton-line" style="width: 100%; height: 8px;"></div>
+          <div class="skeleton-shimmer skeleton-line sk-w-100 sk-h-8"></div>
         </div>
       `).join('');
     }
@@ -1384,22 +1384,22 @@ export class FinanceManager {
     if (summaryTbody) {
       summaryTbody.innerHTML = Array.from({ length: 3 }).map(() => `
         <tr>
-          <td style="padding: 10px 8px;"><div class="skeleton-shimmer skeleton-line" style="width: 20px; height: 14px; margin: 0 auto;"></div></td>
-          <td style="padding: 10px 8px;"><div class="skeleton-shimmer skeleton-line" style="width: 65%; height: 14px;"></div></td>
-          <td style="padding: 10px 8px;"><div class="skeleton-shimmer skeleton-line" style="width: 50%; height: 14px; margin: 0 auto;"></div></td>
-          <td style="padding: 10px 8px;"><div class="skeleton-shimmer skeleton-line" style="width: 40%; height: 14px; margin: 0 auto;"></div></td>
-          <td style="padding: 10px 8px;"><div class="skeleton-shimmer skeleton-line" style="width: 30%; height: 14px; margin: 0 auto;"></div></td>
+          <td class="skeleton-cell-pad"><div class="skeleton-shimmer skeleton-line sk-w-20 sk-h-14 sk-mx-auto"></div></td>
+          <td class="skeleton-cell-pad"><div class="skeleton-shimmer skeleton-line sk-w-65 sk-h-14"></div></td>
+          <td class="skeleton-cell-pad"><div class="skeleton-shimmer skeleton-line sk-w-50 sk-h-14 sk-mx-auto"></div></td>
+          <td class="skeleton-cell-pad"><div class="skeleton-shimmer skeleton-line sk-w-40 sk-h-14 sk-mx-auto"></div></td>
+          <td class="skeleton-cell-pad"><div class="skeleton-shimmer skeleton-line sk-w-30 sk-h-14 sk-mx-auto"></div></td>
         </tr>
       `).join('');
     }
 
     if (summaryMob) {
       summaryMob.innerHTML = `
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px;">
-          <div class="hero-styled-card skeleton-card" style="padding: 16px; border-radius: 14px; height: 85px;"><div class="skeleton-shimmer skeleton-line" style="width: 80%; height: 20px; margin: 0 auto;"></div></div>
-          <div class="hero-styled-card skeleton-card" style="padding: 16px; border-radius: 14px; height: 85px;"><div class="skeleton-shimmer skeleton-line" style="width: 80%; height: 20px; margin: 0 auto;"></div></div>
+        <div class="sk-summary-grid">
+          <div class="hero-styled-card skeleton-card sk-cockpit-card sk-h-85"><div class="skeleton-shimmer skeleton-line sk-w-80 sk-h-20 sk-mx-auto"></div></div>
+          <div class="hero-styled-card skeleton-card sk-cockpit-card sk-h-85"><div class="skeleton-shimmer skeleton-line sk-w-80 sk-h-20 sk-mx-auto"></div></div>
         </div>
-        <div class="hero-styled-card skeleton-card" style="padding: 16px; border-radius: 14px; height: 110px;"><div class="skeleton-shimmer skeleton-line" style="width: 90%; height: 30px; margin: 0 auto;"></div></div>
+        <div class="hero-styled-card skeleton-card sk-cockpit-card sk-h-110"><div class="skeleton-shimmer skeleton-line sk-w-90 sk-h-30 sk-mx-auto"></div></div>
       `;
     }
   }
@@ -1602,30 +1602,30 @@ export class FinanceManager {
     const mSetMob = document.getElementById('monthly-settlements-mobile-cards');
     if (mSetTbody) {
       if (monthSettlements.length === 0) {
-        mSetTbody.innerHTML = `<tr><td colspan="9" style="text-align: center; color: var(--text-muted); padding: 20px;">لا توجد تحصيلات مطالبات مسجلة لهذا الشهر حتى الآن.</td></tr>`;
-        if (mSetMob) mSetMob.innerHTML = `<div style="text-align: center; color: var(--text-muted); padding: 20px; font-size: 0.85rem;">لا توجد تحصيلات مطالبات مسجلة لهذا الشهر حتى الآن.</div>`;
+        mSetTbody.innerHTML = `<tr><td colspan="9" class="expenses-table-empty-cell">لا توجد تحصيلات مطالبات مسجلة لهذا الشهر حتى الآن.</td></tr>`;
+        if (mSetMob) mSetMob.innerHTML = `<div class="expenses-compact-empty">لا توجد تحصيلات مطالبات مسجلة لهذا الشهر حتى الآن.</div>`;
       } else {
         const canDel = RolesManager.canDeleteFinance(auth.getCurrentUser());
         mSetTbody.innerHTML = monthSettlements.map(s => `
           <tr>
-            <td style="font-weight: 700; text-align: center;">${escapeHTML(s.settlementDate || '-')}</td>
-            <td style="font-weight: 800; color: #000000;">${escapeHTML(s.companyName)}</td>
-            <td style="font-size: 0.85rem; text-align: center;">${escapeHTML(s.claimPeriod || '-')}</td>
-            <td style="font-weight: 700; text-align: center;">${(parseFloat(s.grossAmount) || 0).toLocaleString('en-US')} ج.م</td>
-            <td style="font-size: 0.85rem; text-align: center;">
+            <td class="col-center-bold">${escapeHTML(s.settlementDate || '-')}</td>
+            <td class="col-session-patient">${escapeHTML(s.companyName)}</td>
+            <td class="col-center-meta">${escapeHTML(s.claimPeriod || '-')}</td>
+            <td class="col-center-bold">${(parseFloat(s.grossAmount) || 0).toLocaleString('en-US')} ج.م</td>
+            <td class="col-center-meta">
               ${(parseFloat(s.deductions) || 0) > 0 ? `${(parseFloat(s.deductions) || 0).toLocaleString('en-US')} ج.م (${escapeHTML(s.deductionReason || '')})` : '-'}
             </td>
-            <td style="font-weight: 800; text-align: center;">${(parseFloat(s.netAmount) || 0).toLocaleString('en-US')} ج.م</td>
-            <td style="text-align: center;">
+            <td class="col-center-bold">${(parseFloat(s.netAmount) || 0).toLocaleString('en-US')} ج.م</td>
+            <td class="text-center">
               <span class="badge ${s.paymentMethod === 'cash' ? 'badge-cash' : 'badge-direct'}">
                 <i class="fa-solid ${s.paymentMethod === 'cash' ? 'fa-money-bill-wave' : 'fa-building-columns'}"></i>
                 ${s.paymentMethod === 'cash' ? 'نقداً بالدرج' : 'تحويل بنكي / شيك'}
               </span>
             </td>
-            <td class="no-print" style="font-size: 0.8rem; color: var(--text-muted); text-align: center;">${escapeHTML(s.recordedBy || '-')}</td>
-            <td class="no-print" style="text-align: center;">
+            <td class="no-print col-expense-meta text-center">${escapeHTML(s.recordedBy || '-')}</td>
+            <td class="no-print text-center">
               ${canDel ? `
-                <button type="button" class="btn btn-outline btn-sm btn-delete-record btn-delete-settlement" style="color: var(--danger);" data-settlement-id="${s.id}" title="حذف حركة التحصيل">
+                <button type="button" class="btn btn-outline btn-sm btn-delete-record btn-delete-settlement" data-settlement-id="${s.id}" title="حذف حركة التحصيل">
                   <i class="fa-solid fa-trash"></i>
                 </button>
               ` : '-'}
@@ -1646,10 +1646,10 @@ export class FinanceManager {
               : `<span class="badge badge-direct"><i class="fa-solid fa-building-columns"></i> تحويل بنكي</span>`;
 
             return `
-              <div class="hero-styled-card" style="margin-bottom: 8px;">
+              <div class="hero-styled-card fin-settlement-card">
                 <div class="hsc-top">
                   <div class="hsc-patient-meta">
-                    <div class="hsc-avatar" style="background: rgba(16, 185, 129, 0.12); color: var(--success);">
+                    <div class="hsc-avatar fin-settlement-avatar">
                       <i class="fa-solid fa-receipt"></i>
                     </div>
                     <div class="hsc-name-box">
@@ -1658,7 +1658,7 @@ export class FinanceManager {
                     </div>
                   </div>
                   <div class="hsc-amount-box">
-                    <span class="hsc-amount-val" style="color: var(--success); font-size: 1.15rem; font-weight: 900;">${net} <small>ج.م</small></span>
+                    <span class="hsc-amount-val fin-settlement-amount-val">${net} <small>ج.م</small></span>
                   </div>
                 </div>
 
@@ -1667,12 +1667,12 @@ export class FinanceManager {
                   ${ded > 0 ? `<span class="badge badge-danger"><i class="fa-solid fa-tag"></i> خصم: ${ded.toLocaleString('en-US')} ج.م</span>` : ''}
                 </div>
 
-                <div class="hsc-divider" style="margin: 8px 0;"></div>
+                <div class="hsc-divider"></div>
 
-                <div style="display: flex; justify-content: space-between; align-items: center; font-size: 0.78rem; color: var(--text-muted);">
+                <div class="fin-settlement-meta-row">
                   <div>الأصلي: <strong>${gross} ج.م</strong> • المسجل: ${escapeHTML(s.recordedBy || '-')}</div>
                   ${canDel ? `
-                    <button type="button" class="btn btn-outline btn-sm btn-delete-record btn-delete-settlement" style="color: var(--danger); border-color: rgba(239, 68, 68, 0.3); padding: 3px 8px; font-size: 0.74rem;" data-settlement-id="${s.id}">
+                    <button type="button" class="btn btn-outline btn-sm btn-delete-record btn-delete-settlement" data-settlement-id="${s.id}">
                       <i class="fa-solid fa-trash"></i> حذف
                     </button>
                   ` : ''}
@@ -1690,25 +1690,25 @@ export class FinanceManager {
 
     if (docTbody) {
       if (doctors.length === 0 || totalPatients === 0) {
-        docTbody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: var(--text-muted); padding: 16px;">لا توجد بيانات جلسات مسجلة لهذا الشهر.</td></tr>';
+        docTbody.innerHTML = '<tr><td colspan="5" class="expenses-table-empty-cell">لا توجد بيانات جلسات مسجلة لهذا الشهر.</td></tr>';
       } else {
         const rowsHTML = doctorStats.map(stat => {
           const safeDoc = escapeHTML(stat.doc);
           return `
             <tr>
-              <td style="font-weight: 700;"><i class="fa-solid fa-user-doctor" style="color: var(--primary); margin-left: 6px;"></i> ${safeDoc}</td>
-              <td style="text-align: center; font-weight: 800; direction: ltr;">${stat.examsCount} / ${stat.sessionsCount}</td>
-              <td style="text-align: center; font-weight: 800; direction: ltr;">${stat.insPatients} / ${stat.cashPatients}</td>
-              <td style="text-align: center; font-weight: 800; direction: ltr;">${stat.quadCount} / ${stat.hemiCount} / ${stat.scolCount} / ${stat.regCount + stat.specCount}</td>
-              <td style="text-align: center; font-weight: 900; color: var(--success); font-size: 0.95rem;">${stat.totalSalary.toLocaleString('en-US')}</td>
+              <td class="col-session-doctor"><i class="fa-solid fa-user-doctor text-primary ms-1"></i> ${safeDoc}</td>
+              <td class="col-center-bold dir-ltr">${stat.examsCount} / ${stat.sessionsCount}</td>
+              <td class="col-center-bold dir-ltr">${stat.insPatients} / ${stat.cashPatients}</td>
+              <td class="col-center-bold dir-ltr">${stat.quadCount} / ${stat.hemiCount} / ${stat.scolCount} / ${stat.regCount + stat.specCount}</td>
+              <td class="col-center-bold text-success">${stat.totalSalary.toLocaleString('en-US')}</td>
             </tr>
           `;
         }).join('');
 
         const totalRowHTML = `
-          <tr class="total-row" style="background-color: #f1f5f9; font-weight: 900; border-top: 2px solid #000000;">
-            <td colspan="4" style="text-align: right; font-weight: 900; color: #000000; padding: 4px 8px;">مجموع رواتب الاطباء</td>
-            <td style="text-align: center; font-weight: 900; color: var(--success); font-size: 0.95rem;">${totalAllDoctorsSalaries.toLocaleString('en-US')}</td>
+          <tr class="total-row fin-doc-total-row">
+            <td colspan="4" class="fin-doc-total-label">مجموع رواتب الاطباء</td>
+            <td class="fin-doc-total-val text-success">${totalAllDoctorsSalaries.toLocaleString('en-US')}</td>
           </tr>
         `;
 
@@ -1719,10 +1719,10 @@ export class FinanceManager {
     if (docMob) {
       if (doctors.length === 0 || totalPatients === 0) {
         docMob.innerHTML = `
-          <div style="background: var(--bg-surface); border: 1.5px dashed var(--border-color); border-radius: 12px; padding: 22px 14px; text-align: center; color: var(--text-muted); margin-bottom: 12px;">
-            <i class="fa-solid fa-user-doctor" style="font-size: 1.8rem; color: var(--primary); opacity: 0.35; margin-bottom: 8px; display: block;"></i>
-            <div style="font-weight: 700; font-size: 0.88rem; color: var(--text-main); margin-bottom: 3px;">لا توجد جلسات مسجلة للأطباء في هذا الشهر حتى الآن</div>
-            <div style="font-size: 0.75rem;">ستظهر إحصائية ورواتب الأطباء فور تسجيل أول جلسة بالشهر</div>
+          <div class="expenses-mobile-empty-card">
+            <i class="fa-solid fa-user-doctor expenses-empty-icon text-primary"></i>
+            <div class="expenses-empty-title">لا توجد جلسات مسجلة للأطباء في هذا الشهر حتى الآن</div>
+            <div class="expenses-empty-hint">ستظهر إحصائية ورواتب الأطباء فور تسجيل أول جلسة بالشهر</div>
           </div>
         `;
       } else {
@@ -1781,37 +1781,37 @@ export class FinanceManager {
 
           return `
             <div class="hero-styled-card doc-stack-card ${index === 0 ? 'is-active-card' : 'is-peeking-card'}" data-stack-index="${index}">
-              <div style="display: flex; align-items: center; justify-content: space-between;">
-                <div style="display: flex; align-items: center; gap: 10px;">
-                  <div class="hsc-avatar" style="width: 40px; height: 40px; font-size: 1.1rem;">
+              <div class="doc-stack-top-row">
+                <div class="doc-stack-doc-info">
+                  <div class="hsc-avatar doc-stack-avatar">
                     <i class="fa-solid fa-user-doctor"></i>
                   </div>
                   <div>
-                    <div style="font-weight: 800; font-size: 1.02rem; color: var(--text-main);">${cleanDoc}</div>
-                    <div style="font-size: 0.78rem; color: var(--text-muted);">إحصائية وراتب الشهر</div>
+                    <div class="doc-stack-doc-name">${cleanDoc}</div>
+                    <div class="doc-stack-doc-sub">إحصائية وراتب الشهر</div>
                   </div>
                 </div>
-                <span class="badge badge-success" style="font-size: 0.95rem; font-weight: 900; padding: 4px 10px; border-radius: 999px;">
+                <span class="badge badge-success doc-stack-badge-pill">
                   ${totalSalary.toLocaleString('en-US')}
                 </span>
               </div>
-              <div class="hsc-divider" style="margin: 12px 0;"></div>
-              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
-                <div style="background: var(--bg-subtle); padding: 8px 10px; border-radius: 10px; text-align: center;">
-                  <div style="font-size: 0.72rem; color: var(--text-muted); font-weight: 700;">جلسات / كشوفات</div>
-                  <div style="font-weight: 800; font-size: 0.96rem; color: var(--text-main); margin-top: 2px;">
-                    <span style="direction: rtl; display: inline-flex; gap: 4px;"><span>${sessionsCount}</span><span>/</span><span>${examsCount}</span></span>
+              <div class="hsc-divider"></div>
+              <div class="doc-stack-stats-grid">
+                <div class="doc-stack-stat-box">
+                  <div class="doc-stack-stat-label">جلسات / كشوفات</div>
+                  <div class="doc-stack-stat-val">
+                    <span class="doc-stat-flex-val"><span>${sessionsCount}</span><span>/</span><span>${examsCount}</span></span>
                   </div>
                 </div>
-                <div style="background: var(--bg-subtle); padding: 8px 10px; border-radius: 10px; text-align: center;">
-                  <div style="font-size: 0.72rem; color: var(--text-muted); font-weight: 700;">نوع الجلسات</div>
-                  <div style="font-weight: 800; font-size: 0.96rem; color: var(--text-main); margin-top: 2px;">
-                    <span style="direction: rtl; display: inline-flex; gap: 4px;"><span style="color: var(--primary);">عام: ${regCount}</span><span>•</span><span style="color: #d97706;">خاص: ${scolCount + hemiCount + quadCount + specCount}</span></span>
+                <div class="doc-stack-stat-box">
+                  <div class="doc-stack-stat-label">نوع الجلسات</div>
+                  <div class="doc-stack-stat-val">
+                    <span class="doc-stat-flex-val"><span class="text-primary">عام: ${regCount}</span><span>•</span><span class="text-warning">خاص: ${scolCount + hemiCount + quadCount + specCount}</span></span>
                   </div>
                 </div>
               </div>
-              <div style="margin-top: 8px; font-size: 0.76rem; color: var(--text-muted); text-align: center; background: var(--bg-subtle); padding: 5px 8px; border-radius: 8px;">
-                <span style="font-weight: 700;">تفاصيل الخاصة:</span> ${scolCount} Scoliosis • ${hemiCount} Hemiplegia • ${quadCount} Quadriplegia
+              <div class="doc-special-details-pill">
+                <span class="fw-bold">تفاصيل الخاصة:</span> ${scolCount} Scoliosis • ${hemiCount} Hemiplegia • ${quadCount} Quadriplegia
               </div>
             </div>
           `;
@@ -1822,13 +1822,13 @@ export class FinanceManager {
         docMob.innerHTML = `
           <div class="doc-stack-wrapper">
             <div class="doc-stack-header-bar">
-              <span style="font-size: 0.86rem; font-weight: 800; color: var(--text-main); border-bottom: none;">
-                <i class="fa-solid fa-chart-pie" style="color: var(--primary); margin-left: 5px;"></i> ${doctors.length} أطباء بالمركز
+              <span class="doc-stack-header-title">
+                <i class="fa-solid fa-chart-pie text-primary ms-1"></i> ${doctors.length} أطباء بالمركز
               </span>
-              <div style="display: flex; align-items: center; gap: 8px;">
+              <div class="doc-stack-header-actions">
                 ${doctors.length > 1 ? `
-                  <span id="monthly-doc-stack-counter" style="font-size: 0.78rem; font-weight: 800; color: var(--primary); background: rgba(2, 132, 199, 0.12); padding: 2px 10px; border-radius: 999px;">1 من ${doctors.length}</span>
-                  <button type="button" class="btn btn-outline btn-sm" id="btn-toggle-monthly-doc-stack" style="font-size: 0.75rem; padding: 3px 9px; border-radius: 8px; height: 28px;" title="تبديل بين التراكم والقائمة">
+                  <span id="monthly-doc-stack-counter" class="doc-stack-counter">1 من ${doctors.length}</span>
+                  <button type="button" class="btn btn-outline btn-sm btn-doc-stack-toggle" id="btn-toggle-monthly-doc-stack" title="تبديل بين التراكم والقائمة">
                     <i class="fa-solid fa-list" id="icon-monthly-doc-stack-toggle"></i>
                   </button>
                 ` : ''}
@@ -1876,22 +1876,22 @@ export class FinanceManager {
     if (insTbody) {
       insTbody.innerHTML = `
         <tr>
-          <td style="text-align: center; font-weight: 900; font-size: 1.1rem; color: var(--success); padding: 8px;">${totalCashSessions}</td>
-          <td style="text-align: center; font-weight: 900; font-size: 1.1rem; color: var(--primary); padding: 8px;">${totalInsSessions}</td>
+          <td class="ins-summary-td-cash">${totalCashSessions}</td>
+          <td class="ins-summary-td-ins">${totalInsSessions}</td>
         </tr>
       `;
     }
 
     if (insMob) {
       insMob.innerHTML = `
-        <div class="hero-styled-card" style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 12px; text-align: center; margin-bottom: 8px;">
-          <div style="background: rgba(16, 185, 129, 0.08); border: 1px solid rgba(16, 185, 129, 0.2); border-radius: 10px; padding: 10px;">
-            <div style="font-size: 0.78rem; font-weight: 700; color: var(--text-muted);"><i class="fa-solid fa-money-bill-wave" style="color: var(--success);"></i> جلسات النقدي</div>
-            <div style="font-size: 1.25rem; font-weight: 900; color: var(--success); margin-top: 4px;">${totalCashSessions}</div>
+        <div class="hero-styled-card fin-kpi-split-card">
+          <div class="fin-kpi-sub-card cash">
+            <div class="fin-kpi-sub-label"><i class="fa-solid fa-money-bill-wave text-success"></i> جلسات النقدي</div>
+            <div class="fin-kpi-sub-val cash">${totalCashSessions}</div>
           </div>
-          <div style="background: rgba(2, 132, 199, 0.08); border: 1px solid rgba(2, 132, 199, 0.2); border-radius: 10px; padding: 10px;">
-            <div style="font-size: 0.78rem; font-weight: 700; color: var(--text-muted);"><i class="fa-solid fa-shield-halved" style="color: var(--primary);"></i> جلسات التأمين</div>
-            <div style="font-size: 1.25rem; font-weight: 900; color: var(--primary); margin-top: 4px;">${totalInsSessions}</div>
+          <div class="fin-kpi-sub-card insurance">
+            <div class="fin-kpi-sub-label"><i class="fa-solid fa-shield-halved text-primary"></i> جلسات التأمين</div>
+            <div class="fin-kpi-sub-val insurance">${totalInsSessions}</div>
           </div>
         </div>
       `;
@@ -1929,18 +1929,18 @@ export class FinanceManager {
 
     if (mExpCatTbody) {
       if (sortedCats.length === 0) {
-        mExpCatTbody.innerHTML = `<tr><td colspan="4" style="text-align: center; color: var(--text-muted); padding: 20px;">لا توجد مصروفات مسجلة لهذا الشهر.</td></tr>`;
+        mExpCatTbody.innerHTML = `<tr><td colspan="5" class="expenses-table-empty-cell">لا توجد مصروفات مسجلة لهذا الشهر.</td></tr>`;
       } else {
         let expCatIdx = 1;
         mExpCatTbody.innerHTML = sortedCats.map(cat => {
           const pct = totalExpenses > 0 ? ((cat.total / totalExpenses) * 100).toFixed(1) : 0;
           return `
             <tr>
-              <td style="text-align: center; font-weight: 700;">${expCatIdx++}</td>
-              <td style="font-weight: 700; color: #000000;">${escapeHTML(cat.name)}</td>
-              <td style="font-weight: 700; text-align: center;">${cat.count} حركات</td>
-              <td style="font-weight: 800; color: var(--danger); text-align: center;">${cat.total.toLocaleString('en-US')} ج.م</td>
-              <td style="font-weight: 800; text-align: center;">${pct}%</td>
+              <td class="col-center-bold">${expCatIdx++}</td>
+              <td class="col-session-patient">${escapeHTML(cat.name)}</td>
+              <td class="col-center-bold">${cat.count} حركات</td>
+              <td class="col-center-bold text-danger">${cat.total.toLocaleString('en-US')} ج.م</td>
+              <td class="col-center-bold">${pct}%</td>
             </tr>
           `;
         }).join('');
@@ -1950,34 +1950,34 @@ export class FinanceManager {
     if (mExpCatMob) {
       if (sortedCats.length === 0) {
         mExpCatMob.innerHTML = `
-          <div style="background: var(--bg-surface); border: 1.5px dashed var(--border-color); border-radius: 12px; padding: 22px 14px; text-align: center; color: var(--text-muted); margin-bottom: 12px;">
-            <i class="fa-solid fa-receipt" style="font-size: 1.8rem; color: var(--danger); opacity: 0.35; margin-bottom: 8px; display: block;"></i>
-            <div style="font-weight: 700; font-size: 0.88rem; color: var(--text-main); margin-bottom: 3px;">لا توجد مصروفات مسجلة لهذا الشهر حتى الآن</div>
+          <div class="expenses-mobile-empty-card">
+            <i class="fa-solid fa-receipt expenses-empty-icon text-danger"></i>
+            <div class="expenses-empty-title">لا توجد مصروفات مسجلة لهذا الشهر حتى الآن</div>
           </div>
         `;
       } else {
         mExpCatMob.innerHTML = sortedCats.map(cat => {
           const pct = totalExpenses > 0 ? ((cat.total / totalExpenses) * 100).toFixed(1) : 0;
           return `
-            <div class="hero-styled-card" style="margin-bottom: 8px;">
-              <div style="display: flex; align-items: center; justify-content: space-between;">
-                <div style="display: flex; align-items: center; gap: 8px;">
-                  <div class="hsc-avatar" style="width: 34px; height: 34px; font-size: 0.9rem; background: rgba(239, 68, 68, 0.12); color: var(--danger);">
+            <div class="hero-styled-card m-exp-cat-card">
+              <div class="m-exp-cat-top">
+                <div class="m-exp-cat-meta">
+                  <div class="hsc-avatar m-exp-cat-avatar">
                     <i class="fa-solid fa-tag"></i>
                   </div>
-                  <div style="font-weight: 800; font-size: 0.95rem; color: var(--text-main);">${escapeHTML(cat.name)}</div>
+                  <div class="m-exp-cat-title">${escapeHTML(cat.name)}</div>
                 </div>
-                <span class="badge" style="background: rgba(239, 68, 68, 0.12); color: var(--danger); font-weight: 800; font-size: 0.85rem;">
+                <span class="badge badge-m-exp-amount">
                   ${cat.total.toLocaleString('en-US')} ج.م
                 </span>
               </div>
-              <div class="hsc-divider" style="margin: 10px 0;"></div>
-              <div style="display: flex; align-items: center; justify-content: space-between; font-size: 0.82rem;">
-                <span style="color: var(--text-muted);">${cat.count} حركات صرف مسجلة</span>
-                <span style="font-weight: 800; color: var(--text-main);">${pct}% من المصروفات</span>
+              <div class="hsc-divider"></div>
+              <div class="m-exp-cat-stats-row">
+                <span class="text-muted">${cat.count} حركات صرف مسجلة</span>
+                <span class="fw-bold">${pct}% من المصروفات</span>
               </div>
-              <div style="width: 100%; height: 6px; background: var(--bg-subtle); border-radius: 999px; overflow: hidden; margin-top: 8px;">
-                <div style="width: ${pct}%; height: 100%; background: var(--danger); border-radius: 999px;"></div>
+              <div class="m-exp-cat-progress-track">
+                <div class="m-exp-cat-progress-bar" style="width: ${pct}%;"></div>
               </div>
             </div>
           `;
@@ -1994,37 +1994,37 @@ export class FinanceManager {
 
       finSummaryTbody.innerHTML = `
         <tr>
-          <td style="text-align: center; font-weight: 700;">1</td>
-          <td style="font-weight: 700; color: #000000;">إيرادات الجلسات والكشوفات</td>
-          <td style="text-align: center;"><span class="badge badge-cash">نقداً بالخزينة (الدرج)</span></td>
-          <td style="text-align: center; font-weight: 800; color: var(--success);">${totalSessionsIncome.toLocaleString('en-US')} ج.م</td>
-          <td style="text-align: center; font-weight: 800;">${cashPct}%</td>
+          <td class="col-session-idx">1</td>
+          <td class="col-session-patient">إيرادات الجلسات والكشوفات</td>
+          <td class="text-center"><span class="badge badge-cash">نقداً بالخزينة (الدرج)</span></td>
+          <td class="col-center-bold text-success">${totalSessionsIncome.toLocaleString('en-US')} ج.م</td>
+          <td class="col-center-bold">${cashPct}%</td>
         </tr>
         <tr>
-          <td style="text-align: center; font-weight: 700;">2</td>
-          <td style="font-weight: 700; color: #000000;">تحصيلات ومطالبات شركات التأمين</td>
-          <td style="text-align: center;"><span class="badge badge-direct">تحويل بنكي / شيكات / درج</span></td>
-          <td style="text-align: center; font-weight: 800; color: var(--primary);">${totalSettlementsNet.toLocaleString('en-US')} ج.م</td>
-          <td style="text-align: center; font-weight: 800;">${settlePct}%</td>
+          <td class="col-session-idx">2</td>
+          <td class="col-session-patient">تحصيلات ومطالبات شركات التأمين</td>
+          <td class="text-center"><span class="badge badge-direct">تحويل بنكي / شيكات / درج</span></td>
+          <td class="col-center-bold text-primary">${totalSettlementsNet.toLocaleString('en-US')} ج.م</td>
+          <td class="col-center-bold">${settlePct}%</td>
         </tr>
       `;
 
       if (finSummaryTfoot) {
         finSummaryTfoot.innerHTML = `
-          <tr style="background-color: #f1f5f9; font-weight: 800;">
-            <td colspan="3" style="text-align: right; font-weight: 900; color: #000000;">إجمالي مقبوضات وتحصيلات المركز (الدخل العام)</td>
-            <td style="text-align: center; font-weight: 900; color: var(--success); font-size: 8pt;">${totalIncome.toLocaleString('en-US')} ج.م</td>
-            <td style="text-align: center; font-weight: 900;">100%</td>
+          <tr class="fin-summary-row-income">
+            <td colspan="3" class="fin-summary-td-label">إجمالي مقبوضات وتحصيلات المركز (الدخل العام)</td>
+            <td class="fin-summary-td-amount text-success">${totalIncome.toLocaleString('en-US')} ج.م</td>
+            <td class="fin-summary-td-pct">100%</td>
           </tr>
-          <tr style="background-color: #fef2f2;">
-            <td colspan="3" style="text-align: right; font-weight: 800; color: var(--danger);">إجمالي المصروفات التشغيلية للشهر</td>
-            <td style="text-align: center; font-weight: 800; color: var(--danger); font-size: 8pt;">-${totalExpenses.toLocaleString('en-US')} ج.م</td>
-            <td style="text-align: center; font-weight: 700; color: var(--danger);">${totalIncome > 0 ? ((totalExpenses / totalIncome) * 100).toFixed(1) : 0}%</td>
+          <tr class="fin-summary-row-expense">
+            <td colspan="3" class="fin-summary-td-label text-danger">إجمالي المصروفات التشغيلية للشهر</td>
+            <td class="fin-summary-td-amount text-danger">-${totalExpenses.toLocaleString('en-US')} ج.م</td>
+            <td class="fin-summary-td-pct text-danger">${totalIncome > 0 ? ((totalExpenses / totalIncome) * 100).toFixed(1) : 0}%</td>
           </tr>
-          <tr style="background-color: #f0fdf4; border-top: 2px solid #16a34a;">
-            <td colspan="3" style="text-align: right; font-weight: 900; color: #15803d; font-size: 8pt;">صافي الدخل التشغيلي للمركز (الأرباح)</td>
-            <td style="text-align: center; font-weight: 900; color: #15803d; font-size: 8.5pt;">${netProfit.toLocaleString('en-US')} ج.م</td>
-            <td style="text-align: center; font-weight: 900; color: #15803d;">هامش: ${marginPct}%</td>
+          <tr class="fin-summary-row-profit">
+            <td colspan="3" class="fin-summary-td-label text-profit">صافي الدخل التشغيلي للمركز (الأرباح)</td>
+            <td class="fin-summary-td-amount text-profit">${netProfit.toLocaleString('en-US')} ج.م</td>
+            <td class="fin-summary-td-pct text-profit">هامش: ${marginPct}%</td>
           </tr>
         `;
       }
@@ -2032,57 +2032,57 @@ export class FinanceManager {
       const finSummaryMob = document.getElementById('monthly-financial-summary-mobile');
       if (finSummaryMob) {
         finSummaryMob.innerHTML = `
-          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px;">
+          <div class="fin-summary-mob-grid">
             <!-- 1. Cash Sessions Receipts -->
-            <div class="hero-styled-card" style="padding: 12px; border-radius: 14px; background: rgba(16, 185, 129, 0.06); border: 1.5px solid rgba(16, 185, 129, 0.25); text-align: center;">
-              <div style="display: flex; align-items: center; justify-content: center; gap: 6px; font-size: 0.78rem; font-weight: 700; color: var(--text-muted);">
-                <i class="fa-solid fa-money-bill-wave" style="color: var(--success);"></i> إيرادات الجلسات
+            <div class="hero-styled-card fin-kpi-sub-card cash text-center">
+              <div class="fin-kpi-sub-label">
+                <i class="fa-solid fa-money-bill-wave text-success"></i> إيرادات الجلسات
               </div>
-              <div style="font-size: 1.15rem; font-weight: 900; color: var(--success); margin: 6px 0 2px 0;">
+              <div class="fin-kpi-sub-val cash">
                 ${totalSessionsIncome.toLocaleString('en-US')} ج.م
               </div>
-              <div style="font-size: 0.72rem; color: var(--text-muted); font-weight: 700;">
-                <span class="badge badge-cash" style="font-size: 0.7rem; padding: 2px 6px;">نقداً بالخزينة</span> • ${cashPct}%
+              <div class="fin-doc-shift-sub">
+                <span class="badge badge-cash badge-sm">نقداً بالخزينة</span> • ${cashPct}%
               </div>
             </div>
 
             <!-- 2. Insurance Claims Collections -->
-            <div class="hero-styled-card" style="padding: 12px; border-radius: 14px; background: rgba(2, 132, 199, 0.06); border: 1.5px solid rgba(2, 132, 199, 0.25); text-align: center;">
-              <div style="display: flex; align-items: center; justify-content: center; gap: 6px; font-size: 0.78rem; font-weight: 700; color: var(--text-muted);">
-                <i class="fa-solid fa-file-invoice-dollar" style="color: var(--primary);"></i> تحصيلات التأمين
+            <div class="hero-styled-card fin-kpi-sub-card insurance text-center">
+              <div class="fin-kpi-sub-label">
+                <i class="fa-solid fa-file-invoice-dollar text-primary"></i> تحصيلات التأمين
               </div>
-              <div style="font-size: 1.15rem; font-weight: 900; color: var(--primary); margin: 6px 0 2px 0;">
+              <div class="fin-kpi-sub-val insurance">
                 ${totalSettlementsNet.toLocaleString('en-US')} ج.م
               </div>
-              <div style="font-size: 0.72rem; color: var(--text-muted); font-weight: 700;">
-                <span class="badge badge-direct" style="font-size: 0.7rem; padding: 2px 6px;">تحويلات/شيكات</span> • ${settlePct}%
+              <div class="fin-doc-shift-sub">
+                <span class="badge badge-direct badge-sm">تحويلات/شيكات</span> • ${settlePct}%
               </div>
             </div>
           </div>
 
           <!-- 3. Total Income, Expenses & Net Profit Summary Card -->
-          <div class="hero-styled-card" style="padding: 14px 16px; border-radius: 14px; background: var(--bg-subtle); border: 1.5px solid var(--border-color);">
-            <div style="display: flex; justify-content: space-between; align-items: center; font-size: 0.85rem; margin-bottom: 8px;">
-              <span style="font-weight: 800; color: var(--text-main);">إجمالي دخل وتحصيلات المركز:</span>
-              <span style="font-weight: 900; color: var(--success); font-size: 0.95rem;">${totalIncome.toLocaleString('en-US')} ج.م</span>
+          <div class="hero-styled-card fin-summary-cockpit-card">
+            <div class="fin-cockpit-row">
+              <span class="fin-doc-breakdown-title text-main">إجمالي دخل وتحصيلات المركز:</span>
+              <span class="fin-doc-breakdown-sub text-success">${totalIncome.toLocaleString('en-US')} ج.م</span>
             </div>
-            <div style="display: flex; justify-content: space-between; align-items: center; font-size: 0.85rem; margin-bottom: 10px;">
-              <span style="font-weight: 700; color: var(--danger);">إجمالي المصروفات التشغيلية:</span>
-              <span style="font-weight: 900; color: var(--danger); font-size: 0.95rem;">-${totalExpenses.toLocaleString('en-US')} ج.م</span>
+            <div class="fin-cockpit-row">
+              <span class="fin-doc-breakdown-title text-danger">إجمالي المصروفات التشغيلية:</span>
+              <span class="fin-doc-breakdown-sub text-danger">-${totalExpenses.toLocaleString('en-US')} ج.م</span>
             </div>
 
-            <div class="hsc-divider" style="margin: 8px 0 12px 0;"></div>
+            <div class="hsc-divider"></div>
 
-            <div style="background: rgba(16, 185, 129, 0.1); border: 1.5px solid rgba(16, 185, 129, 0.35); border-radius: 12px; padding: 12px 14px; display: flex; justify-content: space-between; align-items: center;">
+            <div class="fin-cockpit-profit-box">
               <div>
-                <div style="font-size: 0.82rem; font-weight: 800; color: var(--success); display: flex; align-items: center; gap: 6px;">
+                <div class="fin-cockpit-profit-title">
                   <i class="fa-solid fa-chart-line"></i> صافي الدخل التشغيلي (الأرباح)
                 </div>
-                <div style="font-size: 0.72rem; color: var(--text-muted); font-weight: 700; margin-top: 3px;">
+                <div class="fin-cockpit-profit-sub">
                   هامش الربح التشغيلي: <strong>${marginPct}%</strong>
                 </div>
               </div>
-              <div style="font-size: 1.22rem; font-weight: 900; color: var(--success); direction: ltr;">
+              <div class="fin-cockpit-profit-val">
                 ${netProfit.toLocaleString('en-US')} ج.م
               </div>
             </div>
@@ -2098,8 +2098,8 @@ export class FinanceManager {
     if (mExpMob) {
       if (allExpenses.length === 0) {
         mExpMob.innerHTML = `
-          <div class="expenses-compact-list" style="padding: 24px 16px; text-align: center; color: var(--text-muted); font-size: 0.88rem;">
-            <i class="fa-solid fa-receipt" style="font-size: 1.5rem; opacity: 0.4; margin-bottom: 8px; display: block;"></i>
+          <div class="expenses-compact-list expenses-compact-empty">
+            <i class="fa-solid fa-receipt expenses-empty-icon"></i>
             لا توجد مصروفات مسجلة لهذا الشهر.
           </div>
         `;
@@ -2110,11 +2110,11 @@ export class FinanceManager {
           <div class="expenses-compact-list">
             <div class="expenses-header-summary">
               <span><i class="fa-solid fa-receipt"></i> ${allExpenses.length} مصروفات مسجلة</span>
-              <span style="color: var(--danger); font-size: 0.88rem; font-weight: 800;">إجمالي: ${totalMExp.toLocaleString('en-US')} ج.م</span>
+              <span class="expenses-total-amount">إجمالي: ${totalMExp.toLocaleString('en-US')} ج.م</span>
             </div>
             <div class="expenses-scroll-wrapper">
               ${allExpenses.map((e, idx) => `
-                <div class="expense-row-item ${idx >= 5 ? 'expense-item-collapsed' : ''}" style="${idx >= 5 ? 'display: none;' : ''}">
+                <div class="expense-row-item ${idx >= 5 ? 'expense-item-collapsed d-none' : ''}">
                   <div class="expense-row-right">
                     <div class="expense-avatar-icon">
                       <i class="fa-solid fa-receipt"></i>
@@ -2141,8 +2141,8 @@ export class FinanceManager {
                 </div>
               `).join('')}
             </div>
-            ${hasMoreMExp ? `
-              <button type="button" class="btn-toggle-monthly-expenses-more" data-expanded="false" style="width: 100%; padding: 10px; background: none; border: none; border-top: 1px solid var(--border-color); color: var(--primary); font-size: 0.84rem; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px;">
+            ${hasMoreExp ? `
+              <button type="button" class="btn-toggle-monthly-expenses-more" data-expanded="false">
                 <span>عرض باقي المصروفات (${allExpenses.length - 5}+)</span>
                 <i class="fa-solid fa-chevron-down"></i>
               </button>
@@ -2156,11 +2156,11 @@ export class FinanceManager {
             const isExp = btn.getAttribute('data-expanded') === 'true';
             const hiddenRows = mExpMob.querySelectorAll('.expense-item-collapsed');
             if (isExp) {
-              hiddenRows.forEach(r => r.style.display = 'none');
+              hiddenRows.forEach(r => r.classList.add('d-none'));
               btn.setAttribute('data-expanded', 'false');
               btn.innerHTML = `<span>عرض باقي المصروفات (${allExpenses.length - 5}+)</span> <i class="fa-solid fa-chevron-down"></i>`;
             } else {
-              hiddenRows.forEach(r => r.style.display = 'flex');
+              hiddenRows.forEach(r => r.classList.remove('d-none'));
               btn.setAttribute('data-expanded', 'true');
               btn.innerHTML = `<span>عرض أقل</span> <i class="fa-solid fa-chevron-up"></i>`;
             }
