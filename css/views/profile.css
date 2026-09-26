@@ -1,5 +1,5 @@
 /* ==========================================================================
-   ASCPT Clinic PWA - Profile View (#view-profile)
+   ASCPT Clinic PWA - Profile & Settings View (#view-profile & #view-settings)
    Modern Clean View Shell Stylesheet
    Zero !important Architecture
    ========================================================================== */
@@ -34,17 +34,28 @@
 }
 
 .profile-hero-avatar {
-  width: 72px;
-  height: 72px;
+  width: 84px;
+  height: 84px;
   border-radius: var(--radius-full);
   background: var(--primary-light);
   color: var(--primary);
-  font-size: 2rem;
+  font-size: 2.3rem;
   font-weight: var(--fw-bold);
   display: flex;
   align-items: center;
   justify-content: center;
   border: 3px solid var(--border-color);
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+  position: relative;
+}
+
+.profile-hero-avatar-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: var(--radius-full);
+  display: block;
 }
 
 .profile-hero-online-dot {
@@ -56,6 +67,45 @@
   background-color: var(--success);
   border: 2.5px solid var(--bg-surface);
   border-radius: 50%;
+}
+
+.profile-avatar-camera-btn {
+  position: absolute;
+  bottom: 0;
+  right: -2px;
+  width: 28px;
+  height: 28px;
+  border-radius: var(--radius-full);
+  background: var(--bg-surface);
+  border: 2px solid var(--border-color);
+  color: var(--primary);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.78rem;
+  cursor: pointer;
+  box-shadow: var(--shadow-sm);
+  transition: background-color var(--transition-fast), color var(--transition-fast), transform var(--transition-fast);
+  -webkit-tap-highlight-color: transparent;
+  padding: 0;
+}
+
+@media (hover: hover) {
+  .profile-avatar-camera-btn:hover {
+    background: var(--primary-light);
+    color: var(--primary-dark, var(--primary));
+    transform: scale(1.05);
+  }
+}
+
+.profile-avatar-camera-btn:active {
+  transform: scale(0.95);
+}
+
+[data-theme="dark"] .profile-avatar-camera-btn {
+  background: #1e293b;
+  border-color: #334155;
+  color: #93c5fd;
 }
 
 .profile-hero-name {
@@ -154,30 +204,60 @@
   gap: 12px;
 }
 
+.profile-setting-text-col {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  text-align: right;
+}
+
+.profile-setting-label {
+  font-size: 0.92rem;
+  font-weight: var(--fw-semibold, 600);
+  color: var(--text-main);
+  line-height: 1.3;
+}
+
+.profile-setting-sub {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  line-height: 1.25;
+}
+
 .profile-setting-icon {
-  width: 36px;
-  height: 36px;
-  border-radius: var(--radius-sm);
+  width: 38px;
+  height: 38px;
+  border-radius: var(--radius-md);
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  font-size: 1rem;
+  font-size: 1.05rem;
+  flex-shrink: 0;
 }
 
-.profile-icon-push { background: rgba(2, 132, 199, 0.1); color: var(--primary); }
-.profile-icon-admin { background: rgba(245, 158, 11, 0.1); color: var(--warning); }
-.profile-icon-theme { background: rgba(99, 102, 241, 0.1); color: #6366f1; }
-.profile-icon-pwd { background: rgba(16, 185, 129, 0.1); color: var(--success); }
-.profile-icon-logout { background: rgba(239, 68, 68, 0.1); color: var(--danger); }
+.profile-icon-push { background: rgba(2, 132, 199, 0.12); color: var(--primary); }
+.profile-icon-admin { background: rgba(245, 158, 11, 0.12); color: var(--warning); }
+.profile-icon-finance { background: rgba(16, 185, 129, 0.12); color: #059669; }
+[data-theme="dark"] .profile-icon-finance { background: rgba(52, 211, 153, 0.15); color: #34d399; }
+.profile-icon-settings { background: rgba(14, 165, 233, 0.12); color: #0284c7; }
+.profile-icon-theme { background: rgba(99, 102, 241, 0.12); color: #6366f1; }
+.profile-icon-pwd { background: rgba(16, 185, 129, 0.12); color: var(--success); }
+.profile-icon-logout { background: rgba(239, 68, 68, 0.12); color: var(--danger); }
 
-/* Dedicated Stand-Alone Logout Card at Bottom */
+/* Dedicated Stand-Alone Logout Card at Bottom with Muted Warning */
 .profile-logout-card {
   background: var(--bg-surface);
-  border: 1px solid var(--border-color);
+  border: 1px solid rgba(239, 68, 68, 0.22);
   border-radius: var(--radius-lg);
   overflow: hidden;
   box-shadow: var(--shadow-sm);
-  margin-top: 4px;
+  margin-top: 6px;
+}
+
+[data-theme="dark"] .profile-logout-card {
+  border-color: rgba(239, 68, 68, 0.28);
+  background: rgba(239, 68, 68, 0.03);
 }
 
 .profile-logout-card .profile-setting-item {
@@ -186,15 +266,195 @@
 
 @media (hover: hover) {
   .profile-logout-card .profile-setting-item:hover {
-    background-color: rgba(239, 68, 68, 0.06);
+    background-color: rgba(239, 68, 68, 0.08);
   }
 }
 
 .profile-logout-card .profile-setting-item:active {
-  background-color: rgba(239, 68, 68, 0.08);
+  background-color: rgba(239, 68, 68, 0.14);
 }
 
 .profile-logout-label {
   font-weight: var(--fw-bold, 700);
   color: var(--danger);
 }
+
+/* ==========================================================================
+   Settings Sub-View (#view-settings)
+   ========================================================================== */
+.settings-view-container {
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 8px 12px 36px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.settings-top-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 4px 14px;
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.settings-back-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.88rem;
+  font-weight: var(--fw-semibold, 600);
+  padding: 7px 14px;
+  border-radius: var(--radius-md);
+  color: var(--text-main);
+  background: var(--bg-surface);
+  border: 1px solid var(--border-color);
+  cursor: pointer;
+  transition: background-color var(--transition-fast), border-color var(--transition-fast), color var(--transition-fast);
+  -webkit-tap-highlight-color: transparent;
+  font-family: inherit;
+}
+
+@media (hover: hover) {
+  .settings-back-btn:hover {
+    background: var(--bg-subtle);
+    border-color: var(--primary);
+    color: var(--primary);
+  }
+}
+
+.settings-back-btn:active {
+  background: var(--bg-subtle);
+}
+
+.settings-top-title {
+  font-size: 1.15rem;
+  font-weight: var(--fw-bold, 700);
+  color: var(--text-main);
+  margin: 0;
+  text-align: center;
+}
+
+.settings-top-spacer {
+  width: 72px; /* Balanced spacer mirroring back button width for optical centering */
+}
+
+.settings-cards-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.settings-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.settings-group-header {
+  font-size: 0.85rem;
+  font-weight: var(--fw-bold, 700);
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0 4px;
+}
+
+[data-theme="dark"] .settings-group-header {
+  color: #94a3b8;
+}
+
+/* Smooth view transition between Profile & Settings */
+#view-settings.active,
+#view-profile.active {
+  animation: fadeInSubView 0.2s ease-out;
+}
+
+@keyframes fadeInSubView {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ----------------------------------------------------------------------------
+   Theme Segmented Control in Settings Sub-View
+   ---------------------------------------------------------------------------- */
+.profile-setting-theme-block {
+  flex-direction: column;
+  align-items: stretch;
+  gap: 12px;
+  cursor: default;
+}
+
+.theme-segmented-control {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 6px;
+  background: var(--bg-subtle);
+  padding: 4px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-color);
+}
+
+[data-theme="dark"] .theme-segmented-control {
+  background: rgba(15, 23, 42, 0.6);
+  border-color: rgba(255, 255, 255, 0.08);
+}
+
+.theme-segment-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 8px 6px;
+  border-radius: var(--radius-sm);
+  border: none;
+  background: transparent;
+  color: var(--text-muted);
+  font-family: inherit;
+  font-size: 0.84rem;
+  font-weight: var(--fw-semibold);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  -webkit-tap-highlight-color: transparent;
+}
+
+.theme-segment-btn i {
+  font-size: 0.92rem;
+  transition: transform 0.2s ease;
+}
+
+@media (hover: hover) {
+  .theme-segment-btn:hover {
+    color: var(--text-main);
+    background: rgba(0, 0, 0, 0.04);
+  }
+  [data-theme="dark"] .theme-segment-btn:hover {
+    background: rgba(255, 255, 255, 0.06);
+  }
+}
+
+.theme-segment-btn:active {
+  transform: scale(0.98);
+}
+
+.theme-segment-btn.active {
+  background: var(--bg-surface);
+  color: var(--primary);
+  font-weight: var(--fw-bold);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08), 0 1px 2px rgba(0, 0, 0, 0.04);
+}
+
+[data-theme="dark"] .theme-segment-btn.active {
+  background: rgba(30, 41, 59, 0.95);
+  color: #38bdf8;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
+}
+

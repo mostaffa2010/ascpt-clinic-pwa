@@ -86,6 +86,7 @@ import { AuditAndAdminManager } from './audit.js';
 import { RolesManager } from './roles.js';
 import { NotificationsManager } from './notifications.js';
 import { CLINIC_CONFIG } from './clinic-config.js';
+import { ThemeManager } from './theme.js';
 
 class App {
   constructor() {
@@ -96,6 +97,8 @@ class App {
     window.app = this;
     window.auth = auth;
     window.db = db;
+    this.themeManager = new ThemeManager(this);
+    window.themeManager = this.themeManager;
     this.patientsManager = new PatientsManager(this);
     this.sessionsManager = new SessionsManager(this);
     this.financeManager = new FinanceManager(this);
@@ -305,7 +308,7 @@ class App {
       if (savedView && savedView !== 'dashboard') {
         const user = auth.getCurrentUser();
         // Permission bounds
-        if (user?.role === 'doctor' && savedView !== 'patients' && savedView !== 'patient-sheet') {
+        if (user?.role === 'doctor' && (savedView !== 'patients' && savedView !== 'patient-sheet' && savedView !== 'notifications' && savedView !== 'profile' && savedView !== 'settings')) {
           return;
         }
         if (user?.role === 'receptionist' && (savedView === 'admin' || savedView === 'patient-sheet')) {
@@ -357,66 +360,111 @@ class App {
   }
 
   initTheme() {
-    const saved = localStorage.getItem('ascpt_theme');
-    const isDark = saved === 'dark';
-    this.applyTheme(isDark ? 'dark' : 'light');
-
-    const toggleBtns = document.querySelectorAll('#btn-toggle-theme, #btn-toggle-theme-desktop, #btn-profile-toggle-theme, #btn-view-toggle-theme');
-    toggleBtns.forEach(btn => {
-      btn.addEventListener('click', () => this.toggleTheme());
-    });
+    if (this.themeManager) {
+      this.themeManager.init();
+    }
   }
 
   toggleTheme() {
-    const current = document.documentElement.getAttribute('data-theme');
-    const next = current === 'dark' ? 'light' : 'dark';
-    this.applyTheme(next);
-    localStorage.setItem('ascpt_theme', next);
-    this.showToast(next === 'dark' ? 'تم تفعيل الوضع الليلي 🌙' : 'تم تفعيل الوضع النهاري ☀️');
+    if (this.themeManager) {
+      this.themeManager.toggleTheme();
+    }
   }
 
   applyTheme(theme) {
-    const pIcon = document.getElementById('profile-theme-icon');
-    const pLabel = document.getElementById('profile-theme-label');
-    const vpIcon = document.getElementById('view-profile-theme-icon');
-    const vpLabel = document.getElementById('view-profile-theme-label');
+    if (this.themeManager) {
+      this.themeManager.applyTheme(theme);
+    }
+  }
 
-    if (theme === 'dark') {
-      document.documentElement.setAttribute('data-theme', 'dark');
-      const meta = document.querySelector('meta[name="theme-color"]');
-      if (meta) meta.setAttribute('content', '#0b1120');
-      document.querySelectorAll('#btn-toggle-theme i, #btn-toggle-theme-desktop i').forEach(icon => {
-        icon.className = 'fa-solid fa-sun text-warning';
-        icon.style.removeProperty('color');
-      });
-      if (pIcon) {
-        pIcon.className = 'fa-solid fa-sun text-warning';
-        pIcon.style.removeProperty('color');
+  compressAndCropAvatar(file) {
+    return new Promise((resolve, reject) => {
+      if (!file || !file.type.startsWith('image/')) {
+        return reject(new Error('الملف المحدد ليس صورة صالحة'));
       }
-      if (pLabel) pLabel.textContent = 'الوضع النهاري (فاتح)';
-      if (vpIcon) {
-        vpIcon.className = 'fa-solid fa-sun text-warning';
-        vpIcon.style.removeProperty('color');
+      const reader = new FileReader();
+      reader.onerror = () => reject(new Error('خطأ في قراءة ملف الصورة'));
+      reader.onload = () => {
+        const img = new Image();
+        img.onerror = () => reject(new Error('تعذر تحميل بيانات الصورة'));
+        img.onload = () => {
+          try {
+            const canvas = document.createElement('canvas');
+            const targetSize = 160;
+            canvas.width = targetSize;
+            canvas.height = targetSize;
+            const ctx = canvas.getContext('2d');
+            const minDim = Math.min(img.width, img.height);
+            const sx = (img.width - minDim) / 2;
+            const sy = (img.height - minDim) / 2;
+            ctx.drawImage(img, sx, sy, minDim, minDim, 0, 0, targetSize, targetSize);
+
+            let dataUrl = canvas.toDataURL('image/webp', 0.82);
+            if (!dataUrl.startsWith('data:image/webp')) {
+              dataUrl = canvas.toDataURL('image/jpeg', 0.82);
+            }
+            resolve(dataUrl);
+          } catch (err) {
+            reject(err);
+          }
+        };
+        img.src = reader.result;
+      };
+      reader.readAsDataURL(file);
+    });
+  }
+
+  saveUserAvatar(base64) {
+    const user = auth.getCurrentUser() || window.__ASCPT_INITIAL_USER || {};
+    const userId = user.id || user.uid || 'current_user';
+    try {
+      localStorage.setItem(`ascpt_avatar_${userId}`, base64);
+      user.photoURL = base64;
+      user.avatar = base64;
+      const cached = localStorage.getItem('ascpt_cached_user');
+      if (cached) {
+        try {
+          const parsed = JSON.parse(cached);
+          parsed.photoURL = base64;
+          parsed.avatar = base64;
+          localStorage.setItem('ascpt_cached_user', JSON.stringify(parsed));
+        } catch (_) {}
       }
-      if (vpLabel) vpLabel.textContent = 'الوضع النهاري (فاتح)';
+    } catch (e) {
+      console.warn('Avatar storage notice:', e);
+    }
+    this.renderAvatarPhoto(base64, user);
+  }
+
+  renderAvatarPhoto(photoUrl, user) {
+    const u = user || auth.getCurrentUser() || window.__ASCPT_INITIAL_USER || {};
+    const userId = u.id || u.uid || 'current_user';
+    let avatarData = photoUrl;
+    if (!avatarData) {
+      try {
+        avatarData = localStorage.getItem(`ascpt_avatar_${userId}`) || u.photoURL || u.avatar;
+      } catch (_) {}
+    }
+
+    const heroAvatarEl = document.getElementById('view-profile-avatar-letter');
+    const navAvatarEl = document.getElementById('b-nav-avatar-letter');
+    const displayName = u.name || 'مستخدم النظام';
+    const initialLetter = displayName.trim().charAt(0).toUpperCase() || 'م';
+
+    if (avatarData) {
+      if (heroAvatarEl) {
+        heroAvatarEl.innerHTML = `<img src="${avatarData}" alt="الصورة الشخصية" class="profile-hero-avatar-img">`;
+      }
+      if (navAvatarEl) {
+        navAvatarEl.innerHTML = `<img src="${avatarData}" alt="حسابي" class="b-nav-avatar-img">`;
+      }
     } else {
-      document.documentElement.removeAttribute('data-theme');
-      const meta = document.querySelector('meta[name="theme-color"]');
-      if (meta) meta.setAttribute('content', '#0284c7');
-      document.querySelectorAll('#btn-toggle-theme i, #btn-toggle-theme-desktop i').forEach(icon => {
-        icon.className = 'fa-solid fa-moon';
-        icon.style.removeProperty('color');
-      });
-      if (pIcon) {
-        pIcon.className = 'fa-solid fa-moon';
-        pIcon.style.removeProperty('color');
+      if (heroAvatarEl) {
+        heroAvatarEl.textContent = initialLetter;
       }
-      if (pLabel) pLabel.textContent = 'الوضع الليلي (داكن)';
-      if (vpIcon) {
-        vpIcon.className = 'fa-solid fa-moon';
-        vpIcon.style.removeProperty('color');
+      if (navAvatarEl) {
+        navAvatarEl.textContent = initialLetter;
       }
-      if (vpLabel) vpLabel.textContent = 'الوضع الليلي (داكن)';
     }
   }
 
@@ -505,10 +553,13 @@ class App {
   }
 
   switchView(viewName, isBackNavigation = false) {
+    if (viewName === 'accounts') {
+      viewName = 'finance';
+    }
     const user = auth.getCurrentUser();
     // تقييد صلاحيات التنقل حسب الدور
     if (user?.role === 'doctor') {
-      if (viewName !== 'dashboard' && viewName !== 'patients' && viewName !== 'patient-sheet' && viewName !== 'notifications' && viewName !== 'profile') {
+      if (viewName !== 'dashboard' && viewName !== 'patients' && viewName !== 'patient-sheet' && viewName !== 'notifications' && viewName !== 'profile' && viewName !== 'settings') {
         viewName = 'dashboard';
       }
     } else if (user?.role === 'receptionist') {
@@ -545,12 +596,16 @@ class App {
 
     // Update active state on Desktop sidebar
     document.querySelectorAll('.sidebar-nav .nav-link').forEach(btn => {
-      btn.classList.toggle('active', btn.getAttribute('data-view') === viewName);
+      const btnView = btn.getAttribute('data-view');
+      const isActive = (btnView === viewName) || (btnView === 'profile' && viewName === 'settings');
+      btn.classList.toggle('active', isActive);
     });
 
     // Update active state on Mobile bottom nav
     document.querySelectorAll('.bottom-nav .b-nav-item').forEach(btn => {
-      btn.classList.toggle('active', btn.getAttribute('data-view') === viewName);
+      const btnView = btn.getAttribute('data-view');
+      const isActive = (btnView === viewName) || (btnView === 'profile' && viewName === 'settings');
+      btn.classList.toggle('active', isActive);
     });
 
     // ضمان إتاحة تبويبي الإشعارات وحسابي في شريط التنقل السفلي لجميع الأدوار
@@ -587,7 +642,7 @@ class App {
         }
       }
     }
-    if (viewName === 'profile') {
+    if (viewName === 'profile' || viewName === 'settings') {
       this.renderProfileView();
     }
     if (viewName === 'admin') {
@@ -758,6 +813,38 @@ class App {
 
     // Clean #view-profile event wiring
     const bindProfileViewEvents = () => {
+      document.getElementById('btn-profile-to-settings')?.addEventListener('click', () => {
+        this.switchView('settings');
+      });
+
+      document.getElementById('btn-settings-back')?.addEventListener('click', () => {
+        this.switchView('profile');
+      });
+
+      const fileInput = document.getElementById('input-profile-avatar');
+      document.getElementById('btn-profile-avatar-upload')?.addEventListener('click', () => {
+        fileInput?.click();
+      });
+
+      fileInput?.addEventListener('change', async (e) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+        try {
+          const base64 = await this.compressAndCropAvatar(file);
+          this.saveUserAvatar(base64);
+          this.showToast('تم تحديث الصورة الشخصية بنجاح ✓');
+        } catch (err) {
+          console.error('Avatar upload failed:', err);
+          this.showToast('تعذر معالجة الصورة، يرجى المحاولة مرة أخرى.');
+        } finally {
+          e.target.value = '';
+        }
+      });
+
+      document.getElementById('btn-profile-to-accounts')?.addEventListener('click', () => {
+        this.switchView('finance');
+      });
+
       document.getElementById('btn-view-toggle-push')?.addEventListener('click', () => {
         this.notificationsManager?.openPrimerModal();
       });
@@ -813,6 +900,8 @@ class App {
       const roleEl = document.getElementById('view-profile-user-role');
       const avatarEl = document.getElementById('view-profile-avatar-letter');
       const btnAdmin = document.getElementById('btn-view-admin-panel');
+      const adminCard = document.getElementById('card-profile-admin');
+      const accountsCard = document.getElementById('card-profile-accounts');
 
       const displayName = user.name || 'مستخدم النظام';
       if (nameEl) nameEl.textContent = displayName;
@@ -831,24 +920,29 @@ class App {
         roleEl.className = `profile-hero-role role-${user.role || 'doctor'}`;
       }
 
-      if (btnAdmin) {
+      if (adminCard) {
+        adminCard.classList.toggle('d-none', user.role !== 'admin');
+      } else if (btnAdmin) {
         btnAdmin.classList.toggle('d-none', user.role !== 'admin');
       }
 
+      if (accountsCard) {
+        const canAccessFinance = user && (user.role === 'admin' || user.role === 'receptionist');
+        accountsCard.classList.toggle('d-none', !canAccessFinance);
+      }
+
+      this.renderAvatarPhoto(null, user);
       updateViewPushStatus();
     };
     this.renderProfileView = renderProfileView;
 
     const updateProfileNavAvatar = (user) => {
       const u = user || auth.getCurrentUser() || window.__ASCPT_INITIAL_USER;
-      const navAvatarEl = document.getElementById('b-nav-avatar-letter');
-      if (navAvatarEl) {
-        const name = u?.name || '';
-        navAvatarEl.textContent = name.trim().charAt(0).toUpperCase() || 'م';
-      }
+      this.renderAvatarPhoto(null, u);
     };
     this.updateProfileNavAvatar = updateProfileNavAvatar;
     updateProfileNavAvatar();
+    this.renderAvatarPhoto();
 
     document.getElementById('sidebar-user-profile-trigger')?.addEventListener('click', (e) => {
       e.preventDefault();
@@ -1337,6 +1431,8 @@ class App {
           // الرجوع الطبيعي بين الشاشات دون قفز مفاجئ للرئيسية
           if (this.currentView === 'patient-sheet') {
             this.switchView('patients', true);
+          } else if (this.currentView === 'settings') {
+            this.switchView('profile', true);
           } else {
             this.switchView('dashboard', true);
           }

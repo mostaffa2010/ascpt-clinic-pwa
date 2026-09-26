@@ -2094,6 +2094,18 @@ export class FinanceManager {
     const canDelFinance = RolesManager.canDeleteFinance(auth.getCurrentUser());
 
     // Monthly Expenses Mobile Cards (Compact List)
+    const mExpCard = document.getElementById('card-monthly-expenses');
+    if (mExpCard) {
+      mExpCard.style.display = 'block';
+    }
+    const totalMExp = allExpenses.reduce((acc, curr) => acc + (parseFloat(curr.amount) || 0), 0);
+    const mExpBadge = document.getElementById('monthly-expenses-count-badge');
+    if (mExpBadge) {
+      mExpBadge.textContent = allExpenses.length > 0
+        ? `${allExpenses.length} مصروفات • ${totalMExp.toLocaleString('en-US')} ج.م`
+        : '0 مصروفات';
+    }
+
     const mExpMob = document.getElementById('monthly-expenses-mobile-cards');
     if (mExpMob) {
       if (allExpenses.length === 0) {
@@ -2104,7 +2116,6 @@ export class FinanceManager {
           </div>
         `;
       } else {
-        const totalMExp = allExpenses.reduce((acc, curr) => acc + (parseFloat(curr.amount) || 0), 0);
         const hasMoreMExp = allExpenses.length > 5;
         mExpMob.innerHTML = `
           <div class="expenses-compact-list">
@@ -2141,7 +2152,7 @@ export class FinanceManager {
                 </div>
               `).join('')}
             </div>
-            ${hasMoreExp ? `
+            ${hasMoreMExp ? `
               <button type="button" class="btn-toggle-monthly-expenses-more" data-expanded="false">
                 <span>عرض باقي المصروفات (${allExpenses.length - 5}+)</span>
                 <i class="fa-solid fa-chevron-down"></i>
