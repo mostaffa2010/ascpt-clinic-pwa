@@ -362,7 +362,7 @@
           <!-- Quick Access Actions Grid (Inspired by Reference 2) -->
           <div class="quick-access-bar">
             <div class="quick-access-header">
-              <span class="quick-access-title"><i class="fa-solid fa-bolt" style="color: var(--warning);"></i> وصول سريع</span>
+              <span class="quick-access-title"><i class="fa-solid fa-bolt text-warning"></i> وصول سريع</span>
             </div>
             <div class="quick-access-items">
               <button type="button" class="quick-action-btn" data-view-target="sessions">
@@ -2481,7 +2481,7 @@
                 <i class="fa-solid fa-phone-flip modern-input-icon"></i>
                 <input type="tel" id="p-phone" class="form-control modern-input" required placeholder="01xxxxxxxxx" maxlength="11" inputmode="numeric">
               </div>
-              <div id="p-phone-feedback" class="form-feedback-msg" style="display: none;"></div>
+              <div id="p-phone-feedback" class="form-feedback-msg d-none"></div>
             </div>
 
             <div class="form-group form-group-modern">
@@ -2496,16 +2496,16 @@
           </div>
 
           <!-- 4. Patient Body Parts Multi-Picker -->
-          <div class="form-group form-group-modern" style="margin-top: 4px;">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+          <div class="form-group form-group-modern mt-4">
+            <div class="d-flex justify-between align-center mb-4">
               <label class="modern-field-label m-0">
                 <i class="fa-solid fa-bone text-primary"></i> المنطقة أو الأعضاء المعالجة <span class="required-star">*</span>
               </label>
-              <span id="patient-body-parts-badge" class="badge badge-primary" style="font-size: 0.74rem;">0 أعضاء</span>
+              <span id="patient-body-parts-badge" class="badge badge-primary">0 أعضاء</span>
             </div>
             <button type="button" class="custom-select-btn modern-select-btn" id="btn-open-patient-body-parts" style="min-height: 44px; padding: 6px 12px; display: flex; align-items: center; justify-content: space-between; width: 100%;">
-              <div id="patient-body-parts-preview" class="multi-select-preview" style="display: flex; flex-wrap: wrap; gap: 4px; align-items: center; flex: 1;">
-                <span style="color: var(--text-muted); font-size: 0.88rem;">-- اضغط لاختيار وتحديد الأعضاء المعالجة --</span>
+              <div id="patient-body-parts-preview" class="multi-select-preview">
+                <span class="text-muted">-- اضغط لاختيار وتحديد الأعضاء المعالجة --</span>
               </div>
               <i class="fa-solid fa-chevron-down custom-select-arrow"></i>
             </button>
@@ -2517,7 +2517,7 @@
             <label class="modern-field-label">
               <i class="fa-solid fa-notes-medical text-primary"></i> البرنامج العلاجي / فئة الحالة
             </label>
-            <div class="program-type-segmented" style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px;">
+            <div class="program-type-segmented modal-grid-2col-gap8">
               <label class="program-pill-opt">
                 <input type="radio" name="p-program-type" value="regular" checked>
                 <span class="program-pill-btn"><i class="fa-solid fa-bone"></i> عام / عظام</span>
@@ -2535,7 +2535,7 @@
                 <span class="program-pill-btn"><i class="fa-solid fa-wheelchair"></i> Quadriplegia</span>
               </label>
             </div>
-            <div style="font-size: 0.72rem; color: var(--text-muted); margin-top: 3px;">
+            <div class="modal-hint-sm">
               يتم تعيين نوع الجلسة وسعر محاسبة الطبيب تلقائياً في شاشة الحضور بناءً على البرنامج المختار.
             </div>
           </div>
@@ -2577,7 +2577,7 @@
             <!-- نوع التعاقد Switcher -->
             <div class="form-group mb-12">
               <div class="flex-between-mb6">
-                <label style="font-weight: 800; font-size: 0.88rem; color: var(--text-main);">نوع التعاقد مع الشركة *</label>
+                <label class="modal-label-bold">نوع التعاقد مع الشركة *</label>
               </div>
               <div class="insurance-contract-segmented">
                 <label class="segmented-option">
@@ -2594,10 +2594,10 @@
             <!-- اختيار شركة التأمين بنظام الكبسولات السريعة (Quick Chips) -->
             <div class="form-group mb-12">
               <div class="flex-between-mb6">
-                <label style="font-weight: 800; font-size: 0.88rem; color: var(--text-main); margin: 0;">
+                <label class="modal-label-bold m-0">
                   <i class="fa-solid fa-building-shield text-primary"></i> اختر شركة التأمين <span class="required-star">*</span>
                 </label>
-                <span id="p-selected-ins-preview" style="font-size: 0.82rem; font-weight: 800; color: var(--primary);"></span>
+                <span id="p-selected-ins-preview" class="fw-800 text-primary"></span>
               </div>
               <input type="hidden" id="p-insurance-company" value="">
 
@@ -2619,14 +2619,14 @@
             </div>
 
             <!-- Approved Visits & Body Parts for Insurance Approval -->
-            <div style="margin-top: 12px; border-top: 1px dashed var(--border-color); padding-top: 10px;">
-              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+            <div class="mt-12 pt-10 border-top-dashed">
+              <div class="modal-grid-2col">
                 <div class="form-group">
                   <label for="p-approved-sessions" class="label-metric-bold">
                     <i class="fa-solid fa-calendar-check text-primary"></i> زيارات الجواب المعتمدة *
                   </label>
-                  <input type="number" id="p-approved-sessions" class="form-control" value="12" min="1" max="100" style="height: 42px; font-weight: 800; font-size: 0.95rem; line-height: 1.4; padding: 0 10px;" placeholder="12">
-                  <small style="color: var(--text-muted); font-size: 0.72rem; display: block; margin-top: 3px;">
+                  <input type="number" id="p-approved-sessions" class="form-control h-42 fw-800" value="12" min="1" max="100" placeholder="12">
+                  <small class="modal-hint-sm">
                     حضور المريض بالمركز
                   </small>
                 </div>
@@ -2651,7 +2651,7 @@
                   </small>
                 </div>
               </div>
-              <div id="p-approval-units-summary" style="background: var(--bg-subtle); border-radius: 8px; padding: 8px 12px; margin-top: 8px; font-size: 0.8rem; font-weight: 700; color: var(--primary); border: 1px solid var(--border-color); display: flex; align-items: center; gap: 8px;">
+              <div id="p-approval-units-summary" class="modal-units-summary">
                 <i class="fa-solid fa-circle-info"></i>
                 <span id="p-approval-units-text">الرصيد: 12 زيارة للمريض • يعادل 12 جلسة/وحدة عمل للطبيب (12 زيارة × 1 عضو)</span>
               </div>
@@ -2667,21 +2667,21 @@
   </div>
 
   <!-- Modal: Post Patient Registration Action Prompt (الحل التلقائي السريع) -->
-  <div class="modal-backdrop" id="modal-patient-action-prompt" style="z-index: 250;">
-    <div class="modal-content" style="max-width: 440px; border-radius: 24px; padding: 24px 22px; text-align: center;">
-      <div style="width: 60px; height: 60px; border-radius: 50%; background: var(--success-light); color: var(--success); display: inline-flex; align-items: center; justify-content: center; font-size: 1.65rem; margin-bottom: 14px; box-shadow: 0 4px 16px rgba(16, 185, 129, 0.25);">
+  <div class="modal-backdrop" id="modal-patient-action-prompt" class="z-250">
+    <div class="modal-content modal-content-r24-center">
+      <div class="icon-circle-success">
         <i class="fa-solid fa-check"></i>
       </div>
-      <h3 style="font-size: 1.25rem; font-weight: 800; color: var(--text-main); margin-bottom: 6px;">تم تسجيل المريض بنجاح!</h3>
-      <p style="font-size: 0.92rem; color: var(--text-muted); margin-bottom: 22px; line-height: 1.55;">
-        تمت إضافة المريض: <strong id="action-prompt-patient-name" style="color: var(--primary); font-weight: 800;">-</strong><br>
+      <h3 class="modal-label-bold">تم تسجيل المريض بنجاح!</h3>
+      <p class="modal-note-xs">
+        تمت إضافة المريض: <strong id="action-prompt-patient-name" class="text-primary fw-800">-</strong><br>
         هل ترغب في تسجيل جلسة علاج أو كشف له الآن؟
       </p>
-      <div style="display: flex; flex-direction: column; gap: 10px; width: 100%;">
-        <button type="button" class="btn btn-primary" id="btn-prompt-record-session" style="height: 48px; border-radius: 14px; font-weight: 800; font-size: 0.98rem; display: flex; align-items: center; justify-content: center; gap: 8px;">
+      <div class="flex-col-gap10 w-100">
+        <button type="button" class="btn btn-primary" id="btn-prompt-record-session" class="btn-h48-primary">
           <i class="fa-solid fa-bolt"></i> <span>تسجيل جلسة / كشف الآن</span>
         </button>
-        <button type="button" class="btn btn-outline" id="btn-prompt-stay-patients" style="height: 44px; border-radius: 14px; font-weight: 700; font-size: 0.9rem; color: var(--text-muted);">
+        <button type="button" class="btn btn-outline" id="btn-prompt-stay-patients" class="btn-h44-outline-muted">
           البقاء في سجل المرضى
         </button>
       </div>
@@ -2690,17 +2690,17 @@
 
   
   <!-- Modal: Patient Documents Hub (نافذة المستندات والطباعة الموحدة) -->
-  <div class="modal-backdrop" id="modal-patient-docs" style="z-index: 210;">
+  <div class="modal-backdrop" id="modal-patient-docs" class="z-210">
     <div class="modal-content modal-md">
       <div class="modal-header">
         <h3><i class="fa-solid fa-file-invoice text-primary"></i> المستندات والطباعة للمريض</h3>
         <button type="button" class="modal-close" data-close-modal="modal-patient-docs">&times;</button>
       </div>
       <div class="modal-body p-16">
-        <div style="background: var(--bg-subtle); border-radius: 10px; padding: 12px; margin-bottom: 16px; border: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center;">
+        <div class="modal-patient-strip-doc">
           <div>
-            <div style="font-weight: 800; font-size: 1rem; color: var(--text-main);" id="p-docs-modal-name">-</div>
-            <div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 2px;" id="p-docs-modal-info">-</div>
+            <div class="modal-strip-name-md" id="p-docs-modal-name">-</div>
+            <div class="modal-strip-info" id="p-docs-modal-info">-</div>
           </div>
           <span id="p-docs-modal-badge" class="badge">نقدي</span>
         </div>
@@ -2716,32 +2716,32 @@
 
   <!-- Modal: Batch Sessions & Home Visits Entry (تسجيل الجلسات المجمعة والزيارات المنزلية - v2.2.7) -->
   <div class="modal-backdrop z-220" id="modal-batch-home-visits">
-    <div class="modal-content" style="max-width: 540px; border-radius: 18px; max-height: 90vh; display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 20px 40px rgba(0,0,0,0.35);">
-      <div class="modal-header" style="flex-shrink: 0; padding: 14px 18px; border-bottom: 1.5px solid var(--border-color); background: var(--bg-subtle);">
-        <h3 id="modal-batch-title-text" style="font-size: 1.05rem; font-weight: 800; margin: 0; display: flex; align-items: center; gap: 8px;">
+    <div class="modal-content" class="modal-content-540 modal-content-flex-col">
+      <div class="modal-header modal-header-subtle">
+        <h3 id="modal-batch-title-text" class="modal-title-h3 modal-header-icon-row">
           <i class="fa-solid fa-house-chimney-medical" style="color: #059669;"></i>
           <span>تسجيل جواب زيارات منزلية</span>
         </h3>
         <button type="button" class="modal-close" data-close-modal="modal-batch-home-visits">&times;</button>
       </div>
-      <form id="form-batch-home-visits" novalidate style="display: flex; flex-direction: column; flex: 1 1 auto; min-height: 0; overflow: hidden;">
-        <div class="modal-body" style="padding: 16px; flex: 1 1 auto; min-height: 0; overflow-y: auto; -webkit-overflow-scrolling: touch; overscroll-behavior-y: contain;">
+      <form id="form-batch-home-visits" novalidate class="modal-body-form-flex">
+        <div class="modal-body modal-body-flex-scroll">
           <!-- Patient Summary Strip -->
-          <div style="background: var(--bg-subtle); border-radius: 12px; padding: 12px 14px; margin-bottom: 14px; border: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; gap: 8px;">
+          <div class="modal-patient-strip">
             <div>
-              <div style="font-weight: 800; font-size: 1.05rem; color: var(--text-main);" id="batch-hv-patient-name">-</div>
-              <div style="font-size: 0.82rem; color: var(--text-muted); margin-top: 2px;" id="batch-hv-patient-info">-</div>
+              <div class="modal-strip-name" id="batch-hv-patient-name">-</div>
+              <div class="modal-strip-info" id="batch-hv-patient-info">-</div>
             </div>
             <span id="batch-hv-patient-badge" class="badge badge-direct">تأمين</span>
           </div>
 
           <!-- Type Selector: Home Visits vs Clinic Batch -->
           <div class="form-group mb-14">
-            <label style="font-weight: 800; font-size: 0.85rem; margin-bottom: 6px; display: block;">
+            <label class="modal-label-bold-sm">
               <i class="fa-solid fa-layer-group text-primary"></i> نوع الجلسات المطلوب تسجيلها <span class="required-star">*</span>
             </label>
             <div class="grid-2col-gap8">
-              <label class="segmented-option" style="margin: 0; cursor: pointer;">
+              <label class="segmented-option segmented-option-flex">
                 <input type="radio" name="batch-session-type" value="home_visit" checked class="d-none">
                 <div class="segmented-btn" id="btn-type-home-visit" style="padding: 10px 8px; text-align: center; font-weight: 800; font-size: 0.85rem; border-radius: 10px; display: flex; align-items: center; justify-content: center; gap: 6px; border: 1.5px solid #059669; background: rgba(5, 150, 105, 0.12); color: #059669; transition: all 0.2s ease;">
                   <i class="fa-solid fa-house-chimney-medical"></i> <span>زيارات منزلية</span>
@@ -2763,7 +2763,7 @@
             </label>
             <div class="custom-select-wrapper">
               <select id="batch-hv-doctor" class="form-control d-none" required></select>
-              <button type="button" class="custom-select-btn modern-select-btn" id="btn-select-batch-hv-doctor" data-open-picker="batch-hv-doctor" data-picker-title="اختر الطبيب المعالج" style="min-height: 44px; width: 100%; display: flex; align-items: center; justify-content: space-between; padding: 0 14px; font-weight: 700; font-size: 0.9rem; border-radius: 10px; border: 1.5px solid var(--border-color); background: var(--bg-surface); color: var(--text-main);">
+              <button type="button" class="custom-select-btn modern-select-btn" id="btn-select-batch-hv-doctor" data-open-picker="batch-hv-doctor" data-picker-title="اختر الطبيب المعالج" class="w-100-h44-select">
                 <span class="select-btn-val">
                   <span class="btn-text">-- اضغط لاختيار الطبيب المعالج --</span>
                 </span>
@@ -2773,19 +2773,19 @@
           </div>
 
           <!-- Pattern Generator Box -->
-          <div style="background: rgba(2, 132, 199, 0.05); border: 1.5px solid rgba(2, 132, 199, 0.25); border-radius: 14px; padding: 14px; margin-bottom: 14px;">
-            <div style="font-weight: 800; font-size: 0.9rem; color: var(--primary); margin-bottom: 10px; display: flex; align-items: center; gap: 6px;">
+          <div class="batch-pattern-box">
+            <div class="batch-pattern-title">
               <i class="fa-solid fa-wand-magic-sparkles"></i>
               <span>توليد التواريخ تلقائياً بنمط الجلسات</span>
             </div>
 
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px;">
+            <div class="modal-grid-2col-mb">
               <div class="form-group form-group-modern m-0">
                 <label for="batch-hv-count" class="modern-field-label">
                   <i class="fa-solid fa-hashtag text-primary"></i> عدد الجلسات <span class="required-star">*</span>
                 </label>
                 <div class="modern-input-wrapper">
-                  <input type="number" id="batch-hv-count" class="form-control modern-input" min="1" max="50" value="12" style="font-weight: 800; text-align: center; height: 42px;" inputmode="numeric">
+                  <input type="number" id="batch-hv-count" class="form-control modern-input fw-800 text-center h-42" inputmode="numeric">
                 </div>
               </div>
               <div class="form-group form-group-modern m-0">
@@ -2794,13 +2794,13 @@
                 </label>
                 <div class="modern-input-wrapper">
                   <i class="fa-regular fa-calendar modern-input-icon"></i>
-                  <input type="text" id="batch-hv-start-date" readonly class="form-control modern-input date-picker-clickable" required data-open-calendar="batch-hv-start-date" placeholder="اختر التاريخ..." style="font-weight: 700; height: 42px; cursor: pointer;">
+                  <input type="text" id="batch-hv-start-date" readonly class="form-control modern-input date-picker-clickable fw-700 h-42 cursor-pointer" required data-open-calendar="batch-hv-start-date" placeholder="اختر التاريخ...">
                 </div>
               </div>
             </div>
 
-            <div class="form-group" style="margin-bottom: 10px;">
-              <label style="font-weight: 700; font-size: 0.8rem; margin-bottom: 6px; display: block; color: var(--text-muted);">نمط أيام الحضور الأسبوعي:</label>
+            <div class="form-group mb-10">
+              <label class="modal-label-semi">نمط أيام الحضور الأسبوعي:</label>
               <div class="grid-2col-gap8" id="batch-hv-patterns-group">
                 <button type="button" class="btn btn-outline btn-sm btn-batch-pattern active" data-pattern="sat_mon_wed" id="btn-batch-pattern-sat" style="padding: 8px; font-size: 0.8rem; font-weight: 800; border-radius: 8px; justify-content: center; background: var(--primary); color: #ffffff; border: 1.5px solid var(--primary); box-shadow: 0 2px 8px rgba(2, 132, 199, 0.35); cursor: pointer;">السبت • الإثنين • الأربعاء</button>
                 <button type="button" class="btn btn-outline btn-sm btn-batch-pattern" data-pattern="sun_tue_thu" id="btn-batch-pattern-sun" style="padding: 8px; font-size: 0.8rem; font-weight: 800; border-radius: 8px; justify-content: center; background: transparent; color: var(--text-main); border: 1.5px solid var(--border-color); cursor: pointer;">الأحد • الثلاثاء • الخميس</button>
@@ -2821,27 +2821,27 @@
               </label>
               <small style="color: var(--text-muted); font-size: 0.75rem;">(اضغط ✕ لحذف أي تاريخ)</small>
             </div>
-            <div id="batch-hv-dates-chips" style="display: flex; flex-wrap: wrap; gap: 6px; min-height: 48px; max-height: 140px; overflow-y: auto; padding: 8px; background: var(--bg-surface); border: 1.5px solid var(--border-color); border-radius: 10px;">
-              <span style="color: var(--text-muted); font-size: 0.8rem; margin: auto;">اضغط على "توليد قائمة التواريخ" أو أضف تواريخ يدوياً أدناه</span>
+            <div id="batch-hv-dates-chips" class="modal-chips-row">
+              <span class="modal-chips-placeholder">اضغط على "توليد قائمة التواريخ" أو أضف تواريخ يدوياً أدناه</span>
             </div>
           </div>
 
           <!-- Manual Add Single Date (Custom App Calendar) -->
-          <div style="display: flex; gap: 8px; align-items: center; margin-bottom: 14px;">
+          <div class="batch-dates-add-row">
             <div class="modern-input-wrapper flex-1">
               <i class="fa-regular fa-calendar modern-input-icon"></i>
-              <input type="text" id="batch-hv-manual-date" readonly class="form-control modern-input date-picker-clickable" data-open-calendar="batch-hv-manual-date" placeholder="اختر تاريخ لإضافته..." style="height: 38px; font-size: 0.85rem; font-weight: 700; cursor: pointer;">
+              <input type="text" id="batch-hv-manual-date" readonly class="form-control modern-input date-picker-clickable h-38 fw-700 cursor-pointer" data-open-calendar="batch-hv-manual-date" placeholder="اختر تاريخ لإضافته...">
             </div>
-            <button type="button" class="btn btn-outline btn-sm" id="btn-add-batch-hv-single-date" style="height: 38px; font-weight: 800; font-size: 0.82rem; white-space: nowrap; border-radius: 8px; padding: 0 12px;">
+            <button type="button" class="btn btn-outline btn-sm" id="btn-add-batch-hv-single-date" class="btn-batch-add-date">
               <i class="fa-solid fa-plus"></i> إضافة تاريخ
             </button>
           </div>
 
           <!-- Pre-settled Cut-off Switch & Letter Ref -->
-          <div style="background: rgba(245, 158, 11, 0.08); border: 1.5px dashed #f59e0b; border-radius: 12px; padding: 12px; margin-bottom: 12px;">
-            <label style="display: flex; align-items: flex-start; gap: 10px; cursor: pointer; margin: 0;">
-              <input type="checkbox" id="batch-hv-presettled" style="margin-top: 3px; accent-color: #f59e0b; width: 18px; height: 18px;">
-              <span id="batch-hv-presettled-label" style="font-size: 0.82rem; font-weight: 700; color: var(--text-main); line-height: 1.4;">
+          <div class="batch-presettled-box">
+            <label class="batch-presettled-label">
+              <input type="checkbox" id="batch-hv-presettled" class="batch-presettled-check">
+              <span id="batch-hv-presettled-label" class="batch-presettled-text">
                 جلسات سابقة تم تسويتها مسبقاً مع الطبيب (أرشيف مسوّى - لا تظهر قيد التسوية)
               </span>
             </label>
@@ -2852,14 +2852,14 @@
               <i class="fa-solid fa-hashtag text-primary"></i> رقم مرجع الجواب أو ملاحظات (اختياري)
             </label>
             <div class="modern-input-wrapper">
-              <input type="text" id="batch-hv-letter-ref" class="form-control modern-input" placeholder="مثال: جواب رقم 145 / كورس أغسطس..." style="height: 40px; font-size: 0.85rem;">
+              <input type="text" id="batch-hv-letter-ref" class="form-control modern-input h-40">
             </div>
           </div>
         </div>
 
-        <div class="modal-footer" style="flex-shrink: 0; padding: 12px 18px; border-top: 1.5px solid var(--border-color); background: var(--bg-surface); display: flex; align-items: center; justify-content: space-between; gap: 10px;">
-          <button type="button" class="btn btn-outline" data-close-modal="modal-batch-home-visits" style="border-radius: 12px; font-weight: 700; height: 44px; min-height: 44px; min-width: 80px;">إلغاء</button>
-          <button type="submit" class="btn btn-primary" id="btn-submit-batch-hv" style="font-weight: 800; background: #059669; border-color: #059669; border-radius: 12px; padding: 10px 18px; height: 44px; min-height: 44px; flex: 1; display: inline-flex; align-items: center; justify-content: center; gap: 8px;">
+        <div class="modal-footer modal-footer-compact">
+          <button type="button" class="btn btn-outline" data-close-modal="modal-batch-home-visits" class="batch-cancel-btn">إلغاء</button>
+          <button type="submit" class="btn btn-primary" id="btn-submit-batch-hv" class="batch-submit-btn">
             <i class="fa-solid fa-check-double"></i> <span>تأكيد وحفظ الجلسات بالكامل</span>
           </button>
         </div>
@@ -2879,11 +2879,11 @@
         <div class="modal-body p-16">
           <div class="form-group mb-12">
             <label class="fw-800-fs85">اسم المريض</label>
-            <input type="text" id="receipt-patient-name" class="form-control" readonly style="background: var(--bg-subtle); font-weight: 700;">
+            <input type="text" id="receipt-patient-name" class="form-control bg-subtle fw-700" readonly>
           </div>
           <div class="form-group mb-12">
             <label for="receipt-amount" class="fw-800-fs85">المبلغ المسدد (ج.م) *</label>
-            <input type="number" id="receipt-amount" class="form-control" required min="1" inputmode="numeric" step="any" value="400" style="height: 40px; font-weight: 800; font-size: 1rem; color: var(--primary);">
+            <input type="number" id="receipt-amount" class="form-control h-40 fw-800 text-primary" required min="1" inputmode="numeric" step="any" value="400">
           </div>
           <div class="form-group mb-12">
             <label for="receipt-item-desc" class="fw-800-fs85">وذلك عن (البيان) *</label>
@@ -2914,7 +2914,7 @@
         <div class="modal-body p-16">
           <div class="form-group mb-12">
             <label class="fw-800-fs85">اسم المريض</label>
-            <input type="text" id="statement-patient-name" class="form-control" readonly style="background: var(--bg-subtle); font-weight: 700;">
+            <input type="text" id="statement-patient-name" class="form-control bg-subtle fw-700" readonly>
           </div>
           <div class="form-group mb-12">
             <label for="statement-diagnosis" class="fw-800-fs85">التشخيص الطبي *</label>
@@ -2924,7 +2924,7 @@
             <label for="statement-body-text" class="fw-800-fs85">
               نص التقرير والتقييم الطبي (اكتب بحرية تحت التشخيص) *
             </label>
-            <textarea id="statement-body-text" class="form-control" rows="5" required style="font-size: 0.88rem; line-height: 1.6; font-weight: 600;" placeholder="اكتب هنا نص التقرير والتقييم الطبي... (مثال: بعد إتمام 12 جلسة علاج طبيعي، أظهر المريض تحسناً ملحوظاً في الحالة بنسبة تقدر بحوالي 70%، مع تحسن في الحركة والأداء الوظيفي... ويوصى بـ...)"></textarea>
+            <textarea id="statement-body-text" class="form-control fw-600" rows="5" required placeholder="اكتب هنا نص التقرير والتقييم الطبي... (مثال: بعد إتمام 12 جلسة علاج طبيعي، أظهر المريض تحسناً ملحوظاً في الحالة بنسبة تقدر بحوالي 70%، مع تحسن في الحركة والأداء الوظيفي... ويوصى بـ...)"></textarea>
           </div>
           <div class="form-group">
             <label for="statement-date" class="fw-800-fs85">تحريراً في (التاريخ) *</label>
@@ -2949,16 +2949,16 @@
       <form id="form-renew-approval" novalidate>
         <input type="hidden" id="renew-patient-id" value="">
         <div class="modal-body p-16">
-          <div style="background: var(--bg-subtle); border-radius: 8px; padding: 10px 12px; margin-bottom: 14px; border: 1px solid var(--border-color);">
-            <div style="font-weight: 800; color: var(--text-main); font-size: 0.95rem;" id="renew-patient-name">-</div>
-            <div style="font-size: 0.8rem; color: var(--primary); font-weight: 700; margin-top: 2px;" id="renew-company-name">-</div>
+          <div class="modal-patient-strip-sm">
+            <div class="fw-800 text-main" id="renew-patient-name">-</div>
+            <div class="fs-80 text-primary fw-700 mt-2" id="renew-company-name">-</div>
           </div>
-          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px;">
+          <div class="modal-grid-2col-mb">
             <div class="form-group">
               <label for="renew-sessions-count" class="label-metric-bold">
                 <i class="fa-solid fa-calendar-check text-primary"></i> زيارات الجواب الجديد *
               </label>
-              <input type="number" id="renew-sessions-count" class="form-control" required min="1" max="100" value="12" style="height: 42px; font-weight: 800; font-size: 0.95rem; line-height: 1.4; padding: 0 10px;">
+              <input type="number" id="renew-sessions-count" class="form-control h-42 fw-800" required min="1" max="100" value="12">
             </div>
             <div class="form-group">
               <label for="btn-select-renew-approved-body-parts" class="label-metric-bold">
@@ -2971,34 +2971,34 @@
                   <option value="3">3 أعضاء (3)</option>
                   <option value="4">4 أعضاء (4)</option>
                 </select>
-                <button type="button" class="custom-select-btn" id="btn-select-renew-approved-body-parts" data-open-picker="renew-approved-body-parts" data-picker-title="اختر عدد الأعضاء بالجواب الجديد" style="height: 42px; padding: 0 12px; font-weight: 800; font-size: 0.9rem; line-height: 1.4;">
+                <button type="button" class="custom-select-btn" id="btn-select-renew-approved-body-parts" data-open-picker="renew-approved-body-parts" data-picker-title="اختر عدد الأعضاء بالجواب الجديد" class="h-42 fw-800">
                   <span class="btn-text">عضو واحد (1)</span>
                   <i class="fa-solid fa-chevron-down custom-select-arrow"></i>
                 </button>
               </div>
             </div>
           </div>
-          <div id="renew-approval-units-summary" style="background: var(--bg-subtle); border-radius: 8px; padding: 8px 12px; margin-bottom: 12px; font-size: 0.8rem; font-weight: 700; color: var(--primary); border: 1px solid var(--border-color); display: flex; align-items: center; gap: 8px;">
+          <div id="renew-approval-units-summary" class="modal-units-summary">
             <i class="fa-solid fa-circle-info"></i>
             <span id="renew-approval-units-text">الرصيد: 12 زيارة للمريض • يعادل 12 جلسة/وحدة عمل للطبيب (12 زيارة × 1 عضو)</span>
           </div>
           <div class="form-group mb-12">
-            <label for="renew-approval-date" style="font-weight: 800; font-size: 0.88rem; color: var(--text-main);">
+            <label for="renew-approval-date" class="modal-label-bold">
               <i class="fa-solid fa-calendar-day text-primary"></i> تاريخ بداية الدورة الجديدة (سريان الجواب) *
             </label>
             <input type="text" id="renew-approval-date" readonly class="form-control date-picker-clickable btn-h40-bold" required data-open-calendar="renew-approval-date" placeholder="اختر تاريخ بداية الدورة...">
-            <small style="color: var(--text-muted); font-size: 0.76rem; display: block; margin-top: 4px;">
+            <small class="modal-hint-sm-mt4">
               اختر تاريخ بدء الدورة لتصفير العداد واحتساب الجلسات الجديدة من الجلسة 1 بدءاً من هذا التاريخ.
             </small>
           </div>
           <div class="form-group">
-            <label for="renew-approval-no" style="font-weight: 700; font-size: 0.85rem; color: var(--text-main);">
+            <label for="renew-approval-no" class="modal-label-semi-color">
               <i class="fa-solid fa-id-card-clip text-primary"></i> رقم خطاب الموافقة الجديد (اختياري)
             </label>
-            <input type="text" id="renew-approval-no" class="form-control" placeholder="رقم الموافقة إن وجد..." style="height: 40px;">
+            <input type="text" id="renew-approval-no" class="form-control h-40" placeholder="رقم الموافقة إن وجد...">
           </div>
-          <div class="renew-approval-alert" style="margin-top: 12px; display: flex; gap: 8px; align-items: flex-start;">
-            <i class="fa-solid fa-circle-info" style="margin-top: 2px; flex-shrink: 0;"></i>
+          <div class="renew-approval-alert">
+            <i class="fa-solid fa-circle-info mt-2 flex-shrink-0"></i>
             <span>بمجرد التأكيد، سيبدأ عداد جلسات المريض تلقائياً من <b>الجلسة 1</b> لهذا الجواب الجديد.</span>
           </div>
         </div>
@@ -3022,10 +3022,10 @@
           <!-- Expense Category Dropdown + Manage Button -->
           <div class="form-group mb-14">
             <div class="flex-between-mb6">
-              <label style="font-weight: 700; margin: 0; font-size: 0.88rem; color: var(--text-main);">
+              <label class="modal-label-bold m-0">
                 <i class="fa-solid fa-tags text-primary"></i> بند المصروف *
               </label>
-              <button type="button" class="btn-edit-chips" id="btn-manage-expense-categories" style="padding: 2px 8px; font-size: 0.74rem; font-weight: 700; display: inline-flex; align-items: center; gap: 4px;" title="إضافة أو حذف بنود من القائمة">
+              <button type="button" class="btn-edit-chips" id="btn-manage-expense-categories" class="btn-manage-categories btn-edit-chips" title="إضافة أو حذف بنود من القائمة">
                 <i class="fa-solid fa-gear"></i> <span>إدارة البنود</span>
               </button>
             </div>
@@ -3042,21 +3042,21 @@
 
           <!-- Optional Details / Notes Field -->
           <div class="form-group mb-14">
-            <label for="exp-notes" style="font-weight: 700; font-size: 0.85rem; margin-bottom: 6px; display: block; color: var(--text-main);">
+            <label for="exp-notes" class="modal-label-semi-color">
               <i class="fa-solid fa-pen-to-square text-primary"></i> بيان / تفاصيل إضافية (اختياري)
             </label>
-            <input type="text" id="exp-notes" class="form-control" placeholder="مثال: فاتورة كهرباء شهر أغسطس، شراء قطن وكحول..." style="height: 42px; font-size: 0.88rem;">
+            <input type="text" id="exp-notes" class="form-control h-42" placeholder="مثال: فاتورة كهرباء شهر أغسطس، شراء قطن وكحول...">
           </div>
 
           <!-- Amount Field -->
           <div class="form-group">
-            <label for="exp-amount" style="font-weight: 700; font-size: 0.85rem; margin-bottom: 6px; display: block; color: var(--text-main);">
+            <label for="exp-amount" class="modal-label-semi-color">
               <i class="fa-solid fa-money-bill-wave text-danger"></i> المبلغ المنصرف (ج.م) *
             </label>
-            <input type="number" id="exp-amount" class="form-control" min="1" inputmode="numeric" step="any" required placeholder="0" style="height: 42px; font-size: 1.05rem; font-weight: 800;">
+            <input type="number" id="exp-amount" class="form-control h-42 fw-800" min="1" inputmode="numeric" step="any" required placeholder="0">
           </div>
         </div>
-        <div class="modal-footer" style="padding: 12px 16px; background: var(--bg-subtle); display: flex; justify-content: flex-end; gap: 8px;">
+        <div class="modal-footer modal-footer-expense">
           <button type="button" class="btn btn-outline" data-close-modal="modal-expense">إلغاء</button>
           <button type="submit" class="btn btn-danger fw-700">
             <i class="fa-solid fa-check"></i> حفظ المصروف
@@ -3075,24 +3075,24 @@
       </div>
       <div class="modal-body p-16">
         <!-- Add New Category Form Row -->
-        <form id="form-add-expense-category" style="display: flex; gap: 8px; margin-bottom: 14px;" novalidate>
-          <input type="text" id="input-new-expense-category" class="form-control" placeholder="اكتب اسم البند الجديد..." required style="height: 40px; font-size: 0.88rem; flex: 1;">
-          <button type="submit" class="btn btn-primary btn-sm" style="font-weight: 700; padding: 0 14px; white-space: nowrap;">
+        <form id="form-add-expense-category" class="d-flex gap-8 mb-14" novalidate>
+          <input type="text" id="input-new-expense-category" class="form-control h-40 flex-1" placeholder="اكتب اسم البند الجديد..." required>
+          <button type="submit" class="btn btn-primary btn-sm btn-submit-sm-inline">
             <i class="fa-solid fa-plus"></i> إضافة
           </button>
         </form>
 
-        <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 10px; font-weight: 600;">
+        <p class="modal-note-xs">
           البنود المعرفة حالياً (اضغط على أيقونة الحذف لإزالة أي بند):
         </p>
 
         <!-- Dynamic List of Current Categories with Delete Buttons -->
-        <div id="manage-expense-categories-list" style="display: flex; flex-direction: column; gap: 6px; max-height: 280px; overflow-y: auto; padding-left: 2px;">
+        <div id="manage-expense-categories-list" class="flex-col-gap6 max-h-280 overflow-y-auto">
           <!-- Rendered dynamically by JS -->
         </div>
       </div>
-      <div class="modal-footer" style="padding: 10px 16px; background: var(--bg-subtle); display: flex; justify-content: flex-end;">
-        <button type="button" class="btn btn-outline btn-sm" data-close-modal="modal-manage-expense-categories" style="font-weight: 700; padding: 6px 14px;">تم</button>
+      <div class="modal-footer modal-footer-end-sm">
+        <button type="button" class="btn btn-outline btn-sm" data-close-modal="modal-manage-expense-categories" class="fw-700">تم</button>
       </div>
     </div>
   </div>
@@ -3145,13 +3145,13 @@
           <!-- 4. Recurring Days of Week -->
           <div class="form-group mb-14" id="form-group-appt-days">
             <div class="flex-between-mb6">
-              <label style="font-size: 0.88rem; font-weight: 700; color: var(--text-main); margin: 0;">
+              <label class="modal-label-bold m-0">
                 <i class="fa-solid fa-arrows-rotate text-primary"></i> أيام الحضور الأسبوعية (الحجز الدوري) *
               </label>
             </div>
             
             <!-- Quick Presets -->
-            <div class="appt-presets-wrap" id="appt-presets-wrap" style="display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 8px;">
+            <div class="appt-presets-wrap modal-flex-presets" id="appt-presets-wrap">
               <button type="button" class="appt-preset-pill active" id="btn-preset-sat-mon-wed" data-preset="sat_mon_wed">
                 سبت - إثنين - أربعاء
               </button>
@@ -3164,7 +3164,7 @@
             </div>
 
             <!-- Interactive Day Toggle Pills -->
-            <div class="appt-days-pills-row" id="appt-modal-days-grid" style="display: grid; grid-template-columns: repeat(6, 1fr); gap: 6px;">
+            <div class="appt-days-pills-row modal-grid-6col" id="appt-modal-days-grid">
               <div class="appt-day-toggle active" data-day="6"><span>السبت</span></div>
               <div class="appt-day-toggle" data-day="0"><span>الأحد</span></div>
               <div class="appt-day-toggle active" data-day="1"><span>الاثنين</span></div>
@@ -3174,19 +3174,19 @@
             </div>
 
             <!-- Dynamic Live Schedule Preview Box -->
-            <div class="appt-schedule-preview-box" id="appt-schedule-preview-box" style="margin-top: 10px; font-size: 0.8rem; background: rgba(2, 132, 199, 0.08); border: 1px solid rgba(2, 132, 199, 0.25); border-radius: 8px; padding: 8px 12px; color: var(--primary); display: flex; align-items: center; gap: 8px; font-weight: 700;">
-              <i class="fa-solid fa-calendar-check" style="font-size: 1rem;"></i>
+            <div class="appt-schedule-preview-box" id="appt-schedule-preview-box">
+              <i class="fa-solid fa-calendar-check"></i>
               <span id="appt-schedule-preview-text">سيتم تثبيت الموعد الدوري أسبوعياً كل (سبت - إثنين - أربعاء)</span>
             </div>
           </div>
 
           <!-- 5. Body Part / Diagnosis -->
-          <div class="form-group" style="margin-top: 10px;">
+          <div class="form-group mt-10">
             <label class="label-inline-bold">الأعضاء أو الملاحظات (اختياري)</label>
             <input type="text" id="appt-body-part" class="form-control" placeholder="مثال: ركبة، عمود فقري، أو يتم استيرادها من الملف تلقائياً...">
           </div>
         </div>
-        <div class="modal-footer" style="display: flex; justify-content: flex-end; gap: 8px;">
+        <div class="modal-footer modal-footer-end">
           <button type="button" class="btn btn-outline" data-close-modal="modal-appointment">إلغاء</button>
           <button type="submit" class="btn btn-primary fw-800" id="btn-submit-save-appt">
             <i class="fa-solid fa-check"></i> تثبيت الموعد الدوري
@@ -3198,7 +3198,7 @@
 
   <!-- Modal: Appointment Patient Picker (searchable) -->
   <div class="modal-backdrop" id="modal-appt-patient-picker">
-    <div class="modal-content" style="max-width: 500px;">
+    <div class="modal-content modal-content-500">
       <div class="modal-header">
         <h3><i class="fa-solid fa-users"></i> اختيار المريض</h3>
         <button type="button" class="modal-close" data-close-modal="modal-appt-patient-picker">&times;</button>
@@ -3260,12 +3260,12 @@
           </div>
 
           <!-- 4. Notes -->
-          <div class="form-group" style="margin-bottom: 10px;">
+          <div class="form-group mb-10">
             <label class="label-inline-bold">ملاحظات الحضور (اختياري)</label>
             <input type="text" id="walkin-notes" class="form-control modern-input" placeholder="مثال: مريض مباشر، كشف طارئ...">
           </div>
         </div>
-        <div class="modal-footer" style="display: flex; justify-content: flex-end; gap: 8px;">
+        <div class="modal-footer modal-footer-end">
           <button type="button" class="btn btn-outline" data-close-modal="modal-walkin-attendance">إلغاء</button>
           <button type="submit" class="btn btn-primary fw-800" id="btn-submit-walkin">
             <i class="fa-solid fa-check"></i> تأكيد الحضور وإخطار الطبيب
@@ -3286,7 +3286,7 @@
         <div class="modal-body">
           <div class="form-group mb-12">
             <label>شركة التأمين</label>
-            <input type="text" id="ins-letter-company" class="form-control" readonly style="background: var(--bg-subtle);">
+            <input type="text" id="ins-letter-company" class="form-control bg-subtle" readonly>
           </div>
           <div class="form-group mb-12">
             <label for="ins-letter-diagnosis">التشخيص (قابل للتعديل قبل الطباعة) *</label>
@@ -3310,23 +3310,23 @@
   </div>
 
   <!-- Modal: Medical Image Polish & Enhancer Studio (v1.4.80) -->
-  <div class="modal-backdrop" id="modal-image-polish" style="z-index: 240;">
-    <div class="modal-content modal-polish-studio" style="max-width: 860px; border-radius: 18px; padding: 0; background: var(--bg-surface);">
+  <div class="modal-backdrop" id="modal-image-polish" class="z-240">
+    <div class="modal-content modal-polish-studio modal-content-860 modal-content-r18-nh">
       <!-- Header (Fixed at top) -->
-      <div class="modal-header" style="background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%); color: #ffffff; padding: 12px 18px; display: flex; justify-content: space-between; align-items: center; flex-shrink: 0;">
+      <div class="modal-header modal-header-gradient-sm">
         <div class="flex-align-10">
-          <div style="width: 36px; height: 36px; border-radius: 10px; background: rgba(255, 255, 255, 0.18); display: flex; align-items: center; justify-content: center; font-size: 1.15rem;">
+          <div class="icon-box-36-white">
             <i class="fa-solid fa-wand-magic-sparkles"></i>
           </div>
           <div>
-            <h3 style="margin: 0; font-size: 1.05rem; color: #ffffff; font-weight: 800; display: flex; align-items: center; gap: 8px;">
+            <h3 class="modal-title-gradient">
               معالجة وتوضيح الأشعة والمستندات الطبية
             </h3>
-            <div style="font-size: 0.72rem; opacity: 0.9; color: #e0f2fe;" id="polish-modal-subtitle">قص وتعديل الإضاءة والتباين وإبراز تفاصيل العظام</div>
+            <div class="polish-header-subtitle" id="polish-modal-subtitle">قص وتعديل الإضاءة والتباين وإبراز تفاصيل العظام</div>
           </div>
         </div>
         <div class="flex-align-10">
-          <span id="polish-queue-badge" class="badge" style="background: rgba(255, 255, 255, 0.22); color: #ffffff; font-size: 0.76rem; padding: 4px 10px; border-radius: 999px; font-weight: 800;">صورة 1 من 1</span>
+          <span id="polish-queue-badge" class="badge polish-queue-badge-white">صورة 1 من 1</span>
           <button type="button" class="modal-close btn-modal-close-white" data-close-modal="modal-image-polish">&times;</button>
         </div>
       </div>
@@ -3334,14 +3334,14 @@
       <!-- Scrollable Body -->
       <div class="modal-body polish-modal-body">
         <!-- 1. Top Category Selector: Prominent, full-width, always visible above the image (v1.4.83) -->
-        <div class="polish-category-top-banner" style="width: 100%; background: var(--bg-subtle); padding: 10px 14px; border-radius: 12px; border: 1.5px solid var(--border-color); box-sizing: border-box;">
-          <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px;">
-            <label style="font-weight: 800; font-size: 0.84rem; margin: 0; display: flex; align-items: center; gap: 6px; color: var(--text-main);">
+        <div class="polish-category-top-banner">
+          <div class="polish-cat-header-row">
+            <label class="polish-cat-label">
               <i class="fa-solid fa-tags text-primary"></i> نوع الأشعة / المستند:
             </label>
             <span id="polish-selected-cat-badge" class="badge badge-cat-xray" style="font-size: 0.76rem; font-weight: 800;">أشعة عادية (X-Ray)</span>
           </div>
-          <div class="polish-category-chips" id="polish-category-chips" style="display: flex; flex-wrap: wrap; gap: 6px;">
+          <div class="polish-category-chips polish-cat-chips" id="polish-category-chips">
             <button type="button" class="btn-cat-chip active" data-cat="xray"><i class="fa-solid fa-bone"></i> عادية (X-Ray)</button>
             <button type="button" class="btn-cat-chip" data-cat="mri"><i class="fa-solid fa-magnet"></i> رنين (MRI)</button>
             <button type="button" class="btn-cat-chip" data-cat="ct"><i class="fa-solid fa-circle-notch"></i> مقطعية (CT)</button>
@@ -3362,7 +3362,7 @@
         </div>
 
         <!-- 2. Studio Workspace Grid (Viewport + Controls) -->
-        <div class="polish-studio-grid" style="display: flex; flex-direction: column; gap: 12px; width: 100%;">
+        <div class="polish-studio-grid polish-studio-flex">
           <!-- Image Canvas Viewport -->
           <div class="polish-viewport-card">
             <div class="polish-canvas-wrapper" id="polish-canvas-wrapper">
@@ -3379,44 +3379,44 @@
             </div>
 
             <!-- Standard Toolbar (Rotate, Crop, Reset) -->
-            <div id="polish-standard-toolbar" style="margin-top: 8px; display: flex; gap: 6px; z-index: 2; flex-wrap: wrap; justify-content: center;">
-              <button type="button" class="btn btn-outline btn-sm" id="btn-polish-crop" style="background: rgba(56, 189, 248, 0.12); color: #38bdf8; border-color: rgba(56, 189, 248, 0.35); font-size: 0.78rem; padding: 5px 12px; font-weight: 700;" title="قص وتحديد جزء من الصورة">
+            <div id="polish-standard-toolbar" class="polish-toolbar-std">
+              <button type="button" class="btn btn-outline btn-sm" id="btn-polish-crop" class="btn-polish-crop" title="قص وتحديد جزء من الصورة">
                 <i class="fa-solid fa-crop-simple"></i> قص الصورة
               </button>
-              <button type="button" class="btn btn-outline btn-sm" id="btn-polish-rotate-left" style="background: rgba(255,255,255,0.08); color: #fff; border-color: rgba(255,255,255,0.2); font-size: 0.78rem; padding: 5px 10px;" title="تدوير يسار 90°">
+              <button type="button" class="btn btn-outline btn-sm" id="btn-polish-rotate-left" class="btn-polish-rotate" title="تدوير يسار 90°">
                 <i class="fa-solid fa-rotate-left"></i>
               </button>
-              <button type="button" class="btn btn-outline btn-sm" id="btn-polish-rotate-right" style="background: rgba(255,255,255,0.08); color: #fff; border-color: rgba(255,255,255,0.2); font-size: 0.78rem; padding: 5px 10px;" title="تدوير يمين 90°">
+              <button type="button" class="btn btn-outline btn-sm" id="btn-polish-rotate-right" class="btn-polish-rotate" title="تدوير يمين 90°">
                 <i class="fa-solid fa-rotate-right"></i> تدوير 90°
               </button>
-              <button type="button" class="btn btn-outline btn-sm" id="btn-polish-reset" style="background: rgba(255,255,255,0.08); color: #f87171; border-color: rgba(239,68,68,0.3); font-size: 0.78rem; padding: 5px 10px;" title="إعادة تعيين للصورة الأصلية">
+              <button type="button" class="btn btn-outline btn-sm" id="btn-polish-reset" class="btn-polish-reset" title="إعادة تعيين للصورة الأصلية">
                 <i class="fa-solid fa-arrows-rotate"></i> الأصلية
               </button>
             </div>
 
             <!-- Active Crop Toolbar (Visible during crop mode) -->
             <div id="polish-crop-toolbar" class="polish-crop-toolbar" style="display: none;">
-              <button type="button" class="btn btn-primary btn-sm" id="btn-apply-crop" style="font-size: 0.8rem; font-weight: 800; padding: 5px 14px;">
+              <button type="button" class="btn btn-primary btn-sm" id="btn-apply-crop" class="btn-polish-crop-apply">
                 <i class="fa-solid fa-check"></i> تطبيق القص
               </button>
-              <button type="button" class="btn btn-outline btn-sm" id="btn-cancel-crop" style="color: #f87171; border-color: rgba(239, 68, 68, 0.4); font-size: 0.8rem; padding: 5px 12px;">
+              <button type="button" class="btn btn-outline btn-sm" id="btn-cancel-crop" class="btn-polish-crop-cancel">
                 <i class="fa-solid fa-xmark"></i> إلغاء القص
               </button>
             </div>
           </div>
 
           <!-- Controls: Note, Presets, Adjustments -->
-          <div class="polish-controls-card" style="display: flex; flex-direction: column; gap: 12px;">
+          <div class="polish-controls-card polish-controls-flex">
             <!-- Title / Note -->
-            <div class="form-group" style="margin-bottom: 0;">
-              <label style="font-weight: 800; font-size: 0.84rem; margin-bottom: 4px; display: block;">ملاحظة أو وصف توضيحي</label>
-              <input type="text" id="polish-title-input" class="form-control" placeholder="مثال: رنين الفقرات العنقية C4-C5..." dir="auto" style="font-size: 0.85rem;">
+            <div class="form-group m-0">
+              <label class="polish-note-label">ملاحظة أو وصف توضيحي</label>
+              <input type="text" id="polish-title-input" class="form-control" placeholder="مثال: رنين الفقرات العنقية C4-C5..." dir="auto">
             </div>
 
             <!-- Quick Presets -->
             <div>
-              <label style="font-weight: 800; font-size: 0.84rem; margin-bottom: 6px; display: block;">فلاتر التوضيح السريعة (Presets)</label>
-              <div class="polish-presets-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px;">
+              <label class="polish-preset-label">فلاتر التوضيح السريعة (Presets)</label>
+              <div class="polish-presets-grid">
                 <button type="button" class="btn btn-outline btn-sm polish-preset-btn active" data-preset="normal">
                   <i class="fa-solid fa-image"></i> الأصلية
                 </button>
@@ -3433,20 +3433,20 @@
             </div>
 
             <!-- Sliders: Contrast & Brightness -->
-            <div style="background: var(--bg-subtle); padding: 10px 12px; border-radius: 8px; border: 1px solid var(--border-color); display: flex; flex-direction: column; gap: 8px;">
+            <div class="polish-slider-box">
               <div>
-                <div style="display: flex; justify-content: space-between; font-size: 0.78rem; font-weight: 700; margin-bottom: 2px;">
+                <div class="polish-slider-row">
                   <span>التباين (Contrast)</span>
                   <span id="polish-contrast-val">100%</span>
                 </div>
-                <input type="range" id="polish-contrast-slider" min="50" max="250" value="100" style="width: 100%; accent-color: var(--primary);">
+                <input type="range" id="polish-contrast-slider" min="50" max="250" value="100" class="polish-slider-full">
               </div>
               <div>
-                <div style="display: flex; justify-content: space-between; font-size: 0.78rem; font-weight: 700; margin-bottom: 2px;">
+                <div class="polish-slider-row">
                   <span>الإضاءة (Brightness)</span>
                   <span id="polish-brightness-val">100%</span>
                 </div>
-                <input type="range" id="polish-brightness-slider" min="50" max="180" value="100" style="width: 100%; accent-color: var(--primary);">
+                <input type="range" id="polish-brightness-slider" min="50" max="180" value="100" class="polish-slider-full">
               </div>
             </div>
           </div>
@@ -3456,7 +3456,7 @@
       <!-- Footer Actions (Fixed & Sticky at bottom) -->
       <div class="modal-footer polish-modal-footer">
         <button type="button" class="btn btn-outline" id="btn-polish-skip-or-cancel">تخطي / إلغاء</button>
-        <button type="button" class="btn btn-primary" id="btn-polish-save-current" style="display: inline-flex; align-items: center; gap: 8px; font-weight: 800; padding: 10px 20px; border-radius: 10px;">
+        <button type="button" class="btn btn-primary" id="btn-polish-save-current" class="btn-polish-save">
           <i class="fa-solid fa-check"></i>
           <span id="polish-save-btn-text">حفظ الصورة للشيت</span>
         </button>
@@ -3465,16 +3465,16 @@
   </div>
 
   <!-- Modal: Change Patient Image Category (v1.4.82) -->
-  <div class="modal-backdrop" id="modal-change-image-category" style="z-index: 380;">
-    <div class="modal-content" style="max-width: 440px; border-radius: 16px; padding: 0; overflow: hidden; background: var(--bg-surface);">
-      <div class="modal-header" style="background: var(--primary-gradient); color: #fff; padding: 14px 18px; display: flex; justify-content: space-between; align-items: center;">
-        <h4 style="margin: 0; font-size: 1rem; font-weight: 800; display: flex; align-items: center; gap: 8px;">
+  <div class="modal-backdrop" id="modal-change-image-category" class="z-380">
+    <div class="modal-content modal-content-440 modal-content-r16">
+      <div class="modal-header modal-header-gradient-r16">
+        <h4 class="modal-h4-gradient">
           <i class="fa-solid fa-tags"></i> تعديل تصنيف الأشعة / المستند
         </h4>
-        <button type="button" class="modal-close" data-close-modal="modal-change-image-category" style="font-size: 1.3rem; background: none; border: none; cursor: pointer; color: #fff;">&times;</button>
+        <button type="button" class="modal-close" data-close-modal="modal-change-image-category" class="btn-modal-close-transparent">&times;</button>
       </div>
       <div class="modal-body p-16">
-        <p style="font-size: 0.82rem; color: var(--text-muted); margin: 0 0 12px 0;">اختر التصنيف الطبي الصحيح لهذه الصورة لتحديث البادج وطريقة العرض فوراً:</p>
+        <p class="modal-note-xs m-b-12">اختر التصنيف الطبي الصحيح لهذه الصورة لتحديث البادج وطريقة العرض فوراً:</p>
         <div class="change-cat-grid grid-2col-gap8">
           <button type="button" class="btn btn-outline btn-change-cat-choice metric-chip-card" data-cat="xray">
             <i class="fa-solid fa-bone" style="font-size: 1.2rem; color: #475569;"></i>
@@ -3501,7 +3501,7 @@
             <span>تقرير طبي</span>
           </button>
         </div>
-        <button type="button" class="btn btn-outline btn-change-cat-choice" data-cat="other" style="width: 100%; margin-top: 8px; padding: 10px; border-radius: 10px; font-size: 0.85rem; font-weight: 800; display: flex; align-items: center; justify-content: center; gap: 6px; border: 1.5px solid var(--border-color);">
+        <button type="button" class="btn btn-outline btn-change-cat-choice" data-cat="other" class="btn-change-cat-full">
           <i class="fa-solid fa-file" style="color: #64748b;"></i>
           <span>مستند / صورة أخرى</span>
         </button>
@@ -3510,7 +3510,7 @@
   </div>
 
   <!-- Modal: Fullscreen Medical Lightbox Viewer (v1.4.82) -->
-  <div id="modal-image-lightbox" class="medical-lightbox-overlay" style="display: none;">
+  <div id="modal-image-lightbox" class="medical-lightbox-overlay d-none">
     <!-- Top Navigation Bar (Responsive & Clean v1.4.82) -->
     <div class="lightbox-top-bar">
       <!-- Main Info & Close Header Row -->
@@ -3518,7 +3518,7 @@
         <!-- Right: Patient Info & Category Badge -->
         <div class="lightbox-meta">
           <div class="lightbox-meta-main">
-            <span id="lightbox-category-badge" class="badge badge-cat-mri" style="cursor: pointer;" title="اضغط لتعديل تصنيف الأشعة">-</span>
+            <span id="lightbox-category-badge" class="badge badge-cat-mri cursor-pointer" title="اضغط لتعديل تصنيف الأشعة">-</span>
             <h4 id="lightbox-patient-title" class="lightbox-patient-title">ملف المريض</h4>
           </div>
           <div id="lightbox-notes-text" class="lightbox-notes-text"></div>
@@ -3578,33 +3578,33 @@
 
   <!-- Modal 3: Authentication / Login -->
   <div class="modal-backdrop z-230" id="modal-auth">
-    <div class="modal-content" style="max-width: 420px; border-radius: 14px; overflow: hidden; padding: 0; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);">
+    <div class="modal-content modal-content-420 modal-content-r14">
       <!-- Header -->
-      <div class="modal-header" style="background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%); color: #ffffff; padding: 18px 20px; display: flex; justify-content: space-between; align-items: center;">
-        <div style="display: flex; align-items: center; gap: 12px;">
-          <img src="./icons/icon-192.png" alt="ASCPT Logo" style="width: 38px; height: 38px; border-radius: 8px; background: #fff; padding: 2px; object-fit: contain; flex-shrink: 0;">
+      <div class="modal-header modal-header-gradient">
+        <div class="flex-align-10">
+          <img src="./icons/icon-192.png" alt="ASCPT Logo" class="login-logo-img">
           <div>
-            <h3 style="margin: 0; font-size: 1.15rem; color: #ffffff; font-weight: 800; display: flex; align-items: center; gap: 8px;">
+            <h3 class="modal-title-gradient">
               تسجيل الدخول
             </h3>
-            <p style="margin: 3px 0 0 0; font-size: 0.78rem; opacity: 0.9; color: #e0f2fe;" data-clinic="brand-name">مركز العلاج الطبيعي والتأهيل</p>
+            <p class="modal-sub-gradient" data-clinic="brand-name">مركز العلاج الطبيعي والتأهيل</p>
           </div>
         </div>
         <button type="button" class="modal-close btn-modal-close-white" id="btn-close-auth-modal">&times;</button>
       </div>
 
       <!-- Body: Login Form -->
-      <div class="modal-body" style="padding: 20px 22px;">
+      <div class="modal-body modal-body-padded-lg">
         <form id="form-login" autocomplete="off" novalidate>
           <div class="form-group mb-14">
-            <label for="login-email" style="display: block; font-size: 0.85rem; font-weight: 700; color: var(--text-main); margin-bottom: 6px;">
+            <label for="login-email" class="modal-label-semi-color">
               <i class="fa-solid fa-envelope text-primary"></i> البريد الإلكتروني
             </label>
-            <input type="email" id="login-email" class="form-control" placeholder="staff@clinic.com" required autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" style="width: 100%; border-radius: 8px; padding: 10px 12px; font-size: 0.9rem; border: 1.5px solid var(--border-color);" dir="ltr">
+            <input type="email" id="login-email" class="form-control login-input-full" placeholder="staff@clinic.com" required autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" dir="ltr">
           </div>
 
           <div class="form-group mb-14">
-            <label for="login-password" style="display: block; font-size: 0.85rem; font-weight: 700; color: var(--text-main); margin-bottom: 6px;">
+            <label for="login-password" class="modal-label-semi-color">
               <i class="fa-solid fa-lock text-primary"></i> كلمة السر *
             </label>
             <div class="password-input-group">
@@ -3615,8 +3615,8 @@
             </div>
           </div>
 
-          <div style="display: flex; justify-content: flex-end; margin-top: -6px; margin-bottom: 14px;">
-            <button type="button" id="btn-forgot-password" style="background: none; border: none; color: var(--primary); font-size: 0.8rem; font-weight: 700; cursor: pointer; text-decoration: underline; padding: 0;">
+          <div class="login-forgot-row">
+            <button type="button" id="btn-forgot-password" class="login-forgot-btn">
               نسيت كلمة السر؟
             </button>
           </div>
@@ -3624,7 +3624,7 @@
           <!-- Error message container -->
           <div id="login-error-msg" class="login-error-msg" style="display: none;"></div>
 
-          <button type="submit" id="btn-do-login" class="btn btn-primary" style="width: 100%; padding: 11px; border-radius: 8px; font-weight: 800; font-size: 0.92rem; display: flex; align-items: center; justify-content: center; gap: 8px;">
+          <button type="submit" id="btn-do-login" class="btn btn-primary login-submit-btn">
             <i class="fa-solid fa-right-to-bracket"></i>
             <span id="btn-login-text">تسجيل الدخول</span>
           </button>
@@ -3632,20 +3632,20 @@
       </div>
 
       <!-- Footer -->
-      <div class="modal-footer" style="padding: 10px 20px; background: var(--bg-subtle); display: flex; justify-content: space-between; align-items: center;">
-        <span style="font-size: 0.74rem; color: var(--text-muted);">نظام آمن • إدارة المراكز الطبية</span>
+      <div class="modal-footer modal-footer-between-sm">
+        <span class="modal-muted-xs">نظام آمن • إدارة المراكز الطبية</span>
         <button type="button" class="btn btn-outline btn-sm btn-cancel-login" id="btn-cancel-login" style="display: none;">إلغاء</button>
       </div>
     </div>
   </div>
 
   <!-- Modal: User Profile (v1.4.80) -->
-  <div class="modal-backdrop" id="modal-user-profile" style="z-index: 232;">
-    <div class="modal-content" style="max-width: 400px; border-radius: 16px; overflow: hidden; padding: 0; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.15);">
+  <div class="modal-backdrop" id="modal-user-profile" class="z-232">
+    <div class="modal-content modal-content-r16" style="max-width: 400px;">
       <!-- Header -->
       <div class="modal-header modal-header-gradient">
         <div class="flex-align-10">
-          <div style="width: 36px; height: 36px; border-radius: 10px; background: rgba(255, 255, 255, 0.2); display: flex; align-items: center; justify-content: center; font-size: 1.15rem; flex-shrink: 0;">
+          <div class="icon-box-36-white">
             <i class="fa-solid fa-id-badge"></i>
           </div>
           <div>
@@ -3657,55 +3657,55 @@
       </div>
 
       <!-- Body -->
-      <div class="modal-body" style="padding: 20px 18px;">
+      <div class="modal-body modal-body-padded">
         <!-- User Identity Card -->
-        <div style="display: flex; flex-direction: column; align-items: center; text-align: center; padding: 18px 14px; background: var(--bg-subtle); border: 1px solid var(--border-color); border-radius: 14px; margin-bottom: 16px;">
-          <div style="position: relative; margin-bottom: 12px;">
-            <div style="width: 68px; height: 68px; border-radius: 50%; background: linear-gradient(135deg, rgba(2, 132, 199, 0.15) 0%, rgba(2, 132, 199, 0.08) 100%); color: var(--primary); display: flex; align-items: center; justify-content: center; font-size: 1.9rem; border: 2.5px solid var(--primary); box-shadow: 0 4px 12px rgba(2, 132, 199, 0.18);">
+        <div class="profile-identity-card">
+          <div class="profile-avatar-wrap">
+            <div class="profile-avatar-circle">
               <i class="fa-solid fa-user-doctor" id="profile-modal-avatar-icon"></i>
             </div>
-            <span style="position: absolute; bottom: 2px; left: 2px; width: 15px; height: 15px; border-radius: 50%; background: #10b981; border: 2.5px solid var(--bg-surface);" title="الحساب نشط"></span>
+            <span class="profile-online-dot" title="الحساب نشط"></span>
           </div>
 
-          <h4 id="profile-modal-user-name" style="margin: 0 0 6px 0; font-size: 1.18rem; font-weight: 900; color: var(--text-main);">-</h4>
-          <span id="profile-modal-user-role" class="badge badge-role-doctor" style="font-size: 0.8rem; padding: 4px 14px; margin-bottom: 10px; font-weight: 800;">طبيب معالج</span>
+          <h4 id="profile-modal-user-name" class="profile-name-h4">-</h4>
+          <span id="profile-modal-user-role" class="badge badge-role-doctor profile-badge-role">طبيب معالج</span>
           
-          <div style="display: inline-flex; align-items: center; gap: 6px; font-size: 0.84rem; color: var(--text-muted); direction: ltr; background: var(--bg-surface); padding: 4px 12px; border-radius: 999px; border: 1px solid var(--border-color);">
-            <i class="fa-solid fa-envelope" style="color: var(--primary); font-size: 0.8rem;"></i>
+          <div class="profile-email-pill">
+            <i class="fa-solid fa-envelope text-primary"></i>
             <span id="profile-modal-user-email">-</span>
           </div>
         </div>
 
         <!-- Profile Action Menu (Consolidated Navigation & Settings) -->
-        <div style="display: flex; flex-direction: column; gap: 8px;">
+        <div class="profile-actions-col">
           <!-- Push Notifications Toggle Feature (v2.10.0) -->
-          <div class="profile-setting-row" style="padding: 10px 14px; background: var(--bg-surface); border: 1.5px solid var(--border-color); border-radius: 12px; display: flex; align-items: center; justify-content: space-between; gap: 10px;">
-            <div style="display: flex; align-items: center; gap: 10px; overflow: hidden; flex: 1;">
+          <div class="profile-setting-row">
+            <div class="profile-setting-inner">
               <span class="icon-box-32">
                 <i class="fa-solid fa-bell"></i>
               </span>
-              <div style="overflow: hidden;">
-                <div style="font-weight: 800; font-size: 0.86rem; color: var(--text-main);">الإشعارات الفورية (Push)</div>
-                <div style="font-size: 0.72rem; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" id="push-status-text">تلقي تنبيهات المرضى والمواعيد</div>
+              <div class="profile-setting-text">
+                <div class="profile-setting-label">الإشعارات الفورية (Push)</div>
+                <div class="profile-setting-sub" id="push-status-text">تلقي تنبيهات المرضى والمواعيد</div>
               </div>
             </div>
-            <button type="button" class="btn btn-outline btn-sm" id="btn-toggle-push-notifications" style="font-weight: 800; font-size: 0.8rem; padding: 4px 12px; border-radius: 999px; white-space: nowrap;">
+            <button type="button" class="btn btn-outline btn-sm" id="btn-toggle-push-notifications" class="profile-toggle-btn">
               تفعيل
             </button>
           </div>
           <!-- 1. Admin Panel (Admin Only) -->
           <button type="button" class="btn btn-outline btn-profile-admin-panel" id="btn-profile-admin-panel" style="display: none;">
             <span class="flex-align-10">
-              <span style="width: 32px; height: 32px; border-radius: 8px; background: rgba(245, 158, 11, 0.18); color: #d97706; display: flex; align-items: center; justify-content: center; font-size: 0.95rem; flex-shrink: 0;">
+              <span class="icon-box-32-warning-panel">
                 <i class="fa-solid fa-user-shield"></i>
               </span>
               <span>لوحة المدير والصلاحيات</span>
             </span>
-            <i class="fa-solid fa-chevron-left" style="font-size: 0.8rem; opacity: 0.7;"></i>
+            <i class="fa-solid fa-chevron-left text-muted"></i>
           </button>
 
           <!-- 2. Dark / Light Mode Toggle -->
-          <button type="button" class="btn btn-outline" id="btn-profile-toggle-theme" style="width: 100%; display: flex; align-items: center; justify-content: space-between; padding: 11px 14px; border-radius: 12px; font-weight: 800; font-size: 0.88rem; color: var(--text-main); border: 1.5px solid var(--border-color); background: var(--bg-surface); cursor: pointer; transition: all 0.2s ease;">
+          <button type="button" class="btn btn-outline" id="btn-profile-toggle-theme" class="profile-nav-btn">
             <span class="flex-align-10">
               <span class="icon-box-32">
                 <i class="fa-solid fa-moon" id="profile-theme-icon"></i>
@@ -3716,7 +3716,7 @@
           </button>
 
           <!-- 3. Change Password -->
-          <button type="button" class="btn btn-outline" id="btn-profile-change-pwd" style="width: 100%; display: flex; align-items: center; justify-content: space-between; padding: 11px 14px; border-radius: 12px; font-weight: 800; font-size: 0.88rem; color: var(--text-main); border: 1.5px solid var(--border-color); background: var(--bg-surface); cursor: pointer; transition: all 0.2s ease;">
+          <button type="button" class="btn btn-outline" id="btn-profile-change-pwd" class="profile-nav-btn">
             <span class="flex-align-10">
               <span class="icon-box-32">
                 <i class="fa-solid fa-key"></i>
@@ -3727,88 +3727,88 @@
           </button>
 
           <!-- 4. Logout / Switch User -->
-          <button type="button" class="btn btn-outline" id="btn-profile-logout" style="width: 100%; display: flex; align-items: center; justify-content: space-between; padding: 11px 14px; border-radius: 12px; font-weight: 800; font-size: 0.88rem; color: #ef4444; border: 1.5px solid rgba(239, 68, 68, 0.3); background: rgba(239, 68, 68, 0.06); cursor: pointer; transition: all 0.2s ease; margin-top: 4px;">
+          <button type="button" class="btn btn-outline" id="btn-profile-logout" class="profile-logout-btn">
             <span class="flex-align-10">
-              <span style="width: 32px; height: 32px; border-radius: 8px; background: rgba(239, 68, 68, 0.14); color: #ef4444; display: flex; align-items: center; justify-content: center; font-size: 0.95rem; flex-shrink: 0;">
+              <span class="icon-box-32-danger-tint">
                 <i class="fa-solid fa-right-from-bracket"></i>
               </span>
               <span>تسجيل الخروج / تبديل الحساب</span>
             </span>
-            <i class="fa-solid fa-arrow-left" style="color: #ef4444; font-size: 0.8rem;"></i>
+            <i class="fa-solid fa-arrow-left text-danger"></i>
           </button>
         </div>
       </div>
 
       <!-- Footer -->
-      <div class="modal-footer" style="padding: 10px 18px; background: var(--bg-subtle); display: flex; justify-content: space-between; align-items: center;">
-        <span style="font-size: 0.74rem; color: var(--text-muted);">نظام آمن • إدارة المراكز الطبية</span>
-        <button type="button" class="btn btn-outline btn-sm" id="btn-close-profile-footer" style="border-radius: 8px; font-weight: 700; padding: 5px 14px;">إغلاق</button>
+      <div class="modal-footer modal-footer-between-sm">
+        <span class="modal-muted-xs">نظام آمن • إدارة المراكز الطبية</span>
+        <button type="button" class="btn btn-outline btn-sm" id="btn-close-profile-footer" class="fw-700">إغلاق</button>
       </div>
     </div>
   </div>
 
   <!-- Modal: Custom Notification Permission Primer (v2.10.1) -->
-  <div class="modal-backdrop no-print" id="modal-notification-primer" style="z-index: 99990;">
-    <div class="modal-content" style="max-width: 420px; border-radius: 20px; overflow: hidden; padding: 0; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.35);">
+  <div class="modal-backdrop no-print" id="modal-notification-primer" class="z-99990">
+    <div class="modal-content modal-content-420 modal-content-r20">
       <!-- Header with Clinic Gradient & Branding -->
-      <div class="modal-header" style="background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%); color: #ffffff; padding: 20px; display: flex; align-items: center; justify-content: space-between; border: none;">
-        <div style="display: flex; align-items: center; gap: 12px;">
-          <div style="width: 44px; height: 44px; border-radius: 12px; background: rgba(255, 255, 255, 0.2); display: flex; align-items: center; justify-content: center; font-size: 1.35rem; flex-shrink: 0; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
+      <div class="modal-header modal-header-gradient">
+        <div class="flex-align-10">
+          <div class="icon-box-44-white">
             <i class="fa-solid fa-bell"></i>
           </div>
           <div>
-            <h3 style="margin: 0; font-size: 1.15rem; font-weight: 800; line-height: 1.3; color: #ffffff;">تفعيل الإشعارات الفورية</h3>
-            <p style="margin: 3px 0 0; font-size: 0.76rem; opacity: 0.9; font-weight: 600; color: #e0f2fe;">مركز الإسكندرية التخصصي للعلاج الطبيعي</p>
+            <h3 class="modal-title-gradient">تفعيل الإشعارات الفورية</h3>
+            <p class="modal-sub-gradient">مركز الإسكندرية التخصصي للعلاج الطبيعي</p>
           </div>
         </div>
         <button type="button" class="modal-close btn-modal-close-white" id="btn-close-primer-x">&times;</button>
       </div>
 
       <!-- Body with Visual Cards -->
-      <div class="modal-body" style="padding: 20px; display: flex; flex-direction: column; gap: 12px;">
+      <div class="modal-body modal-body-padded-flex">
         <div class="card-info-banner">
-          <div style="width: 32px; height: 32px; border-radius: 8px; background: rgba(2, 132, 199, 0.12); color: var(--primary); display: flex; align-items: center; justify-content: center; font-size: 0.95rem; flex-shrink: 0; margin-top: 2px;">
+          <div class="icon-box-32-primary-tint">
             <i class="fa-solid fa-user-check"></i>
           </div>
           <div>
-            <div style="font-weight: 800; font-size: 0.88rem; color: var(--text-main); margin-bottom: 2px;">تنبيه فوري بحضور المريض</div>
-            <div style="font-size: 0.77rem; color: var(--text-muted); line-height: 1.4;">إشعار مباشر للطبيب فور تسجيل وصول المريض بالاستقبال لبدء الجلسة فوراً.</div>
+            <div class="card-info-banner-title">تنبيه فوري بحضور المريض</div>
+            <div class="card-info-banner-desc">إشعار مباشر للطبيب فور تسجيل وصول المريض بالاستقبال لبدء الجلسة فوراً.</div>
           </div>
         </div>
 
         <div class="card-info-banner">
-          <div style="width: 32px; height: 32px; border-radius: 8px; background: rgba(16, 185, 129, 0.12); color: #10b981; display: flex; align-items: center; justify-content: center; font-size: 0.95rem; flex-shrink: 0; margin-top: 2px;">
+          <div class="icon-box-32-success-tint">
             <i class="fa-solid fa-calendar-check"></i>
           </div>
           <div>
-            <div style="font-weight: 800; font-size: 0.88rem; color: var(--text-main); margin-bottom: 2px;">تحديث المواعيد والجلسات</div>
-            <div style="font-size: 0.77rem; color: var(--text-muted); line-height: 1.4;">متابعة الحجوزات الأسبوعية وتأكيد اكتمال الجلسات من جدول الطبيب.</div>
+            <div class="card-info-banner-title">تحديث المواعيد والجلسات</div>
+            <div class="card-info-banner-desc">متابعة الحجوزات الأسبوعية وتأكيد اكتمال الجلسات من جدول الطبيب.</div>
           </div>
         </div>
 
         <div class="card-info-banner">
-          <div style="width: 32px; height: 32px; border-radius: 8px; background: rgba(245, 158, 11, 0.12); color: #f59e0b; display: flex; align-items: center; justify-content: center; font-size: 0.95rem; flex-shrink: 0; margin-top: 2px;">
+          <div class="icon-box-32-warning-tint">
             <i class="fa-solid fa-vault"></i>
           </div>
           <div>
-            <div style="font-weight: 800; font-size: 0.88rem; color: var(--text-main); margin-bottom: 2px;">مطابقة العهدة النقدية</div>
-            <div style="font-size: 0.77rem; color: var(--text-muted); line-height: 1.4;">إشعار الإدارة فور تسليم نقدية الدرج اليومية لمطابقة الخزينة.</div>
+            <div class="card-info-banner-title">مطابقة العهدة النقدية</div>
+            <div class="card-info-banner-desc">إشعار الإدارة فور تسليم نقدية الدرج اليومية لمطابقة الخزينة.</div>
           </div>
         </div>
 
         <!-- Android System Security Dialog Tip -->
-        <div style="background: rgba(2, 132, 199, 0.08); border: 1.5px dashed var(--primary); border-radius: 12px; padding: 12px 14px; display: flex; align-items: center; gap: 12px;">
-          <i class="fa-solid fa-shield-halved" style="color: var(--primary); font-size: 1.3rem; flex-shrink: 0;"></i>
-          <span style="font-size: 0.76rem; color: var(--text-main); line-height: 1.45; font-weight: 600;">
+        <div class="primer-security-tip">
+          <i class="fa-solid fa-shield-halved text-primary flex-shrink-0"></i>
+          <span class="primer-security-tip-text">
             عند الضغط على <b>"متابعة والتفعيل"</b>، ستظهر نافذة حماية النظام في هاتفك، يرجى اختيار <b>(Allow / سماح)</b> لربط هاتفك.
           </span>
         </div>
       </div>
 
       <!-- Footer Actions -->
-      <div class="modal-footer" style="padding: 14px 20px; background: var(--bg-surface); border-top: 1px solid var(--border-color); display: flex; gap: 10px; justify-content: flex-end;">
-        <button type="button" class="btn btn-outline" id="btn-primer-dismiss" style="min-width: 80px; font-weight: 700;">لاحقاً</button>
-        <button type="button" class="btn btn-primary" id="btn-primer-confirm" style="flex: 1; font-weight: 800; display: inline-flex; align-items: center; justify-content: center; gap: 8px;">
+      <div class="modal-footer modal-footer-end-surface">
+        <button type="button" class="btn btn-outline" id="btn-primer-dismiss" class="btn-primer-dismiss">لاحقاً</button>
+        <button type="button" class="btn btn-primary" id="btn-primer-confirm" class="btn-primer-confirm">
           <i class="fa-solid fa-bell"></i> متابعة والتفعيل
         </button>
       </div>
@@ -3816,12 +3816,12 @@
   </div>
 
   <!-- Modal: Change Password (v1.4.80) -->
-  <div class="modal-backdrop" id="modal-change-password" style="z-index: 235;">
-    <div class="modal-content" style="max-width: 440px; border-radius: 14px; overflow: hidden; padding: 0; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);">
+  <div class="modal-backdrop" id="modal-change-password" class="z-235">
+    <div class="modal-content modal-content-440 modal-content-r14">
       <!-- Header -->
       <div class="modal-header modal-header-gradient">
         <div class="flex-align-10">
-          <div style="width: 36px; height: 36px; border-radius: 8px; background: rgba(255, 255, 255, 0.2); display: flex; align-items: center; justify-content: center; font-size: 1.1rem; flex-shrink: 0;">
+          <div class="icon-box-36-white-sm">
             <i class="fa-solid fa-key"></i>
           </div>
           <div>
@@ -3833,7 +3833,7 @@
       </div>
 
       <!-- Body -->
-      <div class="modal-body" style="padding: 18px 20px;">
+      <div class="modal-body modal-body-padded">
         <form id="form-change-password" autocomplete="off" novalidate>
           <div class="form-group mb-14">
             <label for="change-pwd-current" class="label-block-bold">
@@ -3857,7 +3857,7 @@
                 <i class="fa-solid fa-eye"></i>
               </button>
             </div>
-            <small style="font-size: 0.72rem; color: var(--text-muted); display: block; margin-top: 4px;">يجب ألا تقل كلمة المرور عن 6 أحرف أو أرقام.</small>
+            <small class="modal-hint-sm-mt4">يجب ألا تقل كلمة المرور عن 6 أحرف أو أرقام.</small>
           </div>
 
           <div class="form-group mb-16">
@@ -3891,7 +3891,7 @@
   <div class="modal-backdrop" id="modal-change-doctor-shift">
     <div class="modal-content modal-sm">
       <div class="modal-header">
-        <h3 style="display: flex; align-items: center; gap: 8px;"><i class="fa-solid fa-user-doctor text-primary"></i> تعديل شفت وأسعار جلسات الطبيب</h3>
+        <h3 class="modal-header-icon-row"><i class="fa-solid fa-user-doctor text-primary"></i> تعديل شفت وأسعار جلسات الطبيب</h3>
         <button type="button" class="modal-close" data-close-modal="modal-change-doctor-shift">&times;</button>
       </div>
       <div class="modal-body" style="padding: 16px 20px;">
@@ -4372,7 +4372,7 @@
       </div>
 
       <!-- Footer Actions -->
-      <div class="modal-footer" style="padding: 10px 14px; background-color: var(--bg-subtle); display: flex; justify-content: space-between; align-items: center;">
+      <div class="modal-footer modal-footer-month">
         <button type="button" class="btn btn-outline btn-sm" data-close-modal="modal-custom-calendar">إلغاء</button>
         <button type="button" class="btn btn-primary btn-sm" id="cal-btn-confirm">
           <i class="fa-solid fa-check"></i> اختيار هذا اليوم
@@ -4449,25 +4449,25 @@
 
     <!-- Modal: Attendance Card Customization (بطاقة تردد المريض v1.4.80) -->
   <div class="modal-backdrop z-230" id="modal-attendance-card">
-    <div class="modal-content modal-patient-modern" style="max-width: 520px; border-radius: 18px; padding: 0; overflow: hidden;">
-      <div class="modal-header" style="border-bottom: 1.5px solid var(--border-color); padding: 14px 18px; background: var(--bg-surface);">
+    <div class="modal-content modal-patient-modern modal-content-520 modal-content-r18-nh">
+      <div class="modal-header modal-header-subtle">
         <div class="flex-align-10">
-          <div style="width: 36px; height: 36px; border-radius: 10px; background: rgba(2, 132, 199, 0.12); color: var(--primary); display: flex; align-items: center; justify-content: center; font-size: 1.05rem; flex-shrink: 0;">
+          <div class="icon-box-36-primary">
             <i class="fa-solid fa-id-card"></i>
           </div>
           <div style="min-width: 0;">
-            <h3 style="color: var(--text-main); font-size: 1.05rem; margin: 0; font-weight: 800; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+            <h3 class="modal-title-h3 text-ellipsis">
               بطاقة تردد: <span id="card-modal-patient-name" class="text-primary">اسم المريض</span>
             </h3>
-            <div style="font-size: 0.76rem; color: var(--text-muted); margin-top: 2px;">
-              شركة التأمين: <strong id="card-modal-company-name" style="color: var(--text-main);">-</strong>
+            <div class="modal-strip-info-sm">
+              شركة التأمين: <strong id="card-modal-company-name" class="text-main">-</strong>
             </div>
           </div>
         </div>
         <button type="button" class="modal-close" data-close-modal="modal-attendance-card">&times;</button>
       </div>
 
-      <div class="modal-body modal-patient-body" style="padding: 16px 18px; max-height: 75vh; overflow-y: auto;">
+      <div class="modal-body modal-patient-body modal-body-tall">
         <!-- 1. Referred Diagnosis -->
         <div class="form-group form-group-modern">
           <label for="card-input-diagnosis" class="modern-field-label">
@@ -4496,12 +4496,12 @@
             <label class="modern-field-label">
               <i class="fa-solid fa-list-check text-primary"></i> خطة ووسائل العلاج <span class="required-star">*</span>
             </label>
-            <span id="card-treatments-count-badge" class="badge badge-primary" style="font-size: 0.76rem; border-radius: 999px; padding: 3px 8px;">0 محدد</span>
+            <span id="card-treatments-count-badge" class="badge badge-primary badge-pill">0 محدد</span>
           </div>
           <div class="custom-select-wrapper">
-            <button type="button" class="custom-select-btn modern-select-btn" id="btn-open-picker-card-treatments" style="min-height: 44px; display: flex; align-items: center; justify-content: space-between;">
-              <div id="card-treatments-selected-preview" class="multi-select-preview" style="display: flex; flex-wrap: wrap; gap: 4px; align-items: center; flex: 1;">
-                <span style="color: var(--text-muted); font-size: 0.86rem;">-- اضغط لاختيار وسائل وخطة العلاج --</span>
+            <button type="button" class="custom-select-btn modern-select-btn" id="btn-open-picker-card-treatments" class="w-100-h44-select">
+              <div id="card-treatments-selected-preview" class="multi-select-preview">
+                <span class="text-muted">-- اضغط لاختيار وسائل وخطة العلاج --</span>
               </div>
               <i class="fa-solid fa-chevron-down custom-select-arrow"></i>
             </button>
@@ -4509,22 +4509,22 @@
           <div class="body-parts-chips d-none" id="card-treatment-chips-container"></div>
 
           <!-- Live Preview Box -->
-          <div style="background: var(--bg-subtle); border: 1.5px dashed var(--border-color); border-radius: 12px; padding: 12px 14px; margin-top: 10px;">
-            <div style="font-size: 0.78rem; font-weight: 800; color: var(--primary); display: flex; align-items: center; gap: 6px; margin-bottom: 6px;">
+          <div class="modal-preview-box">
+            <div class="modal-preview-label">
               <i class="fa-solid fa-eye"></i> <span>معاينة ما سيُطبع في بطاقة التردد:</span>
             </div>
-            <div id="card-plan-preview-list" style="font-size: 0.85rem; line-height: 1.7; color: var(--text-main);"></div>
+            <div id="card-plan-preview-list" class="modal-preview-list"></div>
           </div>
         </div>
       </div>
 
-      <div class="modal-footer" style="padding: 12px 18px; background: var(--bg-subtle); border-top: 1.5px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
-        <button type="button" class="btn btn-outline btn-sm" id="btn-card-print-current" style="font-weight: 800; padding: 8px 14px; border-radius: 10px; display: inline-flex; align-items: center; gap: 6px;">
+      <div class="modal-footer modal-footer-att-card">
+        <button type="button" class="btn btn-outline btn-sm" id="btn-card-print-current" class="fw-800 rounded-10">
           <i class="fa-solid fa-print"></i> <span>طباعة هذه البطاقة فقط</span>
         </button>
-        <div style="display: flex; gap: 8px;">
-          <button type="button" class="btn btn-outline btn-sm" data-close-modal="modal-attendance-card" style="font-weight: 700; padding: 8px 14px; border-radius: 10px;">إلغاء</button>
-          <button type="button" class="btn btn-primary btn-sm" id="btn-card-save" style="font-weight: 800; padding: 8px 18px; border-radius: 10px; display: inline-flex; align-items: center; gap: 6px;">
+        <div class="modal-flex-gap8">
+          <button type="button" class="btn btn-outline btn-sm" data-close-modal="modal-attendance-card" class="fw-700 rounded-10">إلغاء</button>
+          <button type="button" class="btn btn-primary btn-sm" id="btn-card-save" class="fw-800 rounded-10">
             <i class="fa-solid fa-check"></i> <span>حفظ البطاقة</span>
           </button>
         </div>
@@ -4534,31 +4534,31 @@
 
   <!-- Modal: Patient Sessions History (سجل جلسات المريض السابقة) -->
   <div class="modal-backdrop z-230" id="modal-patient-sessions-history">
-    <div class="modal-content" style="max-width: 720px; max-height: 85vh; display: flex; flex-direction: column; padding: 0; border-radius: var(--radius-lg); overflow: hidden;">
+    <div class="modal-content modal-content-hist">
       <!-- Modal Header -->
-      <div class="modal-header" style="background: var(--bg-subtle); border-bottom: 2px solid var(--primary); padding: 14px 18px;">
+      <div class="modal-header modal-header-subtle-sm">
         <div>
-          <h3 style="font-size: 1.15rem; font-weight: 800; color: var(--primary); margin: 0; display: flex; align-items: center; gap: 8px;">
+          <h3 class="sess-hist-title">
             <i class="fa-solid fa-calendar-days text-primary"></i>
-            <span>سجل جلسات: <strong id="modal-p-sess-patient-name" style="color: var(--text-main);">-</strong></span>
+            <span>سجل جلسات: <strong id="modal-p-sess-patient-name" class="text-main">-</strong></span>
           </h3>
           <p style="margin: 4px 0 0 0; font-size: 0.8rem; color: var(--text-muted); font-weight: 700;">
-            إجمالي الجلسات السابقة: <span class="badge badge-cash" id="modal-p-sess-total-badge" style="font-size: 0.78rem;">0 جلسة</span>
+            إجمالي الجلسات السابقة: <span class="badge badge-cash" id="modal-p-sess-total-badge">0 جلسة</span>
           </p>
         </div>
         <button class="modal-close" data-close-modal="modal-patient-sessions-history">&times;</button>
       </div>
 
       <!-- Modal Body (Clinical Timeline Cards) -->
-      <div class="modal-body" style="padding: 14px; overflow-y: auto; flex: 1; max-height: 72vh;" id="modal-p-sess-body">
+      <div class="modal-body modal-body-scrollable" id="modal-p-sess-body">
         <div id="modal-p-sess-list" class="session-timeline-list">
           <!-- Populated dynamically as Timeline Cards -->
         </div>
       </div>
 
       <!-- Modal Footer -->
-      <div class="modal-footer" style="padding: 10px 16px; background-color: var(--bg-subtle); display: flex; justify-content: space-between; align-items: center;">
-        <span style="font-size: 0.78rem; color: var(--text-muted); font-weight: 600;">
+      <div class="modal-footer modal-footer-between-sm">
+        <span class="modal-muted-xs-fw6">
           <i class="fa-solid fa-info-circle"></i> مرتبة تنازلياً من أحدث جلسة إلى الأقدم
         </span>
         <button type="button" class="btn btn-outline btn-sm" data-close-modal="modal-patient-sessions-history">إغلاق</button>
@@ -4571,13 +4571,13 @@
     <div class="modal-content" style="max-width: 360px; border-radius: 10px; overflow: hidden; padding: 0;">
       <!-- Header -->
       <div class="custom-calendar-header">
-        <div style="display: flex; justify-content: space-between; align-items: center;">
+        <div class="d-flex justify-between align-center">
           <button type="button" class="cal-nav-btn" id="month-picker-prev-year" title="السنة السابقة">
             <i class="fa-solid fa-chevron-right"></i>
           </button>
-          <div style="text-align: center;">
-            <h3 id="month-picker-year" style="font-size: 1.25rem; font-weight: 800; color: var(--primary); margin: 0;">2026</h3>
-            <span id="month-picker-sub" style="font-size: 0.8rem; color: var(--text-muted); font-weight: 600;">سبتمبر 2026</span>
+          <div class="text-center">
+            <h3 id="month-picker-year" class="month-picker-year-h3">2026</h3>
+            <span id="month-picker-sub" class="month-picker-sub">سبتمبر 2026</span>
           </div>
           <button type="button" class="cal-nav-btn" id="month-picker-next-year" title="السنة التالية">
             <i class="fa-solid fa-chevron-left"></i>
@@ -4585,14 +4585,14 @@
         </div>
 
         <!-- Quick Jump Buttons -->
-        <div style="display: flex; justify-content: center; gap: 8px; margin-top: 10px;">
+        <div class="month-picker-quick-row">
           <button type="button" class="btn btn-outline btn-sm cal-quick-btn" id="month-picker-quick-current">هذا الشهر</button>
           <button type="button" class="btn btn-outline btn-sm cal-quick-btn" id="month-picker-quick-last">الشهر الماضي</button>
         </div>
       </div>
 
       <!-- Month Grid -->
-      <div style="padding: 12px 14px;">
+      <div class="month-picker-body">
         <div class="cal-months-grid" id="month-picker-months-container">
           <!-- Populated dynamically -->
         </div>
@@ -4624,17 +4624,17 @@
   <div class="modal-backdrop z-225" id="modal-whatsapp-templates">
     <div class="modal-content modal-md">
       <div class="modal-header">
-        <h3 style="color: #10b981;"><i class="fa-brands fa-whatsapp"></i> قوالب رسائل واتساب الذكية</h3>
+        <h3 class="text-success"><i class="fa-brands fa-whatsapp"></i> قوالب رسائل واتساب الذكية</h3>
         <button type="button" class="modal-close" data-close-modal="modal-whatsapp-templates">&times;</button>
       </div>
       <div class="modal-body p-16">
-        <div style="background: var(--bg-subtle); border-radius: 12px; padding: 12px; margin-bottom: 14px; border: 1px solid var(--border-color); display: flex; align-items: center; gap: 10px;">
-          <div style="width: 40px; height: 40px; border-radius: 50%; background: rgba(16, 185, 129, 0.15); color: #10b981; display: flex; align-items: center; justify-content: center; font-size: 1.15rem;">
+        <div class="wa-patient-strip">
+          <div class="icon-box-40-success-tint">
             <i class="fa-solid fa-user-check"></i>
           </div>
           <div>
-            <div style="font-weight: 800; font-size: 0.98rem; color: var(--text-main);" id="wa-modal-patient-name">المريض</div>
-            <div style="font-size: 0.8rem; color: var(--text-muted);" id="wa-modal-patient-phone">01xxxxxxxxx</div>
+            <div class="fw-800 text-main" id="wa-modal-patient-name">المريض</div>
+            <div class="text-muted" id="wa-modal-patient-phone">01xxxxxxxxx</div>
           </div>
         </div>
 
@@ -4710,27 +4710,27 @@
         <input type="hidden" id="slot-edit-mode" value="edit">
 
         <div class="modal-body">
-          <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 12px;">
+          <p class="modal-note-xs">
             يمكنك اختيار الوقت المناسب من المواعيد السريعة أو تحديده يدوياً:
           </p>
 
           <!-- Quick Common Times Grid -->
-          <label style="font-weight: 700; font-size: 0.84rem; color: var(--text-main); margin-bottom: 6px; display: block;">
+          <label class="modal-label-semi-color">
             <i class="fa-solid fa-bolt" style="color: #f59e0b;"></i> مواعيد سريعة شائعة:
           </label>
-          <div id="slot-quick-chips" style="display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 14px;">
+          <div id="slot-quick-chips" class="modal-flex-presets mb-14">
             <!-- Rendered by JS -->
           </div>
 
           <!-- Time Input Row: Hour, Minute, Period (Custom Pickers & Segmented Switcher) -->
-          <div style="background: var(--bg-subtle); border: 1.5px solid var(--border-color); border-radius: var(--radius-md); padding: 14px; margin-bottom: 14px;">
-            <label style="font-weight: 800; font-size: 0.88rem; color: var(--primary); margin-bottom: 10px; display: flex; align-items: center; gap: 6px;">
+          <div class="slot-time-box">
+            <label class="slot-time-label-primary">
               <i class="fa-regular fa-clock"></i> تحديد الموعد بدقة:
             </label>
-            <div style="display: grid; grid-template-columns: 1fr auto 1fr 1.3fr; gap: 8px; align-items: end;">
+            <div class="slot-time-grid">
               <!-- Hour Custom Dropdown Trigger -->
               <div>
-                <label style="font-size: 0.75rem; color: var(--text-muted); font-weight: 700; margin-bottom: 4px; display: block; text-align: center;">الساعة</label>
+                <label class="modal-label-metric">الساعة</label>
                 <div class="custom-select-wrapper">
                   <select id="slot-input-hour" class="d-none">
                     <option value="1">1</option>
@@ -4746,7 +4746,7 @@
                     <option value="11">11</option>
                     <option value="12">12</option>
                   </select>
-                  <button type="button" class="custom-select-btn" id="btn-select-slot-input-hour" data-open-picker="slot-input-hour" data-picker-title="اختر الساعة" style="width: 100%; height: 44px; justify-content: center; font-weight: 800; font-size: 1.05rem; border-radius: 12px; gap: 6px;">
+                  <button type="button" class="custom-select-btn" id="btn-select-slot-input-hour" data-open-picker="slot-input-hour" data-picker-title="اختر الساعة" class="slot-picker-btn">
                     <span class="btn-text">3</span>
                     <i class="fa-solid fa-chevron-down" style="font-size: 0.75rem; opacity: 0.6;"></i>
                   </button>
@@ -4757,7 +4757,7 @@
 
               <!-- Minute Custom Dropdown Trigger -->
               <div>
-                <label style="font-size: 0.75rem; color: var(--text-muted); font-weight: 700; margin-bottom: 4px; display: block; text-align: center;">الدقيقة</label>
+                <label class="modal-label-metric">الدقيقة</label>
                 <div class="custom-select-wrapper">
                   <select id="slot-input-minute" class="d-none">
                     <option value="00">00</option>
@@ -4765,7 +4765,7 @@
                     <option value="30" selected>30</option>
                     <option value="45">45</option>
                   </select>
-                  <button type="button" class="custom-select-btn" id="btn-select-slot-input-minute" data-open-picker="slot-input-minute" data-picker-title="اختر الدقيقة" style="width: 100%; height: 44px; justify-content: center; font-weight: 800; font-size: 1.05rem; border-radius: 12px; gap: 6px;">
+                  <button type="button" class="custom-select-btn" id="btn-select-slot-input-minute" data-open-picker="slot-input-minute" data-picker-title="اختر الدقيقة" class="slot-picker-btn">
                     <span class="btn-text">30</span>
                     <i class="fa-solid fa-chevron-down" style="font-size: 0.75rem; opacity: 0.6;"></i>
                   </button>
@@ -4774,16 +4774,16 @@
 
               <!-- Period Segmented Switcher (مساءً / صباحاً) -->
               <div>
-                <label style="font-size: 0.75rem; color: var(--text-muted); font-weight: 700; margin-bottom: 4px; display: block; text-align: center;">الفترة</label>
+                <label class="modal-label-metric">الفترة</label>
                 <select id="slot-input-period" class="d-none">
                   <option value="PM" selected>مساءً (م)</option>
                   <option value="AM">صباحاً (ص)</option>
                 </select>
-                <div class="period-segmented-wrap" style="display: flex; background: var(--bg-surface); border: 1.5px solid var(--border-color); border-radius: 12px; padding: 3px; gap: 3px; height: 44px; box-sizing: border-box;">
-                  <button type="button" class="btn-slot-period active" data-period="PM" id="btn-period-pm" style="flex: 1; border: none; border-radius: 9px; font-weight: 800; font-size: 0.85rem; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; transition: all 0.18s ease; background: var(--primary); color: #ffffff;">
+                <div class="period-segmented-wrap">
+                  <button type="button" class="btn-slot-period active" data-period="PM" id="btn-period-pm" class="btn-slot-period-active">
                     مساءً
                   </button>
-                  <button type="button" class="btn-slot-period" data-period="AM" id="btn-period-am" style="flex: 1; border: none; border-radius: 9px; font-weight: 800; font-size: 0.85rem; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; transition: all 0.18s ease; background: transparent; color: var(--text-muted);">
+                  <button type="button" class="btn-slot-period" data-period="AM" id="btn-period-am" class="btn-slot-period-inactive">
                     صباحاً
                   </button>
                 </div>
@@ -4792,16 +4792,16 @@
           </div>
 
           <!-- Preview of how it will look in table -->
-          <div style="background: var(--primary-light); border: 1px solid var(--border-color); border-radius: 8px; padding: 8px 12px; text-align: center; font-size: 0.88rem; font-weight: 800; color: var(--primary);">
-            المظهر في الجدول: <span id="slot-preview-label" style="color: var(--primary); font-size: 1rem; margin-right: 4px;">٣:٣٠ م</span>
+          <div class="slot-preview-box">
+            المظهر في الجدول: <span id="slot-preview-label" class="slot-preview-val">٣:٣٠ م</span>
           </div>
         </div>
 
-        <div class="modal-footer" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
-          <button type="button" class="btn btn-outline btn-sm" id="btn-delete-slot-row" style="color: var(--danger); border-color: #fca5a5;">
+        <div class="modal-footer modal-footer-between-wrap">
+          <button type="button" class="btn btn-outline btn-sm" id="btn-delete-slot-row" class="text-danger">
             <i class="fa-solid fa-trash"></i> حذف هذا الصف
           </button>
-          <div style="display: flex; gap: 8px;">
+          <div class="modal-flex-gap8">
             <button type="button" class="btn btn-outline btn-sm" data-close-modal="modal-edit-appointment-slot">إلغاء</button>
             <button type="submit" class="btn btn-primary btn-sm" id="btn-save-slot-time">
               <i class="fa-solid fa-check"></i> <span>حفظ التعديل</span>
@@ -4816,25 +4816,25 @@
   <!-- Modal / Bottom Sheet: Quick Appointment Actions -->
   <div class="modal-backdrop" id="modal-appt-actions">
     <div class="modal-content modal-content-bottom-sheet modal-md">
-      <div class="modal-header" style="border-bottom: 1px solid var(--border-color); padding: 14px 16px;">
+      <div class="modal-header modal-header-appt-sheet">
         <div style="display: flex; align-items: center; gap: 8px;">
-          <i class="fa-solid fa-calendar-check text-primary" style="font-size: 1.1rem;"></i>
-          <h3 style="margin: 0; font-size: 1.05rem; font-weight: 800;" id="appt-sheet-header-title">تفاصيل وإجراءات الموعد</h3>
+          <i class="fa-solid fa-calendar-check text-primary"></i>
+          <h3 class="modal-title-h3" id="appt-sheet-header-title">تفاصيل وإجراءات الموعد</h3>
         </div>
         <button type="button" class="modal-close" data-close-modal="modal-appt-actions">&times;</button>
       </div>
       <div class="modal-body p-16">
         <!-- Appointment Summary Box -->
-        <div class="appt-sheet-info-box" style="background: var(--bg-subtle); border: 1.5px solid var(--border-color); border-radius: 12px; padding: 12px 14px; margin-bottom: 16px;">
-          <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; margin-bottom: 8px;">
+        <div class="appt-sheet-info-box">
+          <div class="appt-sheet-info-header">
             <div>
-              <div style="font-weight: 800; font-size: 1.05rem; color: var(--text-main);" id="appt-sheet-patient-name">-</div>
-              <div style="font-size: 0.78rem; color: var(--text-muted); margin-top: 2px;" id="appt-sheet-sub-info">-</div>
+              <div class="modal-strip-name" id="appt-sheet-patient-name">-</div>
+              <div class="modal-strip-info-sm" id="appt-sheet-sub-info">-</div>
             </div>
-            <span id="appt-sheet-status-badge" class="badge badge-primary" style="font-size: 0.74rem; padding: 4px 10px; border-radius: 999px;">محجوز</span>
+            <span id="appt-sheet-status-badge" class="badge badge-primary badge-pill">محجوز</span>
           </div>
 
-          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; font-size: 0.8rem; border-top: 1px dashed var(--border-color); padding-top: 8px; margin-top: 8px;">
+          <div class="appt-sheet-info-grid">
             <div><i class="fa-solid fa-user-doctor text-primary"></i> <span id="appt-sheet-doc-val">-</span></div>
             <div><i class="fa-regular fa-clock text-primary"></i> <span id="appt-sheet-time-val">-</span></div>
             <div><i class="fa-regular fa-calendar text-primary"></i> <span id="appt-sheet-date-val">-</span></div>
@@ -4845,49 +4845,49 @@
         <!-- Action Buttons Section -->
         <div class="flex-col-gap10">
           <!-- 1. Primary Action: Instant Session Check-in -->
-          <button type="button" class="btn btn-primary btn-appt-sheet-action" id="btn-appt-sheet-checkin" style="height: 44px; font-weight: 800; font-size: 0.92rem; display: flex; align-items: center; justify-content: center; gap: 8px; border-radius: 12px; cursor: pointer;">
+          <button type="button" class="btn btn-primary btn-appt-sheet-action" id="btn-appt-sheet-checkin" class="btn-appt-checkin">
             <i class="fa-solid fa-bolt"></i> <span>تسجيل حضور وبدء الجلسة الآن</span>
           </button>
 
           <!-- 2. Status Row: Mark Complete / No-Show -->
           <div class="grid-2col-gap8">
-            <button type="button" class="btn btn-outline btn-appt-sheet-action" id="btn-appt-sheet-complete" style="height: 40px; font-weight: 700; font-size: 0.82rem; border-radius: 10px; color: var(--success); border-color: rgba(16, 185, 129, 0.4); background: rgba(16, 185, 129, 0.05); display: flex; align-items: center; justify-content: center; gap: 6px; cursor: pointer;">
+            <button type="button" class="btn btn-outline btn-appt-sheet-action" id="btn-appt-sheet-complete" class="btn-appt-success">
               <i class="fa-solid fa-circle-check"></i> <span>تم إنهاء الجلسة</span>
             </button>
-            <button type="button" class="btn btn-outline btn-appt-sheet-action" id="btn-appt-sheet-noshow" style="height: 40px; font-weight: 700; font-size: 0.82rem; border-radius: 10px; color: var(--danger); border-color: rgba(239, 68, 68, 0.4); background: rgba(239, 68, 68, 0.05); display: flex; align-items: center; justify-content: center; gap: 6px; cursor: pointer;">
+            <button type="button" class="btn btn-outline btn-appt-sheet-action" id="btn-appt-sheet-noshow" class="btn-appt-danger">
               <i class="fa-solid fa-user-xmark"></i> <span>لم يحضر (No-Show)</span>
             </button>
           </div>
 
           <!-- 3. Move & Contact Row -->
-          <div style="display: grid; grid-template-columns: 1.2fr 1fr 1fr; gap: 8px;">
-            <button type="button" class="btn btn-outline btn-appt-sheet-action" id="btn-appt-sheet-move" style="height: 40px; font-weight: 700; font-size: 0.8rem; border-radius: 10px; display: flex; align-items: center; justify-content: center; gap: 6px; cursor: pointer;">
+          <div class="modal-grid-3-1-1">
+            <button type="button" class="btn btn-outline btn-appt-sheet-action" id="btn-appt-sheet-move" class="btn-appt-neutral">
               <i class="fa-solid fa-arrow-right-arrow-left text-primary"></i> <span>نقل الموعد</span>
             </button>
-            <a id="btn-appt-sheet-call" href="#" class="btn btn-outline btn-appt-sheet-action" style="height: 40px; font-weight: 700; font-size: 0.8rem; border-radius: 10px; display: flex; align-items: center; justify-content: center; gap: 6px; text-decoration: none; cursor: pointer;">
-              <i class="fa-solid fa-phone" style="color: #10b981;"></i> <span>اتصال</span>
+            <a id="btn-appt-sheet-call" href="#" class="btn btn-outline btn-appt-sheet-action btn-appt-link">
+              <i class="fa-solid fa-phone text-success"></i> <span>اتصال</span>
             </a>
-            <a id="btn-appt-sheet-whatsapp" href="#" target="_blank" class="btn btn-outline btn-appt-sheet-action" style="height: 40px; font-weight: 700; font-size: 0.8rem; border-radius: 10px; display: flex; align-items: center; justify-content: center; gap: 6px; text-decoration: none; cursor: pointer;">
-              <i class="fa-brands fa-whatsapp" style="color: #25d366;"></i> <span>واتساب</span>
+            <a id="btn-appt-sheet-whatsapp" href="#" target="_blank" class="btn btn-outline btn-appt-sheet-action btn-appt-link">
+              <i class="fa-brands fa-whatsapp" style="color: var(--whatsapp);"></i> <span>واتساب</span>
             </a>
           </div>
 
           <!-- 2.5 Apologize for Today Only (Exception) -->
-          <button type="button" class="btn btn-outline btn-appt-sheet-action" id="btn-appt-sheet-apologize-today" style="height: 40px; font-weight: 700; font-size: 0.84rem; border-radius: 10px; color: #d97706; border-color: rgba(217, 119, 6, 0.4); background: rgba(217, 119, 6, 0.06); display: flex; align-items: center; justify-content: center; gap: 8px; cursor: pointer;">
+          <button type="button" class="btn btn-outline btn-appt-sheet-action" id="btn-appt-sheet-apologize-today" class="btn-appt-warning">
             <i class="fa-solid fa-user-slash"></i> <span id="text-appt-sheet-apologize">اعتذار عن جلسة اليوم فقط</span>
           </button>
 
           <!-- 3.5 Finish Course / Discharge (Frees Slot Forever) -->
-          <button type="button" class="btn btn-outline btn-appt-sheet-action" id="btn-appt-sheet-finish-course" style="height: 42px; font-weight: 800; font-size: 0.86rem; border-radius: 10px; color: #0284c7; border-color: rgba(2, 132, 199, 0.35); background: rgba(2, 132, 199, 0.07); display: flex; align-items: center; justify-content: center; gap: 8px; cursor: pointer;">
+          <button type="button" class="btn btn-outline btn-appt-sheet-action" id="btn-appt-sheet-finish-course" class="btn-appt-primary-tonal">
             <i class="fa-solid fa-flag-checkered"></i> <span>إنهاء الكورس العلاجي (تفريغ المكان في كافة الأسابيع)</span>
           </button>
 
           <!-- 4. Reset & Delete Row -->
-          <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 4px; padding-top: 10px; border-top: 1px dashed var(--border-color);">
-            <button type="button" class="btn btn-sm btn-outline" id="btn-appt-sheet-reset-scheduled" style="font-size: 0.75rem; border-radius: 8px; color: var(--text-muted); cursor: pointer;">
+          <div class="appt-sheet-danger-row">
+            <button type="button" class="btn btn-sm btn-outline" id="btn-appt-sheet-reset-scheduled" class="btn-appt-reset">
               <i class="fa-solid fa-rotate-left"></i> إعادة للحالة محجوز
             </button>
-            <button type="button" class="btn btn-sm btn-outline" id="btn-appt-sheet-delete" style="font-size: 0.75rem; border-radius: 8px; color: var(--danger); border-color: rgba(239, 68, 68, 0.3); cursor: pointer;">
+            <button type="button" class="btn btn-sm btn-outline" id="btn-appt-sheet-delete" class="btn-appt-delete">
               <i class="fa-solid fa-trash"></i> حذف الموعد
             </button>
           </div>
@@ -4905,18 +4905,18 @@
       </div>
       <form id="form-move-appointment" novalidate>
         <div class="modal-body">
-          <div style="background: var(--bg-main); border: 1px solid var(--border-color); border-radius: 8px; padding: 12px; margin-bottom: 16px;">
-            <div style="font-weight: 700; font-size: 0.95rem; color: var(--text-main); margin-bottom: 4px;">
-              <i class="fa-solid fa-user" style="color: var(--primary); margin-left: 6px;"></i>
+          <div class="modal-patient-strip-sm">
+            <div class="fw-700 text-main mb-4">
+              <i class="fa-solid fa-user text-primary"></i>
               <span id="move-appt-patient-name">-</span>
             </div>
-            <div style="font-size: 0.82rem; color: var(--text-muted);" id="move-appt-current-info">
+            <div class="modal-strip-info" id="move-appt-current-info">
               الموعد الحالي: -
             </div>
           </div>
 
           <div class="form-group mb-14">
-            <label style="font-weight: 700; font-size: 0.85rem; margin-bottom: 6px; display: block;">
+            <label class="modal-label-semi">
               <i class="fa-solid fa-user-doctor text-primary"></i> اختيار الطبيب المعالج:
             </label>
             <div class="custom-select-wrapper">
@@ -4931,7 +4931,7 @@
           </div>
 
           <div class="form-group mb-14">
-            <label style="font-weight: 700; font-size: 0.85rem; margin-bottom: 6px; display: block;">
+            <label class="modal-label-semi">
               <i class="fa-regular fa-clock text-primary"></i> اختيار الفترة / الساعة:
             </label>
             <div class="custom-select-wrapper">
@@ -4947,15 +4947,15 @@
 
           <!-- Edit Recurring Days in Move Modal -->
           <div class="form-group mb-14">
-            <label style="font-weight: 700; font-size: 0.85rem; margin-bottom: 6px; display: block;">
+            <label class="modal-label-semi">
               <i class="fa-solid fa-arrows-rotate text-primary"></i> أيام الحضور الأسبوعية (الحجز الدوري):
             </label>
-            <div class="appt-presets-wrap" style="display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 8px;">
+            <div class="appt-presets-wrap modal-flex-presets">
               <button type="button" class="appt-preset-pill" id="btn-move-preset-sat-mon-wed">سبت - إثنين - أربعاء</button>
               <button type="button" class="appt-preset-pill" id="btn-move-preset-sun-tue-thu">أحد - ثلاثاء - خميس</button>
               <button type="button" class="appt-preset-pill" id="btn-move-preset-daily">يومياً (عدا الجمعة)</button>
             </div>
-            <div class="appt-days-pills-row" id="move-modal-days-grid" style="display: grid; grid-template-columns: repeat(6, 1fr); gap: 6px;">
+            <div class="appt-days-pills-row modal-grid-6col" id="move-modal-days-grid">
               <div class="appt-day-toggle" data-day="6"><span>السبت</span></div>
               <div class="appt-day-toggle" data-day="0"><span>الأحد</span></div>
               <div class="appt-day-toggle" data-day="1"><span>الاثنين</span></div>
@@ -4965,7 +4965,7 @@
             </div>
           </div>
         </div>
-        <div class="modal-footer" style="display: flex; justify-content: flex-end; gap: 8px; padding: 12px 16px;">
+        <div class="modal-footer modal-footer-end">
           <button type="button" class="btn btn-outline" data-close-modal="modal-move-appointment">إلغاء</button>
           <button type="submit" class="btn btn-primary" id="btn-submit-move-appt">
             <i class="fa-solid fa-check"></i> تأكيد النقل
@@ -4977,37 +4977,37 @@
 
   <!-- Modal: Copy / Duplicate Appointment to other days -->
   <div class="modal-backdrop" id="modal-copy-appointment">
-    <div class="modal-content" style="max-width: 490px; border-radius: 18px;">
-      <div class="modal-header" style="border-bottom: 1px solid var(--border-color); padding: 14px 18px;">
-        <h3 id="copy-appt-modal-title" style="margin: 0; font-size: 1.1rem; font-weight: 800; display: flex; align-items: center; gap: 8px;">
+    <div class="modal-content modal-content-490 modal-content-r18">
+      <div class="modal-header modal-header-appt-sheet">
+        <h3 id="copy-appt-modal-title" class="modal-header-icon-row modal-title-h3">
           <i class="fa-regular fa-copy text-primary"></i> <span>نسخ الموعد لأيام أخرى</span>
         </h3>
         <button type="button" class="modal-close" data-close-modal="modal-copy-appointment">&times;</button>
       </div>
       <form id="form-copy-appointment" novalidate>
-        <div class="modal-body" style="padding: 16px 18px;">
+        <div class="modal-body modal-body-padded">
           <!-- Patient & Current Appointment Summary -->
-          <div style="background: var(--bg-main); border: 1.5px solid var(--border-color); border-radius: 12px; padding: 12px 14px; margin-bottom: 16px;">
-            <div style="font-weight: 800; font-size: 1rem; color: var(--text-main); margin-bottom: 4px; display: flex; align-items: center; gap: 6px;">
+          <div class="modal-appt-summary-box">
+            <div class="modal-strip-name-md d-flex align-center gap-6 mb-4">
               <i class="fa-solid fa-user-injured text-primary"></i>
               <span id="copy-appt-patient-name">-</span>
             </div>
-            <div style="font-size: 0.82rem; color: var(--text-muted);" id="copy-appt-current-info">
+            <div class="modal-strip-info" id="copy-appt-current-info">
               الموعد الأصلي: -
             </div>
           </div>
 
           <!-- Quick Shift Presets -->
           <div class="mb-16">
-            <label style="font-weight: 800; font-size: 0.86rem; color: var(--text-main); margin-bottom: 8px; display: flex; align-items: center; justify-content: space-between;">
+            <label class="modal-label-bold-sm-flex">
               <span><i class="fa-solid fa-wand-magic-sparkles text-primary"></i> تكرار سريع حسب شيفت المريض:</span>
-              <span style="font-size: 0.74rem; color: var(--text-muted); font-weight: 600;">(تثبيت 3 أيام أسبوعياً)</span>
+              <span class="modal-muted-xs-fw6">(تثبيت 3 أيام أسبوعياً)</span>
             </label>
             <div class="grid-2col-gap8">
-              <button type="button" class="btn btn-outline btn-sm" id="btn-copy-shift-sat-mon-wed" style="height: 38px; font-weight: 800; font-size: 0.8rem; border-radius: 10px; display: flex; align-items: center; justify-content: center; gap: 6px; padding: 4px 8px; border-color: rgba(2, 132, 199, 0.35); background: rgba(2, 132, 199, 0.05); color: var(--primary);">
+              <button type="button" class="btn btn-outline btn-sm" id="btn-copy-shift-sat-mon-wed" class="btn-copy-shift">
                 <i class="fa-solid fa-calendar-week"></i> <span>سبت • اثنين • أربعاء</span>
               </button>
-              <button type="button" class="btn btn-outline btn-sm" id="btn-copy-shift-sun-tue-thu" style="height: 38px; font-weight: 800; font-size: 0.8rem; border-radius: 10px; display: flex; align-items: center; justify-content: center; gap: 6px; padding: 4px 8px; border-color: rgba(2, 132, 199, 0.35); background: rgba(2, 132, 199, 0.05); color: var(--primary);">
+              <button type="button" class="btn btn-outline btn-sm" id="btn-copy-shift-sun-tue-thu" class="btn-copy-shift">
                 <i class="fa-solid fa-calendar-week"></i> <span>أحد • ثلاثاء • خميس</span>
               </button>
             </div>
@@ -5015,24 +5015,24 @@
 
           <!-- Working Days Selector for this week -->
           <div class="form-group mb-16">
-            <label style="font-weight: 800; font-size: 0.86rem; color: var(--text-main); margin-bottom: 8px; display: block;">
+            <label class="modal-label-bold-block">
               <i class="fa-regular fa-calendar-check text-primary"></i> اختر الأيام المطلوب نسخ الموعد إليها:
             </label>
-            <div id="copy-appt-days-grid" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px;">
+            <div id="copy-appt-days-grid" class="modal-grid-3col">
               <!-- Populated dynamically by JS for Sat, Sun, Mon, Tue, Wed, Thu -->
             </div>
-            <div style="font-size: 0.76rem; color: var(--text-muted); margin-top: 6px;">
+            <div class="modal-hint-xs">
               <i class="fa-solid fa-circle-info"></i> الجمعة عطلة رسمية ومستبعدة تلقائياً من الحجز.
             </div>
           </div>
 
           <!-- Doctor & Time Slot Matching (defaults to current appointment) -->
-          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px;">
+          <div class="modal-grid-2col-mb">
             <div>
-              <label style="font-weight: 700; font-size: 0.8rem; margin-bottom: 5px; display: block;">
+              <label class="modal-label-sm">
                 <i class="fa-solid fa-user-doctor text-primary"></i> الطبيب المعالج:
               </label>
-              <select id="copy-appt-doctor" class="form-control" style="height: 40px; font-size: 0.84rem; font-weight: 700;">
+              <select id="copy-appt-doctor" class="form-control h-40 fw-700">
                 <!-- Populated by JS -->
               </select>
             </div>
@@ -5040,16 +5040,16 @@
               <label style="font-weight: 700; font-size: 0.8rem; margin-bottom: 5px; display: block;">
                 <i class="fa-regular fa-clock text-primary"></i> الفترة / الساعة:
               </label>
-              <select id="copy-appt-slot" class="form-control" style="height: 40px; font-size: 0.84rem; font-weight: 700;">
+              <select id="copy-appt-slot" class="form-control h-40 fw-700">
                 <!-- Populated by JS -->
               </select>
             </div>
           </div>
         </div>
 
-        <div class="modal-footer" style="display: flex; justify-content: space-between; align-items: center; padding: 12px 18px; border-top: 1px solid var(--border-color);">
-          <button type="button" class="btn btn-outline" data-close-modal="modal-copy-appointment" style="border-radius: 10px; font-weight: 700; font-size: 0.85rem;">إلغاء</button>
-          <button type="submit" class="btn btn-primary" id="btn-submit-copy-appt" style="border-radius: 10px; font-weight: 800; font-size: 0.88rem; display: inline-flex; align-items: center; gap: 6px; padding: 8px 20px;">
+        <div class="modal-footer modal-footer-copy">
+          <button type="button" class="btn btn-outline" data-close-modal="modal-copy-appointment" class="btn-modal-footer-outline">إلغاء</button>
+          <button type="submit" class="btn btn-primary" id="btn-submit-copy-appt" class="btn-modal-footer-primary">
             <i class="fa-regular fa-copy"></i> <span>تأكيد نسخ الموعد</span>
           </button>
         </div>
@@ -5059,10 +5059,10 @@
 
   <!-- Modal: Settle Insurance Claim (تسجيل تحصيل مطالبة تأمين v1.4.80) -->
   <div class="modal-backdrop" id="modal-settle-claim">
-    <div class="modal-content modal-patient-modern" style="max-width: 520px; border-radius: 18px; padding: 0; overflow: hidden;">
-      <div class="modal-header" style="border-bottom: 1.5px solid var(--border-color); padding: 14px 18px; background: var(--bg-surface);">
-        <h3 id="settle-modal-title" style="font-size: 1.12rem; font-weight: 800; color: var(--text-main); margin: 0; display: flex; align-items: center; gap: 8px;">
-          <div style="width: 36px; height: 36px; border-radius: 10px; background: rgba(2, 132, 199, 0.12); color: var(--primary); display: flex; align-items: center; justify-content: center; font-size: 1.05rem; flex-shrink: 0;">
+    <div class="modal-content modal-patient-modern modal-content-520 modal-content-r18-nh">
+      <div class="modal-header modal-header-subtle">
+        <h3 id="settle-modal-title" class="modal-header-icon-row modal-title-h3">
+          <div class="icon-box-36-primary">
             <i class="fa-solid fa-money-bill-transfer"></i>
           </div>
           <span>تسجيل تحصيل مطالبة تأمين</span>
@@ -5072,7 +5072,7 @@
 
       <form id="form-settle-claim" novalidate>
         <input type="hidden" id="settle-id" value="">
-        <div class="modal-body modal-patient-body" style="padding: 16px 18px; max-height: 75vh; overflow-y: auto;">
+        <div class="modal-body modal-patient-body modal-body-tall">
           <!-- 1. Insurance Company Selection (Full Width) -->
           <div class="form-group form-group-modern">
             <label for="settle-company-select" class="modern-field-label">
@@ -5117,10 +5117,10 @@
             <label class="modern-field-label">
               <i class="fa-solid fa-wallet text-primary"></i> طريقة استلام المبلغ <span class="required-star">*</span>
             </label>
-            <div class="insurance-contract-segmented" style="display: flex; gap: 6px; padding: 4px; background: var(--bg-subtle); border: 1.5px solid var(--border-color); border-radius: 12px;">
+            <div class="insurance-contract-segmented ins-contract-segmented">
               <label class="segmented-option" style="flex: 1; margin: 0; cursor: pointer;">
                 <input type="radio" name="settle-pay-method" value="bank" checked class="d-none">
-                <div class="segmented-btn" style="padding: 8px 12px; text-align: center; font-weight: 700; font-size: 0.86rem; border-radius: 8px; display: flex; align-items: center; justify-content: center; gap: 6px;">
+                <div class="segmented-btn segmented-btn-pill">
                   <i class="fa-solid fa-building-columns"></i> <span>تحويل بنكي / شيك</span>
                 </div>
               </label>
@@ -5134,7 +5134,7 @@
           </div>
 
           <!-- 4. Gross, Deductions & Net Amounts Grid -->
-          <div style="background: var(--bg-subtle); border: 1.5px solid var(--border-color); border-radius: 14px; padding: 14px; margin-bottom: 14px;">
+          <div class="modal-info-box">
             <div class="modern-two-cols-row">
               <div class="form-group form-group-modern">
                 <label for="settle-gross-amount" class="modern-field-label">
@@ -5180,11 +5180,11 @@
             </div>
 
             <!-- Net Amount Live Display -->
-            <div style="background: var(--bg-surface); border: 1.5px solid var(--border-color); border-radius: 10px; padding: 10px 14px; display: flex; justify-content: space-between; align-items: center; margin-top: 10px;">
-              <span style="font-weight: 800; font-size: 0.9rem; color: var(--text-main);">
-                <i class="fa-solid fa-circle-check" style="color: var(--success); margin-left: 6px;"></i> صافي المبلغ المستلم:
+            <div class="modal-summary-surface">
+              <span class="settle-net-label">
+                <i class="fa-solid fa-circle-check text-success"></i> صافي المبلغ المستلم:
               </span>
-              <strong id="settle-net-display" style="font-size: 1.25rem; font-weight: 800; color: var(--success);">
+              <strong id="settle-net-display" class="settle-net-value">
                 0 ج.م
               </strong>
             </div>
@@ -5213,9 +5213,9 @@
           </div>
         </div>
 
-        <div class="modal-footer" style="padding: 14px 18px; border-top: 1.5px solid var(--border-color); background: var(--bg-subtle); display: flex; justify-content: flex-end; gap: 10px;">
-          <button type="button" class="btn btn-outline" data-close-modal="modal-settle-claim" style="border-radius: 10px; font-weight: 700;">إلغاء</button>
-          <button type="submit" class="btn btn-primary" id="btn-submit-settle-claim" style="border-radius: 10px; font-weight: 800; padding: 8px 20px;">
+        <div class="modal-footer modal-footer-settle">
+          <button type="button" class="btn btn-outline" data-close-modal="modal-settle-claim" class="btn-modal-footer-outline">إلغاء</button>
+          <button type="submit" class="btn btn-primary" id="btn-submit-settle-claim" class="btn-modal-footer-primary">
             <i class="fa-solid fa-check"></i> تأكيد وحفظ التحصيل
           </button>
         </div>
