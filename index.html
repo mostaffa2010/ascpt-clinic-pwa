@@ -2371,11 +2371,14 @@
       <!-- View: User Profile (v3.0.0 Clean 6-Tab View Shell) -->
       <section id="view-profile" class="view-section">
         <div class="profile-view-container">
-          <!-- Identity Card -->
+          <!-- Identity Hero Card -->
           <div class="profile-card-hero">
             <div class="profile-hero-avatar-wrap">
               <div class="profile-hero-avatar" id="view-profile-avatar-letter">م</div>
               <span class="profile-hero-online-dot" title="الحساب نشط"></span>
+              <button type="button" class="profile-avatar-camera-btn" id="btn-profile-avatar-upload" title="تغيير الصورة الشخصية" aria-label="تغيير الصورة الشخصية">
+                <i class="fa-solid fa-camera"></i>
+              </button>
             </div>
             <h3 class="profile-hero-name" id="view-profile-user-name">-</h3>
             <span id="view-profile-user-role" class="profile-hero-role">طبيب معالج</span>
@@ -2385,56 +2388,43 @@
             </div>
           </div>
 
-          <!-- Settings Group Card -->
-          <div class="profile-settings-card">
-            <!-- Push Notifications Toggle -->
-            <button type="button" class="profile-setting-item" id="btn-view-toggle-push">
-              <span class="profile-setting-lead">
-                <span class="profile-setting-icon profile-icon-push">
-                  <i class="fa-solid fa-bell"></i>
+          <!-- Clinic Management Card (Directly Under Hero - Admin Only) -->
+          <div class="profile-card-group d-none" id="card-profile-admin">
+            <div class="profile-settings-card">
+              <button type="button" class="profile-setting-item" id="btn-view-admin-panel">
+                <span class="profile-setting-lead">
+                  <span class="profile-setting-icon profile-icon-admin">
+                    <i class="fa-solid fa-user-shield"></i>
+                  </span>
+                  <span class="profile-setting-text-col">
+                    <span class="profile-setting-label">لوحة المدير والصلاحيات</span>
+                    <span class="profile-setting-sub">إدارة المستخدمين وسجلات النظام والنسخ الاحتياطي</span>
+                  </span>
                 </span>
-                <span>الإشعارات الفورية (Push)</span>
-              </span>
-              <span class="badge badge-secondary" id="view-push-status-badge">فحص الحالة...</span>
-            </button>
+                <i class="fa-solid fa-chevron-left text-muted"></i>
+              </button>
+            </div>
+          </div>
 
-            <!-- Admin Panel (Visible to Admins Only) -->
-            <button type="button" class="profile-setting-item d-none" id="btn-view-admin-panel">
+          <!-- App Settings Entry Card (Leading to Sub-View with Arrow ←) -->
+          <div class="profile-settings-card" id="card-profile-settings-entry">
+            <button type="button" class="profile-setting-item" id="btn-profile-to-settings">
               <span class="profile-setting-lead">
-                <span class="profile-setting-icon profile-icon-admin">
-                  <i class="fa-solid fa-user-shield"></i>
+                <span class="profile-setting-icon profile-icon-settings">
+                  <i class="fa-solid fa-gear"></i>
                 </span>
-                <span>لوحة المدير والصلاحيات</span>
-              </span>
-              <i class="fa-solid fa-chevron-left text-muted"></i>
-            </button>
-
-            <!-- Dark / Light Mode -->
-            <button type="button" class="profile-setting-item" id="btn-view-toggle-theme">
-              <span class="profile-setting-lead">
-                <span class="profile-setting-icon profile-icon-theme">
-                  <i class="fa-solid fa-moon" id="view-profile-theme-icon"></i>
+                <span class="profile-setting-text-col">
+                  <span class="profile-setting-label">إعدادات التطبيق</span>
+                  <span class="profile-setting-sub">المظهر، الإشعارات، وكلمة المرور</span>
                 </span>
-                <span id="view-profile-theme-label">الوضع الليلي (داكن)</span>
-              </span>
-              <i class="fa-solid fa-chevron-left text-muted"></i>
-            </button>
-
-            <!-- Change Password -->
-            <button type="button" class="profile-setting-item" id="btn-view-change-pwd">
-              <span class="profile-setting-lead">
-                <span class="profile-setting-icon profile-icon-pwd">
-                  <i class="fa-solid fa-key"></i>
-                </span>
-                <span>تغيير كلمة المرور</span>
               </span>
               <i class="fa-solid fa-chevron-left text-muted"></i>
             </button>
           </div>
 
           <!-- Stand-Alone Dedicated Logout Card -->
-          <div class="profile-logout-card">
-            <button type="button" class="profile-setting-item" id="btn-view-logout">
+          <div class="profile-logout-card" id="card-profile-logout">
+            <button type="button" class="profile-setting-item profile-logout-btn" id="btn-view-logout">
               <span class="profile-setting-lead">
                 <span class="profile-setting-icon profile-icon-logout">
                   <i class="fa-solid fa-right-from-bracket"></i>
@@ -2443,6 +2433,84 @@
               </span>
               <i class="fa-solid fa-arrow-left text-danger"></i>
             </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- View: App Settings Sub-View (Sub-view of Profile) -->
+      <section id="view-settings" class="view-section">
+        <div class="settings-view-container">
+          <!-- Top Navigation Bar -->
+          <div class="settings-top-bar">
+            <button type="button" class="settings-back-btn" id="btn-settings-back" title="العودة إلى الملف الشخصي" aria-label="العودة إلى الملف الشخصي">
+              <i class="fa-solid fa-arrow-right"></i>
+              <span>عودة</span>
+            </button>
+            <h2 class="settings-top-title">إعدادات التطبيق</h2>
+            <div class="settings-top-spacer" aria-hidden="true"></div>
+          </div>
+
+          <!-- Settings Groups Container -->
+          <div class="settings-cards-wrap">
+            <!-- Group 1: تفضيلات التطبيق -->
+            <div class="settings-group">
+              <div class="settings-group-header">
+                <i class="fa-solid fa-sliders text-primary"></i>
+                <span>تفضيلات التطبيق</span>
+              </div>
+              <div class="profile-settings-card">
+                <!-- Dark / Light Mode -->
+                <button type="button" class="profile-setting-item" id="btn-view-toggle-theme">
+                  <span class="profile-setting-lead">
+                    <span class="profile-setting-icon profile-icon-theme">
+                      <i class="fa-solid fa-moon" id="view-profile-theme-icon"></i>
+                    </span>
+                    <span class="profile-setting-text-col">
+                      <span class="profile-setting-label" id="view-profile-theme-label">الوضع الليلي (داكن)</span>
+                      <span class="profile-setting-sub">التبديل الفوري بين المظهرين الفاتح والداكن</span>
+                    </span>
+                  </span>
+                  <i class="fa-solid fa-chevron-left text-muted"></i>
+                </button>
+
+                <!-- Push Notifications Toggle -->
+                <button type="button" class="profile-setting-item" id="btn-view-toggle-push">
+                  <span class="profile-setting-lead">
+                    <span class="profile-setting-icon profile-icon-push">
+                      <i class="fa-solid fa-bell"></i>
+                    </span>
+                    <span class="profile-setting-text-col">
+                      <span class="profile-setting-label">الإشعارات الفورية (Push)</span>
+                      <span class="profile-setting-sub">تنبيهات حضور المرضى والمواعيد الجديدة</span>
+                    </span>
+                  </span>
+                  <span class="badge badge-secondary" id="view-push-status-badge">فحص الحالة...</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- Group 2: أمان الحساب -->
+            <div class="settings-group">
+              <div class="settings-group-header">
+                <i class="fa-solid fa-shield-halved text-success"></i>
+                <span>أمان الحساب</span>
+              </div>
+              <div class="profile-settings-card">
+                <!-- Change Password -->
+                <button type="button" class="profile-setting-item" id="btn-view-change-pwd">
+                  <span class="profile-setting-lead">
+                    <span class="profile-setting-icon profile-icon-pwd">
+                      <i class="fa-solid fa-key"></i>
+                    </span>
+                    <span class="profile-setting-text-col">
+                      <span class="profile-setting-label">تغيير كلمة المرور</span>
+                      <span class="profile-setting-sub">تحديث كلمة مرور الدخول الخاصة بك</span>
+                    </span>
+                  </span>
+                  <i class="fa-solid fa-chevron-left text-muted"></i>
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       </section>

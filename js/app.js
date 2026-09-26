@@ -305,7 +305,7 @@ class App {
       if (savedView && savedView !== 'dashboard') {
         const user = auth.getCurrentUser();
         // Permission bounds
-        if (user?.role === 'doctor' && savedView !== 'patients' && savedView !== 'patient-sheet') {
+        if (user?.role === 'doctor' && (savedView !== 'patients' && savedView !== 'patient-sheet' && savedView !== 'notifications' && savedView !== 'profile' && savedView !== 'settings')) {
           return;
         }
         if (user?.role === 'receptionist' && (savedView === 'admin' || savedView === 'patient-sheet')) {
@@ -508,7 +508,7 @@ class App {
     const user = auth.getCurrentUser();
     // تقييد صلاحيات التنقل حسب الدور
     if (user?.role === 'doctor') {
-      if (viewName !== 'dashboard' && viewName !== 'patients' && viewName !== 'patient-sheet' && viewName !== 'notifications' && viewName !== 'profile') {
+      if (viewName !== 'dashboard' && viewName !== 'patients' && viewName !== 'patient-sheet' && viewName !== 'notifications' && viewName !== 'profile' && viewName !== 'settings') {
         viewName = 'dashboard';
       }
     } else if (user?.role === 'receptionist') {
@@ -545,12 +545,16 @@ class App {
 
     // Update active state on Desktop sidebar
     document.querySelectorAll('.sidebar-nav .nav-link').forEach(btn => {
-      btn.classList.toggle('active', btn.getAttribute('data-view') === viewName);
+      const btnView = btn.getAttribute('data-view');
+      const isActive = (btnView === viewName) || (btnView === 'profile' && viewName === 'settings');
+      btn.classList.toggle('active', isActive);
     });
 
     // Update active state on Mobile bottom nav
     document.querySelectorAll('.bottom-nav .b-nav-item').forEach(btn => {
-      btn.classList.toggle('active', btn.getAttribute('data-view') === viewName);
+      const btnView = btn.getAttribute('data-view');
+      const isActive = (btnView === viewName) || (btnView === 'profile' && viewName === 'settings');
+      btn.classList.toggle('active', isActive);
     });
 
     // ضمان إتاحة تبويبي الإشعارات وحسابي في شريط التنقل السفلي لجميع الأدوار
@@ -587,7 +591,7 @@ class App {
         }
       }
     }
-    if (viewName === 'profile') {
+    if (viewName === 'profile' || viewName === 'settings') {
       this.renderProfileView();
     }
     if (viewName === 'admin') {
@@ -758,6 +762,18 @@ class App {
 
     // Clean #view-profile event wiring
     const bindProfileViewEvents = () => {
+      document.getElementById('btn-profile-to-settings')?.addEventListener('click', () => {
+        this.switchView('settings');
+      });
+
+      document.getElementById('btn-settings-back')?.addEventListener('click', () => {
+        this.switchView('profile');
+      });
+
+      document.getElementById('btn-profile-avatar-upload')?.addEventListener('click', () => {
+        this.showToast('ميزة تغيير الصورة الشخصية ستكون متاحة قريباً');
+      });
+
       document.getElementById('btn-view-toggle-push')?.addEventListener('click', () => {
         this.notificationsManager?.openPrimerModal();
       });
@@ -813,6 +829,7 @@ class App {
       const roleEl = document.getElementById('view-profile-user-role');
       const avatarEl = document.getElementById('view-profile-avatar-letter');
       const btnAdmin = document.getElementById('btn-view-admin-panel');
+      const adminCard = document.getElementById('card-profile-admin');
 
       const displayName = user.name || 'مستخدم النظام';
       if (nameEl) nameEl.textContent = displayName;
@@ -831,7 +848,9 @@ class App {
         roleEl.className = `profile-hero-role role-${user.role || 'doctor'}`;
       }
 
-      if (btnAdmin) {
+      if (adminCard) {
+        adminCard.classList.toggle('d-none', user.role !== 'admin');
+      } else if (btnAdmin) {
         btnAdmin.classList.toggle('d-none', user.role !== 'admin');
       }
 
@@ -1337,6 +1356,8 @@ class App {
           // الرجوع الطبيعي بين الشاشات دون قفز مفاجئ للرئيسية
           if (this.currentView === 'patient-sheet') {
             this.switchView('patients', true);
+          } else if (this.currentView === 'settings') {
+            this.switchView('profile', true);
           } else {
             this.switchView('dashboard', true);
           }

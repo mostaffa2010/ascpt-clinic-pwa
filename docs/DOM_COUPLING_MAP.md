@@ -139,6 +139,7 @@
 - #b-nav-avatar-letter [موجود في index.html]
 - #view-notifications [موجود في index.html]
 - #view-profile [موجود في index.html]
+- #view-settings [موجود في index.html]
 - #view-${viewName} [ديناميكي في JS]
 - #waiting-tab-actions [موجود في index.html]
 - #walkin-doctor-select [موجود في index.html]
