@@ -2078,7 +2078,7 @@ export class PatientsManager {
         bColor = '#38bdf8';
       }
       // Clean display without background as requested
-      progHeaderBadge.innerHTML = `<span class="pcm-clean-prog" style="font-size: 0.85rem; font-weight: 700; color: ${bColor}; display: inline-flex; align-items: center; gap: 6px;"><i class="${bIcon}"></i> ${bText}</span>`;
+      progHeaderBadge.innerHTML = `<span class="pcm-clean-prog" style="font-size: 0.82rem; font-weight: 700; color: ${bColor}; display: inline-flex; align-items: center; gap: 6px;"><i class="${bIcon}"></i> <span>${bText}</span></span>`;
     }
 
     // Auto-resolve first session doctor if patient.doctor is empty
@@ -2126,7 +2126,7 @@ export class PatientsManager {
           }
         }
         if (sessBtn) {
-          sessBtn.className = 'pcm-sessions-chip';
+          sessBtn.className = 'pcm-metric-cell pcm-sessions-chip';
         }
       } else {
         const cType = p.contractType === 'direct' ? 'مباشر' : 'غير مباشر';
@@ -2174,7 +2174,7 @@ export class PatientsManager {
           sessBtnText.innerHTML = `سجل الجلسات: <strong>${displayCount} من ${approvedTotal}</strong>${cycleText}${examExtra}${extraStatus}`;
         }
         if (sessBtn) {
-          sessBtn.className = 'pcm-sessions-chip';
+          sessBtn.className = 'pcm-metric-cell pcm-sessions-chip';
           if (isCompleted) sessBtn.classList.add('cycle-completed');
           else if (isNearLimit) sessBtn.classList.add('cycle-near-limit');
         }
