@@ -18,10 +18,12 @@
   max-width: var(--max-content-width, 1440px);
   margin: 0 auto;
   padding-bottom: 24px;
+  overflow: visible;
 }
 
 .patients-view-wrapper {
   width: 100%;
+  overflow: visible;
 }
 
 .patients-header-bar {
@@ -74,7 +76,7 @@
 .patients-sticky-toolbar {
   position: sticky;
   top: 0;
-  z-index: 20;
+  z-index: 30;
   background-color: var(--bg-surface);
   border-bottom: 1px solid var(--border-subtle);
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
@@ -84,8 +86,6 @@
   padding: 10px 16px;
   box-sizing: border-box;
   margin-bottom: 16px;
-  will-change: transform;
-  transform: translateZ(0);
 }
 
 @media screen and (min-width: 992px) {
@@ -125,19 +125,21 @@
   width: 100%;
 }
 
-/* Row 2: Single Compact Controls Row */
+/* Row 2: Single Compact Controls Row (Equal Height 42px & Full Width) */
 .patients-controls-row {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 8px;
   width: 100%;
+  gap: 8px;
+  align-items: stretch;
   box-sizing: border-box;
 }
 
 #btn-open-add-patient {
-  height: 38px;
-  padding: 0 14px;
+  flex: 1 1 0;
+  min-width: 0;
+  height: 42px;
+  box-sizing: border-box;
+  padding: 0 10px;
   font-weight: var(--fw-extrabold);
   font-size: 0.86rem;
   white-space: nowrap;
@@ -145,55 +147,62 @@
   align-items: center;
   justify-content: center;
   gap: 6px;
-  flex-shrink: 0;
-}
-
-.patients-controls-end-group {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  min-width: 0;
+  border-radius: var(--radius-base);
 }
 
 .patient-filter-type-wrap {
-  min-width: 115px;
+  flex: 1 1 0;
+  min-width: 0;
+  height: 42px;
+  box-sizing: border-box;
+}
+
+.patient-filter-type-wrap .custom-select-wrapper {
+  height: 100%;
+  width: 100%;
 }
 
 #btn-select-patient-filter-type {
-  height: 38px;
+  height: 42px;
   width: 100%;
+  box-sizing: border-box;
   justify-content: space-between;
   padding: 0 10px;
-  font-size: 0.82rem;
+  font-size: 0.84rem;
   font-weight: var(--fw-bold);
   white-space: nowrap;
+  border-radius: var(--radius-base);
 }
 
 .patients-sort-segmented {
+  flex: 1 1 0;
+  min-width: 0;
+  height: 42px;
+  box-sizing: border-box;
   display: inline-flex;
-  align-items: center;
+  align-items: stretch;
   background: var(--bg-subtle);
   border: 1.5px solid var(--border-color);
-  border-radius: var(--radius-md-sm);
+  border-radius: var(--radius-base);
   padding: 2.5px;
   gap: 3px;
-  height: 38px;
-  box-sizing: border-box;
-  flex-shrink: 0;
 }
 
 .sort-seg-btn {
+  flex: 1 1 0;
+  min-width: 0;
   border: none;
   background: transparent;
-  padding: 4px 9px;
-  border-radius: var(--radius-base);
+  padding: 0 6px;
+  border-radius: var(--radius-sm);
   font-size: 0.78rem;
   font-weight: var(--fw-bold);
   color: var(--text-muted);
   cursor: pointer;
   display: inline-flex;
   align-items: center;
-  gap: 5px;
+  justify-content: center;
+  gap: 4px;
   height: 100%;
   white-space: nowrap;
   transition: all var(--transition-spring);
@@ -224,24 +233,53 @@
     gap: 6px;
   }
   #btn-open-add-patient {
-    padding: 0 10px;
-    font-size: 0.82rem;
-  }
-  .patients-controls-end-group {
-    gap: 5px;
-  }
-  .patient-filter-type-wrap {
-    min-width: 98px;
+    padding: 0 6px;
+    font-size: 0.8rem;
+    gap: 4px;
   }
   #btn-select-patient-filter-type {
     padding: 0 6px;
-    font-size: 0.78rem;
+    font-size: 0.8rem;
   }
   .sort-seg-btn {
-    padding: 2px 6px;
+    padding: 0 3px;
     font-size: 0.74rem;
-    gap: 3px;
+    gap: 2px;
   }
+}
+
+/* Patient Filter Category Count Badges in Custom Picker Modal */
+.patient-filter-count-badge {
+  background: var(--bg-subtle);
+  color: var(--primary);
+  border: 1px solid var(--border-color);
+  font-size: 0.76rem;
+  font-weight: var(--fw-extrabold);
+  padding: 2px 8px;
+  border-radius: var(--radius-full);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  white-space: nowrap;
+  user-select: none;
+}
+
+[data-theme="dark"] .patient-filter-count-badge {
+  background: rgba(56, 189, 248, 0.12);
+  color: #38bdf8;
+  border-color: rgba(56, 189, 248, 0.28);
+}
+
+.active-choice .patient-filter-count-badge {
+  background: rgba(2, 132, 199, 0.2);
+  color: var(--primary);
+  border-color: var(--primary);
+}
+
+[data-theme="dark"] .active-choice .patient-filter-count-badge {
+  background: rgba(56, 189, 248, 0.25);
+  color: #38bdf8;
+  border-color: #38bdf8;
 }
 
 /* ==========================================================================

@@ -668,38 +668,37 @@
               <i class="fa-solid fa-magnifying-glass input-icon-end"></i>
             </div>
 
-            <!-- Row 2: Single Compact Controls Row -->
+            <!-- Row 2: Single Compact Controls Row (Equal Height & Full Width) -->
             <div class="patients-controls-row">
               <!-- Right side (Start in RTL): New Patient CTA -->
               <button type="button" class="btn btn-primary" id="btn-open-add-patient">
                 <i class="fa-solid fa-user-plus"></i> <span>مريض جديد</span>
               </button>
 
-              <!-- Left side (End in RTL): Filter Dropdown & Sort Toggle -->
-              <div class="patients-controls-end-group">
-                <div class="patient-filter-type-wrap">
-                  <div class="custom-select-wrapper">
-                    <select id="patient-filter-type" class="form-control d-none">
-                      <option value="all">كل الأنظمة</option>
-                      <option value="cash">نقدي فقط</option>
-                      <option value="insurance_direct">تأمين (مباشر)</option>
-                      <option value="insurance_indirect">تأمين (غير مباشر)</option>
-                    </select>
-                    <button type="button" class="custom-select-btn" id="btn-select-patient-filter-type" data-open-picker="patient-filter-type" data-picker-title="تصفية سجل المرضى">
-                      <span class="btn-text">كل الأنظمة</span>
-                      <i class="fa-solid fa-chevron-down"></i>
-                    </button>
-                  </div>
+              <!-- Middle: Filter Dropdown -->
+              <div class="patient-filter-type-wrap">
+                <div class="custom-select-wrapper">
+                  <select id="patient-filter-type" class="form-control d-none">
+                    <option value="all">كل الأنظمة</option>
+                    <option value="cash">نقدي فقط</option>
+                    <option value="insurance_direct">تأمين (مباشر)</option>
+                    <option value="insurance_indirect">تأمين (غير مباشر)</option>
+                  </select>
+                  <button type="button" class="custom-select-btn" id="btn-select-patient-filter-type" data-open-picker="patient-filter-type" data-picker-title="تصفية سجل المرضى">
+                    <span class="btn-text">كل الأنظمة</span>
+                    <i class="fa-solid fa-chevron-down"></i>
+                  </button>
                 </div>
+              </div>
 
-                <div class="patients-sort-segmented">
-                  <button type="button" class="sort-seg-btn active" id="btn-sort-recent" data-sort="recent" title="ترتيب زمني: أحدث من تم تسجيلهم أولاً">
-                    <i class="fa-solid fa-clock-rotate-left"></i> <span>الأحدث</span>
-                  </button>
-                  <button type="button" class="sort-seg-btn" id="btn-sort-alphabetical" data-sort="alphabetical" title="ترتيب أبجدي من الألف إلى الياء">
-                    <i class="fa-solid fa-arrow-down-a-z"></i> <span>أبجدياً</span>
-                  </button>
-                </div>
+              <!-- Left side (End in RTL): Sort Toggle -->
+              <div class="patients-sort-segmented">
+                <button type="button" class="sort-seg-btn active" id="btn-sort-recent" data-sort="recent" title="ترتيب زمني: أحدث من تم تسجيلهم أولاً">
+                  <i class="fa-solid fa-clock-rotate-left"></i> <span>الأحدث</span>
+                </button>
+                <button type="button" class="sort-seg-btn" id="btn-sort-alphabetical" data-sort="alphabetical" title="ترتيب أبجدي من الألف إلى الياء">
+                  <i class="fa-solid fa-arrow-down-a-z"></i> <span>أبجدياً</span>
+                </button>
               </div>
             </div>
 

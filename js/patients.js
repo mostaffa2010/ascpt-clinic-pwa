@@ -114,6 +114,23 @@ export class PatientsManager {
       filterType.addEventListener('change', () => { this.currentPage = 1; this.renderPatients(); });
     }
 
+    // Systems Filter Modal Dynamic Patient Counts
+    const pickerList = document.getElementById('custom-picker-list');
+    if (pickerList && typeof MutationObserver !== 'undefined') {
+      const observer = new MutationObserver(() => {
+        if (pickerList.querySelector('[data-select-id="patient-filter-type"]')) {
+          this.renderFilterPickerCounts();
+        }
+      });
+      observer.observe(pickerList, { childList: true });
+    }
+
+    document.addEventListener('click', (e) => {
+      if (e.target.closest('#btn-select-patient-filter-type, [data-open-picker="patient-filter-type"]')) {
+        setTimeout(() => this.renderFilterPickerCounts(), 0);
+      }
+    });
+
     // Sort Toggle Buttons (Recent vs Alphabetical)
     document.getElementById('btn-sort-recent')?.addEventListener('click', () => this.setSort('recent'));
     document.getElementById('btn-sort-alphabetical')?.addEventListener('click', () => this.setSort('alphabetical'));
@@ -695,6 +712,56 @@ export class PatientsManager {
     this.renderPatients();
   }
 
+  getSystemCounts() {
+    const patients = this.patients || [];
+    let cash = 0;
+    let direct = 0;
+    let indirect = 0;
+
+    for (const p of patients) {
+      if (p.billing === 'cash') {
+        cash++;
+      } else if (p.billing === 'insurance') {
+        if (p.contractType === 'direct') {
+          direct++;
+        } else if (p.contractType === 'indirect') {
+          indirect++;
+        }
+      }
+    }
+
+    return {
+      all: patients.length,
+      cash,
+      insurance_direct: direct,
+      insurance_indirect: indirect
+    };
+  }
+
+  renderFilterPickerCounts() {
+    const list = document.getElementById('custom-picker-list');
+    if (!list) return;
+
+    const rows = list.querySelectorAll('[data-select-id="patient-filter-type"]');
+    if (!rows || rows.length === 0) return;
+
+    const counts = this.getSystemCounts();
+
+    rows.forEach(row => {
+      const val = row.getAttribute('data-select-value');
+      const count = counts[val] !== undefined ? counts[val] : 0;
+
+      let badge = row.querySelector('.patient-filter-count-badge');
+      if (!badge) {
+        badge = document.createElement('span');
+        badge.className = 'patient-filter-count-badge';
+        const rightContainer = row.querySelector('div') || row;
+        rightContainer.insertBefore(badge, rightContainer.firstChild);
+      }
+      badge.textContent = `${count} مريض`;
+    });
+  }
+
   renderSkeleton() {
     const mobileContainer = document.getElementById('patients-mobile-cards');
 
@@ -774,6 +841,7 @@ export class PatientsManager {
     if (totalCountBadge) {
       totalCountBadge.textContent = `${filtered.length} مريض`;
     }
+    this.renderFilterPickerCounts();
 
     // 3. Smart Sorting (Search Relevance OR User Toggle: Recent / Alphabetical)
     if (rawSearch) {
