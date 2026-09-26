@@ -654,32 +654,28 @@
           <div class="patients-title-row">
             <h2 class="patients-title">
               <span>سجل المرضى</span>
-              <span class="badge" id="patients-total-count-badge">0 مريض</span>
             </h2>
+            <span class="patients-total-count" id="patients-total-count-badge">0 مريض</span>
           </div>
         </div>
 
-        <!-- Flush Sticky Header (Zero Top Leakage) -->
-        <div class="patients-sticky-header" id="patients-sticky-header">
-          <!-- Controls Panel container: Sleek inner card -->
-          <div class="card patients-controls-panel patients-controls-sticky" id="patients-sticky-controls">
-          <div class="patients-controls-stack">
+        <!-- Sticky Edge-to-Edge Toolbar -->
+        <div class="patients-sticky-toolbar" id="patients-sticky-header">
+          <div class="patients-toolbar-inner" id="patients-sticky-controls">
             <!-- Row 1: Search Box -->
             <div class="patients-search-box">
               <input type="text" id="patient-search-input" class="form-control" placeholder="ابحث بالاسم، رقم الموبايل، أو جهة التأمين...">
               <i class="fa-solid fa-magnifying-glass input-icon-end"></i>
             </div>
 
-            <!-- Row 1 below search: \"حالات اليوم\" pill with active count + \"كل الأنظمة\" dropdown -->
-            <div class="patients-filter-row">
-              <!-- Filter Today Patients Button (\"حالات اليوم\" pill with active count) -->
-              <button type="button" class="btn btn-outline" id="btn-filter-today-patients" title="عرض مرضى مواعيد وجلسات اليوم فقط">
-                <i class="fa-solid fa-calendar-day"></i>
-                <span>حالات اليوم</span>
-                <span class="badge" id="badge-today-patients-count">0</span>
+            <!-- Row 2: Single Compact Controls Row (Equal Height & Full Width) -->
+            <div class="patients-controls-row">
+              <!-- Right side (Start in RTL): New Patient CTA -->
+              <button type="button" class="btn btn-primary" id="btn-open-add-patient">
+                <i class="fa-solid fa-user-plus"></i> <span>مريض جديد</span>
               </button>
 
-              <!-- Filter Dropdown (\"كل الأنظمة\" dropdown) -->
+              <!-- Middle: Filter Dropdown -->
               <div class="patient-filter-type-wrap">
                 <div class="custom-select-wrapper">
                   <select id="patient-filter-type" class="form-control d-none">
@@ -688,42 +684,31 @@
                     <option value="insurance_direct">تأمين (مباشر)</option>
                     <option value="insurance_indirect">تأمين (غير مباشر)</option>
                   </select>
-                  <button type="button" class="custom-select-btn" id="btn-select-patient-filter-type" data-open-picker="patient-filter-type" data-picker-title="تصفية سجل المرضى">
+                  <button type="button" class="patient-filter-select-btn" id="btn-select-patient-filter-type" data-open-picker="patient-filter-type" data-picker-title="تصفية سجل المرضى">
                     <span class="btn-text">كل الأنظمة</span>
                     <i class="fa-solid fa-chevron-down"></i>
                   </button>
                 </div>
               </div>
-            </div>
 
-            <!-- Row 2 below search: \"مريض جديد\" primary CTA button + segmented sort toggle (الأحدث / أبجدياً) -->
-            <div class="patients-actions-row">
-              <!-- \"مريض جديد\" primary CTA button -->
-              <button type="button" class="btn btn-primary" id="btn-open-add-patient">
-                <i class="fa-solid fa-user-plus"></i> <span>مريض جديد</span>
-              </button>
-
-              <div class="patients-sort-wrap">
-                <!-- Compact Sort Segmented Toggle (الأحدث / أبجدياً) -->
-                <div class="patients-sort-segmented">
-                  <button type="button" class="sort-seg-btn active" id="btn-sort-recent" data-sort="recent" title="ترتيب زمني: أحدث من تم تسجيلهم أولاً">
-                    <i class="fa-solid fa-clock-rotate-left"></i> <span>الأحدث</span>
-                  </button>
-                  <button type="button" class="sort-seg-btn" id="btn-sort-alphabetical" data-sort="alphabetical" title="ترتيب أبجدي من الألف إلى الياء">
-                    <i class="fa-solid fa-arrow-down-a-z"></i> <span>أبجدياً</span>
-                  </button>
-                </div>
-
-                <!-- View Mode Switcher hidden (Cards Grid enforced v1.4.80) -->
-                <div class="view-mode-toggle-group no-print d-none" id="patients-view-mode-toggle">
-                  <button type="button" class="btn-view-mode active" data-view-mode="cards" title="عرض كروت متجاوبة (Grid)">
-                    <i class="fa-solid fa-table-cells-large"></i> <span>كروت</span>
-                  </button>
-                </div>
+              <!-- Left side (End in RTL): Sort Toggle -->
+              <div class="patients-sort-segmented">
+                <button type="button" class="sort-seg-btn active" id="btn-sort-recent" data-sort="recent" title="ترتيب زمني: أحدث من تم تسجيلهم أولاً">
+                  <i class="fa-solid fa-clock-rotate-left"></i> <span>الأحدث</span>
+                </button>
+                <button type="button" class="sort-seg-btn" id="btn-sort-alphabetical" data-sort="alphabetical" title="ترتيب أبجدي من الألف إلى الياء">
+                  <i class="fa-solid fa-arrow-down-a-z"></i> <span>أبجدياً</span>
+                </button>
               </div>
             </div>
+
+            <!-- View Mode Switcher hidden (Cards Grid enforced v1.4.80) -->
+            <div class="view-mode-toggle-group no-print d-none" id="patients-view-mode-toggle">
+              <button type="button" class="btn-view-mode active" data-view-mode="cards" title="عرض كروت متجاوبة (Grid)">
+                <i class="fa-solid fa-table-cells-large"></i> <span>كروت</span>
+              </button>
+            </div>
           </div>
-        </div>
         </div>
 
         <!-- Patients List / Table with Top & Bottom Scrollbars -->
@@ -805,75 +790,69 @@
           </h2>
         </div>
 
-        <!-- Patient Clinical Record Header Card (Clean, Modern & Collapsible by Default) -->
+        <!-- Patient Clinical Record Header Card (Ultra-Compact Clinical Dashboard Card) -->
         <div class="card patient-clinical-main-card gender-male pcm-collapsed" id="patient-clinical-card">
-          <!-- Bar 1: Always-Visible Summary Header (Clickable to Toggle Collapse/Expand) -->
+          <!-- Summary Header (Clickable to Toggle Collapse/Expand) -->
           <div class="pcm-header-bar" id="sheet-card-header-toggle" role="button" tabindex="0" title="اضغط لعرض أو طي تفاصيل المريض">
-            <!-- Row 1: Patient Name (Right) & Details Toggle Pill (Left) -->
+            <!-- Unified Header Row: Patient Name & Inline Gender on Right, Payment Capsule & Toggle on Left -->
             <div class="pcm-row-top">
-              <h2 id="sheet-patient-name" class="pcm-patient-name">اسم المريض</h2>
-              <div class="pcm-toggle-pill">
-                <span class="pcm-toggle-text" id="sheet-card-toggle-text">التفاصيل</span>
-                <i class="fa-solid fa-chevron-down pcm-toggle-icon" id="sheet-card-chevron"></i>
+              <div class="pcm-name-gender-wrap">
+                <h2 id="sheet-patient-name" class="pcm-patient-name">اسم المريض</h2>
+                <span class="pcm-avatar-icon" id="sheet-pcm-gender-wrap">
+                  <i class="fa-solid fa-mars" id="sheet-gender-icon"></i>
+                </span>
+              </div>
+              <div class="pcm-header-end-group">
+                <div class="pcm-billing-container" id="sheet-patient-billing-badge">
+                  <!-- Populated dynamically -->
+                </div>
+                <div class="pcm-toggle-pill">
+                  <span class="pcm-toggle-text" id="sheet-card-toggle-text">التفاصيل</span>
+                  <i class="fa-solid fa-chevron-down pcm-toggle-icon" id="sheet-card-chevron"></i>
+                </div>
               </div>
             </div>
 
-            <!-- Row 2: Gender & Age (Right) + Treating Doctor (Left) -->
-            <div class="pcm-row-meta">
-              <div class="pcm-tags-group">
-                <span id="sheet-patient-gender-badge" class="badge badge-gender-male">
-                  <i class="fa-solid fa-mars" id="sheet-gender-icon"></i>
-                  <span id="sheet-patient-gender-text">ذكر</span> • <strong id="sheet-patient-age">-</strong> سنة
-                </span>
-                <span class="patient-doc-badge">
-                  <i class="fa-solid fa-user-doctor"></i> <strong id="sheet-patient-doctor">-</strong>
-                </span>
-              </div>
+            <!-- Sub-Header Identity Line: (ذكر/أنثى • العمر • د. اسم الطبيب • العنوان) -->
+            <div class="pcm-sub-identity-line">
+              <span id="sheet-patient-gender-badge" class="pcm-demo-item">
+                <span id="sheet-patient-gender-text">ذكر</span>
+              </span>
+              <span class="pcm-demo-sep">•</span>
+              <span class="pcm-demo-item"><strong id="sheet-patient-age">-</strong> سنة</span>
+              <span class="pcm-demo-sep">•</span>
+              <span class="pcm-demo-item pcm-demo-doc">
+                <i class="fa-solid fa-user-doctor"></i> <strong id="sheet-patient-doctor">-</strong>
+              </span>
+              <span class="pcm-demo-sep pcm-addr-sep">•</span>
+              <span class="pcm-demo-item pcm-demo-location" title="العنوان / المدينة">
+                <i class="fa-solid fa-location-dot"></i> <span id="sheet-patient-address">غير محدد</span>
+              </span>
             </div>
           </div>
 
-          <!-- Bar 2: Expandable Content (Hidden when collapsed / visible when expanded) -->
+          <!-- Expandable Clinical Dashboard Body -->
           <div class="pcm-expandable-content" id="sheet-card-expanded-content">
-            <!-- Row 3: Company/Billing (Right) & Program Type (Left) -->
-            <div class="pcm-row-company-prog">
-              <div class="pcm-billing-container" id="sheet-patient-billing-badge">
-                <!-- Populated dynamically -->
+            <!-- Row 1: Specialty & Phone Side-by-Side Matte Row -->
+            <div class="pcm-specialty-phone-row">
+              <div class="pcm-row-cell pcm-specialty-cell" id="sheet-patient-program-badge" title="البرنامج العلاجي التخصصي">
+                <span class="pcm-clean-prog"><i class="fa-solid fa-bone"></i> <span>علاج عام</span></span>
               </div>
-              <div class="pcm-prog-clean" id="sheet-patient-program-badge" title="البرنامج العلاجي التخصصي">
-                <!-- Populated dynamically without background -->
-              </div>
+              <a href="#" id="sheet-patient-phone-link" class="pcm-row-cell pcm-phone-cell" title="اتصال هاتفي">
+                <i class="fa-solid fa-phone"></i>
+                <bdi dir="ltr" id="sheet-patient-phone">-</bdi>
+              </a>
             </div>
 
-            <!-- Row 4: Phone Number (Right) & Location (Left) -->
-            <div class="pcm-row-contact-prog">
-              <div class="pcm-info-item pcm-phone-item">
-                <i class="fa-solid fa-phone text-primary"></i>
-                <a href="#" id="sheet-patient-phone-link" class="pcm-phone-link">
-                  <bdi dir="ltr" id="sheet-patient-phone">-</bdi>
-                </a>
-              </div>
-              <div class="pcm-info-item pcm-location-item">
-                <i class="fa-solid fa-location-dot text-primary"></i>
-                <span id="sheet-patient-address">غير محدد</span>
-              </div>
-            </div>
-
-            <!-- Row 5: Sessions Record (سجل الجلسات) -->
-            <div class="pcm-row-sessions">
-              <button type="button" class="pcm-sessions-chip" id="btn-view-patient-sessions" title="فتح سجل جلسات المريض">
-                <i class="fa-solid fa-calendar-check text-primary"></i>
+            <!-- Row 2: Dedicated Standalone Full-Width Sessions Log -->
+            <div class="pcm-sessions-strip-row">
+              <button type="button" class="pcm-sessions-full-btn" id="btn-view-patient-sessions" title="فتح سجل جلسات المريض">
+                <i class="fa-solid fa-calendar-check"></i>
                 <span id="sheet-sessions-btn-text">سجل الجلسات (0)</span>
               </button>
             </div>
 
-            <!-- Row 6: Action Buttons (Right) -->
-            <div class="pcm-row-actions-location">
-              <div id="sheet-patient-quick-actions" class="pcm-actions-hub">
-                <!-- Populated dynamically with square buttons -->
-              </div>
-            </div>
-
-            <!-- Row 7: Last Update -->
+            <!-- Card Footer: Last Update -->
             <div class="pcm-footer-row">
               <div class="pcm-update-time">
                 <i class="fa-solid fa-clock-rotate-left"></i>

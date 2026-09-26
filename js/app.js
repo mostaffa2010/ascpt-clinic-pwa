@@ -570,6 +570,8 @@ class App {
 
     if (this.currentView === viewName && !isBackNavigation) return;
 
+    const previousView = this.currentView;
+
     if (!isBackNavigation) {
       const depth = (history.state?.depth || 0) + 1;
       history.pushState({ view: viewName, depth }, '');
@@ -628,7 +630,12 @@ class App {
     }
     if (viewName === 'finance') this.financeManager.loadDailyReport();
     if (viewName === 'sessions') this.sessionsManager.loadTodaySessions();
-    if (viewName === 'patients') this.patientsManager.loadPatients();
+    if (viewName === 'patients') {
+      if (previousView === 'patient-sheet') {
+        this.patientsManager?.resetSearch?.();
+      }
+      this.patientsManager.loadPatients();
+    }
     if (viewName === 'notifications') {
       if (this.notificationsManager) {
         if (typeof this.notificationsManager.renderNotifications === 'function') {

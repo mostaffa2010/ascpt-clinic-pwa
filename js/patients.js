@@ -47,7 +47,6 @@ export class PatientsManager {
       procedure: false,
       exercise: false
     };
-    this.filterTodayOnly = false;
     this.batchHvDates = [];
     this.batchHvSelectedPattern = 'sat_mon_wed';
     this.activeBatchPatient = null;
@@ -115,10 +114,22 @@ export class PatientsManager {
       filterType.addEventListener('change', () => { this.currentPage = 1; this.renderPatients(); });
     }
 
-    const btnToday = document.getElementById('btn-filter-today-patients');
-    if (btnToday) {
-      btnToday.addEventListener('click', () => this.toggleTodayFilter());
+    // Systems Filter Modal Dynamic Patient Counts
+    const pickerList = document.getElementById('custom-picker-list');
+    if (pickerList && typeof MutationObserver !== 'undefined') {
+      const observer = new MutationObserver(() => {
+        if (pickerList.querySelector('[data-select-id="patient-filter-type"]')) {
+          this.renderFilterPickerCounts();
+        }
+      });
+      observer.observe(pickerList, { childList: true });
     }
+
+    document.addEventListener('click', (e) => {
+      if (e.target.closest('#btn-select-patient-filter-type, [data-open-picker="patient-filter-type"]')) {
+        setTimeout(() => this.renderFilterPickerCounts(), 0);
+      }
+    });
 
     // Sort Toggle Buttons (Recent vs Alphabetical)
     document.getElementById('btn-sort-recent')?.addEventListener('click', () => this.setSort('recent'));
@@ -270,7 +281,10 @@ export class PatientsManager {
     });
 
     // Patient Sheet Navigation & Print Buttons
-    document.getElementById('btn-back-to-patients-top')?.addEventListener('click', () => this.app.switchView('patients'));
+    document.getElementById('btn-back-to-patients-top')?.addEventListener('click', () => {
+      this.resetSearch();
+      this.app.switchView('patients');
+    });
 
     // Patient Sheet Header Card Collapse / Expand Toggle (v2.10.41)
     const sheetHeaderToggle = document.getElementById('sheet-card-header-toggle');
@@ -286,7 +300,10 @@ export class PatientsManager {
         }
       });
     }
-    document.getElementById('btn-back-to-patients-bottom')?.addEventListener('click', () => this.app.switchView('patients'));
+    document.getElementById('btn-back-to-patients-bottom')?.addEventListener('click', () => {
+      this.resetSearch();
+      this.app.switchView('patients');
+    });
         const btnTop = document.getElementById('btn-print-sheet-top');
     if (btnTop) {
       btnTop.onclick = (e) => {
@@ -679,77 +696,70 @@ export class PatientsManager {
     }
   }
 
-  toggleTodayFilter() {
-    this.filterTodayOnly = !this.filterTodayOnly;
-    this.currentPage = 1;
-    const btn = document.getElementById('btn-filter-today-patients');
-    if (btn) {
-      if (this.filterTodayOnly) {
-        btn.classList.add('btn-today-active');
-      } else {
-        btn.classList.remove('btn-today-active');
+  resetSearch() {
+    const searchInput = document.getElementById('patient-search-input');
+    if (searchInput) {
+      searchInput.value = '';
+    }
+    const filterType = document.getElementById('patient-filter-type');
+    if (filterType && filterType.value !== 'all') {
+      filterType.value = 'all';
+      if (this.app?.updateCustomSelectDisplay) {
+        this.app.updateCustomSelectDisplay('patient-filter-type');
       }
     }
+    this.currentPage = 1;
     this.renderPatients();
   }
 
-  getTodayPatientIdentifiers() {
-    const todayIds = new Set();
-    const todayNames = new Set();
-    const todayStr = getLocalDateStr();
+  getSystemCounts() {
+    const patients = this.patients || [];
+    let cash = 0;
+    let direct = 0;
+    let indirect = 0;
 
-    // 1. Collect attended patients for today (sessions recorded today)
-    const attendedIds = new Set();
-    const attendedNames = new Set();
-    const cachedTodaySessions = db._sessionsByDateCache?.get(todayStr)?.data;
-    const sessions = Array.isArray(cachedTodaySessions)
-      ? cachedTodaySessions
-      : (this.app?.sessionsManager?.sessions || []);
-
-    sessions.forEach(s => {
-      const sDate = s.date || (s.createdAt ? s.createdAt.substring(0, 10) : '');
-      if (sDate === todayStr && s.status !== 'cancelled') {
-        if (s.patientId) attendedIds.add(String(s.patientId).trim());
-        if (s.patientName) attendedNames.add(this.normalizeArabic(s.patientName));
-      }
-    });
-
-    // 2. Weekly appointments schedule scheduled specifically for TODAY (day-of-week / date filtered)
-    let todayAppts = [];
-    if (this.app?.appointmentsManager?.getAppointmentsForDate) {
-      todayAppts = this.app.appointmentsManager.getAppointmentsForDate(todayStr) || [];
-    } else {
-      const allAppts = this.app?.appointmentsManager?.appointments || [];
-      const curDate = new Date(todayStr + 'T00:00:00');
-      const dayOfWeek = curDate.getDay();
-      if (dayOfWeek !== 5) {
-        todayAppts = allAppts.filter(a => {
-          if (a.status === 'completed' || a.status === 'cancelled') return false;
-          if (Array.isArray(a.daysOfWeek) && a.daysOfWeek.length > 0) {
-            return a.daysOfWeek.includes(dayOfWeek);
-          }
-          if (a.date) return a.date === todayStr;
-          return false;
-        });
+    for (const p of patients) {
+      if (p.billing === 'cash') {
+        cash++;
+      } else if (p.billing === 'insurance') {
+        if (p.contractType === 'direct') {
+          direct++;
+        } else if (p.contractType === 'indirect') {
+          indirect++;
+        }
       }
     }
 
-    // 3. Keep ONLY scheduled patients who have NOT yet attended today
-    todayAppts.forEach(a => {
-      if (a.effectiveStatus === 'cancelled' || a.isCancelledToday) return;
-      const pId = a.patientId ? String(a.patientId).trim() : '';
-      const pName = a.patientName ? this.normalizeArabic(a.patientName) : '';
+    return {
+      all: patients.length,
+      cash,
+      insurance_direct: direct,
+      insurance_indirect: indirect
+    };
+  }
 
-      // If already attended today, exclude from "حالات اليوم المتبقية في الجدول"
-      if ((pId && attendedIds.has(pId)) || (pName && attendedNames.has(pName)) || a.isAttendedToday) {
-        return;
+  renderFilterPickerCounts() {
+    const list = document.getElementById('custom-picker-list');
+    if (!list) return;
+
+    const rows = list.querySelectorAll('[data-select-id="patient-filter-type"]');
+    if (!rows || rows.length === 0) return;
+
+    const counts = this.getSystemCounts();
+
+    rows.forEach(row => {
+      const val = row.getAttribute('data-select-value');
+      const count = counts[val] !== undefined ? counts[val] : 0;
+
+      let badge = row.querySelector('.patient-filter-count-badge');
+      if (!badge) {
+        badge = document.createElement('span');
+        badge.className = 'patient-filter-count-badge';
+        const rightContainer = row.querySelector('div') || row;
+        rightContainer.insertBefore(badge, rightContainer.firstChild);
       }
-
-      if (pId) todayIds.add(pId);
-      if (pName) todayNames.add(pName);
+      badge.textContent = `${count} مريض`;
     });
-
-    return { todayIds, todayNames };
   }
 
   renderSkeleton() {
@@ -794,25 +804,7 @@ export class PatientsManager {
     const normSearch = this.normalizeArabic(rawSearch);
     const cleanDigits = rawSearch.replace(/[^0-9]/g, '');
 
-    const { todayIds, todayNames } = this.getTodayPatientIdentifiers();
-    const countBadge = document.getElementById('badge-today-patients-count');
-    
-    // Count matches among all patients
-    const todayMatches = this.patients.filter(p => {
-      const pId = String(p.id || '').trim();
-      const pName = this.normalizeArabic(p.name || '');
-      return todayIds.has(pId) || (pName && todayNames.has(pName));
-    });
-    if (countBadge) countBadge.textContent = todayMatches.length;
-
     let filtered = this.patients.filter(p => {
-      // 0. Filter Today Only if active
-      if (this.filterTodayOnly) {
-        const pId = String(p.id || '').trim();
-        const pName = this.normalizeArabic(p.name || '');
-        const isToday = todayIds.has(pId) || (pName && todayNames.has(pName));
-        if (!isToday) return false;
-      }
       // 1. Smart Normalized Arabic & Phone Search
       let matchSearch = true;
       if (rawSearch) {
@@ -849,6 +841,7 @@ export class PatientsManager {
     if (totalCountBadge) {
       totalCountBadge.textContent = `${filtered.length} مريض`;
     }
+    this.renderFilterPickerCounts();
 
     // 3. Smart Sorting (Search Relevance OR User Toggle: Recent / Alphabetical)
     if (rawSearch) {
@@ -877,25 +870,6 @@ export class PatientsManager {
     }
 
     if (filtered.length === 0) {
-      if (this.filterTodayOnly) {
-        if (mobileContainer) {
-          mobileContainer.innerHTML = `
-            <div class="hero-styled-card empty-state-box">
-              <div class="empty-state-icon-circle">
-                <i class="fa-solid fa-calendar-xmark"></i>
-              </div>
-              <div class="empty-state-title">لا توجد حالات مسجلة اليوم</div>
-              <div class="empty-state-desc">لا توجد مواعيد أو جلسات مسجلة للمرضى لهذا اليوم.</div>
-              <button type="button" class="btn btn-outline btn-sm empty-state-btn-outline" id="btn-reset-today-filter-mob">
-                عرض كافة المرضى
-              </button>
-            </div>
-          `;
-          document.getElementById('btn-reset-today-filter-mob')?.addEventListener('click', () => this.toggleTodayFilter());
-        }
-        return;
-      }
-
       if (rawSearch) {
         const emptySearchCard = `
           <div class="hero-styled-card empty-state-box">
@@ -984,6 +958,8 @@ export class PatientsManager {
         const safeName = escapeHTML(p.name);
         const safeAge = escapeHTML(p.age);
         const safeAddress = escapeHTML(p.address || '');
+        const defaultCity = (typeof CLINIC_CONFIG !== 'undefined' && CLINIC_CONFIG?.contact?.city) ? CLINIC_CONFIG.contact.city : 'الإسكندرية';
+        const safeCity = escapeHTML(safeAddress && safeAddress !== '-' ? safeAddress : defaultCity);
         const mobileAreaInfo = this.getPatientTreatedAreaDisplay(p);
         const safeDoctor = escapeHTML(p.doctor || '');
   
@@ -991,16 +967,15 @@ export class PatientsManager {
         const genderClass = isFemale ? 'gender-female' : 'gender-male';
         const genderIcon = isFemale ? 'fa-solid fa-venus' : 'fa-solid fa-mars';
         const genderText = isFemale ? 'أنثى' : 'ذكر';
-        const avatarIcon = isFemale ? 'fa-solid fa-person-dress' : 'fa-solid fa-person';
 
         return `
           <div class="hero-styled-card hero-patient-card patient-card ${genderClass} ${rowHighlightClass}">
-            <!-- Top Header Row 1: Name & Avatar on Right, Company/Billing Badge on Left -->
+            <!-- 1. Header: Patient Name & Gender Icon on Right, Payment Capsule on Left -->
             <div class="pc-row-name-company">
               <div class="pc-name-avatar-wrap">
-                <div class="pc-avatar-icon ${isFemale ? 'female' : 'male'}">
-                  <i class="${avatarIcon}"></i>
-                </div>
+                <span class="pc-avatar-icon ${isFemale ? 'female' : 'male'}">
+                  <i class="${genderIcon}"></i>
+                </span>
                 <span class="pc-name-title" onclick="patientsManager.openPatientSheet('${safeId}')" title="اضغط لفتح الشيت الطبي">${safeName}</span>
               </div>
               <div class="pc-billing-wrap">
@@ -1008,34 +983,38 @@ export class PatientsManager {
               </div>
             </div>
 
-            <!-- Top Header Row 2: Subtitle (Gender/Age) on Right, Quick Action Pills on Left -->
-            <div class="pc-row-meta-actions">
-              <div class="pc-meta-sub ${isFemale ? 'female' : 'male'}">
-                <i class="${genderIcon}"></i> <span>${genderText} ▪ ${safeAge} سنة</span>
-              </div>
-              <div class="pc-pill-actions">
-                ${!isDoctor ? `
-                  <button type="button" class="btn-pc-pill btn-pc-session btn-quick-attend" onclick="patientsManager.quickLogSession('${safeId}')" title="تسجيل جلسة سريعة لهذا المريض">
-                    <i class="fa-solid fa-bolt"></i> <span>جلسة</span>
-                  </button>
-                ` : ''}
-                ${canAccessSheet ? `
-                  <button type="button" class="btn-pc-pill btn-pc-sheet btn-hero-sheet btn-patient-sheet-action" onclick="patientsManager.openPatientSheet('${safeId}')" title="فتح الشيت الطبي">
-                    <i class="fa-solid fa-file-circle-plus"></i> <span>الشيت</span>
-                  </button>
-                ` : ''}
-              </div>
+            <!-- 2. Demographics Line: Gender, Age, City in Calm Muted Typography -->
+            <div class="pc-demographics-line">
+              <span class="pc-demo-item"><i class="${genderIcon}"></i> <span>${genderText}</span></span>
+              <span class="pc-demo-sep">•</span>
+              <span class="pc-demo-item"><span>${safeAge} سنة</span></span>
+              <span class="pc-demo-sep">•</span>
+              <span class="pc-demo-item pc-demo-city" title="${safeCity}"><i class="fa-solid fa-location-dot"></i> <span>${safeCity}</span></span>
             </div>
 
-            <!-- Middle Row: Diagnosis / Body Parts / Program Strip -->
-            <div class="pc-condition-strip">
+            <!-- 3. Diagnosis Presentation: Clean & Natural with Diagnosis/Bone Icon -->
+            <div class="pc-condition-strip ${mobileAreaInfo.badgeClass || ''}">
               <i class="${mobileAreaInfo.icon}"></i>
-              <span>${escapeHTML((mobileAreaInfo.text || '').replace(/ • /g, ' ▪ '))}</span>
+              <span class="pc-condition-text">${escapeHTML((mobileAreaInfo.text || '').replace(/ • /g, ' ▪ '))}</span>
             </div>
 
-            <!-- Bottom Row: Squircle Action Buttons (Right / Thumb Ergonomics) & Location/Address (Left) -->
-            <div class="pc-footer-row">
-              <div class="pc-squircle-actions">
+            <!-- 4. Primary Action Buttons: جلسة and الشيت with Uniform Height and Balanced Contrast -->
+            <div class="pc-pill-actions pc-primary-actions">
+              ${!isDoctor ? `
+                <button type="button" class="btn-pc-pill btn-pc-session btn-quick-attend" onclick="patientsManager.quickLogSession('${safeId}')" title="تسجيل جلسة سريعة لهذا المريض">
+                  <i class="fa-solid fa-bolt"></i> <span>جلسة</span>
+                </button>
+              ` : ''}
+              ${canAccessSheet ? `
+                <button type="button" class="btn-pc-pill btn-pc-sheet btn-hero-sheet btn-patient-sheet-action" onclick="patientsManager.openPatientSheet('${safeId}')" title="فتح الشيت الطبي">
+                  <i class="fa-solid fa-file-lines"></i> <span>الشيت</span>
+                </button>
+              ` : ''}
+            </div>
+
+            <!-- 5. Utility Actions Row: WhatsApp, Docs, Edit, Delete (Understated Action Strip) -->
+            <div class="pc-footer-row pc-utility-row">
+              <div class="pc-squircle-actions pc-utility-actions">
                 <button type="button" class="btn-pc-squircle btn-pc-wa btn-whatsapp-action" onclick="patientsManager.openWhatsAppTemplates('${escapeHTML(p.phone || '')}', '${safeName}', '${safeDoctor}')" aria-label="خيارات واتساب الذكية" title="واتساب">
                   <i class="fa-brands fa-whatsapp"></i>
                 </button>
@@ -1047,17 +1026,15 @@ export class PatientsManager {
                     <i class="fa-solid fa-pen-to-square"></i>
                   </button>
                 ` : ''}
-                ${!isDoctor && canDeletePatient ? `
+              </div>
+
+              ${!isDoctor && canDeletePatient ? `
+                <div class="pc-utility-danger">
                   <button type="button" class="btn-pc-squircle btn-pc-del btn-delete-patient" onclick="patientsManager.confirmDelete('${safeId}')" aria-label="حذف المريض" title="حذف">
                     <i class="fa-solid fa-trash-can"></i>
                   </button>
-                ` : ''}
-              </div>
-
-              <div class="pc-location-info">
-                <i class="fa-solid fa-location-dot"></i>
-                <span>${safeAddress && safeAddress !== '-' ? safeAddress : (CLINIC_CONFIG.contact?.city || 'الإسكندرية')}</span>
-              </div>
+                </div>
+              ` : ''}
             </div>
           </div>
         `;      }).join('') + (totalPages > 1 ? `
@@ -2048,9 +2025,13 @@ export class PatientsManager {
 
     const genderBadge = document.getElementById('sheet-patient-gender-badge');
     const genderIcon = document.getElementById('sheet-gender-icon');
+    const genderWrap = document.getElementById('sheet-pcm-gender-wrap');
     const genderText = document.getElementById('sheet-patient-gender-text');
     if (genderBadge) {
-      genderBadge.className = isFemale ? 'badge badge-gender-female' : 'badge badge-gender-male';
+      genderBadge.className = isFemale ? 'pcm-demo-item female' : 'pcm-demo-item male';
+    }
+    if (genderWrap) {
+      genderWrap.className = isFemale ? 'pcm-avatar-icon female' : 'pcm-avatar-icon male';
     }
     if (genderIcon) {
       genderIcon.className = isFemale ? 'fa-solid fa-venus' : 'fa-solid fa-mars';
@@ -2097,7 +2078,7 @@ export class PatientsManager {
         bColor = '#38bdf8';
       }
       // Clean display without background as requested
-      progHeaderBadge.innerHTML = `<span class="pcm-clean-prog" style="font-size: 0.85rem; font-weight: 700; color: ${bColor}; display: inline-flex; align-items: center; gap: 6px;"><i class="${bIcon}"></i> ${bText}</span>`;
+      progHeaderBadge.innerHTML = `<span class="pcm-clean-prog" style="font-size: 0.82rem; font-weight: 700; color: ${bColor}; display: inline-flex; align-items: center; gap: 6px;"><i class="${bIcon}"></i> <span>${bText}</span></span>`;
     }
 
     // Auto-resolve first session doctor if patient.doctor is empty
@@ -2134,7 +2115,7 @@ export class PatientsManager {
       const therapyCount = therapySessions.length;
 
       if (p.billing === 'cash') {
-        badgeEl.innerHTML = '<span class="badge badge-cash" style="font-size: 0.78rem; padding: 4px 10px; font-weight: 700; white-space: nowrap; display: inline-flex; align-items: center; gap: 5px;"><i class="fa-solid fa-money-bill-wave"></i> نقدي</span>';
+        badgeEl.innerHTML = '<span class="pc-billing-tag pc-badge-cash"><i class="fa-solid fa-money-bill-wave"></i> <span>نقدي</span></span>';
         if (sessBtnText) {
           if (examCount > 0 && therapyCount > 0) {
             sessBtnText.innerHTML = `سجل الجلسات (<strong>${therapyCount}</strong> جلسة • <strong>${examCount}</strong> كشف)`;
@@ -2145,12 +2126,12 @@ export class PatientsManager {
           }
         }
         if (sessBtn) {
-          sessBtn.className = 'pcm-sessions-chip';
+          sessBtn.className = 'pcm-sessions-full-btn';
         }
       } else {
         const cType = p.contractType === 'direct' ? 'مباشر' : 'غير مباشر';
-        const badgeClass = p.contractType === 'direct' ? 'badge-direct' : 'badge-indirect';
-        const iconClass = p.contractType === 'direct' ? 'fa-file-contract' : 'fa-handshake';
+        const badgeTagClass = p.contractType === 'direct' ? 'pc-badge-direct' : 'pc-badge-indirect';
+        const iconTagClass = p.contractType === 'direct' ? 'fa-building' : 'fa-handshake';
         const approvedTotal = p.approvedSessions || 12;
         const hasExplicitRenewal = Boolean(p.lastRenewalDate || (Array.isArray(p.approvalCycles) && p.approvalCycles.length > 1));
         const cycleStart = hasExplicitRenewal ? (p.currentApprovalStartDate || '') : '';
@@ -2182,7 +2163,8 @@ export class PatientsManager {
           isNearLimit = (currentCount >= approvedTotal - 2 && !isCompleted);
         }
 
-        badgeEl.innerHTML = `<span class="badge ${badgeClass}" style="font-size: 0.78rem; padding: 4px 10px; font-weight: 700; display: inline-flex; align-items: center; gap: 5px;"><i class="fa-solid ${iconClass}"></i> ${escapeHTML(p.insuranceCompany || 'تأمين')} (${cType})</span>`;
+        const safeComp = escapeHTML(p.insuranceCompany || 'تأمين');
+        badgeEl.innerHTML = `<span class="pc-billing-tag ${badgeTagClass}" title="${safeComp} (${cType})"><i class="fa-solid ${iconTagClass}"></i> <span>${safeComp}</span></span>`;
 
         if (sessBtnText) {
           let extraStatus = '';
@@ -2192,32 +2174,11 @@ export class PatientsManager {
           sessBtnText.innerHTML = `سجل الجلسات: <strong>${displayCount} من ${approvedTotal}</strong>${cycleText}${examExtra}${extraStatus}`;
         }
         if (sessBtn) {
-          sessBtn.className = 'pcm-sessions-chip';
+          sessBtn.className = 'pcm-sessions-full-btn';
           if (isCompleted) sessBtn.classList.add('cycle-completed');
           else if (isNearLimit) sessBtn.classList.add('cycle-near-limit');
         }
       }
-    }
-
-    // 1.1 Render 3 Quick Actions inside Patient Sheet (WhatsApp, Edit, Delete)
-    const actionsEl = document.getElementById('sheet-patient-quick-actions');
-    if (actionsEl) {
-      const cleanPhone = (p.phone || '').replace(/[^0-9]/g, '').replace(/^0/, '20');
-      const canDelete = RolesManager.canDelete(currentUser);
-
-      actionsEl.innerHTML = `
-        <a href="https://wa.me/${cleanPhone}" target="_blank" class="btn btn-pc-squircle btn-pc-wa pcm-action-square wa" title="واتساب" aria-label="واتساب">
-          <i class="fa-brands fa-whatsapp"></i>
-        </a>
-        <button type="button" class="btn btn-pc-squircle btn-pc-edit pcm-action-square edit" onclick="patientsManager.openEditModalFromSheet('${p.id}')" title="تعديل بيانات المريض" aria-label="تعديل">
-          <i class="fa-solid fa-pen-to-square"></i>
-        </button>
-        ${canDelete ? `
-          <button type="button" class="btn btn-pc-squircle btn-pc-del pcm-action-square del" onclick="patientsManager.confirmDeleteFromSheet('${p.id}')" title="حذف المريض" aria-label="حذف">
-            <i class="fa-solid fa-trash-can"></i>
-          </button>
-        ` : ''}
-      `;
     }
 
     const updateEl = document.getElementById('sheet-last-update-text');
