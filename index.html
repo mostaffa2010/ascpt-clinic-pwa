@@ -154,6 +154,7 @@
   <link rel="stylesheet" href="css/components/notifications.css?v=3.0.0" media="screen">
   <link rel="stylesheet" href="css/components/lightbox.css?v=3.0.0" media="screen">
   <link rel="stylesheet" href="css/components/image-editor.css?v=3.0.0" media="screen">
+  <link rel="stylesheet" href="css/components/header.css?v=3.0.0" media="screen">
   <link rel="stylesheet" href="css/components/nav.css?v=3.0.0" media="screen">
   <link rel="stylesheet" href="css/views/shell.css?v=3.0.0" media="screen">
   <link rel="stylesheet" href="css/views/reception.css?v=3.0.0" media="screen">
@@ -202,51 +203,8 @@
   </div>
 
   <!-- Mobile Top Header -->
-    <header class="top-header no-print">
-    <!-- Right side (Start of RTL): Doctor Identity Pill & Notification Center -->
-    <div class="top-header-start">
-    <button type="button" class="user-badge user-status-pill-box" id="user-status-pill-box" onclick="if(window.app && typeof window.app.openUserProfileModal==='function') window.app.openUserProfileModal();" title="الملف الشخصي وإعدادات الحساب (اضغط للعرض)">
-      <span class="status-dot" id="net-status-dot"></span>
-      <i class="fa-solid fa-user-doctor header-user-avatar"></i>
-      <span id="header-user-display" class="header-user-name"></span>
-      <i class="fa-solid fa-chevron-down header-user-chevron"></i>
-      <script>
-        (function() {
-          var u = window.__ASCPT_INITIAL_USER;
-          var el = document.getElementById('header-user-display');
-          if (el) el.textContent = (u && u.name) ? u.name : 'تسجيل الدخول';
-        })();
-      </script>
-    </button>
-
-    <!-- Notifications Bell Button with Red Counter Badge & Dropdown (v2.10.0) -->
-    <div class="notification-bell-wrapper no-print">
-      <button type="button" class="btn-notification-bell" id="btn-notifications-bell" aria-label="الإشعارات" title="مركز الإشعارات">
-        <i class="fa-solid fa-bell"></i>
-        <span class="notification-badge" id="notification-badge" style="display: none;" hidden></span>
-      </button>
-
-      <!-- Notifications Dropdown Menu -->
-      <div class="notification-dropdown" id="notification-dropdown" style="display: none;">
-        <div class="notification-dropdown-header">
-          <div class="notification-dropdown-title">
-            <i class="fa-solid fa-bell text-primary"></i>
-            <span>الإشعارات</span>
-          </div>
-          <button type="button" class="btn-mark-all-read" id="btn-mark-all-read" title="تحديد الكل كمقروء">
-            <i class="fa-solid fa-check-double"></i> <span>قراءة الكل</span>
-          </button>
-        </div>
-        <div class="notification-dropdown-body" id="notifications-list">
-          <!-- Rendered dynamically -->
-        </div>
-      </div>
-    </div>
-    </div>
-
-    <!-- Left side (End of RTL): Brand Logo & Abbreviation -->
-    <a href="#" class="brand-logo">
-      <span data-clinic="abbreviation" class="brand-logo-text">ASCPT</span>
+  <header class="top-header no-print">
+    <a href="#" class="brand-logo" aria-label="الصفحة الرئيسية">
       <img src="./icons/icon-192.png" alt="Logo" class="brand-logo-img">
     </a>
   </header>
@@ -2393,29 +2351,144 @@
 
       </section>
 
+      <!-- View: Notifications Center (v3.0.0 Clean 6-Tab View Shell) -->
+      <section id="view-notifications" class="view-section">
+        <div class="view-header">
+          <div class="view-header-title-wrap">
+            <h2 class="view-header-title"><i class="fa-solid fa-bell text-primary"></i> مركز الإشعارات</h2>
+            <p class="view-header-sub">التنبيهات الفورية لحضور المرضى والمواعيد والعهد المالية</p>
+          </div>
+          <div class="view-header-actions">
+            <button type="button" class="btn btn-secondary btn-sm" id="btn-mark-all-read" title="تحديد الكل كمقروء">
+              <i class="fa-solid fa-check-double"></i> <span>قراءة الكل</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="notifications-view-container">
+          <div class="notifications-view-list" id="notifications-list">
+            <!-- Notifications rendered dynamically -->
+          </div>
+        </div>
+      </section>
+
+      <!-- View: User Profile (v3.0.0 Clean 6-Tab View Shell) -->
+      <section id="view-profile" class="view-section">
+        <div class="view-header">
+          <div class="view-header-title-wrap">
+            <h2 class="view-header-title"><i class="fa-solid fa-id-badge text-primary"></i> الملف الشخصي</h2>
+            <p class="view-header-sub">بيانات وإعدادات حساب المستخدم</p>
+          </div>
+        </div>
+
+        <div class="profile-view-container">
+          <!-- Identity Card -->
+          <div class="profile-card-hero">
+            <div class="profile-hero-avatar-wrap">
+              <div class="profile-hero-avatar" id="view-profile-avatar-letter">م</div>
+              <span class="profile-hero-online-dot" title="الحساب نشط"></span>
+            </div>
+            <h3 class="profile-hero-name" id="view-profile-user-name">-</h3>
+            <span id="view-profile-user-role" class="badge badge-role-doctor">طبيب معالج</span>
+            <div class="profile-hero-email">
+              <i class="fa-solid fa-envelope text-primary"></i>
+              <span id="view-profile-user-email">-</span>
+            </div>
+          </div>
+
+          <!-- Settings & Actions List -->
+          <div class="profile-settings-card">
+            <!-- Push Notifications Toggle -->
+            <button type="button" class="profile-setting-item" id="btn-view-toggle-push">
+              <span class="profile-setting-lead">
+                <span class="profile-setting-icon profile-icon-push">
+                  <i class="fa-solid fa-bell"></i>
+                </span>
+                <span>الإشعارات الفورية (Push)</span>
+              </span>
+              <span class="badge badge-secondary" id="view-push-status-badge">فحص الحالة...</span>
+            </button>
+
+            <!-- Admin Panel (Visible to Admins Only) -->
+            <button type="button" class="profile-setting-item d-none" id="btn-view-admin-panel">
+              <span class="profile-setting-lead">
+                <span class="profile-setting-icon profile-icon-admin">
+                  <i class="fa-solid fa-user-shield"></i>
+                </span>
+                <span>لوحة المدير والصلاحيات</span>
+              </span>
+              <i class="fa-solid fa-chevron-left text-muted"></i>
+            </button>
+
+            <!-- Dark / Light Mode -->
+            <button type="button" class="profile-setting-item" id="btn-view-toggle-theme">
+              <span class="profile-setting-lead">
+                <span class="profile-setting-icon profile-icon-theme">
+                  <i class="fa-solid fa-moon" id="view-profile-theme-icon"></i>
+                </span>
+                <span id="view-profile-theme-label">الوضع الليلي (داكن)</span>
+              </span>
+              <i class="fa-solid fa-chevron-left text-muted"></i>
+            </button>
+
+            <!-- Change Password -->
+            <button type="button" class="profile-setting-item" id="btn-view-change-pwd">
+              <span class="profile-setting-lead">
+                <span class="profile-setting-icon profile-icon-pwd">
+                  <i class="fa-solid fa-key"></i>
+                </span>
+                <span>تغيير كلمة المرور</span>
+              </span>
+              <i class="fa-solid fa-chevron-left text-muted"></i>
+            </button>
+
+            <!-- Logout -->
+            <button type="button" class="profile-setting-item" id="btn-view-logout">
+              <span class="profile-setting-lead">
+                <span class="profile-setting-icon profile-icon-logout">
+                  <i class="fa-solid fa-right-from-bracket"></i>
+                </span>
+                <span class="text-danger">تسجيل الخروج</span>
+              </span>
+              <i class="fa-solid fa-arrow-left text-danger"></i>
+            </button>
+          </div>
+        </div>
+      </section>
+
     </main>
 
     <!-- Mobile Bottom Navigation Bar -->
     <nav class="bottom-nav no-print" aria-label="شريط التنقل السفلي">
       <button class="b-nav-item active" data-view="dashboard" aria-label="الرئيسية">
-        <i class="fa-solid fa-chart-pie"></i>
+        <i class="fa-solid fa-house"></i>
         <span>الرئيسية</span>
       </button>
       <button class="b-nav-item" data-view="patients" aria-label="المرضى">
-        <i class="fa-regular fa-users"></i>
+        <i class="fa-solid fa-users"></i>
         <span>المرضى</span>
       </button>
       <button class="b-nav-item" data-view="sessions" aria-label="الجلسات">
-        <i class="fa-regular fa-calendar-check"></i>
+        <i class="fa-solid fa-calendar-check"></i>
         <span>الجلسات</span>
       </button>
       <button class="b-nav-item" data-view="finance" aria-label="الحسابات">
-        <i class="fa-regular fa-file-invoice-dollar"></i>
+        <i class="fa-solid fa-file-invoice-dollar"></i>
         <span>الحسابات</span>
       </button>
-      <button class="b-nav-item" data-view="appointments" aria-label="المواعيد">
-        <i class="fa-regular fa-calendar-week"></i>
-        <span>المواعيد</span>
+      <button class="b-nav-item" data-view="notifications" aria-label="الإشعارات">
+        <div class="b-nav-icon-wrap">
+          <i class="fa-solid fa-bell"></i>
+          <span class="notification-badge" id="notification-badge" style="display: none;" hidden></span>
+        </div>
+        <span>الإشعارات</span>
+      </button>
+      <button class="b-nav-item" data-view="profile" aria-label="الملف الشخصي">
+        <div class="b-nav-avatar-wrap">
+          <span class="b-nav-avatar" id="b-nav-avatar-letter">م</span>
+          <span class="b-nav-online-dot status-dot" id="net-status-dot"></span>
+        </div>
+        <span>الملف الشخصي</span>
       </button>
     </nav>
   </div>
