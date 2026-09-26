@@ -302,22 +302,39 @@
 }
 
 .sort-seg-btn:hover {
-  color: var(--primary);
+  color: var(--text-main);
 }
 
-:root:not([data-theme="dark"]) .sort-seg-btn.active {
-  background: var(--bg-surface);
-  color: var(--primary);
-  font-weight: var(--fw-extrabold);
-  box-shadow: 0 1px 4px rgba(15, 23, 42, 0.1);
+.sort-seg-btn.active {
+  background: var(--primary);
+  color: #ffffff;
+  font-weight: var(--fw-bold);
+  border: none;
+  outline: none;
+  box-shadow: none;
+}
+
+.sort-seg-btn.active i,
+.sort-seg-btn.active span {
+  color: #ffffff;
+}
+
+.sort-seg-btn.active:hover {
+  background: var(--primary-hover, var(--primary));
+  color: #ffffff;
 }
 
 [data-theme="dark"] .sort-seg-btn.active {
-  background: var(--bg-surface);
-  color: var(--primary);
-  font-weight: var(--fw-extrabold);
-  border: 1px solid rgba(56, 189, 248, 0.3);
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.35);
+  background: var(--primary);
+  color: #ffffff;
+  border: none;
+  outline: none;
+  box-shadow: none;
+}
+
+[data-theme="dark"] .sort-seg-btn.active:hover {
+  background: var(--primary-hover, var(--primary));
+  color: #ffffff;
 }
 
 [data-theme="dark"] #btn-select-patient-filter-type,
