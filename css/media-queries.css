@@ -1,0 +1,18 @@
+/* ==========================================================================
+   ASCPT Clinic PWA - Responsive Media Queries
+   Navigation & Mobile/Tablet Layout Breakpoints
+   ========================================================================== */
+
+/* Mobile & Tablet Scope (< 992px): Show bottom navigation dock */
+@media screen and (max-width: 991.98px) {
+  .bottom-nav {
+    display: flex;
+  }
+}
+
+/* Desktop Scope (>= 992px): Hide bottom navigation dock, desktop sidebar active */
+@media screen and (min-width: 992px) {
+  .bottom-nav {
+    display: none;
+  }
+}
