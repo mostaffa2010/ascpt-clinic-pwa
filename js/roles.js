@@ -45,7 +45,10 @@ export class RolesManager {
     navItems.forEach(item => {
       const view = item.getAttribute('data-view');
       let isVisible = true;
-      if (role === ROLES.DOCTOR) {
+      if (view === 'notifications' || view === 'profile') {
+        // الإشعارات وحسابي متاحان بشكل عام لجميع الأدوار
+        isVisible = true;
+      } else if (role === ROLES.DOCTOR) {
         isVisible = (view === 'dashboard' || view === 'patients');
       } else if (role === ROLES.RECEPTIONIST) {
         // السكرتارية ترى الرئيسية، المرضى، الجلسات، الحسابات (وتُحجب لوحة المدير فقط)
@@ -90,7 +93,7 @@ export class RolesManager {
 
     // 3. حماية التنقل: توجيه الطبيب للرئيسية إذا كان يقف على شاشة محجوبة (الحسابات/الجلسات/المدير)
     if (role === ROLES.DOCTOR && window.app) {
-      const allowedViews = ['dashboard', 'patients', 'patient-sheet'];
+      const allowedViews = ['dashboard', 'patients', 'patient-sheet', 'notifications', 'profile'];
       if (!allowedViews.includes(window.app.currentView)) {
         window.app.switchView('dashboard');
       }

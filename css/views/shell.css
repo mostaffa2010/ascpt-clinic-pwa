@@ -11,7 +11,7 @@
 .app-container {
   display: flex;
   flex: 1;
-  min-height: calc(100vh - var(--topbar-height));
+  min-height: 100vh;
   position: relative;
   min-width: 0;
   max-width: 100%;
@@ -37,205 +37,8 @@
 }
 
 /* ----------------------------------------------------------------------------
-   2. Top Header Bar (Mobile & Tablet)
-   ---------------------------------------------------------------------------- */
-.top-header {
-  height: calc(var(--topbar-height) + env(safe-area-inset-top, 0px));
-  padding-top: env(safe-area-inset-top, 0px);
-  padding-right: 16px;
-  padding-bottom: 0;
-  padding-left: 16px;
-  box-sizing: border-box;
-  background: var(--bg-glass);
-  backdrop-filter: var(--glass-blur);
-  -webkit-backdrop-filter: var(--glass-blur);
-  border-bottom: 1px solid var(--glass-border);
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  position: sticky;
-  top: 0;
-  z-index: 40;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.02);
-  transition: all 0.25s ease;
-}
-
-[data-theme="dark"] .top-header {
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.25);
-}
-
-.top-header-start {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-}
-
-/* Brand Logo (Mobile Topbar) */
-.brand-logo {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 1.15rem;
-  font-weight: var(--fw-extrabold);
-  color: var(--primary);
-  text-decoration: none;
-  letter-spacing: -0.2px;
-}
-
-.brand-logo-text {
-  font-size: 1.05rem;
-  font-weight: var(--fw-extrabold);
-  color: var(--primary);
-  letter-spacing: 0.3px;
-}
-
-.brand-logo-img {
-  width: 28px;
-  height: 28px;
-  border-radius: var(--radius-xs);
-  object-fit: contain;
-  vertical-align: middle;
-}
-
-/* Header User Badge & Status Pill Box */
-.header-actions-group {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.user-status-pill-box {
-  cursor: pointer;
-  background: var(--bg-subtle);
-  border: 1.5px solid var(--border-color);
-  font-family: inherit;
-  font-size: 0.82rem;
-  font-weight: var(--fw-bold);
-  color: var(--text-main);
-  border-radius: var(--radius-full);
-  padding: 5px 12px;
-  display: inline-flex;
-  align-items: center;
-  gap: 7px;
-  -webkit-user-select: none;
-  user-select: none;
-  outline: none;
-  transition: all var(--transition-fast);
-}
-
-.user-status-pill-box:hover,
-.user-status-pill-box:active {
-  background: var(--bg-surface-elevated);
-  border-color: var(--primary);
-}
-
-.header-user-avatar {
-  color: var(--primary);
-  font-size: 0.9rem;
-}
-
-.header-user-name {
-  white-space: nowrap;
-  font-weight: var(--fw-extrabold);
-}
-
-.header-user-chevron {
-  font-size: 0.65rem;
-  color: var(--text-muted);
-  margin-right: 2px;
-}
-
 /* ----------------------------------------------------------------------------
-   3. Notification Bell & Dropdown (Unified Center)
-   ---------------------------------------------------------------------------- */
-.notification-bell-wrapper {
-  position: relative;
-  display: inline-flex;
-  align-items: center;
-}
 
-.btn-notification-bell {
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
-  background: var(--bg-subtle);
-  border: 1.5px solid var(--border-color);
-  color: var(--text-main);
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  position: relative;
-  font-size: 1.05rem;
-  transition: all var(--transition-normal);
-  outline: none;
-  -webkit-user-select: none;
-  user-select: none;
-}
-
-.btn-notification-bell:hover,
-.btn-notification-bell:active {
-  background: var(--bg-surface);
-  border-color: var(--primary);
-  color: var(--primary);
-}
-
-.notification-badge {
-  position: absolute;
-  top: -4px;
-  right: -4px;
-  background: var(--danger);
-  color: #ffffff;
-  font-size: 0.65rem;
-  font-weight: 900;
-  min-width: 18px;
-  height: 18px;
-  border-radius: var(--radius-full);
-  padding: 0 4px;
-  display: none;
-  align-items: center;
-  justify-content: center;
-  border: 2px solid var(--bg-surface);
-  box-shadow: 0 2px 6px rgba(239, 68, 68, 0.45);
-  line-height: 1;
-  pointer-events: none;
-  animation: notifPulse 2s infinite ease-in-out;
-}
-
-@keyframes notifPulse {
-  0%, 100% { transform: scale(1); }
-  50% { transform: scale(1.15); }
-}
-
-.notification-badge.is-open {
-  display: flex;
-}
-
-.notification-dropdown {
-  position: fixed;
-  top: calc(var(--topbar-height, 60px) + env(safe-area-inset-top, 0px) + 8px);
-  left: 12px;
-  right: 12px;
-  width: calc(100% - 24px);
-  max-width: 380px;
-  margin: 0 auto;
-  background: var(--bg-surface);
-  border: 1px solid var(--border-color);
-  border-radius: var(--radius-md);
-  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.25), 0 3px 10px rgba(0, 0, 0, 0.08);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  z-index: var(--z-lightbox);
-  display: none;
-  flex-direction: column;
-  overflow: hidden;
-}
-
-.notification-dropdown.is-open {
-  display: flex;
-}
-
-/* ----------------------------------------------------------------------------
    4. Desktop Sidebar (Permanent Desktop Navigation)
    ---------------------------------------------------------------------------- */
 .sidebar {
@@ -749,13 +552,6 @@
 /* ==========================================================================
    Migrated from style.css (User Profile Interactive Triggers)
    ========================================================================== */
-#user-status-pill-box:hover {
-  border-color: var(--primary);
-  background: var(--bg-subtle);
-  transform: translateY(-1px);
-  transition: all var(--transition-fast);
-}
-
 #sidebar-user-profile-trigger:hover {
   background: var(--primary-alpha-10);
 }
@@ -766,7 +562,6 @@
   transform: translateY(-1px);
 }
 
-#user-status-pill-box,
 #sidebar-user-profile-trigger {
   -webkit-user-select: none;
   user-select: none;
@@ -775,9 +570,9 @@
   outline: none;
 }
 
-#user-status-pill-box *,
 #sidebar-user-profile-trigger * {
   -webkit-user-select: none;
   user-select: none;
   pointer-events: none;
 }
+

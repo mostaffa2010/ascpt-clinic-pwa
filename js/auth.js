@@ -490,6 +490,12 @@ class AuthService {
       }
       RolesManager.applyPermissions(null);
     }
+
+    // ضمان إتاحة تبويبي الإشعارات وحسابي في شريط التنقل السفلي لجميع الأدوار دائماً
+    document.querySelectorAll('.bottom-nav [data-view="notifications"], .bottom-nav [data-view="profile"]').forEach(item => {
+      item.classList.remove('d-none');
+      item.style.removeProperty('display');
+    });
   }
 }
 

@@ -47,13 +47,13 @@ console.log('✓ 4. Frontend Notifications Manager: Verified subscription, real-
 
 // 5. Verify UI Components in index.html
 const indexHtmlContent = fs.readFileSync(path.join(rootDir, 'index.html'), 'utf-8');
-assert.ok(indexHtmlContent.includes('id="btn-notifications-bell"'), 'index.html must include #btn-notifications-bell');
+assert.ok(indexHtmlContent.includes('data-view="notifications"'), 'index.html must include [data-view="notifications"] in bottom nav');
+assert.ok(indexHtmlContent.includes('id="view-notifications"'), 'index.html must include #view-notifications');
 assert.ok(indexHtmlContent.includes('id="notification-badge"'), 'index.html must include #notification-badge');
-assert.ok(indexHtmlContent.includes('id="notification-dropdown"'), 'index.html must include #notification-dropdown');
+assert.ok(indexHtmlContent.includes('id="notifications-list"'), 'index.html must include #notifications-list');
 assert.ok(indexHtmlContent.includes('id="btn-mark-all-read"'), 'index.html must include #btn-mark-all-read');
 assert.ok(indexHtmlContent.includes('id="btn-toggle-push-notifications"'), 'index.html must include #btn-toggle-push-notifications in profile');
-assert.ok(indexHtmlContent.includes('class="notification-bell-wrapper no-print"'), 'notification bell wrapper must have no-print class');
-console.log('✓ 5. Top Header & Profile UI: Verified bell button, red counter badge, dropdown menu, and settings toggle.');
+console.log('✓ 5. Bottom Nav & View Shell UI: Verified notifications tab, red counter badge, view shell, and settings toggle.');
 
 // 6. Verify CSS Styling & Print Suppression
 const styleCssPath = path.join(rootDir, 'css/style.css');

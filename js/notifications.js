@@ -410,11 +410,62 @@ export class NotificationsManager {
     this.closeDropdown();
 
     const data = notif.data || {};
+    const currentUser = auth.getCurrentUser();
+    const role = (currentUser?.role || '').toLowerCase();
+
+    // فحص ما إذا كان الإشعار مرتبطاً بحضور أو جلسة أو مريض
+    const isCheckinOrSession = notif.type === 'patient_checkin' ||
+      notif.type === 'session_completed' ||
+      notif.type === 'appointment_booked' ||
+      notif.title?.includes('حضور') ||
+      notif.title?.includes('جلسة') ||
+      notif.title?.includes('كشف') ||
+      notif.body?.includes('حضور') ||
+      notif.body?.includes('جلسة') ||
+      notif.body?.includes('كشف') ||
+      Boolean(data.patientId);
+
+    if (data.patientId && isCheckinOrSession) {
+      // 1. موظف الاستقبال / السكرتارية: فتح شاشة تسجيل الجلسة مع اختيار المريض تلقائياً
+      if (role === 'receptionist' || role === 'reception') {
+        if (this.app?.switchView) {
+          this.app.switchView('sessions');
+          setTimeout(() => {
+            if (this.app.sessionsManager && typeof this.app.sessionsManager.selectPatient === 'function') {
+              this.app.sessionsManager.selectPatient(data.patientId);
+            }
+          }, 150);
+          return;
+        }
+      }
+
+      // 2. الطبيب المعالج أو المدير: فتح الشيت الطبي للمريض مباشرة
+      if (role === 'doctor' || role === 'admin' || !role) {
+        if (this.app?.patientsManager) {
+          if (typeof this.app.patientsManager.openPatientSheet === 'function') {
+            await this.app.patientsManager.openPatientSheet(data.patientId);
+            return;
+          } else if (typeof this.app.patientsManager.openClinicalSheet === 'function') {
+            await this.app.patientsManager.openClinicalSheet(data.patientId);
+            return;
+          }
+        }
+      }
+    }
+
     if (data.screen && this.app && typeof this.app.switchView === 'function') {
       this.app.switchView(data.screen);
-      if (data.patientId && this.app.patientsManager) {
+      if (data.patientId) {
         setTimeout(() => {
-          this.app.patientsManager.openClinicalSheet(data.patientId);
+          if ((role === 'receptionist' || role === 'reception') && this.app.sessionsManager) {
+            this.app.sessionsManager.selectPatient(data.patientId);
+          } else if (this.app.patientsManager) {
+            if (typeof this.app.patientsManager.openPatientSheet === 'function') {
+              this.app.patientsManager.openPatientSheet(data.patientId);
+            } else if (typeof this.app.patientsManager.openClinicalSheet === 'function') {
+              this.app.patientsManager.openClinicalSheet(data.patientId);
+            }
+          }
         }, 150);
       }
     }
@@ -431,13 +482,14 @@ export class NotificationsManager {
     }
   }
 
-  async markAllAsRead() {
+  async markAllAsRead(silent = false) {
     const currentUser = auth.getCurrentUser();
     if (!currentUser || !currentUser.uid) return;
 
     // Optimistic UI update
     this.notifications.forEach(n => n.read = true);
     this.renderNotifications();
+    this.updateBadge(0);
 
     // 1. Call serverless endpoint to mark all read in Firestore
     try {
@@ -467,7 +519,7 @@ export class NotificationsManager {
       }
     }
 
-    if (this.app?.showToast) {
+    if (!silent && this.app?.showToast) {
       this.app.showToast('تم تحديد جميع الإشعارات كمقروءة');
     }
   }

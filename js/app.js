@@ -185,6 +185,7 @@ class App {
           this.updateBackupStatusHint();
           this.checkBackupReminderToast(user);
           this.notificationsManager?.onUserAuthenticated(user);
+          this.updateProfileNavAvatar?.(user);
         }
         await this.refreshAll();
       });
@@ -199,6 +200,11 @@ class App {
     try { await this.auditManager.init(); } catch (e) { console.warn('auditManager init notice:', e); }
     try { await this.appointmentsManager.init();
     this.notificationsManager.init(); } catch (e) { console.warn('appointmentsManager init notice:', e); }
+
+    // حماية التوافق العكسي للربط العميق مع الشيت الطبي
+    if (this.patientsManager && !this.patientsManager.openClinicalSheet) {
+      this.patientsManager.openClinicalSheet = (id, name) => this.patientsManager.openPatientSheet(id, name);
+    }
 
     // مزامنة أزرار القوائم المخصصة
     ['claim-company-select', 'patient-filter-type', 'session-doctor-select', 'finance-doctor-filter', 'newuser-role', 'p-gender', 'p-approved-body-parts', 'renew-approved-body-parts', 'appt-doctor-select', 'batch-hv-doctor', 'walkin-doctor-select', 'walkin-slot-select'].forEach(id => {
@@ -355,7 +361,7 @@ class App {
     const isDark = saved === 'dark';
     this.applyTheme(isDark ? 'dark' : 'light');
 
-    const toggleBtns = document.querySelectorAll('#btn-toggle-theme, #btn-toggle-theme-desktop, #btn-profile-toggle-theme');
+    const toggleBtns = document.querySelectorAll('#btn-toggle-theme, #btn-toggle-theme-desktop, #btn-profile-toggle-theme, #btn-view-toggle-theme');
     toggleBtns.forEach(btn => {
       btn.addEventListener('click', () => this.toggleTheme());
     });
@@ -372,6 +378,9 @@ class App {
   applyTheme(theme) {
     const pIcon = document.getElementById('profile-theme-icon');
     const pLabel = document.getElementById('profile-theme-label');
+    const vpIcon = document.getElementById('view-profile-theme-icon');
+    const vpLabel = document.getElementById('view-profile-theme-label');
+
     if (theme === 'dark') {
       document.documentElement.setAttribute('data-theme', 'dark');
       const meta = document.querySelector('meta[name="theme-color"]');
@@ -385,6 +394,11 @@ class App {
         pIcon.style.removeProperty('color');
       }
       if (pLabel) pLabel.textContent = 'الوضع النهاري (فاتح)';
+      if (vpIcon) {
+        vpIcon.className = 'fa-solid fa-sun text-warning';
+        vpIcon.style.removeProperty('color');
+      }
+      if (vpLabel) vpLabel.textContent = 'الوضع النهاري (فاتح)';
     } else {
       document.documentElement.removeAttribute('data-theme');
       const meta = document.querySelector('meta[name="theme-color"]');
@@ -398,6 +412,11 @@ class App {
         pIcon.style.removeProperty('color');
       }
       if (pLabel) pLabel.textContent = 'الوضع الليلي (داكن)';
+      if (vpIcon) {
+        vpIcon.className = 'fa-solid fa-moon';
+        vpIcon.style.removeProperty('color');
+      }
+      if (vpLabel) vpLabel.textContent = 'الوضع الليلي (داكن)';
     }
   }
 
@@ -475,13 +494,21 @@ class App {
     };
     document.getElementById('btn-logout-mobile')?.addEventListener('click', handleLogout);
     document.getElementById('btn-logout-desktop')?.addEventListener('click', handleLogout);
+
+    // معالجة اللمس على الأجهزة المحمولة لمنع بقاء تأثير الفوكس (Sticky Touch Focus)
+    document.addEventListener('touchend', (e) => {
+      const el = e.target.closest('button, .profile-setting-item, .b-nav-item, .btn');
+      if (el && typeof el.blur === 'function') {
+        setTimeout(() => el.blur(), 80);
+      }
+    }, { passive: true });
   }
 
   switchView(viewName, isBackNavigation = false) {
     const user = auth.getCurrentUser();
     // تقييد صلاحيات التنقل حسب الدور
     if (user?.role === 'doctor') {
-      if (viewName !== 'dashboard' && viewName !== 'patients' && viewName !== 'patient-sheet') {
+      if (viewName !== 'dashboard' && viewName !== 'patients' && viewName !== 'patient-sheet' && viewName !== 'notifications' && viewName !== 'profile') {
         viewName = 'dashboard';
       }
     } else if (user?.role === 'receptionist') {
@@ -513,6 +540,9 @@ class App {
     const targetSection = document.getElementById(`view-${viewName}`);
     if (targetSection) targetSection.classList.add('active');
 
+    // تفعيل كلاس الصفحة الرئيسية للتحكم في إخفاء الهيدر على الموبايل
+    document.body.classList.toggle('view-is-dashboard', viewName === 'dashboard');
+
     // Update active state on Desktop sidebar
     document.querySelectorAll('.sidebar-nav .nav-link').forEach(btn => {
       btn.classList.toggle('active', btn.getAttribute('data-view') === viewName);
@@ -521,6 +551,12 @@ class App {
     // Update active state on Mobile bottom nav
     document.querySelectorAll('.bottom-nav .b-nav-item').forEach(btn => {
       btn.classList.toggle('active', btn.getAttribute('data-view') === viewName);
+    });
+
+    // ضمان إتاحة تبويبي الإشعارات وحسابي في شريط التنقل السفلي لجميع الأدوار
+    document.querySelectorAll('.bottom-nav [data-view="notifications"], .bottom-nav [data-view="profile"]').forEach(item => {
+      item.classList.remove('d-none');
+      item.style.removeProperty('display');
     });
 
     // Scroll to top
@@ -538,6 +574,22 @@ class App {
     if (viewName === 'finance') this.financeManager.loadDailyReport();
     if (viewName === 'sessions') this.sessionsManager.loadTodaySessions();
     if (viewName === 'patients') this.patientsManager.loadPatients();
+    if (viewName === 'notifications') {
+      if (this.notificationsManager) {
+        if (typeof this.notificationsManager.renderNotifications === 'function') {
+          this.notificationsManager.renderNotifications();
+        }
+        if (typeof this.notificationsManager.markAllAsRead === 'function') {
+          this.notificationsManager.markAllAsRead(true);
+        }
+        if (typeof this.notificationsManager.updateBadge === 'function') {
+          this.notificationsManager.updateBadge(0);
+        }
+      }
+    }
+    if (viewName === 'profile') {
+      this.renderProfileView();
+    }
     if (viewName === 'admin') {
       if (this.auditManager) {
         this.auditManager.loadUsers();
@@ -704,10 +756,99 @@ class App {
     };
     this.openUserProfileModal = openUserProfileModal;
 
-    document.getElementById('user-status-pill-box')?.addEventListener('click', (e) => {
-      e.preventDefault();
-      openUserProfileModal();
-    });
+    // Clean #view-profile event wiring
+    const bindProfileViewEvents = () => {
+      document.getElementById('btn-view-toggle-push')?.addEventListener('click', () => {
+        this.notificationsManager?.openPrimerModal();
+      });
+
+      document.getElementById('btn-view-admin-panel')?.addEventListener('click', () => {
+        this.switchView('admin');
+      });
+
+      document.getElementById('btn-view-change-pwd')?.addEventListener('click', (e) => {
+        e.preventDefault();
+        setTimeout(() => {
+          openChangePwdModal();
+        }, 50);
+      });
+
+      document.getElementById('btn-view-logout')?.addEventListener('click', async () => {
+        const confirmed = await this.showConfirm('هل ترغب في تسجيل الخروج من نظام المركز؟', 'تأكيد تسجيل الخروج');
+        if (confirmed) {
+          await auth.logout();
+          this.showToast('تم تسجيل الخروج بنجاح.');
+        }
+      });
+    };
+    bindProfileViewEvents();
+
+    const updateViewPushStatus = () => {
+      const badge = document.getElementById('view-push-status-badge');
+      if (!badge) return;
+      if (typeof Notification !== 'undefined') {
+        if (Notification.permission === 'granted') {
+          badge.textContent = 'مفعلة ✓';
+          badge.className = 'badge badge-success';
+        } else if (Notification.permission === 'denied') {
+          badge.textContent = 'محظورة';
+          badge.className = 'badge badge-danger';
+        } else {
+          badge.textContent = 'غير مفعلة';
+          badge.className = 'badge badge-secondary';
+        }
+      } else {
+        badge.textContent = 'غير مدعومة';
+        badge.className = 'badge badge-secondary';
+      }
+    };
+    this.updateViewPushStatus = updateViewPushStatus;
+
+    const renderProfileView = () => {
+      const user = auth.getCurrentUser() || window.__ASCPT_INITIAL_USER;
+      if (!user) return;
+
+      const nameEl = document.getElementById('view-profile-user-name');
+      const emailEl = document.getElementById('view-profile-user-email');
+      const roleEl = document.getElementById('view-profile-user-role');
+      const avatarEl = document.getElementById('view-profile-avatar-letter');
+      const btnAdmin = document.getElementById('btn-view-admin-panel');
+
+      const displayName = user.name || 'مستخدم النظام';
+      if (nameEl) nameEl.textContent = displayName;
+      if (emailEl) emailEl.textContent = user.email || '-';
+
+      if (avatarEl) {
+        avatarEl.textContent = displayName.trim().charAt(0).toUpperCase() || 'م';
+      }
+
+      if (roleEl) {
+        const rMap = { admin: 'مدير المركز', doctor: 'طبيب معالج', receptionist: 'سكرتارية / استقبال' };
+        const label = (typeof RolesManager !== 'undefined' && RolesManager.getRoleLabel)
+          ? RolesManager.getRoleLabel(user.role)
+          : (rMap[user.role] || user.role || 'طبيب');
+        roleEl.textContent = label;
+        roleEl.className = `profile-hero-role role-${user.role || 'doctor'}`;
+      }
+
+      if (btnAdmin) {
+        btnAdmin.classList.toggle('d-none', user.role !== 'admin');
+      }
+
+      updateViewPushStatus();
+    };
+    this.renderProfileView = renderProfileView;
+
+    const updateProfileNavAvatar = (user) => {
+      const u = user || auth.getCurrentUser() || window.__ASCPT_INITIAL_USER;
+      const navAvatarEl = document.getElementById('b-nav-avatar-letter');
+      if (navAvatarEl) {
+        const name = u?.name || '';
+        navAvatarEl.textContent = name.trim().charAt(0).toUpperCase() || 'م';
+      }
+    };
+    this.updateProfileNavAvatar = updateProfileNavAvatar;
+    updateProfileNavAvatar();
 
     document.getElementById('sidebar-user-profile-trigger')?.addEventListener('click', (e) => {
       e.preventDefault();

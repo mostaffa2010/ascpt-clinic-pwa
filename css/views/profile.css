@@ -1,0 +1,200 @@
+/* ==========================================================================
+   ASCPT Clinic PWA - Profile View (#view-profile)
+   Modern Clean View Shell Stylesheet
+   Zero !important Architecture
+   ========================================================================== */
+
+.profile-view-container {
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 16px 12px 36px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.profile-card-hero {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  padding: 24px 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 10px;
+  box-shadow: var(--shadow-sm);
+}
+
+.profile-hero-avatar-wrap {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.profile-hero-avatar {
+  width: 72px;
+  height: 72px;
+  border-radius: var(--radius-full);
+  background: var(--primary-light);
+  color: var(--primary);
+  font-size: 2rem;
+  font-weight: var(--fw-bold);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 3px solid var(--border-color);
+}
+
+.profile-hero-online-dot {
+  position: absolute;
+  bottom: 2px;
+  left: 2px;
+  width: 14px;
+  height: 14px;
+  background-color: var(--success);
+  border: 2.5px solid var(--bg-surface);
+  border-radius: 50%;
+}
+
+.profile-hero-name {
+  font-size: 1.25rem;
+  font-weight: var(--fw-bold);
+  color: var(--text-main);
+  margin: 0;
+}
+
+/* Elegant Text Role Display without Badge Background, Border or Padding */
+.profile-hero-role,
+#view-profile-user-role,
+.profile-card-hero #view-profile-user-role {
+  background: transparent;
+  background-color: transparent;
+  border: none;
+  padding: 0;
+  margin: 0;
+  font-size: 0.92rem;
+  font-weight: var(--fw-semibold, 600);
+  color: var(--primary);
+  border-radius: 0;
+  box-shadow: none;
+  line-height: 1.3;
+  display: inline-block;
+}
+
+[data-theme="dark"] .profile-hero-role,
+[data-theme="dark"] #view-profile-user-role,
+[data-theme="dark"] .profile-card-hero #view-profile-user-role,
+[data-theme="dark"] .profile-card-hero .profile-hero-role {
+  color: #93c5fd;
+}
+
+.profile-hero-email {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* Settings Group Card */
+.profile-settings-card {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+}
+
+.profile-setting-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--border-subtle);
+  background: transparent;
+  width: 100%;
+  border-left: none;
+  border-right: none;
+  border-top: none;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 0.9rem;
+  color: var(--text-main);
+  transition: background-color var(--transition-fast);
+  text-align: right;
+  direction: rtl;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.profile-setting-item:last-child {
+  border-bottom: none;
+}
+
+/* Hover only on devices supporting hover to prevent sticky highlight on mobile touch */
+@media (hover: hover) {
+  .profile-setting-item:hover {
+    background-color: var(--bg-subtle);
+  }
+}
+
+.profile-setting-item:active {
+  background-color: var(--bg-subtle);
+}
+
+.profile-setting-item:focus:not(:focus-visible) {
+  outline: none;
+  background-color: transparent;
+}
+
+.profile-setting-lead {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.profile-setting-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-sm);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+}
+
+.profile-icon-push { background: rgba(2, 132, 199, 0.1); color: var(--primary); }
+.profile-icon-admin { background: rgba(245, 158, 11, 0.1); color: var(--warning); }
+.profile-icon-theme { background: rgba(99, 102, 241, 0.1); color: #6366f1; }
+.profile-icon-pwd { background: rgba(16, 185, 129, 0.1); color: var(--success); }
+.profile-icon-logout { background: rgba(239, 68, 68, 0.1); color: var(--danger); }
+
+/* Dedicated Stand-Alone Logout Card at Bottom */
+.profile-logout-card {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+  margin-top: 4px;
+}
+
+.profile-logout-card .profile-setting-item {
+  border-bottom: none;
+}
+
+@media (hover: hover) {
+  .profile-logout-card .profile-setting-item:hover {
+    background-color: rgba(239, 68, 68, 0.06);
+  }
+}
+
+.profile-logout-card .profile-setting-item:active {
+  background-color: rgba(239, 68, 68, 0.08);
+}
+
+.profile-logout-label {
+  font-weight: var(--fw-bold, 700);
+  color: var(--danger);
+}

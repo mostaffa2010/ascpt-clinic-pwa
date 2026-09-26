@@ -136,7 +136,9 @@
 - #toast-icon [موجود في index.html]
 - #toast-message [موجود في index.html]
 - #toast-notification [موجود في index.html]
-- #user-status-pill-box [موجود في index.html]
+- #b-nav-avatar-letter [موجود في index.html]
+- #view-notifications [موجود في index.html]
+- #view-profile [موجود في index.html]
 - #view-${viewName} [ديناميكي في JS]
 - #waiting-tab-actions [موجود في index.html]
 - #walkin-doctor-select [موجود في index.html]
@@ -295,7 +297,6 @@
 ```text
 - #btn-cancel-login [موجود في index.html]
 - #form-login [موجود في index.html]
-- #header-user-display [موجود في index.html]
 - #login-error-msg [موجود في index.html]
 - #modal-auth [موجود في index.html]
 - #sidebar-user-name [موجود في index.html]
@@ -532,12 +533,10 @@
 ```text
 - #btn-close-primer-x [موجود في index.html]
 - #btn-mark-all-read [موجود في index.html]
-- #btn-notifications-bell [موجود في index.html]
 - #btn-primer-confirm [موجود في index.html]
 - #btn-primer-dismiss [موجود في index.html]
 - #btn-toggle-push-notifications [موجود في index.html]
 - #notification-badge [موجود في index.html]
-- #notification-dropdown [موجود في index.html]
 - #notifications-list [موجود في index.html]
 - #push-status-text [موجود في index.html]
 ```
