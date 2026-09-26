@@ -4,6 +4,11 @@ import { escapeHTML, getLocalDateStr, sequencePatientSessionsChronologically } f
 // ASCPT - Patients Management Module
 // ========================================================
 
+import {
+  collection,
+  onSnapshot
+} from 'https://www.gstatic.com/firebasejs/12.18.0/firebase-firestore.js';
+import { firestoreDb } from './firebase-init.js';
 import { db } from './db.js';
 import { auth } from './auth.js';
 import { RolesManager } from './roles.js';
@@ -19,6 +24,10 @@ export class PatientsManager {
     this.currentContractType = "direct";
     this.sortBy = localStorage.getItem('ascpt_patient_sort') || 'recent';
     this.currentPage = 1;
+
+    // Real-time zero-overhead delta sync state
+    this._patientsSubscribed = false;
+    this._realtimeSyncUnsubscribe = null;
 
     // Medical Imaging & Polish Studio & Lightbox (v1.4.78)
     this.currentPatientImages = [];
@@ -58,21 +67,285 @@ export class PatientsManager {
     this.attachRealtimeSync();
   }
 
-  attachRealtimeSync() {
-    if (db.subscribeToPatients && !this._patientsSubscribed) {
-      this._patientsSubscribed = true;
-      db.subscribeToPatients((updatedPatients) => {
-        this.patients = updatedPatients;
-        this._hasLoadedOnce = true;
-        if (this.app?.currentView === 'patients') {
-          this.renderPatients();
-        } else {
-          const totalCountBadge = document.getElementById('patients-total-count-badge');
-          if (totalCountBadge) {
-            totalCountBadge.textContent = `${updatedPatients.length} مريض`;
-          }
-        }
+  sortPatientList(list) {
+    if (!Array.isArray(list)) return;
+    if (this.sortBy === 'alphabetical') {
+      list.sort((a, b) => {
+        const nameA = this.normalizeArabic(a.name || '');
+        const nameB = this.normalizeArabic(b.name || '');
+        return nameA.localeCompare(nameB, 'ar');
       });
+    } else {
+      list.sort((a, b) => {
+        const timeA = a.createdAt || a.lastUpdatedAt || '';
+        const timeB = b.createdAt || b.lastUpdatedAt || '';
+        return timeB.localeCompare(timeA);
+      });
+    }
+  }
+
+  updateTotalCountBadge() {
+    const totalCountBadge = document.getElementById('patients-total-count-badge');
+    if (!totalCountBadge) return;
+
+    const rawSearch = document.getElementById('patient-search-input')?.value.trim() || '';
+    const filterType = document.getElementById('patient-filter-type')?.value || 'all';
+
+    if (!rawSearch && filterType === 'all') {
+      totalCountBadge.textContent = `${this.patients.length} مريض`;
+    } else {
+      let count = 0;
+      for (const p of this.patients) {
+        if (filterType === 'cash' && p.billing !== 'cash') continue;
+        if (filterType === 'insurance_direct' && !(p.billing === 'insurance' && p.contractType === 'direct')) continue;
+        if (filterType === 'insurance_indirect' && !(p.billing === 'insurance' && p.contractType === 'indirect')) continue;
+        if (rawSearch) {
+          const normSearch = this.normalizeArabic(rawSearch);
+          const cleanDigits = rawSearch.replace(/[^0-9]/g, '');
+          const normName = this.normalizeArabic(p.name);
+          const normPhone = (p.phone || '').replace(/[^0-9]/g, '');
+          const normComp = this.normalizeArabic(p.insuranceCompany || '');
+          const normDoc = this.normalizeArabic(p.doctor || '');
+          const normProg = this.normalizeArabic(p.programType || '');
+          const normArea = this.normalizeArabic(p.clinicalSheet?.affectedArea || p.affectedArea || p.clinicalSheet?.diagnosis || p.diagnosis || '');
+          const normAddr = this.normalizeArabic(p.address || '');
+
+          const match = normName.includes(normSearch) ||
+            (cleanDigits.length > 0 && normPhone.includes(cleanDigits)) ||
+            normComp.includes(normSearch) ||
+            normDoc.includes(normSearch) ||
+            normProg.includes(normSearch) ||
+            normArea.includes(normSearch) ||
+            normAddr.includes(normSearch);
+          if (!match) continue;
+        }
+        count++;
+      }
+      totalCountBadge.textContent = `${count} مريض`;
+    }
+  }
+
+  updatePaginationBar(mobileContainer) {
+    if (!mobileContainer) return;
+    const pageLimit = this.pageSize || 10;
+    const cards = mobileContainer.querySelectorAll('.patient-card');
+    if (this.currentPage === 1 && cards.length > pageLimit) {
+      for (let i = pageLimit; i < cards.length; i++) {
+        cards[i].remove();
+      }
+    }
+    const totalPages = Math.ceil(this.patients.length / pageLimit) || 1;
+    const pagePill = mobileContainer.querySelector('.page-num-pill');
+    if (pagePill) {
+      pagePill.textContent = `صفحة ${this.currentPage} من ${totalPages}`;
+    }
+    const pageSub = mobileContainer.querySelector('.page-range-sub');
+    if (pageSub) {
+      const startIdx = (this.currentPage - 1) * pageLimit;
+      pageSub.textContent = `(${startIdx + 1} - ${Math.min(startIdx + pageLimit, this.patients.length)} من ${this.patients.length})`;
+    }
+  }
+
+  handleRealtimePatientAdded(docData) {
+    // 4. Deduplication & Local Optimism: check if patient.id already exists
+    const existingIndex = this.patients.findIndex(p => p.id === docData.id);
+    if (existingIndex !== -1) {
+      this.patients[existingIndex] = { ...this.patients[existingIndex], ...docData };
+      this.updateTotalCountBadge();
+      this.renderFilterPickerCounts();
+      return;
+    }
+
+    // 3. a) Prepend/insert new patient into active in-memory array
+    if (this.sortBy === 'alphabetical') {
+      this.patients.push(docData);
+      this.sortPatientList(this.patients);
+    } else {
+      this.patients.unshift(docData);
+    }
+
+    // 3. c) Update patient count header and dynamic filter badges
+    this.updateTotalCountBadge();
+    this.renderFilterPickerCounts();
+
+    // 5. Handle View State: silently update state if on another view
+    if (this.app?.currentView !== 'patients') {
+      return;
+    }
+
+    const mobileContainer = document.getElementById('patients-mobile-cards');
+    if (!mobileContainer) return;
+
+    if (mobileContainer.querySelector('.empty-state-box')) {
+      this.renderPatients();
+      return;
+    }
+
+    const rawSearch = document.getElementById('patient-search-input')?.value.trim() || '';
+    if (rawSearch) {
+      this.renderPatients();
+      return;
+    }
+
+    const filterType = document.getElementById('patient-filter-type')?.value || 'all';
+    if (filterType !== 'all') {
+      let matchesFilter = false;
+      if (filterType === 'cash' && docData.billing === 'cash') matchesFilter = true;
+      if (filterType === 'insurance_direct' && docData.billing === 'insurance' && docData.contractType === 'direct') matchesFilter = true;
+      if (filterType === 'insurance_indirect' && docData.billing === 'insurance' && docData.contractType === 'indirect') matchesFilter = true;
+      if (!matchesFilter) return;
+    }
+
+    // Check if card element already exists in DOM
+    const existingCard = mobileContainer.querySelector(`.patient-card[data-patient-id="${docData.id}"]`);
+    if (existingCard) return;
+
+    if (this.sortBy === 'alphabetical') {
+      this.renderPatients();
+      return;
+    }
+
+    // 3. b) Prepend single card to DOM without re-rendering existing cards
+    const newCardEl = this.createPatientCardElement(docData);
+    if (newCardEl) {
+      newCardEl.classList.add('patient-row-newly-added');
+      mobileContainer.insertAdjacentElement('afterbegin', newCardEl);
+      this.updatePaginationBar(mobileContainer);
+    }
+  }
+
+  handleRealtimePatientModified(docData) {
+    const idx = this.patients.findIndex(p => p.id === docData.id);
+    if (idx !== -1) {
+      this.patients[idx] = { ...this.patients[idx], ...docData };
+    } else {
+      this.patients.unshift(docData);
+    }
+
+    this.updateTotalCountBadge();
+    this.renderFilterPickerCounts();
+
+    if (this.currentSheetPatient && this.currentSheetPatient.id === docData.id) {
+      this.currentSheetPatient = { ...this.currentSheetPatient, ...docData };
+      if (this.app?.currentView === 'patient-sheet' || this.app?.currentView === 'sheet') {
+        const nameEl = document.getElementById('sheet-patient-name');
+        if (nameEl) nameEl.textContent = docData.name || '';
+        const phoneEl = document.getElementById('sheet-patient-phone');
+        if (phoneEl) phoneEl.textContent = docData.phone || '-';
+        const ageEl = document.getElementById('sheet-patient-age');
+        if (ageEl) ageEl.textContent = docData.age || '-';
+      }
+    }
+
+    if (this.app?.currentView !== 'patients') return;
+
+    const mobileContainer = document.getElementById('patients-mobile-cards');
+    if (!mobileContainer) return;
+
+    const existingCard = mobileContainer.querySelector(`.patient-card[data-patient-id="${docData.id}"]`);
+    if (existingCard) {
+      const newCardEl = this.createPatientCardElement(docData);
+      if (newCardEl) {
+        existingCard.replaceWith(newCardEl);
+      }
+    }
+  }
+
+  handleRealtimePatientRemoved(docData) {
+    this.patients = this.patients.filter(p => p.id !== docData.id);
+    this.updateTotalCountBadge();
+    this.renderFilterPickerCounts();
+
+    if (this.app?.currentView !== 'patients') return;
+
+    const mobileContainer = document.getElementById('patients-mobile-cards');
+    if (!mobileContainer) return;
+
+    const existingCard = mobileContainer.querySelector(`.patient-card[data-patient-id="${docData.id}"]`);
+    if (existingCard) {
+      existingCard.remove();
+      if (mobileContainer.querySelectorAll('.patient-card').length === 0) {
+        this.renderPatients();
+      } else {
+        this.updatePaginationBar(mobileContainer);
+      }
+    }
+  }
+
+  attachRealtimeSync() {
+    if (this._patientsSubscribed) return;
+
+    if (!firestoreDb) {
+      if (db.subscribeToPatients) {
+        this._patientsSubscribed = true;
+        db.subscribeToPatients((updatedPatients) => {
+          this.patients = updatedPatients;
+          this._hasLoadedOnce = true;
+          if (this.app?.currentView === 'patients') {
+            this.renderPatients();
+          } else {
+            this.updateTotalCountBadge();
+            this.renderFilterPickerCounts();
+          }
+        });
+      }
+      return;
+    }
+
+    try {
+      this._patientsSubscribed = true;
+      let isInitialSnapshot = true;
+      const patientsCol = collection(firestoreDb, 'patients');
+
+      this._realtimeSyncUnsubscribe = onSnapshot(patientsCol, (snapshot) => {
+        if (isInitialSnapshot) {
+          isInitialSnapshot = false;
+          const initialList = [];
+          snapshot.forEach(docSnap => {
+            initialList.push({ id: docSnap.id, ...docSnap.data() });
+          });
+
+          this.sortPatientList(initialList);
+          this.patients = initialList;
+          this._hasLoadedOnce = true;
+
+          if (db && db._patientsCache !== undefined) {
+            db._patientsCache = [...this.patients];
+            db._patientsLastFetch = Date.now();
+          }
+
+          if (this.app?.currentView === 'patients') {
+            this.renderPatients();
+          } else {
+            this.updateTotalCountBadge();
+            this.renderFilterPickerCounts();
+          }
+          return;
+        }
+
+        const changes = snapshot.docChanges();
+        if (!changes || changes.length === 0) return;
+
+        changes.forEach(change => {
+          const docData = { id: change.doc.id, ...change.doc.data() };
+          if (change.type === 'added') {
+            this.handleRealtimePatientAdded(docData);
+          } else if (change.type === 'modified') {
+            this.handleRealtimePatientModified(docData);
+          } else if (change.type === 'removed') {
+            this.handleRealtimePatientRemoved(docData);
+          }
+        });
+
+        if (db && db._patientsCache !== undefined) {
+          db._patientsCache = [...this.patients];
+          db._patientsLastFetch = Date.now();
+        }
+      }, (err) => {
+        console.warn('PatientsManager realtime sync listener notice:', err);
+      });
+    } catch (err) {
+      console.warn('attachRealtimeSync error:', err);
     }
   }
 
@@ -619,7 +892,9 @@ export class PatientsManager {
       try { await this.app.appointmentsManager.loadAll(); } catch (_) {}
     }
 
-    this.patients = await db.getPatients(forceRefresh);
+    if (!this.patients || this.patients.length === 0 || forceRefresh) {
+      this.patients = await db.getPatients(forceRefresh);
+    }
     this._hasLoadedOnce = true;
     this.renderPatients();
     this.checkAndMigrateLegacyInsuranceNames();
@@ -940,104 +1215,7 @@ export class PatientsManager {
       const startIdx = (this.currentPage - 1) * pageLimit;
       const visiblePatients = filtered.slice(startIdx, startIdx + pageLimit);
 
-      mobileContainer.innerHTML = visiblePatients.map(p => {
-        const isNewlyAdded = Boolean(p.id && p.id === this.newlyAddedPatientId);
-        const rowHighlightClass = isNewlyAdded ? 'patient-row-newly-added' : '';
-        let billingBadge = '';
-        const safeComp = escapeHTML(p.insuranceCompany || 'تأمين');
-        const approvedVisits = p.approvedSessions || 12;
-        if (p.billing === 'cash') {
-          billingBadge = `<span class="pc-billing-tag pc-badge-cash"><i class="fa-solid fa-money-bill-wave"></i> <span>نقدي</span></span>`;
-        } else if (p.contractType === 'direct') {
-          billingBadge = `<span class="pc-billing-tag pc-badge-direct" title="${safeComp} - ${approvedVisits} زيارة"><i class="fa-solid fa-building"></i> <span>${safeComp}</span></span>`;
-        } else {
-          billingBadge = `<span class="pc-billing-tag pc-badge-indirect" title="${safeComp} - ${approvedVisits} زيارة"><i class="fa-solid fa-handshake"></i> <span>${safeComp}</span></span>`;
-        }
-
-        const safeId = escapeHTML(p.id);
-        const safeName = escapeHTML(p.name);
-        const safeAge = escapeHTML(p.age);
-        const safeAddress = escapeHTML(p.address || '');
-        const defaultCity = (typeof CLINIC_CONFIG !== 'undefined' && CLINIC_CONFIG?.contact?.city) ? CLINIC_CONFIG.contact.city : 'الإسكندرية';
-        const safeCity = escapeHTML(safeAddress && safeAddress !== '-' ? safeAddress : defaultCity);
-        const mobileAreaInfo = this.getPatientTreatedAreaDisplay(p);
-        const safeDoctor = escapeHTML(p.doctor || '');
-  
-        const isFemale = (p.gender === 'female');
-        const genderClass = isFemale ? 'gender-female' : 'gender-male';
-        const genderIcon = isFemale ? 'fa-solid fa-venus' : 'fa-solid fa-mars';
-        const genderText = isFemale ? 'أنثى' : 'ذكر';
-
-        return `
-          <div class="hero-styled-card hero-patient-card patient-card ${genderClass} ${rowHighlightClass}">
-            <!-- 1. Header: Patient Name & Gender Icon on Right, Payment Capsule on Left -->
-            <div class="pc-row-name-company">
-              <div class="pc-name-avatar-wrap">
-                <span class="pc-avatar-icon ${isFemale ? 'female' : 'male'}">
-                  <i class="${genderIcon}"></i>
-                </span>
-                <span class="pc-name-title" onclick="patientsManager.openPatientSheet('${safeId}')" title="اضغط لفتح الشيت الطبي">${safeName}</span>
-              </div>
-              <div class="pc-billing-wrap">
-                ${billingBadge}
-              </div>
-            </div>
-
-            <!-- 2. Demographics Line: Gender, Age, City in Calm Muted Typography -->
-            <div class="pc-demographics-line">
-              <span class="pc-demo-item"><i class="${genderIcon}"></i> <span>${genderText}</span></span>
-              <span class="pc-demo-sep">•</span>
-              <span class="pc-demo-item"><span>${safeAge} سنة</span></span>
-              <span class="pc-demo-sep">•</span>
-              <span class="pc-demo-item pc-demo-city" title="${safeCity}"><i class="fa-solid fa-location-dot"></i> <span>${safeCity}</span></span>
-            </div>
-
-            <!-- 3. Diagnosis Presentation: Clean & Natural with Diagnosis/Bone Icon -->
-            <div class="pc-condition-strip ${mobileAreaInfo.badgeClass || ''}">
-              <i class="${mobileAreaInfo.icon}"></i>
-              <span class="pc-condition-text">${escapeHTML((mobileAreaInfo.text || '').replace(/ • /g, ' ▪ '))}</span>
-            </div>
-
-            <!-- 4. Primary Action Buttons: جلسة and الشيت with Uniform Height and Balanced Contrast -->
-            <div class="pc-pill-actions pc-primary-actions">
-              ${!isDoctor ? `
-                <button type="button" class="btn-pc-pill btn-pc-session btn-quick-attend" onclick="patientsManager.quickLogSession('${safeId}')" title="تسجيل جلسة سريعة لهذا المريض">
-                  <i class="fa-solid fa-bolt"></i> <span>جلسة</span>
-                </button>
-              ` : ''}
-              ${canAccessSheet ? `
-                <button type="button" class="btn-pc-pill btn-pc-sheet btn-hero-sheet btn-patient-sheet-action" onclick="patientsManager.openPatientSheet('${safeId}')" title="فتح الشيت الطبي">
-                  <i class="fa-solid fa-file-lines"></i> <span>الشيت</span>
-                </button>
-              ` : ''}
-            </div>
-
-            <!-- 5. Utility Actions Row: WhatsApp, Docs, Edit, Delete (Understated Action Strip) -->
-            <div class="pc-footer-row pc-utility-row">
-              <div class="pc-squircle-actions pc-utility-actions">
-                <button type="button" class="btn-pc-squircle btn-pc-wa btn-whatsapp-action" onclick="patientsManager.openWhatsAppTemplates('${escapeHTML(p.phone || '')}', '${safeName}', '${safeDoctor}')" aria-label="خيارات واتساب الذكية" title="واتساب">
-                  <i class="fa-brands fa-whatsapp"></i>
-                </button>
-                ${!isDoctor ? `
-                  <button type="button" class="btn-pc-squircle btn-pc-docs btn-patient-docs" onclick="event.stopPropagation(); patientsManager.openPatientDocsModal('${safeId}')" aria-label="المستندات والتقارير الطبية" title="المستندات">
-                    <i class="fa-solid fa-file-circle-plus"></i>
-                  </button>
-                  <button type="button" class="btn-pc-squircle btn-pc-edit btn-edit-patient" onclick="patientsManager.openEditModal('${safeId}')" aria-label="تعديل بيانات المريض" title="تعديل">
-                    <i class="fa-solid fa-pen-to-square"></i>
-                  </button>
-                ` : ''}
-              </div>
-
-              ${!isDoctor && canDeletePatient ? `
-                <div class="pc-utility-danger">
-                  <button type="button" class="btn-pc-squircle btn-pc-del btn-delete-patient" onclick="patientsManager.confirmDelete('${safeId}')" aria-label="حذف المريض" title="حذف">
-                    <i class="fa-solid fa-trash-can"></i>
-                  </button>
-                </div>
-              ` : ''}
-            </div>
-          </div>
-        `;      }).join('') + (totalPages > 1 ? `
+      mobileContainer.innerHTML = visiblePatients.map(p => this.createPatientCardHTML(p)).join('') + (totalPages > 1 ? `
         <div class="mobile-pagination-bar no-print">
           <button type="button" class="btn btn-outline btn-sm btn-page-nav" id="btn-patients-prev-page" ${this.currentPage <= 1 ? 'disabled style="opacity: 0.4; pointer-events: none;"' : ''}>
             <i class="fa-solid fa-chevron-right"></i> <span>السابق</span>
@@ -1070,6 +1248,117 @@ export class PatientsManager {
       }
     }
     this.applyViewModeUI();
+  }
+
+  createPatientCardElement(p) {
+    const tempDiv = document.createElement('div');
+    tempDiv.innerHTML = this.createPatientCardHTML(p).trim();
+    return tempDiv.firstElementChild;
+  }
+
+  createPatientCardHTML(p) {
+    const isNewlyAdded = Boolean(p.id && p.id === this.newlyAddedPatientId);
+    const rowHighlightClass = isNewlyAdded ? 'patient-row-newly-added' : '';
+    let billingBadge = '';
+    const safeComp = escapeHTML(p.insuranceCompany || 'تأمين');
+    const approvedVisits = p.approvedSessions || 12;
+    if (p.billing === 'cash') {
+      billingBadge = `<span class="pc-billing-tag pc-badge-cash"><i class="fa-solid fa-money-bill-wave"></i> <span>نقدي</span></span>`;
+    } else if (p.contractType === 'direct') {
+      billingBadge = `<span class="pc-billing-tag pc-badge-direct" title="${safeComp} - ${approvedVisits} زيارة"><i class="fa-solid fa-building"></i> <span>${safeComp}</span></span>`;
+    } else {
+      billingBadge = `<span class="pc-billing-tag pc-badge-indirect" title="${safeComp} - ${approvedVisits} زيارة"><i class="fa-solid fa-handshake"></i> <span>${safeComp}</span></span>`;
+    }
+
+    const safeId = escapeHTML(p.id);
+    const safeName = escapeHTML(p.name);
+    const safeAge = escapeHTML(p.age);
+    const safeAddress = escapeHTML(p.address || '');
+    const defaultCity = (typeof CLINIC_CONFIG !== 'undefined' && CLINIC_CONFIG?.contact?.city) ? CLINIC_CONFIG.contact.city : 'الإسكندرية';
+    const safeCity = escapeHTML(safeAddress && safeAddress !== '-' ? safeAddress : defaultCity);
+    const mobileAreaInfo = this.getPatientTreatedAreaDisplay(p);
+    const safeDoctor = escapeHTML(p.doctor || '');
+
+    const isFemale = (p.gender === 'female');
+    const genderClass = isFemale ? 'gender-female' : 'gender-male';
+    const genderIcon = isFemale ? 'fa-solid fa-venus' : 'fa-solid fa-mars';
+    const genderText = isFemale ? 'أنثى' : 'ذكر';
+
+    const currentUser = auth.getCurrentUser();
+    const canAccessSheet = RolesManager.canAccessClinicalSheet(currentUser);
+    const canDeletePatient = RolesManager.canDeletePatient(currentUser);
+    const isDoctor = currentUser?.role === 'doctor';
+
+    return `
+      <div class="hero-styled-card hero-patient-card patient-card ${genderClass} ${rowHighlightClass}" data-patient-id="${safeId}">
+        <!-- 1. Header: Patient Name & Gender Icon on Right, Payment Capsule on Left -->
+        <div class="pc-row-name-company">
+          <div class="pc-name-avatar-wrap">
+            <span class="pc-avatar-icon ${isFemale ? 'female' : 'male'}">
+              <i class="${genderIcon}"></i>
+            </span>
+            <span class="pc-name-title" onclick="patientsManager.openPatientSheet('${safeId}')" title="اضغط لفتح الشيت الطبي">${safeName}</span>
+          </div>
+          <div class="pc-billing-wrap">
+            ${billingBadge}
+          </div>
+        </div>
+
+        <!-- 2. Demographics Line: Gender, Age, City in Calm Muted Typography -->
+        <div class="pc-demographics-line">
+          <span class="pc-demo-item"><i class="${genderIcon}"></i> <span>${genderText}</span></span>
+          <span class="pc-demo-sep">•</span>
+          <span class="pc-demo-item"><span>${safeAge} سنة</span></span>
+          <span class="pc-demo-sep">•</span>
+          <span class="pc-demo-item pc-demo-city" title="${safeCity}"><i class="fa-solid fa-location-dot"></i> <span>${safeCity}</span></span>
+        </div>
+
+        <!-- 3. Diagnosis Presentation: Clean & Natural with Diagnosis/Bone Icon -->
+        <div class="pc-condition-strip ${mobileAreaInfo.badgeClass || ''}">
+          <i class="${mobileAreaInfo.icon}"></i>
+          <span class="pc-condition-text">${escapeHTML((mobileAreaInfo.text || '').replace(/ • /g, ' ▪ '))}</span>
+        </div>
+
+        <!-- 4. Primary Action Buttons: جلسة and الشيت with Uniform Height and Balanced Contrast -->
+        <div class="pc-pill-actions pc-primary-actions">
+          ${!isDoctor ? `
+            <button type="button" class="btn-pc-pill btn-pc-session btn-quick-attend" onclick="patientsManager.quickLogSession('${safeId}')" title="تسجيل جلسة سريعة لهذا المريض">
+              <i class="fa-solid fa-bolt"></i> <span>جلسة</span>
+            </button>
+          ` : ''}
+          ${canAccessSheet ? `
+            <button type="button" class="btn-pc-pill btn-pc-sheet btn-hero-sheet btn-patient-sheet-action" onclick="patientsManager.openPatientSheet('${safeId}')" title="فتح الشيت الطبي">
+              <i class="fa-solid fa-file-lines"></i> <span>الشيت</span>
+            </button>
+          ` : ''}
+        </div>
+
+        <!-- 5. Utility Actions Row: WhatsApp, Docs, Edit, Delete (Understated Action Strip) -->
+        <div class="pc-footer-row pc-utility-row">
+          <div class="pc-squircle-actions pc-utility-actions">
+            <button type="button" class="btn-pc-squircle btn-pc-wa btn-whatsapp-action" onclick="patientsManager.openWhatsAppTemplates('${escapeHTML(p.phone || '')}', '${safeName}', '${safeDoctor}')" aria-label="خيارات واتساب الذكية" title="واتساب">
+              <i class="fa-brands fa-whatsapp"></i>
+            </button>
+            ${!isDoctor ? `
+              <button type="button" class="btn-pc-squircle btn-pc-docs btn-patient-docs" onclick="event.stopPropagation(); patientsManager.openPatientDocsModal('${safeId}')" aria-label="المستندات والتقارير الطبية" title="المستندات">
+                <i class="fa-solid fa-file-circle-plus"></i>
+              </button>
+              <button type="button" class="btn-pc-squircle btn-pc-edit btn-edit-patient" onclick="patientsManager.openEditModal('${safeId}')" aria-label="تعديل بيانات المريض" title="تعديل">
+                <i class="fa-solid fa-pen-to-square"></i>
+              </button>
+            ` : ''}
+          </div>
+
+          ${!isDoctor && canDeletePatient ? `
+            <div class="pc-utility-danger">
+              <button type="button" class="btn-pc-squircle btn-pc-del btn-delete-patient" onclick="patientsManager.confirmDelete('${safeId}')" aria-label="حذف المريض" title="حذف">
+                <i class="fa-solid fa-trash-can"></i>
+              </button>
+            </div>
+          ` : ''}
+        </div>
+      </div>
+    `;
   }
 
 
@@ -1517,8 +1806,11 @@ export class PatientsManager {
     if (confirmed) {
       await db.deletePatient(patientId);
       await db.logAudit('حذف مريض', `قام بحذف ملف المريض: ${p.name}`, auth.getCurrentUser());
-      await this.loadPatients();
+      this.patients = this.patients.filter(item => item.id !== patientId);
+      this.updateTotalCountBadge();
+      this.renderFilterPickerCounts();
       this.app.switchView('patients');
+      this.renderPatients();
       this.app.showToast(`تم حذف ملف المريض (${p.name}) بنجاح`);
     }
   }
@@ -1741,8 +2033,39 @@ export class PatientsManager {
 
       this.app.closeModal('modal-patient');
       this.renderAllInsuranceChips();
-      await this.loadPatients(true);
-      this.renderPatients();
+
+      patientData.id = savedId;
+      if (!patientData.createdAt) {
+        patientData.createdAt = new Date().toISOString();
+      }
+      patientData.lastUpdatedAt = new Date().toISOString();
+
+      const existingIdx = this.patients.findIndex(p => p.id === savedId);
+      if (existingIdx !== -1) {
+        this.patients[existingIdx] = { ...this.patients[existingIdx], ...patientData };
+      } else {
+        this.patients.unshift({ ...patientData });
+      }
+
+      if (this.app?.currentView === 'patients') {
+        const mobileContainer = document.getElementById('patients-mobile-cards');
+        const existingCard = mobileContainer?.querySelector(`.patient-card[data-patient-id="${savedId}"]`);
+        if (existingCard) {
+          const newCardEl = this.createPatientCardElement({ ...patientData });
+          if (newCardEl) existingCard.replaceWith(newCardEl);
+        } else if (isNew && mobileContainer && !mobileContainer.querySelector('.empty-state-box')) {
+          const newCardEl = this.createPatientCardElement({ ...patientData });
+          if (newCardEl) {
+            newCardEl.classList.add('patient-row-newly-added');
+            mobileContainer.insertAdjacentElement('afterbegin', newCardEl);
+            this.updatePaginationBar(mobileContainer);
+          }
+        } else {
+          this.renderPatients();
+        }
+      }
+      this.updateTotalCountBadge();
+      this.renderFilterPickerCounts();
 
       if (isNew && savedId) {
         this.pendingPromptPatientId = savedId;
@@ -1774,7 +2097,14 @@ export class PatientsManager {
       await db.logAudit('حذف مريض', `قام بحذف ملف المريض: ${p.name}`, currentUser);
       this.app.showToast('تم حذف ملف المريض');
       this.renderAllInsuranceChips();
-    await this.loadPatients();
+      this.patients = this.patients.filter(item => item.id !== patientId);
+      const card = document.querySelector(`.patient-card[data-patient-id="${patientId}"]`);
+      if (card) card.remove();
+      this.updateTotalCountBadge();
+      this.renderFilterPickerCounts();
+      if (document.querySelectorAll('.patient-card').length === 0) {
+        this.renderPatients();
+      }
     }
   }
 
@@ -1894,7 +2224,16 @@ export class PatientsManager {
 
       this.app.closeModal('modal-renew-approval');
       this.app.showToast(`تم تجديد جواب الموافقة للمريض (${patient.name}) وبدء دورة جديدة (${newSessions} جلسة من ${renewDate}) بنجاح.`);
-      await this.loadPatients();
+      const pIdx = this.patients.findIndex(p => p.id === pid);
+      if (pIdx !== -1) {
+        this.patients[pIdx] = {
+          ...this.patients[pIdx],
+          approvedSessions: newSessions,
+          currentApprovalStartDate: renewDate
+        };
+      }
+      this.updateTotalCountBadge();
+      this.renderFilterPickerCounts();
       if (this.app?.sessionsManager?.loadTodaySessions) {
         await this.app.sessionsManager.loadTodaySessions();
       }
@@ -1967,7 +2306,8 @@ export class PatientsManager {
       p = (this.patients || []).find(item => item.name === patientId);
     }
     if (!p) {
-      await this.loadPatients(true);
+      const refreshed = await db.getPatients(false);
+      this.patients = refreshed;
       p = (this.patients || []).find(item => item.id === patientId || String(item.id) === String(patientId) || item.name === patientId || (fallbackName && item.name === fallbackName));
     }
     if (!p) {
@@ -2311,7 +2651,12 @@ export class PatientsManager {
 
     this.app.showToast('تم حفظ وتحديث الشيت الطبي للمريض بنجاح');
     this.renderAllInsuranceChips();
-    await this.loadPatients();
+    if (this.currentSheetPatient) {
+      const idx = this.patients.findIndex(p => p.id === this.currentSheetPatient.id);
+      if (idx !== -1) {
+        this.patients[idx] = { ...this.patients[idx], ...this.currentSheetPatient };
+      }
+    }
   }
 
   // Automated One-Time Unification for Legacy Insurance Names (أبوقير للأسمدة -> أبو قير)
