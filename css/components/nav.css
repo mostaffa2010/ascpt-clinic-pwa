@@ -166,9 +166,14 @@
 /* 7. Profile Tab Dynamic Initial-Letter Avatar & Green Online Dot */
 .b-nav-avatar-wrap {
   position: relative;
+  width: 24px;
+  height: 24px;
+  min-width: 24px;
+  min-height: 24px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  flex-shrink: 0;
 }
 
 .b-nav-avatar {
@@ -185,6 +190,7 @@
   border: 1.5px solid var(--border-color);
   line-height: 1;
   transition: all var(--transition-fast);
+  box-sizing: border-box;
 }
 
 .b-nav-item.active .b-nav-avatar {
@@ -193,16 +199,28 @@
   border-color: var(--primary);
 }
 
-.b-nav-online-dot {
+.b-nav-online-dot,
+#net-status-dot,
+.b-nav-avatar-wrap .status-dot {
   position: absolute;
   bottom: -1px;
   right: -1px;
-  width: 8px;
-  height: 8px;
+  width: 7px;
+  height: 7px;
   background-color: var(--success, #10b981);
   border: 2px solid var(--bg-surface);
-  border-radius: var(--radius-full, 50%);
+  border-radius: 50%;
   pointer-events: none;
   box-sizing: content-box;
+  display: block;
+  z-index: 2;
+  margin: 0;
+  padding: 0;
+}
+
+.b-nav-online-dot.offline,
+#net-status-dot.offline,
+.b-nav-avatar-wrap .status-dot.offline {
+  background-color: var(--danger, #ef4444);
 }
 

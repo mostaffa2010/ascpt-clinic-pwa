@@ -4,34 +4,10 @@
    Zero !important Architecture
    ========================================================================== */
 
-.profile-view-header-bar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 16px 12px 10px;
-  background: transparent;
-  border: none;
-  box-shadow: none;
-  max-width: 600px;
-  margin: 0 auto;
-  white-space: nowrap;
-}
-
-.profile-view-title {
-  font-size: 1.25rem;
-  font-weight: var(--fw-bold, 700);
-  color: var(--text-main);
-  margin: 0;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  line-height: 1.2;
-}
-
 .profile-view-container {
   max-width: 600px;
   margin: 0 auto;
-  padding: 6px 12px 36px;
+  padding: 16px 12px 36px;
   display: flex;
   flex-direction: column;
   gap: 14px;
@@ -109,8 +85,9 @@
 
 [data-theme="dark"] .profile-hero-role,
 [data-theme="dark"] #view-profile-user-role,
-[data-theme="dark"] .profile-card-hero #view-profile-user-role {
-  color: var(--primary-light, #38bdf8);
+[data-theme="dark"] .profile-card-hero #view-profile-user-role,
+[data-theme="dark"] .profile-card-hero .profile-hero-role {
+  color: #93c5fd;
 }
 
 .profile-hero-email {
