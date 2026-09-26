@@ -1043,19 +1043,31 @@
    ========================================================================== */
 
 .patient-clinical-main-card {
-  border-radius: 18px;
-  padding: 12px 16px;
+  border-radius: 14px;
+  padding: 12px 14px;
   margin-bottom: 14px;
-  transition: all 0.25s ease;
+  transition: all 0.2s ease;
   position: relative;
   background: var(--bg-surface);
-  border: 1.5px solid var(--border-color);
-  box-shadow: 0 4px 18px -2px rgba(15, 23, 42, 0.06);
+  border: 1px solid var(--border-color);
+  box-shadow: none;
+}
+
+:root:not([data-theme="dark"]) .patient-clinical-main-card {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  box-shadow: none;
+}
+
+[data-theme="dark"] .patient-clinical-main-card {
+  background: #0d1424;
+  border: 1px solid var(--border-subtle, rgba(255, 255, 255, 0.08));
+  box-shadow: none;
 }
 
 /* Collapsed State (Default on Sheet Open) */
 .patient-clinical-main-card.pcm-collapsed {
-  padding: 9px 14px;
+  padding: 10px 14px;
   margin-bottom: 12px;
 }
 
@@ -1078,6 +1090,14 @@
   -webkit-tap-highlight-color: transparent;
 }
 
+/* Header End Group: Billing Badge + Toggle Pill */
+.pcm-header-end-group {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
 .pcm-toggle-pill {
   display: inline-flex;
   align-items: center;
@@ -1093,6 +1113,18 @@
   flex-shrink: 0;
 }
 
+:root:not([data-theme="dark"]) .pcm-toggle-pill {
+  background: #f8fafc;
+  border-color: #e2e8f0;
+  color: #64748b;
+}
+
+[data-theme="dark"] .pcm-toggle-pill {
+  background: rgba(255, 255, 255, 0.04);
+  border-color: rgba(255, 255, 255, 0.08);
+  color: #94a3b8;
+}
+
 .patient-clinical-main-card:hover .pcm-toggle-pill {
   border-color: var(--primary);
   color: var(--primary);
@@ -1103,45 +1135,47 @@
   transition: transform var(--transition-normal);
 }
 
-/* Gender Accents for Clinical Card */
-.patient-clinical-main-card.gender-male {
-  border: 1.5px solid rgba(14, 165, 233, 0.28);
-  border-right: 4px solid #0ea5e9;
-  box-shadow: -4px 0 16px -2px rgba(14, 165, 233, 0.25), 0 4px 18px -2px rgba(0, 0, 0, 0.4);
-}
-
-:root:not([data-theme="dark"]) .patient-clinical-main-card.gender-male {
-  background: var(--bg-surface);
-  border: 1.5px solid rgba(14, 165, 233, 0.3);
-  border-right: 4px solid #0284c7;
-  box-shadow: -4px 0 14px -2px rgba(14, 165, 233, 0.18), 0 3px 12px rgba(15, 23, 42, 0.04);
-}
-
+/* Strip right-side vertical stripes and glow on gender accents */
+.patient-clinical-main-card.gender-male,
 .patient-clinical-main-card.gender-female {
-  border: 1.5px solid rgba(244, 114, 182, 0.28);
-  border-right: 4px solid #f43f5e;
-  box-shadow: -4px 0 16px -2px rgba(244, 114, 182, 0.25), 0 4px 18px -2px rgba(0, 0, 0, 0.4);
+  border-right: 1px solid var(--border-color);
+  box-shadow: none;
 }
 
+:root:not([data-theme="dark"]) .patient-clinical-main-card.gender-male,
 :root:not([data-theme="dark"]) .patient-clinical-main-card.gender-female {
-  background: var(--bg-surface);
-  border: 1.5px solid rgba(236, 72, 153, 0.3);
-  border-right: 4px solid #ec4899;
-  box-shadow: -4px 0 14px -2px rgba(236, 72, 153, 0.18), 0 3px 12px rgba(15, 23, 42, 0.04);
+  border: 1px solid #e2e8f0;
+  border-right: 1px solid #e2e8f0;
+  box-shadow: none;
 }
 
-/* Row 1: Name (Right) & Details Toggle (Left) */
+[data-theme="dark"] .patient-clinical-main-card.gender-male,
+[data-theme="dark"] .patient-clinical-main-card.gender-female {
+  border: 1px solid var(--border-subtle, rgba(255, 255, 255, 0.08));
+  border-right: 1px solid var(--border-subtle, rgba(255, 255, 255, 0.08));
+  box-shadow: none;
+}
+
+/* Row 1: Name & Inline Gender (Right) & Billing + Details Toggle (Left) */
 .pcm-row-top {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 12px;
+  gap: 10px;
   width: 100%;
   margin-bottom: 8px;
 }
 
+.pcm-name-gender-wrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  flex: 1;
+}
+
 .pcm-patient-name {
-  font-size: 1.25rem;
+  font-size: 1.15rem;
   font-weight: var(--fw-extrabold);
   color: var(--text-main);
   margin: 0;
@@ -1149,9 +1183,32 @@
   text-align: right;
   white-space: nowrap;
   overflow: hidden;
-  text-overflow: clip;
-  flex: 1;
-  min-width: 0;
+  text-overflow: ellipsis;
+}
+
+.pcm-avatar-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.95rem;
+  flex-shrink: 0;
+  color: var(--primary);
+}
+
+.pcm-avatar-icon.male {
+  color: #0284c7;
+}
+
+.pcm-avatar-icon.female {
+  color: #db2777;
+}
+
+[data-theme="dark"] .pcm-avatar-icon.male {
+  color: #38bdf8;
+}
+
+[data-theme="dark"] .pcm-avatar-icon.female {
+  color: #f472b6;
 }
 
 .pcm-billing-container {
@@ -1160,20 +1217,47 @@
   flex-shrink: 0;
 }
 
-/* Row 2: Gender & Age + Doctor */
+/* Row 2: Demographics (Gender, Age, Location) on Right + Doctor on Left */
 .pcm-row-meta {
   display: flex;
   align-items: center;
+  justify-content: space-between;
   gap: 8px;
   flex-wrap: wrap;
   margin-bottom: 10px;
 }
 
-.pcm-tags-group {
+.pcm-demographics-line {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
+  font-size: 0.82rem;
+  color: var(--text-muted);
   flex-wrap: wrap;
+  min-width: 0;
+}
+
+.pcm-demo-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.pcm-demo-location {
+  max-width: 180px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.pcm-demo-sep {
+  color: var(--border-color);
+  opacity: 0.7;
+  font-size: 0.75rem;
+}
+
+.patient-clinical-main-card .patient-doc-badge {
+  flex-shrink: 0;
 }
 
 /* Expandable Content Area */
@@ -1189,29 +1273,11 @@
   to { opacity: 1; transform: translateY(0); }
 }
 
-/* Row 3: Company/Billing (Right) & Program (Left) */
-.pcm-row-company-prog {
+/* Row 3: Phone & Sessions & Program */
+.pcm-row-capsules {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 10px;
-  margin-bottom: 8px;
-}
-
-.pcm-prog-clean {
-  display: inline-flex;
-  align-items: center;
-  background: transparent;
-  border: none;
-  padding: 0;
-  cursor: pointer;
-}
-
-/* Row 4: Phone & Location */
-.pcm-row-contact-prog {
-  display: flex;
-  align-items: center;
-  gap: 12px;
+  gap: 8px;
   flex-wrap: wrap;
   margin-bottom: 10px;
 }
@@ -1220,52 +1286,31 @@
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  font-size: 0.85rem;
+  font-size: 0.82rem;
   color: var(--text-muted);
   background: var(--bg-subtle);
-  padding: 5px 12px;
+  padding: 4px 10px;
   border-radius: 8px;
   border: 1px solid var(--border-color);
+  box-shadow: none;
+}
+
+:root:not([data-theme="dark"]) .pcm-phone-item {
+  background: #f8fafc;
+  border-color: #e2e8f0;
+  color: #64748b;
 }
 
 [data-theme="dark"] .pcm-phone-item {
-  background: rgba(15, 23, 42, 0.5);
-  border-color: #334155;
+  background: rgba(255, 255, 255, 0.04);
+  border-color: rgba(255, 255, 255, 0.08);
   color: #cbd5e1;
 }
 
 .pcm-phone-link {
-  font-weight: var(--fw-extrabold);
+  font-weight: var(--fw-bold);
   color: var(--primary);
   text-decoration: none;
-}
-
-.pcm-location-item {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 0.82rem;
-  color: var(--text-muted);
-  background: var(--bg-subtle);
-  padding: 5px 12px;
-  border-radius: var(--radius-base);
-  border: 1px solid var(--border-color);
-  max-width: 160px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-[data-theme="dark"] .pcm-location-item {
-  background: rgba(15, 23, 42, 0.5);
-  border-color: #334155;
-  color: #cbd5e1;
-}
-
-/* Row 5: Sessions Record Chip */
-.pcm-row-sessions {
-  margin-bottom: 10px;
-  width: 100%;
 }
 
 .pcm-sessions-chip {
@@ -1273,28 +1318,34 @@
   align-items: center;
   gap: 6px;
   font-size: 0.80rem;
-  font-weight: var(--fw-extrabold);
+  font-weight: var(--fw-bold);
   color: var(--primary);
   background: var(--bg-subtle);
   border: 1px solid var(--border-color);
-  padding: 5px 12px;
-  border-radius: var(--radius-base);
+  padding: 4px 10px;
+  border-radius: 8px;
   cursor: pointer;
-  transition: all var(--transition-spring);
+  transition: all var(--transition-fast);
   text-decoration: none;
   white-space: nowrap;
+  box-shadow: none;
+}
+
+:root:not([data-theme="dark"]) .pcm-sessions-chip {
+  background: #f0f9ff;
+  border-color: #bae6fd;
+  color: #0284c7;
+}
+
+[data-theme="dark"] .pcm-sessions-chip {
+  background: rgba(14, 165, 233, 0.08);
+  border-color: rgba(14, 165, 233, 0.25);
+  color: #38bdf8;
 }
 
 .pcm-sessions-chip:hover {
   background: var(--primary-light);
   border-color: var(--primary);
-  transform: translateY(-1px);
-}
-
-[data-theme="dark"] .pcm-sessions-chip {
-  background: rgba(15, 23, 42, 0.5);
-  border-color: #334155;
-  color: #38bdf8;
 }
 
 .pcm-sessions-chip.cycle-near-limit {
@@ -1321,24 +1372,31 @@
   border-color: rgba(239, 68, 68, 0.35);
 }
 
-/* Row 6: Actions Hub */
-.pcm-row-actions-location {
+.pcm-prog-clean {
+  display: inline-flex;
+  align-items: center;
+  background: transparent;
+  border: none;
+  padding: 0;
+}
+
+/* Row 4: Actions Hub */
+.pcm-row-actions {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 10px;
+  justify-content: flex-start;
+  gap: 8px;
   width: 100%;
-  margin-bottom: 10px;
+  margin-bottom: 8px;
 }
 
 .pcm-actions-hub {
   display: flex;
   align-items: center;
   gap: 8px;
-  flex-shrink: 0;
 }
 
-/* Row 7: Footer (Last Update) */
+/* Row 5: Footer (Last Update) */
 .pcm-footer-row {
   border-top: 1px solid var(--border-color);
   padding-top: 8px;

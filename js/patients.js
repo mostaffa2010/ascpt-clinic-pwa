@@ -2025,9 +2025,13 @@ export class PatientsManager {
 
     const genderBadge = document.getElementById('sheet-patient-gender-badge');
     const genderIcon = document.getElementById('sheet-gender-icon');
+    const genderWrap = document.getElementById('sheet-pcm-gender-wrap');
     const genderText = document.getElementById('sheet-patient-gender-text');
     if (genderBadge) {
-      genderBadge.className = isFemale ? 'badge badge-gender-female' : 'badge badge-gender-male';
+      genderBadge.className = isFemale ? 'pcm-demo-item female' : 'pcm-demo-item male';
+    }
+    if (genderWrap) {
+      genderWrap.className = isFemale ? 'pcm-avatar-icon female' : 'pcm-avatar-icon male';
     }
     if (genderIcon) {
       genderIcon.className = isFemale ? 'fa-solid fa-venus' : 'fa-solid fa-mars';
@@ -2111,7 +2115,7 @@ export class PatientsManager {
       const therapyCount = therapySessions.length;
 
       if (p.billing === 'cash') {
-        badgeEl.innerHTML = '<span class="badge badge-cash" style="font-size: 0.78rem; padding: 4px 10px; font-weight: 700; white-space: nowrap; display: inline-flex; align-items: center; gap: 5px;"><i class="fa-solid fa-money-bill-wave"></i> نقدي</span>';
+        badgeEl.innerHTML = '<span class="pc-billing-tag pc-badge-cash"><i class="fa-solid fa-money-bill-wave"></i> <span>نقدي</span></span>';
         if (sessBtnText) {
           if (examCount > 0 && therapyCount > 0) {
             sessBtnText.innerHTML = `سجل الجلسات (<strong>${therapyCount}</strong> جلسة • <strong>${examCount}</strong> كشف)`;
@@ -2126,8 +2130,8 @@ export class PatientsManager {
         }
       } else {
         const cType = p.contractType === 'direct' ? 'مباشر' : 'غير مباشر';
-        const badgeClass = p.contractType === 'direct' ? 'badge-direct' : 'badge-indirect';
-        const iconClass = p.contractType === 'direct' ? 'fa-file-contract' : 'fa-handshake';
+        const badgeTagClass = p.contractType === 'direct' ? 'pc-badge-direct' : 'pc-badge-indirect';
+        const iconTagClass = p.contractType === 'direct' ? 'fa-building' : 'fa-handshake';
         const approvedTotal = p.approvedSessions || 12;
         const hasExplicitRenewal = Boolean(p.lastRenewalDate || (Array.isArray(p.approvalCycles) && p.approvalCycles.length > 1));
         const cycleStart = hasExplicitRenewal ? (p.currentApprovalStartDate || '') : '';
@@ -2159,7 +2163,8 @@ export class PatientsManager {
           isNearLimit = (currentCount >= approvedTotal - 2 && !isCompleted);
         }
 
-        badgeEl.innerHTML = `<span class="badge ${badgeClass}" style="font-size: 0.78rem; padding: 4px 10px; font-weight: 700; display: inline-flex; align-items: center; gap: 5px;"><i class="fa-solid ${iconClass}"></i> ${escapeHTML(p.insuranceCompany || 'تأمين')} (${cType})</span>`;
+        const safeComp = escapeHTML(p.insuranceCompany || 'تأمين');
+        badgeEl.innerHTML = `<span class="pc-billing-tag ${badgeTagClass}" title="${safeComp} (${cType})"><i class="fa-solid ${iconTagClass}"></i> <span>${safeComp}</span></span>`;
 
         if (sessBtnText) {
           let extraStatus = '';
