@@ -11,7 +11,7 @@
 .app-container {
   display: flex;
   flex: 1;
-  min-height: calc(100vh - var(--topbar-height));
+  min-height: 100vh;
   position: relative;
   min-width: 0;
   max-width: 100%;

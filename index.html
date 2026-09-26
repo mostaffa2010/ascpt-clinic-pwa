@@ -204,13 +204,6 @@
     </div>
   </div>
 
-  <!-- Mobile Top Header -->
-  <header class="top-header no-print">
-    <a href="#" class="brand-logo" aria-label="الصفحة الرئيسية">
-      <img src="./icons/icon-192.png" alt="Logo" class="brand-logo-img">
-    </a>
-  </header>
-
   <!-- App Layout -->
   <div class="app-container">
 
@@ -2361,16 +2354,11 @@
 
       <!-- View: Notifications Center (v3.0.0 Clean 6-Tab View Shell) -->
       <section id="view-notifications" class="view-section">
-        <div class="view-header notifications-header-bar">
-          <div class="view-header-title-wrap notifications-header-title-wrap">
-            <h2 class="view-header-title notifications-title"><i class="fa-solid fa-bell text-primary"></i> مركز الإشعارات</h2>
-            <p class="view-header-sub notifications-sub">التنبيهات الفورية لحضور المرضى والمواعيد والعهد المالية</p>
-          </div>
-          <div class="view-header-actions">
-            <button type="button" class="btn btn-secondary btn-sm btn-mark-all-read-view" id="btn-mark-all-read" title="تحديد الكل كمقروء">
-              <i class="fa-solid fa-check"></i> <span>قراءة الكل</span>
-            </button>
-          </div>
+        <div class="notifications-header-bar">
+          <h2 class="notifications-title"><i class="fa-solid fa-bell text-primary"></i> مركز الإشعارات</h2>
+          <button type="button" class="btn btn-secondary btn-sm btn-mark-all-read-view" id="btn-mark-all-read" title="تحديد الكل كمقروء">
+            <i class="fa-solid fa-check"></i> <span>قراءة الكل</span>
+          </button>
         </div>
 
         <div class="notifications-view-container">
@@ -2382,11 +2370,8 @@
 
       <!-- View: User Profile (v3.0.0 Clean 6-Tab View Shell) -->
       <section id="view-profile" class="view-section">
-        <div class="view-header profile-view-header-bar">
-          <div class="view-header-title-wrap profile-header-title-wrap">
-            <h2 class="view-header-title profile-view-title"><i class="fa-solid fa-id-badge text-primary"></i> حسابي</h2>
-            <p class="view-header-sub profile-view-sub">بيانات وإعدادات حساب المستخدم</p>
-          </div>
+        <div class="profile-view-header-bar">
+          <h2 class="profile-view-title"><i class="fa-solid fa-id-badge text-primary"></i> حسابي</h2>
         </div>
 
         <div class="profile-view-container">
@@ -2397,7 +2382,7 @@
               <span class="profile-hero-online-dot" title="الحساب نشط"></span>
             </div>
             <h3 class="profile-hero-name" id="view-profile-user-name">-</h3>
-            <span id="view-profile-user-role" class="badge badge-role-doctor">طبيب معالج</span>
+            <span id="view-profile-user-role" class="profile-hero-role">طبيب معالج</span>
             <div class="profile-hero-email">
               <i class="fa-solid fa-envelope text-primary"></i>
               <span id="view-profile-user-email">-</span>

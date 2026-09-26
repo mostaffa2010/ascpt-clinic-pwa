@@ -4,61 +4,6 @@
    Zero Dead Code Architecture
    ========================================================================== */
 
-.top-header {
-  height: calc(var(--topbar-height) + env(safe-area-inset-top, 0px));
-  padding-top: env(safe-area-inset-top, 0px);
-  padding-right: 16px;
-  padding-bottom: 0;
-  padding-left: 16px;
-  box-sizing: border-box;
-  background: var(--bg-glass);
-  backdrop-filter: var(--glass-blur);
-  -webkit-backdrop-filter: var(--glass-blur);
-  border-bottom: 1px solid var(--glass-border);
-  display: flex;
-  align-items: center;
-  justify-content: flex-start;
-  position: sticky;
-  top: 0;
-  z-index: 40;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.02);
-  transition: background-color var(--transition-normal), border-color var(--transition-normal);
-}
-
-[data-theme="dark"] .top-header {
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.25);
-}
-
-@media screen and (min-width: 992px) {
-  .top-header {
-    margin-right: var(--sidebar-width);
-  }
-}
-
-/* Brand Logo (Mobile Topbar) */
-.brand-logo {
-  display: inline-flex;
-  align-items: center;
-  text-decoration: none;
-  cursor: pointer;
-}
-
-.brand-logo-img {
-  width: 32px;
-  height: 32px;
-  border-radius: var(--radius-xs);
-  object-fit: contain;
-  vertical-align: middle;
-}
-
-/* Hide Mobile Top Bar on Home / Dashboard View */
-@media screen and (max-width: 991.98px) {
-  body:has(#view-dashboard.active) .top-header,
-  body.view-is-dashboard .top-header {
-    display: none;
-  }
-}
-
 /* Hero Card Squircle Clinic Logo (Home View) */
 .hero-logo-squircle {
   position: absolute;

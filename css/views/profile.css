@@ -8,37 +8,30 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 16px 16px 14px;
-  background: var(--bg-surface);
-  border-bottom: 1px solid var(--border-color);
-}
-
-.profile-header-title-wrap {
-  display: flex;
-  flex-direction: column;
-  gap: 3px;
+  padding: 16px 12px 10px;
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  max-width: 600px;
+  margin: 0 auto;
+  white-space: nowrap;
 }
 
 .profile-view-title {
-  font-size: 1.2rem;
+  font-size: 1.25rem;
   font-weight: var(--fw-bold, 700);
   color: var(--text-main);
   margin: 0;
   display: flex;
   align-items: center;
   gap: 8px;
-}
-
-.profile-view-sub {
-  font-size: 0.78rem;
-  color: var(--text-muted);
-  margin: 0;
+  line-height: 1.2;
 }
 
 .profile-view-container {
   max-width: 600px;
   margin: 0 auto;
-  padding: 16px 12px 36px;
+  padding: 6px 12px 36px;
   display: flex;
   flex-direction: column;
   gap: 14px;
@@ -53,7 +46,7 @@
   flex-direction: column;
   align-items: center;
   text-align: center;
-  gap: 12px;
+  gap: 10px;
   box-shadow: var(--shadow-sm);
 }
 
@@ -96,6 +89,30 @@
   margin: 0;
 }
 
+/* Elegant Text Role Display without Badge Background, Border or Padding */
+.profile-hero-role,
+#view-profile-user-role,
+.profile-card-hero #view-profile-user-role {
+  background: transparent;
+  background-color: transparent;
+  border: none;
+  padding: 0;
+  margin: 0;
+  font-size: 0.92rem;
+  font-weight: var(--fw-semibold, 600);
+  color: var(--primary);
+  border-radius: 0;
+  box-shadow: none;
+  line-height: 1.3;
+  display: inline-block;
+}
+
+[data-theme="dark"] .profile-hero-role,
+[data-theme="dark"] #view-profile-user-role,
+[data-theme="dark"] .profile-card-hero #view-profile-user-role {
+  color: var(--primary-light, #38bdf8);
+}
+
 .profile-hero-email {
   font-size: 0.85rem;
   color: var(--text-muted);
@@ -131,15 +148,27 @@
   transition: background-color var(--transition-fast);
   text-align: right;
   direction: rtl;
+  -webkit-tap-highlight-color: transparent;
 }
 
 .profile-setting-item:last-child {
   border-bottom: none;
 }
 
-.profile-setting-item:hover,
+/* Hover only on devices supporting hover to prevent sticky highlight on mobile touch */
+@media (hover: hover) {
+  .profile-setting-item:hover {
+    background-color: var(--bg-subtle);
+  }
+}
+
 .profile-setting-item:active {
   background-color: var(--bg-subtle);
+}
+
+.profile-setting-item:focus:not(:focus-visible) {
+  outline: none;
+  background-color: transparent;
 }
 
 .profile-setting-lead {
@@ -178,9 +207,14 @@
   border-bottom: none;
 }
 
-.profile-logout-card .profile-setting-item:hover,
+@media (hover: hover) {
+  .profile-logout-card .profile-setting-item:hover {
+    background-color: rgba(239, 68, 68, 0.06);
+  }
+}
+
 .profile-logout-card .profile-setting-item:active {
-  background-color: rgba(239, 68, 68, 0.06);
+  background-color: rgba(239, 68, 68, 0.08);
 }
 
 .profile-logout-label {

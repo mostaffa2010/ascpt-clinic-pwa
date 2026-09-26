@@ -8,36 +8,26 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 16px 16px 14px;
-  background: var(--bg-surface);
-  border-bottom: 1px solid var(--border-color);
+  padding: 16px 12px 10px;
+  background: transparent;
+  border: none;
+  box-shadow: none;
   gap: 12px;
-}
-
-.notifications-header-title-wrap {
-  display: flex;
-  flex-direction: column;
-  gap: 3px;
-  min-width: 0;
+  max-width: 680px;
+  margin: 0 auto;
+  white-space: nowrap;
 }
 
 .notifications-title {
-  font-size: 1.2rem;
+  font-size: 1.25rem;
   font-weight: var(--fw-bold, 700);
   color: var(--text-main);
   margin: 0;
   display: flex;
   align-items: center;
   gap: 8px;
-}
-
-.notifications-sub {
-  font-size: 0.78rem;
-  color: var(--text-muted);
-  margin: 0;
   white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  line-height: 1.2;
 }
 
 .btn-mark-all-read-view {
@@ -47,26 +37,40 @@
   gap: 6px;
   font-size: 0.8rem;
   font-weight: var(--fw-semibold, 600);
-  padding: 6px 12px;
+  padding: 6px 14px;
   border-radius: var(--radius-full, 999px);
-  background: var(--bg-subtle);
+  background: var(--bg-surface);
   border: 1px solid var(--border-color);
   color: var(--primary);
   cursor: pointer;
+  white-space: nowrap;
+  line-height: 1.2;
   transition: all var(--transition-fast);
+  -webkit-tap-highlight-color: transparent;
 }
 
-.btn-mark-all-read-view:hover,
+@media (hover: hover) {
+  .btn-mark-all-read-view:hover {
+    background: var(--primary-light, rgba(2, 132, 199, 0.12));
+    border-color: var(--primary);
+    color: var(--primary);
+  }
+}
+
 .btn-mark-all-read-view:active {
   background: var(--primary-light, rgba(2, 132, 199, 0.12));
   border-color: var(--primary);
   color: var(--primary);
 }
 
+.btn-mark-all-read-view:focus:not(:focus-visible) {
+  outline: none;
+}
+
 .notifications-view-container {
   max-width: 680px;
   margin: 0 auto;
-  padding: 16px 12px 36px;
+  padding: 6px 12px 36px;
 }
 
 .notifications-view-list {

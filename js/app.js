@@ -494,6 +494,14 @@ class App {
     };
     document.getElementById('btn-logout-mobile')?.addEventListener('click', handleLogout);
     document.getElementById('btn-logout-desktop')?.addEventListener('click', handleLogout);
+
+    // معالجة اللمس على الأجهزة المحمولة لمنع بقاء تأثير الفوكس (Sticky Touch Focus)
+    document.addEventListener('touchend', (e) => {
+      const el = e.target.closest('button, .profile-setting-item, .b-nav-item, .btn');
+      if (el && typeof el.blur === 'function') {
+        setTimeout(() => el.blur(), 80);
+      }
+    }, { passive: true });
   }
 
   switchView(viewName, isBackNavigation = false) {
@@ -820,7 +828,7 @@ class App {
           ? RolesManager.getRoleLabel(user.role)
           : (rMap[user.role] || user.role || 'طبيب');
         roleEl.textContent = label;
-        roleEl.className = `badge badge-role-${user.role || 'doctor'}`;
+        roleEl.className = `profile-hero-role role-${user.role || 'doctor'}`;
       }
 
       if (btnAdmin) {
