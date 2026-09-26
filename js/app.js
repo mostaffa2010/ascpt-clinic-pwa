@@ -201,6 +201,11 @@ class App {
     try { await this.appointmentsManager.init();
     this.notificationsManager.init(); } catch (e) { console.warn('appointmentsManager init notice:', e); }
 
+    // حماية التوافق العكسي للربط العميق مع الشيت الطبي
+    if (this.patientsManager && !this.patientsManager.openClinicalSheet) {
+      this.patientsManager.openClinicalSheet = (id, name) => this.patientsManager.openPatientSheet(id, name);
+    }
+
     // مزامنة أزرار القوائم المخصصة
     ['claim-company-select', 'patient-filter-type', 'session-doctor-select', 'finance-doctor-filter', 'newuser-role', 'p-gender', 'p-approved-body-parts', 'renew-approved-body-parts', 'appt-doctor-select', 'batch-hv-doctor', 'walkin-doctor-select', 'walkin-slot-select'].forEach(id => {
       this.updateCustomSelectDisplay(id);
@@ -527,6 +532,9 @@ class App {
     const targetSection = document.getElementById(`view-${viewName}`);
     if (targetSection) targetSection.classList.add('active');
 
+    // تفعيل كلاس الصفحة الرئيسية للتحكم في إخفاء الهيدر على الموبايل
+    document.body.classList.toggle('view-is-dashboard', viewName === 'dashboard');
+
     // Update active state on Desktop sidebar
     document.querySelectorAll('.sidebar-nav .nav-link').forEach(btn => {
       btn.classList.toggle('active', btn.getAttribute('data-view') === viewName);
@@ -535,6 +543,12 @@ class App {
     // Update active state on Mobile bottom nav
     document.querySelectorAll('.bottom-nav .b-nav-item').forEach(btn => {
       btn.classList.toggle('active', btn.getAttribute('data-view') === viewName);
+    });
+
+    // ضمان إتاحة تبويبي الإشعارات وحسابي في شريط التنقل السفلي لجميع الأدوار
+    document.querySelectorAll('.bottom-nav [data-view="notifications"], .bottom-nav [data-view="profile"]').forEach(item => {
+      item.classList.remove('d-none');
+      item.style.removeProperty('display');
     });
 
     // Scroll to top
@@ -553,8 +567,16 @@ class App {
     if (viewName === 'sessions') this.sessionsManager.loadTodaySessions();
     if (viewName === 'patients') this.patientsManager.loadPatients();
     if (viewName === 'notifications') {
-      if (this.notificationsManager && typeof this.notificationsManager.renderNotifications === 'function') {
-        this.notificationsManager.renderNotifications();
+      if (this.notificationsManager) {
+        if (typeof this.notificationsManager.renderNotifications === 'function') {
+          this.notificationsManager.renderNotifications();
+        }
+        if (typeof this.notificationsManager.markAllAsRead === 'function') {
+          this.notificationsManager.markAllAsRead(true);
+        }
+        if (typeof this.notificationsManager.updateBadge === 'function') {
+          this.notificationsManager.updateBadge(0);
+        }
       }
     }
     if (viewName === 'profile') {

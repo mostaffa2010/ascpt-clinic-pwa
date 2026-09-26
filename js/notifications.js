@@ -410,11 +410,26 @@ export class NotificationsManager {
     this.closeDropdown();
 
     const data = notif.data || {};
+    // Deep Linking: النقر على إشعار حضور الكشف يفتح الشيت الطبي للمريض مباشرة
+    if (data.patientId && this.app?.patientsManager && (notif.type === 'patient_checkin' || notif.title?.includes('حضور') || notif.body?.includes('كشف'))) {
+      if (typeof this.app.patientsManager.openPatientSheet === 'function') {
+        await this.app.patientsManager.openPatientSheet(data.patientId);
+        return;
+      } else if (typeof this.app.patientsManager.openClinicalSheet === 'function') {
+        await this.app.patientsManager.openClinicalSheet(data.patientId);
+        return;
+      }
+    }
+
     if (data.screen && this.app && typeof this.app.switchView === 'function') {
       this.app.switchView(data.screen);
       if (data.patientId && this.app.patientsManager) {
         setTimeout(() => {
-          this.app.patientsManager.openClinicalSheet(data.patientId);
+          if (typeof this.app.patientsManager.openPatientSheet === 'function') {
+            this.app.patientsManager.openPatientSheet(data.patientId);
+          } else if (typeof this.app.patientsManager.openClinicalSheet === 'function') {
+            this.app.patientsManager.openClinicalSheet(data.patientId);
+          }
         }, 150);
       }
     }
@@ -431,13 +446,14 @@ export class NotificationsManager {
     }
   }
 
-  async markAllAsRead() {
+  async markAllAsRead(silent = false) {
     const currentUser = auth.getCurrentUser();
     if (!currentUser || !currentUser.uid) return;
 
     // Optimistic UI update
     this.notifications.forEach(n => n.read = true);
     this.renderNotifications();
+    this.updateBadge(0);
 
     // 1. Call serverless endpoint to mark all read in Firestore
     try {
@@ -467,7 +483,7 @@ export class NotificationsManager {
       }
     }
 
-    if (this.app?.showToast) {
+    if (!silent && this.app?.showToast) {
       this.app.showToast('تم تحديد جميع الإشعارات كمقروءة');
     }
   }

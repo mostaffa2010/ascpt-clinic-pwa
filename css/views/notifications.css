@@ -1,0 +1,76 @@
+/* ==========================================================================
+   ASCPT Clinic PWA - Notifications View (#view-notifications)
+   Modern Clean View Shell Stylesheet
+   Zero !important Architecture
+   ========================================================================== */
+
+.notifications-header-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 16px 14px;
+  background: var(--bg-surface);
+  border-bottom: 1px solid var(--border-color);
+  gap: 12px;
+}
+
+.notifications-header-title-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+}
+
+.notifications-title {
+  font-size: 1.2rem;
+  font-weight: var(--fw-bold, 700);
+  color: var(--text-main);
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.notifications-sub {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  margin: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.btn-mark-all-read-view {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.8rem;
+  font-weight: var(--fw-semibold, 600);
+  padding: 6px 12px;
+  border-radius: var(--radius-full, 999px);
+  background: var(--bg-subtle);
+  border: 1px solid var(--border-color);
+  color: var(--primary);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.btn-mark-all-read-view:hover,
+.btn-mark-all-read-view:active {
+  background: var(--primary-light, rgba(2, 132, 199, 0.12));
+  border-color: var(--primary);
+  color: var(--primary);
+}
+
+.notifications-view-container {
+  max-width: 680px;
+  margin: 0 auto;
+  padding: 16px 12px 36px;
+}
+
+.notifications-view-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}

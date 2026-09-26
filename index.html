@@ -165,6 +165,8 @@
   <link rel="stylesheet" href="css/views/finance.css?v=3.0.0" media="screen">
   <link rel="stylesheet" href="css/views/claims.css?v=3.0.0" media="screen">
   <link rel="stylesheet" href="css/views/appointments.css?v=3.0.0" media="screen">
+  <link rel="stylesheet" href="css/views/notifications.css?v=3.0.0" media="screen">
+  <link rel="stylesheet" href="css/views/profile.css?v=3.0.0" media="screen">
   <link rel="stylesheet" href="css/media-queries.css?v=3.0.0" media="screen">
   <link rel="stylesheet" href="css/print.css?v=3.0.0" media="print">
 </head>
@@ -300,6 +302,9 @@
           <!-- Hero Dashboard Banner (v1.4.0) -->
           <div class="hero-dashboard-banner">
             <div class="hero-banner-glass-bg"></div>
+            <div class="hero-logo-squircle">
+              <img src="./icons/icon-192.png" alt="شعار المركز" class="hero-logo-img">
+            </div>
             <div class="hero-banner-content">
               <div class="hero-greeting-pill">
                 <span class="hero-greeting-icon"><i class="fa-solid fa-sparkles"></i></span>
@@ -443,6 +448,9 @@
           <!-- Hero Doctor Banner (v1.4.0) -->
           <div class="hero-dashboard-banner hero-doctor-banner">
             <div class="hero-banner-glass-bg"></div>
+            <div class="hero-logo-squircle">
+              <img src="./icons/icon-192.png" alt="شعار المركز" class="hero-logo-img">
+            </div>
             <div class="hero-banner-content">
               <div class="hero-greeting-pill">
                 <span class="hero-greeting-icon"><i class="fa-solid fa-stethoscope"></i></span>
@@ -2353,14 +2361,14 @@
 
       <!-- View: Notifications Center (v3.0.0 Clean 6-Tab View Shell) -->
       <section id="view-notifications" class="view-section">
-        <div class="view-header">
-          <div class="view-header-title-wrap">
-            <h2 class="view-header-title"><i class="fa-solid fa-bell text-primary"></i> مركز الإشعارات</h2>
-            <p class="view-header-sub">التنبيهات الفورية لحضور المرضى والمواعيد والعهد المالية</p>
+        <div class="view-header notifications-header-bar">
+          <div class="view-header-title-wrap notifications-header-title-wrap">
+            <h2 class="view-header-title notifications-title"><i class="fa-solid fa-bell text-primary"></i> مركز الإشعارات</h2>
+            <p class="view-header-sub notifications-sub">التنبيهات الفورية لحضور المرضى والمواعيد والعهد المالية</p>
           </div>
           <div class="view-header-actions">
-            <button type="button" class="btn btn-secondary btn-sm" id="btn-mark-all-read" title="تحديد الكل كمقروء">
-              <i class="fa-solid fa-check-double"></i> <span>قراءة الكل</span>
+            <button type="button" class="btn btn-secondary btn-sm btn-mark-all-read-view" id="btn-mark-all-read" title="تحديد الكل كمقروء">
+              <i class="fa-solid fa-check"></i> <span>قراءة الكل</span>
             </button>
           </div>
         </div>
@@ -2374,10 +2382,10 @@
 
       <!-- View: User Profile (v3.0.0 Clean 6-Tab View Shell) -->
       <section id="view-profile" class="view-section">
-        <div class="view-header">
-          <div class="view-header-title-wrap">
-            <h2 class="view-header-title"><i class="fa-solid fa-id-badge text-primary"></i> الملف الشخصي</h2>
-            <p class="view-header-sub">بيانات وإعدادات حساب المستخدم</p>
+        <div class="view-header profile-view-header-bar">
+          <div class="view-header-title-wrap profile-header-title-wrap">
+            <h2 class="view-header-title profile-view-title"><i class="fa-solid fa-id-badge text-primary"></i> حسابي</h2>
+            <p class="view-header-sub profile-view-sub">بيانات وإعدادات حساب المستخدم</p>
           </div>
         </div>
 
@@ -2396,7 +2404,7 @@
             </div>
           </div>
 
-          <!-- Settings & Actions List -->
+          <!-- Settings Group Card -->
           <div class="profile-settings-card">
             <!-- Push Notifications Toggle -->
             <button type="button" class="profile-setting-item" id="btn-view-toggle-push">
@@ -2441,14 +2449,16 @@
               </span>
               <i class="fa-solid fa-chevron-left text-muted"></i>
             </button>
+          </div>
 
-            <!-- Logout -->
+          <!-- Stand-Alone Dedicated Logout Card -->
+          <div class="profile-logout-card">
             <button type="button" class="profile-setting-item" id="btn-view-logout">
               <span class="profile-setting-lead">
                 <span class="profile-setting-icon profile-icon-logout">
                   <i class="fa-solid fa-right-from-bracket"></i>
                 </span>
-                <span class="text-danger">تسجيل الخروج</span>
+                <span class="profile-logout-label">تسجيل الخروج</span>
               </span>
               <i class="fa-solid fa-arrow-left text-danger"></i>
             </button>
@@ -2483,12 +2493,12 @@
         </div>
         <span>الإشعارات</span>
       </button>
-      <button class="b-nav-item" data-view="profile" aria-label="الملف الشخصي">
+      <button class="b-nav-item" data-view="profile" aria-label="حسابي">
         <div class="b-nav-avatar-wrap">
           <span class="b-nav-avatar" id="b-nav-avatar-letter">م</span>
           <span class="b-nav-online-dot status-dot" id="net-status-dot"></span>
         </div>
-        <span>الملف الشخصي</span>
+        <span>حسابي</span>
       </button>
     </nav>
   </div>
