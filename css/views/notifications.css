@@ -1,21 +1,43 @@
 /* ==========================================================================
    ASCPT Clinic PWA - Notifications View (#view-notifications)
-   Modern Clean View Shell Stylesheet
+   Modern Clean View Shell Stylesheet - Full Screen Edge-to-Edge Architecture
    Zero !important Architecture
    ========================================================================== */
+
+#view-notifications {
+  margin-left: -16px;
+  margin-right: -16px;
+  margin-top: -8px;
+  width: calc(100% + 32px);
+}
+
+@media screen and (min-width: 992px) {
+  #view-notifications {
+    margin-left: -32px;
+    margin-right: -32px;
+    margin-top: -16px;
+    width: calc(100% + 64px);
+  }
+}
 
 .notifications-header-bar {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 16px 12px 10px;
+  padding: 16px 16px 12px 16px;
   background: transparent;
   border: none;
   box-shadow: none;
   gap: 12px;
-  max-width: 680px;
-  margin: 0 auto;
+  width: 100%;
+  box-sizing: border-box;
   white-space: nowrap;
+}
+
+@media screen and (min-width: 992px) {
+  .notifications-header-bar {
+    padding: 20px 32px 14px 32px;
+  }
 }
 
 .notifications-title {
@@ -68,13 +90,83 @@
 }
 
 .notifications-view-container {
-  max-width: 680px;
-  margin: 0 auto;
-  padding: 6px 12px 36px;
+  width: 100%;
+  max-width: 100%;
+  margin: 0;
+  padding: 0 0 36px 0;
+  box-sizing: border-box;
 }
 
 .notifications-view-list {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 0;
+  width: 100%;
+  border-top: 1px solid var(--border-color);
+  background: var(--bg-surface);
+  box-shadow: var(--shadow-sm);
+}
+
+.notifications-view-list .notification-item {
+  width: 100%;
+  box-sizing: border-box;
+  margin: 0;
+  border-radius: 0;
+  border: none;
+  border-bottom: 1px solid var(--border-color);
+  padding: 14px 16px;
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  cursor: pointer;
+  transition: background-color var(--transition-fast);
+  -webkit-tap-highlight-color: transparent;
+}
+
+@media screen and (min-width: 992px) {
+  .notifications-view-list .notification-item {
+    padding: 16px 32px;
+  }
+}
+
+.notifications-view-list .notification-item:last-child {
+  border-bottom: 1px solid var(--border-color);
+}
+
+@media (hover: hover) {
+  .notifications-view-list .notification-item:hover {
+    background-color: var(--bg-subtle);
+  }
+}
+
+.notifications-view-list .notification-item:active {
+  background-color: var(--bg-subtle);
+}
+
+.notifications-view-list .notification-item.is-unread {
+  background-color: var(--primary-light, rgba(2, 132, 199, 0.06));
+}
+
+[data-theme="dark"] .notifications-view-list .notification-item.is-unread {
+  background-color: rgba(56, 189, 248, 0.08);
+}
+
+@media (hover: hover) {
+  .notifications-view-list .notification-item.is-unread:hover {
+    background-color: rgba(2, 132, 199, 0.12);
+  }
+}
+
+.notifications-view-list .notification-item.is-unread:active {
+  background-color: rgba(2, 132, 199, 0.12);
+}
+
+[data-theme="dark"] .notifications-view-list .notification-item.is-unread:active {
+  background-color: rgba(56, 189, 248, 0.14);
+}
+
+.notifications-view-list .notification-empty {
+  padding: 48px 24px;
+  text-align: center;
+  color: var(--text-muted);
 }
